@@ -8,11 +8,13 @@ import io
 import json
 import math
 import os
+import stat
+import uuid
 from pathlib import Path
 import tempfile
 
 import numpy as np
-from .resources import ROOT
+from .resources import ROOT, ALLOWED_GPUS, PROCESS_TITLE
 from . import confirmatory_lock as lock_api
 from .confirmatory_metrics import logit_metrics, paired_parent_report, holm_adjust
 from .dense_tract_metrics import DenseGrid, TractPartition, dense_tract_metrics
@@ -46,6 +48,11 @@ def _pins():
 
 _IMPORTED_PINS = _pins()
 
+def _terminal_sources():
+    return {key:{"path":path,"sha256":_sha((ROOT/path).read_bytes())} for key,path in {
+        "prediction":"src/arggnn/confirmatory_prediction_runner.py","prediction_cli":"scripts/predict_confirmatory.py"}.items()}
+
+
 def analysis_schema_values():
     """Prospective schema and current code pins, never a test-data or lock artifact."""
     if _pins()!=_IMPORTED_PINS:raise ValueError("Imported analysis source drift")
@@ -55,9 +62,15 @@ def analysis_schema_values():
         "roster": {"kind": "sealed_confirmatory_prediction_roster", "status": "sealed_before_target_join",
             "fields": ["schema_version", "kind", "status", "lock_sha256", "parent_seed_registry_sha256",
                        "admission_ledger_sha256", "cohort", "namespace", "entries"],
-            "entry_fields": ["method_id", "seed", "parent_id", "status", "prediction", "checkpoint", "reason"],
+            "entry_fields": ["method_id", "seed", "parent_id", "status", "prediction", "checkpoint", "reason", "terminal_receipt"],
             "cell_statuses": ["success", "failed", "unresolved"], "terminal_cell_statuses": ["success", "failed"],
             "matrix": "candidate,strongest_required_baseline,all locked controls x101,202,303 xall admitted ID parents"},
+        "terminal_receipt": {"kind":"confirmatory_prediction_cell_receipt","source_artifacts":_terminal_sources(),
+            "terminal_statuses":["success","failed"],"unresolved_receipt":None,
+            "success_requires":{"terminal":True,"cpu_validation_only":False,"cuda_execution_performed":True,
+                "target_artifacts_opened":False,"no_gradients_or_optimization":True},
+            "runtime":"complete CUDA initialization; exact frozen software/hardware/strictpolicy; allowed physicalGPU/title; canonical runtime=visible=launcherUUID",
+            "failed":"actual terminal failure receipt, exact cell/ledger/lock/source, null scored prediction, preserved error; never positive confirmation"},
         "admission_ledger": {"kind": "sealed_confirmatory_admission_ledger", "status": "sealed_before_model_scoring",
             "fields": ["schema_version", "kind", "status", "lock_sha256", "parent_seed_registry_sha256",
                        "cohort", "namespace", "target_admitted_parents", "maximum_attempted_parents", "attempts"],
@@ -68,7 +81,8 @@ def analysis_schema_values():
             "fields": ["schema_version", "kind", "lock_sha256", "namespace", "parent_id", "parent_seeds",
                        "source_artifacts", "query_ids", "diploid_pairs", "primary_grid", "dense_grid",
                        "artificial_tile_edges_bp", "truth_free_observed_inputs"],
-            "grids": "DenseGrid.identity_record, original128/4096 midpoint grids in physical bp, coverage clipped"},
+            "grids": "DenseGrid.identity_record, original128/4096 midpoint grids in physical bp, coverage clipped",
+            "artificial_tile_edges_bp":[125000.*i for i in range(1,8)]},
         "observed_npz": {"arrays": ["metadata_json","x","edge_index","node_graph","node_ids","clades",
                                    "intervals","query_node_ids","window_bounds"],
             "header_fields": ["schema_version","kind","lock_sha256","namespace","parent_id","feature_names",
@@ -218,7 +232,7 @@ def _state(admission):
         "registry": admission.registry, "temperatures": admission.temperatures,
         "ledger": admission.ledger, "roster": admission.roster, "identities": admission.identities,
         "parents": admission.parents, "entries": [list(key)+[value] for key,value in sorted(admission.entries.items())],
-        "roster_ref": admission.roster_ref, "ledger_ref": admission.ledger_ref})
+        "roster_ref": admission.roster_ref, "ledger_ref": admission.ledger_ref, "terminal_receipts":admission.terminal_receipts})
 
 
 @dataclass
@@ -236,15 +250,141 @@ class AnalysisAdmission:
     entries: dict
     roster_ref: dict
     ledger_ref: dict
+    terminal_receipts: dict
     content: bytes = b""
 
     def check(self):
         if _state(self) != self.content or self.methods != _methods(self.lock.payload):
             raise ValueError("In-memory analysis admission drift")
         self.lock.check()
-        if self.schema["code_artifacts"] != _pins() or _pins()!=_IMPORTED_PINS:
+        if self.schema!=analysis_schema_values() or _pins()!=_IMPORTED_PINS:
             raise ValueError("Analysis implementation drift")
         self.capture.check()
+
+
+def _expected_cell(frozen_lock,method_id,seed,parent_id,identity,identity_ref):
+    methods=_methods(frozen_lock.payload)
+    if method_id not in methods or type(seed) is not int or seed not in SEEDS or type(parent_id) is not int:
+        raise ValueError("Exact locked terminal cell identifiers required")
+    bundle=methods[method_id];selected=_seed_bundle(bundle,seed)
+    return {"schema_version":1,"kind":"sealed_confirmatory_raw_prediction","lock_sha256":frozen_lock.sha256,
+        "namespace":identity["namespace"],"parent_id":parent_id,"method_id":method_id,"training_seed":seed,
+        "configuration_id":bundle["configuration_id"],"family_id":bundle["family_id"],
+        "protocol":bundle["protocol"],"checkpoint":selected["checkpoint"],
+        "observed_identity_sha256":identity_ref["sha256"],"primary_grid_sha256":identity["primary_grid"]["sha256"],
+        "dense_grid_sha256":identity["dense_grid"]["sha256"],"class_order":["ANA","CHG","WHG","EHG"],
+        "no_gradients_or_optimization":True}
+
+
+def _cuda_uuid(value):
+    if not isinstance(value,str):raise ValueError("Actual CUDA UUID string required")
+    plain=value[4:] if value.startswith("GPU-") else value
+    try:normalized=str(uuid.UUID(plain))
+    except (ValueError,AttributeError) as error:raise ValueError("Malformed actual CUDA UUID") from error
+    if normalized!=plain.lower():raise ValueError("Canonical actual CUDA UUID required")
+    return normalized
+
+
+def _qualified_runtime(runtime,payload,capture):
+    if not isinstance(runtime,dict) or runtime.get("device_kind")!="cuda" or runtime.get("initialization_stage")!="complete":
+        raise ValueError("Complete actual CUDA runtime required; CPU validation cannot qualify")
+    frozen=payload["captured_runtime"]
+    if runtime.get("process_title")!=PROCESS_TITLE or frozen.get("process_title")!=PROCESS_TITLE:
+        raise ValueError("Required operational research process title differs")
+    lock_api._same_policy(runtime.get("deterministic_execution_policy"))
+    if _canonical(runtime["deterministic_execution_policy"])!=_canonical(payload["numerical_execution_policy"]):
+        raise ValueError("Frozen strict runtime policy differs")
+    software=runtime.get("software")
+    if not isinstance(software,dict) or any(not isinstance(software.get(k),str) or not software[k].strip()
+                                           for k in ("python","python_executable","torch","torch_cuda","torch_build")):
+        raise ValueError("Actual CUDA software/build evidence required")
+    if any(software.get(k)!=frozen["software"].get(k) for k in ("python","python_executable","torch","torch_cuda","torch_build")):
+        raise ValueError("CUDA terminal software differs from frozen stack")
+    device=runtime.get("device")
+    if (not isinstance(device,dict) or type(device.get("logical_index")) is not int or device["logical_index"]!=0 or
+        type(device.get("total_memory_bytes")) is not int or device["total_memory_bytes"]<=0 or
+        any(device.get(k)!=frozen["device"].get(k) for k in ("name","compute_capability"))):
+        raise ValueError("CUDA terminal hardware differs from frozen stack")
+    physical=runtime.get("physical_gpu")
+    if type(physical) is not int or physical not in ALLOWED_GPUS:
+        raise ValueError("Allowed physical GPU2..5 required")
+    if not isinstance(runtime.get("visible_gpu_uuid"),str) or not runtime["visible_gpu_uuid"].startswith("GPU-"):
+        raise ValueError("Actual GPU-prefixed visible UUID required")
+    actual=_cuda_uuid(device.get("runtime_uuid"));visible=_cuda_uuid(runtime.get("visible_gpu_uuid"))
+    if actual!=visible or device.get("canonical_runtime_uuid")!=actual or runtime.get("canonical_visible_gpu_uuid")!=actual:
+        raise ValueError("Actual runtime and visible CUDA UUID evidence differs")
+    launcher=runtime.get("launcher_metadata")
+    if (not isinstance(launcher,dict) or type(launcher.get("gpu")) is not int or launcher["gpu"]!=physical or
+        _cuda_uuid(launcher.get("uuid"))!=actual or not isinstance(launcher.get("job"),str) or not launcher["job"]):
+        raise ValueError("Actual launcher GPU/UUID/job evidence required")
+    expected=capture.root/".runtime/locks"/f"gpu_{physical}.lock"
+    if runtime.get("lease_path")!=str(expected) or type(runtime.get("lease_fd")) is not int or runtime["lease_fd"]<0:
+        raise ValueError("Archived operational launcher lease identity differs")
+
+
+def validate_prediction_terminal(capture,terminal_ref,*,frozen_lock,method_id,seed,parent_id,
+                                observed_identity,observed_identity_ref,admission_ledger_ref,
+                                expected_status=None,expected_prediction=None):
+    """Metadata-only terminal qualification under an already validated lock; no targets/devices."""
+    identity_ref=capture.ref(observed_identity_ref);ledger_ref=capture.ref(admission_ledger_ref)
+    ref=capture.ref(terminal_ref);receipt=capture.read(ref)
+    base={"schema_version","kind","lock_sha256","admission_ledger","cell","created_utc",
+          "no_gradients_or_optimization","target_artifacts_opened","raw_primary_dense_separate_forward_passes",
+          "imported_source_sha256","status","terminal","phase","runtime","prediction","reason","cpu_validation_only"}
+    if not isinstance(receipt,dict) or receipt.get("status") not in ("success","failed"):
+        raise ValueError("Actual success/failed terminal prediction receipt required")
+    status=receipt["status"]
+    fields=base|({"captured_artifacts","cuda_execution_performed","cuda_allocator_peak_bytes"} if status=="success"
+                 else {"orphan_prediction","error_type"})
+    # Genuine CPU success has no allocator record and is rejected explicitly before the exact CUDA field check.
+    if status=="success" and (receipt.get("cpu_validation_only") is not False or receipt.get("cuda_execution_performed") is not True):
+        raise ValueError("CPU-validation prediction cannot qualify for joined analysis")
+    _keys(receipt,fields,"Exact operational terminal receipt fields required")
+    if (type(receipt["schema_version"]) is not int or receipt["schema_version"]!=1 or
+        receipt["kind"]!="confirmatory_prediction_cell_receipt" or receipt["terminal"] is not True or
+        receipt["lock_sha256"]!=frozen_lock.sha256 or capture.ref(receipt["admission_ledger"])!=ledger_ref or
+        receipt["no_gradients_or_optimization"] is not True or receipt["target_artifacts_opened"] is not False or
+        receipt["raw_primary_dense_separate_forward_passes"] is not True or
+        not isinstance(receipt["created_utc"],str) or not receipt["created_utc"] or
+        _canonical(receipt["cell"])!=_canonical(_expected_cell(frozen_lock,method_id,seed,parent_id,observed_identity,identity_ref))):
+        raise ValueError("Terminal lock/ledger/source/checkpoint/cell identity differs")
+    if expected_status is not None and expected_status!=status:raise ValueError("Roster/terminal status differs")
+    sources=receipt["imported_source_sha256"];required={value["path"]:value["sha256"] for value in _terminal_sources().values()}
+    required.update({path:digest for path,digest in frozen_lock.payload["binding_implementation_sha256"].items()
+                     if path.startswith("src/arggnn/")})
+    if not isinstance(sources,dict) or not sources or any(sources.get(path)!=digest for path,digest in required.items()):
+        raise ValueError("Actual frozen prediction/source implementation evidence required")
+    workflow=frozen_lock.payload["code_artifacts"]["prediction"]
+    if sources.get(workflow["path"])!=workflow["sha256"]:raise ValueError("Frozen prediction workflow differs")
+    for path,digest in sources.items():
+        if not (path.startswith("src/arggnn/") and Path(path).suffix==".py" or
+                path in ("AGENTS.md","scripts/launch_gpu.py","scripts/project_env.sh","scripts/predict_confirmatory.py")):
+            raise ValueError("Only imported project implementation sources may be declared")
+        capture.hash_file({"path":path,"sha256":digest})
+    if status=="failed":
+        if receipt["prediction"] is not None or not isinstance(receipt["reason"],str) or not receipt["reason"] or not isinstance(receipt["error_type"],str) or not receipt["error_type"] or not isinstance(receipt["runtime"],dict):
+            raise ValueError("Actual preserved failure and null scored prediction required")
+        if type(receipt["cpu_validation_only"]) is not bool:raise ValueError("Typed failure CPU-validation flag required")
+        return {"values":receipt,"terminal_receipt":ref,"status":status,"prediction":None}
+    if receipt["phase"]!="complete" or receipt["reason"]!="":raise ValueError("Complete terminal success phase required")
+    prediction=capture.ref(receipt["prediction"])
+    if expected_prediction is not None and prediction!=capture.ref(expected_prediction):
+        raise ValueError("Terminal prediction ref differs from sealed roster")
+    _qualified_runtime(receipt["runtime"],frozen_lock.payload,capture)
+    peaks=receipt["cuda_allocator_peak_bytes"]
+    _keys(peaks,("allocated","reserved"),"Actual CUDA allocator peak evidence required")
+    if any(type(value) is not int or value<0 for value in peaks.values()):raise ValueError("Nonnegative actual CUDA allocator counts required")
+    provenance=receipt["captured_artifacts"];pairs=set()
+    if not isinstance(provenance,list) or not provenance:raise ValueError("Actual prediction admission provenance required")
+    for record in provenance:
+        _keys(record,("path","sha256","bytes"),"Exact captured prediction provenance required")
+        normalized=capture.ref({key:record[key] for key in ("path","sha256")})
+        if type(record["bytes"]) is not int or record["bytes"]<0:raise ValueError("Actual provenance byte count required")
+        pairs.add((normalized["path"],normalized["sha256"]))
+    known=[ledger_ref,identity_ref,*[capture.ref(source) for source in observed_identity["source_artifacts"]]]
+    if any((value["path"],value["sha256"]) not in pairs for value in known):
+        raise ValueError("Terminal observed-source/identity/ledger provenance differs")
+    return {"values":receipt,"terminal_receipt":ref,"status":status,"prediction":prediction}
 
 
 def admit_analysis(lock_path, expected_lock_sha256, roster_path, expected_roster_sha256,
@@ -271,7 +411,7 @@ def admit_analysis(lock_path, expected_lock_sha256, roster_path, expected_roster
     schema = capture.read(refs["analysis_schema"])
     if schema != analysis_schema_values():
         raise ValueError("Exact pre-test artifact schema/current code pins required")
-    for ref in schema["code_artifacts"].values():
+    for ref in list(schema["code_artifacts"].values())+list(schema["terminal_receipt"]["source_artifacts"].values()):
         capture.hash_file(ref)
     code = payload["code_artifacts"]["joined_analysis"]
     if {key: code[key] for key in ("path", "sha256")} not in (schema["code_artifacts"]["joined_analysis"], schema["code_artifacts"]["analysis_cli"]):
@@ -356,6 +496,8 @@ def admit_analysis(lock_path, expected_lock_sha256, roster_path, expected_roster
             raise ValueError("No checkpoint/baseline replacement is allowed")
         if not isinstance(row["reason"], str) or (row["status"] != "success" and not row["reason"]):
             raise ValueError("Preserved failure/unresolved reason required")
+        if row["status"] in ("success","failed"):capture.ref(row["terminal_receipt"])
+        elif row["terminal_receipt"] is not None:raise ValueError("Unresolved cell cannot claim terminal evidence")
         if row["status"] == "success":
             capture.ref(row["prediction"])
         elif row["prediction"] is not None:
@@ -365,9 +507,11 @@ def admit_analysis(lock_path, expected_lock_sha256, roster_path, expected_roster
         raise ValueError("Complete sealed method/seed/parent roster required before target access")
     targets = {capture.ref(row[name])["path"] for row in by_parent.values() for name in ("primary_labels", "census_tracts")}
     predictions = {capture.ref(row["prediction"])["path"] for row in entries.values() if row["status"] == "success"}
+    terminals={capture.ref(row["terminal_receipt"])["path"] for row in entries.values() if row["terminal_receipt"] is not None}
+    if terminals & (targets|predictions):raise ValueError("Target/prediction cannot substitute terminal receipt")
     identities = {}
     for parent, row in by_parent.items():
-        if capture.ref(row["observed_identity"])["path"] in targets | predictions:
+        if capture.ref(row["observed_identity"])["path"] in targets | predictions | terminals:
             raise ValueError("Target/prediction cannot substitute observed identity metadata")
         identity = capture.read(row["observed_identity"])
         _keys(identity, schema["observed_identity"]["fields"], "Exact observed identity fields required")
@@ -391,18 +535,28 @@ def admit_analysis(lock_path, expected_lock_sha256, roster_path, expected_roster
                 sorted(pairs.ravel().tolist()) != list(range(64))):
             raise ValueError("Explicit64 observed query IDs and32 nonoverlapping diploid index pairs required")
         edges = np.asarray(identity["artificial_tile_edges_bp"], dtype=np.float64)
-        if edges.shape != (7,) or not np.isfinite(edges).all() or np.any(np.diff(edges) <= 0) or np.any(edges <= 0) or np.any(edges >= domain[1]):
-            raise ValueError("Explicit artificial eight-tile edge identity required")
+        if edges.shape != (7,) or not np.array_equal(edges,[125000.*i for i in range(1,8)]):
+            raise ValueError("Exact125000bp-spaced eight-tile edge identity required")
         if (not isinstance(identity["source_artifacts"], list) or len(identity["source_artifacts"])!=1 or
                 Path(capture.ref(identity["source_artifacts"][0])["path"]).suffix!=".npz"):
             raise ValueError("Exactly one observed-only NPZ source required")
         for source in identity["source_artifacts"]:
-            if capture.ref(source)["path"] in targets | predictions:
+            if capture.ref(source)["path"] in targets | predictions | terminals:
                 raise ValueError("Targets/predictions cannot serve as observed input source")
             capture.hash_file(source)
         identities[parent] = identity
+    terminal_values={}
+    for key,row in entries.items():
+        if row["status"]=="unresolved":continue
+        method,seed,parent=key
+        terminal=validate_prediction_terminal(capture,row["terminal_receipt"],frozen_lock=frozen,
+            method_id=method,seed=seed,parent_id=parent,observed_identity=identities[parent],
+            observed_identity_ref=by_parent[parent]["observed_identity"],admission_ledger_ref=capture.ref(ledger_ref),
+            expected_status=row["status"],expected_prediction=row["prediction"])
+        if row["reason"]!=terminal["values"]["reason"]:raise ValueError("Roster/actual terminal reason differs")
+        terminal_values["|".join(map(str,key))]=terminal["values"]
     admission = AnalysisAdmission(frozen, capture, schema, registry, temperatures, ledger, roster, identities,
-                                  methods, parents, entries, capture.ref(roster_ref), capture.ref(ledger_ref))
+                                  methods, parents, entries, capture.ref(roster_ref), capture.ref(ledger_ref),terminal_values)
     admission.content = _state(admission); admission.check()
     return admission
 
@@ -517,25 +671,49 @@ def _paired(admission, losses, baseline):
     return parents, report
 
 
-def _publish(output, content, check):
-    pending = None; identity = None
+def _file_stamp(s):
+    return (s.st_dev,s.st_ino,s.st_size,s.st_mtime_ns,s.st_ctime_ns)
+
+
+def _verify_staged(path,identity,content,expected_stamp=None):
+    lexical=path.lstat()
+    if (lexical.st_dev,lexical.st_ino)!=identity:raise ValueError("Owned analysis output inode changed")
+    fd=os.open(path,os.O_RDONLY|os.O_NOFOLLOW)
     try:
-        with tempfile.NamedTemporaryFile(mode="wb", dir=output.parent, prefix=".analysis_pending_", delete=False) as handle:
-            pending = Path(handle.name); stat = os.fstat(handle.fileno()); identity = (stat.st_dev, stat.st_ino)
-            handle.write(content); handle.flush(); os.fsync(handle.fileno())
-        check(); stat = pending.lstat()
-        if (stat.st_dev, stat.st_ino) != identity:
+        before=os.fstat(fd)
+        if (before.st_dev,before.st_ino)!=identity or not stat.S_ISREG(before.st_mode):
             raise ValueError("Owned analysis output inode changed")
-        os.link(pending, output, follow_symlinks=False)
-    finally:
-        if pending is not None and identity is not None:
-            try:
-                stat = pending.lstat()
-            except FileNotFoundError:
-                pass
-            else:
-                if (stat.st_dev, stat.st_ino) == identity:
-                    pending.unlink()
+        if expected_stamp is not None and _file_stamp(before)!=expected_stamp:
+            raise ValueError("Owned staged analysis output stat drift")
+        digest=hashlib.sha256()
+        with os.fdopen(fd,"rb",closefd=False) as stream:
+            for chunk in iter(lambda:stream.read(4*1024**2),b""):digest.update(chunk)
+        after=os.fstat(fd)
+        if _file_stamp(before)!=_file_stamp(after) or before.st_size!=len(content) or digest.hexdigest()!=_sha(content):
+            raise ValueError("Owned staged analysis output byte/hash drift")
+    finally:os.close(fd)
+
+
+def _unlink_owned(path,identity):
+    try:current=path.lstat()
+    except FileNotFoundError:return
+    if (current.st_dev,current.st_ino)==identity:path.unlink()
+
+
+def _publish(output, content, check):
+    # Hold original FD through cleanup so an unlinked inode cannot be reused by a foreign replacement.
+    with tempfile.NamedTemporaryFile(mode="wb",dir=output.parent,prefix=".analysis_pending_",delete=False) as handle:
+        pending=Path(handle.name);current=os.fstat(handle.fileno());identity=(current.st_dev,current.st_ino)
+        published=False
+        try:
+            handle.write(content);handle.flush();os.fsync(handle.fileno());stamp=_file_stamp(os.fstat(handle.fileno()))
+            check();_verify_staged(pending,identity,content,stamp)
+            os.link(pending,output,follow_symlinks=False);published=True
+            _verify_staged(output,identity,content)
+        except BaseException:
+            if published:_unlink_owned(output,identity)
+            raise
+        finally:_unlink_owned(pending,identity)
 
 
 def analyze_confirmatory(admission, *, output_path=None):
@@ -601,6 +779,7 @@ def analyze_confirmatory(admission, *, output_path=None):
         "admission_attempts": admission.ledger["attempts"], "admission_probability": len(admission.parents)/len(admission.ledger["attempts"]),
         "target_admitted_parents": 160, "admission_target_shortfall": len(admission.parents) < 160,
         "all_predictions_successful": all_success, "prediction_failures_or_unresolved": failures,
+        "prediction_terminal_receipts":admission.terminal_receipts,
         "method_seed_failure_rates": [{"method_id": method, "seed": seed,
             "failed_or_unresolved_parents": sum(admission.entries[(method, seed, parent)]["status"] != "success" for parent in admission.parents),
             "denominator_admitted_parents": len(admission.parents),

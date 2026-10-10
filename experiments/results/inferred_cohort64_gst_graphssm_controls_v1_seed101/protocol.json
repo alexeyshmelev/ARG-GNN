@@ -1,0 +1,78 @@
+{
+  "stage": "cohort64_inferred_gst_graphssm_controls_v1_validation_only",
+  "benchmark": "ancient-europe-stdpopsim-0.3.0-relate-inferred",
+  "master_seed": 20261021,
+  "simulation": {
+    "sequence_length": 1000000,
+    "reference_diploids_per_source": 3,
+    "query_diploids": 32,
+    "grid_points": 128,
+    "landmarks_per_source": 3,
+    "max_graph_nodes": 1000000
+  },
+  "splits": {
+    "train": 16,
+    "val": 4,
+    "test": 0
+  },
+  "reference_adapter": {
+    "reference_columns": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "time_column": 6,
+    "branch_column": 7,
+    "time_scale": 10000,
+    "kernel_scales": [
+      0.05,
+      0.1,
+      0.2
+    ]
+  },
+  "windows": 8,
+  "models": [
+    "gst_ca_span",
+    "graphssm_zoh"
+  ],
+  "hidden_dim": 32,
+  "num_layers": 2,
+  "epochs": 24,
+  "patience": 6,
+  "learning_rate": 0.001,
+  "weight_decay": 0.0001,
+  "dropout": 0,
+  "selection": "minimum mean parent-validation NLL, no final test data generated or evaluated in this mechanism pilot",
+  "evaluation": "Exact source-parent uniform fixed coordinates retained inside observed SNP coverage of Relate-inferred genealogies. Original query order and global coordinates are preserved. No chromosome-tail extrapolation.",
+  "interpretation": "Exploratory trained paper-method adaptations on the same 16 TRAIN and 4 reused VAL inferred parents as the anchor candidate. No exact author benchmark reproduction or independent confirmation.",
+  "comparison_note": "GST follows its GCN/GraphNorm/graph-token attention and gated feedback construction with physical-span graph pooling. GraphSSM follows continuous graph-state zero-order-hold dynamics. Both receive the same complete observed F48 trees as raw ARGMix, while the anchor candidate uses the declared F47 persistent-leaf representation. All observed holds are retained. Same hidden32/layers2, optimizer budget and original grid labels. Method capacities and reproduction deviations are recorded separately.",
+  "source_parent": {
+    "config": "configs/ancient_cohort64_pilot_v1.json",
+    "config_sha256": "2f8ff9c33c5bd1b6edcda8c27d6c0c385c93faeca8ce37effc0935873db6713e",
+    "manifest": "data/ancient_cohort64_pilot_v1/manifest.json",
+    "manifest_sha256": "c9b3af5c1ebbc57a9b04d58902d7d13a12dfd240a81c879deb74f82cd2ad0385",
+    "benchmark": "ancient-europe-stdpopsim-0.3.0-oracle",
+    "split_policy": "Same 16 train and4 validation larger-query parents, no test."
+  },
+  "inference": {
+    "method": "Relate",
+    "version": "1.2.4",
+    "master_seed": 20261022,
+    "seed_scheme": "SHA256 UTF-8 ARG-GNN/Relate/v1.2.4/{master_seed}/{split}/{replicate}; first 8 bytes unsigned big endian modulo (2**31-1), plus 1",
+    "mutation_rate": 1.25e-08,
+    "recombination_rate": 1e-08,
+    "effective_haploid_size": 30000.0,
+    "memory_gb": 0.25,
+    "timeout_seconds": 1200,
+    "threads": 4,
+    "min_mac": 1,
+    "coordinate_offset": 1.0,
+    "coverage_policy": "[first exported original SNP, last exported original SNP + 1); exact original grid only",
+    "genotype_source": "Cleaned parent observed.trees.gz only, never raw census truth.",
+    "polarization": "Simulated ancestral allele at observed mutation sites only; no invented ancestor FASTA",
+    "archive_sha256": "9d6fe0f25846da9a846099b0d7c8d1f9f529aee0042e92803aef72b82e771438",
+    "copyright_notice": "Copyright \u00a9 2018, University of Oxford"
+  },
+  "dataset_source_protocol_sha256": "66c6bb30191013d5c2a16a40ca870d313c858eb5f05cb3afc9aa88ed50514cb5"
+}

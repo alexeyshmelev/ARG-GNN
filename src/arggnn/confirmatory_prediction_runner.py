@@ -16,6 +16,7 @@ import subprocess
 import sys
 import tempfile
 import zipfile
+import uuid
 
 import numpy as np
 import torch
@@ -464,6 +465,19 @@ def validate_launcher_lease(environ=None):
             'lease_fd': fd, 'launcher_metadata': data}
 
 
+def _normalized_cuda_uuid(value):
+    if not isinstance(value, str):
+        raise RuntimeError("Malformed CUDA device UUID")
+    text = value[4:] if value.startswith("GPU-") else value
+    try:
+        canonical = str(uuid.UUID(text))
+    except (ValueError, AttributeError) as error:
+        raise RuntimeError("Malformed CUDA device UUID") from error
+    if canonical != text.lower():
+        raise RuntimeError("Malformed CUDA device UUID")
+    return canonical
+
+
 def initialize_execution(device, runtime):
     """Title, strict policy, held lease precede every CUDA inspection/context."""
     runtime.update(device_kind=device, initialization_stage='process_title', device={'scope': 'not inspected'})
@@ -484,8 +498,11 @@ def initialize_execution(device, runtime):
         props = torch.cuda.get_device_properties(0)
         runtime['device'] = {'logical_index': 0, 'name': props.name, 'total_memory_bytes': props.total_memory,
             'compute_capability': [props.major, props.minor], 'runtime_uuid': str(getattr(props, 'uuid', 'unavailable'))}
-        if runtime['device']['runtime_uuid'] not in ('unavailable', runtime['visible_gpu_uuid']):
-            raise RuntimeError('CUDA UUID differs from inherited lease')
+        if runtime['device']['runtime_uuid'] != 'unavailable':
+            runtime['device']['canonical_runtime_uuid'] = _normalized_cuda_uuid(runtime['device']['runtime_uuid'])
+            runtime['canonical_visible_gpu_uuid'] = _normalized_cuda_uuid(runtime['visible_gpu_uuid'])
+            if runtime['device']['canonical_runtime_uuid'] != runtime['canonical_visible_gpu_uuid']:
+                raise RuntimeError('CUDA UUID differs from inherited lease')
     elif device == 'cpu':
         if os.environ.get('CUDA_VISIBLE_DEVICES') != '': raise RuntimeError('CPU validation requires CUDA_VISIBLE_DEVICES empty')
         runtime['device'] = {'name': platform.processor(), 'scope': 'CPU validation only'}
@@ -503,13 +520,30 @@ def _runtime_matches_lock(admission, runtime):
 
 
 def _publish(path, content, check):
-    pending = None
+    pending = None; identity = None
     try:
         with tempfile.NamedTemporaryFile(mode='wb', dir=path.parent, prefix='.prediction_pending_', delete=False) as handle:
-            pending = Path(handle.name); handle.write(content); handle.flush(); os.fsync(handle.fileno())
-        check(); os.link(pending, path)
+            pending = Path(handle.name); current = os.fstat(handle.fileno())
+            identity = (current.st_dev, current.st_ino)
+            handle.write(content); handle.flush(); os.fsync(handle.fileno())
+        check(); current = pending.lstat()
+        if (current.st_dev, current.st_ino) != identity:
+            raise ValueError('Owned prediction output inode changed')
+        if current.st_size != len(content) or _sha(pending.read_bytes()) != _sha(content):
+            raise ValueError('Owned prediction output bytes changed')
+        current = pending.lstat()
+        if (current.st_dev, current.st_ino) != identity:
+            raise ValueError('Owned prediction output inode changed during byte verification')
+        os.link(pending, path, follow_symlinks=False)
     finally:
-        if pending is not None: pending.unlink(missing_ok=True)
+        if pending is not None and identity is not None:
+            try:
+                current = pending.lstat()
+            except FileNotFoundError:
+                pass
+            else:
+                if (current.st_dev, current.st_ino) == identity:
+                    pending.unlink()
     return {'path': str(path), 'sha256': _sha(content)}
 
 

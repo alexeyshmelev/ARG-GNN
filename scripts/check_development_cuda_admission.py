@@ -18,6 +18,7 @@ import subprocess
 import sys
 import time
 import traceback
+import uuid
 
 import torch
 from torch import Tensor
@@ -333,6 +334,19 @@ def validate_launcher_lease(environ=None) -> dict:
             'lease_fd': fd, 'launcher_metadata': contents}
 
 
+def _normalized_cuda_uuid(value):
+    if not isinstance(value, str):
+        raise RuntimeError("Malformed CUDA device UUID")
+    text = value[4:] if value.startswith("GPU-") else value
+    try:
+        canonical = str(uuid.UUID(text))
+    except (ValueError, AttributeError) as error:
+        raise RuntimeError("Malformed CUDA device UUID") from error
+    if canonical != text.lower():
+        raise RuntimeError("Malformed CUDA device UUID")
+    return canonical
+
+
 def initialize_execution(device: str, receipt: dict | None = None) -> dict:
     """The title and policy precede lease admission and every device inspection.
 
@@ -363,8 +377,11 @@ def initialize_execution(device: str, receipt: dict | None = None) -> dict:
         result['device'] = {'logical_index': 0, 'name': props.name, 'total_memory_bytes': props.total_memory,
                             'compute_capability': [props.major, props.minor], 'runtime_uuid': str(getattr(props, 'uuid', 'unavailable'))}
         actual_uuid = result['device']['runtime_uuid']
-        if actual_uuid != 'unavailable' and actual_uuid != result['visible_gpu_uuid']:
-            raise RuntimeError('Runtime device UUID does not match the reserved physical GPU')
+        if actual_uuid != 'unavailable':
+            result['device']['canonical_runtime_uuid'] = _normalized_cuda_uuid(actual_uuid)
+            result['canonical_visible_gpu_uuid'] = _normalized_cuda_uuid(result['visible_gpu_uuid'])
+            if result['device']['canonical_runtime_uuid'] != result['canonical_visible_gpu_uuid']:
+                raise RuntimeError('Runtime device UUID does not match the reserved physical GPU')
         result['initialization_stage'] = 'driver_version'
         driver = subprocess.run(['nvidia-smi', '-i', result['visible_gpu_uuid'], '--query-gpu=driver_version',
                                  '--format=csv,noheader'], check=True, capture_output=True, text=True)

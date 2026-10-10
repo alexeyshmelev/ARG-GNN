@@ -37,6 +37,13 @@ def remake(study, name):
     study[name+"_ref"] = ref
     if name == "ledger":
         study["roster"]["admission_ledger_sha256"] = ref["sha256"]
+        for row in study["roster"]["entries"]:
+            if row["terminal_receipt"] is None:continue
+            terminal=json.loads((study["root"]/row["terminal_receipt"]["path"]).read_text())
+            terminal["admission_ledger"]=ref
+            for record in terminal.get("captured_artifacts",[]):
+                if record["path"]==ref["path"]:record.update(sha256=ref["sha256"],bytes=(study["root"]/ref["path"]).stat().st_size)
+            row["terminal_receipt"]=write_json(study["root"],row["terminal_receipt"]["path"],terminal)
         remake(study, "roster")
     return ref
 
@@ -44,7 +51,7 @@ def remake(study, name):
 def fixture_study(root, monkeypatch):
     # These copied code bytes and actual protocol prose are evidence about this
     # test fixture only. All development/cohort/frozen-lock admission is mocked.
-    for path in analysis.CODE_PATHS.values():
+    for path in list(analysis.CODE_PATHS.values())+["src/arggnn/confirmatory_prediction_runner.py","scripts/predict_confirmatory.py"]:
         dst = root/path; dst.parent.mkdir(parents=True, exist_ok=True); dst.write_bytes((ROOT/path).read_bytes())
     schema = analysis.analysis_schema_values()
     schema_ref = write_json(root, "metadata/schema.json", schema)
@@ -74,14 +81,30 @@ def fixture_study(root, monkeypatch):
             "development_prediction": analysis._seed_bundle(bundle, seed)["development_prediction"],
             "fit_scope": "fresh_development_validation_only"} for method, bundle in methods.items() for seed in analysis.SEEDS]}
     temperature_ref = write_json(root, "metadata/temperatures.json", temperatures)
+    from arggnn.development_execution import DETERMINISTIC_POLICY
+    import sys
+    fake_uuid="00000000-0000-4000-8000-000000000002"
+    # Explicit mocked CUDA metadata only. No device probe or GPU evidence is produced.
+    mock_runtime={"device_kind":"cuda","initialization_stage":"complete","process_title":analysis.PROCESS_TITLE,
+        "software":{"python":sys.version,"python_executable":sys.executable,"torch":importlib.metadata.version("torch"),
+                    "torch_cuda":"SYNTHETIC_MOCK_CUDA_VERSION","torch_build":"SYNTHETIC_MOCK_CUDA_BUILD"},
+        "device":{"logical_index":0,"name":"SYNTHETIC_MOCK_GPU_NOT_ACTUAL","compute_capability":[9,0],
+                  "total_memory_bytes":1000000,"runtime_uuid":"GPU-"+fake_uuid,"canonical_runtime_uuid":fake_uuid},
+        "deterministic_execution_policy":deepcopy(DETERMINISTIC_POLICY),"physical_gpu":2,
+        "visible_gpu_uuid":"GPU-"+fake_uuid,"canonical_visible_gpu_uuid":fake_uuid,
+        "lease_path":str(root/".runtime/locks/gpu_2.lock"),"lease_fd":9,
+        "launcher_metadata":{"gpu":2,"uuid":"GPU-"+fake_uuid,"job":"synthetic_mock_cuda_metadata_only"}}
     payload = {"kind": "confirmatory_provenance_lock", "training_seeds": analysis.SEEDS,
         "lock_execution_scope": "id_confirmation_only", "candidate": methods["candidate"],
+        "captured_runtime":deepcopy(mock_runtime),"numerical_execution_policy":deepcopy(DETERMINISTIC_POLICY),
+        "binding_implementation_sha256":{schema["code_artifacts"]["joined_analysis"]["path"]:schema["code_artifacts"]["joined_analysis"]["sha256"]},
         "strongest_required_baseline": methods["strongest_required_baseline"],
         "secondary_controls": {key: value for key, value in methods.items() if key not in ("candidate", "strongest_required_baseline")},
         "analysis_environment_versions": {name: importlib.metadata.version(name) for name in ("numpy", "scipy", "torch")},
         "bound_references": {"analysis_schema": schema_ref, "protocol_json": protocol_ref,
             "analysis_contract": contract_ref, "parent_seed_registry": registry_ref, "temperature_manifest": temperature_ref},
-        "code_artifacts": {"joined_analysis": schema["code_artifacts"]["joined_analysis"] | {"entry_point": "main"}}}
+        "code_artifacts": {"joined_analysis": schema["code_artifacts"]["joined_analysis"] | {"entry_point": "main"},
+                           "prediction":schema["terminal_receipt"]["source_artifacts"]["prediction"]|{"entry_point":"main"}}}
     lock_ref = write_json(root, "metadata/lock.json", payload)
     frozen = SimpleNamespace(payload=payload, content=(root/lock_ref["path"]).read_bytes(), sha256=lock_ref["sha256"], check=lambda: None)
     calls = []
@@ -118,7 +141,7 @@ def fixture_study(root, monkeypatch):
                                  for key in ("ancestry_seed", "mutation_seed", "inference_seed")},
                 "source_artifacts": [source_ref], "query_ids": queries, "diploid_pairs": pairs,
                 "primary_grid": primary, "dense_grid": dense,
-                "artificial_tile_edges_bp": np.arange(1, 8).tolist(), "truth_free_observed_inputs": True}
+                "artificial_tile_edges_bp": (np.arange(1, 8)*125000.).tolist(), "truth_free_observed_inputs": True}
             identity_ref = write_json(root, f"synthetic_observed/identity{parent}.json", identity)
             observed_refs[parent] = identity_ref
             header = {"schema_version": 1, "kind": "sealed_external_primary_labels", "lock_sha256": frozen.sha256,
@@ -153,13 +176,29 @@ def fixture_study(root, monkeypatch):
                         primary_logits=small, dense_logits=large, primary_positions_bp=np.asarray(primary["positions_bp"]),
                         dense_positions_bp=np.asarray(dense["positions_bp"]), query_ids=np.asarray(queries, dtype=np.int64))
                     entries.append({"method_id": method, "seed": seed, "parent_id": parent,
-                                    "status": "success", "prediction": pred, "checkpoint": checkpoint, "reason": ""})
+                                    "status": "success", "prediction": pred, "checkpoint": checkpoint, "reason": "", "terminal_receipt":None})
         attempts.append(row)
     ledger = {"schema_version": 1, "kind": "sealed_confirmatory_admission_ledger", "status": "sealed_before_model_scoring",
         "lock_sha256": frozen.sha256, "parent_seed_registry_sha256": registry_ref["sha256"],
         "cohort": "id_confirmation", "namespace": namespace, "target_admitted_parents": 160,
         "maximum_attempted_parents": 192, "attempts": attempts}
     ledger_ref = write_json(root, "metadata/ledger.json", ledger)
+    # Runtime/cell claims are intentionally handmade mocked metadata, never genuine CUDA terminals.
+    for entry in entries:
+        parent=entry["parent_id"];identity_ref=observed_refs[parent]
+        identity=json.loads((root/identity_ref["path"]).read_text())
+        pins={value["path"]:value["sha256"] for value in schema["terminal_receipt"]["source_artifacts"].values()}
+        pins.update(payload["binding_implementation_sha256"])
+        known=[ledger_ref,identity_ref,*identity["source_artifacts"]]
+        terminal={"schema_version":1,"kind":"confirmatory_prediction_cell_receipt","lock_sha256":frozen.sha256,
+            "admission_ledger":ledger_ref,"cell":analysis._expected_cell(frozen,entry["method_id"],entry["seed"],parent,identity,identity_ref),
+            "created_utc":"2026-10-10T00:00:00+00:00","no_gradients_or_optimization":True,"target_artifacts_opened":False,
+            "raw_primary_dense_separate_forward_passes":True,"imported_source_sha256":pins,"status":"success",
+            "terminal":True,"phase":"complete","runtime":deepcopy(mock_runtime),"prediction":entry["prediction"],
+            "reason":"","cpu_validation_only":False,"cuda_execution_performed":True,
+            "cuda_allocator_peak_bytes":{"allocated":1,"reserved":1},
+            "captured_artifacts":[{**ref,"bytes":(root/ref["path"]).stat().st_size} for ref in known]}
+        entry["terminal_receipt"]=write_json(root,f"synthetic_terminals/{entry['method_id']}_s{entry['seed']}_p{parent}.json",terminal)
     roster = {"schema_version": 1, "kind": "sealed_confirmatory_prediction_roster", "status": "sealed_before_target_join",
         "lock_sha256": frozen.sha256, "parent_seed_registry_sha256": registry_ref["sha256"],
         "admission_ledger_sha256": ledger_ref["sha256"], "cohort": "id_confirmation", "namespace": namespace, "entries": entries}
@@ -224,7 +263,7 @@ def test_bad_roster_blocks_before_target_open(study, monkeypatch, mutation):
 
 
 @pytest.mark.parametrize("mutation", ["early_stop", "reorder", "not_label_blind", "target_traversal", "rej_target",
-                                     "source_drift", "query_order", "diploid_overlap", "grid_drift"])
+                                     "source_drift", "query_order", "diploid_overlap", "grid_drift", "tile_edges"])
 def test_bad_admission_source_or_identity_blocks_before_target_open(study, monkeypatch, mutation):
     reads = watch_targets(monkeypatch, study)
     if mutation == "early_stop": study["ledger"]["attempts"].pop()
@@ -237,6 +276,7 @@ def test_bad_admission_source_or_identity_blocks_before_target_open(study, monke
         ref = study["identity_refs"][0]; identity = json.loads((study["root"]/ref["path"]).read_text())
         if mutation == "query_order": identity["query_ids"][0] = identity["query_ids"][1]
         elif mutation == "diploid_overlap": identity["diploid_pairs"][0][0] = identity["diploid_pairs"][0][1]
+        elif mutation=="tile_edges":identity["artificial_tile_edges_bp"]=[1.,2.,3.,4.,5.,6.,7.]
         else: identity["primary_grid"]["positions_bp"][0] += 1
         new = write_json(study["root"], ref["path"], identity)
         study["ledger"]["attempts"][0]["observed_identity"] = new
@@ -297,6 +337,11 @@ def test_complete_synthetic_join_seed_vectors_calibration_and_dense_na(study, mo
 def test_terminal_failed_primary_cells_visible_with_conservative_conditional_family(study):
     row = next(row for row in study["roster"]["entries"] if row["method_id"] == "strongest_required_baseline" and row["seed"] == 202 and row["parent_id"] == 1)
     row.update(status="failed", prediction=None, reason="Explicit preserved synthetic terminal failed prediction")
+    terminal=json.loads((study["root"]/row["terminal_receipt"]["path"]).read_text())
+    for name in ("captured_artifacts","cuda_execution_performed","cuda_allocator_peak_bytes"):terminal.pop(name)
+    terminal.update(status="failed",prediction=None,orphan_prediction=None,error_type="SyntheticFailure",phase="synthetic_fault",
+                    reason=row["reason"],cpu_validation_only=True,runtime={"device_kind":"cpu","initialization_stage":"failed"})
+    row["terminal_receipt"]=write_json(study["root"],row["terminal_receipt"]["path"],terminal)
     remake(study, "roster")
     result = analysis.analyze_confirmatory(admit(study))["values"]
     assert not result["all_predictions_successful"]
@@ -380,6 +425,8 @@ def test_prediction_array_contract_fails_before_targets(study,monkeypatch,mutati
         arrays["metadata_json"]=np.asarray({"unsafe_fixture":True},dtype=object)
         np.savez_compressed(path,**arrays)
         row["prediction"]["sha256"]=analysis._sha(path.read_bytes())
+    terminal=json.loads((study["root"]/row["terminal_receipt"]["path"]).read_text());terminal["prediction"]=row["prediction"]
+    row["terminal_receipt"]=write_json(study["root"],row["terminal_receipt"]["path"],terminal)
     remake(study,"roster")
     with pytest.raises(ValueError):analysis.analyze_confirmatory(admit(study))
     assert reads==[]
@@ -419,10 +466,69 @@ def test_real_frozen_lock_reader_refuses_handmade_lock_before_targets(study,monk
 def test_unresolved_roster_cannot_open_any_target(study,monkeypatch):
     reads=watch_targets(monkeypatch,study)
     row=study["roster"]["entries"][-1]
-    row.update(status="unresolved",prediction=None,reason="Explicit initial unresolved synthetic prediction")
+    row.update(status="unresolved",prediction=None,terminal_receipt=None,reason="Explicit initial unresolved synthetic prediction")
     remake(study,"roster")
     admitted=admit(study)
     assert any(row["status"]=="unresolved" for row in admitted.entries.values())
     with pytest.raises(ValueError,match="Complete terminal prediction roster"):
         analysis.analyze_confirmatory(admitted,output_path=study["root"]/"never_unresolved_report.json")
     assert reads==[] and not (study["root"]/"never_unresolved_report.json").exists()
+
+
+@pytest.mark.parametrize("mutation",["cpu_flag","cuda_flag","software_python","software_torch","policy","integer_policy",
+    "hardware","physical_gpu","uuid","visible_prefix","launcher_uuid","title","init","cell","ledger","source","prediction"])
+def test_terminal_runtime_and_identity_mutation_rejected_before_targets(study,monkeypatch,mutation):
+    reads=watch_targets(monkeypatch,study);row=study["roster"]["entries"][0]
+    ref=row["terminal_receipt"];terminal=json.loads((study["root"]/ref["path"]).read_text())
+    if mutation=="cpu_flag":terminal["cpu_validation_only"]=True
+    elif mutation=="cuda_flag":terminal["cuda_execution_performed"]=False
+    elif mutation=="software_python":terminal["runtime"]["software"]["python"]="SYNTHETIC_OTHER_PYTHON"
+    elif mutation=="software_torch":terminal["runtime"]["software"]["torch"]="SYNTHETIC_OTHER_TORCH"
+    elif mutation=="policy":terminal["runtime"]["deterministic_execution_policy"]["warn_only"]=True
+    elif mutation=="integer_policy":terminal["runtime"]["deterministic_execution_policy"]["deterministic_algorithms"]=1
+    elif mutation=="hardware":terminal["runtime"]["device"]["name"]="SYNTHETIC_OTHER_GPU"
+    elif mutation=="physical_gpu":terminal["runtime"]["physical_gpu"]=0
+    elif mutation=="uuid":terminal["runtime"]["device"]["canonical_runtime_uuid"]="00000000-0000-4000-8000-000000000003"
+    elif mutation=="visible_prefix":terminal["runtime"]["visible_gpu_uuid"]=terminal["runtime"]["canonical_visible_gpu_uuid"]
+    elif mutation=="launcher_uuid":terminal["runtime"]["launcher_metadata"]["uuid"]="GPU-00000000-0000-4000-8000-000000000003"
+    elif mutation=="title":terminal["runtime"]["process_title"]="incorrect synthetic title"
+    elif mutation=="init":terminal["runtime"]["initialization_stage"]="device_properties"
+    elif mutation=="cell":terminal["cell"]["training_seed"]=202
+    elif mutation=="ledger":terminal["admission_ledger"]["sha256"]="d"*64
+    elif mutation=="source":terminal["imported_source_sha256"]["src/arggnn/confirmatory_prediction_runner.py"]="e"*64
+    else:terminal["prediction"]["sha256"]="c"*64
+    row["terminal_receipt"]=write_json(study["root"],ref["path"],terminal);remake(study,"roster")
+    with pytest.raises(ValueError):admit(study)
+    assert reads==[]
+
+
+def test_actual_cpu_runtime_is_rejected_before_targets(study,monkeypatch):
+    from arggnn import confirmatory_prediction_runner as predictor
+    monkeypatch.setenv("CUDA_VISIBLE_DEVICES","")
+    runtime={}
+    # Actual CPU initialization from the producer, wrapped in a handmade test cell.
+    # This is no actual GPU or qualified terminal, and no model forward occurs here.
+    predictor.initialize_execution("cpu",runtime)
+    reads=watch_targets(monkeypatch,study);row=study["roster"]["entries"][0];ref=row["terminal_receipt"]
+    terminal=json.loads((study["root"]/ref["path"]).read_text())
+    terminal.update(runtime=runtime,cpu_validation_only=True,cuda_execution_performed=False)
+    terminal.pop("cuda_allocator_peak_bytes")
+    row["terminal_receipt"]=write_json(study["root"],ref["path"],terminal);remake(study,"roster")
+    with pytest.raises(ValueError,match="CPU-validation"):admit(study)
+    assert reads==[]
+
+
+@pytest.mark.parametrize("mutation",["same_inode","foreign_inode"])
+def test_publication_staged_drift_never_publishes_or_removes_foreign_replacement(tmp_path,mutation):
+    output=tmp_path/"never_corrupt_report.json";foreign=None
+    def check():
+        nonlocal foreign
+        pending=next(tmp_path.glob(".analysis_pending_*"))
+        if mutation=="same_inode":pending.write_bytes(b"Corrupt staged bytes")
+        else:
+            pending.unlink();pending.write_bytes(b"Foreign replacement bytes");foreign=pending
+    with pytest.raises(ValueError,match="(stat drift|inode changed|byte/hash drift)"):
+        analysis._publish(output,b"Correct explicit synthetic non-executable report",check)
+    assert not output.exists()
+    if mutation=="foreign_inode":assert foreign.read_bytes()==b"Foreign replacement bytes"
+    else:assert not list(tmp_path.glob(".analysis_pending_*"))

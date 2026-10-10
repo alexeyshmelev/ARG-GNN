@@ -211,10 +211,10 @@ def patch_execution_probe(monkeypatch, events, count=1):
     monkeypatch.setattr(smoke, 'set_research_title', lambda: events.append('title'))
     monkeypatch.setattr(setproctitle, 'getproctitle', lambda: smoke.PROCESS_TITLE)
     monkeypatch.setattr(smoke, 'configure_deterministic_development', lambda: events.append('policy') or {'strict': True})
-    monkeypatch.setattr(smoke, 'validate_launcher_lease', lambda: events.append('lease') or {'visible_gpu_uuid': 'GPU-synthetic-test'})
+    monkeypatch.setattr(smoke, 'validate_launcher_lease', lambda: events.append('lease') or {'visible_gpu_uuid': 'GPU-df11de7f-7a15-ebe2-085d-9c7d907f3786'})
     monkeypatch.setattr(torch.cuda, 'device_count', lambda: events.append('count') or count)
     monkeypatch.setattr(torch.cuda, 'get_device_properties', lambda *_: events.append('properties') or SimpleNamespace(
-        name='synthetic CUDA mock', total_memory=1024, major=8, minor=0, uuid='GPU-synthetic-test'))
+        name='synthetic CUDA mock', total_memory=1024, major=8, minor=0, uuid='GPU-df11de7f-7a15-ebe2-085d-9c7d907f3786'))
     original_run = smoke.subprocess.run
     def subprocess_run(command, *args, **kwargs):
         if command[0] == 'nvidia-smi':
@@ -263,7 +263,7 @@ def test_cpu_initialization_requires_explicit_invisibility_and_never_probes_devi
     runtime = smoke.initialize_execution('cpu')
     assert runtime['device_kind'] == 'cpu'
     assert events == ['title', 'policy']
-    monkeypatch.setenv('CUDA_VISIBLE_DEVICES', 'GPU-synthetic-test')
+    monkeypatch.setenv('CUDA_VISIBLE_DEVICES', 'GPU-df11de7f-7a15-ebe2-085d-9c7d907f3786')
     with pytest.raises(RuntimeError, match='explicitly empty'):
         smoke.initialize_execution('cpu')
     assert events == ['title', 'policy', 'title', 'policy']
@@ -337,7 +337,7 @@ def test_runtime_uuid_mismatch_rejected_before_driver_query(monkeypatch):
     events = []
     patch_execution_probe(monkeypatch, events)
     monkeypatch.setattr(torch.cuda, 'get_device_properties', lambda *_: events.append('properties') or SimpleNamespace(
-        name='synthetic CUDA mock', total_memory=1024, major=8, minor=0, uuid='GPU-wrong-device'))
+        name='synthetic CUDA mock', total_memory=1024, major=8, minor=0, uuid='GPU-976a5cd3-df12-2535-fa51-e3ea063688ba'))
     with pytest.raises(RuntimeError, match='UUID does not match'):
         smoke.initialize_execution('cuda')
     assert events == ['title', 'policy', 'lease', 'count', 'properties']

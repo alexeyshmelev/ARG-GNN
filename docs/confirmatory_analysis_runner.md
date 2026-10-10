@@ -4,7 +4,9 @@
 
 This implementation covers the frozen ID primary comparison, the prescribed conditional secondary Holm family, and descriptive primary-grid and dense-tract diagnostics. It is a bounded first analysis phase. It does not implement the separate robustness, demographic OOD, query-count/draw inferential family, finite-source/tile sensitivity or prespecified illustrations. The schema, lock and report retain that remaining coverage and record `full_protocol_readiness=false`.
 
-No actual published confirmatory lock, real cohort, target extraction, model prediction, joined final-data analysis, GPU use or fitting occurred in this work. Tests use handmade NPZ/census artifacts and explicitly mocked frozen-lock/cohort admission. An actual final lock must bind the workflow implementation, full artifact schema and positive VAL-only temperatures for every selected method and seed before preparation.
+No actual published confirmatory lock, real cohort, target extraction, model prediction, joined final-data analysis, GPU use or fitting occurred in this work. Tests use handmade NPZ/census artifacts and explicitly mocked frozen-lock/cohort admission. Positive terminal fixtures also explicitly mock CUDA execution metadata; a negative fixture uses actual CPU initialization without a model forward pass. These fixtures do not provide evidence of genuine CUDA execution. An actual final lock must bind the workflow implementation, full artifact schema and positive VAL-only temperatures for every selected method and seed before preparation.
+
+The user's stronger competitor requirement includes genuine ARGMix, ARGformer and official AliPearson/AncestralPaths (commit 77db3...). The current ten-family development proposal does not cover genuine ARGformer or AncestralPaths. That scientific-readiness limitation remains open; no actual final lock or test preparation is authorized by this implementation.
 
 The secondary-control files were separately repaired and frozen before this work. This runner reuses unchanged `confirmatory_metrics.py` and `dense_tract_metrics.py`; it does not alter models, preparation, selection or those metrics.
 
@@ -15,6 +17,7 @@ The secondary-control files were separately repaired and frozen before this work
 - `analysis_schema_values()`: metadata-only prospective schema and current joined-analysis/CLI/metric source pins. Imported source drift rejects this helper. It returns no lock, data or scientific result.
 - `admit_analysis(lock_path, expected_lock_sha256, roster_path, expected_roster_sha256, ledger_path, expected_ledger_sha256, *, project_root=ROOT)`: calls the public frozen-lock validator, validates sealed metadata, complete method/seed/parent roster and observed identities/source hashes. It opens neither predictions nor target arrays.
 - `analyze_confirmatory(admission, *, output_path=None)`: requires the admitted immutable metadata, refuses any unresolved cell, preflights all successful predictions, then joins external targets and computes the bounded ID report. Optional emission is exclusive.
+- `validate_prediction_terminal(capture, terminal_ref, *, frozen_lock, method_id, seed, parent_id, observed_identity, observed_identity_ref, admission_ledger_ref, expected_status=None, expected_prediction=None)`: shared metadata-only terminal checker for joined admission and custodian roster sealing. The caller must already validate the frozen lock. It returns normalized terminal/prediction refs, terminal status and exact receipt values; it never opens target arrays or queries a device.
 - `main(argv=None)`: CLI entry point.
 
 The lock validator is `confirmatory_lock.validate_confirmatory_lock(lock_path, expected_sha256, *, project_root=ROOT)`. Its result supplies payload, original content/hash/path and `check(full=True)`. It verifies the real published pre-test lock and captured source/artifact/version provenance. The analysis runner additionally requires the ID-only lock scope, exact current artifact schema, selected seed bundles and actual NumPy/SciPy/Torch analysis versions.
@@ -22,6 +25,8 @@ The lock validator is `confirmatory_lock.validate_confirmatory_lock(lock_path, e
 Admission checks retain canonical in-memory lock/schema/registry/temperature/ledger/roster/identity state, parent ordering and the complete cell mapping. Changes to those objects, imported code, or captured file stats reject subsequent work. Inputs are hash-verified at each read. Observed source bytes are streamed through SHA256 before target access. Paths must remain inside the specified project root, with no traversal or escaped symlink resolution. Duplicate JSON keys, nonfinite JSON and object-bearing unsafe NPZ arrays reject loading.
 
 The full frozen prediction roster must cover candidate, the unchanged strongest required baseline and all required locked controls, crossed with seeds 101/202/303 and every admitted ID parent. It cannot replace a checkpoint, select a different seed, choose a test-best baseline or omit a parent.
+
+Every success or failed roster row must bind its exact terminal receipt reference; unresolved rows require a null receipt. Terminal refs cannot alias predictions or targets. Admission validates receipt evidence before any prediction or target load, retains canonical receipt state and pins the predictor module/CLI in the schema's separate `terminal_receipt` section. The `code_artifacts` section remains exactly the four joined-analysis/metric references required by the lock API. The report preserves all normalized `prediction_terminal_receipts`.
 
 An initial complete roster of `unresolved` entries is valid tracking metadata, but joined analysis rejects it before opening any prediction or target artifact. Missing roster entries reject admission. A complete terminal roster contains only success or failed entries. Failed cells retain reasons, failure rates and null seed losses. They block positive confirmation. Successful cells are all CPU-loaded, hash-checked and validated for finite logits, exact source/method/checkpoint/grid/query identity and array shapes before any external label or census artifact opens.
 
@@ -31,7 +36,7 @@ All artifacts use exact `{path,sha256}` references. The admission ledger binds t
 
 The ledger stops at the first 160 admitted parents. If 160 are not reached, all 192 attempts must be recorded. It then analyzes all admitted parents once and labels the shortfall. No score, class proportion, failing method or storage pressure can change the admitted roster. Rejected attempts have no observed/target join refs. Admitted attempts separately reference observed identity, external primary labels and census tract partitions.
 
-Observed identity binds the parent namespace, ID and exact ancestry/mutation/inference registry seeds. It records 64 distinct integer original query IDs, 32 nonoverlapping diploid index pairs covering all 64 queries, both physical midpoint-grid identities and seven artificial tile-edge coordinates.
+Observed identity binds the parent namespace, ID and exact ancestry/mutation/inference registry seeds. It records 64 distinct integer original query IDs, 32 nonoverlapping diploid index pairs covering all 64 queries, both physical midpoint-grid identities and the exact seven physical tile edges `[125000,250000,375000,500000,625000,750000,875000]` bp. Different edge coordinates reject admission.
 
 Both grids use `DenseGrid.identity_record()`, including its SHA256. The domain is [0,1000000] physical bp. Original 128/4096 global midpoint indices must remain in their original order and share observed coverage. Primary admission requires at least 120 of the original 128 points and at least 0.95 physical coverage. No missing interior midpoint is bridged.
 
@@ -66,6 +71,16 @@ External census JSON fields are exactly schema_version=1, kind=sealed_external_c
 
 Sparse primary labels must independently agree with these census partitions at every exact retained primary midpoint. Labels and census targets are only outcome joins. They never enter a model, observed source manifest or prediction forward pass.
 
+## Qualified terminal execution evidence
+
+A successful receipt must be terminal, complete and have no reason, assert separate primary/dense forward passes, no gradients or optimization, no target artifacts opened, `cpu_validation_only=false` and `cuda_execution_performed=true`. CPU validation outputs reject before predictions or targets can join.
+
+Its frozen method/seed/parent header, protocol/checkpoint, both grids, classes, observed identity, observed NPZ and admission-ledger references must match the lock and observed release exactly. Software fields bind Python, executable, Torch, Torch CUDA and build details. Completed CUDA metadata requires hardware name/compute capability, positive total memory, logical device 0, typed physical GPU 2–5, the exact process title, typed deterministic settings and nonnegative actual allocator peaks. The canonical GPU UUID must match the visible and launcher UUIDs; the archived lease must have the corresponding project `.runtime/locks/gpu_N.lock` path, typed descriptor, GPU and job identity.
+
+Every declared predictor-source reference is byte-hash verified, with the predictor module/CLI and all frozen `src/arggnn/*` source-binding refs mandatory. Extra valid import-context source pins are accepted; the checker does not require equality to the current process's dynamically imported pin map. Captured provenance must include the exact ledger, identity and observed NPZ. Failed terminal receipts may preserve partial runtime, but require exact cell/lock/ledger/source binding, a nonempty reason/error type and no scored prediction. A failed row's reason must equal its receipt reason and always blocks positive confirmation.
+
+This is a metadata/provenance admission gate. OS custody and genuine GPU execution must be independently established by the launch and custody workflow. Synthetic mocked metadata proves checker behavior only.
+
 ## Primary and conditional inference
 
 Primary NLL is recomputed from each individual frozen model's original raw logits using float64 stable log-softmax without a probability floor. Historical 1e-12-floor NLL is retained only as a compatibility diagnostic. No probabilities or logits are averaged into an ensemble.
@@ -90,7 +105,7 @@ The unchanged dense helper reports approximate physical span quadrature, reconst
 
 The result is `{values,bytes,sha256}`. Its JSON kind is `joined_confirmatory_id_analysis_report`. It records exact original roster/ledger hashes, the lock, all attempted/admitted IDs and reasons, failures and rates, all seed loss vectors, primary/conditional reports, raw/calibrated/dense diagnostics, source/artifact provenance and remaining coverage.
 
-Default analysis emits no file. A supplied output path must have an existing in-project parent and must not already exist. Bytes are staged in an owned temporary file, flushed/fsynced, rechecked and published by an exclusive hard link. Cleanup checks the owned inode and preserves existing or raced paths. No successful receipt or output is emitted for missing/unresolved roster entries, bad hashes, bad target joins or source/policy drift.
+Default analysis emits no file. A supplied output path must have an existing in-project parent and must not already exist. Bytes are staged in an owned temporary file whose original descriptor remains open through publication and cleanup. After flush/fsync, no-follow descriptor reads validate regular-file identity, stable stat fields, exact size and SHA before an exclusive hard link and again at the published path. Same-inode byte drift and foreign inode replacement reject. Cleanup removes only the owned pending/published inode and preserves existing or raced paths. No successful receipt or output is emitted for missing/unresolved roster entries, bad hashes, bad target joins or source/policy drift.
 
 ```bash
 source scripts/project_env.sh
@@ -112,14 +127,14 @@ Final CPU suite after the terminal-roster gate and observed-release schema freez
 ```text
 tests/test_confirmatory_analysis_runner.py
 tests/test_confirmatory_metrics.py tests/test_dense_tract_metrics.py
-100 passed in 77.41s
+121 passed in 113.17s
 ```
 
-This includes 40 new joined-analysis cases and 60 unchanged pure-metric cases.
+This includes 61 joined-analysis cases and 60 unchanged pure-metric cases. The earlier 100-case pre-repair source/test snapshot and receipt remain preserved under `.runtime/tmp/analysis_pre_terminal_repair_v1/`.
 
-Both module and CLI parsed successfully, and CLI help passed. Tests cover actual public lock-reader refusal of the handmade lock, mocked positive lock admission, metadata-only admission, complete roster/checkpoint/source/coordinate/query guards, source/in-memory/imported-code drift, mandatory pre-test temperatures, prediction object-array/shape/finite/header rejection before target reads, external-label/census consistency, terminal failures and null seed vectors, unresolved-roster target-access blocking, uncapped raw NLL, equal-parent three-seed aggregation, calibration/dense absent-class/boundary conventions and staged publication faults/races.
+Both module and CLI parsed successfully, and CLI help passed. Tests cover actual public lock-reader refusal of the handmade lock, mocked positive lock admission, metadata-only admission, complete roster/checkpoint/source/coordinate/query guards, source/in-memory/imported-code drift, mandatory pre-test temperatures, prediction object-array/shape/finite/header rejection before target reads, external-label/census consistency, terminal failures and null seed vectors, unresolved-roster target-access blocking, uncapped raw NLL, equal-parent three-seed aggregation, calibration/dense absent-class/boundary conventions and staged publication faults/races. Added cases cover explicit mocked positive CUDA metadata, actual CPU-runtime refusal, 17 terminal runtime/source/identity mutations, terminal alias and row-reason guards, exact tile-edge rejection, same-inode staged-byte drift, and preservation of foreign staged replacements.
 
-Handmade source arrays are never passed through genuine observed topology/custodian/cohort admission. The synthetic prediction logits are mathematical arrays, not outputs of the actual frozen models. Positive-path tests replace the public frozen-lock admission with an explicit mock; the production API is also exercised negatively to reject that fixture. These tests establish implementation behavior and do not establish a real freeze, inference release or scientific result.
+Handmade source arrays are never passed through genuine observed topology/custodian/cohort admission. The synthetic prediction logits are mathematical arrays, not outputs of the actual frozen models. Positive-path tests replace the public frozen-lock admission and CUDA terminal metadata with explicit mocks; the production API is also exercised negatively to reject that fixture. These tests establish implementation behavior and do not establish a real freeze, inference release or scientific result.
 
 ## Prospective artifact schema
 
@@ -180,7 +195,7 @@ This block is a snapshot of `analysis_schema_values()`. Actual lock binding must
     },
     "joined_analysis": {
       "path": "src/arggnn/confirmatory_analysis_runner.py",
-      "sha256": "dbba5641e94e785442344d46f0391bd98791e8c7af7ed318b2ac93018f3ca1b0"
+      "sha256": "dfde4cf9616c0e5deea3340c38efac369191a83182411df5f68a5c5047e5dd11"
     },
     "metrics": {
       "path": "src/arggnn/confirmatory_metrics.py",
@@ -190,6 +205,15 @@ This block is a snapshot of `analysis_schema_values()`. Actual lock binding must
   "full_protocol_readiness": false,
   "kind": "prespecified_joined_analysis_artifact_schema",
   "observed_identity": {
+    "artificial_tile_edges_bp": [
+      125000.0,
+      250000.0,
+      375000.0,
+      500000.0,
+      625000.0,
+      750000.0,
+      875000.0
+    ],
     "fields": [
       "schema_version",
       "kind",
@@ -303,7 +327,8 @@ This block is a snapshot of `analysis_schema_values()`. Actual lock binding must
       "status",
       "prediction",
       "checkpoint",
-      "reason"
+      "reason",
+      "terminal_receipt"
     ],
     "fields": [
       "schema_version",
@@ -325,6 +350,33 @@ This block is a snapshot of `analysis_schema_values()`. Actual lock binding must
     ]
   },
   "schema_version": 1,
-  "status": "frozen_before_test_preparation"
+  "status": "frozen_before_test_preparation",
+  "terminal_receipt": {
+    "failed": "actual terminal failure receipt, exact cell/ledger/lock/source, null scored prediction, preserved error; never positive confirmation",
+    "kind": "confirmatory_prediction_cell_receipt",
+    "runtime": "complete CUDA initialization; exact frozen software/hardware/strictpolicy; allowed physicalGPU/title; canonical runtime=visible=launcherUUID",
+    "source_artifacts": {
+      "prediction": {
+        "path": "src/arggnn/confirmatory_prediction_runner.py",
+        "sha256": "a63bd3dc24954dc9f35e8b30401d07f82ec437b64dbec32ce9449232e6f2dfce"
+      },
+      "prediction_cli": {
+        "path": "scripts/predict_confirmatory.py",
+        "sha256": "4f9bb482dcbfba76dd5a65bb138788b64b99a454eb99240233fc6810987d2a79"
+      }
+    },
+    "success_requires": {
+      "cpu_validation_only": false,
+      "cuda_execution_performed": true,
+      "no_gradients_or_optimization": true,
+      "target_artifacts_opened": false,
+      "terminal": true
+    },
+    "terminal_statuses": [
+      "success",
+      "failed"
+    ],
+    "unresolved_receipt": null
+  }
 }
 ```

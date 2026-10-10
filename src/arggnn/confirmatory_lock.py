@@ -585,17 +585,32 @@ def bind_confirmatory_lock(request_path, expected_request_sha256, *, output_path
         'scope': 'Hash binding of completed development evidence and explicit prospective implementations/registries. No held-out preparation, model evaluation, joined analysis, scientific conclusion or permission enforcement performed.'}
     content = (json.dumps(payload, sort_keys=True, indent=2, allow_nan=False)+'\n').encode()
     if output is not None:
-        pending = None
+        pending = None; identity = None
         try:
             with tempfile.NamedTemporaryFile(mode='wb', dir=output.parent, prefix='.lock_pending_', delete=False) as stream:
-                pending = Path(stream.name)
+                pending = Path(stream.name); current = os.fstat(stream.fileno())
+                identity = (current.st_dev, current.st_ino)
                 stream.write(content); stream.flush(); os.fsync(stream.fileno())
             capture.verify_stable(); _source_stable()
+            current = pending.lstat()
+            if (current.st_dev, current.st_ino) != identity:
+                raise ValueError('Owned lock output inode changed')
+            if current.st_size != len(content) or hashlib.sha256(pending.read_bytes()).digest() != hashlib.sha256(content).digest():
+                raise ValueError('Owned lock output bytes changed')
+            current = pending.lstat()
+            if (current.st_dev, current.st_ino) != identity:
+                raise ValueError('Owned lock output inode changed during byte verification')
             # Exclusive hard-link publication never replaces an existing path.
-            os.link(pending, output)
+            os.link(pending, output, follow_symlinks=False)
         finally:
-            if pending is not None:
-                pending.unlink(missing_ok=True)
+            if pending is not None and identity is not None:
+                try:
+                    current = pending.lstat()
+                except FileNotFoundError:
+                    pass
+                else:
+                    if (current.st_dev, current.st_ino) == identity:
+                        pending.unlink()
     return ConfirmatoryLock(payload, content, hashlib.sha256(content).hexdigest(), None if output is None else str(output))
 
 
