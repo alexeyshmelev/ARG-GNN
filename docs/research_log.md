@@ -42,3 +42,9 @@ The independent train_anchor_development.py runner restricts production to the d
 The frozen three-model capacity/source study completed. Noncontextual depth2 selected NLL is 1.0260340316324352, very close to full depth2 1.025646690096779. Static local depth1/depth2 scores are 1.1185405579115626/1.1175823589461271. These are one-seed selected scores on the same four reused validation parents. They supply no independent confirmation and little evidence for query-source feedback itself. See research/reviews/anchor_capacity_pilot_complete_v1.json.
 
 GPU3 was released and assigned the frozen age full-depth1/full-depth2 and matched scalar-age full-depth1/full-depth2 priority block. GPU2 continues reference controls. No other GPU is occupied by the project.
+
+## Fresh development preparation freeze and comparator integration, 2026-10-10
+
+The complete new-tool integration suite passed123tests in12.31s. Independent fresh-context review reproduced a path escape through unrestricted model IDs in the new candidate and temporal runners. Root fixed both isolated modules and added absolute/traversal/control-character rejection, then33focusedtests passed in7.36s. Active jobs and shared preparation sources remain unchanged. The audit found no current CPU-preparation blocker. The temporal pilot remains a pilot, so a separate exact-hash, fixed-grid/seed adapter is being implemented before fresh-development training.
+
+Preparation freeze SHA256 is5e19ff1650397ec657f5d90c341e4a223cf624154736f38f62908e42a0ff7ee1. It declares64TRAIN/16VAL/TEST0 and verifies240 new unique streams against618prior manifests/metadata. Conservative projected storage is102.6GB including reserves. The fixed-source preparation was reverified by root before launch. No final ancestry data or outcomes are available.

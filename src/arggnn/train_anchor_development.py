@@ -8,6 +8,7 @@ import json
 import os
 from pathlib import Path
 import random
+import re
 import subprocess
 import time
 import numpy as np
@@ -90,6 +91,9 @@ def evaluate(model, cases, device_banks):
 def checked_anchor_protocol(path):
     config = checked_protocol(path)
     models, specs = config.get("models"), config.get("model_specs")
+    if isinstance(models, list) and any(not isinstance(name, str) or
+            re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]{0,127}", name) is None for name in models):
+        raise RuntimeError("Model IDs must be safe file-name components")
     if (not isinstance(models, list) or not models or len(set(models)) != len(models)
             or not isinstance(specs, dict) or set(specs) != set(models)):
         raise RuntimeError("Require distinct frozen models and exact specification keys")

@@ -118,3 +118,16 @@ def test_wrong_config_freeze_rejected_before_loading_data(tmp_path,monkeypatch):
         "--expected-config-sha256","a"*64,"--data",str(tmp_path),
         "--output",str(tmp_path/"run"),"--device","cpu"])
     with pytest.raises(RuntimeError,match="exact supplied freeze"):main()
+
+
+@pytest.mark.parametrize("unsafe", ["/tmp/outside_project_no_write", "../outside", "x/y", "x"+chr(92)+"y", "x"+chr(10)+"control", "..", "", "x"*129])
+def test_unsafe_model_ids_rejected_before_forming_output_paths(tmp_path,unsafe):
+    p=full_protocol()
+    old=p["models"][0]
+    p["models"][0]=unsafe
+    p["model_specs"][unsafe]=p["model_specs"].pop(old)
+    p["model_learning_rates"][unsafe]=p["model_learning_rates"].pop(old)
+    path=tmp_path/"config.json"
+    path.write_text(json.dumps(p))
+    with pytest.raises(RuntimeError,match="safe file-name"):
+        checked_development_protocol(path)
