@@ -1,0 +1,152 @@
+{
+  "schema_version": 1,
+  "kind": "development_scope_amendment_proposal",
+  "created_utc": "2026-10-10T07:10:35.546713+00:00",
+  "supersedes_development_scope_only_of": {
+    "path": "research/protocols/confirmatory_design_v1.json",
+    "sha256": "e02fb54700fe4c89c41a5a4d22317c7c5cfa6fbaf8b87dcc0d0883ae28a2bc5f"
+  },
+  "status": "proposal requiring reviewed implementations and factual completed preparation before executable binding",
+  "reason": "Independent reachability audit showed sparse-anchor temporal comparators omit intervening graph geometry. Add all-record same-schema controls and directly relevant existing GST/GraphSSM adaptations before final testing.",
+  "development_only": true,
+  "authorizes_confirmatory_generation": false,
+  "final_test_access": false,
+  "no_fresh_development_scores_inspected": true,
+  "counts": {
+    "train": 64,
+    "val": 16,
+    "test": 0
+  },
+  "training_seeds": [
+    101,
+    202,
+    303
+  ],
+  "families": [
+    {
+      "id": "candidate",
+      "role": "candidate",
+      "scope": "F47 persistent observed sample interface,32 physical anchors,all intervening geometry holds",
+      "grid": "plain/age x kernel depth1/2 x LR0.0003/0.001"
+    },
+    {
+      "id": "same_anchor_gru",
+      "role": "baseline",
+      "scope": "F47 plain boundary source at same32 anchors plus local readout embeddings,2-layer bidirectional GRU"
+    },
+    {
+      "id": "same_anchor_transformer",
+      "role": "baseline",
+      "scope": "F47 plain boundary source at same32 anchors plus local readout embeddings,2-layer temporal Transformer"
+    },
+    {
+      "id": "canonical_gru",
+      "role": "baseline",
+      "scope": "Full canonical observed trees,F48 refreshed reference features,every canonical hold,2-layer GNN+bidirectional GRU"
+    },
+    {
+      "id": "argmix_full_tree",
+      "role": "baseline",
+      "scope": "Full raw observed trees,F48,node attention within each tree,no cross-tree aggregation,paper-equation adaptation"
+    },
+    {
+      "id": "reference_smoother",
+      "role": "baseline",
+      "scope": "Observed reference labels/plain boundary QR evidence at32 anchors,physical-coordinate smoothing,zero learned parameters",
+      "grid": "bandwidth10/30/100/300kb x pseudocount0.001/0.01"
+    },
+    {
+      "id": "allrecord_boundary_gru",
+      "role": "baseline",
+      "scope": "F47 plain boundary GNN,every observed hold,physical intervals,2-layer bidirectional GRU"
+    },
+    {
+      "id": "allrecord_boundary_transformer",
+      "role": "baseline",
+      "scope": "F47 plain boundary GNN,every observed hold,physical intervals,2-layer temporal Transformer"
+    },
+    {
+      "id": "gst_ca_span",
+      "role": "baseline",
+      "scope": "Full raw observed trees,F48,all graph tokens,span-key-weighted GST cross-attention,paper-equation adaptation without ordered position embedding"
+    },
+    {
+      "id": "graphssm_zoh",
+      "role": "baseline",
+      "scope": "Full raw observed trees,F48,persistent query-node exact-ZOH bidirectional GraphSSM adaptation over all observed holds"
+    }
+  ],
+  "neural_grid": {
+    "hidden_widths": [
+      32,
+      64
+    ],
+    "dropout": [
+      0.0,
+      0.1
+    ],
+    "learning_rates": [
+      0.0003,
+      0.001
+    ],
+    "source_layers": 2,
+    "temporal_layers": 2,
+    "configurations_per_family": 8,
+    "epoch_cap": 48,
+    "patience": 8,
+    "weight_decay": 0.0001,
+    "gradient_clip_norm": 1.0
+  },
+  "candidate_grid_unchanged": true,
+  "checkpoint_rule": "minimum equal-parent validation float64 uncalibrated raw-logit NLL,earliest epoch on exact tie",
+  "family_rule": "mean selected-checkpoint NLL over all3 prescribed seeds. One global best+0.0001 tie window,then parameter count and frozen lexical ID",
+  "required_baseline_families": [
+    "same_anchor_gru",
+    "same_anchor_transformer",
+    "canonical_gru",
+    "argmix_full_tree",
+    "reference_smoother",
+    "allrecord_boundary_gru",
+    "allrecord_boundary_transformer",
+    "gst_ca_span",
+    "graphssm_zoh"
+  ],
+  "secondary_control_policy": "Preserve original selected-geometry/depth gain-matched diagonal and static-local contrasts,plus selected-age scalar-age or selected-plain-depth2 noncontextual contrast. Match information/source/learning rules and freeze before final generation.",
+  "maximum_prescribed_optimizer_starts": {
+    "main_neural": 216,
+    "secondary_control_reserve": 72,
+    "total": 288
+  },
+  "deterministic_smoother": {
+    "configuration_seed_cells": 24,
+    "distinct_predictors": 8,
+    "optimizer_starts": 0,
+    "independent_seed_evidence": false
+  },
+  "planning_resources_not_measurements": {
+    "gpu_hours": [
+      450,
+      900
+    ],
+    "two_gpu_elapsed_days": [
+      9.4,
+      18.8
+    ],
+    "caveat": "Conservative extrapolation only. Measure fresh-data family throughput and revise resource estimates before a final freeze. Do not omit families or change budgets based on outcome."
+  },
+  "resources": {
+    "repository_max_bytes": 500000000000,
+    "bulk_write_warning_bytes": 450000000000,
+    "max_concurrent_project_gpus": 2,
+    "eligible_gpus": [
+      2,
+      3,
+      4,
+      5
+    ],
+    "process_title": "AI Auto Research Pipeline Test"
+  },
+  "scope_policy": "Common observed parent/label/coordinate binding does not imply identical information access,capacity or native reproduction. Preserve full adaptation and source-scope notes in selection and paper.",
+  "failure_policy": "Preserve every start/failure. No missing or wholly ineligible required baseline family may be silently removed from strongest-baseline choice.",
+  "implementation_status": "Canonical fresh binder,all-record adapters and supplied-prior-art development runners require completion/review. This amendment is neither an executable training config nor a successful selection receipt."
+}

@@ -1,0 +1,60 @@
+36: 
+37: 
+38: def fit_configuration(model,cases,prepared,*,name,seed,settings,config_sha,checkpoint,prediction,live_check):
+39:     """Pure fitting utility; production budget/settings are admitted by the caller."""
+40:     spec=settings["model_specs"][name];binding={key:settings[key] for key in selection.BINDINGS}
+41:     main_sha=settings["main_selection_receipt"]["sha256"]
+44:     best=float("inf");best_epoch=None;stale=0;history=[];started=time.monotonic()
+45:     for epoch in range(settings["epochs"]):
+46:         live_check(False);deterministic_development_manifest()
+47:         model.train();order=list(range(len(tiles)));random.shuffle(order);losses=[]
+48:         for index in order:
+49:             tile=tiles[index];logits=model(prepared[id(tile)])
+54:                 raise RuntimeError("Missing or nonfinite secondary gradient")
+55:             torch.nn.utils.clip_grad_norm_(model.parameters(),1.);optimizer.step();losses.append(float(loss.detach()))
+56:         nll,rows,logits=validate(model,cases["val"],prepared)
+57:         live_check(False);deterministic_development_manifest()
+58:         history.append({"epoch":epoch,"val_nll":nll,"train_nll":math.fsum(losses)/len(losses)})
+59:         if nll<best:
+55:             torch.nn.utils.clip_grad_norm_(model.parameters(),1.);optimizer.step();losses.append(float(loss.detach()))
+56:         nll,rows,logits=validate(model,cases["val"],prepared)
+57:         live_check(False);deterministic_development_manifest()
+58:         history.append({"epoch":epoch,"val_nll":nll,"train_nll":math.fsum(losses)/len(losses)})
+59:         if nll<best:
+60:             best,best_epoch,stale=nll,epoch,0
+59:         if nll<best:
+60:             best,best_epoch,stale=nll,epoch,0
+61:             torch.save({"model":model.state_dict(),"epoch":epoch,"seed":seed,"validation_nll":nll,
+62:                 "protocol_sha256":config_sha,"completion_receipt_sha256":settings["completion_receipt_sha256"],
+63:                 "boundary_manifest_sha256":settings["boundary_dataset_manifest_sha256"],
+64:                 "implementation_sha256":settings["bound_implementation_sha256"],"source_binding":binding,
+73:     if chosen["protocol_sha256"]!=config_sha or chosen["control_spec"]!=spec or chosen["implementation_sha256"]!=settings["bound_implementation_sha256"]:
+74:         raise RuntimeError("Secondary checkpoint binding changed")
+75:     model.load_state_dict(chosen["model"],strict=True)
+76:     nll,rows,logits=validate(model,cases["val"],prepared)
+77:     live_check(True);deterministic_development_manifest()
+78:     if nll!=chosen["validation_nll"] or [selection.tensor_fingerprint(z) for z in logits]!=chosen["original_selected_logit_sha256"]:
+74:         raise RuntimeError("Secondary checkpoint binding changed")
+75:     model.load_state_dict(chosen["model"],strict=True)
+76:     nll,rows,logits=validate(model,cases["val"],prepared)
+77:     live_check(True);deterministic_development_manifest()
+78:     if nll!=chosen["validation_nll"] or [selection.tensor_fingerprint(z) for z in logits]!=chosen["original_selected_logit_sha256"]:
+79:         raise RuntimeError("Deterministic secondary checkpoint replay differs")
+75:     model.load_state_dict(chosen["model"],strict=True)
+76:     nll,rows,logits=validate(model,cases["val"],prepared)
+77:     live_check(True);deterministic_development_manifest()
+78:     if nll!=chosen["validation_nll"] or [selection.tensor_fingerprint(z) for z in logits]!=chosen["original_selected_logit_sha256"]:
+79:         raise RuntimeError("Deterministic secondary checkpoint replay differs")
+80:     torch.save({"logits":logits,"positions":[case.positions for case in cases["val"]],
+78:     if nll!=chosen["validation_nll"] or [selection.tensor_fingerprint(z) for z in logits]!=chosen["original_selected_logit_sha256"]:
+79:         raise RuntimeError("Deterministic secondary checkpoint replay differs")
+80:     torch.save({"logits":logits,"positions":[case.positions for case in cases["val"]],
+81:         "query_node_ids":[case.query_node_ids for case in cases["val"]],"parent_ids":[case.parent_id for case in cases["val"]],
+82:         "protocol_sha256":config_sha,"seed":seed,"nll_policy":selection.RAW_NLL,
+83:         "completion_receipt_sha256":settings["completion_receipt_sha256"],"source_binding":binding,
+85:         "implementation_sha256":settings["bound_implementation_sha256"],
+86:         "deterministic_execution_policy":settings["deterministic_execution_policy"]},prediction)
+87:     ending=live_check(True);deterministic_development_manifest()
+88:     return {"parameters":sum(p.numel() for p in model.parameters()),"best_epoch":best_epoch,
+89:         "learning_rate":settings["model_learning_rates"][name],"control_spec":spec,"history":history,
+90:         "validation_nll":nll,"per_parent":rows,"model_configuration":model.configuration_manifest(),

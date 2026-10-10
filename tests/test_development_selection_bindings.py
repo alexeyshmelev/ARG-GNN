@@ -110,6 +110,9 @@ def study(tmp_path,monkeypatch):
         ref=save(root,"configs/"+family+".json",config)
         configs[family]=config;refs.append({"family_id":family,**ref})
     monkeypatch.setattr(binding,"_family_contract",lambda family:deepcopy(contracts[family]))
+    # These small fixtures deliberately mock producer assembly as well as cohort
+    # admission. Actual typed assemblers are covered by separate regression tests.
+    monkeypatch.setattr(binding,"validate_producer_settings",lambda *a,**kw:None)
     amendment=json.loads((ROOT/binding.SCOPE_AMENDMENT).read_text())
     amendment_ref=save(root,binding.SCOPE_AMENDMENT,amendment)
     return {"root":root,"completion":completion,"completion_value":completion_value,"refs":refs,

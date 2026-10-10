@@ -163,3 +163,9 @@ package or Git action occurred in this task.
   "model_fitting_or_generation_performed": false
 }
 ```
+
+## Complete producer admission repair
+
+The original generic plan checks could accept dimensions, temporal depths or consumed cache paths rejected by the actual producers. The original independent reproductions and matching source bytes are retained in development_gate_audit_v1. The reusable validate_producer_settings API now guards consumed paths before reads, reconstructs the entire typed configuration with the actual producer assembler and captured reviewed search plan, and requires exact canonical JSON equality. Canonical configs additionally require the exact metadata/raw/prepared catalog derived from all80 inferred parents to match the already verified source snapshot. This pure replay loads control JSON only and never source tensors or labels. The mandatory genuine preparation verifier still runs before this API.
+
+The repair suite passed129 CPU tests in61.26seconds, including32 tests of actual producer assemblers and97 existing combined gate/selector tests. The older lightweight gate fixtures now explicitly mock producer assembly as well as cohort and scope admission. They do not certify complete producer settings. Separate new fixtures cover the ten actual assemblers without mocking the new validator. Independent repaired replay remains a separate audit.

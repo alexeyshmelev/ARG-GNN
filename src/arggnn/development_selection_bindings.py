@@ -139,6 +139,81 @@ def _family_contract(family):
     raise ValueError("Unsupported factual family")
 
 
+def validate_producer_settings(family,settings,*,completion,completion_path,
+        completion_sha256,capture,source_snapshot):
+    """Replay complete typed producer config assembly without loading tensors.
+
+    The caller must first perform mandatory completed-source admission. Captured
+    plans and manifest bytes are incorporated into the caller's final seal.
+    """
+    if family not in FAMILIES or not isinstance(settings,dict) or settings.get("family")!=family:
+        raise ValueError("Exact factual producer family required")
+    guarded_completion=guard_development_path(completion_path,project_root=capture.root)
+    selection._sha(completion_sha256)
+    for key in ("completion_receipt","boundary_data","age_data","preparation_execution_freeze",
+                "search_plan","dataset_manifest","dataset_protocol"):
+        if key in settings:guard_development_path(settings[key],project_root=capture.root)
+    if "scope_amendment" in settings:
+        amendment=settings["scope_amendment"]
+        if not isinstance(amendment,dict) or set(amendment)!={"path","sha256"}:
+            raise ValueError("Exact producer scope amendment reference required")
+        guard_development_path(amendment["path"],project_root=capture.root)
+    if "source_artifact_sha256" in settings:
+        catalog=settings["source_artifact_sha256"]
+        if not isinstance(catalog,dict):raise ValueError("Producer source catalog required")
+        for path,digest in catalog.items():
+            guard_development_path(path,project_root=capture.root);selection._sha(digest)
+    if family in ("candidate","gru","transformer","reference_smoother"):
+        expected=preparation.make_configs(completion,guarded_completion,completion_sha256)[family]
+        preparation.check_completion_settings(settings,completion)
+    else:
+        if "search_plan" not in settings or "search_plan_sha256" not in settings:
+            raise ValueError("Captured reviewed producer search plan required")
+        plan_path=guard_development_path(settings["search_plan"],project_root=capture.root)
+        plan_sha=selection._sha(settings["search_plan_sha256"])
+        plan=capture.read(_ref(capture,plan_path,plan_sha))
+        args=(plan,plan_path,plan_sha,completion,guarded_completion,completion_sha256)
+        if family=="argmix_full_tree":
+            from . import argmix_development_bindings as raw
+            raw.check_plan(plan);expected=raw.bound_settings(*args)
+        elif family=="canonical_gru":
+            from . import canonical_development_bindings as canonical
+            canonical.check_plan(plan)
+            fact=completion["stage_manifests"]["inferred"]
+            manifest=capture.read(_ref(capture,fact["path"],fact["sha256"]))
+            catalog={}
+            records=manifest.get("replicates")
+            if not isinstance(records,list) or len(records)!=80:
+                raise ValueError("Complete canonical raw-source catalog requires80 parents")
+            for record in records:
+                for field,hash_field in (("metadata","metadata_sha256"),("tensor_file","tensor_sha256"),
+                                        ("prepared_tensor_file","prepared_tensor_sha256")):
+                    path=str(guard_development_path(record[field],project_root=capture.root))
+                    digest=selection._sha(record[hash_field])
+                    if path in catalog:raise ValueError("Canonical raw-source catalog aliases different records")
+                    if source_snapshot.hashes.get(path)!=digest:
+                        raise ValueError("Canonical raw source is absent from verified completion catalog")
+                    catalog[path]=digest
+            expected=canonical.bound_settings(*args,catalog)
+        elif family in ("allrecord_gru","allrecord_transformer"):
+            from . import allrecord_development_bindings as allrecord
+            allrecord.validate_plan(plan);allrecord.validate_settings(settings)
+            expected=allrecord.bound_configs(*args)[family]
+            preparation.check_completion_settings(settings,completion)
+        else:
+            from . import priorart_development_bindings as priorart
+            priorart.check_plan(plan);priorart.validate_settings(settings)
+            amendment=plan["scope_amendment"]
+            captured_amendment=capture.read(_ref(capture,amendment["path"],amendment["sha256"]))
+            priorart.check_amendment(captured_amendment)
+            expected=priorart.bound_settings(*args)[family]
+    # Canonical JSON equality also rejects int/float and bool/int substitutions.
+    canonical_json=lambda value:json.dumps(value,sort_keys=True,separators=(",",":"),allow_nan=False)
+    if canonical_json(settings)!=canonical_json(expected):
+        raise ValueError("Complete typed producer settings differ from reviewed assembly/completion")
+    return deepcopy(expected)
+
+
 def _dependency_ref(capture,name,digest):
     selection._pin_name(name)
     path=Path(name)
@@ -274,6 +349,8 @@ def bind_development_selection(completion_path,expected_completion_sha256,*,
             raise ValueError("Complete reviewed family dependency pins differ")
         if any(settings.get(key)!=digest for key,digest in binding.items()):
             raise ValueError("Family completed source binding differs")
+        validate_producer_settings(family,settings,completion=completion,completion_path=completion_path,
+            completion_sha256=expected_completion_sha256,capture=capture,source_snapshot=source_lock)
         config=selection._normalize_config(settings)
         kind="candidate" if family=="candidate" else "bandwidth_pseudocount" if family=="reference_smoother" else "width_dropout_lr"
         selection._grid(config,kind)
