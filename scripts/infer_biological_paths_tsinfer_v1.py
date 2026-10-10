@@ -90,13 +90,15 @@ def validate_config(c):
         "proxy": {"allow_mutation": True, "epsilon": None},
         "force_sample_times": True, "minimum_connected_internal_reuse": 1,
         "storage_warning_bytes": 450000000000, "storage_limit_bytes": 500000000000,
-        "max_added_bytes": 20000000000,
+        "storage_accounting": STORAGE_POLICY,
     }
     for key, value in fixed.items():
         if c.get(key) != value:
             raise ValueError("fixed transfer contract changed: " + key)
     if c.get("polarization") != "REF_is_ancestral_only_under_pinned_tskit_writer_defaults":
         raise ValueError("unsupported ancestral-allele assumption")
+    checked_ref(c["storage_accounting"]["ledger_source"])
+    checked_ref(c["storage_accounting"]["snapshot"])
     for item in c["source_evidence"].values():
         checked_ref(item)
     checked_ref(c["observed_asset_pins"])
@@ -269,24 +271,161 @@ def runtime_inventory(prefix):
     return files
 
 
-def project_bytes():
+STORAGE_POLICY = {
+    "kind": "persistent_shared_ledger_and_local_qualification_caps_v3",
+    "ledger_source": {"path": "src/arggnn/gpu_pool_v1.py",
+                      "sha256": "ae1e0494ab672cfa3017759460eb06a4b4789eaef54928496c3c80314adcc0e1"},
+    "snapshot": {"path": "experiments/results/biological_shared_pool_storage_admission_v1/snapshot.json",
+                 "sha256": "0826fcedefa40dd261999c4916b85ae11f28628e5cee9046b2e4f6bf868fa10d"},
+    "ledger_path": ".runtime/gpup/storage_reservations.json",
+    "external_reserve_bytes": 130000000000,
+    "qualify_reservation_key": "biological_cpu_runtime_v1/isolated-runtime-and-handmade-qualification",
+    "qualify_reserved_bytes": 8000000000,
+    "qualify_installation_charge_max_bytes": 7000000000,
+    "qualify_local_write_cap_bytes": 1000000000,
+    "qualification_launch_log": "research/reviews/biological_paths_tsinfer_v1_source_audit/root_cpu_qualification_v1.launch.log",
+    "actual_infer_admitted": False,
+    "actual_infer_requested_bytes": 20000000000,
+}
+
+
+def storage_module(c):
+    import importlib.util
+    path = checked_ref(c["storage_accounting"]["ledger_source"])
+    sys.dont_write_bytecode = True
+    spec = importlib.util.spec_from_file_location("_tsinfer_frozen_storage_ledger_v3", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def local_scope_bytes(path):
+    """Only the fresh qualification tree or its one explicitly bound launch log."""
+    path = Path(path)
+    if path.is_symlink():
+        raise ValueError("symlink in local write scope")
+    if not path.exists():
+        return 0
+    if path.resolve() != path.absolute():
+        raise ValueError("local write scope must be canonical and symlink-free")
     total = 0
-    for directory, dirs, names in os.walk(ROOT, followlinks=False):
-        dirs[:] = [d for d in dirs if not (Path(directory)/d).is_symlink()]
+    if path.is_file():
+        info = path.stat()
+        return max(info.st_size, info.st_blocks * 512)
+    if not path.is_dir():
+        raise ValueError("regular local file or directory required")
+    def unreadable(error):
+        raise ValueError("unreadable local write scope") from error
+    for directory, dirs, names in os.walk(path, followlinks=False, onerror=unreadable):
+        info = Path(directory).stat()
+        total += max(info.st_size, info.st_blocks * 512)
+        for name in dirs + names:
+            p = Path(directory)/name
+            if p.is_symlink():
+                raise ValueError("symlink in local write scope")
         for name in names:
             p = Path(directory)/name
-            if not p.is_symlink():
-                total += p.stat().st_size
+            if not p.is_file():
+                raise ValueError("nonregular local output")
+            info = p.stat()
+            total += max(info.st_size, info.st_blocks * 512)
     return total
 
 
+class StorageAccounting:
+    """Read the shared ledger atomically; charge only bounded local writes."""
+    def __init__(self, c, receipt, runtime_ref):
+        self.c, self.policy = c, c["storage_accounting"]
+        self.module = storage_module(c)
+        p = self.policy
+        if (receipt.get("kind") != "biological_paths_tsinfer_v1_storage_admission_v3"
+                or receipt.get("mode") != "qualify-cpu"
+                or receipt.get("project_root") != str(ROOT)
+                or receipt.get("snapshot") != p["snapshot"]
+                or receipt.get("reservation_key") != p["qualify_reservation_key"]
+                or receipt.get("reserved_bytes") != p["qualify_reserved_bytes"]
+                or receipt.get("local_write_cap_bytes") != p["qualify_local_write_cap_bytes"]
+                or receipt.get("limit_bytes") != c["storage_limit_bytes"]
+                or receipt.get("warning_bytes") != c["storage_warning_bytes"]):
+            raise ValueError("mode-specific ledger storage admission differs")
+        self.target = confined(c["qualification_root"])
+        self.log = confined(p["qualification_launch_log"])
+        charge = json.loads(checked_ref(receipt["installation_charge"]).read_text())
+        charged = charge.get("installation_charge_bytes")
+        if (charge.get("kind") != "biological_tsinfer_installation_footprint_charge_v3"
+                or charge.get("status") != "audited_conservative_local_scope_bound"
+                or charge.get("authorizer") != "root_agent"
+                or charge.get("runtime") != runtime_ref
+                or charge.get("reservation_key") != p["qualify_reservation_key"]
+                or charge.get("installation_scope_complete") is not True
+                or charge.get("installation_read_only_after_charge") is not True
+                or type(charged) is not int or not 0 <= charged <= p["qualify_installation_charge_max_bytes"]
+                or charged + p["qualify_local_write_cap_bytes"] > p["qualify_reserved_bytes"]
+                or not charge.get("scope_paths") or not charge.get("evidence_refs")):
+            raise ValueError("audited complete installation footprint charge required")
+        for path in charge["scope_paths"]:
+            installation_path = confined(path)
+            if (installation_path == self.target or self.target in installation_path.parents
+                    or installation_path in self.target.parents
+                    or installation_path == self.log or installation_path in self.log.parents):
+                raise ValueError("qualification writes cannot be counted as readonly installation")
+        if c["runtime_prefix"] not in charge["scope_paths"]:
+            raise ValueError("installation charge omits frozen runtime prefix")
+        for item in charge["evidence_refs"]:
+            checked_ref(item)
+        self.installation_charge = charged
+        self.installation_ref = receipt["installation_charge"]
+        self.expected_initial_ledger_sha = receipt["ledger_sha256_at_admission"]
+        if not isinstance(self.expected_initial_ledger_sha, str) or len(self.expected_initial_ledger_sha) != 64:
+            raise ValueError("exact initial ledger binding required")
+        self.first, self.high_water, self.check_count = True, 0, 0
+        self.check()
+
+    def check(self):
+        import fcntl
+        p = self.policy
+        with self.module.lock_file(ROOT, "scheduler.lock") as locked:
+            fcntl.flock(locked, fcntl.LOCK_EX)
+            snapshot = self.module.snapshot_record(ROOT, str(confined(p["snapshot"]["path"])), p["snapshot"]["sha256"])
+            def available():
+                value = os.statvfs(ROOT)
+                return value.f_bavail * value.f_frsize
+            ledger = self.module.StorageLedger(ROOT, snapshot, p["external_reserve_bytes"],
+                                               self.c["storage_warning_bytes"], available)
+            if str(ledger.path) != str(confined(p["ledger_path"])) or not ledger.path.is_file():
+                raise ValueError("existing shared storage ledger required")
+            before = sha(ledger.path)
+            if self.first and before != self.expected_initial_ledger_sha:
+                raise ValueError("root-issued ledger changed before admission; renew storage receipt")
+            state = ledger._load()
+            entry = state["jobs"].get(p["qualify_reservation_key"])
+            expected_entry = {"reserved_bytes": p["qualify_reserved_bytes"],
+                              "output": str(confined(self.c["runtime_prefix"]))}
+            if entry != expected_entry:
+                raise ValueError("exact existing runtime-plus-handmade 8GB reservation required")
+            account = ledger._check(state)  # Includes external reserve, every controller and every job.
+            if sha(ledger.path) != before:
+                raise ValueError("ledger changed during atomic read")
+        if account["projected_bytes"] >= self.c["storage_limit_bytes"]:
+            raise ValueError("500GB hard project storage limit exceeded")
+        current = local_scope_bytes(self.target) + local_scope_bytes(self.log)
+        self.high_water = max(self.high_water, current)
+        if current > p["qualify_local_write_cap_bytes"] or self.installation_charge + self.high_water > p["qualify_reserved_bytes"]:
+            raise ValueError("qualification local output/cache/temp/log reservation exceeded")
+        self.check_count += 1
+        result = {**account, "ledger_sha256": before, "reservation_key": p["qualify_reservation_key"],
+                  "reserved_bytes": p["qualify_reserved_bytes"], "installation_charge_bytes": self.installation_charge,
+                  "installation_charge": self.installation_ref, "local_current_bytes": current,
+                  "local_high_water_bytes": self.high_water, "local_cap_bytes": p["qualify_local_write_cap_bytes"],
+                  "check_count": self.check_count, "snapshot_is_historical_not_fresh_measurement": True}
+        self.first = False
+        return result
+
+
 def storage_check(c, initial=None):
-    used = project_bytes()
-    if used >= c["storage_warning_bytes"] or used + c["max_added_bytes"] >= c["storage_limit_bytes"]:
-        raise ValueError("project storage warning/reservation exceeded")
-    if initial is not None and used - initial > c["max_added_bytes"]:
-        raise ValueError("run storage reservation exceeded")
-    return used
+    if not isinstance(initial, StorageAccounting):
+        raise ValueError("root-bound persistent ledger and local accounting context required")
+    return initial.check()
 
 
 def admission(c, args, config_path):
@@ -302,6 +441,8 @@ def admission(c, args, config_path):
         raise ValueError("root CPU admission scope differs")
     if a.get("config") != ref(config_path) or a.get("implementation") != ref(Path(__file__)) or a.get("observed_asset_pins") != c["observed_asset_pins"]:
         raise ValueError("admission does not bind frozen config/source/input metadata lock")
+    if args.mode == "infer":
+        raise ValueError("actual inference blocked: no admitted 20GB ledger reservation; offline audited rebase/new source admission required")
     runtime_path = checked_ref(a["runtime"])
     storage_path = checked_ref(a["storage"])
     runtime = json.loads(runtime_path.read_text())
@@ -318,14 +459,7 @@ def admission(c, args, config_path):
         if importlib.metadata.version(name) != expected:
             raise ValueError("installed distribution version differs: " + name)
     storage = json.loads(storage_path.read_text())
-    if (storage.get("kind") != "biological_paths_tsinfer_v1_storage_admission"
-            or storage.get("project_root") != str(ROOT)
-            or storage.get("max_added_bytes") != c["max_added_bytes"]
-            or storage.get("limit_bytes") != c["storage_limit_bytes"]
-            or type(storage.get("measured_project_bytes")) is not int
-            or storage["measured_project_bytes"] >= c["storage_warning_bytes"]):
-        raise ValueError("storage admission differs")
-    initial = storage_check(c)
+    initial = StorageAccounting(c, storage, a["runtime"])
     if args.mode == "infer":
         q = json.loads(checked_ref(a["cpu_qualification"]).read_text())
         if (q.get("kind") != "biological_paths_tsinfer_v1_cpu_qualification"
@@ -490,6 +624,7 @@ def pipeline(c, assets, work, initial):
         journal.append(entry)
         write_json(work/"stages.json", journal)
         started = time.monotonic()
+        native_error = None
         try:
             value = callback()
             if tree:
@@ -501,10 +636,21 @@ def pipeline(c, assets, work, initial):
             entry["status"] = "complete"
             return value
         except Exception as error:
+            native_error = error
             entry.update(status="failed_preserved", error_type=type(error).__name__, error=str(error))
             raise
         finally:
             entry["elapsed_seconds"] = time.monotonic()-started
+            try:
+                entry["storage_after"] = storage_check(c, initial)
+            except Exception as storage_error:
+                entry["storage_after_failure"] = {
+                    "error_type": type(storage_error).__name__, "error": str(storage_error)}
+                if native_error is None:
+                    entry.update(status="failed_storage_preserved",
+                                 error_type=type(storage_error).__name__, error=str(storage_error))
+                    write_json(work/"stages.json", journal)
+                    raise
             write_json(work/"stages.json", journal)
 
     all_data = tsinfer.SampleData(path=str(work/"all.samples"), sequence_length=c["length_bp"])
@@ -692,12 +838,13 @@ def main():
         # All nonstdlib inference imports and native execution occur after admission.
         os.environ["PYTHONDONTWRITEBYTECODE"] = "1"
         sys.dont_write_bytecode = True
-        for name in ("TMPDIR", "NUMBA_CACHE_DIR", "XDG_CACHE_HOME"):
-            dest = confined(".runtime/cache/biological_tsinfer_v1/"+name.lower())
-            dest.mkdir(parents=True, exist_ok=True)
-            os.environ[name] = str(dest)
         target = confined(c["qualification_root"] if args.mode == "qualify-cpu" else c["output_root"])
         target.mkdir(exist_ok=False)
+        for name in ("TMPDIR", "TMP", "TEMP", "NUMBA_CACHE_DIR", "XDG_CACHE_HOME", "XDG_CONFIG_HOME", "XDG_DATA_HOME"):
+            dest = target/"write_scopes"/name.lower()
+            dest.mkdir(parents=True, exist_ok=True)
+            os.environ[name] = str(dest)
+        storage_check(c, initial)
         manifest = {"kind": "biological_paths_tsinfer_v1_cpu_qualification" if args.mode == "qualify-cpu" else "biological_paths_tsinfer_v1",
                     "status": "running", "condition": CONDITION, "primary_condition": CONDITION,
                     "original_parent_interval_bp0": [0, c["length_bp"]],
@@ -734,6 +881,13 @@ def main():
             write_json(target/"manifest.json", manifest)
             raise
         write_json(target/"manifest.json", manifest, new=True)
+        try:
+            storage_check(c, initial)
+        except Exception as error:
+            manifest.update(status="failed_storage_after_manifest_preserved",
+                            error_type=type(error).__name__, error=str(error))
+            write_json(target/"manifest.json", manifest)
+            raise
         print(json.dumps(ref(target/"manifest.json"), indent=2))
     except (ValueError, KeyError, RuntimeError) as error:
         parser.error(str(error))

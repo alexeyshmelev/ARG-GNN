@@ -1,5 +1,6 @@
 """Handmade/source-only producer checks; never tsinfer/date or observed arrays."""
 from __future__ import annotations
+import ast
 import builtins
 import copy
 import importlib.util
@@ -232,15 +233,6 @@ def test_actual_mode_without_root_hashes_rejected_before_runtime(monkeypatch):
         m.admission(config(),args,ROOT/"configs/biological_paths_tsinfer_v1.json")
 
 
-def test_storage_guard_handmade_count(monkeypatch):
-    c=config()
-    monkeypatch.setattr(m,"project_bytes",lambda:450000000000)
-    with pytest.raises(ValueError,match="storage"):
-        m.storage_check(c)
-    monkeypatch.setattr(m,"project_bytes",lambda:30)
-    assert m.storage_check(c,10)==30
-
-
 def test_polarization_requires_pinned_production_writer_header():
     coordinates=[{"site_id":0,"tree_position_0based":10,"VCF_position_1based":11}]
     got=m.parse_vcf(io.StringIO("##source=tskit 1.0.3\n"+vcf()),["a","b"],coordinates,100,expected_writer_source="tskit 1.0.3")
@@ -362,3 +354,234 @@ def test_blocked_revision_admission_cannot_be_reused(monkeypatch):
                          admission="inactive",expected_admission_sha256="0"*64)
     with pytest.raises(ValueError,match="implementation/config bytes differ"):
         m.admission(config(),args,ROOT/"configs/biological_paths_tsinfer_v1.json")
+
+
+def storage_fixture(tmp_path,monkeypatch):
+    """Persistent fake ledger and bounded files, never the live project ledger."""
+    pool_spec=importlib.util.spec_from_file_location("fake_storage_pool_source",ROOT/"src/arggnn/gpu_pool_v1.py")
+    pool=importlib.util.module_from_spec(pool_spec)
+    pool_spec.loader.exec_module(pool)
+    monkeypatch.setattr(m,"ROOT",tmp_path)
+    monkeypatch.setattr(m,"storage_module",lambda c:pool)
+    monkeypatch.setattr(m.os,"statvfs",lambda path:SimpleNamespace(f_bavail=10**15,f_frsize=1))
+    c=config()
+    c["storage_accounting"]=copy.deepcopy(c["storage_accounting"])
+    snapshot_path=tmp_path/"snapshot.json"
+    snapshot={"schema":"biological_candidate_storage_snapshot_v1","status":"complete","returncode":0,
+              "project_root":str(tmp_path),"command":["du","-s","-B1",str(tmp_path)],
+              "used_bytes":167336640512,"completed_utc":"2026-10-10T17:31:06.897981+00:00"}
+    snapshot_path.write_text(json.dumps(snapshot))
+    snapshot_ref={"path":"snapshot.json","sha256":m.sha(snapshot_path)}
+    c["storage_accounting"]["snapshot"]=snapshot_ref
+    prefix=tmp_path/c["runtime_prefix"]
+    prefix.mkdir(parents=True)
+    ledger_path=tmp_path/c["storage_accounting"]["ledger_path"]
+    ledger_path.parent.mkdir(parents=True)
+    key=c["storage_accounting"]["qualify_reservation_key"]
+    ledger={"schema":"gpu_pool_storage_ledger_v1","root":str(tmp_path),
+            "snapshot_sha256":snapshot_ref["sha256"],"baseline_bytes":snapshot["used_bytes"],
+            "external_reserve_bytes":130000000000,"limit_bytes":450000000000,
+            "controllers":{"gpu2":{"reserved_bytes":67108864},"gpu3":{"reserved_bytes":67108864}},
+            "jobs":{key:{"reserved_bytes":8000000000,"output":str(prefix)},
+                    "candidate202":{"reserved_bytes":29281048576,"output":str(tmp_path/"candidate202")},
+                    "GST101":{"reserved_bytes":23521048576,"output":str(tmp_path/"GST101")},
+                    "candidate303":{"reserved_bytes":29281048576,"output":str(tmp_path/"candidate303")},
+                    "mechanisms101":{"reserved_bytes":52321048576,"output":str(tmp_path/"mechanisms101")}}}
+    ledger_path.write_text(json.dumps(ledger))
+    runtime_path=tmp_path/"runtime.json"
+    runtime_path.write_text('{"handmade_runtime_inventory":true}')
+    runtime_ref={"path":"runtime.json","sha256":m.sha(runtime_path)}
+    charge_path=tmp_path/"installation_charge.json"
+    charge={"kind":"biological_tsinfer_installation_footprint_charge_v3",
+            "status":"audited_conservative_local_scope_bound","authorizer":"root_agent",
+            "runtime":runtime_ref,"reservation_key":key,"installation_scope_complete":True,
+            "installation_read_only_after_charge":True,"installation_charge_bytes":7000000000,
+            "scope_paths":[c["runtime_prefix"],".runtime/cache/installation"],
+            "evidence_refs":[runtime_ref]}
+    charge_path.write_text(json.dumps(charge))
+    receipt={"kind":"biological_paths_tsinfer_v1_storage_admission_v3","mode":"qualify-cpu",
+             "project_root":str(tmp_path),"snapshot":snapshot_ref,"reservation_key":key,
+             "reserved_bytes":8000000000,"local_write_cap_bytes":1000000000,
+             "limit_bytes":500000000000,"warning_bytes":450000000000,
+             "installation_charge":{"path":"installation_charge.json","sha256":m.sha(charge_path)},
+             "ledger_sha256_at_admission":m.sha(ledger_path)}
+    return c,receipt,runtime_ref,ledger_path,ledger,charge_path,charge
+
+
+def test_persistent_ledger_includes_every_reservation_and_external_reserve(tmp_path,monkeypatch):
+    c,r,rr,path,state,_,_=storage_fixture(tmp_path,monkeypatch)
+    before=path.read_bytes()
+    account=m.StorageAccounting(c,r,rr)
+    result=account.check()
+    assert result["projected_bytes"]==439875052544
+    assert result["reserved_bytes"]==8000000000
+    assert result["persistent_reservations"]==5
+    assert result["snapshot_is_historical_not_fresh_measurement"]
+    assert path.read_bytes()==before
+
+
+def test_atomic_initial_ledger_receipt_rejects_stale_binding(tmp_path,monkeypatch):
+    c,r,rr,*_=storage_fixture(tmp_path,monkeypatch)
+    r["ledger_sha256_at_admission"]="0"*64
+    with pytest.raises(ValueError,match="renew storage receipt"):
+        m.StorageAccounting(c,r,rr)
+
+
+@pytest.mark.parametrize("field,value",[("external_reserve_bytes",0),("baseline_bytes",1),
+                                      ("snapshot_sha256","0"*64),("limit_bytes",500000000000)])
+def test_shared_ledger_rebase_cannot_be_adopted_silently(tmp_path,monkeypatch,field,value):
+    c,r,rr,path,state,_,_=storage_fixture(tmp_path,monkeypatch)
+    state[field]=value
+    path.write_text(json.dumps(state))
+    r["ledger_sha256_at_admission"]=m.sha(path)
+    with pytest.raises(ValueError,match="rebase"):
+        m.StorageAccounting(c,r,rr)
+
+
+def test_strict450GB_rejects_exact_boundary_after_new_reservation(tmp_path,monkeypatch):
+    c,r,rr,path,state,_,_=storage_fixture(tmp_path,monkeypatch)
+    account=m.StorageAccounting(c,r,rr)
+    state["jobs"]["new"]={"reserved_bytes":10124947456,"output":str(tmp_path/"new")}
+    path.write_text(json.dumps(state))
+    with pytest.raises(ValueError,match="ceiling"):
+        account.check()
+
+
+@pytest.mark.parametrize("value",[20000000000,0])
+def test_only_existing8GB_runtime_plus_handmade_job_can_qualify(tmp_path,monkeypatch,value):
+    c,r,rr,path,state,_,_=storage_fixture(tmp_path,monkeypatch)
+    state["jobs"][c["storage_accounting"]["qualify_reservation_key"]]["reserved_bytes"]=value
+    path.write_text(json.dumps(state));r["ledger_sha256_at_admission"]=m.sha(path)
+    with pytest.raises(ValueError,match="8GB"):
+        m.StorageAccounting(c,r,rr)
+
+
+@pytest.mark.parametrize("field,value",[("installation_charge_bytes",7000000001),
+                                      ("installation_scope_complete",False),
+                                      ("installation_read_only_after_charge",False)])
+def test_installation_charge_bounds_entire8GB_job(tmp_path,monkeypatch,field,value):
+    c,r,rr,_,_,charge_path,charge=storage_fixture(tmp_path,monkeypatch)
+    charge[field]=value
+    charge_path.write_text(json.dumps(charge))
+    r["installation_charge"]["sha256"]=m.sha(charge_path)
+    with pytest.raises(ValueError,match="installation footprint"):
+        m.StorageAccounting(c,r,rr)
+
+
+def test_output_JIT_temp_cache_and_bound_launcher_log_charged_locally(tmp_path,monkeypatch):
+    c,r,rr,*_=storage_fixture(tmp_path,monkeypatch)
+    account=m.StorageAccounting(c,r,rr)
+    for name in ["all_dated.trees","write_scopes/numba_cache_dir/jit.bin",
+                 "write_scopes/tmpdir/transient.bin","write_scopes/xdg_cache_home/cache.bin"]:
+        p=account.target/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(b"x"*6000)
+    account.log.parent.mkdir(parents=True,exist_ok=True);account.log.write_bytes(b"log"*3000)
+    original=m.os.walk
+    def local_only(path,*args,**kwargs):
+        assert Path(path)==account.target
+        return original(path,*args,**kwargs)
+    monkeypatch.setattr(m.os,"walk",local_only)
+    result=account.check()
+    assert result["local_current_bytes"]>=33000
+    high=result["local_high_water_bytes"]
+    (account.target/"write_scopes/tmpdir/transient.bin").unlink()
+    result=account.check()
+    assert result["local_current_bytes"]<high and result["local_high_water_bytes"]==high
+
+
+def test_local_cap_cannot_spend_beyond_runtime_handmade_reservation(tmp_path,monkeypatch):
+    c,r,rr,*_=storage_fixture(tmp_path,monkeypatch)
+    account=m.StorageAccounting(c,r,rr)
+    monkeypatch.setattr(m,"local_scope_bytes",lambda path:1000000001 if path==account.target else 0)
+    with pytest.raises(ValueError,match="local output"):
+        account.check()
+
+
+def test_native_local_symlink_or_dangling_path_cannot_escape_accounting(tmp_path):
+    p=tmp_path/"dangling";p.symlink_to(tmp_path/"missing")
+    with pytest.raises(ValueError,match="symlink"):
+        m.local_scope_bytes(p)
+
+
+def test_no_global_storage_context_fallback_exists():
+    with pytest.raises(ValueError,match="root-bound"):
+        m.storage_check(config())
+
+
+def test_infer_is_blocked_before_runtime_or_input_access(tmp_path,monkeypatch):
+    cfg_path=ROOT/"configs/biological_paths_tsinfer_v1.json"
+    a={"kind":"biological_paths_tsinfer_v1_root_admission","authorizer":"root_agent",
+       "mode":"infer","condition":m.CONDITION,"truth_or_oracle_inputs_authorized":False,
+       "config":m.ref(cfg_path),"implementation":m.ref(Path(m.__file__)),
+       "observed_asset_pins":config()["observed_asset_pins"],
+       "runtime":{"path":"FORBIDDEN_RUNTIME_ACCESS","sha256":"0"*64}}
+    p=tmp_path/"infer_admission.json";p.write_text(json.dumps(a))
+    args=SimpleNamespace(expected_config_sha256=m.sha(cfg_path),
+                         expected_source_sha256=m.sha(Path(m.__file__)),admission=str(p),
+                         expected_admission_sha256=m.sha(p),mode="infer")
+    monkeypatch.setattr(m,"runtime_inventory",lambda *args: (_ for _ in ()).throw(AssertionError("runtime visited")))
+    with pytest.raises(ValueError,match="no admitted 20GB"):
+        m.admission(config(),args,cfg_path)
+
+
+def stage_fixture(tmp_path,monkeypatch,*,fail_storage):
+    """Execute the exact stage wrapper AST without any inference module import."""
+    tree=ast.parse(Path(m.__file__).read_text())
+    pipeline=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=="pipeline")
+    stage=next(n for n in pipeline.body if isinstance(n,ast.FunctionDef) and n.name=="stage")
+    journal=[]
+    calls=[]
+    def storage(c,initial):
+        calls.append(1)
+        if fail_storage and len(calls)==2:
+            raise ValueError("local cap reached")
+        return {"handmade_local_storage_check":True}
+    environment={**m.__dict__,"c":config(),"initial":None,"work":tmp_path,
+                 "journal":journal,"storage_check":storage}
+    exec(compile(ast.Module(body=[stage],type_ignores=[]),str(m.__file__),"exec"),environment)
+    return environment["stage"],journal,calls
+
+
+def test_stage_storage_failure_preserves_original_native_error_and_journal(tmp_path,monkeypatch):
+    stage,journal,calls=stage_fixture(tmp_path,monkeypatch,fail_storage=True)
+    def native_failure():
+        raise RuntimeError("native date failure")
+    with pytest.raises(RuntimeError,match="native date failure"):
+        stage("handmade",native_failure)
+    entry=json.loads((tmp_path/"stages.json").read_text())[0]
+    assert entry["status"]=="failed_preserved" and entry["error_type"]=="RuntimeError"
+    assert entry["storage_after_failure"]=={"error_type":"ValueError","error":"local cap reached"}
+    assert len(calls)==2
+
+
+def test_stage_storage_failure_after_success_is_logged_and_raised(tmp_path,monkeypatch):
+    stage,journal,calls=stage_fixture(tmp_path,monkeypatch,fail_storage=True)
+    with pytest.raises(ValueError,match="local cap reached"):
+        stage("handmade",lambda:42)
+    entry=json.loads((tmp_path/"stages.json").read_text())[0]
+    assert entry["status"]=="failed_storage_preserved"
+    assert entry["storage_after_failure"]["error"]=="local cap reached"
+    assert len(calls)==2
+
+
+def test_stage_success_records_local_storage_after(tmp_path,monkeypatch):
+    stage,journal,calls=stage_fixture(tmp_path,monkeypatch,fail_storage=False)
+    assert stage("handmade",lambda:42)==42
+    entry=json.loads((tmp_path/"stages.json").read_text())[0]
+    assert entry["status"]=="complete" and entry["storage_after"]["handmade_local_storage_check"]
+    assert len(calls)==2
+
+
+def test_local_directory_allocation_is_charged(tmp_path):
+    folder=tmp_path/"handmade"
+    folder.mkdir()
+    info=folder.stat()
+    assert m.local_scope_bytes(folder)==max(info.st_size,info.st_blocks*512)
+
+
+def test_unreadable_local_scope_cannot_yield_partial_accounting(tmp_path,monkeypatch):
+    def inaccessible(path,*,followlinks,onerror):
+        onerror(PermissionError("handmade inaccessible directory"))
+        return []
+    monkeypatch.setattr(m.os,"walk",inaccessible)
+    with pytest.raises(ValueError,match="unreadable"):
+        m.local_scope_bytes(tmp_path)

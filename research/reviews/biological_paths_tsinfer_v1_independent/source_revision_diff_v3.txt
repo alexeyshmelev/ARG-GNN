@@ -1,0 +1,640 @@
+--- previous_script_v2.py
++++ scripts/infer_biological_paths_tsinfer_v1.py
+@@ -90,13 +90,15 @@
+         "proxy": {"allow_mutation": True, "epsilon": None},
+         "force_sample_times": True, "minimum_connected_internal_reuse": 1,
+         "storage_warning_bytes": 450000000000, "storage_limit_bytes": 500000000000,
+-        "max_added_bytes": 20000000000,
++        "storage_accounting": STORAGE_POLICY,
+     }
+     for key, value in fixed.items():
+         if c.get(key) != value:
+             raise ValueError("fixed transfer contract changed: " + key)
+     if c.get("polarization") != "REF_is_ancestral_only_under_pinned_tskit_writer_defaults":
+         raise ValueError("unsupported ancestral-allele assumption")
++    checked_ref(c["storage_accounting"]["ledger_source"])
++    checked_ref(c["storage_accounting"]["snapshot"])
+     for item in c["source_evidence"].values():
+         checked_ref(item)
+     checked_ref(c["observed_asset_pins"])
+@@ -269,24 +271,161 @@
+     return files
+ 
+ 
+-def project_bytes():
++STORAGE_POLICY = {
++    "kind": "persistent_shared_ledger_and_local_qualification_caps_v3",
++    "ledger_source": {"path": "src/arggnn/gpu_pool_v1.py",
++                      "sha256": "ae1e0494ab672cfa3017759460eb06a4b4789eaef54928496c3c80314adcc0e1"},
++    "snapshot": {"path": "experiments/results/biological_shared_pool_storage_admission_v1/snapshot.json",
++                 "sha256": "0826fcedefa40dd261999c4916b85ae11f28628e5cee9046b2e4f6bf868fa10d"},
++    "ledger_path": ".runtime/gpup/storage_reservations.json",
++    "external_reserve_bytes": 130000000000,
++    "qualify_reservation_key": "biological_cpu_runtime_v1/isolated-runtime-and-handmade-qualification",
++    "qualify_reserved_bytes": 8000000000,
++    "qualify_installation_charge_max_bytes": 7000000000,
++    "qualify_local_write_cap_bytes": 1000000000,
++    "qualification_launch_log": "research/reviews/biological_paths_tsinfer_v1_source_audit/root_cpu_qualification_v1.launch.log",
++    "actual_infer_admitted": False,
++    "actual_infer_requested_bytes": 20000000000,
++}
++
++
++def storage_module(c):
++    import importlib.util
++    path = checked_ref(c["storage_accounting"]["ledger_source"])
++    sys.dont_write_bytecode = True
++    spec = importlib.util.spec_from_file_location("_tsinfer_frozen_storage_ledger_v3", path)
++    module = importlib.util.module_from_spec(spec)
++    spec.loader.exec_module(module)
++    return module
++
++
++def local_scope_bytes(path):
++    """Only the fresh qualification tree or its one explicitly bound launch log."""
++    path = Path(path)
++    if path.is_symlink():
++        raise ValueError("symlink in local write scope")
++    if not path.exists():
++        return 0
++    if path.resolve() != path.absolute():
++        raise ValueError("local write scope must be canonical and symlink-free")
+     total = 0
+-    for directory, dirs, names in os.walk(ROOT, followlinks=False):
+-        dirs[:] = [d for d in dirs if not (Path(directory)/d).is_symlink()]
++    if path.is_file():
++        info = path.stat()
++        return max(info.st_size, info.st_blocks * 512)
++    if not path.is_dir():
++        raise ValueError("regular local file or directory required")
++    def unreadable(error):
++        raise ValueError("unreadable local write scope") from error
++    for directory, dirs, names in os.walk(path, followlinks=False, onerror=unreadable):
++        info = Path(directory).stat()
++        total += max(info.st_size, info.st_blocks * 512)
++        for name in dirs + names:
++            p = Path(directory)/name
++            if p.is_symlink():
++                raise ValueError("symlink in local write scope")
+         for name in names:
+             p = Path(directory)/name
+-            if not p.is_symlink():
+-                total += p.stat().st_size
++            if not p.is_file():
++                raise ValueError("nonregular local output")
++            info = p.stat()
++            total += max(info.st_size, info.st_blocks * 512)
+     return total
+ 
+ 
++class StorageAccounting:
++    """Read the shared ledger atomically; charge only bounded local writes."""
++    def __init__(self, c, receipt, runtime_ref):
++        self.c, self.policy = c, c["storage_accounting"]
++        self.module = storage_module(c)
++        p = self.policy
++        if (receipt.get("kind") != "biological_paths_tsinfer_v1_storage_admission_v3"
++                or receipt.get("mode") != "qualify-cpu"
++                or receipt.get("project_root") != str(ROOT)
++                or receipt.get("snapshot") != p["snapshot"]
++                or receipt.get("reservation_key") != p["qualify_reservation_key"]
++                or receipt.get("reserved_bytes") != p["qualify_reserved_bytes"]
++                or receipt.get("local_write_cap_bytes") != p["qualify_local_write_cap_bytes"]
++                or receipt.get("limit_bytes") != c["storage_limit_bytes"]
++                or receipt.get("warning_bytes") != c["storage_warning_bytes"]):
++            raise ValueError("mode-specific ledger storage admission differs")
++        self.target = confined(c["qualification_root"])
++        self.log = confined(p["qualification_launch_log"])
++        charge = json.loads(checked_ref(receipt["installation_charge"]).read_text())
++        charged = charge.get("installation_charge_bytes")
++        if (charge.get("kind") != "biological_tsinfer_installation_footprint_charge_v3"
++                or charge.get("status") != "audited_conservative_local_scope_bound"
++                or charge.get("authorizer") != "root_agent"
++                or charge.get("runtime") != runtime_ref
++                or charge.get("reservation_key") != p["qualify_reservation_key"]
++                or charge.get("installation_scope_complete") is not True
++                or charge.get("installation_read_only_after_charge") is not True
++                or type(charged) is not int or not 0 <= charged <= p["qualify_installation_charge_max_bytes"]
++                or charged + p["qualify_local_write_cap_bytes"] > p["qualify_reserved_bytes"]
++                or not charge.get("scope_paths") or not charge.get("evidence_refs")):
++            raise ValueError("audited complete installation footprint charge required")
++        for path in charge["scope_paths"]:
++            installation_path = confined(path)
++            if (installation_path == self.target or self.target in installation_path.parents
++                    or installation_path in self.target.parents
++                    or installation_path == self.log or installation_path in self.log.parents):
++                raise ValueError("qualification writes cannot be counted as readonly installation")
++        if c["runtime_prefix"] not in charge["scope_paths"]:
++            raise ValueError("installation charge omits frozen runtime prefix")
++        for item in charge["evidence_refs"]:
++            checked_ref(item)
++        self.installation_charge = charged
++        self.installation_ref = receipt["installation_charge"]
++        self.expected_initial_ledger_sha = receipt["ledger_sha256_at_admission"]
++        if not isinstance(self.expected_initial_ledger_sha, str) or len(self.expected_initial_ledger_sha) != 64:
++            raise ValueError("exact initial ledger binding required")
++        self.first, self.high_water, self.check_count = True, 0, 0
++        self.check()
++
++    def check(self):
++        import fcntl
++        p = self.policy
++        with self.module.lock_file(ROOT, "scheduler.lock") as locked:
++            fcntl.flock(locked, fcntl.LOCK_EX)
++            snapshot = self.module.snapshot_record(ROOT, str(confined(p["snapshot"]["path"])), p["snapshot"]["sha256"])
++            def available():
++                value = os.statvfs(ROOT)
++                return value.f_bavail * value.f_frsize
++            ledger = self.module.StorageLedger(ROOT, snapshot, p["external_reserve_bytes"],
++                                               self.c["storage_warning_bytes"], available)
++            if str(ledger.path) != str(confined(p["ledger_path"])) or not ledger.path.is_file():
++                raise ValueError("existing shared storage ledger required")
++            before = sha(ledger.path)
++            if self.first and before != self.expected_initial_ledger_sha:
++                raise ValueError("root-issued ledger changed before admission; renew storage receipt")
++            state = ledger._load()
++            entry = state["jobs"].get(p["qualify_reservation_key"])
++            expected_entry = {"reserved_bytes": p["qualify_reserved_bytes"],
++                              "output": str(confined(self.c["runtime_prefix"]))}
++            if entry != expected_entry:
++                raise ValueError("exact existing runtime-plus-handmade 8GB reservation required")
++            account = ledger._check(state)  # Includes external reserve, every controller and every job.
++            if sha(ledger.path) != before:
++                raise ValueError("ledger changed during atomic read")
++        if account["projected_bytes"] >= self.c["storage_limit_bytes"]:
++            raise ValueError("500GB hard project storage limit exceeded")
++        current = local_scope_bytes(self.target) + local_scope_bytes(self.log)
++        self.high_water = max(self.high_water, current)
++        if current > p["qualify_local_write_cap_bytes"] or self.installation_charge + self.high_water > p["qualify_reserved_bytes"]:
++            raise ValueError("qualification local output/cache/temp/log reservation exceeded")
++        self.check_count += 1
++        result = {**account, "ledger_sha256": before, "reservation_key": p["qualify_reservation_key"],
++                  "reserved_bytes": p["qualify_reserved_bytes"], "installation_charge_bytes": self.installation_charge,
++                  "installation_charge": self.installation_ref, "local_current_bytes": current,
++                  "local_high_water_bytes": self.high_water, "local_cap_bytes": p["qualify_local_write_cap_bytes"],
++                  "check_count": self.check_count, "snapshot_is_historical_not_fresh_measurement": True}
++        self.first = False
++        return result
++
++
+ def storage_check(c, initial=None):
+-    used = project_bytes()
+-    if used >= c["storage_warning_bytes"] or used + c["max_added_bytes"] >= c["storage_limit_bytes"]:
+-        raise ValueError("project storage warning/reservation exceeded")
+-    if initial is not None and used - initial > c["max_added_bytes"]:
+-        raise ValueError("run storage reservation exceeded")
+-    return used
++    if not isinstance(initial, StorageAccounting):
++        raise ValueError("root-bound persistent ledger and local accounting context required")
++    return initial.check()
+ 
+ 
+ def admission(c, args, config_path):
+@@ -302,6 +441,8 @@
+         raise ValueError("root CPU admission scope differs")
+     if a.get("config") != ref(config_path) or a.get("implementation") != ref(Path(__file__)) or a.get("observed_asset_pins") != c["observed_asset_pins"]:
+         raise ValueError("admission does not bind frozen config/source/input metadata lock")
++    if args.mode == "infer":
++        raise ValueError("actual inference blocked: no admitted 20GB ledger reservation; offline audited rebase/new source admission required")
+     runtime_path = checked_ref(a["runtime"])
+     storage_path = checked_ref(a["storage"])
+     runtime = json.loads(runtime_path.read_text())
+@@ -318,14 +459,7 @@
+         if importlib.metadata.version(name) != expected:
+             raise ValueError("installed distribution version differs: " + name)
+     storage = json.loads(storage_path.read_text())
+-    if (storage.get("kind") != "biological_paths_tsinfer_v1_storage_admission"
+-            or storage.get("project_root") != str(ROOT)
+-            or storage.get("max_added_bytes") != c["max_added_bytes"]
+-            or storage.get("limit_bytes") != c["storage_limit_bytes"]
+-            or type(storage.get("measured_project_bytes")) is not int
+-            or storage["measured_project_bytes"] >= c["storage_warning_bytes"]):
+-        raise ValueError("storage admission differs")
+-    initial = storage_check(c)
++    initial = StorageAccounting(c, storage, a["runtime"])
+     if args.mode == "infer":
+         q = json.loads(checked_ref(a["cpu_qualification"]).read_text())
+         if (q.get("kind") != "biological_paths_tsinfer_v1_cpu_qualification"
+@@ -490,6 +624,7 @@
+         journal.append(entry)
+         write_json(work/"stages.json", journal)
+         started = time.monotonic()
++        native_error = None
+         try:
+             value = callback()
+             if tree:
+@@ -501,10 +636,21 @@
+             entry["status"] = "complete"
+             return value
+         except Exception as error:
++            native_error = error
+             entry.update(status="failed_preserved", error_type=type(error).__name__, error=str(error))
+             raise
+         finally:
+             entry["elapsed_seconds"] = time.monotonic()-started
++            try:
++                entry["storage_after"] = storage_check(c, initial)
++            except Exception as storage_error:
++                entry["storage_after_failure"] = {
++                    "error_type": type(storage_error).__name__, "error": str(storage_error)}
++                if native_error is None:
++                    entry.update(status="failed_storage_preserved",
++                                 error_type=type(storage_error).__name__, error=str(storage_error))
++                    write_json(work/"stages.json", journal)
++                    raise
+             write_json(work/"stages.json", journal)
+ 
+     all_data = tsinfer.SampleData(path=str(work/"all.samples"), sequence_length=c["length_bp"])
+@@ -692,12 +838,13 @@
+         # All nonstdlib inference imports and native execution occur after admission.
+         os.environ["PYTHONDONTWRITEBYTECODE"] = "1"
+         sys.dont_write_bytecode = True
+-        for name in ("TMPDIR", "NUMBA_CACHE_DIR", "XDG_CACHE_HOME"):
+-            dest = confined(".runtime/cache/biological_tsinfer_v1/"+name.lower())
++        target = confined(c["qualification_root"] if args.mode == "qualify-cpu" else c["output_root"])
++        target.mkdir(exist_ok=False)
++        for name in ("TMPDIR", "TMP", "TEMP", "NUMBA_CACHE_DIR", "XDG_CACHE_HOME", "XDG_CONFIG_HOME", "XDG_DATA_HOME"):
++            dest = target/"write_scopes"/name.lower()
+             dest.mkdir(parents=True, exist_ok=True)
+             os.environ[name] = str(dest)
+-        target = confined(c["qualification_root"] if args.mode == "qualify-cpu" else c["output_root"])
+-        target.mkdir(exist_ok=False)
++        storage_check(c, initial)
+         manifest = {"kind": "biological_paths_tsinfer_v1_cpu_qualification" if args.mode == "qualify-cpu" else "biological_paths_tsinfer_v1",
+                     "status": "running", "condition": CONDITION, "primary_condition": CONDITION,
+                     "original_parent_interval_bp0": [0, c["length_bp"]],
+@@ -734,6 +881,13 @@
+             write_json(target/"manifest.json", manifest)
+             raise
+         write_json(target/"manifest.json", manifest, new=True)
++        try:
++            storage_check(c, initial)
++        except Exception as error:
++            manifest.update(status="failed_storage_after_manifest_preserved",
++                            error_type=type(error).__name__, error=str(error))
++            write_json(target/"manifest.json", manifest)
++            raise
+         print(json.dumps(ref(target/"manifest.json"), indent=2))
+     except (ValueError, KeyError, RuntimeError) as error:
+         parser.error(str(error))
+--- previous_biological_paths_tsinfer_v1.json
++++ configs/biological_paths_tsinfer_v1.json
+@@ -1,6 +1,6 @@
+ {
+   "kind": "biological_paths_tsinfer_v1",
+-  "status": "source_only_unexecuted_independent_review_and_root_CPU_admission_pending",
++  "status": "source_only_storage_v3_repair_independent_review_and_native_CPU_qualification_pending",
+   "condition": "official_documented_heterochronous_tsinfer_tsdate_task_transfer_v1",
+   "native_paper_reproduction_claimed": false,
+   "source_root": "data/biological_paths_execution_pilot_v1",
+@@ -72,7 +72,6 @@
+   "minimum_connected_internal_reuse": 1,
+   "storage_warning_bytes": 450000000000,
+   "storage_limit_bytes": 500000000000,
+-  "max_added_bytes": 20000000000,
+   "polarization": "REF_is_ancestral_only_under_pinned_tskit_writer_defaults",
+   "observed_asset_pins": {
+     "path": "research/reviews/biological_paths_tsinfer_v1_source_audit/observed_asset_pins_from_existing_relate_manifest.json",
+@@ -140,5 +139,25 @@
+   },
+   "version_evidence_limit": "Published ARGformer specifies tsinfer+tsdate family but no release versions; pinned author text-source search found no tsinfer/tsdate version recipe. This uses current supported API versions and a documented heterochronous task transfer.",
+   "capability_warning": "Official historical-samples docs warn tsinfer plus variational_gamma dating is not extensively tested and may have stability issues. No actual capability or output is asserted here.",
+-  "random_seed_policy": "Selected native staged APIs are deterministic and expose no random_seed argument; fixed ordering, synchronous num_threads=0 and fully pinned runtime, not an invented seed."
++  "random_seed_policy": "Selected native staged APIs are deterministic and expose no random_seed argument; fixed ordering, synchronous num_threads=0 and fully pinned runtime, not an invented seed.",
++  "storage_accounting": {
++    "kind": "persistent_shared_ledger_and_local_qualification_caps_v3",
++    "ledger_source": {
++      "path": "src/arggnn/gpu_pool_v1.py",
++      "sha256": "ae1e0494ab672cfa3017759460eb06a4b4789eaef54928496c3c80314adcc0e1"
++    },
++    "snapshot": {
++      "path": "experiments/results/biological_shared_pool_storage_admission_v1/snapshot.json",
++      "sha256": "0826fcedefa40dd261999c4916b85ae11f28628e5cee9046b2e4f6bf868fa10d"
++    },
++    "ledger_path": ".runtime/gpup/storage_reservations.json",
++    "external_reserve_bytes": 130000000000,
++    "qualify_reservation_key": "biological_cpu_runtime_v1/isolated-runtime-and-handmade-qualification",
++    "qualify_reserved_bytes": 8000000000,
++    "qualify_installation_charge_max_bytes": 7000000000,
++    "qualify_local_write_cap_bytes": 1000000000,
++    "qualification_launch_log": "research/reviews/biological_paths_tsinfer_v1_source_audit/root_cpu_qualification_v1.launch.log",
++    "actual_infer_admitted": false,
++    "actual_infer_requested_bytes": 20000000000
++  }
+ }
+--- previous_biological_paths_tsinfer_v1.md
++++ docs/biological_paths_tsinfer_v1.md
+@@ -67,19 +67,25 @@
+ 
+ Connected internal identity is measured from ancestors reached by walking tree.parent from actual samples, excluding isolated non-sample nodes. Connectivity and sharing are evaluated only on marginal-tree intersections with the exact frozen comparison support. Expected empty flanks outside that support are ignored. The native topology must cover the entire specified support, including intervals between scoring centers, and all samples must have one ancestral root throughout it. Gaps or partially uncovered support fail, with no intersection-based shrinkage, tail extension or genealogy repair. At least one connected internal ID reuse across marginal trees in that support is required for representation admission. This is a predeclared minimal diagnostic capability gate, which can be met by shared-root reuse alone. It does not demonstrate substantial/useful sharing, biological identity, or accuracy. Native ID reuse rates and adjacent sharing are recorded. Inadequate sharing fails without invented associations or fallback fitting.
+ 
+-## Proposed isolated CPU runtime and root admission
++## Installed isolated CPU runtime and storage v3 root admission
+ 
+-No package has been installed for this task. Root must first approve a resolved runtime lock containing Python 3.11, numpy 2.4.6, tskit 1.0.3, tsinfer 0.5.1 and tsdate 0.2.7 plus all transitive dependencies and package artifact hashes. PyPI metadata and official release/commit records are archived. The paper did not specify these versions. Do not silently upgrade an existing shared environment.
++Root completed the locked isolated installation at .runtime/envs/biological_tsinfer_v1, passed pip check, and froze the interpreter, actual versions and complete non-pyc runtime inventory. The runtime receipt is experiments/results/biological_tsinfer_runtime_install_v1/runtime_receipt.json (SHA256 04876226b6f90fc803741b4257f17b9595374c58e1681e4c04b7d6d9ba4e6e8f; 10,718 frozen files). This establishes installed artifacts only. Native package imports, the handmade CPU pipeline and observation inference remain unqualified and unexecuted.
+ 
+-Use the existing /home/jovyan/miniconda3/bin/conda to create a project-contained environment at .runtime/envs/biological_tsinfer_v1. Resolve/install only after root authorization, using the approved lock and repository-contained package caches. Freeze the interpreter hash, actual installed versions and complete non-pyc environment-file inventory after installation. No inference package import is needed to create that inventory, the runner exposes runtime_inventory(prefix).
++A runtime receipt has kind biological_paths_tsinfer_v1_isolated_runtime, the configured prefix, python_executable_sha256, versions equal to the config pins, and files_sha256 mapping every non-pyc environment file to its hash. Package versions and the complete inventory are checked once at admission and once at successful completion. No runtime or observation-tree scan occurs at stage storage checks. These installed artifact hashes are separate from upstream source commit evidence.
+ 
+-A runtime receipt must have kind biological_paths_tsinfer_v1_isolated_runtime, the configured prefix, python_executable_sha256, versions equal to the config pins, and files_sha256 mapping every non-pyc environment file to its hash. Package versions and the complete inventory are checked before and after execution. These installed artifact hashes are separate from upstream source commit evidence.
++Storage revision v3 removes the whole-project Python storage walk. It loads only the audited standard-library StorageLedger implementation from src/arggnn/gpu_pool_v1.py (SHA256 ae1e0494ab672cfa3017759460eb06a4b4789eaef54928496c3c80314adcc0e1), without invoking GPU inventory or controllers. Admission and stage checks read the persistent shared ledger under its scheduler.lock. They validate the historical successful snapshot, all current controller/job reservations, the 130,000,000,000-byte external reserve, and filesystem free space. The existing snapshot is experiments/results/biological_shared_pool_storage_admission_v1/snapshot.json (SHA256 0826fcedefa40dd261999c4916b85ae11f28628e5cee9046b2e4f6bf868fa10d), measured at 167,336,640,512 bytes on 2026-10-10 at 17:31:06 UTC. It is a historical baseline, not a fresh global measurement. A changed baseline, snapshot, external reserve or ceiling requires an audited rebase.
+ 
+-A storage receipt must have kind biological_paths_tsinfer_v1_storage_admission, project_root, measured_project_bytes, max_added_bytes=20000000000 and limit_bytes=500000000000. The runner also measures current repository storage before admission and each stage, stops at the 450 GB warning threshold, enforces the 500 GB hard limit/reservation, and limits added run storage to 20 GB. All temporary/JIT/cache/output files stay inside the repository. CUDA_VISIBLE_DEVICES must be explicitly empty.
++At author review, the five persistent jobs, two controller reservations and external reserve projected 439,875,052,544 bytes. Every check reloads and validates all reservations; it rejects projection at or above 450,000,000,000 bytes and insufficient filesystem headroom. The 500,000,000,000-byte hard limit remains an additional outer guard. The producer never writes, adds, releases or rebases a shared ledger reservation. The root-issued storage receipt binds the initial ledger SHA256 exactly; a changed ledger before admission requires a renewed receipt. Later legitimate ledger additions are included in subsequent checks and may cause a stop.
+ 
+-Two separate root-admission receipts are needed, one per mode. Exact schemas with inactive authorizer fields are provided as templates in the audit directory. Each requires kind biological_paths_tsinfer_v1_root_admission, authorizer=root_agent, the exact mode/condition, truth_or_oracle_inputs_authorized=False, and path/SHA256 references for config, implementation, observed_asset_pins, runtime and storage. infer additionally requires a passed same-code/config/runtime cpu_qualification receipt. The authorizer field is an operational workflow opt-in, not cryptographic authentication of a person or agent.
++Only the existing biological_cpu_runtime_v1/isolated-runtime-and-handmade-qualification reservation is admitted, with exactly 8,000,000,000 bytes and the configured runtime prefix as its ledger output. This combined reservation includes installation, repository-contained package caches, resolver/build artifacts and handmade qualification. Root must issue a separately pinned biological_tsinfer_installation_footprint_charge_v3 receipt with status audited_conservative_local_scope_bound, authorizer=root_agent, the exact runtime/reservation bindings, installation_scope_complete=True, installation_read_only_after_charge=True, complete scope_paths, and checked evidence_refs. The installation charge is at most 7,000,000,000 bytes. It is a conservative audited bound for complete local installation scopes, which root can establish with targeted accounting once; it must not present the old global snapshot as a fresh measurement. The installation scopes include the frozen runtime and may not overlap the qualification tree or bound launch log.
+ 
+-Default source-only command, safe before installing anything:
++The remaining local qualification allowance is capped at 1,000,000,000 bytes, so the readonly installation charge plus the observed local high-water footprint cannot exceed the combined 8 GB reservation. The fresh qualification tree contains native output, manifests, all TMPDIR/TMP/TEMP paths, NUMBA_CACHE_DIR and XDG_CACHE_HOME/XDG_CONFIG_HOME/XDG_DATA_HOME. The only outside local write scope is the explicitly bound research/reviews/biological_paths_tsinfer_v1_source_audit/root_cpu_qualification_v1.launch.log. Accounting counts the larger of apparent and allocated bytes for files and directories, rejects symlinks, nonregular outputs and unreadable walks, and samples before/after native stages and around completion. The high-water mark is the maximum footprint observed at these boundaries. This is a stage-boundary cap, not an operating-system quota or continuous monitor: a transient peak created and deleted within one native stage is not measured. Root must include this limit when deciding whether to admit the tiny handmade case. A storage failure is journaled; if a native error also occurred, both are preserved while the native exception remains primary.
++
++A storage receipt has kind biological_paths_tsinfer_v1_storage_admission_v3, mode=qualify-cpu, project_root, the pinned historical snapshot, exact reservation_key/reserved_bytes, local_write_cap_bytes, warning_bytes=450000000000, limit_bytes=500000000000, a checked installation_charge reference, and ledger_sha256_at_admission. Inactive storage, installation-charge and root-admission templates are preserved under research/reviews/biological_paths_tsinfer_v1_source_audit/storage_revision_v3. They require root completion and are not authorization. All prior v1/v2 receipts and templates remain historical.
++
++The root-admission receipt requires kind biological_paths_tsinfer_v1_root_admission, authorizer=root_agent, exact mode/condition, truth_or_oracle_inputs_authorized=False, and exact path/SHA256 references for config, implementation, observed_asset_pins, runtime and storage. The authorizer field is an operational workflow opt-in, not cryptographic authentication. CUDA_VISIBLE_DEVICES must be explicitly empty.
++
++Default source-only command:
+ 
+ ~~~sh
+ source scripts/project_env.sh
+@@ -88,9 +94,9 @@
+ 
+ Later root-only CPU qualification uses the isolated interpreter, --mode qualify-cpu, --expected-config-sha256, --expected-source-sha256, --admission and --expected-admission-sha256. It executes only a fixed hand-authored eight-haplotype genotype table with nonzero dates through the complete native pipeline. Its identity gate uses the fixed original observed-site span [10,61), not the native empty tails of its 2 Mb sequence. All six original sites, phased genotypes and dates are still checked on the full native output. There is no simulator or real observation input. A passed receipt binds the exact code/config/runtime.
+ 
+-Only after that qualification and independent source review may root use --mode infer with a fresh mode-specific admission and all four hashes. The runner then verifies and opens only the nine whitelisted assets in each original observed directory, processes all four parents once, and writes a fresh output directory. Original oracle .trees files are never accepted or loaded. A failed parent/stage preserves its partial manifest and native stage artifacts. There is no alternate algorithm/version/drop-date retry. Any repeat needs a new registered reason and fresh versioned output/admission.
++Actual --mode infer is explicitly blocked before runtime or observation access in v3. Its requested 20,000,000,000-byte reservation has not been admitted; the 8 GB runtime/handmade reservation cannot authorize the four-parent inference. An offline audited rebase, separately admitted inference reservation, renewed source review/admission and passed same-code/config/runtime handmade qualification are required before a future revision enables inference. The retained inference implementation accepts only the nine whitelisted assets in each original observed directory, preserves the original support and writes a fresh output directory. Oracle .trees files are never accepted or loaded. A failed parent/stage preserves partial manifests and native artifacts. There is no alternate algorithm/version/drop-date retry. Any repeat needs a new registered reason and fresh versioned output/admission.
+ 
+-This source-only work has not entered either actual mode. Source/static handmade verification does not qualify native package compatibility, date convergence, runtime costs or output adequacy.
++This source-only repair has not entered either actual mode, imported tsinfer/tsdate, installed packages, changed native scientific defaults, opened real arrays or altered the runtime receipt. Source/static handmade verification does not qualify native package compatibility, date convergence, runtime costs or output adequacy.
+ 
+ ## Separate faithful published modern task plan
+ 
+@@ -103,3 +109,8 @@
+ ## Source revision after independent flank review
+ 
+ The independent source review blocked script SHA256 74f12e8576cb5a3d64fdca1f9363023ff67c91ccd984067d8a2327668e69a2ef because its full-length identity gate rejected expected native empty flanks. That revision and its original audit remain preserved in research/reviews/biological_paths_tsinfer_v1_source_audit/blocked_revision_v1 and the original review receipts. The narrow revision adds interval-aware identity accounting for both observed inference and handmade CPU qualification. No native inference/dating defaults, original asset/support pins, sample dates, genotypes, model code, or topology are changed. Renewed exact source/receipt pins and independent review are required before actual CPU admission.
++
++
++## Storage revision v3 provenance
++
++Root registered this storage-only revision in storage_revision_v3/registration.json after its own full-project Python storage walk was safely stopped before native execution. Exact v2 script/config/document/test snapshots remain in that directory. V3 changes storage policy, bounded local write destinations and storage failure journaling. It retains all scientific helper ASTs, native call/default ASTs, original genotype/date/site/identity/support gates and all scientific configuration fields. The author receipt and static comparison provide exact evidence; independent source review remains a separate gate before root execution.
+--- previous_test_biological_paths_tsinfer_v1.py
++++ tests/test_biological_paths_tsinfer_v1.py
+@@ -1,5 +1,6 @@
+ """Handmade/source-only producer checks; never tsinfer/date or observed arrays."""
+ from __future__ import annotations
++import ast
+ import builtins
+ import copy
+ import importlib.util
+@@ -230,15 +231,6 @@
+                          admission=None,expected_admission_sha256=None)
+     with pytest.raises(ValueError,match="root"):
+         m.admission(config(),args,ROOT/"configs/biological_paths_tsinfer_v1.json")
+-
+-
+-def test_storage_guard_handmade_count(monkeypatch):
+-    c=config()
+-    monkeypatch.setattr(m,"project_bytes",lambda:450000000000)
+-    with pytest.raises(ValueError,match="storage"):
+-        m.storage_check(c)
+-    monkeypatch.setattr(m,"project_bytes",lambda:30)
+-    assert m.storage_check(c,10)==30
+ 
+ 
+ def test_polarization_requires_pinned_production_writer_header():
+@@ -362,3 +354,234 @@
+                          admission="inactive",expected_admission_sha256="0"*64)
+     with pytest.raises(ValueError,match="implementation/config bytes differ"):
+         m.admission(config(),args,ROOT/"configs/biological_paths_tsinfer_v1.json")
++
++
++def storage_fixture(tmp_path,monkeypatch):
++    """Persistent fake ledger and bounded files, never the live project ledger."""
++    pool_spec=importlib.util.spec_from_file_location("fake_storage_pool_source",ROOT/"src/arggnn/gpu_pool_v1.py")
++    pool=importlib.util.module_from_spec(pool_spec)
++    pool_spec.loader.exec_module(pool)
++    monkeypatch.setattr(m,"ROOT",tmp_path)
++    monkeypatch.setattr(m,"storage_module",lambda c:pool)
++    monkeypatch.setattr(m.os,"statvfs",lambda path:SimpleNamespace(f_bavail=10**15,f_frsize=1))
++    c=config()
++    c["storage_accounting"]=copy.deepcopy(c["storage_accounting"])
++    snapshot_path=tmp_path/"snapshot.json"
++    snapshot={"schema":"biological_candidate_storage_snapshot_v1","status":"complete","returncode":0,
++              "project_root":str(tmp_path),"command":["du","-s","-B1",str(tmp_path)],
++              "used_bytes":167336640512,"completed_utc":"2026-10-10T17:31:06.897981+00:00"}
++    snapshot_path.write_text(json.dumps(snapshot))
++    snapshot_ref={"path":"snapshot.json","sha256":m.sha(snapshot_path)}
++    c["storage_accounting"]["snapshot"]=snapshot_ref
++    prefix=tmp_path/c["runtime_prefix"]
++    prefix.mkdir(parents=True)
++    ledger_path=tmp_path/c["storage_accounting"]["ledger_path"]
++    ledger_path.parent.mkdir(parents=True)
++    key=c["storage_accounting"]["qualify_reservation_key"]
++    ledger={"schema":"gpu_pool_storage_ledger_v1","root":str(tmp_path),
++            "snapshot_sha256":snapshot_ref["sha256"],"baseline_bytes":snapshot["used_bytes"],
++            "external_reserve_bytes":130000000000,"limit_bytes":450000000000,
++            "controllers":{"gpu2":{"reserved_bytes":67108864},"gpu3":{"reserved_bytes":67108864}},
++            "jobs":{key:{"reserved_bytes":8000000000,"output":str(prefix)},
++                    "candidate202":{"reserved_bytes":29281048576,"output":str(tmp_path/"candidate202")},
++                    "GST101":{"reserved_bytes":23521048576,"output":str(tmp_path/"GST101")},
++                    "candidate303":{"reserved_bytes":29281048576,"output":str(tmp_path/"candidate303")},
++                    "mechanisms101":{"reserved_bytes":52321048576,"output":str(tmp_path/"mechanisms101")}}}
++    ledger_path.write_text(json.dumps(ledger))
++    runtime_path=tmp_path/"runtime.json"
++    runtime_path.write_text('{"handmade_runtime_inventory":true}')
++    runtime_ref={"path":"runtime.json","sha256":m.sha(runtime_path)}
++    charge_path=tmp_path/"installation_charge.json"
++    charge={"kind":"biological_tsinfer_installation_footprint_charge_v3",
++            "status":"audited_conservative_local_scope_bound","authorizer":"root_agent",
++            "runtime":runtime_ref,"reservation_key":key,"installation_scope_complete":True,
++            "installation_read_only_after_charge":True,"installation_charge_bytes":7000000000,
++            "scope_paths":[c["runtime_prefix"],".runtime/cache/installation"],
++            "evidence_refs":[runtime_ref]}
++    charge_path.write_text(json.dumps(charge))
++    receipt={"kind":"biological_paths_tsinfer_v1_storage_admission_v3","mode":"qualify-cpu",
++             "project_root":str(tmp_path),"snapshot":snapshot_ref,"reservation_key":key,
++             "reserved_bytes":8000000000,"local_write_cap_bytes":1000000000,
++             "limit_bytes":500000000000,"warning_bytes":450000000000,
++             "installation_charge":{"path":"installation_charge.json","sha256":m.sha(charge_path)},
++             "ledger_sha256_at_admission":m.sha(ledger_path)}
++    return c,receipt,runtime_ref,ledger_path,ledger,charge_path,charge
++
++
++def test_persistent_ledger_includes_every_reservation_and_external_reserve(tmp_path,monkeypatch):
++    c,r,rr,path,state,_,_=storage_fixture(tmp_path,monkeypatch)
++    before=path.read_bytes()
++    account=m.StorageAccounting(c,r,rr)
++    result=account.check()
++    assert result["projected_bytes"]==439875052544
++    assert result["reserved_bytes"]==8000000000
++    assert result["persistent_reservations"]==5
++    assert result["snapshot_is_historical_not_fresh_measurement"]
++    assert path.read_bytes()==before
++
++
++def test_atomic_initial_ledger_receipt_rejects_stale_binding(tmp_path,monkeypatch):
++    c,r,rr,*_=storage_fixture(tmp_path,monkeypatch)
++    r["ledger_sha256_at_admission"]="0"*64
++    with pytest.raises(ValueError,match="renew storage receipt"):
++        m.StorageAccounting(c,r,rr)
++
++
++@pytest.mark.parametrize("field,value",[("external_reserve_bytes",0),("baseline_bytes",1),
++                                      ("snapshot_sha256","0"*64),("limit_bytes",500000000000)])
++def test_shared_ledger_rebase_cannot_be_adopted_silently(tmp_path,monkeypatch,field,value):
++    c,r,rr,path,state,_,_=storage_fixture(tmp_path,monkeypatch)
++    state[field]=value
++    path.write_text(json.dumps(state))
++    r["ledger_sha256_at_admission"]=m.sha(path)
++    with pytest.raises(ValueError,match="rebase"):
++        m.StorageAccounting(c,r,rr)
++
++
++def test_strict450GB_rejects_exact_boundary_after_new_reservation(tmp_path,monkeypatch):
++    c,r,rr,path,state,_,_=storage_fixture(tmp_path,monkeypatch)
++    account=m.StorageAccounting(c,r,rr)
++    state["jobs"]["new"]={"reserved_bytes":10124947456,"output":str(tmp_path/"new")}
++    path.write_text(json.dumps(state))
++    with pytest.raises(ValueError,match="ceiling"):
++        account.check()
++
++
++@pytest.mark.parametrize("value",[20000000000,0])
++def test_only_existing8GB_runtime_plus_handmade_job_can_qualify(tmp_path,monkeypatch,value):
++    c,r,rr,path,state,_,_=storage_fixture(tmp_path,monkeypatch)
++    state["jobs"][c["storage_accounting"]["qualify_reservation_key"]]["reserved_bytes"]=value
++    path.write_text(json.dumps(state));r["ledger_sha256_at_admission"]=m.sha(path)
++    with pytest.raises(ValueError,match="8GB"):
++        m.StorageAccounting(c,r,rr)
++
++
++@pytest.mark.parametrize("field,value",[("installation_charge_bytes",7000000001),
++                                      ("installation_scope_complete",False),
++                                      ("installation_read_only_after_charge",False)])
++def test_installation_charge_bounds_entire8GB_job(tmp_path,monkeypatch,field,value):
++    c,r,rr,_,_,charge_path,charge=storage_fixture(tmp_path,monkeypatch)
++    charge[field]=value
++    charge_path.write_text(json.dumps(charge))
++    r["installation_charge"]["sha256"]=m.sha(charge_path)
++    with pytest.raises(ValueError,match="installation footprint"):
++        m.StorageAccounting(c,r,rr)
++
++
++def test_output_JIT_temp_cache_and_bound_launcher_log_charged_locally(tmp_path,monkeypatch):
++    c,r,rr,*_=storage_fixture(tmp_path,monkeypatch)
++    account=m.StorageAccounting(c,r,rr)
++    for name in ["all_dated.trees","write_scopes/numba_cache_dir/jit.bin",
++                 "write_scopes/tmpdir/transient.bin","write_scopes/xdg_cache_home/cache.bin"]:
++        p=account.target/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(b"x"*6000)
++    account.log.parent.mkdir(parents=True,exist_ok=True);account.log.write_bytes(b"log"*3000)
++    original=m.os.walk
++    def local_only(path,*args,**kwargs):
++        assert Path(path)==account.target
++        return original(path,*args,**kwargs)
++    monkeypatch.setattr(m.os,"walk",local_only)
++    result=account.check()
++    assert result["local_current_bytes"]>=33000
++    high=result["local_high_water_bytes"]
++    (account.target/"write_scopes/tmpdir/transient.bin").unlink()
++    result=account.check()
++    assert result["local_current_bytes"]<high and result["local_high_water_bytes"]==high
++
++
++def test_local_cap_cannot_spend_beyond_runtime_handmade_reservation(tmp_path,monkeypatch):
++    c,r,rr,*_=storage_fixture(tmp_path,monkeypatch)
++    account=m.StorageAccounting(c,r,rr)
++    monkeypatch.setattr(m,"local_scope_bytes",lambda path:1000000001 if path==account.target else 0)
++    with pytest.raises(ValueError,match="local output"):
++        account.check()
++
++
++def test_native_local_symlink_or_dangling_path_cannot_escape_accounting(tmp_path):
++    p=tmp_path/"dangling";p.symlink_to(tmp_path/"missing")
++    with pytest.raises(ValueError,match="symlink"):
++        m.local_scope_bytes(p)
++
++
++def test_no_global_storage_context_fallback_exists():
++    with pytest.raises(ValueError,match="root-bound"):
++        m.storage_check(config())
++
++
++def test_infer_is_blocked_before_runtime_or_input_access(tmp_path,monkeypatch):
++    cfg_path=ROOT/"configs/biological_paths_tsinfer_v1.json"
++    a={"kind":"biological_paths_tsinfer_v1_root_admission","authorizer":"root_agent",
++       "mode":"infer","condition":m.CONDITION,"truth_or_oracle_inputs_authorized":False,
++       "config":m.ref(cfg_path),"implementation":m.ref(Path(m.__file__)),
++       "observed_asset_pins":config()["observed_asset_pins"],
++       "runtime":{"path":"FORBIDDEN_RUNTIME_ACCESS","sha256":"0"*64}}
++    p=tmp_path/"infer_admission.json";p.write_text(json.dumps(a))
++    args=SimpleNamespace(expected_config_sha256=m.sha(cfg_path),
++                         expected_source_sha256=m.sha(Path(m.__file__)),admission=str(p),
++                         expected_admission_sha256=m.sha(p),mode="infer")
++    monkeypatch.setattr(m,"runtime_inventory",lambda *args: (_ for _ in ()).throw(AssertionError("runtime visited")))
++    with pytest.raises(ValueError,match="no admitted 20GB"):
++        m.admission(config(),args,cfg_path)
++
++
++def stage_fixture(tmp_path,monkeypatch,*,fail_storage):
++    """Execute the exact stage wrapper AST without any inference module import."""
++    tree=ast.parse(Path(m.__file__).read_text())
++    pipeline=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=="pipeline")
++    stage=next(n for n in pipeline.body if isinstance(n,ast.FunctionDef) and n.name=="stage")
++    journal=[]
++    calls=[]
++    def storage(c,initial):
++        calls.append(1)
++        if fail_storage and len(calls)==2:
++            raise ValueError("local cap reached")
++        return {"handmade_local_storage_check":True}
++    environment={**m.__dict__,"c":config(),"initial":None,"work":tmp_path,
++                 "journal":journal,"storage_check":storage}
++    exec(compile(ast.Module(body=[stage],type_ignores=[]),str(m.__file__),"exec"),environment)
++    return environment["stage"],journal,calls
++
++
++def test_stage_storage_failure_preserves_original_native_error_and_journal(tmp_path,monkeypatch):
++    stage,journal,calls=stage_fixture(tmp_path,monkeypatch,fail_storage=True)
++    def native_failure():
++        raise RuntimeError("native date failure")
++    with pytest.raises(RuntimeError,match="native date failure"):
++        stage("handmade",native_failure)
++    entry=json.loads((tmp_path/"stages.json").read_text())[0]
++    assert entry["status"]=="failed_preserved" and entry["error_type"]=="RuntimeError"
++    assert entry["storage_after_failure"]=={"error_type":"ValueError","error":"local cap reached"}
++    assert len(calls)==2
++
++
++def test_stage_storage_failure_after_success_is_logged_and_raised(tmp_path,monkeypatch):
++    stage,journal,calls=stage_fixture(tmp_path,monkeypatch,fail_storage=True)
++    with pytest.raises(ValueError,match="local cap reached"):
++        stage("handmade",lambda:42)
++    entry=json.loads((tmp_path/"stages.json").read_text())[0]
++    assert entry["status"]=="failed_storage_preserved"
++    assert entry["storage_after_failure"]["error"]=="local cap reached"
++    assert len(calls)==2
++
++
++def test_stage_success_records_local_storage_after(tmp_path,monkeypatch):
++    stage,journal,calls=stage_fixture(tmp_path,monkeypatch,fail_storage=False)
++    assert stage("handmade",lambda:42)==42
++    entry=json.loads((tmp_path/"stages.json").read_text())[0]
++    assert entry["status"]=="complete" and entry["storage_after"]["handmade_local_storage_check"]
++    assert len(calls)==2
++
++
++def test_local_directory_allocation_is_charged(tmp_path):
++    folder=tmp_path/"handmade"
++    folder.mkdir()
++    info=folder.stat()
++    assert m.local_scope_bytes(folder)==max(info.st_size,info.st_blocks*512)
++
++
++def test_unreadable_local_scope_cannot_yield_partial_accounting(tmp_path,monkeypatch):
++    def inaccessible(path,*,followlinks,onerror):
++        onerror(PermissionError("handmade inaccessible directory"))
++        return []
++    monkeypatch.setattr(m.os,"walk",inaccessible)
++    with pytest.raises(ValueError,match="unreadable"):
++        m.local_scope_bytes(tmp_path)

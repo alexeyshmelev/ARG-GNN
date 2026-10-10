@@ -1,0 +1,201 @@
+F...F.F...F......................                                        [100%]
+=================================== FAILURES ===================================
+____ test_raw_mass_messages_and_vjp_against_dense_and_original[full-dtype0] ____
+
+dtype = torch.float64, coupling = 'full'
+
+    @pytest.mark.parametrize("dtype", [torch.float64, torch.float32])
+    @pytest.mark.parametrize("coupling", ["full", "scalar", "diagonal", "gain_matched_diagonal"])
+    def test_raw_mass_messages_and_vjp_against_dense_and_original(dtype, coupling):
+        bank, native, layout, operators, geometry = fixture(dtype, reorder=[2, 0, 1])
+        values = inputs(layout, dtype)
+        query, reference, rates, damping, mixture = parameters(values)
+        bundle = source_bundle(layout, operators, query, reference, rates)
+        actual = anchor_spectral_compact_action_v1(layout, geometry, bundle, rates, damping,
+                                                   coupling=coupling, readout_chunk_size=2)
+        original = anchor_kernel_action(native, operators, bundle, rates, damping, coupling=coupling)
+        oracle = dense_action(bank, layout, operators, bundle, rates, damping, coupling)
+        close(actual, original, dtype)
+>       close(actual, oracle, dtype)
+
+tests/test_anchor_spectral_compact_v1.py:166: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+actual = tensor([[[[[-1.7102e-01,  9.5991e-01],
+           [ 4.6037e-02,  9.3971e-01]],
+
+          [[-2.1398e-02,  9.5851e-01],....7083e-02,  1.0922e+00],
+           [ 4.7020e-02,  9.7422e-01]]]]], dtype=torch.float64,
+       grad_fn=<CatBackward0>)
+expected = tensor([[[[[-1.7102e-01,  9.5991e-01],
+           [ 4.6037e-02,  9.3971e-01]],
+
+          [[-2.1398e-02,  9.5851e-01],...083e-02,  1.0922e+00],
+           [ 4.7020e-02,  9.7422e-01]]]]], dtype=torch.float64,
+       grad_fn=<StackBackward0>)
+dtype = torch.float64, gradient = False
+
+    def close(actual, expected, dtype, gradient=False):
+        if dtype == torch.float64:
+            rtol, atol = (1e-8, 1e-10) if gradient else (1e-10, 1e-12)
+        else:
+            rtol, atol = (1e-3, 1e-5) if gradient else (2e-4, 2e-5)
+>       torch.testing.assert_close(actual, expected, rtol=rtol, atol=atol)
+E       AssertionError: Tensor-likes are not close!
+E       
+E       Mismatched elements: 1 / 192 (0.5%)
+E       Greatest absolute difference: 4.0317298111158806e-12 at index (5, 0, 0, 0, 0) (up to 1e-12 allowed)
+E       Greatest relative difference: 4.2485678806732134e-10 at index (5, 0, 0, 0, 0) (up to 1e-10 allowed)
+
+tests/test_anchor_spectral_compact_v1.py:29: AssertionError
+__ test_raw_mass_messages_and_vjp_against_dense_and_original[diagonal-dtype0] __
+
+dtype = torch.float64, coupling = 'diagonal'
+
+    @pytest.mark.parametrize("dtype", [torch.float64, torch.float32])
+    @pytest.mark.parametrize("coupling", ["full", "scalar", "diagonal", "gain_matched_diagonal"])
+    def test_raw_mass_messages_and_vjp_against_dense_and_original(dtype, coupling):
+        bank, native, layout, operators, geometry = fixture(dtype, reorder=[2, 0, 1])
+        values = inputs(layout, dtype)
+        query, reference, rates, damping, mixture = parameters(values)
+        bundle = source_bundle(layout, operators, query, reference, rates)
+        actual = anchor_spectral_compact_action_v1(layout, geometry, bundle, rates, damping,
+                                                   coupling=coupling, readout_chunk_size=2)
+        original = anchor_kernel_action(native, operators, bundle, rates, damping, coupling=coupling)
+        oracle = dense_action(bank, layout, operators, bundle, rates, damping, coupling)
+        close(actual, original, dtype)
+>       close(actual, oracle, dtype)
+
+tests/test_anchor_spectral_compact_v1.py:166: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+actual = tensor([[[[[-1.5393e-01,  7.2439e-01],
+           [ 6.0099e-02,  6.5712e-01]],
+
+          [[ 1.4005e-02,  6.4154e-01],....7205e-02,  8.4748e-01],
+           [ 4.1922e-02,  8.4776e-01]]]]], dtype=torch.float64,
+       grad_fn=<CatBackward0>)
+expected = tensor([[[[[-1.5393e-01,  7.2439e-01],
+           [ 6.0099e-02,  6.5712e-01]],
+
+          [[ 1.4005e-02,  6.4154e-01],...205e-02,  8.4748e-01],
+           [ 4.1922e-02,  8.4776e-01]]]]], dtype=torch.float64,
+       grad_fn=<StackBackward0>)
+dtype = torch.float64, gradient = False
+
+    def close(actual, expected, dtype, gradient=False):
+        if dtype == torch.float64:
+            rtol, atol = (1e-8, 1e-10) if gradient else (1e-10, 1e-12)
+        else:
+            rtol, atol = (1e-3, 1e-5) if gradient else (2e-4, 2e-5)
+>       torch.testing.assert_close(actual, expected, rtol=rtol, atol=atol)
+E       AssertionError: Tensor-likes are not close!
+E       
+E       Mismatched elements: 4 / 192 (2.1%)
+E       Greatest absolute difference: 1.4533596548460537e-10 at index (5, 0, 0, 1, 1) (up to 1e-12 allowed)
+E       Greatest relative difference: 1.3424844150778888e-08 at index (5, 0, 0, 1, 0) (up to 1e-10 allowed)
+
+tests/test_anchor_spectral_compact_v1.py:29: AssertionError
+_ test_raw_mass_messages_and_vjp_against_dense_and_original[gain_matched_diagonal-dtype0] _
+
+dtype = torch.float64, coupling = 'gain_matched_diagonal'
+
+    @pytest.mark.parametrize("dtype", [torch.float64, torch.float32])
+    @pytest.mark.parametrize("coupling", ["full", "scalar", "diagonal", "gain_matched_diagonal"])
+    def test_raw_mass_messages_and_vjp_against_dense_and_original(dtype, coupling):
+        bank, native, layout, operators, geometry = fixture(dtype, reorder=[2, 0, 1])
+        values = inputs(layout, dtype)
+        query, reference, rates, damping, mixture = parameters(values)
+        bundle = source_bundle(layout, operators, query, reference, rates)
+        actual = anchor_spectral_compact_action_v1(layout, geometry, bundle, rates, damping,
+                                                   coupling=coupling, readout_chunk_size=2)
+        original = anchor_kernel_action(native, operators, bundle, rates, damping, coupling=coupling)
+        oracle = dense_action(bank, layout, operators, bundle, rates, damping, coupling)
+        close(actual, original, dtype)
+>       close(actual, oracle, dtype)
+
+tests/test_anchor_spectral_compact_v1.py:166: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+actual = tensor([[[[[-1.5343e-01,  1.0415e+00],
+           [ 5.9227e-02,  9.7749e-01]],
+
+          [[-9.3077e-03,  1.1276e+00],....3631e-02,  1.0739e+00],
+           [ 4.3270e-02,  1.0256e+00]]]]], dtype=torch.float64,
+       grad_fn=<CatBackward0>)
+expected = tensor([[[[[-1.5343e-01,  1.0415e+00],
+           [ 5.9227e-02,  9.7749e-01]],
+
+          [[-9.3077e-03,  1.1276e+00],...631e-02,  1.0739e+00],
+           [ 4.3270e-02,  1.0256e+00]]]]], dtype=torch.float64,
+       grad_fn=<StackBackward0>)
+dtype = torch.float64, gradient = False
+
+    def close(actual, expected, dtype, gradient=False):
+        if dtype == torch.float64:
+            rtol, atol = (1e-8, 1e-10) if gradient else (1e-10, 1e-12)
+        else:
+            rtol, atol = (1e-3, 1e-5) if gradient else (2e-4, 2e-5)
+>       torch.testing.assert_close(actual, expected, rtol=rtol, atol=atol)
+E       AssertionError: Tensor-likes are not close!
+E       
+E       Mismatched elements: 4 / 192 (2.1%)
+E       Greatest absolute difference: 1.8701018511535494e-10 at index (5, 0, 0, 1, 1) (up to 1e-12 allowed)
+E       Greatest relative difference: 4.101581135965387e-09 at index (5, 0, 0, 0, 0) (up to 1e-10 allowed)
+
+tests/test_anchor_spectral_compact_v1.py:29: AssertionError
+________ test_holds_with_no_anchors_and_many_anchors_in_middle[dtype0] _________
+
+dtype = torch.float64
+
+    @pytest.mark.parametrize("dtype", [torch.float64, torch.float32])
+    def test_holds_with_no_anchors_and_many_anchors_in_middle(dtype):
+        bank, native, layout, operators, geometry = fixture(
+            dtype, intervals=[[0., .1], [.1, .9], [.9, 1.]])
+        assert layout.graph_at_anchor == (1, 1, 1)
+        values = inputs(layout, dtype)
+        query, reference, rates, damping, _ = parameters(values)
+        sources = source_bundle(layout, operators, query, reference, rates)
+        actual = anchor_spectral_compact_action_v1(layout, geometry, sources, rates, damping)
+        close(actual, anchor_kernel_action(native, operators, sources, rates, damping), dtype)
+>       close(actual, dense_action(bank, layout, operators, sources, rates, damping), dtype)
+
+tests/test_anchor_spectral_compact_v1.py:215: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+actual = tensor([[[[[-0.2723,  1.0801],
+           [ 0.0351,  1.0816]],
+
+          [[-0.0605,  1.0320],
+           [-0.0231,  1...9969]],
+
+          [[-0.0680,  1.0464],
+           [ 0.1224,  0.9227]]]]], dtype=torch.float64, grad_fn=<CatBackward0>)
+expected = tensor([[[[[-0.2723,  1.0801],
+           [ 0.0351,  1.0816]],
+
+          [[-0.0605,  1.0320],
+           [-0.0231,  1...          [[-0.0680,  1.0464],
+           [ 0.1224,  0.9227]]]]], dtype=torch.float64,
+       grad_fn=<StackBackward0>)
+dtype = torch.float64, gradient = False
+
+    def close(actual, expected, dtype, gradient=False):
+        if dtype == torch.float64:
+            rtol, atol = (1e-8, 1e-10) if gradient else (1e-10, 1e-12)
+        else:
+            rtol, atol = (1e-3, 1e-5) if gradient else (2e-4, 2e-5)
+>       torch.testing.assert_close(actual, expected, rtol=rtol, atol=atol)
+E       AssertionError: Tensor-likes are not close!
+E       
+E       Mismatched elements: 1 / 192 (0.5%)
+E       Greatest absolute difference: 1.1529943666488407e-11 at index (5, 1, 0, 1, 0) (up to 1e-12 allowed)
+E       Greatest relative difference: 1.6721822300348158e-10 at index (5, 1, 0, 1, 0) (up to 1e-10 allowed)
+
+tests/test_anchor_spectral_compact_v1.py:29: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_anchor_spectral_compact_v1.py::test_raw_mass_messages_and_vjp_against_dense_and_original[full-dtype0]
+FAILED tests/test_anchor_spectral_compact_v1.py::test_raw_mass_messages_and_vjp_against_dense_and_original[diagonal-dtype0]
+FAILED tests/test_anchor_spectral_compact_v1.py::test_raw_mass_messages_and_vjp_against_dense_and_original[gain_matched_diagonal-dtype0]
+FAILED tests/test_anchor_spectral_compact_v1.py::test_holds_with_no_anchors_and_many_anchors_in_middle[dtype0]
+4 failed, 29 passed in 6.65s
