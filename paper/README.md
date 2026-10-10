@@ -1,8 +1,9 @@
 # Manuscript sources
 
-Two explicitly incomplete methods/protocol drafts preserve the current candidate
+Three explicitly incomplete methods/protocol drafts preserve the current candidate
 architectures. Neither is the final empirical paper.
 
+- anchor_kernel_working.tex describes repeated fixed-anchor kernel message passing, integrated age geometry, reference-inclusive bounded normalization and factorial controls. It is a methods draft while comparative evidence is pending.
 - boundary_kernel_working.tex describes the coupled persistent-sample boundary
   kernel, its conditional covariance interpretation, dual subdivision contract
   and same-input attribution controls. Predictive benefit and distinct novelty
