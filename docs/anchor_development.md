@@ -7,3 +7,11 @@ A concrete execution config must bind completed source, boundary and age manifes
 Validation scatters each tile back to the exact parent positions/query identities. Selection uses equally weighted parent NLL from float64 stable log-softmax of uncalibrated raw logits. All saved validation predictions are raw float64 logits, with parent IDs, positions, queries and protocol SHA. Historical capped NLL is separately available. Checkpoint ties retain the earliest epoch. Family configuration selection across all three seeds remains a later frozen search-synthesis step.
 
 The run stores a compact manifest binding and ordered parent IDs rather than duplicating the large geometry manifest. The original dataset manifest remains content-bound in the dedicated data directory. Source dependencies are hashed before and after fitting. Synthetic tests exercise extreme NLL, coordinate scattering, production freeze guards and a real tiny CPU fit/checkpoint/prediction round trip. No fresh or final cohort was trained for these tests.
+
+## Independent audit corrections, 2026-10-10
+
+Root added safe model-ID components and immutable configuration snapshots before any new runner GPU use. Every produced artifact retains the exact startup config digest. A configuration change during loading/fitting prevents completed results from being sealed. Synthetic adversarial tests cover absolute/traversal/control-character IDs and real config edits during dataset loading or validation. The focused combined runner suite passed36tests in8.31s. The independent auditor replayed both drift reproducers and verified rejection without completed results. This supersedes earlier authoring runner/test hashes above.
+
+src/arggnn/train_anchor_development.py SHA256 89bb74a03ad8736594bcf662ccc5e96a5f40f9867315b58fa4b80c3f5df73f7f
+
+tests/test_train_anchor_development.py SHA256 95567d2b82e2937db641d64b31abf4956985e0d7fdae3bbd5ad8cf093270b31a

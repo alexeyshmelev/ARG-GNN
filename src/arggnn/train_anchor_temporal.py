@@ -107,7 +107,12 @@ def main():
     parser.add_argument('--models',nargs='+');parser.add_argument('--device',choices=('cpu','cuda'),default='cpu')
     parser.add_argument('--validate-config',action='store_true')
     args=parser.parse_args()
-    config_path=project_path(args.config); settings=checked_temporal_protocol(config_path)
+    config_path=project_path(args.config)
+    config_bytes=config_path.read_bytes()
+    config_sha=hashlib.sha256(config_bytes).hexdigest()
+    settings=checked_temporal_protocol(config_path)
+    if sha(config_path)!=config_sha:
+        raise RuntimeError('Frozen configuration changed while being read')
     if args.validate_config:
         for name in settings['models']:
             model=make_temporal_model(name,47,settings)
@@ -129,7 +134,7 @@ def main():
     output=project_path(args.output)
     if output.exists(): raise RuntimeError('Choose a fresh run directory')
     require_storage(headroom_bytes=200_000_000);output.mkdir(parents=True)
-    (output/'protocol.json').write_text(config_path.read_text())
+    (output/'protocol.json').write_bytes(config_bytes)
     (output/'dataset_manifest.json').write_text((directory/'manifest.json').read_text())
     paths=['train_anchor_temporal.py','anchor_temporal_baselines.py','anchor_kernel.py','boundary_memory.py',
         'boundary_dataset.py','kron_interface.py','models.py','data.py','reference_encoder.py',
@@ -140,7 +145,7 @@ def main():
     prepared={id(tile):prepare_anchor_kernel_bank(tile.bank,num_anchors=32,num_scales=settings['num_scales']).to(device,torch.float32)
         for group in cases.values() for case in group for tile in case.tiles}
     tiles=[tile for case in cases['train'] for tile in case.tiles]
-    results={'stage':settings['stage'],'protocol_sha256':sha(config_path),'implementation_sha256':snapshot,
+    results={'stage':settings['stage'],'protocol_sha256':config_sha,'implementation_sha256':snapshot,
         'boundary_dataset_manifest_sha256':dataset.manifest_sha256,'training_seed':args.seed,
         'selection':settings['selection'],'evaluation_split':'validation_only','models':{},
         'environment':{'torch':str(torch.__version__),'cuda':torch.version.cuda,'device':str(device)},
@@ -169,7 +174,7 @@ def main():
                 history.append(item);print(json.dumps({'event':'epoch','model':name,**item}),flush=True)
                 if nll<best:
                     best,best_epoch,stale=nll,epoch,0
-                    torch.save({'model':model.state_dict(),'epoch':epoch,'protocol_sha256':sha(config_path),
+                    torch.save({'model':model.state_dict(),'epoch':epoch,'protocol_sha256':config_sha,
                                 'boundary_manifest_sha256':dataset.manifest_sha256,'validation_nll':best},checkpoint)
                 else:
                     stale+=1
@@ -181,7 +186,9 @@ def main():
         prediction_path=output/(name+'_validation_logits.pt')
         torch.save({'logits':logits,'parent_ids':[case.parent_id for case in cases['val']],
             'positions':[case.positions for case in cases['val']],'query_node_ids':[case.query_node_ids for case in cases['val']],
-            'protocol_sha256':sha(config_path)},prediction_path)
+            'protocol_sha256':config_sha},prediction_path)
+        if sha(config_path)!=config_sha:
+            raise RuntimeError('Frozen configuration changed during training')
         if snapshot!={path:sha(ROOT/'src/arggnn'/path) for path in paths}:
             raise RuntimeError('Active comparator implementation/dependencies changed')
         result={'parameters':sum(p.numel() for p in parameters),'best_epoch':best_epoch,

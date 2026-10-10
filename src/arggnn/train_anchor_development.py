@@ -184,9 +184,13 @@ def main():
     torch.set_num_threads(4)
     require_device(args.device)
     config_path, directory = project_path(args.config), project_path(args.data)
-    if sha(config_path) != args.expected_config_sha256:
+    config_bytes = config_path.read_bytes()
+    config_sha = hashlib.sha256(config_bytes).hexdigest()
+    if config_sha != args.expected_config_sha256:
         raise RuntimeError("Configuration differs from exact supplied freeze")
     settings = checked_development_protocol(config_path)
+    if sha(config_path) != config_sha:
+        raise RuntimeError("Frozen configuration changed while being read")
     if args.seed not in settings["training_seeds"]:
         raise RuntimeError("Training seed is outside the fixed development list")
     manifest_path = directory / "manifest.json"
@@ -217,7 +221,7 @@ def main():
         raise RuntimeError("Choose a fresh run directory")
     require_storage(headroom_bytes=200_000_000)
     output.mkdir(parents=True)
-    (output/"protocol.json").write_text(config_path.read_text())
+    (output/"protocol.json").write_bytes(config_bytes)
     dump_json(output/"dataset_binding.json", {"boundary_manifest":str(manifest_path),
         "boundary_manifest_sha256":sha(manifest_path),
         "source_manifest_sha256":settings["source_dataset_manifest_sha256"],
@@ -235,7 +239,6 @@ def main():
     transfer_seconds = time.monotonic() - started_transfer
     tiles = [tile for case in cases["train"] for tile in case.tiles]
     example = cases["train"][0].tiles[0].bank
-    config_sha = sha(config_path)
     code_paths = ["train_anchor_development.py", "confirmatory_metrics.py", "anchor_kernel.py", "train_boundary.py",
         "boundary_memory.py", "boundary_dataset.py", "kron_interface.py",
         "models.py", "data.py", "reference_encoder.py", "genealogy_baselines.py",
@@ -343,6 +346,8 @@ def main():
                   "validation_predictions_sha256": sha(prediction_path),
                   "peak_cuda_memory_bytes": torch.cuda.max_memory_allocated() if device.type=="cuda" else None,
                   **replicate_summary(val, args.seed)}
+        if sha(config_path) != config_sha:
+            raise RuntimeError("Frozen configuration changed during training")
         if initial_code_hashes != {p: sha(ROOT/"src/arggnn"/p) for p in code_paths}:
             raise RuntimeError("Active anchor implementation changed during training")
         result["model_configuration"] = model.configuration_manifest()

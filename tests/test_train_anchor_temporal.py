@@ -89,3 +89,47 @@ def test_unsafe_model_ids_rejected_before_forming_output_paths(tmp_path,unsafe):
     path.write_text(json.dumps(settings))
     with pytest.raises(RuntimeError,match="safe file-name"):
         checked_temporal_protocol(path)
+
+
+def test_config_edit_during_synthetic_validation_cannot_seal_a_run(tmp_path,monkeypatch):
+    from unittest.mock import patch
+    from test_boundary_dataset import fixture_source
+    from arggnn.boundary_dataset import prepare_boundary_dataset,sha256_file
+    from arggnn import train_anchor_temporal as runner
+    torch.set_num_threads(1)
+    with patch("arggnn.boundary_dataset.scan_repository_storage",return_value=0):
+        manifest,source_protocol=fixture_source(tmp_path/"source")
+        dataset=prepare_boundary_dataset(manifest,tmp_path/"boundary",
+            source_protocol_path=source_protocol)
+    settings=config()
+    settings.update(splits={"train":1,"val":1,"test":0},num_classes=2,
+        models=["synthetic_smoother"],model_specs={"synthetic_smoother":{
+        "family":"reference_smoother","bandwidth_bp":10000.,"pseudocount":.01}},
+        boundary_dataset_manifest_sha256=dataset.manifest_sha256,
+        boundary_preparation_sha256=dataset.preparation_sha256,
+        source_dataset_manifest_sha256=sha256_file(manifest))
+    path=tmp_path/"config.json"
+    path.write_text(json.dumps(settings))
+    initial_sha=sha256_file(path)
+    output=tmp_path/"run"
+    class Fixed(torch.nn.Module):
+        def forward(self,prepared):
+            return torch.zeros(len(prepared.bank.positions),len(prepared.bank.query_node_ids),2)
+        def configuration_manifest(self):
+            return {"synthetic_fixture":True}
+    original_eval=runner.evaluate_temporal
+    def mutate_during_validation(*args,**kwargs):
+        result=original_eval(*args,**kwargs)
+        path.write_text(json.dumps({**settings,"learning_rate":.003}))
+        return result
+    monkeypatch.setattr(runner,"make_temporal_model",lambda *args:Fixed())
+    monkeypatch.setattr(runner,"evaluate_temporal",mutate_during_validation)
+    monkeypatch.setattr("sys.argv",["runner","--config",str(path),"--data",str(dataset.directory),
+        "--output",str(output),"--device","cpu"])
+    with patch("arggnn.train_anchor_temporal.require_storage",return_value=0):
+        with pytest.raises(RuntimeError,match="Frozen configuration changed during training"):
+            runner.main()
+    assert not (output/"results.json").exists()
+    assert sha256_file(output/"protocol.json")==initial_sha
+    payload=torch.load(output/"synthetic_smoother_validation_logits.pt",weights_only=True)
+    assert payload["protocol_sha256"]==initial_sha

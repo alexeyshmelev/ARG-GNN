@@ -197,3 +197,11 @@ The inspected confirmatory proposal hash is
 b73321c273971619a5fa1bd5b865ad3e15f1a254eca2b36c08cda61ab4679d54.
 The runner records its complete dependency snapshot before training and rejects
 implementation drift before sealing results.
+
+## Independent audit corrections, 2026-10-10
+
+Root added safe model-ID components and immutable configuration snapshots before any new runner GPU use. Every produced artifact retains the exact startup config digest. A configuration change during loading/fitting prevents completed results from being sealed. Synthetic adversarial tests cover absolute/traversal/control-character IDs and real config edits during dataset loading or validation. The focused combined runner suite passed36tests in8.31s. The independent auditor replayed both drift reproducers and verified rejection without completed results. This supersedes earlier authoring runner/test hashes above.
+
+src/arggnn/train_anchor_temporal.py SHA256 9f1ea9bfb99e9e40f644867dd18b772fe008b855b41f16ec0abc718a8278a37a
+
+tests/test_train_anchor_temporal.py SHA256 221267f4f4b8cf08c7838ddcbcdc356c0f356227d85357e0bbaaadeef8c2de34

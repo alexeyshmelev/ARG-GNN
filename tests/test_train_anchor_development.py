@@ -74,7 +74,8 @@ def test_validation_uses_raw_logits_and_keeps_scatter_correspondence():
     with pytest.raises(RuntimeError):evaluate(Fixed(),[case],{id(tile):tile.bank})
 
 
-def test_tiny_cpu_fit_stores_hash_bound_raw_logit_predictions(tmp_path,monkeypatch):
+@pytest.mark.parametrize("drift", ["none", "during_load", "during_validation"])
+def test_tiny_cpu_fit_stores_hash_bound_raw_logit_predictions(tmp_path,monkeypatch,drift):
     torch.set_num_threads(1)
     with patch("arggnn.boundary_dataset.scan_repository_storage",return_value=0):
         manifest,source_protocol=fixture_source(tmp_path/"source")
@@ -92,9 +93,33 @@ def test_tiny_cpu_fit_stores_hash_bound_raw_logit_predictions(tmp_path,monkeypat
     monkeypatch.setattr("sys.argv",["train_anchor_development","--config",str(config),
         "--expected-config-sha256",sha256_file(config),"--data",str(dataset.directory),
         "--output",str(output),"--device","cpu"])
+    initial_hash=sha256_file(config)
+    from arggnn import train_anchor_development as runner
+    if drift=="during_load":
+        original=runner.load_boundary_dataset
+        def mutated_loader(*args,**kwargs):
+            result=original(*args,**kwargs)
+            config.write_text(json.dumps({**p,"hidden_dim":16}))
+            return result
+        monkeypatch.setattr(runner,"load_boundary_dataset",mutated_loader)
+    if drift=="during_validation":
+        original_eval=runner.evaluate
+        def mutated_evaluate(*args,**kwargs):
+            result=original_eval(*args,**kwargs)
+            config.write_text(json.dumps({**p,"hidden_dim":16}))
+            return result
+        monkeypatch.setattr(runner,"evaluate",mutated_evaluate)
     with patch("arggnn.train_anchor_development.require_storage",return_value=0), patch(
         "arggnn.train_anchor_development.checked_development_protocol",return_value=p):
-        main()
+        if drift=="none":
+            main()
+        else:
+            with pytest.raises(RuntimeError,match="Frozen configuration changed during training"):
+                main()
+    assert sha256_file(output/"protocol.json")==initial_hash
+    if drift!="none":
+        assert not (output/"results.json").exists()
+        return
     r=json.loads((output/"results.json").read_text())
     assert r["evaluation_split"]=="fresh_development_validation_only"
     record=r["models"]["plain"]
