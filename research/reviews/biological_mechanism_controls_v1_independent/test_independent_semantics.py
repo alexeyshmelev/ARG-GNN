@@ -1,0 +1,121 @@
+"""Independent handmade controls checks, CPU only and no biological artifacts."""
+from dataclasses import replace
+import sys
+import numpy as np
+import pytest
+import torch
+from scipy.linalg import expm
+from arggnn import biological_mechanism_controls_v1 as controls
+from arggnn.anchor_kernel import AnchorOperators, AnchorKernelLayer, gain_matched_anchor_sources
+sys.path.insert(0, str(controls.ROOT / 'tests'))
+from test_anchor_kernel import prepared
+
+@pytest.fixture(autouse=True)
+def cpu_only():
+    torch.set_num_threads(1)
+
+
+def test_gain_matching_dc_is_exact_but_finite_transient_differs():
+    cqq=torch.tensor([[[[2.,-1.],[-1.,3.]]]],dtype=torch.float64)
+    eig,vec=torch.linalg.eigh(cqq)
+    op=AnchorOperators(cqq, -torch.ones(1,1,2,1,dtype=torch.float64), eig, vec)
+    rate=torch.tensor([[1.7]],dtype=torch.float64)
+    damping=torch.tensor([[.6]],dtype=torch.float64)
+    source=torch.tensor([[[[[.3,2.]],[[1.2,3.]]]]],dtype=torch.float64)
+    actual=gain_matched_anchor_sources(op,torch.tensor([0]),source,rate,damping)[0,0,:,0]
+    k=1.7*cqq[0,0]+.6*torch.eye(2,dtype=torch.float64)
+    d=torch.diag(torch.diag(k))
+    raw=source[0,0,:,0]
+    np.testing.assert_allclose(np.linalg.solve(d.numpy(),actual.detach().numpy()),
+        np.linalg.solve(k.numpy(),raw.numpy()),rtol=2e-14,atol=2e-14)
+    full=expm(-.4*k.numpy())@raw.numpy()
+    diagonal=expm(-.4*d.numpy())@actual.detach().numpy()
+    assert np.max(np.abs(full-diagonal)) > .05
+
+
+def test_second_target_update_uses_containing_graph_original_reference():
+    torch.manual_seed(605)
+    net=controls.make_control('bio_mc_v1_age_d1_plus_pointwise',input_dim=4,num_classes=3,
+        hidden_dim=8,num_layers=2,latent_dim=3,num_anchors=5,
+        initial_coupling=(.8,2.,5.),initial_damping=.6).double()
+    pack=prepared()
+    result=net.encode_context(pack)
+    h=net.encoder(pack.bank.leaf_x,pack.bank.query_cache.normalized_response)
+    query=h[:,pack.bank.query_cache.query_indices]
+    ref=h[:,pack.bank.query_cache.reference_indices]
+    first_targets=net.layers[0].update(query[pack.bank.target_graph],result.kernel_message.targets)
+    layer=net.layers[1]
+    q=layer.query_projection(first_targets).tanh().detach().numpy()
+    r=layer.reference_projection(ref).tanh().detach().numpy()
+    qr=pack.operators['age'].cqr.detach().numpy()
+    rates=layer.rates.detach().numpy()
+    d=layer.damping.detach().numpy()
+    mixture=layer.mixture.detach().numpy()
+    oracle=np.zeros_like(q)
+    alternative=np.zeros_like(q)
+    for p,g in enumerate(pack.bank.target_graph.tolist()):
+        for u in range(q.shape[1]):
+            for c in range(q.shape[2]):
+                num=den=0.
+                for s in range(3):
+                    injection=sum(-qr[g,s,u,v]*r[g,v,c] for v in range(r.shape[1]))
+                    injection_mass=sum(-qr[g,s,u,v] for v in range(r.shape[1]))
+                    source=q[p,u,c]+rates[s,c]*injection
+                    mass=1+rates[s,c]*injection_mass
+                    oracle[p,u,c]+=mixture[s,c]*(d[s,c]/(1+d[s,c]))*source/mass
+                    num+=mixture[s,c]*(d[s,c]/(1+d[s,c]))*source
+                    den+=mixture[s,c]*mass
+                alternative[p,u,c]=num/den
+    np.testing.assert_allclose(result.pointwise_targets.message.detach().numpy(),oracle,rtol=3e-12,atol=3e-12)
+    assert np.max(np.abs(oracle-alternative))>1e-5
+    torch.testing.assert_close(result.targets,layer.update(first_targets,torch.from_numpy(oracle)),rtol=3e-12,atol=3e-12)
+
+
+def test_cached_first_action_removes_all_later_QQ_and_coordinate_use(monkeypatch):
+    torch.manual_seed(811)
+    net=controls.make_control('bio_mc_v1_age_d1_plus_pointwise',input_dim=4,num_classes=3,
+        hidden_dim=8,num_layers=2,latent_dim=3,num_anchors=5,
+        initial_coupling=(.8,2.,5.),initial_damping=.6).double()
+    pack=prepared()
+    actual=net.encode_context(pack)
+    monkeypatch.setattr(net.layers[0], 'messages',lambda *a,**k:actual.kernel_message)
+    def forbidden(*args,**kwargs):
+        raise AssertionError('Second kernel path called')
+    monkeypatch.setattr(net.layers[1], 'messages',forbidden)
+    poisoned=replace(pack.operators['age'],cqq=torch.full_like(pack.operators['age'].cqq,float('nan')),
+        eigenvalues=torch.full_like(pack.operators['age'].eigenvalues,float('nan')),
+        eigenvectors=torch.full_like(pack.operators['age'].eigenvectors,float('nan')))
+    badlayout=replace(pack.layout,coordinates=torch.full_like(pack.layout.coordinates,float('nan')),
+        segment_duration=torch.full_like(pack.layout.segment_duration,float('nan')),
+        segment_graph=torch.full_like(pack.layout.segment_graph,9999))
+    altered=replace(pack,layout=badlayout,operators={**pack.operators,'age':poisoned})
+    observed=net.encode_context(altered)
+    torch.testing.assert_close(observed.targets,actual.targets,rtol=0,atol=0)
+    torch.testing.assert_close(observed.anchors,actual.anchors,rtol=0,atol=0)
+
+
+def test_common_zero_QR_is_finite_and_positive_roundoff_is_explicit_rejection():
+    torch.manual_seed(184)
+    layer=AnchorKernelLayer(8,3,3,[.8,2.,5.],.6).double()
+    query=torch.randn(2,3,8,dtype=torch.float64)
+    refs=torch.randn(2,2,8,dtype=torch.float64)
+    qr=torch.zeros(2,3,3,2,dtype=torch.float64)
+    actual=controls.pointwise_reference_message(layer,qr,query,refs)
+    assert torch.equal(actual.mass_source,torch.ones_like(actual.mass_source))
+    assert torch.isfinite(actual.message).all()
+    qr[0,0,0,0]=torch.finfo(torch.float64).eps
+    with pytest.raises(ValueError,match='QR nonpositive'):
+        controls.pointwise_reference_message(layer,qr,query,refs)
+
+
+def test_source_hash_drift_fails_without_opening_scientific_inputs(monkeypatch):
+    cfg,base,helpers=controls.load_protocol(controls.frozen.path('configs/biological_mechanism_controls_v1.json'),
+        '67d7aba454d3cc57b11faa32151dd6af397210fa89d9b56b5fcd0014f662f1b4',controls.BASE_CONFIG_SHA256)
+    original=controls.frozen.sha
+    def altered(path):
+        if str(path).endswith('/src/arggnn/age_intervention_controls.py'):
+            return '0'*64
+        return original(path)
+    monkeypatch.setattr(controls.frozen,'sha',altered)
+    with pytest.raises(ValueError,match='Frozen source drift'):
+        controls.frozen.verify_sources(cfg)

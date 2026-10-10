@@ -1,0 +1,55 @@
+{
+  "adaptation": {
+    "class_labels": [
+      "ANA",
+      "CHG",
+      "WHG",
+      "EHG"
+    ],
+    "class_vote_ties": "common fixed-order first argmax",
+    "corpus": "all unique pure-reference full paths per own ARG",
+    "neighbor_exact_score_ties": "ascending original full-path ID",
+    "prespecified_sensitivity_k": 5,
+    "primary_k": 1
+  },
+  "body_sha256": "ca8b72e780bc885f8c53cc9d13bf7d147c0588742be2f1b31cebbf241640251b",
+  "explicit_real_population_top5": {
+    "line57": "To test whether ARGformer embeddings capture archaic introgression signals without using genotype matrices, we framed archaic ancestry detection as a nearest-neighbor retrieval problem in embedding space. For each held-out population, we retrieved the top-5 closest haplotype-path embeddings and summarized the retrieved reference labels as a row-normalized distribution over reference populations, reporting both the raw vote share and a chance-corrected enrichment (Fig. 4).",
+    "line59": "Denisovan segment retrieval in Oceania. (A) Nearest-neighbor retrieval reveals Denisovan-enriched embedding neighborhoods in Oceanian haplotypes. For each held-out query path (row), we retrieve its top-5 nearest neighbors and record the neighbors\u2019 reference individual labels (columns). Each cell reports the row-normalized fraction of retrieved neighbors assigned to the corresponding reference population. Colors show the log-lift of retrieval relative to chance ( log 2(lift)= log 2(p^c/pc) where p^c is retrieved vote share and pc is corpus label frequency), so values above zero indicate enrichment beyond what would be expected from corpus composition. (B) UMAP projection of haplotype-path embeddings for archaic references, modern population reference, and query populations.",
+    "line65": "We next asked whether ARGformer embeddings capture the subtle Oceania-related affinities that have been previously reported in some Indigenous South American populations (Skoglund et al. 2015, Castro e Silva et al. 2021). As in the archaic introgression analysis, we framed this question as a retrieval problem in embedding space: given a query set of marginal-path embeddings from Indigenous American populations, we retrieve the top-5 nearest neighbors of its haplotype-path embeddings from a reference corpus stratified into three regional groups (Americas, East Asian, and Oceania) and summarize neighbor identities as a row-normalized vote share, alongside a chance-corrected enrichment (Fig. 5A). In this analysis, the Americas reference group comprises Pima, Maya, and Mixe individuals; the Oceania reference group comprises Australian, Bougainville, Papuan, Papuan Highlands, and Papuan Sepik; and the East Asian reference group comprises Han Chinese and Japanese.",
+    "line67": "Population-scale affinities between the Americas, East Asia, and Oceania. (A) For each query population we retrieve the top-5 nearest neighbors from the embedding corpus and tabulate the neighbors\u2019 regional labels. Suru\u00ed and Karitiana show the highest enrichment for Oceanian retrieval. (B) Negative-control retrieval with Oceanian references removed, recomputed over Americas and East Asian references only."
+  },
+  "fulltext_XML_sha256": "53ab26710804f0b9ca6f355095893b365413caf56cf7bb722b39907f6db0619f",
+  "resolved": {
+    "metric": "L2-normalized dot product cosine",
+    "paper_real_population_k": 5,
+    "real_population_vote_weighting": "unweighted row-normalized neighbor vote shares",
+    "source_default_k": 1
+  },
+  "simulated_LAI_paragraphs": {
+    "line49": "We benchmarked local ancestry inference (LAI) in admixed individuals against FLARE (Browning et al. 2023). Because FLARE is a specialized local-ancestry method, we use it here as a task-specific baseline, while ARGformer is intended as a general representation model for multiple downstream analyses on inferred genealogies. Using $10 000$ unique marginal paths sampled from admixed individuals, we considered two inference strategies based solely on ARGformer embeddings. First, performing PCA on embeddings of unadmixed reference individuals and retaining the top 10 principal components. Second, project each path embedding into a 10-dimensional PC space and assign an ancestry label based on its cluster membership (PCA clustering).",
+    "line51": "The second strategy treats each admixed marginal path as a query and retrieves its nearest neighbors among embeddings of reference haplotypes in embedding space, assigning ancestry labels based on the labels of the retrieved neighbors. In both cases we compare the resulting three-way local ancestry calls with those from FLARE, providing a quantitative benchmark for how well the contrastively trained ARGformer embeddings capture population structure at the level of individual genomic segments. ARGformer achieved comparable accuracy to FLARE, a state-of-the-art local ancestry inference method, and obtained higher accuracy on AFR ancestry with the nearest-neighbor retrieval (Table 1)."
+  },
+  "source_retrieve_lines": {
+    "CLI_default_top1": [
+      118,
+      148
+    ],
+    "F_normalize": [
+      13,
+      16
+    ],
+    "dot_and_stream_topk": [
+      78,
+      97
+    ]
+  },
+  "source_retrieve_sha256": "520f1961c396432a875a40be253a01648e7debf1fad8c9a274a7522d3809e7ea",
+  "unresolved": [
+    "simulated_LAI exact k",
+    "original simulated-LAI corpus curation and subset choice",
+    "original device/provider and numerical near-tie ordering",
+    "original neighbor tie order",
+    "original majority class tie rule"
+  ]
+}

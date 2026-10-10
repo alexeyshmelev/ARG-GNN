@@ -1,0 +1,365 @@
+{
+  "kind": "biological_mechanism_controls_conditions_v1",
+  "status": "proposed_unregistered_nonexecutable",
+  "hypothesis_id_assigned": false,
+  "execution_authorized_by_this_file": false,
+  "reference_config": "configs/biological_candidate_pilot_v1.json",
+  "reference_config_sha256": "4151e7e156db3f188512bcc738b43597407d7707bc77c420509165c2e9bfc2f1",
+  "core_starts": {
+    "B": 6,
+    "C": 2
+  },
+  "seeds": [
+    101,
+    202,
+    303
+  ],
+  "seed_policy": "first seed is engineering, finish all admitted conditions and prespecified optimizer repeats without favorable-arm selection",
+  "conditions": [
+    {
+      "condition_id": "candidate_age_d2",
+      "stage": "R",
+      "status": "existing_frozen_reference",
+      "prior": [
+        "H020",
+        "H006"
+      ],
+      "paired": [
+        "candidate_plain_d2"
+      ],
+      "spec": "AnchorKernelModel age/full/D2/A32",
+      "reason": "Reuse exact current biological condition. Do not restart unchanged successful cell."
+    },
+    {
+      "condition_id": "candidate_plain_d2",
+      "stage": "R",
+      "status": "existing_frozen_reference",
+      "prior": [
+        "H020",
+        "H004"
+      ],
+      "paired": [
+        "candidate_age_d2",
+        "matched_gru_d2"
+      ],
+      "spec": "AnchorKernelModel plain/full/D2/A32",
+      "reason": "Reuse exact current biological reference."
+    },
+    {
+      "condition_id": "matched_gru_d2",
+      "stage": "R",
+      "status": "existing_frozen_reference",
+      "prior": [
+        "H020",
+        "H007"
+      ],
+      "paired": [
+        "candidate_plain_d2"
+      ],
+      "spec": "AnchorGRUModel temporal_depth2/dropout0/A32/plain_QR",
+      "reason": "Reuse exact current biological temporal family comparison."
+    },
+    {
+      "condition_id": "bio_mc_v1_scalar_age_d2",
+      "stage": "B",
+      "status": "implementation_available_binding_missing",
+      "prior": [
+        "H006",
+        "H020"
+      ],
+      "paired": [
+        "candidate_age_d2",
+        "candidate_plain_d2"
+      ],
+      "spec": "AnchorKernelModel matched_scalar_age/full/D2/A32",
+      "reason": "New biological condition testing attenuation versus relative age geometry."
+    },
+    {
+      "condition_id": "bio_mc_v1_age_source_only_d2",
+      "stage": "B",
+      "status": "implementation_available_binding_missing",
+      "prior": [
+        "H006",
+        "H020"
+      ],
+      "paired": [
+        "candidate_age_d2",
+        "candidate_plain_d2",
+        "bio_mc_v1_age_propagation_only_d2"
+      ],
+      "spec": "SplitAgeAnchorKernelModel source_only/full/D2/A32",
+      "reason": "New biological QR-age attribution cell."
+    },
+    {
+      "condition_id": "bio_mc_v1_age_propagation_only_d2",
+      "stage": "B",
+      "status": "implementation_available_binding_missing",
+      "prior": [
+        "H006",
+        "H020"
+      ],
+      "paired": [
+        "candidate_age_d2",
+        "candidate_plain_d2",
+        "bio_mc_v1_age_source_only_d2"
+      ],
+      "spec": "SplitAgeAnchorKernelModel propagation_only/full/D2/A32",
+      "reason": "New biological QQ-age attribution cell."
+    },
+    {
+      "condition_id": "bio_mc_v1_plain_diagonal_d2",
+      "stage": "B",
+      "status": "implementation_available_binding_missing",
+      "prior": [
+        "H004",
+        "H020"
+      ],
+      "paired": [
+        "candidate_plain_d2",
+        "bio_mc_v1_plain_gainmatched_d2"
+      ],
+      "spec": "AnchorKernelModel plain/diagonal/D2/A32",
+      "reason": "New biological cohort, preserves full generator diagonal but changes spectrum/gain."
+    },
+    {
+      "condition_id": "bio_mc_v1_plain_gainmatched_d2",
+      "stage": "B",
+      "status": "implementation_available_binding_missing",
+      "prior": [
+        "H004",
+        "H020"
+      ],
+      "paired": [
+        "candidate_plain_d2",
+        "bio_mc_v1_plain_diagonal_d2"
+      ],
+      "spec": "AnchorKernelModel plain/gain_matched_diagonal/D2/A32",
+      "reason": "New biological DC control, retains instantaneous source mixing."
+    },
+    {
+      "condition_id": "bio_mc_v1_shared_encoder_local",
+      "stage": "B",
+      "status": "implementation_available_binding_missing",
+      "prior": [
+        "H002",
+        "H005",
+        "H020"
+      ],
+      "paired": [
+        "candidate_plain_d2",
+        "matched_gru_d2"
+      ],
+      "spec": "BoundaryLocalGNN prepared.bank/F47/hidden32/source_depth2/C4",
+      "reason": "New biological source-only explanatory control, lower count disclosed."
+    },
+    {
+      "condition_id": "bio_mc_v1_plain_d1",
+      "stage": "C",
+      "status": "implementation_available_binding_missing",
+      "prior": [
+        "H004",
+        "H005",
+        "H020"
+      ],
+      "paired": [
+        "candidate_plain_d2",
+        "bio_mc_v1_plain_d1_plus_pointwise"
+      ],
+      "spec": "AnchorKernelModel plain/full/D1/A32",
+      "reason": "New biological D1 reference, count8188."
+    },
+    {
+      "condition_id": "bio_mc_v1_plain_d1_plus_pointwise",
+      "stage": "C",
+      "status": "design_only_implementation_missing",
+      "prior": [
+        "H004",
+        "H005",
+        "H020"
+      ],
+      "paired": [
+        "candidate_plain_d2",
+        "bio_mc_v1_plain_d1"
+      ],
+      "spec": "One kernel plus active2232-parameter pointwise residual block, total10420",
+      "reason": "Missing depth/capacity remedy, no second QQ or cross-coordinate action."
+    },
+    {
+      "condition_id": "bio_mc_v1_noncontext_plain_d2",
+      "stage": "C_optional",
+      "status": "implementation_available_binding_missing",
+      "prior": [
+        "H005",
+        "H020"
+      ],
+      "paired": [
+        "candidate_plain_d2"
+      ],
+      "spec": "NoncontextualAnchorKernelModel plain/full/D2/A32",
+      "reason": "Independent prespecified biological feedback check, D1 duplicate prohibited."
+    },
+    {
+      "condition_id": "bio_mc_v1_static_plain_d2",
+      "stage": "C_optional",
+      "status": "implementation_available_binding_missing",
+      "prior": [
+        "H005",
+        "H020"
+      ],
+      "paired": [
+        "candidate_plain_d2"
+      ],
+      "spec": "StaticLocalAnchorModel plain/full/D2",
+      "reason": "New biological graph-local depth check, retains local query mixing."
+    },
+    {
+      "condition_id": "bio_mc_v1_feature47_mlp",
+      "stage": "C_optional",
+      "status": "implementation_available_binding_missing",
+      "prior": [
+        "H002",
+        "H020"
+      ],
+      "paired": [
+        "bio_mc_v1_shared_encoder_local",
+        "candidate_plain_d2"
+      ],
+      "spec": "BoundaryFeatureMLP F47/hidden32/depth2/C4",
+      "reason": "New summary-only explanatory baseline, lower count disclosed."
+    },
+    {
+      "condition_id": "bio_mc_v1_plain_d2_bag_generator",
+      "stage": "D_reserved",
+      "status": "design_only_implementation_missing",
+      "prior": [
+        "H003",
+        "H004",
+        "H011",
+        "H020"
+      ],
+      "paired": [
+        "candidate_plain_d2",
+        "bio_mc_v1_plain_d2_unordered_set"
+      ],
+      "spec": "Physical-width averaged QQ, original coordinate-placed QR sources",
+      "reason": "New finite-anchor operator switching control, not unordered."
+    },
+    {
+      "condition_id": "bio_mc_v1_plain_d2_unordered_set",
+      "stage": "D_reserved",
+      "status": "design_only_implementation_missing",
+      "prior": [
+        "H003",
+        "H004",
+        "H011",
+        "H020"
+      ],
+      "paired": [
+        "candidate_plain_d2",
+        "bio_mc_v1_plain_d2_bag_generator"
+      ],
+      "spec": "Coordinate-free source pooling at all depths and bag QQ, same learned modules",
+      "reason": "New strict context set control, source pooling/feedback confounds disclosed."
+    },
+    {
+      "condition_id": "bio_mc_v1_scope_full_query_head",
+      "stage": "D_reserved",
+      "status": "design_only_implementation_missing",
+      "prior": [
+        "H008",
+        "H020"
+      ],
+      "paired": [
+        "bio_mc_v1_scope_nearest15_query_head"
+      ],
+      "spec": "ARGMix equation adaptation full tree/F47/query head/no CLS",
+      "reason": "New identical-schema full-scope biological comparator."
+    },
+    {
+      "condition_id": "bio_mc_v1_scope_nearest15_query_head",
+      "stage": "D_reserved",
+      "status": "design_only_implementation_missing",
+      "prior": [
+        "H008",
+        "H020"
+      ],
+      "paired": [
+        "bio_mc_v1_scope_full_query_head"
+      ],
+      "spec": "Same equation adaptation focal query+nearest15+3 ancestors/F47/query head/recomputed restricted summaries",
+      "reason": "New restricted-scope biological comparator, not native reproduction or candidate ablation."
+    }
+  ],
+  "qualification_conditions": [
+    {
+      "condition_id": "bio_mc_v1_finite_impulse_dc_diag",
+      "stage": "Q",
+      "status": "design_only_not_executed",
+      "prior": [
+        "H004",
+        "H011"
+      ],
+      "reason": "New finite-anchor transient/DC diagnostic"
+    },
+    {
+      "condition_id": "bio_mc_v1_unit_equivalent_action",
+      "stage": "Q",
+      "status": "design_only_not_executed",
+      "prior": [
+        "H011",
+        "H020"
+      ],
+      "reason": "New complete coordinate/rate/source/mass transform"
+    },
+    {
+      "condition_id": "bio_mc_v1_resolution_layouts",
+      "stage": "Q",
+      "status": "design_only_not_executed",
+      "prior": [
+        "H011",
+        "H020"
+      ],
+      "reason": "New A16/A64 layouts"
+    },
+    {
+      "condition_id": "bio_mc_v1_quarter_cell_grid",
+      "stage": "Q",
+      "status": "design_only_not_executed",
+      "prior": [
+        "H011",
+        "H020"
+      ],
+      "reason": "New within-cell source offset"
+    },
+    {
+      "condition_id": "bio_mc_v1_tile_shift125kb",
+      "stage": "Q",
+      "status": "design_only_not_executed",
+      "prior": [
+        "H011",
+        "H020"
+      ],
+      "reason": "New tile-boundary/context condition"
+    },
+    {
+      "condition_id": "bio_mc_v1_pointwise_depth_contract",
+      "stage": "Q",
+      "status": "design_only_not_executed",
+      "prior": [
+        "H005",
+        "H020"
+      ],
+      "reason": "New active pointwise capacity wrapper"
+    },
+    {
+      "condition_id": "bio_mc_v1_order_positive_negative",
+      "stage": "Q",
+      "status": "design_only_not_executed",
+      "prior": [
+        "H011",
+        "H020"
+      ],
+      "reason": "New held-out target distinguishing tests, not unchanged H011 probe"
+    }
+  ]
+}

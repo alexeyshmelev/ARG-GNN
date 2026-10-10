@@ -1,0 +1,212 @@
+{
+  "kind": "biological_gst_control_v1",
+  "status": "source_prepared_root_execution_not_performed",
+  "hypothesis_links": [
+    "H009",
+    "H020"
+  ],
+  "parents": [
+    "bio_paths_pilot_train_000",
+    "bio_paths_pilot_train_001",
+    "bio_paths_pilot_val_000",
+    "bio_paths_pilot_val_001"
+  ],
+  "seeds": [
+    101,
+    202,
+    303
+  ],
+  "root_first_seed": 101,
+  "models": [
+    "gst32_primary",
+    "gst64_capacity_sensitivity"
+  ],
+  "model_widths": {
+    "gst32_primary": 32,
+    "gst64_capacity_sensitivity": 64
+  },
+  "architecture": {
+    "input_dim": 47,
+    "num_classes": 4,
+    "num_layers": 2,
+    "num_heads": 4,
+    "dropout": 0.0,
+    "routing": "cross_attention",
+    "token_weighting": "span",
+    "gate_variant": "paper",
+    "ffn_multiplier": 2,
+    "self_loop_weight": 2.0,
+    "validate": true
+  },
+  "analytic_parameters": {
+    "gst32_primary": 43300,
+    "gst64_capacity_sensitivity": 166468
+  },
+  "H009_selection_metadata": {
+    "path": "experiments/results/biological_gst_control_v1_root_selection_metadata/metadata.json",
+    "sha256": "c0896a8ef32bc6e882a547febcd809bf3197f79e792cdce9efad98dce248d99f"
+  },
+  "H009_original_config": {
+    "path": "configs/inferred_cohort64_gst_graphssm_controls_v1.json",
+    "sha256": "37f7c3235f22ac89debdb517affe06ebe51d178e9bf2c39111f078305c5074bd"
+  },
+  "H020_config": {
+    "path": "configs/biological_candidate_pilot_v1.json",
+    "sha256": "4151e7e156db3f188512bcc738b43597407d7707bc77c420509165c2e9bfc2f1"
+  },
+  "observed_manifest": {
+    "path": "data/biological_paths_execution_pilot_v1/relate_inferred_v1/manifest.json",
+    "sha256": "6872222127c96b3defbfb1b9edb83ba1d5b11b0b60e6888956369bc507cefe28"
+  },
+  "prepared_manifest": {
+    "path": "data/biological_candidate_pilot_v1/manifest.json",
+    "sha256": "3c0a3320fbc6dd9d421a2acfad398961c4912cdbc49d111faf02108ee4f8596d"
+  },
+  "input": {
+    "whole_fields": 48,
+    "source_fields": 47,
+    "feature_columns": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47
+    ],
+    "excluded_raw_parent_branch_column": 7,
+    "one_complete_existing_tile_per_forward": true,
+    "graph_subset_batching": false,
+    "Kron_bank_loading_or_reconstruction": false,
+    "original_marginal_records": 3718,
+    "original_parent_tree_counts": [
+      955,
+      897,
+      946,
+      920
+    ],
+    "existing_physical_tiles": 32,
+    "sampled_leaves_per_graph": 280,
+    "dynamics_query_outputs": 184,
+    "actual_supervised_outputs": 120,
+    "mixed_latent_outputs": 64,
+    "pure_reference_sources": 96,
+    "coordinate_normalization_length_bp": 2000000,
+    "fixed_grid_bp": 100,
+    "no_numeric_ID_embedding": true,
+    "no_position_encoding": true,
+    "input_aggregation_difference": "GST all-node F47 and topology versus H020 leafF47 and Kron responses"
+  },
+  "training": {
+    "epochs": 30,
+    "patience": 8,
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "gradient_clip_norm": 1.0,
+    "selection": "minimum_mean_parent_VAL_present64_exact_support_raw_probability_NLL",
+    "supervision": "actual_query120_exact_class_span_mass_only",
+    "VAL_calibration_fit": false,
+    "checkpoint_ties": "earliest_epoch_strict_less"
+  },
+  "metrics": {
+    "calibration_bins": 15,
+    "boundary_tolerance_bp": 1000.0,
+    "short_tract_cutoff_bp": 10000.0,
+    "primary": "present_day64",
+    "secondary": "ancient56",
+    "support": "retained_center_bins_clipped_to_coverage",
+    "denominator": "exact_scored_query_bp",
+    "probability_floor": false,
+    "posthoc_renormalization": false,
+    "normalization_length_bp": 2000000
+  },
+  "storage": {
+    "project_limit_bytes": 450000000000,
+    "concurrent_write_reserve_bytes": 50000000000,
+    "preparation_bytes_per_graph": 12000000,
+    "preparation_fixed_bytes": 2000000000,
+    "training_prediction_bytes_per_parent_epoch": 96000000,
+    "training_fixed_bytes": 12000000000,
+    "per_epoch_root_du_scans": 0
+  },
+  "external_truth_manifest": {
+    "path": "data/biological_paths_execution_pilot_v1/manifest.json",
+    "sha256": "d404f4308466b09d7fa9a296b12bb76932bf84142bebbd03503cb2d2445665ea",
+    "access": "TRAIN_loss_or_after_sealed_VAL_predictions_only"
+  },
+  "gpu_runtime": {
+    "launcher": "scripts/launch_gpu.py",
+    "launcher_module": "arggnn.biological_gst_control_v1",
+    "lease_guard": "src/arggnn/native_argformer_exec.py",
+    "nvtop_helper": "scripts/qualify_official_argformer_runtime.py",
+    "exact_process_title": "AI Auto Research Pipeline Test",
+    "preferred_fit_physical_gpu": 3,
+    "allowed_physical_gpus": [
+      2,
+      3,
+      4,
+      5
+    ],
+    "maximum_project_GPU_jobs": 2,
+    "actual_driver_UUID_own_PID_title_NVTOP_required": true,
+    "title_and_deterministic_policy_before_CUDA": true,
+    "all_coordinate_tensors_remain_float64": true
+  },
+  "source_sha256": {
+    "src/arggnn/biological_gst_control_v1.py": "66788b41cabcb852c739505200a641bdc93fea3c9fbb642c291d52cefc77350f",
+    "scripts/train_biological_gst_control_v1.py": "e8496eb6a92cc2f9edb5f107a89d23cdbc945a82ae0e00bf2a4e0f00ed9ab72b",
+    "src/arggnn/gst_baseline.py": "68d7283b99dbabd6c9a3254f8a9bb71272b1288ccea25a6821610804c354cc73",
+    "src/arggnn/models.py": "8429bd02a40950a3dc4d76046ab4b31b366871499d95e295a16ade730f567df5",
+    "src/arggnn/data.py": "fb4e4b3ad8744731e6d2c5966cc2679f9f2d59dfd079facc280d69fbc61ef654",
+    "docs/gst_baseline.md": "4592b20aef9ec3b582375388990a0cc53db74c512fa345dc8659f38a0210f881",
+    "docs/gst_baseline_provenance.json": "fe3b47567cf7245e795e21f1f81a2d364dd61fa13221636bef657320b0a8dc87",
+    "src/arggnn/study_models.py": "3a94878f349a1b1ee6cf9dff18aecf74060c258590418c5130365e775c21f489",
+    "configs/inferred_cohort64_gst_graphssm_controls_v1.json": "37f7c3235f22ac89debdb517affe06ebe51d178e9bf2c39111f078305c5074bd"
+  },
+  "baseline_scope": "unchanged independent paper-equation ARG task adaptation, not original-domain numeric reproduction",
+  "claims": {
+    "optimizer_fit_completed": false,
+    "final_TEST_evaluation": false,
+    "superiority_or_novelty_claim": false
+  }
+}

@@ -12,7 +12,10 @@ Do not write credentials or key passphrases into project files, Git, command log
 ## Resources
 Total repository storage, including ignored files and the environment, must remain below 500 GB.
 Use a 450 GB warning threshold and stop bulk writes before reaching 500 GB.
-At most two GPUs may be used by this project at once.
+At most two distinct physical GPUs may be used by this project at once.
+The user explicitly allows multiple model worker processes to share those devices.
+Use an audited shared-lease pool with memory reservations, separate logical job records and prescribed GPU process titles for concurrent workers.
+Preserve existing pinned model/runtime guards while introducing scheduling changes.
 Only physical GPUs 2, 3, 4 and 5 are eligible, and only after verifying they are free.
 GPU 0, GPU 1 and GPU 6 are excluded.
 GPU jobs must set the process title AI Auto Research Pipeline Test before creating CUDA contexts.

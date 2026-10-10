@@ -1,0 +1,62 @@
+........F                                                                [100%]
+=================================== FAILURES ===================================
+___ test_handmade_prepared_manifest_preserves_all3718_records_and_exact_grid ___
+
+tmp_path = PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/biological_gst_control_v1_source_audit/pytest_tmp_metadata/test_handmade_prepared_manifes0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7279bbf053d0>
+
+    def test_handmade_prepared_manifest_preserves_all3718_records_and_exact_grid(tmp_path, monkeypatch):
+        """Exercise serializer metadata semantics with artificial records and joins."""
+        cfg = settings()
+        h020 = json.loads((ROOT / cfg["H020_config"]["path"]).read_text())
+        query = np.r_[0:64, 80:96, 104:112, 144:160, 168:184]
+        parents = []
+        records = []
+        for ordinal, (name, trees) in enumerate(zip(control.PARENTS, [955, 897, 946, 920])):
+            nodes = np.arange(280, dtype=np.int64) + 1000 + ordinal * 1000
+            parent = dict(parent_id=name, split="train" if ordinal < 2 else "val",
+                observation=dict(nodes=nodes, entry=dict(handmade_parent=name)),
+                query_slots=query, dynamics_slots=np.arange(184), reference_slots=list(range(184, 280)),
+                positions=np.arange(8, dtype=np.float64) * 100 + 50,
+                edges=np.arange(9, dtype=np.float64) * 100,
+                output_indexes=query, retained_indexes=np.arange(8))
+            parents.append(parent)
+            tiles = []
+            for number, ids in enumerate(np.array_split(np.arange(trees), 8)):
+                tiles.append(dict(position_indexes=[number], original_tree_ids=ids.tolist(),
+                    all_tree_nodes_retained=True, all280_leaves_retained=True, query_dynamics=184,
+                    pure_reference_sources=96, supervised_outputs=120, mixed_latent_outputs=64,
+                    mixed_query_flag=0, whole_observed_graph=dict(path=f"handmade_{ordinal}_{number}.pt", sha256="unused")))
+            records.append(dict(parent_id=name, split=parent["split"], relate_entry=parent["observation"]["entry"],
+                query_node_ids=nodes[query].tolist(), dynamics_query_node_ids=nodes[:184].tolist(),
+                positions_bp=parent["positions"].tolist(), bin_edges_bp=parent["edges"].tolist(),
+                actual_query_output_indexes=query.tolist(), actual_query_sample_indexes=query.tolist(),
+                dynamics_sample_indexes=list(range(184)), reference_sample_indexes=list(range(184, 280)),
+                retained_fixed100bp_indexes=list(range(8)), tiles=tiles, original_trees_preserved=trees))
+        observed_sha = "handmade_observed_hash"
+        prepared = dict(status="complete_observed_only_Q184_R96_actualQ120",
+            config_sha256=cfg["H020_config"]["sha256"], observed_manifest_sha256=observed_sha,
+            source_sha256=h020["source_sha256"], truth_opened=False, parents=records)
+        fixture_file = tmp_path / "handmade_prepared.json"
+        # File admission is replaced only for the handmade metadata unit test.
+        monkeypatch.setattr(control, "checked", lambda record: control.path(record["path"]))
+    
+        def admit():
+            fixture_file.write_text(json.dumps(prepared))
+            digest = control.sha(fixture_file)
+            cfg["prepared_manifest"] = dict(path=str(fixture_file), sha256=digest)
+            return control.prepared_contract(cfg, parents, fixture_file, digest, observed_sha)
+    
+        assert set(admit()) == set(control.PARENTS)
+        records[0]["tiles"][0]["original_tree_ids"].pop()
+        with pytest.raises(ValueError, match="Every original tree ID"):
+            admit()
+        records[0]["tiles"][0]["original_tree_ids"].insert(0, 119)
+        # The inserted ID is a duplicate from another tile, still leaving original0 absent.
+>       with pytest.raises(ValueError, match="Every original tree ID"):
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_biological_gst_control_v1.py:228: Failed
+=========================== short test summary info ============================
+FAILED tests/test_biological_gst_control_v1.py::test_handmade_prepared_manifest_preserves_all3718_records_and_exact_grid
+1 failed, 8 passed in 2.75s
