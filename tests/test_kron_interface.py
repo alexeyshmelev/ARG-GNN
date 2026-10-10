@@ -4,6 +4,7 @@ import io
 from dataclasses import FrozenInstanceError
 from types import SimpleNamespace
 import unittest
+import pytest
 import torch
 
 from arggnn.kron_interface import (
@@ -329,3 +330,35 @@ class KronInterfaceTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+@pytest.mark.parametrize("resistances", [[.2, .3], [.7], [.4, .6, .7]])
+def test_single_boundary_response_is_analytically_zero_before_normalization(resistances):
+    from arggnn.kron_interface import resistance_laplacian, kron_reduce
+    n = len(resistances) + 1
+    edge = torch.tensor([list(range(n-1)), list(range(1, n))])
+    result = kron_reduce(resistance_laplacian(n, edge, torch.tensor(resistances, dtype=torch.float64)),
+                         torch.tensor([0]))
+    torch.testing.assert_close(result.response, torch.zeros(1, 1, dtype=torch.float64), rtol=0, atol=0)
+    assert torch.isfinite(result.interior_extension).all()
+    torch.testing.assert_close(result.harmonic_lift(torch.tensor([.4], dtype=torch.float64)),
+                               torch.full((n,), .4, dtype=torch.float64), rtol=1e-12, atol=1e-12)
+
+
+def test_single_boundary_components_in_disconnected_graph_are_exact_zero():
+    edge = torch.tensor([[0, 1, 3, 4], [1, 2, 4, 5]])
+    laplacian = resistance_laplacian(6, edge, torch.tensor([.2, .3, .2, .3], dtype=torch.float64))
+    result = kron_reduce(laplacian, torch.tensor([0, 3]))
+    torch.testing.assert_close(result.response, torch.zeros(2, 2, dtype=torch.float64), rtol=0, atol=0)
+    torch.testing.assert_close(result.harmonic_lift(torch.tensor([.4, .7], dtype=torch.float64)),
+                               torch.tensor([.4, .4, .4, .7, .7, .7], dtype=torch.float64),
+                               rtol=1e-12, atol=1e-12)
+
+
+def test_mixed_boundary_components_preserve_genuine_response():
+    edge = torch.tensor([[0, 1, 3], [1, 2, 4]])
+    laplacian = resistance_laplacian(5, edge, torch.tensor([.2, .3, .7], dtype=torch.float64))
+    result = kron_reduce(laplacian, torch.tensor([0, 3, 4]))
+    torch.testing.assert_close(result.response[0], torch.zeros(3, dtype=torch.float64), rtol=0, atol=0)
+    torch.testing.assert_close(result.response[:,0], torch.zeros(3, dtype=torch.float64), rtol=0, atol=0)
+    torch.testing.assert_close(result.response[1:,1:], torch.tensor([[1., -1.],[-1., 1.]], dtype=torch.float64)/.7)

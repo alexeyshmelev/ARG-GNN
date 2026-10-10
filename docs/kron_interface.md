@@ -278,3 +278,23 @@ Input SHA256: `92d1f4e438de6fe4792096a0af096064cd8ae632b7cb9d8ea77925ff6e9daa6a`
   ]
 }
 ```
+
+## Analytic single-boundary degeneracy
+
+A connected admitted network with exactly one boundary vertex has identically
+zero Dirichlet response. Finite-precision Schur subtraction may instead leave a
+tiny scalar residual whose sign varies. The primitive first checks its ordinary
+backward-error, symmetry, PSD and conductance conditions, then sets this
+analytically known one-boundary response to exact zero. Diagnostics retain the
+raw Schur residual. Mean-diagonal normalization subsequently uses its declared
+zero-response scale1. This is a specific analytic degenerate-case policy, not
+epsilon flooring or broad clipping of small multi-boundary responses.
+
+The regression fixtures include a .2/.3-resistance chain and a .7-resistance
+single edge, which previously produced positive and negative scalar residuals.
+
+The same analytic policy is applied independently to connected components
+containing exactly one retained boundary vertex. Other components' nonzero
+responses are preserved. Component detection uses strictly negative Laplacian
+off-diagonals, with no magnitude threshold. Disconnected and mixed-boundary
+regression fixtures prevent roundoff from becoming artificial conductance.

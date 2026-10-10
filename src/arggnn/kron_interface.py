@@ -197,6 +197,30 @@ def kron_reduce(laplacian: Tensor, boundary_nodes: Tensor, *, max_condition: flo
         raise ValueError('Kron response failed backward-error/PSD/conductance checks')
     diagnostics = KronDiagnostics(condition, residual, row_error / source_scale,
         row_error / response_scale, symmetry, minimum_eigenvalue, maximum_offdiagonal)
+    # A component with one anchored boundary has analytically zero current.
+    # Canonicalize only that known degeneracy after backward-error validation,
+    # preserving the raw Schur diagnostics. Do not normalize its roundoff.
+    if boundary.numel() == 1:
+        response = torch.zeros_like(response)
+    else:
+        component = list(range(n))
+        def find(node):
+            while component[node] != node:
+                component[node] = component[component[node]]
+                node = component[node]
+            return node
+        for u, v in torch.triu(laplacian < 0, diagonal=1).nonzero().tolist():
+            ru, rv = find(u), find(v)
+            if ru != rv:
+                component[rv] = ru
+        members = {}
+        for index, node in enumerate(boundary.tolist()):
+            members.setdefault(find(node), []).append(index)
+        singleton_rows = [indexes[0] for indexes in members.values() if len(indexes) == 1]
+        if singleton_rows:
+            response = response.clone()
+            response[singleton_rows, :] = 0
+            response[:, singleton_rows] = 0
     return KronReduction(response, boundary, interior, extension, n, diagnostics)
 
 
