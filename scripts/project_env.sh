@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# Source this file before package management or running project code.
+ARGGNN_ROOT=/workspace-SR003.nfs2/ARG-GNN
+export ARGGNN_ROOT
+export CONDARC="$ARGGNN_ROOT/.runtime/condarc"
+export CONDA_REGISTER_ENVS=false
+export CONDA_AUTO_UPDATE_CONDA=false
+export CONDA_PKGS_DIRS="$ARGGNN_ROOT/.runtime/conda/pkgs"
+export CONDA_ENVS_PATH="$ARGGNN_ROOT/.runtime/conda/envs"
+export XDG_CACHE_HOME="$ARGGNN_ROOT/.runtime/cache"
+export XDG_CONFIG_HOME="$ARGGNN_ROOT/.runtime/config"
+export XDG_DATA_HOME="$ARGGNN_ROOT/.runtime/data"
+export TMPDIR="$ARGGNN_ROOT/.runtime/tmp"
+export PIP_CACHE_DIR="$ARGGNN_ROOT/.runtime/cache/pip"
+export PYTHONPYCACHEPREFIX="$ARGGNN_ROOT/.runtime/cache/pycache"
+export MPLCONFIGDIR="$ARGGNN_ROOT/.runtime/config/matplotlib"
+export TORCH_HOME="$ARGGNN_ROOT/.runtime/cache/torch"
+export HF_HOME="$ARGGNN_ROOT/.runtime/cache/huggingface"
+export NUMBA_CACHE_DIR="$ARGGNN_ROOT/.runtime/cache/numba"
+export CUDA_CACHE_PATH="$ARGGNN_ROOT/.runtime/cache/cuda"
+export WANDB_MODE=disabled
+export HF_HUB_DISABLE_TELEMETRY=1
+export SSH_AUTH_SOCK="$ARGGNN_ROOT/.runtime/ssh/agent.sock"
+export PYTHONPATH="$ARGGNN_ROOT/src"
+export PYTHONUNBUFFERED=1
+export ARGGNN_PYTHON="$ARGGNN_ROOT/.runtime/env/bin/python"
