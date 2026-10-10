@@ -1,0 +1,60 @@
+{
+  "kind": "ancestralpaths_biological_integration_v1",
+  "phase": "initial_runner_review_before_Relate_interface_fix",
+  "status": "blocked_two_concrete_integration_issues",
+  "checked_utc": "2026-10-10T12:41:10.006118+00:00",
+  "review_method": "static read-only source/observed-roster review; no runner execution, truth arrays, inferred trees, installs, GPU or Git",
+  "reviewed_sha256": {
+    "scripts/train_ancestralpaths_biological_v1.py": "53d6f871fef1d20fe865c82a9b2f40afef4b5fbbfd8f448d09ddb3c791f1103e",
+    "configs/ancestralpaths_biological_pilot_v1.json": "97ebbe39d24514f4f6bab9c01b123952b486aaaa12a1c7ddeeaa6249cfc9bcf1",
+    "docs/ancestralpaths_biological_pilot_v1.md": "4f232a0ee21cff9cbdb21fef99b0609dd4520906d58c4f93f2f845cb62c0ba12",
+    "src/arggnn/ancestralpaths_native_bridge.py": "fb69904e3004ca7de6f16736e542949fb1b3695edb104cdf601187a7f8d33f2c",
+    "scripts/infer_biological_paths_relate_v1.py": "a63a79b36a422f7346f2a35206f41b35fb440053edcfe4e080755c649ed737e9",
+    "configs/biological_paths_relate_v1.json": "7da0bae298c0927fd0fce6a6ee320f0c51fc459b901de9c6f0d1e225cae05de9",
+    "docs/biological_paths_relate_v1.md": "285cf216c7018835bff152acc3b4756f81ef65556eaddb4691c0d1f14a163ecd"
+  },
+  "author_source_commit": "77db3cfae100641c35218b87e1451e14f3074666",
+  "author_training_sha256": "13b4f30ab0df75fc461b764ae2cdbd1fdc071ff45200e6401e84faa565508e4f",
+  "all_17_author_pinned_files_hash_match": true,
+  "blockers": [
+    {
+      "id": "B1",
+      "locations": [
+        "scripts/train_ancestralpaths_biological_v1.py:137",
+        "docs/ancestralpaths_biological_pilot_v1.md:25"
+      ],
+      "problem": "observations rejects the finalized producer kind/status/fields and requires derived roster SHA to equal the original source roster SHA.",
+      "consequence": "Default completed Relate manifest cannot be admitted; actual-ID derived roster cannot satisfy source-byte equality.",
+      "required_change": "Admit biological_paths_relate_v1 completed status, replicates/inferred_tree/observed_sample_manifest/completion_provenance/explicit mapping; verify derived roster original source reference and exact observed attributes, while using actual inferred IDs."
+    },
+    {
+      "id": "B2",
+      "locations": [
+        "scripts/train_ancestralpaths_biological_v1.py:188",
+        "scripts/train_ancestralpaths_biological_v1.py:202",
+        "scripts/train_ancestralpaths_biological_v1.py:324",
+        "scripts/train_ancestralpaths_biological_v1.py:444",
+        "docs/ancestralpaths_biological_pilot_v1.md:52"
+      ],
+      "problem": "Cache, supervised site labels and all-bin/tract scoring assume a complete 2Mb tree in original coordinates. Producer trees are clipped local coordinates with declared retained centers.",
+      "consequence": "Length check fails immediately; removing it alone would shift features/TRAIN targets and extrapolate tails in VAL metrics.",
+      "required_change": "Validate sequence_length=coverage_right-coverage_left; query at original center-offset; join inferred sites to original bp0 by adding offset; score exact truth intersections only on declared retained-center bins clipped to coverage, preserving original indexes/2Mb normalization and excluding tails. Tract and endpoint reports must use that scored support."
+    }
+  ],
+  "checked_invariants": [
+    "Actual source sampler budgets, initial floor stride with 10000/3 overhead, ordered site/query scan, path caps and repeated replacement match source training.py31-35,50-156. Pass bound128 and no-progress failure are explicit adaptations.",
+    "Native model is Flatten5x9,Dense512relu,Dropout0.2,Dense6softmax,Adam,categorical_crossentropy,5epochs; batch32/shuffle are documented Keras defaults.",
+    "VAL raw predictions are written and hashed before TruthReader; no validation_data, early stopping, checkpoint selection or calibration fitting occurs.",
+    "C4 uses p0+p4,p1+p5,p2,p3 before argmax; native confusion predicted rows/truth columns and C4 truth rows/predicted columns.",
+    "Exact full-bin truth intersections handle within-bin switches. Covered-support adaptation is required by B2; NLL retains zero-probability infinite span without a floor.",
+    "All four observed rosters have pure96 refs, 24 each Ana0/CHG1/WHG2/EHG3; mixed64 and query120 have null classes. Query cohorts present64,BronzeAge16,BAA8,Neo16,Yam16.",
+    "Features count declared ancient cohorts, including mixed references and ancient focal self-inclusion, as native source requires; query role controls supervised/predicted rows and pure labels never become query labels."
+  ],
+  "observed_roster_sha256": {
+    "bio_paths_pilot_train_000": "7f6006263d6c9d2e62bef761c25b5229c75b79aff1b404525ad3c30e932df78f",
+    "bio_paths_pilot_train_001": "10af21391859d6cca83f6f3b6a7616d47165f5e9089573db2e9e0b002158a7eb",
+    "bio_paths_pilot_val_000": "f83e2cff25973b85a3a60155ce5a21295b052fce105452b2cefe70f8274645ee",
+    "bio_paths_pilot_val_001": "7d6aa79201e1d67bb88c21378fb3354fe65cd4366a26d0302865f4ad02395651"
+  },
+  "limitations": "No source/runner execution or inferred-tree/label inspection; this is static integration review, not training/metric runtime verification."
+}

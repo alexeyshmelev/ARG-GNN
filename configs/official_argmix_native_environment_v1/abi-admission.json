@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "created_date": "2026-10-10",
+  "status": "candidate_recipe_only",
+  "label": "Current author release; separate Python/Cargo ABI candidate; not exact paper-era environment reproduction",
+  "author_source": {
+    "repository": "https://github.com/AI-sandbox/argmix",
+    "commit": "c2481248eb0de5fda659d68f59c51e0e27becd20",
+    "path": ".runtime/author_sources/argmix_c2481248eb0d",
+    "immutable": true,
+    "files_sha256": {
+      "pixi.toml": "2a2f26a3fd1cefdfe55c24201a93506b89372d7157d5911bf61be767438ce888",
+      "pixi.lock": "8639e2a46050139e4a42c0da5494120d6cd683d2c45498983201a6c71dc9be35",
+      "src/rust/ancpath/Cargo.toml": "17ca8039ce0db2be49490f006d6414d69e7a3cba43ddac7834a1dc24ecc3721c",
+      "src/rust/ancpath/Cargo.lock": "8af5197c132cc1a0d4a0bcd8e27f108b72ff3d3018958579460a5c8a15a046b1",
+      "src/rust/ancpath/build.rs": "b7a60b69603c7fba50296c158f0472b417e4f9e75d88338cfe81b9f8f8a36774",
+      "src/rust/ancpath_incremental/Cargo.lock": "88785e1e67315dc4a91214633f132db048b84fa0701bc7eeaa2630943cdaf8c6"
+    }
+  },
+  "author_pixi_lock": {
+    "conda_package_rows": 306,
+    "pypi_package_rows": 37,
+    "python": "3.12.13",
+    "pytorch": "2.12.0",
+    "libtorch": "2.12.0",
+    "cuda_variant": "cuda129_mkl",
+    "torchvision": "0.27.1",
+    "exact_install_specs_generated": false,
+    "admitted": false
+  },
+  "author_cargo_lock": {
+    "tch": {
+      "version": "0.23.0",
+      "crate_url": "https://static.crates.io/crates/tch/tch-0.23.0.crate",
+      "sha256": "3d1470a4780300b4a62a097ed50dff2fc7c9cf6576c1947560a1d69fab3b258b",
+      "archive_hash_verified_in_memory": true
+    },
+    "torch_sys": {
+      "version": "0.23.0",
+      "crate_url": "https://static.crates.io/crates/torch-sys/torch-sys-0.23.0.crate",
+      "sha256": "a7767541e63ff99c36950f2a54cc277e41a1e5a24ab1646aae19ef7f7d3dedf7",
+      "archive_hash_verified_in_memory": true,
+      "build_rs_sha256": "b33049fab5da259a95facf29ded268bee87137d02d2f3200a541dbb11d9b6c61",
+      "required_base_torch_version": "2.10.0"
+    },
+    "tch_readme_sha256": "409f2fbbea12b1ecfe65783821aec352934a0e84844e29fb68832eab63bfb510"
+  },
+  "conflict": {
+    "kind": "Python_Rust_Torch_version_mismatch",
+    "description": "Author Pixi Python/libtorch 2.12.0 does not satisfy pinned torch-sys 0.23.0's exact base Torch 2.10.0 guard.",
+    "guard_local_suffixes_stripped": true,
+    "bypass_any_presence_disables_guard": true,
+    "version_guard_bypass_allowed": false,
+    "source_or_cargo_patch_allowed": false,
+    "standalone_default": "libtorch 2.10.0 CPU",
+    "standalone_cuda_selectors": [
+      "cu118",
+      "cu121",
+      "cu124",
+      "cu126",
+      "cu128"
+    ],
+    "standalone_cu129_supported": false,
+    "mixed_python_212_and_libtorch_210_admitted": false
+  },
+  "candidate": {
+    "python": "3.12.13",
+    "torch_base_version": "2.10.0",
+    "torchvision_base_version": "0.25.0",
+    "profiles": [
+      "cpu",
+      "cu129"
+    ],
+    "link_mode": "LIBTORCH_USE_PYTORCH=1",
+    "core_version_guard_coherent": true,
+    "source_unchanged": true,
+    "author_cargo_lock_unchanged": true,
+    "author_pixi_lock_unchanged": true,
+    "runtime_deviations": [
+      "Torch/libtorch 2.12.0 -> official Python Torch wheel 2.10.0",
+      "torchvision 0.27.1 -> matching official wheel 0.25.0",
+      "Python scientific package constraints resolved through PyPI instead of the author Conda builds",
+      "Separate unsolved Conda toolchain; no exact author build identity claim"
+    ],
+    "repo_relative_base": ".runtime/official_argmix_abi210_v1",
+    "dependency_closure_resolved": false,
+    "complete_lock_written": false,
+    "installed": false,
+    "built": false,
+    "native_runtime_admitted": false,
+    "gpu_runtime_admitted": false,
+    "full_pipeline_admitted": false
+  },
+  "driver_context": {
+    "version": "595.71.05",
+    "reported_by": "primary agent from anogena A100 inventory",
+    "meaning": "CUDA 12.9 is plausible in principle; this is not native runtime admission",
+    "independently_measured_by_this_recipe": false
+  },
+  "required_gates": [
+    "resolve_and_freeze_complete_conda_and_python_dependency_closure",
+    "verify_downloaded_artifact_hashes_and_platform_compatibility",
+    "verify_candidate_interpreters_and_Python_Torch_version_ABI_include_library_paths",
+    "build_stock_default_Torch_extension_and_stock_extraction_CLI_with_locked_Cargo",
+    "inspect_loaded_libraries_and_rpaths_for_single_candidate_Torch",
+    "admit_CPU_Python_to_Rust_TorchScript_inference",
+    "primary_agent_GPU_assignment_and_CUDA_runtime_admission",
+    "current_release_end_to_end_pipeline_qualification"
+  ],
+  "recipe_files_sha256": {
+    "configs/official_argmix_native_environment_v1/BUILD_ROUTE.md": "01e1bf5012e09aa95063ab587dc705bcd39a0d37c96076550ab3619c5c29c60a",
+    "configs/official_argmix_native_environment_v1/candidate-author-python-requirements.txt": "35c54dbd46899b1f0d1f8c3426d2dc3057a04b269a188d0d61672364951a500f",
+    "configs/official_argmix_native_environment_v1/candidate-core-wheels.json": "6cd5f369c4878eaf2db7a7cb4f97c1eae74f75de6fb90d23d9bd62fdb4d8fffa",
+    "configs/official_argmix_native_environment_v1/candidate-toolchain.yml": "9661f9259a94df05cab2b5b323664fe53e4cf06688e1414515c9ac218051bcab",
+    "configs/official_argmix_native_environment_v1/containment.env.sh": "6d0231a1b86367ce61e20c8fb30fcca06bc6039647bbfe57f6b3bb785b5dd1f8",
+    "docs/argmix_native_environment_candidate_v1.md": "69f69b8febe2b6aa385fa61c51ea2d4af749e6254abd528dee5330001be6db6b"
+  },
+  "static_recipe_validation": {
+    "passed": true,
+    "checked_at_utc": "2026-10-10T12:17:06.634517+00:00",
+    "checks": [
+      "JSON parse",
+      "YAML parse and no Conda Torch packages",
+      "PEP 508 dependency syntax",
+      "bash -n without sourcing",
+      "64-digit evidence hashes",
+      "profile wheel suffixes",
+      "unchanged author source hashes",
+      "recipe provenance hashes",
+      "false runtime admission flags",
+      "no candidate runtime directories"
+    ],
+    "native_tests_repeated": false,
+    "activation_executed": false
+  }
+}

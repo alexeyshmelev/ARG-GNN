@@ -1,0 +1,122 @@
+{
+  "autoresume": false,
+  "callbacks": {
+    "lr_monitor": {},
+    "speed_monitor": {
+      "window_size": 5
+    }
+  },
+  "console_log_interval": "5ba",
+  "data_local": "/workspace-SR003.nfs2/ARG-GNN/experiments/results/official_argformer_actual_contrastive_v1/handmade_fixture",
+  "device_eval_microbatch_size": 4096,
+  "device_train_microbatch_size": 4096,
+  "eval_interval": "20ba",
+  "eval_loader": {
+    "drop_last": false,
+    "labels_file": "labels.pkl",
+    "local": "/workspace-SR003.nfs2/ARG-GNN/experiments/results/official_argformer_actual_contrastive_v1/handmade_fixture",
+    "max_seq_len": 128,
+    "name": "arg",
+    "num_workers": 4,
+    "shuffle": false,
+    "skip_extant_tokens": true,
+    "split": "val"
+  },
+  "eval_subset_num_batches": 200,
+  "global_eval_batch_size": 4096,
+  "global_train_batch_size": 4096,
+  "load_path": "/path/to/checkpoints/pretrained_model_name/latest-rank0.pt",
+  "log_to_console": true,
+  "loggers": {
+    "wandb": {
+      "project": "ARGformer"
+    }
+  },
+  "max_duration": "1ep",
+  "max_seq_len": 128,
+  "model": {
+    "contrastive": {
+      "normalize": true,
+      "similarity": "dot",
+      "symmetric": true,
+      "temperature": 0.3,
+      "use_class_weights": true
+    },
+    "model_config": {
+      "attention_layer": "rope",
+      "attention_probs_dropout_prob": 0.0,
+      "attn_out_bias": false,
+      "attn_out_dropout_prob": 0.0,
+      "attn_qkv_bias": false,
+      "bert_layer": "prenorm",
+      "dataset": {
+        "local": "/workspace-SR003.nfs2/ARG-GNN/experiments/results/official_argformer_actual_contrastive_v1/handmade_fixture",
+        "split": "train"
+      },
+      "embed_dropout_prob": 0.15,
+      "embed_norm": false,
+      "embedding_layer": "sans_pos",
+      "final_norm": true,
+      "hidden_act": "gelu",
+      "masking_option": "default",
+      "max_seq_len": 128,
+      "mlp_dropout_prob": 0.05,
+      "mlp_in_bias": false,
+      "mlp_layer": "mlp",
+      "mlp_out_bias": false,
+      "norm_kwargs": {
+        "eps": 1e-06
+      },
+      "normalization": "rmsnorm",
+      "num_attention_heads": 12,
+      "num_hidden_layers": 12,
+      "num_labels": 3,
+      "padding": "unpadded",
+      "pooling_type": "mean",
+      "sparse_prediction": false
+    },
+    "name": "flex_bert",
+    "num_labels": 3,
+    "pretrained_checkpoint": null,
+    "pretrained_model_name": "/workspace-SR003.nfs2/ARG-GNN/experiments/results/official_argformer_actual_contrastive_v1/base_config",
+    "tokenizer_name": "argformer"
+  },
+  "optimizer": {
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "eps": 1e-06,
+    "lr": 2e-05,
+    "name": "decoupled_adamw",
+    "weight_decay": 1e-06
+  },
+  "precision": "fp32",
+  "progress_bar": false,
+  "python_log_level": "INFO",
+  "run_name": "pretrained_model_name",
+  "save_folder": "/path/to/checkpoints/pretrained_model_name",
+  "save_interval": "20ba",
+  "save_num_checkpoints_to_keep": -1,
+  "save_overwrite": true,
+  "scheduler": {
+    "alpha_f": 0.02,
+    "name": "linear_decay_with_warmup",
+    "t_warmup": "0.1dur"
+  },
+  "seed": 36,
+  "train_loader": {
+    "balanced_sampling": false,
+    "drop_last": true,
+    "labels_file": "labels.pkl",
+    "local": "/workspace-SR003.nfs2/ARG-GNN/experiments/results/official_argformer_actual_contrastive_v1/handmade_fixture",
+    "max_seq_len": 128,
+    "name": "arg",
+    "negative_sampling_temperature": 1.0,
+    "num_hard_negatives": 2,
+    "num_workers": 4,
+    "shuffle": true,
+    "skip_extant_tokens": true,
+    "split": "train"
+  }
+}
