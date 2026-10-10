@@ -53,6 +53,7 @@ JOINT_MODEL = {"enabled": True, "base_encoder": "tmrca_transformer", "chunk_rows
         "reference_selection_augmentation": {"train": {"enabled": True, "drop_top_m_nearest": 1},
                                              "val": {"enabled": False, "drop_top_m_nearest": 0}}}}
 ADMITTED_NATIVE_FILES = {}
+METADATA_REPAIR_V3 = {'kind': 'official_argmix_biological_metadata_compatibility_v3', 'prior_config_sha256': 'beb49bccf0f4780d6d76a3e738e1cba85dc5a1de4c846811aea2a20962029819', 'prior_owned_code_sha256': {'scripts/train_official_argmix_biological_v1.py': '4261fb1195d16f73370b5fa0144ba0f59afe6a67726af6567634b0bd282e223d', 'src/arggnn/official_argmix_biological.py': 'cde961f2a9ed7aa98b6d24af644ef83d5657abed7ac5d8029afe46cebafc1665'}, 'inherited_products': {'official_argmix_observed_frames_v1': {'path': 'experiments/results/official_argmix_biological_pilot_v2/observed/observed_frames.json', 'sha256': 'b8de4b503bfebcf7eb71b6861879826f24731deb37aabe68b5283f6f07f07531'}, 'official_argmix_native_biological_archives_v1': {'path': 'experiments/results/official_argmix_biological_pilot_v2/native/native_prepared.json', 'sha256': '2c15bd908ae89b81e1a8c9d07809e82c46d6b1b41a2031ac93013dc54534961c'}}, 'change_scope': 'add_bound_observed_references_pointer_for_stock_counting_and_logging_only', 'metadata_reference_parent': 'bio_paths_pilot_train_000'}
 
 
 def sha(path):
@@ -127,7 +128,8 @@ def policy(expected_sha=None):
         "dataset_manifest": DATASET_MANIFEST, "native_model": NATIVE_MODEL, "joint_model": JOINT_MODEL,
         "inference_only_exclude_edge_trees": False, "full_support_missing_policy": "unavailable_no_denominator_reduction",
         "source_seed": 50, "external_VAL_use": "native_selection_without_gradients_and_sealed_descriptive_scores",
-        "normalization_length_bp": 2000000, "active_cm_feature_count": 1, "stored_cm_feature_count": 2}
+        "normalization_length_bp": 2000000, "active_cm_feature_count": 1, "stored_cm_feature_count": 2,
+        "compatibility_amendment": METADATA_REPAIR_V3}
     if set(cfg) != set(expected) | {"owned_code_sha256"} or any(
             canonical(cfg[key]) != canonical(value) for key, value in expected.items()):
         raise ValueError("Current-release source/default/model/data policy differs")
@@ -145,9 +147,18 @@ def policy(expected_sha=None):
 
 def stage(record, kind, cfg, observed=False):
     result = json.loads(checked(record, observed=observed).read_text())
-    if (result.get("kind") != kind or result.get("config_sha256") != sha(CONFIG) or
-            result.get("owned_code_sha256") != cfg["owned_code_sha256"]):
-        raise ValueError("Prior stage has different kind, policy or owned implementation")
+    if result.get("kind") != kind:
+        raise ValueError("Prior stage kind differs")
+    if (result.get("config_sha256") == sha(CONFIG) and
+            result.get("owned_code_sha256") == cfg["owned_code_sha256"]):
+        return result
+    amendment = cfg["compatibility_amendment"]
+    inherited = amendment["inherited_products"].get(kind)
+    if (inherited is None or record != inherited or
+            result.get("config_sha256") != amendment["prior_config_sha256"] or
+            result.get("owned_code_sha256") != amendment["prior_owned_code_sha256"]):
+        raise ValueError("Prior stage is not the exact admitted inherited product")
+    # Return original declarations unchanged. Only two exact products are admitted.
     return result
 
 
@@ -192,7 +203,7 @@ def verify_prepared(record, cfg):
     return prepared
 
 
-def verify_backend(backend, cfg, inference=False):
+def verify_backend(backend, cfg, inference=False, references_record=None):
     expected = backend_config(cfg, ROOT)
     if inference:
         expected["processing"]["exclude_edge_trees"] = False
@@ -201,8 +212,14 @@ def verify_backend(backend, cfg, inference=False):
     for name in expected:
         if name not in {"paths", "relate"} and canonical(backend[name]) != canonical(expected[name]):
             raise ValueError("Native source backend setting differs: " + name)
-    if set(backend["paths"]) != {"train_pairs", "val_pairs", "save_dir"} or set(backend["relate"]) != {"recomb_map"}:
+    original_paths = {"train_pairs", "val_pairs", "save_dir"}
+    if set(backend["paths"]) not in (original_paths, original_paths | {"references"}) or set(backend["relate"]) != {"recomb_map"}:
         raise ValueError("Native path schema differs")
+    if references_record is not None and "references" not in backend["paths"]:
+        raise ValueError("Bound fitted/inference backend requires stock metadata references")
+    if "references" in backend["paths"]:
+        if references_record is None or backend["paths"]["references"] != str(checked(references_record, observed=True)):
+            raise ValueError("Stock metadata references pointer lacks its exact observed binding")
     for value in [*backend["paths"].values(), backend["relate"]["recomb_map"]]:
         local(value)
     return backend
@@ -693,6 +710,77 @@ def qualify_gpu(cfg, output, runtime, modules):
             "optimizer_step": False, "biological_data_read": False, "source_TREE_sha256": SOURCE_TREE_SHA}
 
 
+def reference_metadata_amendment(prepared, cfg):
+    """Verify original pairs and observation roles before supplying stock count metadata."""
+    import yaml
+    frames = verify_frames(prepared["frames"], cfg)
+    expected_counts = {name: 24 for name in cfg["class_order"]}
+    expected_counts.update(QUERY=120, UNLABELED_REF=64)
+    reference_records, summaries, eligibility_signatures = {}, {}, []
+    for parent in PARENT_SPLITS:
+        frame = frames["parents"][parent]
+        reference_path = checked(frame["references"], observed=True)
+        rows = []
+        for line in reference_path.read_text().splitlines():
+            parts = line.split()
+            if len(parts) != 3:
+                raise ValueError("Observed reference metadata requires exactly three fields")
+            node, pop, age = int(parts[0]), parts[1], float(parts[2])
+            if not math.isfinite(age) or age < 0:
+                raise ValueError("Observed reference age must be finite and nonnegative")
+            rows.append((node, pop, age))
+        roster = json.loads(checked(frame["roster"], observed=True).read_text())
+        expected = []
+        for row in roster:
+            role, klass = row["role"], row["observed_reference_class"]
+            if role == "pure_source_reference":
+                if type(klass) is not int or not 0 <= klass < 4:
+                    raise ValueError("Pure reference class must be an observed C4 role")
+                pop = cfg["class_order"][klass]
+            elif role in {"query", "mixed_reference_only"} and klass is None:
+                pop = "QUERY" if role == "query" else "UNLABELED_REF"
+            else:
+                raise ValueError("Query/mixed reference eligibility changed")
+            expected.append((row["inferred_tree_node_id"], pop, float(row["age_generations"])))
+        counts = {pop: sum(value[1] == pop for value in rows) for pop in {r[1] for r in rows}}
+        if (rows != expected or len(rows) != 280 or {r[0] for r in rows} != set(range(280))
+                or counts != expected_counts):
+            raise ValueError("Observed QUERY120/pure96/unlabeled64 metadata/roster eligibility differs")
+        eligibility = [[node, pop] for node, pop, age in rows]
+        digest = hashlib.sha256(canonical(eligibility)).hexdigest()
+        eligibility_signatures.append(digest)
+        reference_records[parent] = frame["references"]
+        summaries[parent] = {"reference_record": frame["references"], "counts": counts,
+            "rows": len(rows), "unique_node_ids": len({r[0] for r in rows}),
+            "eligibility_sha256": digest, "exact_observed_roster_join": True}
+    if len(set(eligibility_signatures)) != 1:
+        raise ValueError("Parent reference eligibility is not equivalent for stock counting")
+    for split in ("train", "val"):
+        actual = yaml.safe_load(checked(prepared[split + "_pairs"]).read_text())
+        expected = []
+        for parent in PARENT_SPLITS:
+            if PARENT_SPLITS[parent] != split:
+                continue
+            frame = frames["parents"][parent]
+            expected.append({
+                "rel": str(checked(frame["tree"], observed=True)),
+                "references": str(checked(frame["references"], observed=True)),
+                "relate_sample": str(checked(frame["native_sample"], observed=True)),
+                "truth_npz": str(checked(prepared["truth_provenance"][parent]["native_truth"]))})
+        if canonical(actual) != canonical(expected):
+            raise ValueError("Native pair tree/reference/sample/label pointers changed")
+    chosen = cfg["compatibility_amendment"]["metadata_reference_parent"]
+    return {"kind": "official_argmix_stock_reference_metadata_v3",
+        "selected_parent": chosen, "selected_reference": reference_records[chosen],
+        "parents": summaries, "stock_available_predict_haplotypes": 120,
+        "scope": "stock startup count and training-data log; no model/archive/eligibility alteration",
+        "inherited_products": {
+            "frames": {"record": prepared["frames"], "original_config_sha256": frames["config_sha256"],
+                "original_owned_code_sha256": frames["owned_code_sha256"]},
+            "native_prepared": {"original_config_sha256": prepared["config_sha256"],
+                "original_owned_code_sha256": prepared["owned_code_sha256"]}}}
+
+
 def stock_train(prepared_record, output, cfg, modules):
     import yaml
     torch, ancpath, joint, trainer, loader = modules
@@ -703,6 +791,11 @@ def stock_train(prepared_record, output, cfg, modules):
             backend["paths"]["val_pairs"] != str(checked(prepared["val_pairs"])) or
             backend["relate"]["recomb_map"] != str(checked(prepared["local_map"], observed=True))):
         raise ValueError("Actual backend pair/map bindings differ from native preparation")
+    metadata_info = reference_metadata_amendment(prepared, cfg)
+    metadata_info["inherited_products"]["native_prepared"]["record"] = prepared_record
+    backend["paths"]["references"] = str(checked(metadata_info["selected_reference"], observed=True))
+    verify_backend(backend, cfg, references_record=metadata_info["selected_reference"])
+    new_json(output / "references_metadata_amendment.json", metadata_info)
     backend["paths"]["save_dir"] = str(output / "checkpoints")
     actual_config = output / "training_backend.yaml"; actual_config.write_text(yaml.safe_dump(backend, sort_keys=False))
     importlib.import_module("utils.reproducibility").seed_everything(50)
@@ -727,6 +820,8 @@ def stock_train(prepared_record, output, cfg, modules):
     verify_prepared(prepared_record, cfg)
     return {"kind": "official_argmix_biological_stock_fit_v1", "status": "passed",
             "checkpoint": {"path": str(checkpoint.relative_to(ROOT)), "sha256": sha(checkpoint)},
+            "metadata_reference_counting": metadata_info,
+            "compatibility_amendment": cfg["compatibility_amendment"],
             "native_prepared": prepared_record, "native_backend": {"path": str(actual_config.relative_to(ROOT)), "sha256": sha(actual_config)},
             "initial_model_state_sha256": initial_sha, "selected_model_state_sha256": final_sha,
             "native_selected_epoch": int(checkpoint_meta["epoch"]), "native_selection_loss": float(checkpoint_meta["best_val_loss"]),
@@ -795,7 +890,12 @@ def infer_and_seal(fit_record, output, cfg, modules):
     checkpoint = checked(fit["checkpoint"])
     prepared = verify_prepared(fit["native_prepared"], cfg)
     frames = verify_frames(prepared["frames"], cfg)
-    backend = verify_backend(yaml.safe_load(checked(fit["native_backend"]).read_text()), cfg)
+    metadata_info = reference_metadata_amendment(prepared, cfg)
+    metadata_info["inherited_products"]["native_prepared"]["record"] = fit["native_prepared"]
+    if fit.get("metadata_reference_counting") != metadata_info or fit.get("compatibility_amendment") != cfg["compatibility_amendment"]:
+        raise ValueError("Fitted metadata-reference amendment provenance differs")
+    backend = verify_backend(yaml.safe_load(checked(fit["native_backend"]).read_text()), cfg,
+        references_record=metadata_info["selected_reference"])
     base_export = output / "source_base_logits_and_final.pt"
     run_author("export_torchscript.py", ["--model_checkpoint", checkpoint,
         "--config", checked(fit["native_backend"]), "--output", base_export,
@@ -813,7 +913,7 @@ def infer_and_seal(fit_record, output, cfg, modules):
             "references": str(checked(frame["references"], observed=True))}], sort_keys=False))
         infer_cfg = dict(backend)
         infer_cfg["processing"] = dict(backend["processing"], exclude_edge_trees=False)
-        verify_backend(infer_cfg, cfg, inference=True)
+        verify_backend(infer_cfg, cfg, inference=True, references_record=metadata_info["selected_reference"])
         config_path = d / "full_support_inference.yaml"
         config_path.write_text(yaml.safe_dump(infer_cfg, sort_keys=False))
         base_h5 = d / "source_base.h5"
