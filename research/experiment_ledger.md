@@ -186,6 +186,16 @@ Evidence: [research/reviews/confirmatory_workflow_audit_v1](../research/reviews/
 
 Evidence: [docs/ancestralpaths_native_protocol_v1.md](../docs/ancestralpaths_native_protocol_v1.md), [docs/benchmark_plan.md](../docs/benchmark_plan.md).
 
+## H019: A learned low-rank whole-tree interface supplies a novel scalable kernel
+
+**standard_operator_novelty_claim_rejected_no_training.** Analytic proposal P row-stochastic, B=P diag(P^T1)^(-1/2), grounded generator (lambda+delta)I-lambda B_Q B_Q^T, exact rank-r actions and prior-art comparison.
+
+**Conclusion:** The unconstrained operator is standard normalized bipartite diffusion and a learned-star Kron response, with close hypergraph/DiffPool precedents. Positivity/contraction and rank-r actions are derivable, but Q64 speed, predictive benefit and distinct novelty are untested. No implementation or training ran.
+
+**Next/repeat rule:** Do not implement/retest the bare operator as novel. Reopen only for a precise observed age/path/shared-ancestor constraint with a justified scientific hypothesis and a new comparison against the standard operator.
+
+Evidence: [docs/low_rank_whole_tree_kernel_design_v1.md](../docs/low_rank_whole_tree_kernel_design_v1.md), [research/protocols/low_rank_whole_tree_kernel_design_v1.json](../research/protocols/low_rank_whole_tree_kernel_design_v1.json).
+
 ## H020: Native competitors and the candidate improve source/path ancestry on a matched biological panel
 
 **biological_execution_pilot_proposed_not_run.** Four new2Mb development parents,2TRAIN/2VAL/TEST0, proposed140 diploids with96 pure reference haplotypes,64 mixed-reference haplotypes and120 queries. Source-derived11-population demographic model, six path classes plus explicit C4 collapse.

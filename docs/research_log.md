@@ -84,3 +84,7 @@ Reviewed and hash-verified the source-only full author-lock candidate, preservin
 ## Matched biological execution proposal, 2026-10-10
 
 Reviewed a concrete four-parent2Mb development proposal with280 haplotypes, observed ancient cohort dates,96 distinct pure reference haplotypes and native six-path/C4 score contracts. It preserves the current author ARGMix GRU, native AncestralPaths Dense/paper-CNN distinction and observed-only transductive ARGformer. The proposed140-diploid panel is distinct from the authors'476 diagnostic cohort. Final sample sizes remain unfrozen and will use development variance/cost and a prespecified power calculation. H020 records this new question, distinct from the completed Q64 engineering pilots. Exact simulation/sample/seed preparation is being implemented in dedicated new files. No biological execution or final-test access follows from this proposal.
+
+## Low-rank operator novelty decision, 2026-10-10
+
+H019 derives a normalized bipartite/learned-star Kron diffusion proposal with exact small-Gram actions and gradients. Close hypergraph/DiffPool precedents rule out a novelty claim for the bare operator. The query state still requiresQ×hidden memory and varying factor spans prevent automatic fixed-rank composition. No implementation/training/numerical tests ran. The ledger closes the bare novelty route and requires a concrete observed biological constraint before reopening it.

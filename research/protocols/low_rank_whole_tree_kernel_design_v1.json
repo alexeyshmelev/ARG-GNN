@@ -1,0 +1,120 @@
+{
+  "biological_candidate": [
+    "Observed ancestor branch/clade or predeclared age-band landmarks tied to reference lineages",
+    "Support constrained by observed ancestral paths and tip/reference sample ages",
+    "Neighboring-tree correspondence constraints based on observed shared lineages/clades",
+    "No true census ancestor/internal population/query ancestry/target tract features",
+    "Separate target-class/source mapping and inferred-error/ancient-admixture robustness protocol before implementation"
+  ],
+  "complexity": {
+    "action": "O((q+k)*r*h+r^2*h), plus whole-tree encoder/landmark construction",
+    "dense_caveat": "Fixed dense geometry can cache eigensystems; no Q64 speed or memory advantage is established.",
+    "factor_storage": "O(n*r+r^2)",
+    "gram_and_small_functions": "O(q*r^2+r^3) per learned hold",
+    "parallel_scan_caveat": "Changing spans cause composed correction rank to grow; no constant-r parallel-scan claim.",
+    "persistent_state": "O(q*h), not O(r*h)",
+    "training_storage": "O(T*(n*r+r^2+q*h)) plus encoder activations under ordinary unrolled autograd"
+  },
+  "documentation": {
+    "path": "docs/low_rank_whole_tree_kernel_design_v1.md",
+    "sha256": "0c087e54789d206c0e635a94d13162931af05b4ce9b78e11f28db88e937ac8d5"
+  },
+  "formulas": {
+    "action": "E_tau = exp(-a tau) I + B_Q psi_tau(B_Q^T B_Q) B_Q^T",
+    "assignments": "P >= 0; P 1 = 1; d = P^T 1 > 0 on active columns; B = P diag(d)^(-1/2)",
+    "forcing": "f = lambda B_Q B_R^T y_R + delta u_Q",
+    "gradient": "Frechet matrix-function derivative; dB includes the derivative of global column mass; no naive tiny-eigenvalue division",
+    "grounded_generator": "A = (lambda+delta) I - lambda B_Q B_Q^T",
+    "integral": "F_tau = g_tau(a) I + B_Q theta_tau(G) B_Q^T; g_tau(x)=(1-exp(-tau*x))/x; theta_tau(z)=[g_tau(a-lambda*z)-g_tau(a)]/z",
+    "kernel": "S = B B^T; C = I-S; S is PSD, symmetric and stochastic; 0 <= C <= I",
+    "psi": "psi_tau(z) = [exp(-(a-lambda*z)*tau)-exp(-a*tau)]/z, analytic zero limit lambda*tau*exp(-a*tau)",
+    "reference_action": "lambda B_Q g_tau(a I_r-lambda G) (B_R^T y_R)",
+    "update": "h_next = E_tau h + F_tau f"
+  },
+  "hypothesis_id": "H019",
+  "kind": "low_rank_whole_tree_kernel_candidate_proposal",
+  "mathematical_scope": "Real-arithmetic derivation with nonnegative row-stochastic P, positive active column mass, complete Q/R partition, nonnegative rates and fixed within-hold conditioning.",
+  "motivation": "Parent reports small dense electrical/age Q64 gains and unsupported feedback; no new empirical evidence in this proposal.",
+  "novelty_assessment": {
+    "biological_constraint_novelty_established": false,
+    "exact_learned_bipartite_schur_complement": true,
+    "exact_original_genealogical_kron_response": false,
+    "literature_check_complete": false,
+    "new_diffusion_operator": false,
+    "new_semigroup_or_history_exchange_claim": false,
+    "potential_contribution": "Task-specific constrained interface and measured efficiency/biological utility, if supported by later evidence.",
+    "prior_art": [
+      "Normalized hypergraph/anchor Markov diffusion",
+      "GNN learned soft assignments/DiffPool",
+      "Nystrom and diagonal-plus-low-rank matrix functions",
+      "GST graph/set feedback",
+      "GraphSSM continuous graph state-space/ZOH/alignment"
+    ]
+  },
+  "proposed_future_comparisons": [
+    "Generic versus biological-mask anchor diffusion with identical encoder",
+    "Fixed versus learned factors",
+    "Static/local and source-gain-matched uncoupled controls",
+    "Span-set versus ordered flow",
+    "Dense electrical/age",
+    "Matched GST/GraphSSM",
+    "Genuine author biological baselines under explicit task scope"
+  ],
+  "question": "Does an observed-age/shared-ancestor constrained learned rank-r Markov interface retain useful whole-tree cross-query history exchange while reducing large-panel diffusion cost?",
+  "required_conditions": [
+    "delta>0 for uniform strict damping, or source reachability/rho(S_QQ)<1 for strict grounding at delta=0",
+    "Every unknown leaf is a transported state; unlabelled omitted leaves are not unforced ground",
+    "Class-distribution preservation requires normalized reference/prior sources and f*1=A*1",
+    "P/rates/sources depend only on observed graph, not evolving memory or serialized hold subdivisions",
+    "Positive active landmark masses; declared handling of empty/support-masked columns",
+    "Full fixed observed-panel normalization, independent of readout/minibatch subset"
+  ],
+  "restrictions": {
+    "execution_authorized": false,
+    "existing_code_modified": false,
+    "existing_ledger_modified": false,
+    "final_targets_accessed": false,
+    "gpu_or_install_or_git": false,
+    "implementation_performed": false,
+    "numerical_tests_performed": false,
+    "scientific_readiness": false,
+    "superiority_claim": false,
+    "training_performed": false
+  },
+  "schema_version": 1,
+  "source_access_limits": [
+    "Anchor paper candidate URL returned404; author page403; DBLP lookup returned non-JSON; Crossref query did not identify the intended anchor paper. No exact primary anchor-graph citation claimed."
+  ],
+  "source_evidence": [
+    {
+      "bytes": 231127,
+      "scope": "Sections4-5 normalized walk/Laplacian and transductive diffusion; read from memory using installed pdftotext",
+      "sha256": "b063f21afd13033123fe7f15685fc53d1706c683631abfb512e8fec0e0302618",
+      "url": "https://papers.nips.cc/paper_files/paper/2006/file/dff8e9c2ac33381546d96deea9922999-Paper.pdf"
+    },
+    {
+      "bytes": 9043,
+      "sha256": "86151b7a9894687ae8c417073823e43d531cca5ec5beb77944e53315b8670562",
+      "url": "https://papers.nips.cc/paper/3128-learning-with-hypergraphs-clustering-classification-and-embedding"
+    },
+    {
+      "bytes": 3028,
+      "scope": "DiffPool title/authors/soft assignment abstract",
+      "sha256": "4cf863fb21ddf0423917f9f9baf11d3e5da4922880977749248f84d30c5f7e3f",
+      "url": "https://export.arxiv.org/api/query?id_list=1806.08804"
+    },
+    {
+      "path": "docs/gst_baseline.md",
+      "scope": "Previously verified GST equations/feedback; read-only context"
+    },
+    {
+      "path": "docs/prior_art.md",
+      "scope": "Previously verified GraphSSM ZOH/changing-node alignment; read-only context"
+    },
+    {
+      "path": "docs/dissipative_transport_audit.md",
+      "scope": "Contraction/forcing/subdivision/order cautions; read-only context"
+    }
+  ],
+  "status": "untested_design_only"
+}
