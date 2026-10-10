@@ -1,0 +1,99 @@
+..............................................................F          [100%]
+=================================== FAILURES ===================================
+____ test_native_vertex_table_relabel_changes_postorder_without_learned_ids ____
+
+    def test_native_vertex_table_relabel_changes_postorder_without_learned_ids():
+        ts,roster=handcrafted();original=prepare(ts,roster)
+        tables=ts.dump_tables();order=np.arange(ts.num_nodes)[::-1];inverse=np.argsort(order)
+        tables.nodes.set_columns(flags=tables.nodes.flags[order],time=tables.nodes.time[order])
+>       tables.edges.parent=inverse[tables.edges.parent];tables.edges.child=inverse[tables.edges.child]
+        ^^^^^^^^^^^^^^^^^^^
+
+research/reviews/census_biological_bank_v1_independent/test_independent_join.py:297: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.runtime/env/lib/python3.11/site-packages/tskit/tables.py:707: in __setattr__
+    self.set_columns(**d)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <tskit.tables.EdgeTable object at 0x759870ba4d50>
+left = array([  0. ,   0. , 220. , 220. , 150. , 150. ,   0. ,   0. , 150. ,
+       150. , 220.1, 220.1, 220. , 220. , 220. ,...  0. , 150. , 150. , 220. ,
+       220. , 220.1, 220.1,   0. ,   0. , 150. , 150. , 220. , 220. ,
+       220.1, 220.1])
+right = array([ 150. ,  150. ,  220.1,  220.1,  220. ,  220. ,  150. ,  150. ,
+        220. ,  220. , 1100. , 1100. ,  220.1, ...  220. ,  220.1,  220.1,
+       1100. , 1100. ,  150. ,  150. ,  220. ,  220. ,  220.1,  220.1,
+       1100. , 1100. ])
+parent = array([37, 36, 17, 17, 25, 25, 33, 33, 24, 24,  6,  6, 15, 15, 16, 16, 35,
+       35,  8,  8, 26, 26, 34, 34,  7,  7, ...  3,  3, 29,
+       29, 20, 20, 11, 11,  2,  2, 28, 28, 19, 19, 10, 10,  1,  1, 27, 27,
+       18, 18,  9,  9,  0,  0])
+child = array([ 1, 11,  1,  5,  2,  5,  5,  6,  4,  6,  5,  6,  4,  6,  2,  3,  2,
+       12,  1,  2,  1,  3,  3,  4,  3,  4, ...       10,  9, 10,  9, 10,  9, 10, 18, 19, 27, 28, 36, 37, 45, 46, 17, 20,
+       26, 29, 35, 38, 44, 47], dtype=int32)
+metadata = array([], dtype=int8)
+metadata_offset = array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,...     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+       0, 0, 0, 0, 0, 0, 0, 0, 0], dtype=uint64)
+metadata_schema = ''
+
+    def set_columns(
+        self,
+        left=None,
+        right=None,
+        parent=None,
+        child=None,
+        metadata=None,
+        metadata_offset=None,
+        metadata_schema=None,
+    ):
+        """
+        Sets the values for each column in this :class:`EdgeTable` using the values
+        in the specified arrays. Overwrites existing data in all the table columns.
+    
+        The ``left``, ``right``, ``parent`` and ``child`` parameters are mandatory,
+        and must be numpy arrays of the same length (which is equal to the number of
+        edges the table will contain).
+        The ``metadata`` and ``metadata_offset`` parameters must be supplied together,
+        and meet the requirements for :ref:`sec_encoding_ragged_columns`.
+        See :ref:`sec_tables_api_binary_columns` for more information and
+        :ref:`sec_tutorial_metadata_bulk` for an example of how to prepare metadata.
+    
+    
+        :param left: The left coordinates (inclusive).
+        :type left: numpy.ndarray, dtype=np.float64
+        :param right: The right coordinates (exclusive).
+        :type right: numpy.ndarray, dtype=np.float64
+        :param parent: The parent node IDs.
+        :type parent: numpy.ndarray, dtype=np.int32
+        :param child: The child node IDs.
+        :type child: numpy.ndarray, dtype=np.int32
+        :param metadata: The flattened metadata array. Must be specified along
+            with ``metadata_offset``. If not specified or None, an empty metadata
+            value is stored for each node.
+        :type metadata: numpy.ndarray, dtype=np.int8
+        :param metadata_offset: The offsets into the ``metadata`` array.
+        :type metadata_offset: numpy.ndarray, dtype=np.uint32.
+        :param metadata_schema: The encoded metadata schema. If None (default)
+            do not overwrite the exising schema. Note that a schema will need to be
+            encoded as a string, e.g. via ``repr(new_metadata_schema)``.
+        :type metadata_schema: str
+        """
+        self._check_required_args(left=left, right=right, parent=parent, child=child)
+>       self.ll_table.set_columns(
+            dict(
+                left=left,
+                right=right,
+                parent=parent,
+                child=child,
+                metadata=metadata,
+                metadata_offset=metadata_offset,
+                metadata_schema=metadata_schema,
+            )
+        )
+E       TypeError: Cannot cast array data from dtype('int64') to dtype('int32') according to the rule 'safe'
+
+.runtime/env/lib/python3.11/site-packages/tskit/tables.py:1729: TypeError
+=========================== short test summary info ============================
+FAILED research/reviews/census_biological_bank_v1_independent/test_independent_join.py::test_native_vertex_table_relabel_changes_postorder_without_learned_ids
+1 failed, 62 passed in 7.84s
