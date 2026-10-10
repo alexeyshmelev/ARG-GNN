@@ -26,6 +26,9 @@ Split simulation replicates and subjects before windowing or sampling.
 Keep ground-truth annotations out of model input features.
 Keep tuning, validation and test data separate. Freeze evaluation protocols before full experiments.
 Record dataset provenance, licences, source commits, environments, seeds and configuration.
+Before each substantive experiment, consult research/experiment_ledger.md and register its hypothesis or an explicit repeat reason in research/experiment_decisions.json.
+Link repeats to prior hypothesis IDs and identify the new condition, implementation correction, unfinished cell or independent confirmation. Do not rerun an unchanged answered pilot.
+Record concise outcomes, including negative and partial findings, then refresh scripts/update_research_ledger.py and commit/push compact receipts with meaningful progress.
 Do not claim an exact baseline reproduction when code or parameters differ from the paper.
 The manuscript focuses on supported contributions and informative results. Preserve complete experiment records separately.
 

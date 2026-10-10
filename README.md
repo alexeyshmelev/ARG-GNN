@@ -4,6 +4,8 @@ Research into graph neural networks for sets and ordered interval-bearing graph 
 
 Status: validation-only architecture studies, verified data pipelines and working AAAI methods drafts. Predictive superiority and distinct novelty remain unestablished. See docs/anchor_pilot.md for the current fixed-anchor prototype and matched controls.
 
+Concise hypotheses, conclusions and repeat rules are in [the experiment ledger](research/experiment_ledger.md). [The result index](research/experiment_results.csv) links every indexed model result to its exact source receipt. Source scripts/project_env.sh and run .runtime/env/bin/python scripts/update_research_ledger.py after new results. Completed pilot cells need a recorded reason before repetition.
+
 The project runs on anogena in /workspace-SR003.nfs2/ARG-GNN. Read AGENTS.md before contributing.
 
 ## Research requirements
