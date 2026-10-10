@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import subprocess
+import time
 import warnings
 from pathlib import Path
 
@@ -22,9 +23,22 @@ def project_path(value: str | Path) -> Path:
     return path
 
 def storage_bytes() -> int:
-    result = subprocess.run(["du", "-s", "-B1", str(ROOT)], check=True,
-                            capture_output=True, text=True)
-    return int(result.stdout.split()[0])
+    # Atomic result writes and temporary-file cleanup can race a recursive
+    # NFS scan. Retry a failed scan, but never accept a partial byte count.
+    last = None
+    for attempt in range(4):
+        result = subprocess.run(["du", "-s", "-B1", str(ROOT)], check=False,
+                                capture_output=True, text=True)
+        if result.returncode == 0:
+            fields = result.stdout.split()
+            if len(fields) < 2:
+                raise RuntimeError("Storage scan did not return a complete byte count")
+            return int(fields[0])
+        last = result
+        if attempt < 3:
+            time.sleep(.1 * (attempt + 1))
+    detail = last.stderr.strip() if last is not None else "no scan result"
+    raise RuntimeError(f"Storage scan failed after four attempts: {detail}")
 
 def require_storage(headroom_bytes: int = 0) -> int:
     used = storage_bytes()
