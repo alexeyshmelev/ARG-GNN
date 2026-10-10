@@ -316,17 +316,27 @@ def split_fixed_windows(dataset: SimulatedDataset, windows: int) -> list[Simulat
 
     The full truth genealogy remains an audit artifact on the parent. Every tile
     keeps global chromosome coordinates and all overlapping marginal boundaries.
+    Genuine inferred coverage clips only edge tiles. Uncovered intervals and
+    tiles without retained fixed scoring coordinates are never extrapolated.
     """
     if isinstance(windows, bool) or not isinstance(windows, int) or windows < 1:
         raise ValueError("windows must be a positive integer")
     bounds = np.linspace(0., 1., windows + 1)
     tiles = []
-    for index, (left, right) in enumerate(zip(bounds[:-1], bounds[1:])):
-        sequence, positions = slice_genomic_window(dataset.sequence, float(left), float(right))
+    coverage=dataset.sequence.window_bounds
+    coverage_left,coverage_right=(0.,1.) if coverage is None else (float(coverage[0]),float(coverage[1]))
+    for index, (global_left, global_right) in enumerate(zip(bounds[:-1], bounds[1:])):
+        left,right=max(float(global_left),coverage_left),min(float(global_right),coverage_right)
+        if left>=right or not bool(((dataset.sequence.positions>=left)&(dataset.sequence.positions<right)).any()):
+            continue
+        sequence, positions = slice_genomic_window(dataset.sequence, left, right)
         metadata = dict(dataset.metadata)
         metadata.update({"parent_replicate": dataset.metadata["replicate"], "window_index": index,
-                         "window_bounds": [float(left), float(right)], "packed_nodes": int(sequence.x.shape[0])})
+                         "window_bounds": [left, right], "global_window_bounds": [float(global_left),float(global_right)],
+                         "packed_nodes": int(sequence.x.shape[0])})
         tiles.append(SimulatedDataset(sequence, dataset.labels[positions], dataset.baseline_probabilities[positions], None, metadata))
+    if not tiles:
+        raise ValueError("No fixed scoring coordinates inside observed tree coverage")
     return tiles
 
 

@@ -280,7 +280,9 @@ class LineageCrossAttention(nn.Module):
         # Preserve coordinate precision before reducing log masses to feature dtype.
         intervals = seq.intervals
         pos = position.reshape(1).to(intervals.dtype)
-        if weighting == 'exact':
+        if weighting == 'span':
+            log_mass = (intervals[:, 1] - intervals[:, 0]).log()
+        elif weighting == 'exact':
             log_mass = log_interval_kernel_mass(pos, intervals, self.tau.to(intervals.dtype))[0]
         else:
             midpoint = intervals.mean(dim=1)
@@ -315,8 +317,8 @@ class IntervalLineageGNN(_BaseModel):
     def __init__(self, *args, weighting: str = 'exact', correspondence: bool = True,
                  fusion: str = 'feedback', initial_tau: float = 0.05, **kwargs):
         super().__init__(*args, **kwargs)
-        if weighting not in {'exact', 'midpoint', 'equal'}:
-            raise ValueError('weighting must be exact, midpoint, or equal')
+        if weighting not in {'exact', 'midpoint', 'equal', 'span'}:
+            raise ValueError('weighting must be exact, midpoint, equal, or span')
         if fusion not in {'feedback', 'late'}:
             raise ValueError('fusion must be feedback or late')
         self.weighting = weighting
@@ -362,6 +364,7 @@ def build_model(name: str, input_dim: int, num_classes: int, **kwargs) -> nn.Mod
         return baselines[name](input_dim, num_classes, **kwargs)
     variants = {
         'interval_lineage': {},
+        'span_set_lineage': {'weighting': 'span'},
         'no_correspondence': {'correspondence': False},
         'midpoint_weights': {'weighting': 'midpoint'},
         'equal_tree_weights': {'weighting': 'equal'},

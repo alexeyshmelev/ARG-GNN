@@ -28,3 +28,9 @@ export TORCHINDUCTOR_CACHE_DIR="$ARGGNN_ROOT/.runtime/cache/torchinductor"
 export TRITON_CACHE_DIR="$ARGGNN_ROOT/.runtime/cache/triton"
 export PYTHONNOUSERSITE=1
 export PIP_CONFIG_FILE=/dev/null
+
+# Project-only TeX runtime, no user/global installation or format caches.
+export TEXMFHOME="$ARGGNN_ROOT/.runtime/texmf"
+export TEXMFVAR="$ARGGNN_ROOT/.runtime/tex/var"
+export TEXMFCONFIG="$ARGGNN_ROOT/.runtime/tex/config"
+export TEXMFCACHE="$ARGGNN_ROOT/.runtime/cache/tex"

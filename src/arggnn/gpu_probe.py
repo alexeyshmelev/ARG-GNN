@@ -12,6 +12,11 @@ def main():
     if torch.cuda.device_count() != 1:
         raise RuntimeError("Probe must see exactly the reserved GPU")
     x = torch.randn(1024, 1024, device="cuda")
+    lease_fd = int(os.environ["ARGGNN_GPU_LEASE_FD"])
+    os.fstat(lease_fd)
+    print(json.dumps({"event": "probe_ready", "pid": os.getpid(), "lease_fd": lease_fd,
+                      "lease_path": os.environ["ARGGNN_GPU_LEASE"],
+                      "physical_gpu": os.environ["ARGGNN_PHYSICAL_GPU"]}), flush=True)
     start = time.monotonic()
     while time.monotonic() - start < 35:
         _ = x @ x

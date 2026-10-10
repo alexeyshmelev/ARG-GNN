@@ -203,3 +203,23 @@ def test_switch_counts_include_genealogy_breakpoints():
     labels=migration_ancestry_at_positions(ts,[0,1,2,3],[25,75],**kwargs)
     assert labels.tolist()==[[0,0,1,1],[1,0,0,1]]
     assert true_ancestry_switch_counts(ts,[0,1,2,3],**kwargs)==[1,0,1,0]
+
+
+@pytest.mark.parametrize("left,right",[(.03,.97),(.2,.8)])
+def test_fixed_tiles_respect_partial_inferred_coverage_without_extrapolation(left,right):
+    case=simulate_replicate(tiny_config(),master_seed=111,split="train",replicate=0)
+    seq,indexes=slice_genomic_window(case.sequence,left,right)
+    cropped=replace(case,sequence=seq,labels=case.labels[indexes],
+                    baseline_probabilities=case.baseline_probabilities[indexes])
+    tiles=split_fixed_windows(cropped,8)
+    torch.testing.assert_close(torch.cat([t.sequence.positions for t in tiles]),seq.positions)
+    torch.testing.assert_close(torch.cat([t.labels for t in tiles]),cropped.labels)
+    for tile in tiles:
+        a,b=tile.metadata["window_bounds"]
+        ga,gb=tile.metadata["global_window_bounds"]
+        assert left<=a<b<=right
+        assert ga<=a<b<=gb
+        assert tile.sequence.window_bounds.tolist()==[a,b]
+    if left==.03:
+        assert tiles[0].metadata["window_bounds"][0]==left
+        assert tiles[-1].metadata["window_bounds"][1]==right
