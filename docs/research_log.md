@@ -36,3 +36,9 @@ Relate authorization was reaffirmed by the user: “I reviewed, use it.” Crede
 ## Fresh-development fitting and analysis implementation, 2026-10-10
 
 The independent train_anchor_development.py runner restricts production to the declared64TRAIN/16VAL/TEST0 cohort and exactly eight plain/age × depth1/2 × learning-rate configurations, with three fixed training seeds. It verifies concrete dataset/configuration hashes and selects equally weighted parent NLL from stable float64 raw logits. It stores raw logits and compact dataset bindings. Production fitting has not started. The new confirmatory_metrics.py supplies synthetic-verified stable NLL, explicit missing-class support, calibration/dosage metrics, paired-parent t/bootstrap analysis, Holm adjustment and one-to-one physical boundary matching. The combined new suite passed27tests in6.01s. No confirmatory data were generated or opened.
+
+## Completed anchor capacity/source controls, 2026-10-10
+
+The frozen three-model capacity/source study completed. Noncontextual depth2 selected NLL is 1.0260340316324352, very close to full depth2 1.025646690096779. Static local depth1/depth2 scores are 1.1185405579115626/1.1175823589461271. These are one-seed selected scores on the same four reused validation parents. They supply no independent confirmation and little evidence for query-source feedback itself. See research/reviews/anchor_capacity_pilot_complete_v1.json.
+
+GPU3 was released and assigned the frozen age full-depth1/full-depth2 and matched scalar-age full-depth1/full-depth2 priority block. GPU2 continues reference controls. No other GPU is occupied by the project.

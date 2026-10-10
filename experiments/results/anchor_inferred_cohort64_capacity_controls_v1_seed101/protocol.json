@@ -1,0 +1,64 @@
+{
+  "stage": "inferred_cohort64_anchor_capacity_source_controls_v1_validation_only",
+  "benchmark": "ancient-europe-stdpopsim-0.3.0-relate-inferred",
+  "source_dataset_manifest_sha256": "611c7e32973c22bd35115b835279884f7b0c866136e91ae2c5f2a95daefd6fe7",
+  "boundary_dataset_manifest_sha256": "7f25874806535897d819b99d20c8f0da1b47f4fe10dde04280e7c42f6e1b9e09",
+  "boundary_preparation_sha256": "c1749a89c2776debadb16a814516a1998057f380fada0c9efe8acafaed284642",
+  "splits": {
+    "train": 16,
+    "val": 4,
+    "test": 0
+  },
+  "num_classes": 4,
+  "models": [
+    "anchor_noncontext_d2",
+    "anchor_static_d1",
+    "anchor_static_d2"
+  ],
+  "hidden_dim": 32,
+  "num_layers": 2,
+  "latent_dim": 8,
+  "epochs": 24,
+  "patience": 6,
+  "learning_rate": 0.001,
+  "weight_decay": 0.0001,
+  "initial_coupling": [
+    5.0,
+    20.0,
+    80.0
+  ],
+  "initial_damping": 1.0,
+  "selection": "minimum mean parent-validation NLL",
+  "interpretation": "Exploratory same-schema source-feedback/static-local controls on reused inferred Q64 validation cohort. No final-test, distinct novelty or superiority claim.",
+  "comparison_note": "Same47features/plain sourceGNN/frozen S3rates/32physicalanchors/optimizer/readouts. Noncontextual always projects original graph-local Q embeddings as new anchor sources while retaining decoder residual context. Static-local applies graph-wise full K^-1 to signal and matching ones mass and updates Q repeatedly inside each graph only. All schemas/counts match primary model within kernel depth. Noncontextual depth1 is analytically the existing full depth1, so it is not redundantly trained.",
+  "model_specs": {
+    "anchor_noncontext_d2": {
+      "geometry": "plain",
+      "coupling": "full",
+      "kernel_depth": 2,
+      "rate_parameterization": "log"
+    },
+    "anchor_static_d1": {
+      "geometry": "plain",
+      "coupling": "full",
+      "kernel_depth": 1,
+      "rate_parameterization": "log"
+    },
+    "anchor_static_d2": {
+      "geometry": "plain",
+      "coupling": "full",
+      "kernel_depth": 2,
+      "rate_parameterization": "log"
+    }
+  },
+  "num_anchors": 32,
+  "num_scales": 3,
+  "rate_weight_decay": 0.0,
+  "control_modes": {
+    "anchor_noncontext_d2": "noncontextual",
+    "anchor_static_d1": "static_local",
+    "anchor_static_d2": "static_local"
+  },
+  "paired_plain_protocol": "configs/anchor_inferred_cohort64_plain_pilot_v1.json",
+  "paired_plain_protocol_sha256": "4ef5da930cdcf2c327f7da036838685b911d03977b5be35107405020f49edf7d"
+}
