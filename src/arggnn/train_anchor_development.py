@@ -21,6 +21,11 @@ from .train import set_seed, dump_json
 from .train_study import grid_sequence_metrics, sha
 from .metrics import replicate_summary
 from .confirmatory_metrics import logit_metrics
+from .development_training_bindings import (
+    admit_run,check_live,no_test_path,snapshot,valid_sha)
+
+_IMPORTED_DEVELOPMENT_PINS = snapshot()
+
 
 
 def require_device(device):
@@ -37,6 +42,7 @@ def require_device(device):
 
 
 def checked_protocol(path):
+    path=no_test_path(path)
     config = json.loads(path.read_text())
     if config["splits"].get("test", 0) != 0:
         raise RuntimeError("Mechanism runner does not load or score test data")
@@ -146,6 +152,14 @@ def checked_development_protocol(path):
         actual.append((spec["geometry"],spec["kernel_depth"],rates[name]))
     if len(actual) != 8 or len(set(actual)) != 8 or set(actual) != expected:
         raise RuntimeError("Require exactly eight plain/age x depth1/2 x learning-rate configurations")
+    for key in ("completion_receipt_sha256","preparation_execution_freeze_sha256"):
+        if not valid_sha(settings.get(key)):
+            raise RuntimeError("Completed preparation receipt/freeze required")
+    for key in ("completion_receipt","boundary_data","age_data","preparation_execution_freeze"):
+        if key not in settings:raise RuntimeError("Bound completion and cache paths required")
+        no_test_path(settings[key])
+    if settings.get("family")!="candidate" or settings.get("bound_implementation_sha256")!=snapshot():
+        raise RuntimeError("Candidate completion/dependency lock required")
     return settings
 
 def make_anchor_model(name, input_dim, num_classes, settings):
@@ -174,7 +188,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", required=True)
     parser.add_argument("--expected-config-sha256", required=True)
-    parser.add_argument("--data", required=True)
+    parser.add_argument("--data")
     parser.add_argument("--age-data")
     parser.add_argument("--output", required=True)
     parser.add_argument("--seed", type=int, default=101)
@@ -182,8 +196,10 @@ def main():
     parser.add_argument("--device", choices=["cpu", "cuda"], default="cuda")
     args = parser.parse_args()
     torch.set_num_threads(4)
-    require_device(args.device)
-    config_path, directory = project_path(args.config), project_path(args.data)
+    # Refuse all supplied held-out paths before reading even a config/manifest.
+    config_path = no_test_path(args.config)
+    if args.data is not None:no_test_path(args.data)
+    if args.age_data is not None:no_test_path(args.age_data)
     config_bytes = config_path.read_bytes()
     config_sha = hashlib.sha256(config_bytes).hexdigest()
     if config_sha != args.expected_config_sha256:
@@ -193,21 +209,12 @@ def main():
         raise RuntimeError("Frozen configuration changed while being read")
     if args.seed not in settings["training_seeds"]:
         raise RuntimeError("Training seed is outside the fixed development list")
-    manifest_path = directory / "manifest.json"
-    if sha(manifest_path) != settings["boundary_dataset_manifest_sha256"]:
-        raise RuntimeError("Boundary manifest differs from frozen study")
-    dataset = load_boundary_dataset(directory,
-        expected_manifest_sha256=settings["boundary_dataset_manifest_sha256"],
-        expected_preparation_sha256=settings["boundary_preparation_sha256"],
-        expected_source_manifest_sha256=settings["source_dataset_manifest_sha256"])
+    completion,dataset,age_caches,source_lock = admit_run(settings,config_path,config_sha,
+        imported_pins=_IMPORTED_DEVELOPMENT_PINS,provided_data=args.data,provided_age=args.age_data)
+    directory = no_test_path(settings["boundary_data"])
+    manifest_path = directory/"manifest.json"
+    require_device(args.device)
     cases = {split: dataset.cases(split) for split in ("train", "val")}
-    age_caches = None
-    if args.age_data:
-        age_caches = load_age_caches(args.age_data, dataset,
-            expected_manifest_sha256=settings["age_dataset_manifest_sha256"],
-            expected_preparation_sha256=settings["age_preparation_sha256"])
-    elif any(spec["geometry"] != "plain" for spec in settings["model_specs"].values()):
-        raise RuntimeError("Frozen age modes require a verified age dataset")
     for split in cases:
         if any(c.metadata["num_classes"] != settings["num_classes"] for c in cases[split]):
             raise RuntimeError("Class count differs from parent metadata")
@@ -226,7 +233,9 @@ def main():
         "boundary_manifest_sha256":sha(manifest_path),
         "source_manifest_sha256":settings["source_dataset_manifest_sha256"],
         "boundary_preparation_sha256":settings["boundary_preparation_sha256"],
-        "parents":{split:[c.metadata["replicate"] for c in cases[split]] for split in cases}})
+        "parents":{split:[c.metadata["replicate"] for c in cases[split]] for split in cases},
+        "completion_receipt_sha256":settings["completion_receipt_sha256"],
+        "source_snapshot":source_lock.manifest()})
     device = torch.device(args.device)
     started_transfer = time.monotonic()
     device_banks = {id(tile): prepare_anchor_kernel_bank(tile.bank,
@@ -245,13 +254,15 @@ def main():
         "simulate.py", "train_study.py", "train.py", "metrics.py", "resources.py"]
     if age_caches is not None:
         code_paths += ["age_interface.py", "age_dataset.py"]
-    initial_code_hashes = {p: sha(ROOT/"src/arggnn"/p) for p in code_paths}
+    initial_code_hashes = check_live(settings,config_path,config_sha,
+        source_snapshot=source_lock,full_sources=True)
     results = {"stage": settings["stage"], "interpretation": settings["interpretation"],
         "evaluation_split": "fresh_development_validation_only", "training_seed": args.seed,
         "nll_policy":"float64 stable log-softmax of uncalibrated raw logits",
         "protocol_sha256": config_sha, "boundary_dataset_manifest_sha256": sha(manifest_path),
         "boundary_preparation_sha256": settings["boundary_preparation_sha256"],
-        "git_commit": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip(),
+        "git_metadata_policy":"No Git command. Exact bound code hashes retained.",
+        "completion_receipt_sha256":settings["completion_receipt_sha256"],
         "implementation_sha256": initial_code_hashes,
         "anchor_source_measure": "fixed equal-width physical midpoint anchors",
         "age_dataset_manifest_sha256": settings.get("age_dataset_manifest_sha256"),
@@ -264,6 +275,7 @@ def main():
     checkpoint_root = project_path(Path("checkpoints") / (output.name+"_"+checkpoint_id))
     checkpoint_root.mkdir(parents=True)
     for name in requested:
+        check_live(settings,config_path,config_sha,source_snapshot=source_lock,full_sources=True)
         set_seed(args.seed)
         model = make_anchor_model(name, example.leaf_x.shape[-1], settings["num_classes"], settings).to(device)
         optimizer = torch.optim.AdamW(optimizer_groups(model, settings["weight_decay"]),
@@ -277,6 +289,7 @@ def main():
         if device.type == "cuda":
             torch.cuda.reset_peak_memory_stats()
         for epoch in range(settings["epochs"]):
+            check_live(settings,config_path,config_sha,source_snapshot=source_lock,full_sources=False)
             require_storage(headroom_bytes=100_000_000)
             model.train()
             order = list(range(len(tiles)))
@@ -346,10 +359,10 @@ def main():
                   "validation_predictions_sha256": sha(prediction_path),
                   "peak_cuda_memory_bytes": torch.cuda.max_memory_allocated() if device.type=="cuda" else None,
                   **replicate_summary(val, args.seed)}
-        if sha(config_path) != config_sha:
-            raise RuntimeError("Frozen configuration changed during training")
-        if initial_code_hashes != {p: sha(ROOT/"src/arggnn"/p) for p in code_paths}:
-            raise RuntimeError("Active anchor implementation changed during training")
+        ending_code_hashes = check_live(settings,config_path,config_sha,
+            source_snapshot=source_lock,full_sources=True)
+        result["ending_config_sha256"] = config_sha
+        result["ending_implementation_sha256"] = ending_code_hashes
         result["model_configuration"] = model.configuration_manifest()
         results["models"][name] = result
         dump_json(output/(name+".json"), result)
@@ -359,6 +372,10 @@ def main():
         del model, optimizer
         if device.type == "cuda":
             torch.cuda.empty_cache()
+    results["ending_config_sha256"] = config_sha
+    results["ending_implementation_sha256"] = check_live(settings,config_path,config_sha,
+        source_snapshot=source_lock,full_sources=True)
+    results["ending_input_artifact_sha256"] = source_lock.hashes
     dump_json(output/"results.json", results)
     print(json.dumps({"event": "run_complete", "output": str(output),
                       "storage_bytes": require_storage()}), flush=True)

@@ -18,7 +18,14 @@ def full_protocol():
         splits={"train":64,"val":16,"test":0}, training_seeds=[101,202,303],
         hidden_dim=32,num_layers=2,latent_dim=8,num_anchors=32,num_scales=3,
         num_classes=4,epochs=48,patience=8,initial_coupling=[5.,20.,80.],
-        initial_damping=1.,age_dataset_manifest_sha256="d"*64,
+        initial_damping=1.,family="candidate",
+        completion_receipt="experiments/results/fresh_development_preparation_v1/completion.json",
+        completion_receipt_sha256="a"*64,preparation_execution_freeze_sha256="b"*64,
+        preparation_execution_freeze="configs/fresh_development_execution_freeze_v1.json",
+        boundary_data="data/boundary_inferred_development64_v1",
+        age_data="data/age_inferred_development64_v1",
+        bound_implementation_sha256=__import__("arggnn.development_training_bindings",fromlist=["snapshot"]).snapshot(),
+        age_dataset_manifest_sha256="d"*64,
         age_preparation_sha256="e"*64,models=[],model_specs={},model_learning_rates={})
     for geometry in ("plain","age"):
         for depth in (1,2):
@@ -95,13 +102,21 @@ def test_tiny_cpu_fit_stores_hash_bound_raw_logit_predictions(tmp_path,monkeypat
         "--output",str(output),"--device","cpu"])
     initial_hash=sha256_file(config)
     from arggnn import train_anchor_development as runner
-    if drift=="during_load":
-        original=runner.load_boundary_dataset
-        def mutated_loader(*args,**kwargs):
-            result=original(*args,**kwargs)
-            config.write_text(json.dumps({**p,"hidden_dim":16}))
-            return result
-        monkeypatch.setattr(runner,"load_boundary_dataset",mutated_loader)
+    from arggnn.development_training_bindings import SourceSnapshot
+    source_lock=SourceSnapshot({str(config):initial_hash,str(manifest):sha256_file(manifest)})
+    p["boundary_data"]=str(dataset.directory)
+    p["completion_receipt_sha256"]="a"*64
+    # One-parent synthetic fitting mocks only production cohort admission.
+    def tiny_admission(*_a,**_k):
+        if drift=="during_load":config.write_text(json.dumps({**p,"hidden_dim":16}))
+        return {},dataset,None,source_lock
+    monkeypatch.setattr(runner,"admit_run",tiny_admission)
+    def tiny_live(*_a,**kwargs):
+        if sha256_file(config)!=initial_hash:
+            raise RuntimeError("Frozen configuration changed during training")
+        source_lock.check(full=kwargs.get("full_sources",True))
+        return runner._IMPORTED_DEVELOPMENT_PINS
+    monkeypatch.setattr(runner,"check_live",tiny_live)
     if drift=="during_validation":
         original_eval=runner.evaluate
         def mutated_evaluate(*args,**kwargs):
@@ -156,3 +171,20 @@ def test_unsafe_model_ids_rejected_before_forming_output_paths(tmp_path,unsafe):
     path.write_text(json.dumps(p))
     with pytest.raises(RuntimeError,match="safe file-name"):
         checked_development_protocol(path)
+
+
+def test_candidate_heldout_guard_precedes_any_config_or_data_read(monkeypatch):
+    from arggnn.resources import ROOT
+    target=ROOT/'data/final_test_probe/manifest.json'
+    monkeypatch.setattr('sys.argv',['runner','--config',str(ROOT/'configs/not_read.json'),
+        '--expected-config-sha256','a'*64,'--data',str(target.parent),
+        '--output',str(ROOT/'experiments/results/not_written'),'--device','cpu'])
+    monkeypatch.setattr(Path,'read_bytes',lambda *_:pytest.fail('Held-out/config bytes opened before guard'))
+    with pytest.raises(RuntimeError,match='Final held-out'):main()
+
+
+def test_candidate_dependency_and_completion_locks_are_mandatory(tmp_path):
+    for key in ['bound_implementation_sha256','completion_receipt_sha256','preparation_execution_freeze_sha256']:
+        p=full_protocol();p.pop(key)
+        path=tmp_path/'p.json';path.write_text(json.dumps(p))
+        with pytest.raises(RuntimeError):checked_development_protocol(path)

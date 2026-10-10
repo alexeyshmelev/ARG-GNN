@@ -1,0 +1,65 @@
+# Canonical and development-binding audit v1
+
+This independent continuation audits the completed canonical comparator/pilot runner/config/tests/docs, development completion/config binder, and dedicated temporal development runner. Audited files and active preparation code were not edited. All audit writes stayed inside `/workspace-SR003.nfs2/ARG-GNN`, principally this review folder and `.runtime/tmp/canonical_development_audit_v1`. Project rules and environment settings from the preceding audit remain in force. No GPU, package installation, Git command, chromosome simulation, native inference or final-test content access occurred. Source snapshots are in `audit_scope_hashes.json`.
+
+The isolated canonical/development-binding suite passed **64 tests in11.88s** (`pytest.log`). It includes synthetic preprocessing, CPU fitting, raw-logit metrics, snapshot mutation, safe IDs, complete grids, source cache API calls and completion rejection. The one actual-input smoke test reads the pinned existing TRAIN rep000 prepared observed input and applies an untrained network; it does not load its target bundle or score ancestry. Additional synthetic probes establish the findings below. No acceptance, novelty, performance or superiority is established.
+
+## Actionable findings
+
+### AD-01 — canonical held-out access fails after a manifest read, not before it
+
+`train_canonical_gru.capture_run_snapshot` confines paths to the repository but reads `args.data/manifest.json` before rejecting a dataset/hash/test mismatch. There is no pre-read guard for confirmatory/final_test paths, unlike `development_training_bindings.no_test_path`. Thus an accidental `--data` pointing at a held-out directory would open its manifest before the runner rejects it. The existing correct pilot arguments do not trigger this.
+
+A probe intercepts `Path.read_bytes` for the hypothetical held-out path and substitutes a tiny synthetic byte string. It confirms the read attempt occurs before `Canonical pilot dataset hash binding failed`; no held-out file is actually opened. Evidence: `heldout_guard_reproducer.json`. Add a pre-read final-path refusal to source/config/snapshot admission before such artifacts exist. This is a blocker for an enforced no-held-out-access claim, not a blocker of the current correct pilot path or active preparation.
+
+### AD-02 — canonical family synthesis checks common protocol hashes, not the expected config
+
+`select_family_configuration` requires a complete configuration×seed set and matching dataset/implementation hashes. However, any common non-null protocol hash is accepted; it is never compared with an expected original config SHA. The function also does not compare each record's configuration fields with the frozen specification for that ID.
+
+The synthetic probe passes all24 records under real current configuration IDs/seeds and dataset/dependency locks, gives every record an arbitrary common protocol digest, records width999/dropout0.5/LR1 and parameter count1, and obtains a family selection. Evidence: `binding_reproducer.py/json`. Require an explicit expected config digest, exact recorded configuration matching and appropriate frozen model/count consistency before family selection. This matters before family synthesis; it does not affect the examined forward model or checkpoint selection. The CLI does not yet invoke this synthesis helper automatically.
+
+### AD-03 — temporal development live checks omit source/raw artifacts after admission
+
+`verify_completion` initially calls the full boundary/age loaders, which bind current inferred metadata/raw tensors/prepared tensors, supervision and bank/cache envelopes. In-memory training inputs therefore start from verified files. But `check_live` subsequently hashes only the completion receipt and boundary/age manifests, along with config/code locks. It does not hash the inferred source manifest, raw/prepared/metadata artifacts or bank/age files. Its documentation says the source manifest identity is checked at each epoch, which is stronger than the implementation.
+
+The isolated probe creates its own synthetic linked manifests/completion, verifies `check_live`, changes only the inferred manifest, and `check_live` still succeeds. No dataset loader or real input is used for this probe. Evidence: `binding_reproducer.py/json`. The already loaded tensors remain unchanged, so this does not silently replace fitted input bytes. It does leave the claimed ending full source-chain verification unsupported and permits a changed on-disk source chain to coexist with a completed run. Check the bound inferred source manifest and use a source/cache artifact signature/hash snapshot, like the canonical runner, at the declared boundaries, or explicitly narrow the integrity claim to the initially loaded snapshot.
+
+Relatedly, `verify_completion` hashes the oracle manifest but does not reverify oracle raw artifacts or open/verify the actual preparation execution freeze file. The reviewed receipt hashes preserve original provenance, and oracle genealogies are not model inputs. Distinguish original receipt provenance from verification of the full current on-disk oracle/freeze chain.
+
+### AD-04 — generated candidate dependency/completion locks are not consumed by its runner
+
+`make_configs` emits `candidate.json` with `bound_implementation_sha256`, completion receipt/hash and bound cache paths. The existing `train_anchor_development` module does not consume those new lock fields. It checks the supplied exact config and actual dataset hashes, then records the current code snapshot and accepts separately supplied data paths. Consequently the emitted dependency/completion lock does not yet enforce candidate execution identity in the way the temporal adapter does.
+
+This is a static integration finding rather than a reproduced wrong-data fit. The actual dataset manifest/preparation/age hashes remain enforced, so an arbitrary different dataset is not silently substituted. Require the same completion/dependency admission in the candidate runner or a mandatory root execution wrapper before describing all four emitted families as enforcing those new locks. None of these adapters has trained the fresh cohort in this audit.
+
+## Independent information-path assessment
+
+“Same source fields and anchors” means common available data/schema, not equal functional access to every intervening observed tree.
+
+| Family | Cross-tree information that can affect a requested output |
+|---|---|
+| Fixed-anchor GRU/Transformer | Plain graph-local query/reference embeddings and Cqr sources at anchor-containing trees, plus local query embeddings at readout-containing trees. A tree hit by neither has no path to the output. |
+| Observed-reference smoother | Reference-role/Cqr evidence at anchor-containing trees and coordinate distances. It does not use readout-tree local embeddings. |
+| Kernel candidate | Anchor sources and local readout embeddings, plus Cqq query geometry on intervening holds along anchor-to-readout/anchor-to-anchor propagation paths. Cqr/feature forcing is still injected only at anchors. Holds outside the hull of relevant anchors/readouts have no nonzero-state path merely because endpoints are serialized. |
+| Canonical GNN+GRU | Every retained distinct canonical tree inside each scored tile supplies a query token to the bidirectional recurrence. Its fresh observed reference summaries and finite-depth full-node GNN provide those graph-local tokens. |
+| ARGMix full_tree / whole-tree attention | All supplied nodes within a marginal tree can affect that tree's queried output. There is no cross-tree aggregation. Outputs from trees containing no readout are computed and then discarded, so they cannot alter another tree's prediction. |
+
+A synthetic counterfactual uses anchors0.25/0.75, readouts0.1/0.9 and an intervening tree on[0.45,0.55] hit by neither. Changing only that tree leaves anchor GRU/Transformer/smoother predictions exactly unchanged. The plain candidate changes (maximum logit delta5.58e-5). Canonical GRU changes (1.75e-4) when both input sequences contain three distinct canonical trees. ARGMix full_tree and the whole-tree Transformer remain exactly unchanged. Executable code and evidence are `reachability.py`, `reachability.json` and `reachability.log`. These untrained numerical values demonstrate reachability only.
+
+The initial fixture re-encoded branch fields outside the changed tree, causing tiny unintended differences for a full-tree attention assertion. The corrected fixture preserves those outside-tree features bit-for-bit. The initial failed fixture log is retained as `reachability_initial_fixture.log`.
+
+Canonical GRU therefore supplies an all-tree temporal coverage comparison that the same-anchor families and local full-tree attention do not supply. It is still not a strict boundary mechanism control: canonical full-tree **F48** includes internal nodes and a freshly recomputed parent-branch field, while the candidate uses persistent leaves and **F47**, excluding raw parent-branch. Full-node encoding does not imply every remote internal raw feature has a direct path through a depth2 message-passing GNN; observed reference adapter summaries also provide graph-wide information. Fixed tiling limits temporal exchange to each scored tile. Under the intended >=120/128 grid coverage all eight physical windows are scored; generic tile factories omit windows with no readout. Exact adjacent duplicate merging replaces redundant identical holds, not distinct evidence.
+
+A favorable comparison against anchor GRU/Transformer would not isolate ordered propagation from differing access to intervening geometry. A favorable comparison against local full-tree attention would not isolate temporal coupling from absence of cross-tree aggregation. These are architecture/input-reachability limitations that should be disclosed, not implementation bugs or conclusions about predictive utility.
+
+## Contracts verified on inspection and tests
+
+Canonical preparation takes an observed sequence/options only, strips stale augmentation to the original F8 prefix, suppresses anonymous unary vertices, merges exact adjacent duplicates, recomputes retained-endpoint parent branches and freshly appends the observed reference adapter to F48. Position/query IDs and containing-tree correspondence remain explicit. Numerical IDs are correspondence keys; labels/truth/target-bearing dataset objects do not enter the preprocessing or model. Dropout is active after input projection, graph layers, between stacked GRU layers and before the head. Evaluation disables it; deterministic readouts gather the containing canonical token without creating new recurrent sources. The tests cover unsorted-coordinate scatter, reference/label counterfactuals, canonicalization plus RNG-replayed dropout and finite neural gradients.
+
+The canonical pilot config explicitly uses reused16TRAIN/fourVAL/TEST0, eight width32/64×dropout0/0.1×LR0.0003/0.001 settings, seeds101/202/303 and cap48/patience8. It binds exact dependency hashes, captures original config/manifest bytes and records/checks every raw/prepared/metadata artifact before/after preparation/configurations plus stat identity through epochs. Stable primary NLL comes from raw logits; historical capped metrics remain secondary. It is not yet a completion-bound fresh-development canonical execution config. The optional expected-config SHA is appropriate to its stated pilot interface but does not itself supply a mandatory fresh-development lock.
+
+The dedicated temporal development adapter requires exact config SHA, fresh namespace,64/16/TEST0, three seeds and exact eight-setting family grids. Config byte/hash identity is immutable after capture. Imported source locks are compared with the bound dependency map. Device/checkpoint paths and generated IDs are safe components under the project root; existing run/checkpoint namespaces are rejected. No arbitrary data override is supported. It uses equal-parent raw NLL/earliest checkpoint ties and preserves ordered parent IDs, positions, query IDs, raw-logit hashes and failure receipts. Smoother runs fit no parameters and repeated seed runs do not create new independent models/evidence.
+
+The binder defaults to validation only, refuses absent/incomplete completion and requires an explicit reviewed completion SHA before writing configs into a fresh repository configs directory. Actual verification uses all four linked manifest hashes plus the full boundary/age loaders and exact parent/tile counts. No completed fresh receipt/config emission was performed here because preparation was still active. Complete three-seed search synthesis/strongest-baseline selection and any final sealed evaluation remain separate work.
+
+There is no model-forward leakage or coordinate/query correspondence defect found in these examined files. The four integrity findings above remain specific actionable items at this snapshot. They do not invalidate the safe ongoing preparation plan or establish any ancestry result.
