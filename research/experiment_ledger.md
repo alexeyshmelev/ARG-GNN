@@ -78,13 +78,13 @@ Evidence: [docs/anchor_temporal_baselines.md](../docs/anchor_temporal_baselines.
 
 ## H008: Paper-equation ARGMix adaptation matches the candidate pilot
 
-**partly_completed.** Our independent full-tree/nearest-reference equation adaptations and whole-tree Transformer, same Q64 cohort.
+**pilot_completed_native_author_benchmark_pending.** Our independent full-tree/nearest-reference equation adaptations and whole-tree Transformer, same Q64 cohort.
 
-**Conclusion:** Full-tree adaptation NLL 1.142297, accuracy 48.5321%. Nearest-reference adaptation NLL 1.141211, accuracy 48.4802%. These execute our adaptations, not the native author pipeline. Whole-tree Transformer is still running.
+**Conclusion:** Full-tree ARGMix equation adaptation NLL1.142297/accuracy48.5321%, nearest-reference adaptation1.141211/48.4802%, whole-tree Transformer1.118489/50.3815%. These are our shared-data implementations and selected pilot scores, not native published benchmark reproductions.
 
-**Next/repeat rule:** Complete only unfinished models. Native author execution and paper-task reproduction are separate new experiments.
+**Next/repeat rule:** Do not rerun these unchanged completed cells. Native author execution and independent frozen biological comparisons answer distinct questions.
 
-Evidence: [docs/argmix_development.md](../docs/argmix_development.md), [experiments/results/inferred_cohort64_reference_controls_v1_seed101/argmix_full_tree.json](../experiments/results/inferred_cohort64_reference_controls_v1_seed101/argmix_full_tree.json), [experiments/results/inferred_cohort64_reference_controls_v1_seed101/argmix_nearest_reference.json](../experiments/results/inferred_cohort64_reference_controls_v1_seed101/argmix_nearest_reference.json).
+Evidence: [docs/argmix_development.md](../docs/argmix_development.md), [experiments/results/inferred_cohort64_reference_controls_v1_seed101/argmix_full_tree.json](../experiments/results/inferred_cohort64_reference_controls_v1_seed101/argmix_full_tree.json), [experiments/results/inferred_cohort64_reference_controls_v1_seed101/argmix_nearest_reference.json](../experiments/results/inferred_cohort64_reference_controls_v1_seed101/argmix_nearest_reference.json), [experiments/results/inferred_cohort64_reference_controls_v1_seed101/results.json](../experiments/results/inferred_cohort64_reference_controls_v1_seed101/results.json).
 
 ## H009: GST and GraphSSM explain the Q64 pilot gain
 
@@ -118,13 +118,13 @@ Evidence: [docs/anchor_kernel.md](../docs/anchor_kernel.md), [experiments/result
 
 ## H012: Native ARGMix reproduces published biological performance
 
-**pending_native_execution.** Pinned unchanged author source c2481248eb0d, native TmrcaAttn component/TorchScript qualification.
+**current_author_release_selected_native_build_pending.** Pinned unchanged author source c2481248eb0d, native TmrcaAttn component/TorchScript qualification.
 
-**Conclusion:** Nine CPU component tests passed. Current code differs from paper v1, including 15 references, no ancestors and a GRU. No native biological extraction/training or published accuracy reproduction ran.
+**Conclusion:** Nine CPU native component tests passed. No April-compatible revision was found in the inspected public resources, and the user has no older archive. Use unchanged c248 current-release transformer+GRU, with recorded differences. Native biological training remains pending.
 
-**Next/repeat rule:** Resolve paper-compatible revision and contained build, then execute native biological data. Do not rerun unchanged component tests as progress.
+**Next/repeat rule:** Build and execute the available native release on matched biological data. Do not call it April reproduction or repeat the same archive search without a new lead.
 
-Evidence: [docs/official_argmix_execution_v1.md](../docs/official_argmix_execution_v1.md), [.runtime/tmp/official_argmix_native_v1/official_argmix_bridge_receipt.json](../.runtime/tmp/official_argmix_native_v1/official_argmix_bridge_receipt.json).
+Evidence: [docs/official_argmix_execution_v1.md](../docs/official_argmix_execution_v1.md), [experiments/results/official_argmix_cpu_validation_20261010_v1.json](../experiments/results/official_argmix_cpu_validation_20261010_v1.json), [docs/argmix_paper_revision_search_v1.md](../docs/argmix_paper_revision_search_v1.md), [research/protocols/argmix_paper_revision_search_v1.json](../research/protocols/argmix_paper_revision_search_v1.json).
 
 ## H013: Native ARGformer is a genuine ancestry competitor
 
@@ -134,17 +134,17 @@ Evidence: [docs/official_argmix_execution_v1.md](../docs/official_argmix_executi
 
 **Next/repeat rule:** Install an isolated coherent author stack and qualify full execution. Preserve within-ARG transductive scope and sealed query labels.
 
-Evidence: [docs/official_argformer_execution_v1.md](../docs/official_argformer_execution_v1.md), [.runtime/tmp/official_argformer_source_cpu_v1/handoff_receipt.json](../.runtime/tmp/official_argformer_source_cpu_v1/handoff_receipt.json).
+Evidence: [docs/official_argformer_execution_v1.md](../docs/official_argformer_execution_v1.md), [experiments/results/official_argformer_cpu_validation_20261010_v1.json](../experiments/results/official_argformer_cpu_validation_20261010_v1.json).
 
 ## H014: Native AncestralPaths supplies biological path ancestry and a comparator
 
-**pending_native_execution.** All17 original files match the paper-cited Zenodo version, native5x9 features/six classes plus explicit probability collapse.
+**real_tensorflow_CPU_API_qualified_biology_pending.** All17 original files match the paper-cited Zenodo version, native5x9 features/six classes plus explicit probability collapse.
 
-**Conclusion:** Thirty-seven handmade-tree/fake-Keras tests passed. No TensorFlow model/training or native biological scoring ran. Four-source collapse is not the authors' BAA-exclusion experiment.
+**Conclusion:** The isolated runtime passed an actual six-class TensorFlow forward, one synthetic optimizer update and exact checkpoint replay. This uses a transparent adapter for the source-native Dense model. Biological training/scoring has not run. The source paper describes a differing CNN.
 
-**Next/repeat rule:** Use an isolated compatible TensorFlow environment and transparent external adapter. Independent parent split must replace overlapping source diagnostic parents.
+**Next/repeat rule:** Proceed to the frozen biological data contract. Repeat runtime checks only after relevant dependency/adapter changes. Preserve six-class output and explicit source collapse.
 
-Evidence: [docs/ancestralpaths_native_protocol_v1.md](../docs/ancestralpaths_native_protocol_v1.md), [experiments/results/ancestralpaths_native_cpu_validation_20261010_v2.json](../experiments/results/ancestralpaths_native_cpu_validation_20261010_v2.json).
+Evidence: [docs/ancestralpaths_native_protocol_v1.md](../docs/ancestralpaths_native_protocol_v1.md), [experiments/results/ancestralpaths_native_cpu_validation_20261010_v2.json](../experiments/results/ancestralpaths_native_cpu_validation_20261010_v2.json), [configs/ancestralpaths_native_cpu_requirements_v1.txt](../configs/ancestralpaths_native_cpu_requirements_v1.txt), [scripts/qualify_ancestralpaths_runtime.py](../scripts/qualify_ancestralpaths_runtime.py), [experiments/results/ancestralpaths_native_runtime_v1/receipt.json](../experiments/results/ancestralpaths_native_runtime_v1/receipt.json), [experiments/results/ancestralpaths_native_environment_v1/completion.json](../experiments/results/ancestralpaths_native_environment_v1/completion.json).
 
 ## H015: Fresh engineering development eliminates repeated-pilot selection
 

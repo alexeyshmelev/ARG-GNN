@@ -68,3 +68,11 @@ Added research/experiment_decisions.json and a generated human/machine ledger pl
 Same-Q64 GST completed at selected NLL1.123058/accuracy49.9237%, and GraphSSM continues. Both ARGMix equation adaptations completed, while whole-tree Transformer continues. Actual NVTOP verified physicalGPU2/PID631921 andGPU3/PID746712 titles. All80 fresh oracle parents are complete, with inferred-parent preparation still running. Native author bridge checks are ARGMix9, ARGformer13 and AncestralPaths37 CPU component/compatibility tests. No native biological training or real-data hypothesis result follows from those checks.
 
 The user reaffirmed concise complete logging and regular GitHub pushes. New substantive runs consult/register the ledger. Unchanged answered pilots are not repeated. Paper results remain selected by scientific relevance, with complete failures/partial runs preserved separately.
+
+## Native TensorFlow runtime and available ARGMix revision, 2026-10-10
+
+An isolated AncestralPaths CPU runtime installed successfully, then passed actual TensorFlow2.15.1 source-native Dense architecture forward (26,630 parameters), one optimizer update on12 handmade random examples and exact .keras checkpoint replay. This is a transparent compatibility adapter, not unchanged author scripts or biological training. Full receipt: experiments/results/ancestralpaths_native_runtime_v1/receipt.json. NumPy1.26.4/tskit0.6.4/msprime1.3.4 are isolated from the main runtime.
+
+The bounded ARGMix revision search found no publicly available April-compatible source in the inspected resources. The user confirmed no older archive. The next native benchmark uses unchanged c248 current-release Transformer+GRU, explicitly distinguished from April v1. Search receipts and absent-data requirements are preserved.
+
+The initial result index contains127 scalar records, including three synthetic admission timing receipts. Its record-kind column now separates scientific performance rows from engineering runtime records. No training experiment was repeated to make this logging correction.

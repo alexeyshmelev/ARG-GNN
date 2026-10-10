@@ -110,14 +110,18 @@ def main():
                 record["kind"] = "study_binding"
             else:
                 metrics = scalar_metrics(obj)
-                record.update(kind="reported_model_result" if metrics else "engineering_receipt",
+                performance = any(key in metrics for key in
+                                  ("validation_nll", "mean_accuracy", "mae_cases", "mean_metrics.nll",
+                                   "mean_metrics.accuracy", "metrics.nll", "metrics.accuracy",
+                                   "aggregate.nll", "aggregate.accuracy"))
+                record.update(kind="reported_model_result" if performance else "engineering_receipt",
                               metrics=metrics, bindings=context)
                 for key in ("status", "checkpoint", "checkpoint_sha256",
                             "validation_predictions", "validation_predictions_sha256"):
                     if key in obj:
                         record[key] = obj[key]
                 if metrics:
-                    rows.append({"study": path.name, "method": f.stem,
+                    rows.append({"study": path.name, "method": f.stem, "record_kind": record["kind"],
                                  "artifact": record["artifact"], "sha256": digest,
                                  **{k: metrics.get(k) for k in METRICS},
                                  "evaluation_scope": context.get("evaluation_split",
@@ -144,9 +148,9 @@ def main():
     outputs = {
         ROOT / "research/experiment_ledger.json": json.dumps(record, indent=2, allow_nan=False) + "\n"}
     buf = io.StringIO()
-    fields = ["study", "method", *METRICS, "evaluation_scope", "training_seed",
+    fields = ["study", "method", "record_kind", *METRICS, "evaluation_scope", "training_seed",
               "protocol_sha256", "artifact", "sha256"]
-    writer = csv.DictWriter(buf, fieldnames=fields)
+    writer = csv.DictWriter(buf, fieldnames=fields, lineterminator='\n')
     writer.writeheader()
     writer.writerows(rows)
     outputs[ROOT / "research/experiment_results.csv"] = buf.getvalue()
@@ -169,11 +173,12 @@ def main():
     outputs[ROOT / "research/experiment_ledger.md"] = "\n".join(lines)
     changed = []
     for path, contents in outputs.items():
-        if path.exists() and path.read_text() == contents:
+        if path.exists() and path.read_bytes() == contents.encode('utf-8'):
             continue
         path.write_text(contents)
         changed.append(str(path.relative_to(ROOT)))
-    print(json.dumps({"decision_count": len(entries), "model_result_count": len(rows),
+    print(json.dumps({"decision_count": len(entries), "performance_result_count": sum(row["record_kind"] == "reported_model_result" for row in rows),
+                      "scalar_result_record_count": len(rows),
                       "indexed_receipt_count": len(inventory), "changed_files": changed}))
 
 if __name__ == "__main__":
