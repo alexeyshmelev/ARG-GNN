@@ -1,0 +1,98 @@
+{
+  "benchmark": "ancient-europe-stdpopsim-0.3.0-relate-inferred",
+  "boundary_dataset_manifest_sha256": "7f25874806535897d819b99d20c8f0da1b47f4fe10dde04280e7c42f6e1b9e09",
+  "boundary_preparation_sha256": "c1749a89c2776debadb16a814516a1998057f380fada0c9efe8acafaed284642",
+  "comparison_note": "Same47observed fields, plain BoundaryResponseGNN,width32/depth2,32fixed physical anchors, candidate tanh q/r and Cqr reference/ones source rule. GRU has H per direction and interpolated latent readouts. Transformer has jointA*Q attention then independent querywise coordinate cross-attention. Temporal capacity/decoder differ and actual parameters are recorded. Readouts never add sources. Smoothers use only observed reference-role/Cqr evidence subset, no neural encoder or fitting; all8bandwidth/pseudocount candidates use same parent validation rawNLL selection.",
+  "epochs": 24,
+  "hidden_dim": 32,
+  "initial_coupling": [
+    5,
+    20,
+    80
+  ],
+  "interpretation": "Exploratory same-source/same-anchor baseline pilot on reused observed inferred Q64 parents. No independent confirmation, final test, novel mechanism or superiority claim.",
+  "latent_dim": 8,
+  "learning_rate": 0.001,
+  "max_attention_score_bytes": 268435456,
+  "model_specs": {
+    "anchor_gru_d2": {
+      "dropout": 0,
+      "family": "gru",
+      "temporal_depth": 2,
+      "transformer_heads": 4
+    },
+    "anchor_reference_100kb_pc0.001": {
+      "bandwidth_bp": 100000,
+      "family": "reference_smoother",
+      "pseudocount": 0.001
+    },
+    "anchor_reference_100kb_pc0.01": {
+      "bandwidth_bp": 100000,
+      "family": "reference_smoother",
+      "pseudocount": 0.01
+    },
+    "anchor_reference_10kb_pc0.001": {
+      "bandwidth_bp": 10000,
+      "family": "reference_smoother",
+      "pseudocount": 0.001
+    },
+    "anchor_reference_10kb_pc0.01": {
+      "bandwidth_bp": 10000,
+      "family": "reference_smoother",
+      "pseudocount": 0.01
+    },
+    "anchor_reference_300kb_pc0.001": {
+      "bandwidth_bp": 300000,
+      "family": "reference_smoother",
+      "pseudocount": 0.001
+    },
+    "anchor_reference_300kb_pc0.01": {
+      "bandwidth_bp": 300000,
+      "family": "reference_smoother",
+      "pseudocount": 0.01
+    },
+    "anchor_reference_30kb_pc0.001": {
+      "bandwidth_bp": 30000,
+      "family": "reference_smoother",
+      "pseudocount": 0.001
+    },
+    "anchor_reference_30kb_pc0.01": {
+      "bandwidth_bp": 30000,
+      "family": "reference_smoother",
+      "pseudocount": 0.01
+    },
+    "anchor_temporal_transformer_d2": {
+      "dropout": 0,
+      "family": "transformer",
+      "temporal_depth": 2,
+      "transformer_heads": 4
+    }
+  },
+  "models": [
+    "anchor_gru_d2",
+    "anchor_temporal_transformer_d2",
+    "anchor_reference_10kb_pc0.001",
+    "anchor_reference_10kb_pc0.01",
+    "anchor_reference_30kb_pc0.001",
+    "anchor_reference_30kb_pc0.01",
+    "anchor_reference_100kb_pc0.001",
+    "anchor_reference_100kb_pc0.01",
+    "anchor_reference_300kb_pc0.001",
+    "anchor_reference_300kb_pc0.01"
+  ],
+  "num_anchors": 32,
+  "num_classes": 4,
+  "num_layers": 2,
+  "num_scales": 3,
+  "patience": 6,
+  "selection": "minimum mean parent-validation uncalibrated logit NLL",
+  "source_dataset_manifest_sha256": "611c7e32973c22bd35115b835279884f7b0c866136e91ae2c5f2a95daefd6fe7",
+  "source_rate_weight_decay": 0,
+  "splits": {
+    "test": 0,
+    "train": 16,
+    "val": 4
+  },
+  "stage": "inferred_cohort64_same_source_anchor_temporal_pilot_v1_validation_only",
+  "weight_decay": 0.0001
+}
