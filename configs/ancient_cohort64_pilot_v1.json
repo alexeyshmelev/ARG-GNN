@@ -1,0 +1,53 @@
+{
+  "stage": "larger_query_cohort_mechanism_pilot_train_validation_only",
+  "benchmark": "ancient-europe-stdpopsim-0.3.0-oracle",
+  "master_seed": 20261021,
+  "simulation": {
+    "sequence_length": 1000000,
+    "reference_diploids_per_source": 3,
+    "query_diploids": 32,
+    "grid_points": 128,
+    "landmarks_per_source": 3,
+    "max_graph_nodes": 1000000
+  },
+  "splits": {
+    "train": 16,
+    "val": 4,
+    "test": 0
+  },
+  "reference_adapter": {
+    "reference_columns": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "time_column": 6,
+    "branch_column": 7,
+    "time_scale": 10000,
+    "kernel_scales": [
+      0.05,
+      0.1,
+      0.2
+    ]
+  },
+  "windows": 8,
+  "models": [
+    "feature_mlp",
+    "independent",
+    "leaf_kernel",
+    "gru",
+    "late_transformer"
+  ],
+  "hidden_dim": 32,
+  "num_layers": 2,
+  "epochs": 24,
+  "patience": 6,
+  "learning_rate": 0.001,
+  "weight_decay": 0.0001,
+  "dropout": 0,
+  "selection": "minimum mean parent-validation NLL, no final test data generated or evaluated in this mechanism pilot",
+  "evaluation": "uniform fixed coordinates in complete true genealogies with census nodes and truth annotations removed",
+  "interpretation": "Independent larger-query exploratory cohort. 64 query haplotypes and 24 references. No final test generation, performance or novelty claim. Tests whether cross-query memory has measurable benefit in a larger panel.",
+  "comparison_note": "Independent simulation seeds relative to all earlier datasets. The same fixed observed-reference adapter is prepared. Boundary studies will reuse these parents only through a separately hash-bound frozen preparation."
+}
