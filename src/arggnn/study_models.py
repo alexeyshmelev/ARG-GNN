@@ -50,6 +50,14 @@ class LeafKernelGNN(_BaseModel):
 def make_study_model(name,input_dim,num_classes,settings):
     common=dict(input_dim=input_dim,num_classes=num_classes,hidden_dim=settings["hidden_dim"],
                 num_layers=settings["num_layers"],validate=False)
+    if name in {"argmix_full_tree", "argmix_nearest_reference", "whole_tree_transformer"}:
+        from .argformer_control import ARGMixTreeControl, WholeTreeGraphTransformerControl
+        cls = WholeTreeGraphTransformerControl if name == "whole_tree_transformer" else ARGMixTreeControl
+        return cls(**common, num_heads=4, dropout=settings.get("dropout", 0.),
+                   time_column=settings["reference_adapter"]["time_column"],
+                   branch_column=settings["reference_adapter"]["branch_column"],
+                   time_scale=settings["reference_adapter"]["time_scale"],
+                   token_scope="nearest_reference" if name == "argmix_nearest_reference" else "full_tree")
     if name.startswith("gst_"):
         from .gst_baseline import GSTAdaptation
         parts=name.split("_")

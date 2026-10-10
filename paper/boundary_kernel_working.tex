@@ -1,0 +1,154 @@
+\documentclass[letterpaper]{article}
+\usepackage[draft]{aaai2027}
+\usepackage[hyphens]{url}
+\usepackage{graphicx}
+\urlstyle{rm}
+\def\UrlFont{\rm}
+\usepackage{natbib}
+\usepackage{caption}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\frenchspacing
+\pdfinfo{/TemplateVersion (2027.1)}
+\setcounter{secnumdepth}{2}
+\title{Boundary Response Kernels for Ordered Graph Collections}
+\author{Anonymous Submission}
+\affiliations{}
+\begin{document}
+\maketitle
+\begin{abstract}
+A sequence of marginal genealogies has changing internal vertices and persistent sampled individuals. We study a graph neural architecture that carries memory on the sampled interface while using each observed tree's electrical boundary response to couple those memories. A graph-local encoder provides observed query and reference signals. Exact interval evolution combines these signals across genomic coordinates. The two directional memory scans admit a matrix-valued positive semidefinite kernel interpretation, including when consecutive tree operators do not commute. The construction preserves predictions under subdivision of an unchanged genomic interval and insertion of serial anonymous vertices, provided resistance and observed leaf features are preserved. We specify matched controls for local graph encoding, static response, independent memory and conventional temporal models. This working document records the candidate method and its validation protocol while architecture studies are in progress.
+\end{abstract}
+
+\section{Problem and Related Work}
+We observe graphs $G_g$ on a partition of a continuous domain into intervals $I_g=[a_g,b_g)$. A persistent interface $S$ is present in every graph. Other vertices are graph-local. Predictions address query vertices $Q\subseteq S$ at fixed coordinates $x_p$. Observed reference vertices $R=S\setminus Q$ can carry labeled panel information. Numerical identifiers define correspondence only.
+
+For ancestral recombination graphs, the domain is genomic position, each $G_g$ is a marginal genealogy, and $S$ contains sampled haplotypes. Query local ancestry is an external supervised target. Labeled reference samples, observed ages and reconstructed topology provide input evidence. ARGformer motivates inference from ARGs \citep{argformer2026}. Graph-transformer ancestry inference supplies a related task \citep{ancientancestry2026}, with broader biological context from ancient Eurasian ancestry \citep{eurasians2024}.
+
+Graph Set Transformer interleaves graph processing and set attention \citep{gst2026}. GraphSSM studies continuous graph dynamics and persistent-node alignment \citep{graphssm2024}. Message-Passing State-Space Models propagate persistent hidden states through graph shift operators \citep{mpssm2026}. Kron reduction preserves a graph's static boundary response \citep{kron2013}, and Node Decimation Pooling already uses this reduction within GNN representation learning \citep{ndp2022}. Graph kernels derived from stochastic differential equations model nonseparable space-time covariance \citep{graphspde2022}. Kernel reconstruction also addresses space-time signals on dynamic graphs \citep{dynamicgraphkernel2017}. Our candidate combines a fixed sample interface with changing boundary operators and exact genomic-duration processing. The evaluation asks whether that combination supplies useful memory beyond these established components.
+
+\section{Boundary Graph Construction}
+\subsection{Observed Resistance and Reduction}
+For a tree edge joining observed ages $t_u<t_v$, let its resistance be $r_{uv}=\kappa(t_v-t_u)$ for fixed $\kappa>0$. Ages are decoded before subtracting them. Assume every edge has positive resistance and every connected component containing an interior vertex touches the interface. The undirected conductance Laplacian is $L_g$. Partition its vertices into $S$ and anonymous interior $A_g$. The boundary response is
+\begin{equation}
+ C_g=(L_g)_{SS}-(L_g)_{SA}(L_g)_{AA}^{-1}(L_g)_{AS}.
+\end{equation}
+A linear solve implements the Schur complement. $C_g$ is symmetric positive semidefinite with zero row sums and nonpositive off-diagonal entries. With $y(v,u)=(v^\top,u^\top)^\top$, its energy characterization is
+\begin{equation}
+ v^\top C_gv=\min_u y(v,u)^\top L_g y(v,u).
+\end{equation}
+These are established Kron properties \citep{kron2013}.
+
+Define $\bar C_g=C_g/s_g$, where $s_g$ is the mean boundary diagonal. A zero response uses $s_g=1$. This scalar normalization respects boundary permutation and serial-edge equivalence. It expresses coupling on a common dimensionless scale. Observed age summaries remain available to the encoder.
+
+\subsection{Invariant Source Encoding}
+The leaf feature bank $X_g^S$ contains observed sample roles, ages and fixed reference-relation summaries. The summaries use source-conditioned observed common-ancestor times, reference fractions, nearest-reference tie votes and fixed kernel evidence. They are precomputed independently within each observed tree. The raw parent-branch feature is excluded, since inserting a unary ancestor changes that feature at its child.
+
+A graph-local GNN encodes $(X_g^S,\bar C_g)$ into $H_g$. Its conductance adjacency is $-\bar C_{g,ij}$ off the diagonal. Each residual layer uses a weighted neighbor mean, a learned self update and layer normalization. It receives no temporal state, coordinate or numerical-ID embedding. Shared projections produce bounded signals
+\begin{align}
+ F_g^Q&=\tanh(H_g^QW_Q^\top+b_Q),\\
+ U_g^R&=\tanh(H_g^RW_R^\top+b_R).
+\end{align}
+Reference signals depend on observed panel information. The query ancestry target remains outside this source bank.
+
+\section{Coupled Interface Memory}
+For channel $h$, positive learned global rates $\lambda_h,\delta_h$ define
+\begin{align}
+ K_{g,h}&=\lambda_h\bar C_{g,QQ}+\delta_h I,\\
+ B_{g,h}&=F_{g,h}^Q-\lambda_h\bar C_{g,QR}U_{g,h}^R.
+\end{align}
+The latent boundary dynamics on $I_g$ are
+\begin{equation}
+ \frac{d z_h(x)}{dx}=-K_{g,h}z_h(x)+B_{g,h}.
+\end{equation}
+The query block is positive semidefinite, and damping makes $K_{g,h}$ positive definite. Its exact constant-forcing action over duration $\Delta$ is
+\begin{equation}
+ z_h(x+\Delta)=e^{-\Delta K_{g,h}}z_h(x)
+ +K_{g,h}^{-1}(I-e^{-\Delta K_{g,h}})B_{g,h}.
+\end{equation}
+The full response and query eigensystems are prepared on CPU. Since rates are global per channel, online evaluation reuses the same fixed eigenvectors. It computes scalar exponential and \texttt{expm1} factors without differentiating an eigensolver.
+
+A forward scan starts at zero at the left tile endpoint. A positive-duration reverse scan starts at zero at the right endpoint. Partial holds evaluate the states at each fixed $x_p$. The decoder uses the containing graph's local query embedding together with
+\begin{equation}
+ z_h^+(x_p)+z_h^-(x_p),\qquad
+ (z_h^+(x_p)-z_h^-(x_p))^2.
+\end{equation}
+A linear head returns class logits. This symmetric directional readout is suited to offline genomic inference. A one-sided readout supplies the corresponding chronology-aware configuration.
+
+\section{Kernel and Representation Properties}
+\subsection{Conditional Matrix-Valued Kernel}
+Fix the observed graph-valued signal and learned rates. For $x\geq y$, let $T_h(x,y)$ be the time-ordered propagator of $z'=-K_h(x)z$. Define
+\begin{equation}
+ \mathcal H_h(x,y)=
+ \begin{cases}
+ T_h(x,y),&x\geq y,\\
+ T_h(y,x)^\top,&x<y.
+ \end{cases}
+\end{equation}
+This is a matrix-valued kernel on genomic coordinates, whose entries couple query samples. It is conditional on one observed graph sequence.
+
+\textbf{Proposition 1.}
+For symmetric positive definite, piecewise-constant $K_h(x)$, $\mathcal H_h$ is positive semidefinite. The implemented directional sum equals
+\begin{equation}
+ z_h^+(x)+z_h^-(x)=
+ \int_{\ell}^{r}\mathcal H_h(x,y)B_h(y)\,dy
+\end{equation}
+on the supplied tile $[\ell,r]$.
+
+\textbf{Proof.}
+Consider the linear Gaussian process
+\begin{equation}
+ dZ_h=-K_h(x)Z_h\,dx+\sqrt{2K_h(x)}\,dW
+\end{equation}
+whose initial state has covariance $I$ and is independent of subsequent Brownian increments. Its covariance equation gives
+$P'=-K_hP-PK_h+2K_h=0$ at $P=I$.
+Cross-covariances are therefore $T_h(x,y)$ for $x\geq y$, and their transposes in the opposite order. A covariance kernel is positive semidefinite. Variation of constants gives the forward integral. Every local exponential is symmetric, so reverse multiplication gives the transposed forward propagator and the backward integral. This argument also applies when different interval operators do not commute. $\square$
+
+The auxiliary covariance process certifies positivity, while the implemented context uses the zero integration boundary states. This covariance argument is an established linear-process construction \citep{sdes2019}. It provides a characterization of the graph-conditioned operator rather than a novelty claim about covariance theory. Each channel has its own kernel. The predictor additionally uses local features and the squared directional contrast.
+
+\subsection{Dual Subdivision Contract}
+\textbf{Proposition 2.}
+Assume exact arithmetic, deterministic evaluation, fixed tile endpoints, interface and query/reference partition, fixed query coordinates, invariant observed interface features and fixed positive resistance proportional to branch duration. Predictions are unchanged by either (i) dividing an unchanged graph interval into identical consecutive pieces or (ii) inserting anonymous serial vertices while preserving total resistance.
+
+\textbf{Proof.}
+For (i), identical graph inputs produce identical source signals and $K,B$. Exact affine flows compose:
+$\Phi_{\Delta_2}\circ\Phi_{\Delta_1}=\Phi_{\Delta_1+\Delta_2}$.
+Partial-coordinate actions and both scans are therefore unchanged. For (ii), series-resistance equivalence preserves $C_g$ and its normalization. The assumed feature invariance preserves $H_g$, $K$ and $B$. Hence both directional contexts and the decoder are unchanged. $\square$
+
+Finite-precision implementations test these identities within declared numerical tolerances. The serial contract uses invariant leaf features, rather than features from an original-tree MPNN whose receptive field changes after subdivision. The half-open containing-tree convention fixes local readout at breakpoints. Reflection exchanges directional contexts and preserves the symmetric decoder at coordinates away from those breakpoints.
+
+For states under the same input and forcing, the homogeneous propagator satisfies
+\begin{equation}
+ \|T_h(x,y)\|_2\leq e^{-\delta_h(x-y)}
+ \quad\text{for }x\geq y.
+\end{equation}
+This follows by differentiating squared state difference and using positive semidefiniteness of $\bar C_{QQ}$. It is a memory perturbation bound.
+
+\section{Matched Evaluation Protocol}
+\subsection{Mechanism Controls}
+All boundary comparisons receive identical observed leaf features, boundary responses, coordinates and correspondence keys. Controls comprise a feature MLP, local boundary GNN, exact scalar-kernel smoothing, conventional GRU and temporal Transformer. Operator controls use full, diagonal, homogeneous bag and static equilibrium dynamics.
+
+Removing off-diagonal terms changes both temporal exchange and static gain. We therefore include independent-state controls that match the full equilibrium $e_h=K_h^{-1}B_h$. A gain-matched control evolves
+\begin{equation}
+ z'=-D_hz+D_he_h,\qquad D_h=\operatorname{diag}(K_h).
+\end{equation}
+A second control uses diagonal rates
+\begin{equation}
+ d_{q,h}=\delta_h+\lambda_h\sum_j\bar C_{QQ,qj}.
+\end{equation}
+It matches equilibrium and the full homogeneous generator's action on a spatially constant state. Both retain instantaneous source mixing while removing transfer between different queries' prior states. Full, diagonal and gain controls share learned parameter shapes and initialization. Static controls have smaller heads, whose counts are reported.
+
+A homogeneous bag control averages the fixed query operator and learned forcing by interval width. Its bag eigensystem is computed for each exact clipped tile. It retains the same supplied domain and readout coordinates while removing changing operators along that domain.
+
+\subsection{Ancestry and Cross-Domain Studies}
+The engineering cohort uses the pinned stdpopsim 0.3.0 \texttt{AncientEurope\_4A21} model. Query ancestry labels are external census-lineage targets for ANA, CHG, WHG and EHG. Census nodes and hidden population annotations are removed from observed trees. The initial cohort contains 16 independent training parents and four validation parents of 1 Mb, with eight query haplotypes, 24 reference haplotypes and 128 fixed coordinates. A separately seeded cohort increases the query interface to 64 haplotypes.
+
+The paired Relate 1.2.4 pipeline uses observed phased variants, sample ages and a declared recombination map. Its genuine SNP coverage clips edge tiles without chromosome-tail extrapolation. Exact original grid positions and query identities are retained. Relate attribution: Copyright \copyright\ 2018, University of Oxford.
+
+Parents are split before constructing eight fixed windows. Checkpoints are selected by minimum mean parent-validation negative log likelihood. Dataset, parent, preparation, code and prediction hashes bind each comparison. Records retain accuracy, NLL, calibration diagnostics, parameter count, preparation cost, training time and GPU memory. Exploratory cohorts contain training and validation data only.
+
+The Hungarian Chickenpox Cases dataset supplies an external chronological forecasting setting on a persistent 20-county graph. It has 522 observations and a CC BY 4.0 license. Inputs contain 52 historical weeks and predict the following week. The chronological split has 313 training targets, 78 validation targets and 79 reserved test targets. Normalization uses training observations only. Seasonal, persistence and multivariate ridge controls accompany neural comparisons. Graph SPDE kernels also evaluate on this dataset \citep{graphspde2022}, motivating a covariance-based comparator. This fixed-topology setting evaluates temporal applicability alongside the changing-tree ancestry study.
+
+\bibliography{references}
+\end{document}

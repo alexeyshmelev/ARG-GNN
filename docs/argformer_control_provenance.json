@@ -1,0 +1,307 @@
+{
+  "schema_version": 1,
+  "accessed_date_utc": "2026-10-10",
+  "implementation_status": "independent_paper_equation_common_input_adaptation_not_exact_reproduction",
+  "implemented_models": [
+    {
+      "class": "ARGMixTreeControl",
+      "primary_scope": "full_tree",
+      "optional_scope": "nearest_reference",
+      "num_classes": 4,
+      "input_dim": 48,
+      "relational_equations": "ARGMix v1 Methods 4.1 Eqs. (1)-(6)",
+      "cross_tree_aggregation": "none"
+    },
+    {
+      "class": "WholeTreeGraphTransformerControl",
+      "scope": "full_tree",
+      "num_classes": 4,
+      "input_dim": 48,
+      "relational_equations": "generic GRPE-style Q/K/V relation attention",
+      "cross_tree_aggregation": "none"
+    }
+  ],
+  "argformer_model_implemented": false,
+  "argformer_exclusion_reason": "Published unique leaf-to-root paths use an ARG-specific ancestor-node vocabulary, masked-node pretraining and contrastive retrieval. Substituting whole-tree plus genomic attention would be a misleading comparator name; exact node-vocabulary training also breaks the common input ID-renaming contract.",
+  "papers": [
+    {
+      "title": "ARGformer: learning on ancestral recombination graphs with transformers",
+      "authors": [
+        "David Bonet",
+        "Cole Shanks",
+        "Marçal Comajoan Cara",
+        "Jordi Abante",
+        "Alexander G. Ioannidis"
+      ],
+      "doi": "10.1093/bioinformatics/btag438",
+      "url": "https://doi.org/10.1093/bioinformatics/btag438",
+      "primary_fulltext_url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC13501305/fullTextXML",
+      "fulltext_sha256": "53ab26710804f0b9ca6f355095893b365413caf56cf7bb722b39907f6db0619f",
+      "paper_license": "CC-BY-4.0",
+      "license_verified_from": "primary article permissions plus Crossref",
+      "relevant_sections": [
+        "2.1, Eqs. (1)-(5)"
+      ],
+      "computational_scope": "Leaf-to-root node-ID path encoder with masked-node and contrastive training; downstream unique-path equal-weight aggregation/retrieval."
+    },
+    {
+      "title": "Graph transformer for ancient ancestry inference",
+      "authors": [
+        "Cole Shanks",
+        "David Bonet",
+        "Marçal Comajoan Cara",
+        "Alexander Ioannidis"
+      ],
+      "doi": "10.64898/2026.04.05.714076",
+      "version": 1,
+      "url": "https://www.biorxiv.org/content/10.64898/2026.04.05.714076v1",
+      "primary_fulltext_url": "https://www.biorxiv.org/content/10.64898/2026.04.05.714076v1.full",
+      "fulltext_sha256": null,
+      "fulltext_hash_note": "Primary full text and rendered equations inspected via in-app browser; no raw full-text export retained. Shell retrieval returned Cloudflare challenge.",
+      "paper_license": "CC-BY-4.0",
+      "license_verified_from": "primary abstract copyright notice, bioRxiv API and Crossref",
+      "relevant_sections": [
+        "Results 2.1",
+        "Methods 4.1 Eqs. (1)-(6)",
+        "Methods 4.3"
+      ],
+      "computational_scope": "Per-query single-marginal-tree subgraph classification, 25 nearest references plus 3 inferred ancestors plus queried leaf; no cross-tree sequence/set model specified."
+    }
+  ],
+  "official_source_audit": [
+    {
+      "repository": "https://github.com/AI-sandbox/ARGformer",
+      "commit": "f7545be7bca0200fb39aeb7f94a8e5f0b6bf5596",
+      "license": "Apache-2.0",
+      "inspected_files": [
+        {
+          "path": "LICENSE",
+          "sha256": "6000cff1fc348ff57108619330c26d67d596bf44c68661c749a6c561cdc3fb4f"
+        },
+        {
+          "path": "README.md",
+          "sha256": "a58d830dbc12925532d30f5cfe7b4ca44ddf3509c38a4d2824b37310613a7e2c"
+        }
+      ],
+      "lineage": "README acknowledges ModernBERT, MosaicBERT and Flash Attention 2 fork.",
+      "reuse": "read_for_specification_only_no_code_copy_or_execution"
+    },
+    {
+      "repository": "https://github.com/AI-sandbox/argmix",
+      "commit": "c2481248eb0de5fda659d68f59c51e0e27becd20",
+      "license": "MIT",
+      "license_note": "LICENSE copyright line retains YEAR COPYRIGHT_HOLDER placeholders.",
+      "inspected_files": [
+        {
+          "path": "LICENSE",
+          "sha256": "dbd9c86fc2e571b7757c08e007fcfce0ac5bb2effa55fe2f84edd8abc8eb1010"
+        },
+        {
+          "path": "README.md",
+          "sha256": "0fb9fccdc7331cd1a8df298217d3e9b910a36605f10f6b7bfec5585e851283e9"
+        },
+        {
+          "path": "src/tmrca_attn.py",
+          "sha256": "8cc88e2acc4a93d3038ea0ac862f4d48e860c58dc202dc93b64c634c75fa76f4"
+        },
+        {
+          "path": "templates/forward_blank/argmix.yaml",
+          "sha256": "ad0445a13ef2fe49c29f33477869b1707b3e7f74dea8491fa45a5c7f2a20937c"
+        }
+      ],
+      "additional_selected_source_reads": [
+        "src/rust/ancpath/src/fast_lca/engine.rs (distance transforms only)",
+        "src/rust/ancpath/src/fast_lca/tmrca.rs",
+        "src/rust/ancpath_incremental/src/ref_selection.rs"
+      ],
+      "reuse": "read_for_specification_only_no_code_copy_or_execution",
+      "paper_code_differences": [
+        "Paper Eq. (3) prints relative key term k_j. Current attention source gathers key-relative scores by row, evaluating k_i. This implementation follows printed k_j.",
+        "Current repository supports log2 relative-distance transforms and joint-model GRU sequence processing. Implemented comparator follows v1 paper elapsed-generations clamp and single-tree computation."
+      ]
+    },
+    {
+      "repository": "https://github.com/lenscloth/GRPE",
+      "commit": "05f31e990f99f98ff848d8971c2ea2a323d96e89",
+      "license": "MIT",
+      "inspected_files": [
+        {
+          "path": "LICENSE",
+          "github_blob_sha": "18a4494e9131e7b295636aaed8d17458cd688b39"
+        }
+      ],
+      "reuse": "licence_metadata_audit_only",
+      "reason": "ARGMix attention source credits substantial adaptation from GRPE."
+    }
+  ],
+  "adaptation_choices": {
+    "feature_schema": "all-node common 48 observed features; original observed features 0:8 followed by fixed reference summaries",
+    "observed_reference_columns": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "observed_time_column": 6,
+    "observed_root_zero_branch_column": 7,
+    "time_reconstruction": "expm1(encoded_time * log1p(10000))",
+    "relation": "floor(clamp(observed_time(MRCA(i,j))-observed_time(i),min=0,max=1000))",
+    "relative_tables": "independent learned relative Q/K/V tables shared across layers; never node-ID embedding",
+    "published_subgraph_size_biological_nodes": 29,
+    "common_panel_reference_haplotypes": 24,
+    "native_scope_observed_biological_nodes_min": 27,
+    "native_scope_observed_biological_nodes_max": 28,
+    "native_scope_ancestor_count": "up to three available immediate ancestors",
+    "native_scope_ties": "all reference cutoff ties included without arbitrary ID tie-breaking",
+    "full_tree_readout": "shared linear 4-class query-node head",
+    "native_scope_readout": "learned CLS token with dedicated relation bin and linear 4-class head",
+    "normalization": "pre-LayerNorm residual attention/FFN and final LayerNorm",
+    "input_projection": "learned Linear(48,D) then GELU",
+    "feedforward_multiplier": 4,
+    "native_tree_context": "full observed tree receives all common features before internal subgraph selection; no independent truth/genotype fields",
+    "truth_input_fields": [],
+    "node_id_embedding": false,
+    "external_pretraining": false,
+    "generic_control_relation": "undirected shortest-path hop count, capped at32",
+    "parameter_comparability": "equal hidden width is not equal parameter count because relative embedding tables differ",
+    "structural_preprocessing": "CPU, detached observed edges/times, connected acyclic tree validation, O(n^2) pairwise LCA fill",
+    "cache": "bounded4entries; tensor object identity/version counters for validity only; cached source tensors retained to avoid pointer reuse",
+    "attention_memory": "occupied relation bins and scatter-add relative values avoid O(n^2*D) relation-value materialization",
+    "claims": "engineering adaptation and control only; no ancestry-accuracy result or exact reproduction claim"
+  },
+  "parameter_counts": [
+    {
+      "hidden_dim": 32,
+      "num_layers": 1,
+      "argmix_full_tree": 110564,
+      "argmix_nearest_reference": 110692,
+      "whole_tree_hops": 17636
+    },
+    {
+      "hidden_dim": 32,
+      "num_layers": 2,
+      "argmix_full_tree": 123268,
+      "argmix_nearest_reference": 123396,
+      "whole_tree_hops": 30340
+    },
+    {
+      "hidden_dim": 64,
+      "num_layers": 2,
+      "argmix_full_tree": 295684,
+      "argmix_nearest_reference": 295940,
+      "whole_tree_hops": 109828
+    },
+    {
+      "hidden_dim": 128,
+      "num_layers": 3,
+      "argmix_full_tree": 986244,
+      "argmix_nearest_reference": 986756,
+      "whole_tree_hops": 614532
+    }
+  ],
+  "parameter_count_assumptions": {
+    "input_dim": 48,
+    "num_classes": 4,
+    "num_heads": 4,
+    "ffn_multiplier": 4,
+    "argmix_relation_cap": 1000,
+    "hop_relation_cap": 32
+  },
+  "training_budget": {
+    "training_jobs_launched_by_this_implementation_task": 0,
+    "gpu_jobs_launched": 0,
+    "hyperparameter_trials": 0,
+    "accuracy_labels_evaluated": 0,
+    "registry_owner": "primary_agent",
+    "required_experiment_reporting": [
+      "configurations tried per family",
+      "seeds",
+      "parameter counts",
+      "training examples/updates",
+      "early stopping",
+      "validation selection metric",
+      "wall-clock budget"
+    ]
+  },
+  "verification": {
+    "command": "source scripts/project_env.sh; CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=1 \"$ARGGNN_PYTHON\" -m pytest -q tests/test_argformer_control.py tests/test_models.py",
+    "result": {
+      "passed_tests": 26,
+      "passed_existing_subtests": 16,
+      "comparator_tests": 17
+    },
+    "contracts": [
+      "paper-equation column-key attention and relational values",
+      "asymmetric elapsed TMRCA clamp/self bins",
+      "all48 input-feature gradients",
+      "all-parameter finite gradients",
+      "node-array permutation",
+      "nonmonotone stable-leaf-ID renaming",
+      "query permutation",
+      "graph serialization permutation",
+      "tensor/checkpoint serialization",
+      "clade-column independence",
+      "observed-structure sensitivity",
+      "tie-inclusive reference selection",
+      "cache mutation invalidation",
+      "invalid tree/time/width rejection"
+    ],
+    "actual_observed_input_smoke": {
+      "prepared_tensor_file": "data/ancient_inferred_cohort64_pilot_v1/train/rep000/inference/dataset/prepared.pt",
+      "prepared_tensor_sha256": "88b61aceaaeba584445f97080a732dcd13787be0ca7cc6f422e643e939267599",
+      "source_selection": "first1/8of declared chromosome window; no labels loaded",
+      "num_graphs": 22,
+      "num_nodes": 3850,
+      "input_features": 48,
+      "num_queries": 64,
+      "logits_shape": [
+        16,
+        64,
+        4
+      ],
+      "models": [
+        "ARGMixTreeControl full_tree",
+        "WholeTreeGraphTransformerControl"
+      ],
+      "finite_logits": true,
+      "finite_all_parameter_gradients": true,
+      "native_first_scored_tree": {
+        "observed_references": 24,
+        "logits_shape": [
+          1,
+          64,
+          4
+        ],
+        "biological_nodes_min": 27,
+        "biological_nodes_max": 28
+      },
+      "cpu_single_thread_forward_backward_seconds": {
+        "argmix_full_tree": 0.5463700499385595,
+        "whole_tree_hops": 0.3202942218631506
+      },
+      "timing_status": "one smoke observation per model, not a performance benchmark"
+    }
+  },
+  "restrictions_observed": {
+    "server_repository_only_project_writes": true,
+    "packages_installed": 0,
+    "public_code_copied": false,
+    "public_code_executed": false,
+    "gpu_context_created": false,
+    "no_git_or_shared_registry_modifications": true
+  },
+  "implementation_files": [
+    {
+      "path": "src/arggnn/argformer_control.py",
+      "sha256": "e61458e94f89a35179345ac13383f2fb4edb3e9d8542a61cb6b7b41c9a2820f2"
+    },
+    {
+      "path": "tests/test_argformer_control.py",
+      "sha256": "288427cecadc5f7957145d1d128f0d46e722b9709c54bcf3a9294bb18af20ca3"
+    },
+    {
+      "path": "docs/argformer_control.md",
+      "sha256": "a861a6871d4339dada555df27e19bf6ba80dd6702108deecf8088340463c9088"
+    }
+  ]
+}
