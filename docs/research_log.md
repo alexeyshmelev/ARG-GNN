@@ -88,3 +88,9 @@ Reviewed a concrete four-parent2Mb development proposal with280 haplotypes, obse
 ## Low-rank operator novelty decision, 2026-10-10
 
 H019 derives a normalized bipartite/learned-star Kron diffusion proposal with exact small-Gram actions and gradients. Close hypergraph/DiffPool precedents rule out a novelty claim for the bare operator. The query state still requiresQ×hidden memory and varying factor spans prevent automatic fixed-rank composition. No implementation/training/numerical tests ran. The ledger closes the bare novelty route and requires a concrete observed biological constraint before reopening it.
+
+## Native ARGformer packaging repair and scheduler qualification, 2026-10-10
+
+Original442/29 author-lock install completed but pip check failed. Actual tskit1.0.0 import failed under pinned NumPy1.26.4, multiprocess0.70.17 contradicted dill0.3.8 and was taggedpy313, and Ninja's old wheel failed supported-platform metadata. Preserve original failed receipt. A recorded source-compatible packaging variant installs tskit0.6.4, multiprocess0.70.16 and Ninja1.13.0 without changing author models/Torch2.4. Both repaired pip checks passed. Official FA2.6.3 Torch2.4/cp311/falseABI/cu123 binary SHA25625405479af3f6865c873ee3bbdfadcfccea9055355de78e7cd6b93170e9d4377 installed, with actual CUDA compatibility still pending. No source-build or exact-original-lock claim.
+
+New scheduler-preserving native runner and full12-layer qualification code reviewed at exact handoff hashes. Both native modes use handmade inputs only, no optimizer or biological result. Actual driver-context UUID, own live NVTOP PID/title and original source/config/backend gates replace unsupported Torch2.4 property assumptions. GPU2 qualification is the next execution step.

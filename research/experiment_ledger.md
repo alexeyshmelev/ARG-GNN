@@ -128,13 +128,13 @@ Evidence: [docs/official_argmix_execution_v1.md](../docs/official_argmix_executi
 
 ## H013: Native ARGformer is a genuine ancestry competitor
 
-**isolated_native_base_environment_install_in_progress.** Pinned f7545be7bca0 node-vocabulary model, observed-only path/namespace/retrieval bridge.
+**packaging_repaired_actual_native_GPU_qualification_next.** Pinned f7545be7bca0 node-vocabulary model, observed-only path/namespace/retrieval bridge.
 
-**Conclusion:** Thirteen CPU source/component tests passed. The exact author-lock base environment installation has started. Full released RoPE/FlashAttention encoder and biological pretraining/retrieval remain unexecuted. Native LAI is PCA/kNN retrieval, distinct from our four-source score adapter.
+**Conclusion:** The exact author lock failed dependency/API checks. Evidence-directed packaging repairs retained Torch2.4 and unchanged source, and official FA2.6.3 installed with pip check passing. Actual full12-layer encoder/backward and biological pretraining/retrieval remain pending.
 
-**Next/repeat rule:** Install an isolated coherent author stack and qualify full execution. Preserve within-ARG transductive scope and sealed query labels.
+**Next/repeat rule:** Run native full-model MLM and contrastive qualification once on the reserved GPU. Repeat only after a specific observed failure is repaired. Then train on the frozen biological inputs with query ancestry targets sealed.
 
-Evidence: [docs/official_argformer_execution_v1.md](../docs/official_argformer_execution_v1.md), [experiments/results/official_argformer_cpu_validation_20261010_v1.json](../experiments/results/official_argformer_cpu_validation_20261010_v1.json), [docs/argformer_native_environment_candidate_v1.md](../docs/argformer_native_environment_candidate_v1.md), [experiments/results/official_argformer_environment_candidate_v1.json](../experiments/results/official_argformer_environment_candidate_v1.json), [configs/official_argformer_native_environment_v1/lock-package-manifest.json](../configs/official_argformer_native_environment_v1/lock-package-manifest.json).
+Evidence: [docs/official_argformer_execution_v1.md](../docs/official_argformer_execution_v1.md), [experiments/results/official_argformer_cpu_validation_20261010_v1.json](../experiments/results/official_argformer_cpu_validation_20261010_v1.json), [docs/argformer_native_environment_candidate_v1.md](../docs/argformer_native_environment_candidate_v1.md), [experiments/results/official_argformer_environment_candidate_v1.json](../experiments/results/official_argformer_environment_candidate_v1.json), [configs/official_argformer_native_environment_v1/lock-package-manifest.json](../configs/official_argformer_native_environment_v1/lock-package-manifest.json), [docs/official_argformer_runtime_qualification_v1.md](../docs/official_argformer_runtime_qualification_v1.md), [experiments/results/argformer_native_environment_v1/completion.json](../experiments/results/argformer_native_environment_v1/completion.json), [experiments/results/argformer_base_dependency_probe_v1/receipt.json](../experiments/results/argformer_base_dependency_probe_v1/receipt.json), [experiments/results/argformer_native_environment_v2/completion.json](../experiments/results/argformer_native_environment_v2/completion.json).
 
 ## H014: Native AncestralPaths supplies biological path ancestry and a comparator
 
