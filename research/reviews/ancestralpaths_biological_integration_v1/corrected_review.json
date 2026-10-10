@@ -1,0 +1,57 @@
+{
+  "kind": "ancestralpaths_biological_integration_v1",
+  "phase": "corrected_runner_reaudit",
+  "status": "no_concrete_static_integration_blockers",
+  "checked_utc": "2026-10-10T12:47:15.601355+00:00",
+  "reviewed_sha256": {
+    "scripts/train_ancestralpaths_biological_v1.py": "826a1e8c3053cf63b8374361f793903970dd75d44cbcd536755e9aaa3b985056",
+    "configs/ancestralpaths_biological_pilot_v1.json": "2c87400c94092b91a38b85d8915cf12f385bf26b37ced98c24df45ff91737941",
+    "docs/ancestralpaths_biological_pilot_v1.md": "c5ab47089cd9b348afed4f4d80bc9ad1f4d5751248bbb604597f99803503bd82",
+    "src/arggnn/ancestralpaths_native_bridge.py": "fb69904e3004ca7de6f16736e542949fb1b3695edb104cdf601187a7f8d33f2c",
+    "scripts/infer_biological_paths_relate_v1.py": "a63a79b36a422f7346f2a35206f41b35fb440053edcfe4e080755c649ed737e9",
+    "configs/biological_paths_relate_v1.json": "7da0bae298c0927fd0fce6a6ee320f0c51fc459b901de9c6f0d1e225cae05de9",
+    "docs/biological_paths_relate_v1.md": "285cf216c7018835bff152acc3b4756f81ef65556eaddb4691c0d1f14a163ecd"
+  },
+  "previous_findings": "initial_review.json and initial_review.md preserved unchanged",
+  "blockers": [],
+  "resolved_initial_blockers": [
+    {
+      "id": "B1",
+      "locations": [
+        "scripts/train_ancestralpaths_biological_v1.py:137",
+        "scripts/train_ancestralpaths_biological_v1.py:166"
+      ],
+      "evidence": "Exact producer kind/completion statuses and bound source/config hashes admitted. Source and derived roster hashes independently checked; every derived row equals the specified original-row transformation. All280 actual IDs, original/condition roster join, completion receipt equality and command hash are bound."
+    },
+    {
+      "id": "B2",
+      "locations": [
+        "scripts/train_ancestralpaths_biological_v1.py:198",
+        "scripts/train_ancestralpaths_biological_v1.py:235",
+        "scripts/train_ancestralpaths_biological_v1.py:265",
+        "scripts/train_ancestralpaths_biological_v1.py:545"
+      ],
+      "evidence": "Local length=coverage_right-coverage_left; interval bounds shifted by coverage_left for physical feature lookup; local SNP+offset verified against producer site_join before supervised label lookup. Retained original centers validated exactly; contiguous physical bin edges clipped with max(left,coverage_left)/min(right,coverage_right). Metrics and tracts use only this represented support."
+    }
+  ],
+  "weighting_denominator_checks": {
+    "bin_truth_intersection_weight": "max(0,min(bin_right,truth_right)-max(bin_left,truth_left))",
+    "intersection_span_check": "sum(spans)==clipped_retained_bin_edges[-1]-clipped_retained_bin_edges[0]",
+    "confusion_query_bp": "each query receives exact intersection span; truth rows/prediction columns",
+    "weighted_accuracy_NLL_Brier_ECE_denominator": "sum(spans)*number_of_selected_query_haplotypes",
+    "dosage_MAE_MSE_denominator": "(scored_query_bp/2)*4, with ordered complete diploid pairing",
+    "partial_coverage_disclosure": "score_scope explicitly conditional on retained-center clipped-bin support; denominator_query_bp, original_parent_query_bp,2Mb normalization,physical coverage fraction,represented fraction and uncovered-without-center span separately reported",
+    "no_extrapolation": "Bins with centers outside coverage are absent; physical clipping excludes uncovered edge portions; predicted/true tracts end at represented support; support endpoints excluded from switch counts"
+  },
+  "checked_invariants": [
+    "All17 frozen original author file hashes still match, including training.py13b4f30ab0df75fc461b764ae2cdbd1fdc071ff45200e6401e84faa565508e4f.",
+    "Source TRAIN ordered site-ID stride,10000/3 overhead,path caps,target budgets,repeated replacement and disclosed128-pass/no-progress failure unchanged.",
+    "Native Dense model and5epoch final checkpoint unchanged; no VAL model-fit argument,checkpoint selection,early stopping or calibration fitting.",
+    "Sealed prediction NPZ includes physical retained positions/edges,indexes,coverage,offset and2Mb normalization; written+hashed before VAL truth capability.",
+    "C4 probabilities sum native0+4,1+5,2,3 before argmax; no probability floor; zero-probability true classes yield explicit infinite-NLL span.",
+    "Original truth length governs short-tract classification; represented overlap denominator and support censoring are disclosed.",
+    "Exact source-role/cohort roster preservation means previous actual observed pure96,mixed64,query120(null query classes) alignment remains bound; native ancient focal self-inclusion retained."
+  ],
+  "work_performed": "Read source/config/docs and hash pinned files only; wrote this audit. No actual truth, inferred trees, caches or model outputs opened; no author/runner execution,fit,install,GPU,Git or runner edits.",
+  "limitations": "Static compatibility review only. Completed actual Relate manifest admission,cache equivalence,supervised quota filling,optimizer fit and runtime metrics remain root execution evidence."
+}

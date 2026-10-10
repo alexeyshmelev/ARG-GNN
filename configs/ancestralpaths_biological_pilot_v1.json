@@ -1,0 +1,166 @@
+{
+  "schema_version": 1,
+  "kind": "ancestralpaths_biological_pilot_v1",
+  "hypothesis_id": "H020",
+  "status": "runner_prepared_biological_fit_not_run",
+  "author_source": ".runtime/author_sources/ancestralpaths_77db3cfae100",
+  "author_commit": "77db3cfae100641c35218b87e1451e14f3074666",
+  "author_training_sha256": "13b4f30ab0df75fc461b764ae2cdbd1fdc071ff45200e6401e84faa565508e4f",
+  "native_model": {
+    "input_shape": [
+      5,
+      9
+    ],
+    "flattened_features": 45,
+    "output_classes": 6,
+    "layers": [
+      {
+        "type": "Flatten",
+        "input_shape": [
+          5,
+          9
+        ]
+      },
+      {
+        "type": "Dense",
+        "units": 512,
+        "activation": "relu"
+      },
+      {
+        "type": "Dropout",
+        "rate": 0.2
+      },
+      {
+        "type": "Dense",
+        "units": 6,
+        "activation": "softmax"
+      }
+    ],
+    "optimizer": "adam",
+    "loss": "categorical_crossentropy",
+    "metrics": [
+      "accuracy"
+    ],
+    "epochs": 5,
+    "batch_size": 32,
+    "shuffle": true,
+    "batch_size_and_shuffle_origin": "keras_model_fit_defaults_not_source_literals",
+    "upstream_training_seed": null
+  },
+  "tensorflow_cpu_prefix": ".runtime/conda/envs/ancestralpaths_cpu_v1",
+  "dataset_manifest": "data/biological_paths_execution_pilot_v1/manifest.json",
+  "frozen_files_sha256": {
+    "configs/biological_paths_execution_pilot_v1.json": "aca989588f46993dd1636f697cb3bac80d00af69ce738c06719d104075bb21c9",
+    "data/biological_paths_execution_pilot_v1/manifest.json": "d404f4308466b09d7fa9a296b12bb76932bf84142bebbd03503cb2d2445665ea",
+    "src/arggnn/ancestralpaths_native_bridge.py": "fb69904e3004ca7de6f16736e542949fb1b3695edb104cdf601187a7f8d33f2c",
+    "configs/ancestralpaths_native_cpu_requirements_v1.txt": "9a9f2f6278e2cf3a8927d6edba18080f7d4ab37f711c9f141f9a323bc09a2b53",
+    "scripts/prepare_biological_paths_pilot.py": "9872fba2ad2bda46d9cd920be08a20295566bd687bb4d372a4e758a33934e6b7",
+    "scripts/infer_biological_paths_relate_v1.py": "a63a79b36a422f7346f2a35206f41b35fb440053edcfe4e080755c649ed737e9",
+    "configs/biological_paths_relate_v1.json": "7da0bae298c0927fd0fce6a6ee320f0c51fc459b901de9c6f0d1e225cae05de9",
+    "docs/biological_paths_relate_v1.md": "285cf216c7018835bff152acc3b4756f81ef65556eaddb4691c0d1f14a163ecd"
+  },
+  "implementation_sha256": "826a1e8c3053cf63b8374361f793903970dd75d44cbcd536755e9aaa3b985056",
+  "parent_partition": {
+    "train": [
+      "bio_paths_pilot_train_000",
+      "bio_paths_pilot_train_001"
+    ],
+    "val": [
+      "bio_paths_pilot_val_000",
+      "bio_paths_pilot_val_001"
+    ],
+    "test": []
+  },
+  "training": {
+    "seeds": [
+      101,
+      202,
+      303
+    ],
+    "epochs": 5,
+    "batch_size": 32,
+    "shuffle": true,
+    "optimizer": "source_native_keras_adam_default",
+    "loss": "categorical_crossentropy",
+    "checkpoint": "final_epoch5",
+    "prediction_batch_size": 1024,
+    "VAL_early_stopping": false,
+    "VAL_calibration_fit": false
+  },
+  "sampler": {
+    "method": "source_site_id_stride_path_caps_and_repeated_pass_replacement_on_TRAIN_only",
+    "hardcoded_sample_ranges_adapted_to_observed_manifest": true,
+    "source_num_seq_constant": 3,
+    "source_initial_stride_overhead": 3333.3333333333335,
+    "maximum_source_passes": 128,
+    "unfilled_quota_policy": "record_failure_no_relaxed_caps_or_label_deletion",
+    "per_parent_cohort_budgets": {
+      "present_day": {
+        "target": 50000,
+        "per_path_cap": 12500,
+        "candidate_scan_budget": 100000
+      },
+      "Bronze_Age": {
+        "target": 50000,
+        "per_path_cap": 12500,
+        "candidate_scan_budget": 100000
+      },
+      "BAA": {
+        "target": 12500,
+        "per_path_cap": 6250,
+        "candidate_scan_budget": 25000
+      },
+      "Neo": {
+        "target": 25000,
+        "per_path_cap": 12500,
+        "candidate_scan_budget": 50000
+      },
+      "Yam": {
+        "target": 25000,
+        "per_path_cap": 12500,
+        "candidate_scan_budget": 25000
+      }
+    }
+  },
+  "features": {
+    "shape": [
+      5,
+      9
+    ],
+    "age_mode": "training_int",
+    "ancient_focal_self_inclusion": true,
+    "cache": "observed_tree_descendant_counts_and_unique_informative_ancestor_shell_signatures",
+    "GT_feature_access": false
+  },
+  "metrics": {
+    "primary_queries": "present_day_64_haplotypes",
+    "secondary_queries": "ancient_56_haplotypes",
+    "physical_bin_bp": 100,
+    "C4_collapse": "sum_native_probabilities_1plus5_2plus6_3_4_before_argmax",
+    "full_truth_intersections": true,
+    "calibration_bins": 15,
+    "boundary_tolerance_bp": 1000.0,
+    "short_tract_cutoff_bp": 10000.0,
+    "native_confusion_orientation": "predicted_rows_truth_columns",
+    "C4_confusion_orientation": "truth_rows_predicted_columns_query_bp",
+    "probability_floor": false,
+    "support": "union_of_declared_retained_center_physical_bins_clipped_to_observed_coverage",
+    "denominator": "exact_scored_query_bp",
+    "normalization_length_bp": 2000000,
+    "uncovered_tail_extrapolation": false
+  },
+  "claims": {
+    "published_CNN_reproduction": false,
+    "exact_paper_accuracy_reproduction": false,
+    "biological_fit_completed": false,
+    "final_TEST_evaluation": false
+  },
+  "relate_producer": {
+    "kind": "biological_paths_relate_v1",
+    "implementation_sha256": "a63a79b36a422f7346f2a35206f41b35fb440053edcfe4e080755c649ed737e9",
+    "config_sha256": "7da0bae298c0927fd0fce6a6ee320f0c51fc459b901de9c6f0d1e225cae05de9",
+    "completed_status": "four_development_parents_inferred_pre_and_post_five_iterations",
+    "primary_condition": "post_five_size_iterations_primary",
+    "coordinate_policy": "actual clipped LOCAL tree; original physical coordinates=local+offset; retained centers only; clip original bin edges; exclude tails and partial bins without retained centers"
+  }
+}
