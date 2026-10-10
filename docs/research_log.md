@@ -76,3 +76,7 @@ An isolated AncestralPaths CPU runtime installed successfully, then passed actua
 The bounded ARGMix revision search found no publicly available April-compatible source in the inspected resources. The user confirmed no older archive. The next native benchmark uses unchanged c248 current-release Transformer+GRU, explicitly distinguished from April v1. Search receipts and absent-data requirements are preserved.
 
 The initial result index contains127 scalar records, including three synthetic admission timing receipts. Its record-kind column now separates scientific performance rows from engineering runtime records. No training experiment was repeated to make this logging correction.
+
+## Official ARGformer base runtime preparation, 2026-10-10
+
+Reviewed and hash-verified the source-only full author-lock candidate, preserving all60 author files and eight prior artifacts. Root launched a separate442-conda/29-PyPI exact base stack installation, with an additional pinned process-title helper. Recipe copies are tracked under configs/official_argformer_native_environment_v1. CPU-only installation captures stage exits and complete logs, and admits30GB storage headroom before bulk writes. FlashAttention compilation, actual native12-layer forward/backward and biological fits remain pending. Scheduler-preserving qualification is being implemented separately, with no change to the existing launcher.
