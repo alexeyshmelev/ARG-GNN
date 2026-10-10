@@ -1,0 +1,145 @@
+{
+  "schema": "paper_dataset_evaluation_contract_v3",
+  "created_at_utc": "2026-10-10T21:46:12.764001+00:00",
+  "status": "source_contract_corrected_amendment_pending_independent_review_no_execution",
+  "base_contract": {
+    "path": "configs/paper_dataset_evaluation_contract_v1.json",
+    "sha256": "bc65770bab7301e08f50d33774018db530dd849af2ffa10ea96c9474c453b8e6"
+  },
+  "base_document": {
+    "path": "docs/paper_dataset_evaluation_contract_v1.md",
+    "sha256": "9bd12d6cf228c1424660fd78176cb89589bac07cb1130e5a2c294c274ca2236b"
+  },
+  "base_seal": {
+    "path": "research/reviews/paper_dataset_evaluation_contract_v1/seal.json",
+    "sha256": "aaae863ad4c57b99e94a0ceb7e619377bd072059df74cefbba0efbf3c2b11391"
+  },
+  "purpose": "Expose known native training and comparator details. V1 is immutable historical evidence. V2 amendments are mandatory for future acquisition/execution contracts.",
+  "source_or_scientific_code_changed": false,
+  "datasets_acquired_or_executed": false,
+  "heldout_results_accessed": false,
+  "amendments": {
+    "gst_Buchwald_Hartwig_target_statistics": {
+      "source": "scripts/eval_react.py",
+      "source_lines": [
+        1531,
+        1593,
+        1600
+      ],
+      "native_statistics_scope": "compute_target_stats(train_pool) uses the full retained70percent pool before fraction-specific subset and validation split",
+      "native_data_access": "Normalization uses target labels outside a smaller fraction-specific training subset and includes its later validation rows",
+      "test_labels_in_statistics": false,
+      "required_native_condition_label": "released_full_pool_target_statistics",
+      "independent_corrected_condition": "training_subset_only_target_statistics",
+      "corrected_variant_category": "scientific_protocol_change",
+      "preserve_native_source_and_report_both_separately": true,
+      "cannot_claim_small_fraction_label_budget_equals_fit_rows": true
+    },
+    "gst_learning_rates": {
+      "paper_section": "3.1.2",
+      "paper_non_CIFAR_optimizer": "AdamW",
+      "paper_non_CIFAR_lr": {
+        "DeepSets": 0.001,
+        "SetTransformer": 0.001,
+        "GST": 0.0001
+      },
+      "paper_CIFAR_optimizer": "Adam",
+      "paper_CIFAR_lr_all_models": 0.001,
+      "saved_source_config_lr_all_models": 0.001,
+      "source_optimizer_sites": {
+        "scripts/eval_synthetic.py": [
+          828,
+          830
+        ],
+        "scripts/eval_react.py": [
+          718
+        ],
+        "scripts/eval_rxn_center.py": [
+          719,
+          722
+        ]
+      },
+      "required_branches": [
+        "released_source_common_learning_rate",
+        "paper_stated_per_model_learning_rate"
+      ],
+      "changing_lr_is_scientific_training_change": true,
+      "BH_Adam_source_vs_AdamW_paper_discrepancy_retained": true
+    },
+    "ancestralpaths_published_GNOMix_comparator": {
+      "paper_source": "Supplementary Note3, printed page34",
+      "supplement": {
+        "path": ".runtime/author_sources/ancestralpaths_supplement_41586_2023_6705_MOESM1_ESM.pdf",
+        "sha256": "0558218aacc6438427e2d41226b88a58e5dadc82d02b97fe019ad3aa84237a3c"
+      },
+      "primary_excerpt": {
+        "path": "research/reviews/paper_dataset_evaluation_contract_v3_author/ancestralpaths_p34_GNOMix_primary_excerpt.txt",
+        "sha256": "24c005e19b783d1b7c0e04663fd2450d1234702f569841cc14c86b6ecfe0117e"
+      },
+      "query_populations": [
+        "GBR",
+        "Bronze Age",
+        "Neo",
+        "Yam"
+      ],
+      "query_scope": "four admixed populations, not four individuals and not all modern",
+      "only_GBR_is_present_day": true,
+      "BAA_query_population_excluded": true,
+      "reference_path_populations": [
+        "EHG",
+        "WHG",
+        "CHG",
+        "Ana"
+      ],
+      "window_cM_by_query_cohort": {
+        "GBR": 0.02,
+        "Bronze Age": 0.2,
+        "Neo": 0.2,
+        "Yam": 0.2
+      },
+      "native_modules_in_sequence": [
+        "logistic regression base",
+        "xgboost smoother"
+      ],
+      "native_modules_are_not_alternative_model_variants": true,
+      "independent_simulated_sequences": 5,
+      "sequence_length_bp": 200000000,
+      "scoring_positions": "evenly spaced sites across all five sequences",
+      "native_summary": "per-query-population mean and standard deviation across five sequences",
+      "published_significance_test": "two-sided two-sample T-test",
+      "other_parameters": "described as default without a fully pinned release/configuration",
+      "full_recipe_raw_identity_and_original_site_spacing_still_to_qualify": true,
+      "published_comparison_is_not_candidate_data_or_truth": true
+    },
+    "gst_synthetic_validation_draws": {
+      "validation_checks": 5,
+      "sets_per_check": 128,
+      "total_generator_draws": 640,
+      "rolling_new_draws_each_check": true,
+      "byte_unique_sets_proven": false,
+      "overrides_v1_field": "total_distinct_sets_consumed",
+      "required_wording": "640 generator draws, not proven640 byte-distinct sets",
+      "deduplication_or_regeneration_admitted": false
+    }
+  },
+  "required_experiment_bindings": [
+    "Exact labels/features/normalizer fitting access",
+    "Paper-stated and source-executed optimizer/learning rate per method",
+    "Native comparator scope and original scoring individuals",
+    "All exclusions/reference draws/windows and normalization/derived endpoints",
+    "Original unresolved model/split/raw fields continue blocking exact reproduction"
+  ],
+  "review_receipt_pending": "research/reviews/paper_dataset_evaluation_contract_v1_independent/receipt.json",
+  "independent_amendment_review_pending": true,
+  "supersedes_inaccurate_amendment": {
+    "config": {
+      "path": "configs/paper_dataset_evaluation_contract_v2.json",
+      "sha256": "80eefce5625517f0359ae28c3f8d14007253b45d27743e9ff09905801a9e5f97"
+    },
+    "document": {
+      "path": "docs/paper_dataset_evaluation_contract_v2.md",
+      "sha256": "707794ed5842b6676601dc90f3e13dc94e5f4f931c2de15474e6c6dbc790afcb"
+    },
+    "reason": "Incorrect population/individual, BAA exclusion, cohort window and sequential-module wording in initial GNOMix amendment. Original bytes and independent BLOCKED review preserved."
+  }
+}

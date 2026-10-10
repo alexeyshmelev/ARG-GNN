@@ -1,0 +1,23 @@
+.F..........                                                             [100%]
+=================================== FAILURES ===================================
+__ test_hash_mismatch_never_reaches_native_decoder_and_all_attempts_preserved __
+
+tmp_path = PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/census_native_qualification_runner_v1_author/pytest_tmp_01/test_hash_mismatch_never_reach0')
+
+    def test_hash_mismatch_never_reaches_native_decoder_and_all_attempts_preserved(tmp_path):
+        _,store,admission,ref,*_=fixture_store(tmp_path)
+        path=next(p for p in admission['observed_artifact_sha256'] if p.endswith('.whole_observed.pt'));store[path]+=b'changed'
+        calls=[]
+        def decode(data):calls.append(data);raise AssertionError('decoded before byte verification')
+        out,_=run_qualification_phase_v1(ref,phase='inspect',reader=VerifiedReaderV1(read_bytes=store.__getitem__),native_decoder=decode)
+        assert out['status']=='failed_complete_inventory_preserved' and len(out['failed_cells'])==32
+>       assert calls==[] and len(out['cells'])==32
+E       AssertionError: assert ([b'\x89KAS\r\...ef93008', ...] == []
+E         
+E         Left contains 24 more items, first extra item: b'\x89KAS\r\n\x1a\n\x01\x00\x00\x00>\x00\x00\x00\x14\x1b\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x...0\x84>A\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00unknown\x00de7fbf91-e7ed-b960-5ef1-de746ef93008'
+E         Use -v to get more diff)
+
+tests/test_census_native_qualification_runner_v1.py:123: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_census_native_qualification_runner_v1.py::test_hash_mismatch_never_reaches_native_decoder_and_all_attempts_preserved
+1 failed, 11 passed in 11.81s

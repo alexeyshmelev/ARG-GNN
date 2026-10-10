@@ -1,0 +1,11 @@
+# Source-only observed1000 task transfer v2 audit
+
+The author owns only the new observed wrapper/config/document and this directory. Existing producer/config/scientific helpers, runtime, failure diagnosis, failed v3 handmade outputs and passed reduced1 fixture evidence remain exact and verified in static_checks.json. The wrapper calls frozen infer_parent directly with the original biological1000 config, without pipeline copies/global monkeypatches/fallback.
+
+TRAIN000 is the sole canary. Remaining three development parents require a separate root admission and same-source/runtime/input1000 observation canary adequacy, with preserved native completion metadata and primary artifact hashes. The reduced1 fixture is smoke evidence only and cannot meet this gate. No heldout/test/publication prediction or truth/oracle/model scope exists.
+
+The source-only CLI reads/hashes sources and metadata only.31 source/handmade-metadata/fake-ledger checks pass. Test fake primary .trees bytes are not tree sequences or actual data. The initial collection typo is retained in pytest.log/xml; corrected final results are pytest_v2.log/xml. No native observation run, native inference/date import, actual arrays, installs, live ledger access/mutation, global storage walk, Git/GPU/model work or decisions change was performed by the author.
+
+A distinct20GB persistent slot remains unreserved by the author. Root alone can create it after review and issue fresh mode-specific source/runtime/input/storage admissions. Storage checks every shared reservation plus130GB external atomically, keeps8GB runtime reserved, accounts both phase trees/temp/JIT/XDG and both logs together, and rejects projection>=450GB/free-space overcommit/rebase. Local cap is stage-boundary sampled footprint, not a continuous OS quota. Source references the historical snapshot, never a fresh global-measurement claim.
+
+Five inactive templates are supplied for canary/remaining root+storage admission and root canary adequacy. They are not authorization. review_receipt.json is author evidence, not an independent verdict. Root must register, independently review, reserve storage, admit and execute the prespecified canary before considering remaining.
