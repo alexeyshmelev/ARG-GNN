@@ -263,3 +263,102 @@ def test_unknown_native_mutation_time_rejected():
     t.mutations.time=np.array([tskit.UNKNOWN_TIME,11.])
     with pytest.raises(ValueError,match="mutation time"):
         m.strict_times(t.tree_sequence(),[0,0,10,10])
+
+
+def native_flanked_handmade_tree(*, edge_span=(10, 61), internal_gap=None):
+    """Manual native-style empty tails, preserving fixed qualification genotypes."""
+    case=m.handmade_assets()
+    t=tskit.TableCollection(2000000)
+    individuals=[t.individuals.add_row() for _ in range(4)]
+    for i,age in enumerate(case["ages"]):
+        t.nodes.add_row(flags=tskit.NODE_IS_SAMPLE,time=age,individual=individuals[i//2])
+    a=t.nodes.add_row(time=50)
+    b=t.nodes.add_row(time=60)
+    root=t.nodes.add_row(time=100)
+    for original_left,original_right,pair,ancestor in [(10,35,[0,1],a),(35,61,[2,3],b)]:
+        left=max(edge_span[0],original_left)
+        right=min(edge_span[1],original_right)
+        segments=[(left,right)]
+        if internal_gap is not None:
+            gl,gr=internal_gap
+            segments=[(left,min(right,gl)),(max(left,gr),right)]
+        for lo,hi in segments:
+            if hi<=lo:
+                continue
+            for node in range(8):
+                t.edges.add_row(lo,hi,ancestor if node in pair else root,node)
+            t.edges.add_row(lo,hi,root,ancestor)
+    for source in case["sites"]:
+        site=t.sites.add_row(source["position"],"A")
+        for node,g in enumerate(source["genotypes"]):
+            if g:
+                t.mutations.add_row(site,node,"G",time=case["ages"][node]+1)
+    t.sort()
+    return t.tree_sequence(),case
+
+
+def test_identity_ignores_native_empty_tails_only_outside_exact_support():
+    ts,case=native_flanked_handmade_tree()
+    m.check_samples(ts,case["ages"])
+    m.check_genotypes(ts,case["sites"])
+    m.strict_times(ts,case["ages"])
+    with pytest.raises(ValueError,match="inside identity support"):
+        m.connected_identity(ts)
+    before=ts.dump_tables()
+    metrics=m.require_identity(ts,1,support=[10,61])
+    assert metrics["trees"]==2 and metrics["native_trees_total"]==4
+    assert metrics["evaluated_support_bp0"]==[10,61]
+    assert metrics["internal_reuse_occurrences"]==1
+    assert not metrics["uncovered_interval_inside_support_admitted"]
+    assert ts.tables.equals(before)
+
+
+def test_cpu_qualification_summary_accepts_native_style_empty_flanks():
+    ts,case=native_flanked_handmade_tree()
+    assert case["identity_support_original_bp0"]==[10,61]
+    result=m.qualification_summary(config(),case,ts)
+    assert result["status"]=="passed" and result["handmade_only"]
+    assert result["identity"]["trees"]==2
+    assert result["identity_support_original_bp0"]==[10,61]
+    assert ts.sequence_length==2000000
+    assert len(ts.tables.edges)==18
+
+
+@pytest.mark.parametrize("span",[(11,61),(10,60)])
+def test_native_coverage_must_contain_entire_qualification_support(span):
+    ts,case=native_flanked_handmade_tree(edge_span=span)
+    with pytest.raises(ValueError,match="inside identity support"):
+        m.qualification_summary(config(),case,ts)
+
+
+def test_internal_gap_is_rejected_even_between_scoring_centers():
+    ts,case=native_flanked_handmade_tree(internal_gap=(35,35.25))
+    # The only original 100 bp center in [10,61) is 50, outside this gap.
+    with pytest.raises(ValueError,match="inside identity support"):
+        m.require_identity(ts,1,support=[10,61])
+    with pytest.raises(ValueError,match="inside identity support"):
+        m.qualification_summary(config(),case,ts)
+
+
+def test_observed_support_metrics_equal_final_clip_metrics_without_tail_extension():
+    ts,case=native_flanked_handmade_tree()
+    native=m.require_identity(ts,1,support=[19,55])
+    clean=m.sanitize_clip(ts,case["ages"],19,55)
+    local=m.require_identity(clean,1)
+    assert native["trees"]==local["trees"]==2
+    for key in ["connected_internal_occurrences","unique_connected_internal_ids",
+                "internal_reuse_occurrences","adjacent_shared_internal_min","adjacent_shared_internal_max"]:
+        assert native[key]==local[key]
+    assert clean.num_nodes==ts.num_nodes
+    assert np.array_equal(clean.tables.nodes.time,ts.tables.nodes.time)
+    assert native["evaluated_support_bp0"]==[19,55]
+    assert local["evaluated_support_bp0"]==[0,36]
+
+
+def test_blocked_revision_admission_cannot_be_reused(monkeypatch):
+    monkeypatch.setattr(m,"runtime_inventory",lambda *x: (_ for _ in ()).throw(AssertionError("runtime visited")))
+    args=SimpleNamespace(expected_config_sha256=m.sha(ROOT/"configs/biological_paths_tsinfer_v1.json"),
+                         expected_source_sha256="74f12e8576cb5a3d64fdca1f9363023ff67c91ccd984067d8a2327668e69a2ef",
+                         admission="inactive",expected_admission_sha256="0"*64)
+    with pytest.raises(ValueError,match="implementation/config bytes differ"):
+        m.admission(config(),args,ROOT/"configs/biological_paths_tsinfer_v1.json")

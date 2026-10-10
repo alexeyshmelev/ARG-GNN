@@ -1,0 +1,256 @@
+--- blocked_v1/infer_biological_paths_tsinfer_v1.py
++++ scripts/infer_biological_paths_tsinfer_v1.py
+@@ -248,7 +248,8 @@
+         raise ValueError("comparison coverage/grid metadata differs")
+     if not sites[0]["position"] <= left < right <= sites[-1]["position"] + 1:
+         raise ValueError("common comparison support exceeds observed SNP support")
+-    return {"rows": rows, "names": names, "ages": ages, "sites": sites, "paths": paths, "pin": pin}
++    return {"rows": rows, "names": names, "ages": ages, "sites": sites, "paths": paths, "pin": pin,
++            "identity_support_original_bp0": [left, right]}
+ 
+ 
+ def runtime_inventory(prefix):
+@@ -383,10 +384,21 @@
+             raise ValueError("mutation older than its parent")
+ 
+ 
+-def connected_identity(ts):
++def connected_identity(ts, *, support=None):
++    """Account for connected ancestry only over an explicitly covered interval."""
++    left, right = (0, ts.sequence_length) if support is None else support
++    if not (math.isfinite(left) and math.isfinite(right) and 0 <= left < right <= ts.sequence_length):
++        raise ValueError("invalid identity support")
+     samples = set(ts.samples().tolist())
+     unique, occurrences, adjacent, previous = set(), 0, [], None
++    counted_trees, cursor = 0, left
+     for tree in ts.trees():
++        interval_left = max(left, tree.interval.left)
++        interval_right = min(right, tree.interval.right)
++        if interval_right <= interval_left:
++            continue
++        if interval_left != cursor:
++            raise ValueError("native topology does not cover entire identity support")
+         current, roots = set(), set()
+         for sample in samples:
+             node = sample
+@@ -396,21 +408,28 @@
+                     current.add(node)
+             roots.add(node)
+         if len(roots) != 1 or next(iter(roots)) in samples:
+-            raise ValueError("connected samples do not have one inferred ancestral root")
++            raise ValueError("connected samples do not have one inferred ancestral root inside identity support")
++        counted_trees += 1
++        cursor = interval_right
+         unique.update(current)
+         occurrences += len(current)
+         if previous is not None:
+             adjacent.append(len(previous & current))
+         previous = current
+-    return {"trees": ts.num_trees, "connected_internal_occurrences": occurrences,
++    if cursor != right:
++        raise ValueError("native topology does not cover entire identity support")
++    return {"trees": counted_trees, "native_trees_total": ts.num_trees,
++            "evaluated_support_bp0": [left, right],
++            "uncovered_interval_inside_support_admitted": False,
++            "connected_internal_occurrences": occurrences,
+             "unique_connected_internal_ids": len(unique), "internal_reuse_occurrences": occurrences-len(unique),
+             "adjacent_shared_internal_min": min(adjacent) if adjacent else None,
+             "adjacent_shared_internal_max": max(adjacent) if adjacent else None,
+             "method": "ancestor union from actual samples via tree.parent; isolated non-sample nodes excluded"}
+ 
+ 
+-def require_identity(ts, minimum):
+-    result = connected_identity(ts)
++def require_identity(ts, minimum, *, support=None):
++    result = connected_identity(ts, support=support)
+     if result["internal_reuse_occurrences"] < minimum:
+         raise ValueError("native connected internal-ID reuse inadequate; no ID repair/fallback")
+     return result
+@@ -556,10 +575,14 @@
+     dated = stage("all_dated", lambda: date(predated), True)
+     strict_times(dated, assets["ages"])
+     check_genotypes(dated, assets["sites"])
+-    identity = require_identity(dated, c["minimum_connected_internal_reuse"])
++    identity = require_identity(dated, c["minimum_connected_internal_reuse"],
++                                support=assets["identity_support_original_bp0"])
+     write_json(work/"native_verification.json", {"all_original_sites_preserved": len(assets["sites"]),
+                "exact_observed_genotypes_and_ages": True, "strict_native_times": True,
+-               "native_connected_identity": identity, "source_labels_passed_to_inference": False,
++               "native_connected_identity": identity,
++               "identity_support_original_bp0": assets["identity_support_original_bp0"],
++               "native_empty_flanks_outside_identity_support_ignored": True,
++               "source_labels_passed_to_inference": False,
+                "truth_or_oracle_tree_read": False})
+     for value in (modern, timed_data, proxies, ancestors, all_data):
+         value.close()
+@@ -632,7 +655,17 @@
+                 [0,0,1,1,1,1,1,0], [0,1,0,1,0,1,1,1]]
+     sites = [{"site_id": i, "position": 10+i*10, "alleles": ["A", "G"],
+               "genotypes": g, "ancestral_allele": 0} for i, g in enumerate(patterns)]
+-    return {"names": names, "ages": ages, "sites": sites}
++    return {"names": names, "ages": ages, "sites": sites,
++            "identity_support_original_bp0": [10, 61]}
++
++
++def qualification_summary(c, case, dated):
++    """The handmade mode uses its fixed observed-site span, never empty tails."""
++    support = case["identity_support_original_bp0"]
++    return {"status": "passed",
++            "identity": require_identity(dated, c["minimum_connected_internal_reuse"], support=support),
++            "identity_support_original_bp0": support,
++            "actual_observed_arrays_opened": False, "handmade_only": True}
+ 
+ 
+ def main():
+@@ -679,8 +712,7 @@
+                 case = handmade_assets()
+                 write_json(target/"handmade_inputs.json", case, new=True)
+                 dated = pipeline(c, case, target, initial)
+-                manifest.update(status="passed", identity=connected_identity(dated),
+-                                actual_observed_arrays_opened=False, handmade_only=True)
++                manifest.update(qualification_summary(c, case, dated))
+             else:
+                 lock = json.loads(checked_ref(c["observed_asset_pins"]).read_text())
+                 if lock.get("kind") != "biological_paths_tsinfer_v1_observed_asset_pins" or set(lock["parents"]) != set(PARENTS):
+--- blocked_v1/test_biological_paths_tsinfer_v1.py
++++ tests/test_biological_paths_tsinfer_v1.py
+@@ -263,3 +263,102 @@
+     t.mutations.time=np.array([tskit.UNKNOWN_TIME,11.])
+     with pytest.raises(ValueError,match="mutation time"):
+         m.strict_times(t.tree_sequence(),[0,0,10,10])
++
++
++def native_flanked_handmade_tree(*, edge_span=(10, 61), internal_gap=None):
++    """Manual native-style empty tails, preserving fixed qualification genotypes."""
++    case=m.handmade_assets()
++    t=tskit.TableCollection(2000000)
++    individuals=[t.individuals.add_row() for _ in range(4)]
++    for i,age in enumerate(case["ages"]):
++        t.nodes.add_row(flags=tskit.NODE_IS_SAMPLE,time=age,individual=individuals[i//2])
++    a=t.nodes.add_row(time=50)
++    b=t.nodes.add_row(time=60)
++    root=t.nodes.add_row(time=100)
++    for original_left,original_right,pair,ancestor in [(10,35,[0,1],a),(35,61,[2,3],b)]:
++        left=max(edge_span[0],original_left)
++        right=min(edge_span[1],original_right)
++        segments=[(left,right)]
++        if internal_gap is not None:
++            gl,gr=internal_gap
++            segments=[(left,min(right,gl)),(max(left,gr),right)]
++        for lo,hi in segments:
++            if hi<=lo:
++                continue
++            for node in range(8):
++                t.edges.add_row(lo,hi,ancestor if node in pair else root,node)
++            t.edges.add_row(lo,hi,root,ancestor)
++    for source in case["sites"]:
++        site=t.sites.add_row(source["position"],"A")
++        for node,g in enumerate(source["genotypes"]):
++            if g:
++                t.mutations.add_row(site,node,"G",time=case["ages"][node]+1)
++    t.sort()
++    return t.tree_sequence(),case
++
++
++def test_identity_ignores_native_empty_tails_only_outside_exact_support():
++    ts,case=native_flanked_handmade_tree()
++    m.check_samples(ts,case["ages"])
++    m.check_genotypes(ts,case["sites"])
++    m.strict_times(ts,case["ages"])
++    with pytest.raises(ValueError,match="inside identity support"):
++        m.connected_identity(ts)
++    before=ts.dump_tables()
++    metrics=m.require_identity(ts,1,support=[10,61])
++    assert metrics["trees"]==2 and metrics["native_trees_total"]==4
++    assert metrics["evaluated_support_bp0"]==[10,61]
++    assert metrics["internal_reuse_occurrences"]==1
++    assert not metrics["uncovered_interval_inside_support_admitted"]
++    assert ts.tables.equals(before)
++
++
++def test_cpu_qualification_summary_accepts_native_style_empty_flanks():
++    ts,case=native_flanked_handmade_tree()
++    assert case["identity_support_original_bp0"]==[10,61]
++    result=m.qualification_summary(config(),case,ts)
++    assert result["status"]=="passed" and result["handmade_only"]
++    assert result["identity"]["trees"]==2
++    assert result["identity_support_original_bp0"]==[10,61]
++    assert ts.sequence_length==2000000
++    assert len(ts.tables.edges)==18
++
++
++@pytest.mark.parametrize("span",[(11,61),(10,60)])
++def test_native_coverage_must_contain_entire_qualification_support(span):
++    ts,case=native_flanked_handmade_tree(edge_span=span)
++    with pytest.raises(ValueError,match="inside identity support"):
++        m.qualification_summary(config(),case,ts)
++
++
++def test_internal_gap_is_rejected_even_between_scoring_centers():
++    ts,case=native_flanked_handmade_tree(internal_gap=(35,35.25))
++    # The only original 100 bp center in [10,61) is 50, outside this gap.
++    with pytest.raises(ValueError,match="inside identity support"):
++        m.require_identity(ts,1,support=[10,61])
++    with pytest.raises(ValueError,match="inside identity support"):
++        m.qualification_summary(config(),case,ts)
++
++
++def test_observed_support_metrics_equal_final_clip_metrics_without_tail_extension():
++    ts,case=native_flanked_handmade_tree()
++    native=m.require_identity(ts,1,support=[19,55])
++    clean=m.sanitize_clip(ts,case["ages"],19,55)
++    local=m.require_identity(clean,1)
++    assert native["trees"]==local["trees"]==2
++    for key in ["connected_internal_occurrences","unique_connected_internal_ids",
++                "internal_reuse_occurrences","adjacent_shared_internal_min","adjacent_shared_internal_max"]:
++        assert native[key]==local[key]
++    assert clean.num_nodes==ts.num_nodes
++    assert np.array_equal(clean.tables.nodes.time,ts.tables.nodes.time)
++    assert native["evaluated_support_bp0"]==[19,55]
++    assert local["evaluated_support_bp0"]==[0,36]
++
++
++def test_blocked_revision_admission_cannot_be_reused(monkeypatch):
++    monkeypatch.setattr(m,"runtime_inventory",lambda *x: (_ for _ in ()).throw(AssertionError("runtime visited")))
++    args=SimpleNamespace(expected_config_sha256=m.sha(ROOT/"configs/biological_paths_tsinfer_v1.json"),
++                         expected_source_sha256="74f12e8576cb5a3d64fdca1f9363023ff67c91ccd984067d8a2327668e69a2ef",
++                         admission="inactive",expected_admission_sha256="0"*64)
++    with pytest.raises(ValueError,match="implementation/config bytes differ"):
++        m.admission(config(),args,ROOT/"configs/biological_paths_tsinfer_v1.json")
+--- blocked_v1/biological_paths_tsinfer_v1.md
++++ docs/biological_paths_tsinfer_v1.md
+@@ -46,7 +46,7 @@
+ 
+ Dating is fixed to variational_gamma, mutation_rate=1.25e-8, 25 iterations, 1000 rescaling intervals, five rescaling iterations, match_segregating_sites=False, singletons_phased=True, min_branch_length=1e-8, allow_unary=False and generation units. constr_iterations=None preserves native automatic choice, including its heterochronous constraint handling. set_metadata=True retains native unconstrained estimates for site-age transfer before output sanitation.
+ 
+-One coverage choice differs from unconstrained preprocessing defaults and is disclosed: delete_intervals=[] prevents native gap/tail deletion so the exact original scoring support can be preserved. filter_sites=False explicitly retains the native site-preservation default. Native split_disjoint=True and native simplification are retained. Such native upstream operations may reindex/split ancestors and are recorded as inference stages. The final sanitation preserves the dated tree's node IDs and times exactly. No downstream rank/clade/time merge is performed.
++One coverage choice differs from unconstrained preprocessing defaults and is disclosed: delete_intervals=[] prevents further tsdate gap/tail deletion, so eligible original scoring support can be preserved. Native tsinfer post_process keeps its erase_flanks=True default, which removes edges outside [first_site,last_site+1) while retaining full sequence length. This rule does not restore those empty flanks. filter_sites=False explicitly retains the native site-preservation default. Native split_disjoint=True and native simplification are retained. Such native upstream operations may reindex/split ancestors and are recorded as inference stages. The final sanitation preserves the dated tree's node IDs and times exactly. No downstream rank/clade/time merge is performed.
+ 
+ ## Coverage, genotype and identity admission
+ 
+@@ -65,7 +65,7 @@
+ 
+ Population/individual/migration/provenance tables and all metadata are removed from the final model TS. Sample flags are retained, technical ancestor/historical flags are removed, and actual nonzero sample times are retained. Node count, node times and actual sample IDs must remain identical to the native dated output. Native unsanitized stages stay archived for provenance.
+ 
+-Connected internal identity is measured from ancestors reached by walking tree.parent from actual samples, excluding isolated non-sample nodes. All samples must have one ancestral root per marginal tree. At least one connected internal ID reuse across marginal trees is required for representation admission. This is a predeclared minimal capability gate, not a result or a biological accuracy claim. Native ID reuse rates and adjacent sharing are recorded. Inadequate sharing fails without invented associations or fallback fitting.
++Connected internal identity is measured from ancestors reached by walking tree.parent from actual samples, excluding isolated non-sample nodes. Connectivity and sharing are evaluated only on marginal-tree intersections with the exact frozen comparison support. Expected empty flanks outside that support are ignored. The native topology must cover the entire specified support, including intervals between scoring centers, and all samples must have one ancestral root throughout it. Gaps or partially uncovered support fail, with no intersection-based shrinkage, tail extension or genealogy repair. At least one connected internal ID reuse across marginal trees in that support is required for representation admission. This is a predeclared minimal diagnostic capability gate, which can be met by shared-root reuse alone. It does not demonstrate substantial/useful sharing, biological identity, or accuracy. Native ID reuse rates and adjacent sharing are recorded. Inadequate sharing fails without invented associations or fallback fitting.
+ 
+ ## Proposed isolated CPU runtime and root admission
+ 
+@@ -86,7 +86,7 @@
+ CUDA_VISIBLE_DEVICES='' PYTHONDONTWRITEBYTECODE=1 "$ARGGNN_PYTHON" scripts/infer_biological_paths_tsinfer_v1.py
+ ~~~
+ 
+-Later root-only CPU qualification uses the isolated interpreter, --mode qualify-cpu, --expected-config-sha256, --expected-source-sha256, --admission and --expected-admission-sha256. It executes only a fixed hand-authored eight-haplotype genotype table with nonzero dates through the complete native pipeline. There is no simulator or real observation input. A passed receipt binds the exact code/config/runtime.
++Later root-only CPU qualification uses the isolated interpreter, --mode qualify-cpu, --expected-config-sha256, --expected-source-sha256, --admission and --expected-admission-sha256. It executes only a fixed hand-authored eight-haplotype genotype table with nonzero dates through the complete native pipeline. Its identity gate uses the fixed original observed-site span [10,61), not the native empty tails of its 2 Mb sequence. All six original sites, phased genotypes and dates are still checked on the full native output. There is no simulator or real observation input. A passed receipt binds the exact code/config/runtime.
+ 
+ Only after that qualification and independent source review may root use --mode infer with a fresh mode-specific admission and all four hashes. The runner then verifies and opens only the nine whitelisted assets in each original observed directory, processes all four parents once, and writes a fresh output directory. Original oracle .trees files are never accepted or loaded. A failed parent/stage preserves its partial manifest and native stage artifacts. There is no alternate algorithm/version/drop-date retry. Any repeat needs a new registered reason and fresh versioned output/admission.
+ 
+@@ -99,3 +99,7 @@
+ That plan uses the paper's AmericanAdmixture 4B18 demographic task: 1600 modern samples (1000 admixed, 200 European, 200 African, 200 East Asian), a 30 Mb chromosome, mutation rate 1.25e-8 and flat recombination rate 1e-8, with error-free phased genotypes. It follows tsinfer+tsdate inference, the author full-path preprocessing/deduplication and the released native ARGformer model. Simulation, demographic catalog version, package versions, unspecified author inference defaults and experimental splits must be separately frozen and independently reviewed. Report any unresolved details as a qualified reproduction limitation. No simulation or new model task is implemented/executed here.
+ 
+ Native ARGformer on this new inference family versus AP/ARGMix/candidate on Relate is an end-to-end inference/method comparison. A representation/model comparison requires separately prepared methods on the identical qualified TS. Existing default-Relate comparisons remain valid with their condition labels. A new inferred ARG requires fresh vocabularies, corpora and checkpoints, never reassignment of the current tree-local-ID checkpoint to new ancestors.
++
++## Source revision after independent flank review
++
++The independent source review blocked script SHA256 74f12e8576cb5a3d64fdca1f9363023ff67c91ccd984067d8a2327668e69a2ef because its full-length identity gate rejected expected native empty flanks. That revision and its original audit remain preserved in research/reviews/biological_paths_tsinfer_v1_source_audit/blocked_revision_v1 and the original review receipts. The narrow revision adds interval-aware identity accounting for both observed inference and handmade CPU qualification. No native inference/dating defaults, original asset/support pins, sample dates, genotypes, model code, or topology are changed. Renewed exact source/receipt pins and independent review are required before actual CPU admission.

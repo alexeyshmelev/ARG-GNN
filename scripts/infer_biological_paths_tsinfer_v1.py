@@ -248,7 +248,8 @@ def load_assets(c, parent, pin):
         raise ValueError("comparison coverage/grid metadata differs")
     if not sites[0]["position"] <= left < right <= sites[-1]["position"] + 1:
         raise ValueError("common comparison support exceeds observed SNP support")
-    return {"rows": rows, "names": names, "ages": ages, "sites": sites, "paths": paths, "pin": pin}
+    return {"rows": rows, "names": names, "ages": ages, "sites": sites, "paths": paths, "pin": pin,
+            "identity_support_original_bp0": [left, right]}
 
 
 def runtime_inventory(prefix):
@@ -383,10 +384,21 @@ def strict_times(ts, ages, *, diploid=True):
             raise ValueError("mutation older than its parent")
 
 
-def connected_identity(ts):
+def connected_identity(ts, *, support=None):
+    """Account for connected ancestry only over an explicitly covered interval."""
+    left, right = (0, ts.sequence_length) if support is None else support
+    if not (math.isfinite(left) and math.isfinite(right) and 0 <= left < right <= ts.sequence_length):
+        raise ValueError("invalid identity support")
     samples = set(ts.samples().tolist())
     unique, occurrences, adjacent, previous = set(), 0, [], None
+    counted_trees, cursor = 0, left
     for tree in ts.trees():
+        interval_left = max(left, tree.interval.left)
+        interval_right = min(right, tree.interval.right)
+        if interval_right <= interval_left:
+            continue
+        if interval_left != cursor:
+            raise ValueError("native topology does not cover entire identity support")
         current, roots = set(), set()
         for sample in samples:
             node = sample
@@ -396,21 +408,28 @@ def connected_identity(ts):
                     current.add(node)
             roots.add(node)
         if len(roots) != 1 or next(iter(roots)) in samples:
-            raise ValueError("connected samples do not have one inferred ancestral root")
+            raise ValueError("connected samples do not have one inferred ancestral root inside identity support")
+        counted_trees += 1
+        cursor = interval_right
         unique.update(current)
         occurrences += len(current)
         if previous is not None:
             adjacent.append(len(previous & current))
         previous = current
-    return {"trees": ts.num_trees, "connected_internal_occurrences": occurrences,
+    if cursor != right:
+        raise ValueError("native topology does not cover entire identity support")
+    return {"trees": counted_trees, "native_trees_total": ts.num_trees,
+            "evaluated_support_bp0": [left, right],
+            "uncovered_interval_inside_support_admitted": False,
+            "connected_internal_occurrences": occurrences,
             "unique_connected_internal_ids": len(unique), "internal_reuse_occurrences": occurrences-len(unique),
             "adjacent_shared_internal_min": min(adjacent) if adjacent else None,
             "adjacent_shared_internal_max": max(adjacent) if adjacent else None,
             "method": "ancestor union from actual samples via tree.parent; isolated non-sample nodes excluded"}
 
 
-def require_identity(ts, minimum):
-    result = connected_identity(ts)
+def require_identity(ts, minimum, *, support=None):
+    result = connected_identity(ts, support=support)
     if result["internal_reuse_occurrences"] < minimum:
         raise ValueError("native connected internal-ID reuse inadequate; no ID repair/fallback")
     return result
@@ -556,10 +575,14 @@ def pipeline(c, assets, work, initial):
     dated = stage("all_dated", lambda: date(predated), True)
     strict_times(dated, assets["ages"])
     check_genotypes(dated, assets["sites"])
-    identity = require_identity(dated, c["minimum_connected_internal_reuse"])
+    identity = require_identity(dated, c["minimum_connected_internal_reuse"],
+                                support=assets["identity_support_original_bp0"])
     write_json(work/"native_verification.json", {"all_original_sites_preserved": len(assets["sites"]),
                "exact_observed_genotypes_and_ages": True, "strict_native_times": True,
-               "native_connected_identity": identity, "source_labels_passed_to_inference": False,
+               "native_connected_identity": identity,
+               "identity_support_original_bp0": assets["identity_support_original_bp0"],
+               "native_empty_flanks_outside_identity_support_ignored": True,
+               "source_labels_passed_to_inference": False,
                "truth_or_oracle_tree_read": False})
     for value in (modern, timed_data, proxies, ancestors, all_data):
         value.close()
@@ -632,7 +655,17 @@ def handmade_assets():
                 [0,0,1,1,1,1,1,0], [0,1,0,1,0,1,1,1]]
     sites = [{"site_id": i, "position": 10+i*10, "alleles": ["A", "G"],
               "genotypes": g, "ancestral_allele": 0} for i, g in enumerate(patterns)]
-    return {"names": names, "ages": ages, "sites": sites}
+    return {"names": names, "ages": ages, "sites": sites,
+            "identity_support_original_bp0": [10, 61]}
+
+
+def qualification_summary(c, case, dated):
+    """The handmade mode uses its fixed observed-site span, never empty tails."""
+    support = case["identity_support_original_bp0"]
+    return {"status": "passed",
+            "identity": require_identity(dated, c["minimum_connected_internal_reuse"], support=support),
+            "identity_support_original_bp0": support,
+            "actual_observed_arrays_opened": False, "handmade_only": True}
 
 
 def main():
@@ -679,8 +712,7 @@ def main():
                 case = handmade_assets()
                 write_json(target/"handmade_inputs.json", case, new=True)
                 dated = pipeline(c, case, target, initial)
-                manifest.update(status="passed", identity=connected_identity(dated),
-                                actual_observed_arrays_opened=False, handmade_only=True)
+                manifest.update(qualification_summary(c, case, dated))
             else:
                 lock = json.loads(checked_ref(c["observed_asset_pins"]).read_text())
                 if lock.get("kind") != "biological_paths_tsinfer_v1_observed_asset_pins" or set(lock["parents"]) != set(PARENTS):
