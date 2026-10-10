@@ -1,5 +1,6 @@
 """Fresh all-record control plans and completion binding; never prepare data."""
 from __future__ import annotations
+from .development_execution import DETERMINISTIC_POLICY, deterministic_development_manifest
 import argparse
 from copy import deepcopy
 from dataclasses import dataclass
@@ -59,6 +60,8 @@ class CapturedControl:
     signature: tuple
 
     def check(self,full=False):
+        if json.loads(self.content,object_pairs_hook=_unique_object)!=self.values:
+            raise RuntimeError('Captured control values differ from original bytes')
         if common.artifact_signature(self.path)!=self.signature:raise RuntimeError('Captured control changed')
         if full and common.sha(self.path)!=self.sha256:raise RuntimeError('Captured control hash changed')
         if common.artifact_signature(self.path)!=self.signature:raise RuntimeError('Captured control changed during check')
@@ -103,6 +106,7 @@ def plan_constants():
         'nll_policy':RAW_NLL,'selection':SELECTION,'tie_tolerance_nats':.0001,
         'input_scope':INPUT_SCOPE,'source_anchors':'none; observed records are the complete source bank',
         'record_subdivision_invariant':False,'target_created_tokens':False,'confirmatory_access':False,
+        'deterministic_execution_policy':deepcopy(DETERMINISTIC_POLICY),
         'interpretation':'Independent all-record observed-boundary standard temporal controls. Development choices only; no independent confirmation, native reproduction, superiority or novelty claim.',
         'families':{family:family_grid(family) for family in FAMILIES}}
 
@@ -152,7 +156,7 @@ def bound_configs(plan,plan_path,plan_sha,completion,completion_path,completion_
     keys=('schema_version','development_namespace','splits','training_seeds','input_dim','num_classes',
         'num_queries','reference_haplotypes','windows','source_depth','temporal_depth','epochs','patience',
         'weight_decay','gradient_clip_norm','max_attention_score_bytes','nll_policy','selection',
-        'record_subdivision_invariant','target_created_tokens','interpretation')
+        'record_subdivision_invariant','target_created_tokens','interpretation','deterministic_execution_policy')
     result={}
     for family in FAMILIES:
         result[family]={**{key:deepcopy(plan[key]) for key in keys},**deepcopy(plan['families'][family]),**source,
@@ -169,7 +173,7 @@ def validate_settings(settings):
     keys=('schema_version','development_namespace','splits','training_seeds','input_dim','num_classes',
         'num_queries','reference_haplotypes','windows','source_depth','temporal_depth','epochs','patience',
         'weight_decay','gradient_clip_norm','max_attention_score_bytes','nll_policy','selection',
-        'record_subdivision_invariant','target_created_tokens','interpretation')
+        'record_subdivision_invariant','target_created_tokens','interpretation','deterministic_execution_policy')
     if settings.get('record_subdivision_invariant') is not False or settings.get('target_created_tokens') is not False:
         raise RuntimeError('Boolean record/readout contracts required')
     if any(settings.get(key)!=constants[key] for key in keys) or settings.get('stage')!='fresh_development_allrecord_boundary47_training_v1' or settings.get('confirmatory_access') is not False:
@@ -257,6 +261,7 @@ def admit_captured_run(captured,*,imported_pins):
 
 
 def check_live(settings,captured,lock,*,full=False):
+    deterministic_development_manifest()
     captured.check(full=full)
     return common.check_live(settings,captured.path,captured.sha256,source_snapshot=lock,full_sources=full)
 

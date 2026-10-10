@@ -1,5 +1,6 @@
 """Exact-bound fresh64/16 temporal/smoother training. No final-test input path."""
 from __future__ import annotations
+from .development_execution import configure_deterministic_development, DETERMINISTIC_POLICY, deterministic_development_manifest
 import argparse
 import hashlib
 import json
@@ -49,6 +50,11 @@ def checkpoint_directory(output,config_sha,seed):
     return project_path(Path("checkpoints")/"temporal_development_v1"/f"{output.name}_{identity}_{config_sha[:12]}_s{seed}")
 
 
+def check_active_execution(settings,path,digest,**kwargs):
+    deterministic_development_manifest()
+    return check_live(settings,path,digest,**kwargs)
+
+
 def main(argv=None):
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config",required=True)
@@ -79,6 +85,7 @@ def main(argv=None):
     if not args.output:parser.error("--output is required for fitting")
     completion,dataset,age_caches,source_lock=admit_run(settings,path,config_sha,imported_pins=_IMPORTED_PINS)
     # Complete cohort/config/dependency admission before any CUDA query.
+    execution_policy = configure_deterministic_development()
     require_device(args.device)
     del age_caches
     cases={s:dataset.cases(s) for s in ("train","val")}
@@ -108,7 +115,7 @@ def main(argv=None):
             "error_type":type(error).__name__,"reason":str(error),"test_access":False})
         raise
     tiles=[tile for case in cases["train"] for tile in case.tiles]
-    results={"stage":settings["stage"],"development_namespace":"development-v1",
+    results={"deterministic_execution_policy":execution_policy,"stage":settings["stage"],"development_namespace":"development-v1",
         "evaluation_split":"fresh_development_validation_only","training_seed":args.seed,
         "training_seeds":SEEDS,"family":settings["family"],"protocol_sha256":config_sha,
         "completion_receipt_sha256":settings["completion_receipt_sha256"],
@@ -121,7 +128,7 @@ def main(argv=None):
     active=None
     try:
         for name in names:
-            active=name;check_live(settings,path,config_sha,source_snapshot=source_lock,full_sources=True)
+            active=name;check_active_execution(settings,path,config_sha,source_snapshot=source_lock,full_sources=True)
             set_seed(args.seed);model=factory(name,settings).to(device)
             parameters=list(model.parameters());started=time.monotonic();history=[]
             checkpoint=None;best_epoch=None
@@ -131,7 +138,7 @@ def main(argv=None):
                     lr=settings["model_learning_rates"][name])
                 best=float("inf");stale=0;checkpoint=checkpoints/(name+".pt")
                 for epoch in range(48):
-                    check_live(settings,path,config_sha,source_snapshot=source_lock,full_sources=False);require_storage(headroom_bytes=100_000_000)
+                    check_active_execution(settings,path,config_sha,source_snapshot=source_lock,full_sources=False);require_storage(headroom_bytes=100_000_000)
                     model.train();order=list(range(len(tiles)));random.shuffle(order);losses=[]
                     for index in order:
                         tile=tiles[index];logits=model(prepared[id(tile)])
@@ -146,6 +153,7 @@ def main(argv=None):
                     history.append({"epoch":epoch,"train_nll":float(np.mean(losses)),
                         "val_nll":nll,"elapsed_seconds":time.monotonic()-started})
                     print(json.dumps({"event":"epoch","model":name,"seed":args.seed,**history[-1]}),flush=True)
+                    check_active_execution(settings,path,config_sha,source_snapshot=source_lock,full_sources=False)
                     if nll<best:
                         best,best_epoch,stale=nll,epoch,0
                         torch.save({"model":model.state_dict(),"epoch":epoch,"validation_nll":best,
@@ -160,15 +168,22 @@ def main(argv=None):
                 if saved["protocol_sha256"]!=config_sha:raise RuntimeError("Selected checkpoint config binding changed")
                 model.load_state_dict(saved["model"])
             validation,logits=evaluate_temporal(model,cases["val"],prepared)
+            reloaded_nll=float(np.mean([r["nll"] for r in validation]))
+            original_nll=None if not parameters else saved["validation_nll"]
+            if original_nll is not None and reloaded_nll!=original_nll:
+                raise RuntimeError("Reloaded deterministic checkpoint validation NLL differs")
             prediction=checkpoints/(name+"_validation_logits.pt")
             torch.save({"logits":[v.double() for v in logits],"parent_ids":[c.parent_id for c in cases["val"]],
                 "positions":[c.positions for c in cases["val"]],"query_node_ids":[c.query_node_ids for c in cases["val"]],
                 "protocol_sha256":config_sha,"seed":args.seed,"nll_policy":settings["nll_policy"],
                 "completion_receipt_sha256":settings["completion_receipt_sha256"]},prediction)
-            ending=check_live(settings,path,config_sha,source_snapshot=source_lock,full_sources=True)
+            ending=check_active_execution(settings,path,config_sha,source_snapshot=source_lock,full_sources=True)
             result={"parameters":sum(p.numel() for p in parameters),"best_epoch":best_epoch,
                 "learning_rate":settings["model_learning_rates"].get(name),
-                "validation_nll":float(np.mean([r["nll"] for r in validation])),
+                "validation_nll":reloaded_nll,
+                "original_selected_validation_nll":original_nll,
+                "reloaded_validation_nll":reloaded_nll,
+                "checkpoint_replay_nll_delta":None if original_nll is None else reloaded_nll-original_nll,
                 "per_parent":validation,"history":history,"training_seconds":time.monotonic()-started,
                 "model_configuration":model.configuration_manifest(),
                 "checkpoint":None if checkpoint is None else str(checkpoint),
@@ -183,7 +198,7 @@ def main(argv=None):
             if parameters:del optimizer
             if device.type=="cuda":torch.cuda.empty_cache()
         results["ending_config_sha256"]=config_sha
-        results["ending_implementation_sha256"]=check_live(settings,path,config_sha,source_snapshot=source_lock,full_sources=True)
+        results["ending_implementation_sha256"]=check_active_execution(settings,path,config_sha,source_snapshot=source_lock,full_sources=True)
         results["ending_input_artifact_sha256"]=source_lock.hashes
         dump_json(output/"results.json",results)
     except Exception as error:

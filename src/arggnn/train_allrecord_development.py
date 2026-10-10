@@ -1,5 +1,6 @@
 """Fresh64/16/TEST0 all-record temporal-control runner; no preparation jobs."""
 from __future__ import annotations
+from .development_execution import configure_deterministic_development, DETERMINISTIC_POLICY, deterministic_development_manifest
 import argparse
 import hashlib
 import json
@@ -81,11 +82,13 @@ def parent_mean(records):
 
 def train_configuration(model,settings,name,seed,cases,device_banks,checkpoint,binding,*,integrity_check,callback=None):
     """Fixed48/patience8 selected checkpoint; labels never enter the model."""
+    deterministic_development_manifest()
     parameters=list(model.parameters())
     optimizer=torch.optim.AdamW(parameters,lr=settings['model_learning_rates'][name],weight_decay=.0001)
     tiles=[tile for case in cases['train'] for tile in case.tiles]
     history=[];best=float('inf');best_epoch=None;stale=0;started=time.monotonic()
     for epoch in range(48):
+        deterministic_development_manifest()
         integrity_check(full=False)
         model.train();order=list(range(len(tiles)));random.shuffle(order);losses=[]
         for index in order:
@@ -100,6 +103,8 @@ def train_configuration(model,settings,name,seed,cases,device_banks,checkpoint,b
         history.append({'epoch':epoch,'train_nll':math.fsum(losses)/len(losses),
             'val_nll':nll,'elapsed_seconds':time.monotonic()-started})
         if callback:callback(history[-1])
+        deterministic_development_manifest()
+        integrity_check(full=False)
         if nll<best:
             best,best_epoch,stale=nll,epoch,0
             torch.save({'model':model.state_dict(),'epoch':epoch,'seed':seed,'validation_nll':best,
@@ -108,16 +113,21 @@ def train_configuration(model,settings,name,seed,cases,device_banks,checkpoint,b
             stale+=1
             if stale>=8:break
     if best_epoch is None:raise RuntimeError('No finite selected checkpoint')
+    deterministic_development_manifest()
     integrity_check(full=True)
     saved=torch.load(checkpoint,map_location=next(model.parameters()).device,weights_only=True)
     if saved.get('seed')!=seed or saved.get('configuration_id')!=name or any(saved.get(key)!=value for key,value in binding.items()) or saved.get('epoch')!=best_epoch or saved.get('validation_nll')!=best:
         raise RuntimeError('Selected checkpoint source/config/seed/dependency binding differs')
     model.load_state_dict(saved['model'])
     validation,logits=evaluate_allrecord(model,cases['val'],device_banks)
+    deterministic_development_manifest()
+    integrity_check(full=True)
     selected=parent_mean(validation)
     if selected!=best:raise RuntimeError('Reloaded selected checkpoint validation NLL differs')
     result={'parameters':sum(p.numel() for p in parameters),'best_epoch':best_epoch,
         'learning_rate':settings['model_learning_rates'][name],'validation_nll':selected,
+        'original_selected_validation_nll':best,'reloaded_validation_nll':selected,
+        'checkpoint_replay_nll_delta':selected-best,
         'per_parent':validation,'history':history,'training_seconds':time.monotonic()-started,
         'model_configuration':model.configuration_manifest(),'checkpoint':str(checkpoint),
         'checkpoint_sha256':file_sha(checkpoint),'smoother_fitting':None}
@@ -141,6 +151,7 @@ def main(argv=None):
     if not args.validate_config and not args.output:parser.error('--output is required for fitting')
     completion,dataset,ages,lock=admit_captured_run(captured,imported_pins=_IMPORTED_PINS)
     del completion,ages
+    execution_policy = configure_deterministic_development()
     if not args.validate_config:require_device(args.device)
     if args.validate_config:
         for name in names:
@@ -166,7 +177,7 @@ def main(argv=None):
     device=torch.device(args.device)
     binding={'protocol_sha256':captured.sha256,'completion_receipt_sha256':settings['completion_receipt_sha256'],
         'boundary_manifest_sha256':settings['boundary_dataset_manifest_sha256'],'implementation_sha256':initial}
-    results={'stage':settings['stage'],'family':settings['family'],'development_namespace':'development-v1',
+    results={'deterministic_execution_policy':execution_policy,'stage':settings['stage'],'family':settings['family'],'development_namespace':'development-v1',
         'evaluation_split':'fresh_development_validation_only','training_seeds':SEEDS,'training_seed':args.seed,
         'protocol_sha256':captured.sha256,'completion_receipt_sha256':settings['completion_receipt_sha256'],
         'boundary_dataset_manifest_sha256':settings['boundary_dataset_manifest_sha256'],

@@ -15,3 +15,7 @@ Root added safe model-ID components and immutable configuration snapshots before
 src/arggnn/train_anchor_development.py SHA256 89bb74a03ad8736594bcf662ccc5e96a5f40f9867315b58fa4b80c3f5df73f7f
 
 tests/test_train_anchor_development.py SHA256 95567d2b82e2937db641d64b31abf4956985e0d7fdae3bbd5ad8cf093270b31a
+
+## Current fresh execution extension
+
+The current runner also binds generic-selector family/seed/completion metadata, retains failure receipts and applies strict deterministic development settings. Selected and reloaded NLL values are recorded separately and must agree. See docs/development_execution.md and its source receipt for current hashes. Earlier source hashes remain historical verification snapshots.

@@ -7,17 +7,45 @@ import re
 from pathlib import Path
 
 from .resources import ROOT, project_path
+from .development_execution import DETERMINISTIC_POLICY
 
 SPLITS = {"train":64,"val":16,"test":0}
 SEEDS = [101,202,303]
 SELECTION = "minimum mean parent-validation uncalibrated logit NLL"
-CORE = ("development_training_bindings.py","train_anchor_temporal_development.py",
+CORE = ("development_execution.py","development_training_bindings.py","train_anchor_temporal_development.py",
     "train_anchor_temporal.py","anchor_temporal_baselines.py","anchor_kernel.py",
     "boundary_memory.py","boundary_dataset.py","kron_interface.py","models.py",
     "data.py","reference_encoder.py","genealogy_baselines.py","simulate.py",
     "train_study.py","train_boundary.py","train_anchor.py","train_anchor_development.py","age_dataset.py","age_interface.py",
     "train.py","metrics.py","resources.py",
     "confirmatory_metrics.py")
+FAMILY_SCOPES = {
+    "candidate": (
+        "F47 observed persistent sample interface, plain graph-local source GNN at32 physical anchors, independent local readouts and every intervening geometry hold",
+        "Ordered graph-conditioned normalized fixed-anchor kernels, selected plain or age geometry, kernel depth1 or2",
+    ),
+    "gru": (
+        "F47 observed persistent sample interface, plain graph-local source GNN at32 physical anchors and independent local readout embeddings",
+        "Two recurrent contextual layers over the fixed anchor bank, bidirectional GRU and physical interpolation",
+    ),
+    "transformer": (
+        "F47 observed persistent sample interface, plain graph-local source GNN at32 physical anchors and independent local readout embeddings",
+        "Two temporal contextual layers over the fixed anchor bank, coordinate-conditioned attention readouts",
+    ),
+    "reference_smoother": (
+        "Observed reference-role fields and plain QR evidence at32 physical anchors, no learned graph encoder or local readout embeddings",
+        "Physical-coordinate exponential smoothing of observed anchor reference evidence, no fitted parameters",
+    ),
+}
+
+
+def family_scope(family):
+    if family not in FAMILY_SCOPES:
+        raise RuntimeError("Unsupported fresh-development family scope")
+    scope, aggregation = FAMILY_SCOPES[family]
+    return {"input_scope": scope, "cross_tree_aggregation": aggregation}
+
+
 SHA = re.compile(r"[0-9a-f]{64}\Z")
 SAFE = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]{0,127}\Z")
 
@@ -58,7 +86,9 @@ def implementation_snapshot(settings):
 
 def no_test_path(path):
     p=project_path(path)
-    if any(token in str(p.relative_to(ROOT)).lower() for token in ("confirmatory","final_test","final-test")):
+    parts=p.relative_to(ROOT).parts
+    if any(any(token in part.lower() for token in ("confirmatory","final_test","final-test"))
+           or part.lower() in {"test","confirmation"} for part in parts):
         raise RuntimeError("Final held-out paths are unavailable in development")
     return p
 
@@ -123,7 +153,7 @@ def verify_completion(path, expected_sha, *, freeze_path=None, with_snapshot=Fal
 
 def make_configs(completion,completion_path,completion_sha):
     facts=completion["stage_manifests"]
-    common={"schema_version":1,"stage":"fresh_development_same_source_training_v1",
+    common={"schema_version":1,"deterministic_execution_policy":deepcopy(DETERMINISTIC_POLICY),"stage":"fresh_development_same_source_training_v1",
         "development_namespace":"development-v1","splits":dict(SPLITS),"training_seeds":list(SEEDS),
         "num_layers":2,"latent_dim":8,"num_anchors":32,"num_scales":3,"num_classes":4,
         "epochs":48,"patience":8,"weight_decay":.0001,"source_rate_weight_decay":0.,
@@ -180,11 +210,15 @@ def make_configs(completion,completion_path,completion_sha):
                     "kernel_depth":depth,"rate_parameterization":"log"}
                 candidate["model_learning_rates"][name]=lr
     configs["candidate"]=candidate
+    for family, settings in configs.items():
+        settings.update(family_scope(family))
     return configs
 
 
 def checked_protocol(path,expected_sha):
     settings=read_bound(path,expected_sha)
+    if settings.get("deterministic_execution_policy")!=DETERMINISTIC_POLICY or any(settings.get(k)!=v for k,v in family_scope(settings.get("family")).items()):
+        raise RuntimeError("Frozen deterministic policy and factual family scope required")
     if (settings.get("development_namespace")!="development-v1" or settings.get("splits")!=SPLITS
         or settings.get("training_seeds")!=SEEDS or settings.get("selection")!=SELECTION):
         raise RuntimeError("Require fixed fresh-development namespace/counts/seeds/rawNLL selection")
@@ -251,7 +285,8 @@ def check_completion_settings(settings,completion):
 
 
 def check_live(settings,config_path,config_sha,*,source_snapshot=None,full_sources=True):
-    read_bound(config_path,config_sha)
+    if read_bound(config_path,config_sha)!=settings:
+        raise RuntimeError("Runtime settings differ from captured configuration bytes")
     pins=settings["bound_implementation_sha256"]
     if pins!=implementation_snapshot(settings):raise RuntimeError("Frozen baseline implementation drift")
     if source_snapshot is None:

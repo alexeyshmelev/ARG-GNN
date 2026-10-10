@@ -1,5 +1,6 @@
 """Dedicated fair fresh-development full-tree ARGMix equation adaptation runner."""
 from __future__ import annotations
+from .development_execution import configure_deterministic_development, DETERMINISTIC_POLICY, deterministic_development_manifest
 import argparse
 from dataclasses import dataclass
 import hashlib
@@ -188,6 +189,7 @@ def train_configuration(configuration,settings,parents,device,seed,checkpoint,bi
     """One independently initialized frozen configuration/seed, no extra starts."""
     safe_id(configuration["id"])
     if seed not in SEEDS:raise ValueError("Only fixed101/202/303 training seeds are allowed")
+    deterministic_development_manifest()
     if integrity_check:integrity_check()
     set_seed(seed);model=factory(configuration,settings).to(device)
     optimizer=torch.optim.AdamW(model.parameters(),lr=configuration["learning_rate"],weight_decay=settings["weight_decay"])
@@ -196,6 +198,7 @@ def train_configuration(configuration,settings,parents,device,seed,checkpoint,bi
     history=[];best=float("inf");best_epoch=-1;stale=0;started=time.monotonic()
     if device.type=="cuda":torch.cuda.reset_peak_memory_stats()
     for epoch in range(settings["epochs"]):
+        deterministic_development_manifest()
         if integrity_check:integrity_check()
         model.train();order=list(range(len(tiles)));random.shuffle(order);losses=[]
         for index in order:
@@ -216,6 +219,7 @@ def train_configuration(configuration,settings,parents,device,seed,checkpoint,bi
         history.append({"epoch":epoch,"train_nll":float(np.mean(losses)),"validation_nll":nll,"val_nll":nll,
                         "elapsed_seconds":time.monotonic()-started})
         if callback:callback(history[-1])
+        deterministic_development_manifest()
         if integrity_check:integrity_check()
         if nll<best:
             best,best_epoch,stale=nll,epoch,0
@@ -224,17 +228,21 @@ def train_configuration(configuration,settings,parents,device,seed,checkpoint,bi
         else:
             stale+=1
             if stale>=settings["patience"]:break
+    deterministic_development_manifest()
     if integrity_check:integrity_check()
     chosen=torch.load(checkpoint,map_location=device,weights_only=True)
     if chosen["binding"]!=binding or chosen["seed"]!=seed or chosen["configuration_id"]!=configuration["id"]:
         raise RuntimeError("Selected checkpoint source/config/seed identity mismatch")
     model.load_state_dict(chosen["model"])
     validation,predictions=evaluate(model,parents["val"],device)
+    deterministic_development_manifest()
     if integrity_check:integrity_check()
     selected_nll=float(np.mean([row["nll"] for row in validation]))
     if selected_nll!=chosen["validation_nll"]:raise RuntimeError("Reloaded selected checkpoint validation NLL differs")
     result={"configuration_id":configuration["id"],"configuration":configuration,"training_seed":seed,
         **binding,"validation_nll":selected_nll,"best_epoch":chosen["epoch"],"history":history,
+        "original_selected_validation_nll":chosen["validation_nll"],
+        "reloaded_validation_nll":selected_nll,"checkpoint_replay_nll_delta":selected_nll-chosen["validation_nll"],
         "per_parent":validation,"parameters":sum(p.numel() for p in model.parameters()),
         "model_configuration":model.configuration(),"checkpoint":str(checkpoint),"checkpoint_sha256":sha(checkpoint),
         "training_seconds":time.monotonic()-started,"selection":SELECTION,
@@ -310,6 +318,8 @@ def main(argv=None):
                     "parameters":sum(p.numel() for p in model.parameters()),"config_sha256":args.expected_config_sha256}),flush=True)
         snapshot.check(full_sources=True);return
     if not args.output:parser.error("--output is required for fitting")
+    execution_policy = configure_deterministic_development()
+    snapshot.bind_runtime_configuration(config_path,settings)
     require_device(args.device)
     output=development_path(args.output)
     if output.exists():raise RuntimeError("Choose a fresh development run directory")
@@ -329,7 +339,7 @@ def main(argv=None):
         "implementation_sha256":snapshot.implementation_sha256,
         **{key:settings[key] for key in ("source_dataset_manifest_sha256","boundary_dataset_manifest_sha256",
             "boundary_preparation_sha256","age_dataset_manifest_sha256","age_preparation_sha256","preparation_execution_freeze_sha256")}}
-    results={"stage":settings["stage"],"family":"argmix_full_tree","evaluation_split":"fresh_development_validation_only",
+    results={"deterministic_execution_policy":execution_policy,"stage":settings["stage"],"family":"argmix_full_tree","evaluation_split":"fresh_development_validation_only",
         "test_accessed":False,"training_seed":args.seed,"training_seeds":SEEDS,"development_namespace":"development-v1",
         "nll_policy":settings["nll_policy"],"initial_implementation_sha256":snapshot.implementation_sha256,**binding,"scientific_status":STATUS,
         "family_selection_complete":False,"models":{},"source_artifact_sha256":snapshot.sources,

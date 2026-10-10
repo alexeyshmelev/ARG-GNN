@@ -1,0 +1,13 @@
+# Independent fresh-development producer audit v1 — provisional
+
+The original frozen producer snapshot passed 262 focused CPU tests, but additional independent fault injection found three gaps: effective numerical-policy drift accepted by four producer paths, changed parsed runtime settings accepted under unchanged configuration hashes, and common admission reaching a read for exact test/confirmation namespaces. The implementation owner is repairing these findings. This provisional note is not the final disposition or source seal.
+
+The auditor read AGENTS.md, sourced scripts/project_env.sh, used .runtime/env/bin/python, hid CUDA, and made no Git operation, installation, simulation, source edit, real/held-out data read, or GPU call. All artifacts are inside the dedicated review directory or ignored project-local temporary/checkpoint namespaces. Original_scope_hashes.json and original_snapshot preserve 49 files matching the published execution/producer-plan pins.
+
+Original replay.py and replay.json preserve the accepted policy/settings cases. Raw ARGMix uses a real tiny neural CPU fit with actual IntegritySnapshot checks. All-record uses a real tiny model/bank and actual SourceSnapshot checks for its full 48-epoch cap. Candidate runs main through the existing explicitly mocked tiny cohort-admission fixture and emits results.json recording deterministic_algorithms=true while the effective runtime flag is false. All three retain a zero checkpoint replay difference, which shows why replay equality alone does not establish the policy. Canonical and priorart reject the same numerical-policy mutation. Temporal has the same missing-verifier pattern by source inspection.
+
+The original common.check_live accepted candidate width32→16, GRU/Transformer width32→16, and smoother bandwidth10000→1 with unchanged original config hashes and the full 1,053-path synthetic source catalog. Its seed registry is explicitly mocked by the synthetic fixture. CapturedControl.values also changed under the frozen dataclass without check(full=True) rejecting it. Before-read spies observed attempts for data/test and data/confirmation without reading any real file. Confirmatory/final_test/final-test spellings already rejected before reads.
+
+The combined selection binder is actively authored and is excluded. The public generic selector is included. Cross-producer replay is being completed on a stable repaired snapshot. Failed audit-fixture query-ID/dtype attempts and one genuine between-cell source drift detection are retained and are not represented as successful integration evidence.
+
+No fresh-cohort fitting, GPU admission, performance, novelty, information-access equivalence, final-test freeze or confirmatory readiness is certified.

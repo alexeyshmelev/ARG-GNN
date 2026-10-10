@@ -10,6 +10,13 @@ from unittest.mock import patch
 
 import pytest
 import torch
+from arggnn.development_execution import configure_deterministic_development
+from test_development_execution import restore_execution_flags
+
+
+@pytest.fixture(autouse=True)
+def strict_cpu_execution(restore_execution_flags):
+    configure_deterministic_development()
 
 from test_allrecord_boundary_temporal import bank,model,readouts
 from arggnn import allrecord_development_bindings as binding
@@ -217,7 +224,7 @@ def test_earliest_checkpoint_tie_budget_and_flattened_bindings_on_synthetic_cpu(
             banks,checkpoint,actual,integrity_check=lambda **kw:checks.append(kw['full']))
     assert result['best_epoch']==0 and len(result['history'])==9
     assert all(row['val_nll']==1.25 for row in result['history'])
-    assert checks==[False]*9+[True]
+    assert checks==[False]*18+[True]*2
     saved=torch.load(checkpoint,weights_only=True)
     assert saved['seed']==101 and saved['epoch']==0 and saved['configuration_id']=='synthetic'
     assert all(saved[key]==value for key,value in actual.items())

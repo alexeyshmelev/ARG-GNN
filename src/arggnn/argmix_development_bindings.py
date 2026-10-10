@@ -8,6 +8,7 @@ from pathlib import Path
 import re
 
 from .resources import ROOT
+from .development_execution import DETERMINISTIC_POLICY, deterministic_development_manifest
 
 SPLITS = {"train":64,"val":16,"test":0}
 SEEDS = [101,202,303]
@@ -19,8 +20,8 @@ PATHS = {"oracle":"data/ancient_development64_v1/manifest.json",
     "age":"data/age_inferred_development64_v1/manifest.json"}
 COMPLETION = "experiments/results/fresh_development_preparation_v1/completion.json"
 PREPARATION_FREEZE = "configs/fresh_development_execution_freeze_v1.json"
-PLAN = "configs/argmix_development_search_plan_v1.json"
-CORE = ("argmix_development_bindings.py","train_argmix_development.py","argformer_control.py",
+PLAN = "configs/argmix_development_search_plan_v2.json"
+CORE = ("development_execution.py","argmix_development_bindings.py","train_argmix_development.py","argformer_control.py",
         "study_models.py","models.py","data.py","train_study.py","simulate.py",
         "reference_encoder.py","genealogy_baselines.py","train.py","metrics.py",
         "confirmatory_metrics.py","resources.py")
@@ -64,7 +65,7 @@ def development_path(value):
         raise ValueError("Path escapes project or names its root")
     components=path.relative_to(root).parts
     if any(any(token in component.lower() for token in ("confirmatory","final_test","final-test"))
-           or component.lower()=="test" for component in components):
+           or component.lower() in {"test","confirmation"} for component in components):
         raise ValueError("Held-out test paths are forbidden during development")
     return path
 
@@ -108,8 +109,21 @@ class IntegritySnapshot:
         self.sources[str(path)]=expected
         self.source_signatures[str(path)]=signature(path)
 
+    def bind_runtime_configuration(self,path,settings):
+        path=development_path(path)
+        if json.loads(self.bytes_for(path))!=settings:
+            raise RuntimeError("Runtime settings differ from captured configuration bytes")
+        deterministic_development_manifest()
+        self.runtime_configuration=(str(path),settings)
+
     def check(self,full_sources=False):
         try:
+            runtime=getattr(self,"runtime_configuration",None)
+            if runtime is not None:
+                path,settings=runtime
+                if json.loads(self.bytes_for(path))!=settings:
+                    raise RuntimeError("Runtime settings differ from captured configuration bytes")
+                deterministic_development_manifest()
             if implementation_hashes()!=self.implementation_sha256:
                 raise RuntimeError("Frozen implementation/dependency drift")
             for path,(expected,_) in self.controls.items():
@@ -161,7 +175,7 @@ def check_plan(plan):
         "weight_decay":.0001,"gradient_clip_norm":1.,"family_tie_tolerance_nats":.0001,
         "reference_adapter":ADAPTER,"selection":SELECTION,"source_paths":PATHS,
         "completion_receipt":COMPLETION,"preparation_freeze":PREPARATION_FREEZE,
-        "confirmatory_access":False}
+        "confirmatory_access":False,"deterministic_execution_policy":DETERMINISTIC_POLICY}
     if any(plan.get(key)!=value for key,value in fixed.items()):
         raise RuntimeError("Frozen ARGMix plan dimensions/budget/source/selection changed")
     for key in ("input_dim","base_feature_count","num_classes","num_queries","num_layers","num_heads",
@@ -293,7 +307,7 @@ def bound_settings(plan,plan_path,plan_sha,completion,completion_path,completion
     return {key:plan[key] for key in ("schema_version","family","scientific_status","splits",
         "training_seeds","input_dim","base_feature_count","num_classes","num_queries","num_layers",
         "num_heads","ffn_multiplier","max_rel_distance","windows","epochs","patience","weight_decay",
-        "gradient_clip_norm","family_tie_tolerance_nats","reference_adapter","selection","configurations")} | {
+        "gradient_clip_norm","family_tie_tolerance_nats","reference_adapter","selection","configurations","deterministic_execution_policy")} | {
         "stage":"fresh_development_whole_tree_argmix_equation_adaptation_v1",
         "development_namespace":"development-v1","search_plan":str(development_path(plan_path)),
         "search_plan_sha256":plan_sha,"completion_receipt":str(development_path(completion_path)),

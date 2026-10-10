@@ -1,5 +1,6 @@
 """Fresh-development eight-configuration anchor study, no final-test loading."""
 from __future__ import annotations
+from .development_execution import configure_deterministic_development, DETERMINISTIC_POLICY, deterministic_development_manifest
 from .resources import ROOT, project_path, require_storage, set_research_title
 set_research_title()
 import argparse
@@ -123,6 +124,9 @@ def checked_anchor_protocol(path):
 
 def checked_development_protocol(path):
     settings = checked_anchor_protocol(path)
+    from .development_training_bindings import family_scope
+    if settings.get("deterministic_execution_policy") != DETERMINISTIC_POLICY or any(settings.get(k) != v for k,v in family_scope("candidate").items()):
+        raise RuntimeError("Frozen deterministic policy and factual candidate scope required")
     if settings.get("splits") != {"train": 64, "val": 16, "test": 0}:
         raise RuntimeError("This runner is restricted to fresh development64/16/test0")
     if settings.get("training_seeds") != [101,202,303]:
@@ -184,6 +188,11 @@ def optimizer_groups(model, weight_decay):
             {"params": rate_parameters, "weight_decay": 0.}]
 
 
+def check_active_execution(settings,path,digest,**kwargs):
+    deterministic_development_manifest()
+    return check_live(settings,path,digest,**kwargs)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", required=True)
@@ -213,6 +222,7 @@ def main():
         imported_pins=_IMPORTED_DEVELOPMENT_PINS,provided_data=args.data,provided_age=args.age_data)
     directory = no_test_path(settings["boundary_data"])
     manifest_path = directory/"manifest.json"
+    execution_policy = configure_deterministic_development()
     require_device(args.device)
     cases = {split: dataset.cases(split) for split in ("train", "val")}
     for split in cases:
@@ -237,148 +247,183 @@ def main():
         "completion_receipt_sha256":settings["completion_receipt_sha256"],
         "source_snapshot":source_lock.manifest()})
     device = torch.device(args.device)
-    started_transfer = time.monotonic()
-    device_banks = {id(tile): prepare_anchor_kernel_bank(tile.bank,
-        None if age_caches is None else age_caches[tile.provenance["tile_id"]],
-        num_anchors=settings["num_anchors"], num_scales=settings["num_scales"]
-        ).to(device, dtype=torch.float32)
-        for group in cases.values() for case in group for tile in case.tiles}
-    if device.type == "cuda":
-        torch.cuda.synchronize()
-    transfer_seconds = time.monotonic() - started_transfer
-    tiles = [tile for case in cases["train"] for tile in case.tiles]
-    example = cases["train"][0].tiles[0].bank
-    code_paths = ["train_anchor_development.py", "confirmatory_metrics.py", "anchor_kernel.py", "train_boundary.py",
-        "boundary_memory.py", "boundary_dataset.py", "kron_interface.py",
-        "models.py", "data.py", "reference_encoder.py", "genealogy_baselines.py",
-        "simulate.py", "train_study.py", "train.py", "metrics.py", "resources.py"]
-    if age_caches is not None:
-        code_paths += ["age_interface.py", "age_dataset.py"]
-    initial_code_hashes = check_live(settings,config_path,config_sha,
-        source_snapshot=source_lock,full_sources=True)
-    results = {"stage": settings["stage"], "interpretation": settings["interpretation"],
-        "evaluation_split": "fresh_development_validation_only", "training_seed": args.seed,
-        "nll_policy":"float64 stable log-softmax of uncalibrated raw logits",
-        "protocol_sha256": config_sha, "boundary_dataset_manifest_sha256": sha(manifest_path),
-        "boundary_preparation_sha256": settings["boundary_preparation_sha256"],
-        "git_metadata_policy":"No Git command. Exact bound code hashes retained.",
-        "completion_receipt_sha256":settings["completion_receipt_sha256"],
-        "implementation_sha256": initial_code_hashes,
-        "anchor_source_measure": "fixed equal-width physical midpoint anchors",
-        "age_dataset_manifest_sha256": settings.get("age_dataset_manifest_sha256"),
-        "rate_weight_decay": 0.,
-        "physical_gpu": os.environ.get("ARGGNN_PHYSICAL_GPU"),
-        "bank_transfer_seconds": transfer_seconds,
-        "environment": {"torch": str(torch.__version__), "cuda": torch.version.cuda},
-        "selection": settings["selection"], "models": {}}
-    checkpoint_id = hashlib.sha256(str(output.relative_to(ROOT)).encode()).hexdigest()[:16]
-    checkpoint_root = project_path(Path("checkpoints") / (output.name+"_"+checkpoint_id))
-    checkpoint_root.mkdir(parents=True)
-    for name in requested:
-        check_live(settings,config_path,config_sha,source_snapshot=source_lock,full_sources=True)
-        set_seed(args.seed)
-        model = make_anchor_model(name, example.leaf_x.shape[-1], settings["num_classes"], settings).to(device)
-        optimizer = torch.optim.AdamW(optimizer_groups(model, settings["weight_decay"]),
-                                      lr=settings["model_learning_rates"][name])
-        initial_rates = [layer.rates.detach().clone() for layer in model.layers]
-        initial_damping = [layer.damping.detach().clone() for layer in model.layers]
-        best_nll, best_epoch, stale = float("inf"), -1, 0
-        history = []
-        checkpoint = checkpoint_root / (name+".pt")
-        started = time.monotonic()
+    active = None
+    phase = "bank_transfer"
+    try:
+        started_transfer = time.monotonic()
+        device_banks = {id(tile): prepare_anchor_kernel_bank(tile.bank,
+            None if age_caches is None else age_caches[tile.provenance["tile_id"]],
+            num_anchors=settings["num_anchors"], num_scales=settings["num_scales"]
+            ).to(device, dtype=torch.float32)
+            for group in cases.values() for case in group for tile in case.tiles}
         if device.type == "cuda":
-            torch.cuda.reset_peak_memory_stats()
-        for epoch in range(settings["epochs"]):
-            check_live(settings,config_path,config_sha,source_snapshot=source_lock,full_sources=False)
-            require_storage(headroom_bytes=100_000_000)
-            model.train()
-            order = list(range(len(tiles)))
-            random.shuffle(order)
-            losses = []
-            gradient_norms = {"coupling": [], "damping": [], "mixture": []}
-            for index in order:
-                tile = tiles[index]
-                logits = model(device_banks[id(tile)])
-                y = tile.labels.to(device)
-                loss = torch.nn.functional.cross_entropy(logits.flatten(0, 1), y.flatten())
-                if not bool(torch.isfinite(loss)):
-                    raise RuntimeError("Nonfinite training loss")
-                optimizer.zero_grad(set_to_none=True)
-                loss.backward()
-                for key, attribute in (("coupling", "raw_coupling"),
-                        ("damping", "raw_damping"), ("mixture", "mixture_logits")):
-                    gradients = [getattr(layer, attribute).grad for layer in model.layers]
-                    if any(grad is None or not bool(torch.isfinite(grad).all()) for grad in gradients):
-                        raise RuntimeError("Missing or nonfinite kernel optimization gradient")
-                    norm = torch.stack([grad.detach().square().sum() for grad in gradients]).sum().sqrt()
-                    gradient_norms[key].append(float(norm))
-                torch.nn.utils.clip_grad_norm_(model.parameters(), 1.)
-                optimizer.step()
-                losses.append(float(loss.detach()))
-            val, _ = evaluate(model, cases["val"], device_banks)
-            nll = float(np.mean([r["nll_uniform_grid"] for r in val]))
-            record = {"epoch": epoch, "train_nll": float(np.mean(losses)), "val_nll": nll,
-                      "val_accuracy": float(np.mean([r["accuracy_uniform_grid"] for r in val])),
-                      "elapsed_seconds": time.monotonic()-started}
-            record["kernel_optimization"] = {
-                "gradient_norm_before_clip_mean": {key: float(np.mean(values))
-                    for key, values in gradient_norms.items()},
-                "gradient_norm_before_clip_max": {key: max(values)
-                    for key, values in gradient_norms.items()},
-                "maximum_relative_rate_change": max(float((layer.rates.detach()/initial-1).abs().max())
-                    for layer, initial in zip(model.layers, initial_rates)),
-                "maximum_relative_damping_change": max(float((layer.damping.detach()/initial-1).abs().max())
-                    for layer, initial in zip(model.layers, initial_damping))}
-            history.append(record)
-            print(json.dumps({"event": "epoch", "model": name, "seed": args.seed, **record}), flush=True)
-            if nll < best_nll:
-                best_nll, best_epoch, stale = nll, epoch, 0
-                torch.save({"model": model.state_dict(), "epoch": epoch, "validation_nll": nll,
-                            "protocol_sha256": config_sha,
-                            "boundary_dataset_manifest_sha256": sha(manifest_path)}, checkpoint)
-            else:
-                stale += 1
-                if stale >= settings["patience"]:
-                    break
-        chosen = torch.load(checkpoint, map_location=device, weights_only=True)
-        model.load_state_dict(chosen["model"])
-        val, predictions = evaluate(model, cases["val"], device_banks)
-        prediction_path = checkpoint_root / (name+"_validation_predictions.pt")
-        torch.save({"logits": predictions,
-                    "logit_dtype":"float64", "nll_policy":results["nll_policy"],
-                    "parent_replicates": [c.metadata["replicate"] for c in cases["val"]],
-                    "positions": [c.positions for c in cases["val"]],
-                    "query_node_ids": [c.query_node_ids for c in cases["val"]],
-                    "protocol_sha256": config_sha}, prediction_path)
-        result = {"parameters": count_parameters(model),
-                  "learning_rate":settings["model_learning_rates"][name], "best_epoch": best_epoch,
-                  "validation_nll": best_nll, "training_seconds": time.monotonic()-started,
-                  "history": history, "per_replicate": val,
-                  "checkpoint": str(checkpoint), "checkpoint_sha256": sha(checkpoint),
-                  "validation_predictions": str(prediction_path),
-                  "validation_predictions_sha256": sha(prediction_path),
-                  "peak_cuda_memory_bytes": torch.cuda.max_memory_allocated() if device.type=="cuda" else None,
-                  **replicate_summary(val, args.seed)}
-        ending_code_hashes = check_live(settings,config_path,config_sha,
+            torch.cuda.synchronize()
+        transfer_seconds = time.monotonic() - started_transfer
+        tiles = [tile for case in cases["train"] for tile in case.tiles]
+        example = cases["train"][0].tiles[0].bank
+        code_paths = ["train_anchor_development.py", "confirmatory_metrics.py", "anchor_kernel.py", "train_boundary.py",
+            "boundary_memory.py", "boundary_dataset.py", "kron_interface.py",
+            "models.py", "data.py", "reference_encoder.py", "genealogy_baselines.py",
+            "simulate.py", "train_study.py", "train.py", "metrics.py", "resources.py"]
+        if age_caches is not None:
+            code_paths += ["age_interface.py", "age_dataset.py"]
+        initial_code_hashes = check_active_execution(settings,config_path,config_sha,
             source_snapshot=source_lock,full_sources=True)
-        result["ending_config_sha256"] = config_sha
-        result["ending_implementation_sha256"] = ending_code_hashes
-        result["model_configuration"] = model.configuration_manifest()
-        results["models"][name] = result
-        dump_json(output/(name+".json"), result)
-        dump_json(output/"progress.json", results)
-        print(json.dumps({"event": "model_complete", "model": name,
-                          "validation_accuracy": result["mean_accuracy"]}), flush=True)
-        del model, optimizer
-        if device.type == "cuda":
-            torch.cuda.empty_cache()
-    results["ending_config_sha256"] = config_sha
-    results["ending_implementation_sha256"] = check_live(settings,config_path,config_sha,
-        source_snapshot=source_lock,full_sources=True)
-    results["ending_input_artifact_sha256"] = source_lock.hashes
-    dump_json(output/"results.json", results)
-    print(json.dumps({"event": "run_complete", "output": str(output),
-                      "storage_bytes": require_storage()}), flush=True)
+        results = {"stage": settings["stage"], "interpretation": settings["interpretation"],
+            "evaluation_split": "fresh_development_validation_only", "training_seed": args.seed,
+            "family": settings["family"], "development_namespace": settings["development_namespace"],
+            "training_seeds": settings["training_seeds"],
+            "nll_policy":"float64 stable log-softmax of uncalibrated raw logits",
+            "protocol_sha256": config_sha, "boundary_dataset_manifest_sha256": sha(manifest_path),
+            "boundary_preparation_sha256": settings["boundary_preparation_sha256"],
+            "git_metadata_policy":"No Git command. Exact bound code hashes retained.",
+            "completion_receipt_sha256":settings["completion_receipt_sha256"],
+            "implementation_sha256": initial_code_hashes,
+            "initial_implementation_sha256": initial_code_hashes,
+            "deterministic_execution_policy": execution_policy,
+            "anchor_source_measure": "fixed equal-width physical midpoint anchors",
+            "age_dataset_manifest_sha256": settings.get("age_dataset_manifest_sha256"),
+            "rate_weight_decay": 0.,
+            "physical_gpu": os.environ.get("ARGGNN_PHYSICAL_GPU"),
+            "bank_transfer_seconds": transfer_seconds,
+            "environment": {"torch": str(torch.__version__), "cuda": torch.version.cuda},
+            "selection": settings["selection"], "models": {}}
+        checkpoint_id = hashlib.sha256(str(output.relative_to(ROOT)).encode()).hexdigest()[:16]
+        checkpoint_root = project_path(Path("checkpoints") / (output.name+"_"+checkpoint_id))
+        checkpoint_root.mkdir(parents=True)
+        phase = "training"
+        for name in requested:
+            active = name
+            check_active_execution(settings,config_path,config_sha,source_snapshot=source_lock,full_sources=True)
+            set_seed(args.seed)
+            model = make_anchor_model(name, example.leaf_x.shape[-1], settings["num_classes"], settings).to(device)
+            optimizer = torch.optim.AdamW(optimizer_groups(model, settings["weight_decay"]),
+                                          lr=settings["model_learning_rates"][name])
+            initial_rates = [layer.rates.detach().clone() for layer in model.layers]
+            initial_damping = [layer.damping.detach().clone() for layer in model.layers]
+            best_nll, best_epoch, stale = float("inf"), -1, 0
+            history = []
+            checkpoint = checkpoint_root / (name+".pt")
+            started = time.monotonic()
+            if device.type == "cuda":
+                torch.cuda.reset_peak_memory_stats()
+            for epoch in range(settings["epochs"]):
+                check_active_execution(settings,config_path,config_sha,source_snapshot=source_lock,full_sources=False)
+                require_storage(headroom_bytes=100_000_000)
+                model.train()
+                order = list(range(len(tiles)))
+                random.shuffle(order)
+                losses = []
+                gradient_norms = {"coupling": [], "damping": [], "mixture": []}
+                for index in order:
+                    tile = tiles[index]
+                    logits = model(device_banks[id(tile)])
+                    y = tile.labels.to(device)
+                    loss = torch.nn.functional.cross_entropy(logits.flatten(0, 1), y.flatten())
+                    if not bool(torch.isfinite(loss)):
+                        raise RuntimeError("Nonfinite training loss")
+                    optimizer.zero_grad(set_to_none=True)
+                    loss.backward()
+                    for key, attribute in (("coupling", "raw_coupling"),
+                            ("damping", "raw_damping"), ("mixture", "mixture_logits")):
+                        gradients = [getattr(layer, attribute).grad for layer in model.layers]
+                        if any(grad is None or not bool(torch.isfinite(grad).all()) for grad in gradients):
+                            raise RuntimeError("Missing or nonfinite kernel optimization gradient")
+                        norm = torch.stack([grad.detach().square().sum() for grad in gradients]).sum().sqrt()
+                        gradient_norms[key].append(float(norm))
+                    torch.nn.utils.clip_grad_norm_(model.parameters(), 1.)
+                    optimizer.step()
+                    losses.append(float(loss.detach()))
+                val, _ = evaluate(model, cases["val"], device_banks)
+                nll = float(np.mean([r["nll_uniform_grid"] for r in val]))
+                record = {"epoch": epoch, "train_nll": float(np.mean(losses)), "val_nll": nll,
+                          "val_accuracy": float(np.mean([r["accuracy_uniform_grid"] for r in val])),
+                          "elapsed_seconds": time.monotonic()-started}
+                record["kernel_optimization"] = {
+                    "gradient_norm_before_clip_mean": {key: float(np.mean(values))
+                        for key, values in gradient_norms.items()},
+                    "gradient_norm_before_clip_max": {key: max(values)
+                        for key, values in gradient_norms.items()},
+                    "maximum_relative_rate_change": max(float((layer.rates.detach()/initial-1).abs().max())
+                        for layer, initial in zip(model.layers, initial_rates)),
+                    "maximum_relative_damping_change": max(float((layer.damping.detach()/initial-1).abs().max())
+                        for layer, initial in zip(model.layers, initial_damping))}
+                history.append(record)
+                print(json.dumps({"event": "epoch", "model": name, "seed": args.seed, **record}), flush=True)
+                check_active_execution(settings,config_path,config_sha,source_snapshot=source_lock,full_sources=False)
+                if nll < best_nll:
+                    best_nll, best_epoch, stale = nll, epoch, 0
+                    torch.save({"model": model.state_dict(), "epoch": epoch, "validation_nll": nll,
+                                "protocol_sha256": config_sha,
+                                "boundary_dataset_manifest_sha256": sha(manifest_path),
+                                "seed": args.seed,
+                                "completion_receipt_sha256": settings["completion_receipt_sha256"],
+                                "implementation_sha256": initial_code_hashes}, checkpoint)
+                else:
+                    stale += 1
+                    if stale >= settings["patience"]:
+                        break
+            chosen = torch.load(checkpoint, map_location=device, weights_only=True)
+            model.load_state_dict(chosen["model"])
+            val, predictions = evaluate(model, cases["val"], device_banks)
+            reloaded_nll = float(np.mean([r["nll_uniform_grid"] for r in val]))
+            if reloaded_nll != chosen["validation_nll"]:
+                raise RuntimeError("Reloaded deterministic checkpoint validation NLL differs")
+            prediction_path = checkpoint_root / (name+"_validation_predictions.pt")
+            torch.save({"logits": predictions,
+                        "logit_dtype":"float64", "nll_policy":results["nll_policy"],
+                        "parent_replicates": [c.metadata["replicate"] for c in cases["val"]],
+                        "parent_ids": [c.parent_id for c in cases["val"]],
+                        "seed": args.seed,
+                        "completion_receipt_sha256": settings["completion_receipt_sha256"],
+                        "source_dataset_manifest_sha256": settings["source_dataset_manifest_sha256"],
+                        "boundary_dataset_manifest_sha256": sha(manifest_path),
+                        "implementation_sha256": initial_code_hashes,
+                        "positions": [c.positions for c in cases["val"]],
+                        "query_node_ids": [c.query_node_ids for c in cases["val"]],
+                        "protocol_sha256": config_sha}, prediction_path)
+            result = {"parameters": count_parameters(model),
+                      "learning_rate":settings["model_learning_rates"][name], "best_epoch": best_epoch,
+                      "validation_nll": reloaded_nll, "training_seconds": time.monotonic()-started,
+                      "original_selected_validation_nll": chosen["validation_nll"],
+                      "reloaded_validation_nll": reloaded_nll,
+                      "checkpoint_replay_nll_delta": reloaded_nll-chosen["validation_nll"],
+                      "history": history, "per_replicate": val,
+                      "checkpoint": str(checkpoint), "checkpoint_sha256": sha(checkpoint),
+                      "validation_predictions": str(prediction_path),
+                      "validation_predictions_sha256": sha(prediction_path),
+                      "peak_cuda_memory_bytes": torch.cuda.max_memory_allocated() if device.type=="cuda" else None,
+                      **replicate_summary(val, args.seed)}
+            ending_code_hashes = check_active_execution(settings,config_path,config_sha,
+                source_snapshot=source_lock,full_sources=True)
+            result["ending_config_sha256"] = config_sha
+            result["ending_implementation_sha256"] = ending_code_hashes
+            result["model_configuration"] = model.configuration_manifest()
+            results["models"][name] = result
+            dump_json(output/(name+".json"), result)
+            dump_json(output/"progress.json", results)
+            print(json.dumps({"event": "model_complete", "model": name,
+                              "validation_accuracy": result["mean_accuracy"]}), flush=True)
+            del model, optimizer
+            if device.type == "cuda":
+                torch.cuda.empty_cache()
+        results["ending_config_sha256"] = config_sha
+        results["ending_implementation_sha256"] = check_active_execution(settings,config_path,config_sha,
+            source_snapshot=source_lock,full_sources=True)
+        results["ending_input_artifact_sha256"] = source_lock.hashes
+        dump_json(output/"results.json", results)
+        print(json.dumps({"event": "run_complete", "output": str(output),
+                          "storage_bytes": require_storage()}), flush=True)
+    except Exception as error:
+        failure = {"kind": "fresh_development_run_failure", "family": settings["family"],
+            "stage": phase, "configuration_id": active, "seed": args.seed,
+            "protocol_sha256": config_sha,
+            "completion_receipt_sha256": settings["completion_receipt_sha256"],
+            "boundary_dataset_manifest_sha256": settings["boundary_dataset_manifest_sha256"],
+            "initial_implementation_sha256": _IMPORTED_DEVELOPMENT_PINS,
+            "error_type": type(error).__name__, "reason": str(error), "test_access": False}
+        dump_json(output/"failure.json", failure)
+        raise
 
 
 if __name__ == "__main__":

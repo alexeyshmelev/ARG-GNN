@@ -9,6 +9,13 @@ from pathlib import Path
 from types import SimpleNamespace
 import pytest
 import torch
+from arggnn.development_execution import configure_deterministic_development
+from test_development_execution import restore_execution_flags
+
+
+@pytest.fixture(autouse=True)
+def strict_cpu_execution(restore_execution_flags):
+    configure_deterministic_development()
 
 import arggnn.argmix_development_bindings as bindings
 from arggnn.argmix_development_bindings import (IntegritySnapshot,bind_completed_development,

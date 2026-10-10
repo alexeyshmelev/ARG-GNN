@@ -14,6 +14,9 @@ from test_train_anchor import protocol
 
 def full_protocol():
     p = protocol()
+    from arggnn.development_execution import DETERMINISTIC_POLICY
+    from arggnn.development_training_bindings import family_scope
+    p.update(deterministic_execution_policy=dict(DETERMINISTIC_POLICY), **family_scope("candidate"))
     p.update(development_namespace="development-v1",
         splits={"train":64,"val":16,"test":0}, training_seeds=[101,202,303],
         hidden_dim=32,num_layers=2,latent_dim=8,num_anchors=32,num_scales=3,
@@ -106,6 +109,8 @@ def test_tiny_cpu_fit_stores_hash_bound_raw_logit_predictions(tmp_path,monkeypat
     source_lock=SourceSnapshot({str(config):initial_hash,str(manifest):sha256_file(manifest)})
     p["boundary_data"]=str(dataset.directory)
     p["completion_receipt_sha256"]="a"*64
+    p["family"]="candidate"
+    p["development_namespace"]="development-v1"
     # One-parent synthetic fitting mocks only production cohort admission.
     def tiny_admission(*_a,**_k):
         if drift=="during_load":config.write_text(json.dumps({**p,"hidden_dim":16}))
@@ -134,6 +139,9 @@ def test_tiny_cpu_fit_stores_hash_bound_raw_logit_predictions(tmp_path,monkeypat
     assert sha256_file(output/"protocol.json")==initial_hash
     if drift!="none":
         assert not (output/"results.json").exists()
+        failure=json.loads((output/"failure.json").read_text())
+        assert failure["protocol_sha256"]==initial_hash and failure["seed"]==101
+        assert failure["family"]=="candidate" and failure["test_access"] is False
         return
     r=json.loads((output/"results.json").read_text())
     assert r["evaluation_split"]=="fresh_development_validation_only"
@@ -146,6 +154,16 @@ def test_tiny_cpu_fit_stores_hash_bound_raw_logit_predictions(tmp_path,monkeypat
     loss=logit_metrics(payload["logits"][0].numpy(),val.labels.numpy())
     assert loss["nll"]==pytest.approx(record["validation_nll"])
     assert record["learning_rate"]==.001
+    assert r["family"]=="candidate" and r["development_namespace"]=="development-v1"
+    assert r["training_seeds"]==[101,202,303]
+    assert r["initial_implementation_sha256"]==r["implementation_sha256"]
+    assert payload["seed"]==101 and payload["completion_receipt_sha256"]=="a"*64
+    assert payload["parent_ids"]==[val.parent_id]
+    assert payload["implementation_sha256"]==r["initial_implementation_sha256"]
+    saved=torch.load(record["checkpoint"],weights_only=True)
+    assert saved["seed"]==101 and saved["completion_receipt_sha256"]=="a"*64
+    assert saved["implementation_sha256"]==r["initial_implementation_sha256"]
+    assert saved["boundary_dataset_manifest_sha256"]==dataset.manifest_sha256
     binding=json.loads((output/"dataset_binding.json").read_text())
     assert binding["boundary_manifest_sha256"]==dataset.manifest_sha256
     assert not (output/"dataset_manifest.json").exists()
