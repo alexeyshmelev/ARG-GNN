@@ -1,0 +1,58 @@
+{
+  "stage": "common_input_mechanism_pilot_train_validation_only",
+  "benchmark": "ancient-europe-stdpopsim-0.3.0-oracle",
+  "master_seed": 20261012,
+  "simulation": {
+    "sequence_length": 1000000,
+    "reference_diploids_per_source": 3,
+    "query_diploids": 4,
+    "grid_points": 128,
+    "landmarks_per_source": 3,
+    "max_graph_nodes": 1000000
+  },
+  "splits": {
+    "train": 16,
+    "val": 4,
+    "test": 0
+  },
+  "reference_adapter": {
+    "reference_columns": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "time_column": 6,
+    "branch_column": 7,
+    "time_scale": 10000,
+    "kernel_scales": [
+      0.05,
+      0.1,
+      0.2
+    ]
+  },
+  "windows": 8,
+  "models": [
+    "feature_mlp",
+    "independent",
+    "leaf_kernel",
+    "gru",
+    "late_transformer",
+    "graphssm",
+    "span_set_lineage",
+    "interval_lineage",
+    "no_correspondence",
+    "late_fusion"
+  ],
+  "hidden_dim": 32,
+  "num_layers": 2,
+  "epochs": 24,
+  "patience": 6,
+  "learning_rate": 0.001,
+  "weight_decay": 0.0001,
+  "dropout": 0,
+  "selection": "minimum mean parent-validation NLL, no final test data generated or evaluated in this mechanism pilot",
+  "evaluation": "uniform fixed coordinates in complete true genealogies with census nodes and truth annotations removed",
+  "interpretation": "Training/validation engineering study only. This does not establish final held-out or inferred-tree performance.",
+  "comparison_note": "All neural families receive identical all-node observed-reference summaries. GraphSSM uses its documented native diffusion encoder. Other GNN families share the mean-MPNN definition. Feature MLP omits edges."
+}

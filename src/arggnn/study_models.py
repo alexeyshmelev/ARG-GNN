@@ -50,6 +50,22 @@ class LeafKernelGNN(_BaseModel):
 def make_study_model(name,input_dim,num_classes,settings):
     common=dict(input_dim=input_dim,num_classes=num_classes,hidden_dim=settings["hidden_dim"],
                 num_layers=settings["num_layers"],validate=False)
+    if name.startswith("gst_"):
+        from .gst_baseline import GSTAdaptation
+        parts=name.split("_")
+        if len(parts)!=3 or parts[1] not in {"ca","bc"} or parts[2] not in {"record","span"}:
+            raise ValueError("Unknown GST adaptation")
+        return GSTAdaptation(**common,routing="cross_attention" if parts[1]=="ca" else "broadcast",
+                             token_weighting=parts[2],gate_variant="paper",dropout=settings.get("dropout",0.))
+    if name.startswith("semigroup_"):
+        from .semigroup_model import SemigroupGraphModel
+        modes={"semigroup_full":("full","ordered"),"semigroup_diagonal":("diagonal","ordered"),
+               "semigroup_set":("full","homogeneous_set")}
+        if name not in modes:
+            raise ValueError("Unknown semigroup control")
+        kind,aggregation=modes[name]
+        return SemigroupGraphModel(**common,matrix_kind=kind,aggregation=aggregation,
+                                   latent_dim=8,generator_rank=2,initial_rate=20.)
     if name=="feature_mlp":
         return QueryFeatureMLP(**common)
     if name=="leaf_kernel":
@@ -58,10 +74,10 @@ def make_study_model(name,input_dim,num_classes,settings):
         from .temporal_baselines import LeafTemporalTransformer,LeafCorrespondenceSupraMPNN
         cls=LeafTemporalTransformer if name=="late_transformer" else LeafCorrespondenceSupraMPNN
         return cls(**common,dropout=settings.get("dropout",0.))
-    if name=="graphssm":
+    if name in {"graphssm","graphssm_zoh"}:
         from .graphssm_baseline import GraphSSMAdaptation
         return GraphSSMAdaptation(**common,bidirectional=True,
-                                 discretization="paper",dropout=settings.get("dropout",0.))
+                                 discretization="paper" if name=="graphssm" else "zoh",dropout=settings.get("dropout",0.))
     return build_model(name,**common)
 
 
@@ -80,4 +96,6 @@ def make_regression_model(name,input_dim,settings):
     else:
         raise TypeError("Unrecognized forecast-head architecture")
     model.num_classes=1
+    if hasattr(model,"num_outputs"):
+        model.num_outputs=1
     return model

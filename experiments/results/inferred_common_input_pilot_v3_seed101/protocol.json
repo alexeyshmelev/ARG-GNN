@@ -1,0 +1,85 @@
+{
+  "stage": "paired_inferred_common_input_mechanism_pilot_train_validation_only",
+  "benchmark": "ancient-europe-stdpopsim-0.3.0-relate-inferred",
+  "master_seed": 20261012,
+  "simulation": {
+    "sequence_length": 1000000,
+    "reference_diploids_per_source": 3,
+    "query_diploids": 4,
+    "grid_points": 128,
+    "landmarks_per_source": 3,
+    "max_graph_nodes": 1000000
+  },
+  "splits": {
+    "train": 16,
+    "val": 4,
+    "test": 0
+  },
+  "reference_adapter": {
+    "reference_columns": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "time_column": 6,
+    "branch_column": 7,
+    "time_scale": 10000,
+    "kernel_scales": [
+      0.05,
+      0.1,
+      0.2
+    ]
+  },
+  "windows": 8,
+  "models": [
+    "feature_mlp",
+    "independent",
+    "leaf_kernel",
+    "gru",
+    "late_transformer",
+    "graphssm",
+    "span_set_lineage",
+    "interval_lineage",
+    "no_correspondence",
+    "late_fusion"
+  ],
+  "hidden_dim": 32,
+  "num_layers": 2,
+  "epochs": 24,
+  "patience": 6,
+  "learning_rate": 0.001,
+  "weight_decay": 0.0001,
+  "dropout": 0,
+  "selection": "minimum mean parent-validation NLL, no final test data generated or evaluated in this mechanism pilot",
+  "evaluation": "Exact source-parent uniform fixed coordinates retained inside observed SNP coverage of Relate-inferred genealogies. Original query order and global coordinates are preserved. No chromosome-tail extrapolation.",
+  "interpretation": "Paired inferred-input training/validation engineering study only. This does not establish final held-out performance.",
+  "comparison_note": "All neural families receive identical all-node observed-reference summaries. GraphSSM uses its documented native diffusion encoder. Other GNN families share the mean-MPNN definition. Feature MLP omits edges.",
+  "source_parent": {
+    "config": "configs/ancient_common_input_pilot_v2.json",
+    "config_sha256": "9891358177b1e2cf057d2407bcb3e8da0dfb66f1471760d2f72336e45c8dc2d6",
+    "manifest": "data/ancient_common_input_pilot_v2/manifest.json",
+    "manifest_sha256": "d0b01310f2a79e92eb9c98dc7fccdf788ee9ce5299bc47439c2d99e6df03ac56",
+    "benchmark": "ancient-europe-stdpopsim-0.3.0-oracle",
+    "split_policy": "Same 16 train and 4 validation parents as v2; no test generation or loading."
+  },
+  "inference": {
+    "method": "Relate",
+    "version": "1.2.4",
+    "master_seed": 20261013,
+    "seed_scheme": "SHA256 UTF-8 ARG-GNN/Relate/v1.2.4/{master_seed}/{split}/{replicate}; first 8 bytes unsigned big endian modulo (2**31-1), plus 1",
+    "mutation_rate": 1.25e-08,
+    "recombination_rate": 1e-08,
+    "effective_haploid_size": 30000.0,
+    "memory_gb": 0.25,
+    "timeout_seconds": 1200,
+    "threads": 4,
+    "min_mac": 1,
+    "coordinate_offset": 1.0,
+    "coverage_policy": "[first exported original SNP, last exported original SNP + 1); exact original grid only",
+    "genotype_source": "Cleaned parent observed.trees.gz only, never raw census truth.",
+    "polarization": "Simulated ancestral allele at observed mutation sites only; no invented ancestor FASTA",
+    "archive_sha256": "9d6fe0f25846da9a846099b0d7c8d1f9f529aee0042e92803aef72b82e771438",
+    "copyright_notice": "Copyright \u00a9 2018, University of Oxford"
+  }
+}

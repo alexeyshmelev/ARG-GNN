@@ -121,6 +121,20 @@ def load_cases(manifest,split):
     return cases
 
 
+def verify_reused_dataset_protocol(settings,manifest):
+    """Bind data reuse explicitly while permitting a separate frozen model study."""
+    if settings.get("dataset_source_protocol_sha256")!=manifest["protocol_sha256"]:
+        raise RuntimeError("Dataset source protocol hash is not explicitly bound")
+    training_fields={"stage","models","hidden_dim","num_layers","epochs","patience",
+                     "learning_rate","weight_decay","dropout","selection","evaluation",
+                     "interpretation","comparison_note","dataset_source_protocol_sha256",
+                     "model_options"}
+    source=manifest["protocol"]
+    for key in (set(settings)|set(source))-training_fields:
+        if settings.get(key)!=source.get(key):
+            raise RuntimeError(f"Reused dataset field changed: {key}")
+
+
 def main():
     parser=argparse.ArgumentParser()
     parser.add_argument("--config",required=True)
@@ -149,7 +163,7 @@ def main():
     manifest=json.loads(manifest_path.read_text())
     config_sha=sha(config_path)
     if manifest["protocol_sha256"]!=config_sha:
-        raise RuntimeError("Dataset protocol differs from requested study")
+        verify_reused_dataset_protocol(settings,manifest)
     if settings["splits"].get("test",0)!=0:
         raise RuntimeError("This study runner permits train/validation-only protocols")
     output=project_path(args.output)
@@ -166,6 +180,7 @@ def main():
     results={"stage":settings["stage"],"interpretation":settings["interpretation"],
              "input_kind":settings["benchmark"],"evaluation_split":"validation_only",
              "training_seed":args.seed,"protocol_sha256":config_sha,
+             "dataset_source_protocol_sha256":manifest["protocol_sha256"],
              "dataset_manifest_sha256":sha(manifest_path),"dataset_directory":str(manifest_path.parent),
              "git_commit":subprocess.check_output(["git","rev-parse","HEAD"],cwd=ROOT,text=True).strip(),
              "physical_gpu":os.environ.get("ARGGNN_PHYSICAL_GPU"),

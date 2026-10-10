@@ -7,7 +7,8 @@ from arggnn.study_models import make_regression_model
 
 
 @pytest.mark.parametrize("name",["feature_mlp","independent","set_pool","leaf_kernel","gru",
-    "late_transformer","graphssm","span_set_lineage","interval_lineage"])
+    "late_transformer","graphssm","span_set_lineage","interval_lineage",
+    "gst_ca_record","gst_ca_span","semigroup_full","semigroup_diagonal","semigroup_set"])
 def test_scalar_regression_shape_and_finite_encoder_gradients(name):
     torch.set_num_threads(1)
     torch.manual_seed(41)
