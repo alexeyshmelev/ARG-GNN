@@ -1,0 +1,56 @@
+--- blocked_v1
++++ repaired_v2
+@@ -6,7 +6,9 @@
+ NEW=2000000000
+ KEY="biological_gpu2_v1/biological-gst-seed101"
+ OUTPUT=ROOT/"experiments/results/biological_gst_control_v1_seed101"
+-AUDIT=ROOT/"research/reviews/biological_gst_completed_storage_settlement_v1"
++AUDIT=ROOT/"research/reviews/biological_gst_completed_storage_settlement_v1/storage_revision_v2"
++INSPECTED=ROOT/"research/reviews/biological_gst_completed_storage_settlement_v1/inspection.json"
++INSPECTED_SHA="c420d0ea2690aed015dc895da09ca3619e2dd9699942190ca9575ded0043817d"
+ SOURCE=ROOT/"src/arggnn/gpu_pool_v1.py"
+ SOURCE_SHA="ae1e0494ab672cfa3017759460eb06a4b4789eaef54928496c3c80314adcc0e1"
+ SNAPSHOT_SHA="0826fcedefa40dd261999c4916b85ae11f28628e5cee9046b2e4f6bf868fa10d"
+@@ -39,7 +41,9 @@
+ def inventory():
+     if OUTPUT.is_symlink() or OUTPUT.resolve()!=OUTPUT or not OUTPUT.is_dir(): raise ValueError("Canonical completed output required")
+     records={}; charge=0
+-    for base, dirs, files in os.walk(OUTPUT,followlinks=False):
++    def walk_error(error):
++        raise error
++    for base, dirs, files in os.walk(OUTPUT,followlinks=False,onerror=walk_error):
+         for p in [Path(base)]+[Path(base)/n for n in dirs+files]:
+             if p.is_symlink(): raise ValueError("Symlink in completed output")
+         info=Path(base).stat()
+@@ -64,7 +68,11 @@
+     args=parser.parse_args()
+     if sha(SOURCE)!=SOURCE_SHA: raise ValueError("Audited pool source changed")
+     from arggnn import gpu_pool_v1 as module
+-    job=snapshot_job(module); charged,files=inventory()
++    job=snapshot_job(module)
++    if sha(INSPECTED)!=INSPECTED_SHA: raise ValueError("Root inspected scope receipt changed")
++    inspected=json.loads(INSPECTED.read_text())
++    if inspected["applied"] is not False or inspected["retained_charge_bytes"]!=NEW:
++        raise ValueError("Exact prior inspect-only conservative charge required")
+     with module.lock_file(ROOT,"scheduler.lock") as locked:
+         fcntl.flock(locked,fcntl.LOCK_EX)
+         snap=module.snapshot_record(ROOT,str(ROOT/"experiments/results/biological_shared_pool_storage_admission_v1/snapshot.json"),SNAPSHOT_SHA)
+@@ -77,11 +85,17 @@
+         if state["jobs"][KEY]!={"output":str(OUTPUT),"reserved_bytes":OLD}: raise ValueError("Exact old reservation required")
+         before_account=ledger._check(state)
+         snapshot_job(module)
++        charged,files=inventory()
++        if (charged!=inspected["retained_conservative_measured_bytes"] or files!=inspected["inventory_files"]):
++            raise ValueError("Completed scope differs from frozen root inspection. No reduction.")
++        # Recheck full local membership/size/hash under the scheduler lock.
++        if inventory()!=(charged,files): raise ValueError("Completed output changed before reduction")
++        snapshot_job(module)
+         proposed=copy.deepcopy(state); proposed["jobs"][KEY]["reserved_bytes"]=NEW
+         after_account=ledger._check(proposed)
+         invariant=copy.deepcopy(proposed); invariant["jobs"][KEY]["reserved_bytes"]=OLD
+         if module.encoded(invariant)!=old: raise ValueError("Unrelated ledger change")
+-        audit={"kind":"completed_GST_conservative_retained_output_settlement_v1","utc":datetime.datetime.now(datetime.timezone.utc).isoformat(),"root_authorizer":"root_agent","applied":args.apply,"source_sha256":SOURCE_SHA,"procedure_sha256":sha(__file__),"expected_before_sha256":EXPECTED_LEDGER,"terminal_job":job,"charged_scope":"finished GST output and retained worker log, never global remeasurement","retained_conservative_measured_bytes":charged,"retained_charge_bytes":NEW,"unmeasured_allowance_bytes":NEW-charged,"no_files_deleted":True,"all_other_reservations_and130GB_external_reserve_unchanged":True,"future_product_write_policy":"Finished GST product is frozen. New fits use fresh versioned output directories. New side effects remain covered by the unchanged external reserve.","before_account":before_account,"after_account":after_account,"inventory_files":files}
++        audit={"kind":"completed_GST_conservative_retained_output_settlement_v1","utc":datetime.datetime.now(datetime.timezone.utc).isoformat(),"root_authorizer":"root_agent","applied":args.apply,"source_sha256":SOURCE_SHA,"procedure_sha256":sha(__file__),"expected_before_sha256":EXPECTED_LEDGER,"terminal_job":job,"charged_scope":"finished GST output and retained worker log, never global remeasurement","prior_inspected_receipt_sha256":INSPECTED_SHA,"inventory_under_scheduler_lock_twice":True,"walk_errors_fail_closed":True,"retained_conservative_measured_bytes":charged,"retained_charge_bytes":NEW,"unmeasured_allowance_bytes":NEW-charged,"no_files_deleted":True,"all_other_reservations_and130GB_external_reserve_unchanged":True,"future_product_write_policy":"Finished GST product is frozen. New fits use fresh versioned output directories. New side effects remain covered by the unchanged external reserve.","before_account":before_account,"after_account":after_account,"inventory_files":files}
+         if args.apply:
+             write("ledger_before.json",json.loads(before))
+             write("preapply_audit.json",audit)

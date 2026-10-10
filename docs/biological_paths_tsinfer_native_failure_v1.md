@@ -1,0 +1,35 @@
+# Handmade tsinfer+tsdate native qualification failure v1
+
+The root-executed v3 handmade qualification failed at final all_dated with AssertionError: Use fewer rescaling intervals. Ten earlier stages completed, including modern inference, modern dating, native site-age transfer, historical proxy insertion, ancestor matching, all-sample matching and final preprocessing. This is a recorded failed qualification. No real biological observations were inferred, and no final dated graph or passed qualification exists.
+
+## Source diagnosis
+
+The traceback reaches installed tsdate 0.2.7 rescaling.py:521, where piecewise_scale_point_estimate requires every difference between cumulative rescaled time breakpoints to be strictly positive. core.py forwards rescaling_intervals to ExpectationPropagation.rescale. The configured value 1000 is the documented default in core.py:811–816 and defaults to the same value when omitted or set to None. Omitting that setting would therefore not resolve this failure.
+
+Rescaling bins are temporal bins formed from quantiles of integrated mutational area, not SNP bins. mutational_timescale selects the requested quantiles and removes duplicate changepoints. It sums instantaneous size-biased mutation counts y and mutational offsets n over each selected temporal block, then sets its clock increment to duration z times y/n (rescaling.py:418–446). A positive-span block with zero counts has zero increment. Cumulative rescaled breakpoints then repeat, which the point-scaling assertion rejects. The request for 1000 intervals does not mean 1000 distinct bins are created or require 1000 sites.
+
+The exact preserved all_preprocessed input has eight samples, 20 nodes, 39 edges, six sites and six mutations. All six mutations are on internal nodes; none are on a terminal sample branch. Ages remain [0,0,0,0,10,10,20,20]. Source-extracted arithmetic on its stored times shows four initial positive-offset temporal epochs with zero mutation counts. Fine time splitting can expose such bins. The same six-site modern subset completed native dating at 1000 intervals, so six sites alone are not a sufficient failure criterion.
+
+The failed expectation-propagation posterior and its rescaled breakpoints were not saved. The preserved all_preprocessed input times actually yield five positive bins under the 1000-interval source helper, so the input graph is not an exact replay of the failed dating state. The failure proves that the native posterior rescaling state violated the strict-breakpoint predicate. Zero-count temporal bins are a demonstrated source mechanism and a plausible explanation for this sparse fixture, rather than a reconstructed observation of the missing posterior.
+
+## Read-only arithmetic evidence
+
+The audit saves exact installed core.py, variational.py and rescaling.py source snapshots. A tiny diagnostic extracts only _count_mutations, count_mutations, mutational_area, _fixed_changepoints, mutational_timescale and piecewise_scale_point_estimate, removes JIT decorators, and runs their unchanged bodies with NumPy and tskit. It imports neither tsdate nor tsinfer and performs no expectation propagation, inference, dating or native pipeline rerun.
+
+The two predeclared arithmetic settings are frozen 1000 and proposed 1. A hand-authored two-bin example with positive offsets and zero counts in its first bin yields original [0,10,20] and rescaled [0,0,1] at 1000, reproducing the exact assertion. At 1 it aggregates the temporal blocks into original [0,20], rescaled [0,1] and preserves the fixed points. Existing graph-time summaries and all arithmetic results are saved separately. They are mechanism checks, not evidence that a new native run will pass.
+
+The root stage journal records a maximum sampled local qualification footprint of 421,888 bytes against a 1 GB allowance; no storage failure is reported. This native rescaling error is distinct from the earlier storage revision. Failed manifests, graph artifacts and launch log remain unchanged and pinned.
+
+## Explicitly reduced qualification proposal
+
+The next proposed fixture condition is handmade_tsinfer_tsdate_single_interval_rescaling_qualification_v2. A separate, source-pinned harness should reuse the frozen producer's native pipeline and exact six-site/eight-haplotype fixture, changing only the qualification copy of dating.rescaling_intervals from 1000 to 1. It retains five rescaling iterations, the mutation rate, EP iterations, native matching/preprocessing/defaults and every genotype, sample-age, strict-time, site and exact-support identity gate. Rescaling remains enabled. The source aggregation has a clear rationale for a tiny fixture: combining time blocks avoids a separately fitted clock rate for a zero-count block when the total mutation mass and offset are positive.
+
+This changes the numerical calibration used by both modern and final dating in the fixture. Changed modern times can also change site ages and subsequent inferred topology. A passed v2 harness would certify those native stages and gates under single-interval rescaling only. It would not qualify the exact 1000-interval biological setting, demonstrate biological accuracy, or authorize any actual observation inference. The frozen producer and biological config retain 1000 intervals. The qualification manifest must use a distinct kind/condition and declare reduced rescaling certification explicitly.
+
+There is no silent fallback, error-catching parameter retry, date/ID repair, removal of original sites or change to native tsdate source. A new fixture run needs root registration, a fresh output directory, same frozen runtime, complete shared-reservation accounting, exact root-issued storage and CPU admission receipts, and independent source review. Its local allowance must count the preserved failed v3 tree/log together with any new fixture writes inside the existing combined 8 GB reservation. Root alone authorizes and executes that run.
+
+A future test could instead enrich a separately registered handmade fixture with terminal private variants while retaining 1000. That would probe a different mutation allocation and preserve the biological parameter, but its success is not established here. Neither approach establishes that the original biological recipe will pass. The official historical-sample recipe already warns that tsinfer plus variational_gamma has limited heterochronous validation.
+
+## Audit boundary
+
+Owned diagnosis artifacts are under research/reviews/biological_paths_tsinfer_native_failure_v1. diagnosis.json, graph_summary.json, pure_helper_rescaling_diagnostic.json and diagnosis_receipt.json give exact references and limits. The author read only pinned source, metadata and the tiny root-authored qualification graphs. Active v3 source/config/docs/tests, installed runtime receipt, failed qualification outputs and shared ledger were not changed. No actual biological arrays, native reruns, installations, Git or GPU work occurred in this diagnosis.

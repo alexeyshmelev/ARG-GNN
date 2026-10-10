@@ -1,0 +1,93 @@
+{
+  "kind": "biological_gst_storage_settlement_independent_review_v1",
+  "created_utc": "2026-10-10T20:09:42.795075+00:00",
+  "status": "BLOCKED_unreadable_inventory_and_prelock_frozen_scope_race",
+  "reviewer": "/root/development_producer_audit",
+  "procedure": {
+    "path": "research/reviews/biological_gst_completed_storage_settlement_v1/audit_and_settle.py",
+    "sha256": "fee2905ca2d9f44d564a1ba3af3aca47bd8f58ac74e96151ef2e48cccc5fcff5"
+  },
+  "root_inspection": {
+    "path": "research/reviews/biological_gst_completed_storage_settlement_v1/inspection.json",
+    "sha256": "c420d0ea2690aed015dc895da09ca3619e2dd9699942190ca9575ded0043817d",
+    "applied": false
+  },
+  "blocking_findings": [
+    {
+      "priority": 1,
+      "title": "Unreadable subtree omitted from conservative charge",
+      "lines": [
+        42
+      ],
+      "resolution": "Fail closed on os.walk traversal errors."
+    },
+    {
+      "priority": 1,
+      "title": "Scope can change after pre-lock inventory",
+      "lines": [
+        67,
+        79,
+        80,
+        88
+      ],
+      "resolution": "Bind prior inspected inventory, revalidate full scope under scheduler.lock immediately before reduction, reject differences, and recheck terminal identity."
+    }
+  ],
+  "trust_boundary": "Pinned terminal pool registry and operator frozen-output/future-write policy are contractual; no OS exclusion or arbitrary unknown-writer absence certification.",
+  "tests": {
+    "command": [
+      "/workspace-SR003.nfs2/ARG-GNN/.runtime/env/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "research/reviews/biological_gst_storage_settlement_v1_independent/test_counterexamples.py",
+      "-p",
+      "no:cacheprovider",
+      "--basetemp",
+      "research/reviews/biological_gst_storage_settlement_v1_independent/tmp/pytest",
+      "--junitxml=research/reviews/biological_gst_storage_settlement_v1_independent/pytest.xml"
+    ],
+    "returncode": 0,
+    "scope": "source-only/handmade fake scopes; no native modes, actual arrays or --apply",
+    "junit": [
+      {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "4",
+        "time": "0.189",
+        "timestamp": "2026-10-10T23:06:19.270316+03:00",
+        "hostname": "anogena-0"
+      }
+    ]
+  },
+  "counterexamples": {
+    "unreadable_subtree": {
+      "handmade_omitted_file_bytes": 200000,
+      "test_retained_charge_bytes": 100000,
+      "omission_reproduced": true
+    },
+    "post_inventory_growth": {
+      "inspect_only": true,
+      "test_retained_charge_bytes": 100000,
+      "current_file_bytes": 216000,
+      "emitted_inventory_hash_stale": true,
+      "fake_ledger_unchanged": true
+    },
+    "apply_run": false
+  },
+  "live_workers_reservations_change_authorized": false,
+  "apply_run": false,
+  "live_ledger_mutated": false,
+  "actual_array_native_GPU_install_Git_execution": false,
+  "artifact_sha256": {
+    "research/reviews/biological_gst_storage_settlement_v1_independent/test_counterexamples.py": "994d5b4275166ec7fb7b7e2df0dca7bef8040df9835dea452b526e603a32360d",
+    "research/reviews/biological_gst_storage_settlement_v1_independent/pytest.xml": "5df665692d351a8b0d6183ab9ded912b6acfb669cfe445e6acd5aacc93db870a",
+    "research/reviews/biological_gst_storage_settlement_v1_independent/pytest.log": "44091516c6f7d278c9900d796163d45f95d1ad1819370ffeeaf887bc704f2e38",
+    "research/reviews/biological_gst_storage_settlement_v1_independent/test_execution.json": "a6d74a302291106b6a8a2ca68cded9b3004d9bdb668a6535524463d04f7755e2",
+    "research/reviews/biological_gst_storage_settlement_v1_independent/blocked_source_v1.py": "fee2905ca2d9f44d564a1ba3af3aca47bd8f58ac74e96151ef2e48cccc5fcff5",
+    "research/reviews/biological_gst_storage_settlement_v1_independent/review.txt": "cd5ca18a7fb258d5dc0e2d2808967344067ad591b93faae9c5dddccc20a89eae",
+    "research/reviews/biological_gst_storage_settlement_v1_independent/counterexample_evidence.json": "a75c937d01259bc30b94baa11050e50cb95ebb1ffb8dd8158f7295730de38388"
+  }
+}
