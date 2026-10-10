@@ -24,3 +24,11 @@
 - Next step: diagnose reference-information reachability, add stronger genealogy-conditioned local controls, and assess the separate four-source ancient-European generator.
 - A fresh-context code audit led to fixes for switch diagnostics, checkpoint uniqueness, provenance checks, storage guards, and inherited GPU leases.
 - Corrected full-resolution diagnostics changed 7 of 28 cases, from 749 to 759 switches in total. Original labels/tensors were preserved and their hashes verified.
+
+## Fixed-anchor plain pilot and control integration, 2026-10-10
+
+The nine-model plain inferred Q64 pilot completed on the reused 16 TRAIN/four VAL parents with seed101. Full depth2 selected NLL is 1.02564669, full depth1 1.03080856, scalar depth2 1.03870764, diagonal depth2 1.03976517 and gain-matched diagonal depth2 1.04072184. This is exploratory selection evidence. There is no final ancestry test or established novel superiority. The complete score and per-parent ledger is in research/reviews/anchor_plain_pilot_complete_v1.json.
+
+Capacity/source-feedback and split-age interventions, canonicalization and direct-core Chickenpox adaptation are integrated in new independent modules. Their last combined integration verification passed 173 tests. Their training remains pending. The exhaustive label-free age-panel audit establishes non-scalar geometry and about94–95% physical-span source coverage, with no predictive implication. The fresh-development/confirmation protocol is a proposal requiring concrete execution and analysis locks. No confirmatory parents have been generated.
+
+Relate authorization was reaffirmed by the user: “I reviewed, use it.” Credentials remain external to scientific artifacts.
