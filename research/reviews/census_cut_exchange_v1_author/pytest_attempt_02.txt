@@ -1,0 +1,165 @@
+.....F......F........F..............                                     [100%]
+=================================== FAILURES ===================================
+_ test_finite_anchor_output_mass_and_vjp_against_independent_dense_oracle[permuted_groups-dtype1] _
+
+dtype = torch.float32, control = 'permuted_groups'
+
+    @pytest.mark.parametrize("dtype", [torch.float64, torch.float32])
+    @pytest.mark.parametrize("control", ["proposed", "eta0", "permuted_groups", "raw_diagonal"])
+    def test_finite_anchor_output_mass_and_vjp_against_independent_dense_oracle(dtype, control):
+        b = bank(dtype)
+        if control == "permuted_groups":
+            b = permuted_group_control_v1(b, torch.tensor([2, 3, 1, 0]))
+        values = leaves(b, dtype)
+        query, reference, exchange, damping, eta, mixture = params(values)
+        sources = bundle(b, query, reference, exchange)
+>       actual = census_cut_action_v1(b, sources, exchange, damping, eta, control=control, readout_chunk_size=2)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_census_cut_exchange_v1.py:161: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+bank = CensusExchangeBankV1(layout=CompactAnchorLayoutV1(anchors=tensor([0.1667, 0.5000, 0.8333], dtype=torch.float64), weigh...t_graph=tensor([1, 0, 0, 1, 0, 1, 0, 1]), sigmas=(0.05, 0.1, 0.2), membership_control='fixed_global_group_permutation')
+sources = tensor([[[[[ 0.3336,  1.7736],
+           [-0.0800,  2.0644]],
+
+          [[-0.3096,  1.7736],
+           [ 0.5002,  2...      [-0.2473,  2.7100]],
+
+          [[-0.5466,  1.7369],
+           [-0.1992,  2.7100]]]]], grad_fn=<StackBackward0>)
+exchange = tensor([[0.7736, 1.0644],
+        [1.4848, 0.5429],
+        [0.7369, 1.7100]], grad_fn=<MulBackward0>)
+damping = tensor([[0.6107, 0.7239],
+        [0.2456, 0.6631],
+        [0.7736, 0.5399]], grad_fn=<MulBackward0>)
+eta = tensor([[0.8550, 1.0858],
+        [0.9953, 1.0799],
+        [0.6631, 1.5878]], grad_fn=<MulBackward0>)
+control = 'permuted_groups', readout_chunk_size = 2
+
+    def census_cut_action_v1(bank: CensusExchangeBankV1, sources: Tensor, exchange: Tensor,
+            damping: Tensor, eta: Tensor, *, control: str = "proposed",
+            readout_chunk_size: int = 128) -> Tensor:
+        """Bundled finite-anchor E/J action, inclusive forward and exclusive reverse.
+    
+        Strictly ordered E/J products matter. The reverse is the transpose of the
+        complete forward path, not an untransposed replay of forward boundaries.
+        Sources [A,S,Q,H,V] are weighted by native physical anchor cell widths.
+        """
+        if control not in {"proposed", "eta0", "permuted_groups", "raw_diagonal"}:
+            raise ValueError("Unknown finite-anchor census control")
+        if control == "permuted_groups" and bank.membership_control != "fixed_global_group_permutation":
+            raise ValueError("Permuted control requires a checked fixed global membership permutation")
+        if not isinstance(readout_chunk_size, int) or readout_chunk_size < 1 or sources.ndim != 5:
+            raise ValueError("Require [A,S,Q,H,V] sources and positive readout chunk size")
+        a, s, q, h, v = sources.shape
+        layout = bank.layout
+        if (min(a, s, q, h, v) < 1 or a != len(layout.graph_at_anchor)
+                or q != len(bank.query_ids) or s != len(bank.sigmas)
+                or any(x.shape != (s, h) for x in (exchange, damping, eta))
+                or bank.group_index.shape != (layout.num_graphs, q)
+                or bank.group_size_by_query.shape != (layout.num_graphs, q)
+                or bank.boundary_rho.shape != (len(layout.source_at_event), q)):
+            raise ValueError("Finite-anchor census dimensions differ")
+        fixed = (bank.group_size_by_query, bank.boundary_rho, bank.donor_weights)
+        if any(x.requires_grad for x in fixed):
+            raise ValueError("Observed groups/retention/donor geometry must remain fixed")
+        if (any(x.dtype != sources.dtype or x.device != sources.device for x in
+                (exchange, damping, eta, *fixed)) or layout.segment_duration.device != sources.device
+                or bank.group_index.device != sources.device):
+>           raise ValueError("Transfer source/rates/fixed bank with matching device and dtype")
+E           ValueError: Transfer source/rates/fixed bank with matching device and dtype
+
+src/arggnn/census_cut_exchange_v1.py:409: ValueError
+_______ test_policy_is_explicit_older_references_are_proxies_not_targets _______
+
+    def test_policy_is_explicit_older_references_are_proxies_not_targets():
+        t = tree(0)
+        with pytest.raises(ValueError, match="checked require_younger"):
+            build_census_cut_partition_v1(t, Q, R, SCORED, context_date_policy="assume_eligible")
+        weights = observed_tmrca_donor_weights_v1(t, Q, R)
+        close(weights.sum(-1), torch.ones(3, 4, dtype=weights.dtype))
+        assert (weights[..., 0] > 0).all() and (weights[..., 1] > 0).all()
+        expected = torch.softmax(-torch.log1p(torch.tensor([[550., 800.], [550., 800.], [800., 800.], [800., 800.]],
+            dtype=torch.float64))[None] / math.log1p(10000.) / torch.tensor([.05, .1, .2])[:, None, None], -1)
+>       close(weights, expected)
+
+tests/test_census_cut_exchange_v1.py:224: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+actual = tensor([[[0.6926, 0.3074],
+         [0.6926, 0.3074],
+         [0.5000, 0.5000],
+         [0.5000, 0.5000]],
+
+        ....5506, 0.4494],
+         [0.5506, 0.4494],
+         [0.5000, 0.5000],
+         [0.5000, 0.5000]]], dtype=torch.float64)
+expected = tensor([[[0.6926, 0.3074],
+         [0.6926, 0.3074],
+         [0.5000, 0.5000],
+         [0.5000, 0.5000]],
+
+        ....5506, 0.4494],
+         [0.5506, 0.4494],
+         [0.5000, 0.5000],
+         [0.5000, 0.5000]]], dtype=torch.float64)
+dtype = torch.float64, gradient = False
+
+    def close(actual, expected, dtype=torch.float64, gradient=False):
+        if dtype == torch.float64:
+            rt, at = (1e-8, 1e-10) if gradient else (1e-10, 1e-12)
+        else:
+            rt, at = (1e-3, 1e-5) if gradient else (2e-4, 2e-5)
+>       torch.testing.assert_close(actual, expected, rtol=rt, atol=at)
+E       AssertionError: Tensor-likes are not close!
+E       
+E       Mismatched elements: 12 / 24 (50.0%)
+E       Greatest absolute difference: 2.577262514513734e-09 at index (0, 0, 1) (up to 1e-12 allowed)
+E       Greatest relative difference: 8.384607822807627e-09 at index (0, 0, 1) (up to 1e-10 allowed)
+
+tests/test_census_cut_exchange_v1.py:38: AssertionError
+_ test_global_membership_permutation_control_preserves_statistics_not_signals[dtype1] _
+
+dtype = torch.float32
+
+    @pytest.mark.parametrize("dtype", [torch.float64, torch.float32])
+    def test_global_membership_permutation_control_preserves_statistics_not_signals(dtype):
+        b = bank(dtype)
+        permutation = torch.tensor([2, 3, 1, 0])
+        shuffled = permuted_group_control_v1(b, permutation)
+        assert shuffled.query_ids is b.query_ids and shuffled.donor_weights is b.donor_weights
+>       close(shuffled.boundary_rho, b.boundary_rho[:, permutation], dtype)
+
+tests/test_census_cut_exchange_v1.py:323: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+actual = tensor([[1.0000, 1.0000, 1.0000, 1.0000],
+        [1.0000, 1.0000, 1.0000, 1.0000],
+        [0.5000, 1.0000, 0.3333, 0.5000],
+        [1.0000, 1.0000, 1.0000, 1.0000],
+        [1.0000, 1.0000, 1.0000, 1.0000]], dtype=torch.float64)
+expected = tensor([[1.0000, 1.0000, 1.0000, 1.0000],
+        [1.0000, 1.0000, 1.0000, 1.0000],
+        [0.5000, 1.0000, 0.3333, 0.5000],
+        [1.0000, 1.0000, 1.0000, 1.0000],
+        [1.0000, 1.0000, 1.0000, 1.0000]])
+dtype = torch.float32, gradient = False
+
+    def close(actual, expected, dtype=torch.float64, gradient=False):
+        if dtype == torch.float64:
+            rt, at = (1e-8, 1e-10) if gradient else (1e-10, 1e-12)
+        else:
+            rt, at = (1e-3, 1e-5) if gradient else (2e-4, 2e-5)
+>       torch.testing.assert_close(actual, expected, rtol=rt, atol=at)
+E       AssertionError: The values for attribute 'dtype' do not match: torch.float64 != torch.float32.
+
+tests/test_census_cut_exchange_v1.py:38: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_census_cut_exchange_v1.py::test_finite_anchor_output_mass_and_vjp_against_independent_dense_oracle[permuted_groups-dtype1]
+FAILED tests/test_census_cut_exchange_v1.py::test_policy_is_explicit_older_references_are_proxies_not_targets
+FAILED tests/test_census_cut_exchange_v1.py::test_global_membership_permutation_control_preserves_statistics_not_signals[dtype1]
+3 failed, 33 passed in 4.60s
