@@ -114,6 +114,8 @@ def test_imported_ts_queries_align_by_diploid_and_haplotype_after_reorder(scratc
     assert [result_key_by_node[int(u)] for u in result.sequence.query_node_ids] == original_query_keys
     assert result.metadata['coverage_physical_bp'] == [0., 100.]
     assert result.metadata['input_kind'] == 'inferred_genealogy'
+    assert result.metadata['benchmark'] == 'ancient-europe-stdpopsim-0.3.0-relate-inferred'
+    assert result.metadata['parent_benchmark'] == parent.metadata['benchmark']
     assert np.all(result.tree_sequence.tables.nodes.population == tskit.NULL)
     result.sequence.validate()
 
@@ -204,3 +206,10 @@ def test_successful_cpu_fixture_exact_targets_and_native_return_codes():
     assert result.metadata['replicate'] == parent.metadata['replicate']
     assert len(result.sequence.query_node_ids) == len(parent.sequence.query_node_ids)
     assert result.metadata['internal_population_annotations_present'] is False
+
+
+def test_relate_seed_must_fit_native_signed_integer():
+    RelateConfig(seed=2**31-1).validate()
+    for seed in (0, -1, 2**31):
+        with pytest.raises(ValueError, match="signed-31-bit"):
+            RelateConfig(seed=seed).validate()

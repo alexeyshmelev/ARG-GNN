@@ -89,3 +89,25 @@ The query-position nearest-vote tensor differed from the retained independent ne
 All-node statistics took 0.731 seconds on CPU for this replicate. The independent full-pair audit took 5.582 seconds. Appending 30 float32 columns requires 3,063,240 additional tensor bytes, without serialization/compression overhead. The selected feature configuration SHA256 is `90eb5f0e2c210cf793374f9c21f87d1a25ba01e03a6c5ec410039181c4551cb1` with the original recorded feature names.
 
 One prepared window yielded `[16,16,3]` logits and finite parameter gradients for both wrappers, using a label-free squared-logit loss. No optimization step or GPU execution occurred. Eight CPU tests passed, including compatible inputs to all seven existing comparison families. Kernel parameters are fixed, so adapter parameter-gradient tests are inapplicable. Model gradients remain verified.
+
+
+## Independent study-pipeline audit
+
+The root-owned study model registry, preparation script, training script and frozen ancient v2 configuration were inspected without modification. The adapter audit confirmed an actual prepared ancient training parent preserves the original eight-column prefix, matches the expected declared adapter configuration, has zero query reference labels and yields 48-column inputs for all model families.
+
+A read-only mixed-parent probe initially demonstrated that a manifest record could verify the tensor for replicate 0 while loading labels through replicate 1's directory. The root agent repaired this binding. The repeat probe now rejects both a directory mismatch and a replicate-identity mismatch. Correct records still load.
+
+The current loader binds raw tensor and metadata paths to the parent directory, checks raw/prepared/metadata hashes, parent replicate/seeds/split, source tensor provenance and expected frozen adapter configuration, and verifies exact original features plus every unchanged graph/query/coordinate field. The model registry receives the same cached augmented sequence for each family. Truth census/population annotations are removed before observed-tree packing, and target labels are external to prepared model inputs.
+
+Checkpoint selection uses minimum mean parent-validation NLL with patience-based early stopping. The runner enforces a train/validation-only protocol and reports the selected validation metrics as such. No final-test inference was invoked during this audit. The current grid boundary matcher passed an adversarial two-boundary case requiring maximum-cardinality ordered matching.
+
+No remaining blocker was found in those inspected paths after the loader repair. GraphSSM's different local diffusion operator remains a disclosed comparison limitation. Generation from uncommitted source requires the root's planned exact-source-hash and dirty-status supplement, followed by a training-source commit. This audit does not establish future held-out model performance.
+
+Audited file SHA256 values:
+
+```
+src/arggnn/study_models.py: 3498b24b1b679c6c8e4f3489974342e2c23ba5c693bceceaf30e73c39bbbae2b
+src/arggnn/prepare_study.py: 0e450c3d5e0bf29964e3ac2cf4d9eb3dafb04d0ae44a6013b66f53e58f5fb84d
+src/arggnn/train_study.py: 0a3a38b34da5b1f35891003378d1ac42e503c1008c715150a828d60000aa8b63
+configs/ancient_common_input_pilot_v2.json: 9891358177b1e2cf057d2407bcb3e8da0dfb66f1471760d2f72336e45c8dc2d6
+```

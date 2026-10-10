@@ -63,3 +63,21 @@ def make_study_model(name,input_dim,num_classes,settings):
         return GraphSSMAdaptation(**common,bidirectional=True,
                                  discretization="paper",dropout=settings.get("dropout",0.))
     return build_model(name,**common)
+
+
+def make_regression_model(name,input_dim,settings):
+    """Replace the complete legacy classification head with one scalar output.
+
+    Encoders retain their documented architectures. The temporary two-class
+    head is discarded rather than leaving an unused output parameter in loss.
+    """
+    base=name.removesuffix("_no_geography")
+    model=make_study_model(base,input_dim,2,settings)
+    if isinstance(model.head,nn.Linear):
+        model.head=nn.Linear(model.head.in_features,1)
+    elif isinstance(model.head,nn.Sequential) and isinstance(model.head[-1],nn.Linear):
+        model.head[-1]=nn.Linear(model.head[-1].in_features,1)
+    else:
+        raise TypeError("Unrecognized forecast-head architecture")
+    model.num_classes=1
+    return model

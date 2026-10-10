@@ -62,8 +62,8 @@ class RelateConfig:
     def validate(self) -> None:
         if any(not np.isfinite(value) or value <= 0 for value in (self.mutation_rate, self.effective_haploid_size, self.memory_gb)):
             raise ValueError("Relate rate, haploid effective size and memory must be positive")
-        if self.seed < 1 or self.timeout_seconds < 1 or self.threads < 1:
-            raise ValueError("Relate seed and timeout must be positive")
+        if not 1 <= self.seed <= 2**31 - 1 or self.timeout_seconds < 1 or self.threads < 1:
+            raise ValueError("Relate requires a positive signed-31-bit seed, timeout and thread count")
 
 
 def load_compressed_tree_sequence(path: str | Path) -> tskit.TreeSequence:
@@ -357,6 +357,8 @@ def paired_inferred_dataset(
         row["observed_node_id"] = key_to_leaf[key]
         sample_rows.append(row)
     metadata.update({
+        "benchmark": "ancient-europe-stdpopsim-0.3.0-relate-inferred",
+        "parent_benchmark": parent.metadata["benchmark"],
         "input_kind": "inferred_genealogy", "ancestry_inference": inference_name,
         "samples": sample_rows, "reference_classes": {str(u): c for u, c in references.items()},
         "landmark_node_ids": landmarks, "num_trees": observation.num_trees,

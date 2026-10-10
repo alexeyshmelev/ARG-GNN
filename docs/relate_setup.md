@@ -63,7 +63,7 @@ Output labels are exactly `parent.labels[retained_parent_grid_indexes]`. Positio
 
 `run_paired_relate(parent, preparation, directory, config=RelateConfig(...))` performs one explicit CPU run using the already verified official tools. It checks binary/script/licence hashes and unchanged prepared input files. No download, installation, vendor communication, GPU context or scheduler submission occurs in this function.
 
-The official `RelateParallel.sh --threads 1` workflow is used by the verified installation. It executes separate native stages and is followed by `RelateFileFormats --mode ConvertToTreeSequence`. Default mutation rate is 1.25e-8, `-N 30000`, memory allowance .25 GB and explicit seed. **Relate N is effective haploid size**, as stated in its documentation. It is not the msprime diploid population size. `-N 30000` is a fixed inference assumption, not the true varying European demographic model. Population-size re-estimation and `.coal` schedules are separate future conditions.
+The official `RelateParallel.sh` workflow is used by the verified installation. The single-case API defaults to one thread. The authorized v3 panel uses four threads. It executes separate native stages and is followed by `RelateFileFormats --mode ConvertToTreeSequence`. Default mutation rate is 1.25e-8, `-N 30000`, memory allowance .25 GB and explicit seed. **Relate N is effective haploid size**, as stated in its documentation. It is not the msprime diploid population size. `-N 30000` is a fixed inference assumption, not the true varying European demographic model. Population-size re-estimation and `.coal` schedules are separate future conditions.
 
 Relate requires `-o` to be a basename in its current working directory. All native commands run inside a fresh project-owned inference folder with output prefix `inferred`. Absolute paths are used for input files. Existing output folders/files are preserved rather than overwritten. `execution.json` stores argv, working directory, return code, elapsed time and log paths. Any nonzero command status is a failure, and a converted tskit file is not called successful until both native stages return zero and sample/coordinate/tree checks pass.
 
@@ -99,6 +99,31 @@ Tests cover independent VCF/haps genotype equivalence and actual native VCF conv
 
 ## Resources and next stage
 
-The static release needs no additional package installation for this path. Python uses the existing project runtime for msprime, tskit, numpy and torch. All tools, archives, source assets, decompression scratch, inputs, temporary native files, logs and datasets remain inside `/workspace-SR003.nfs2/ARG-GNN`. No GPU or bulk inference was launched by this development phase. Main agent owns larger paired generation, scheduling, training, commits and publication. Preserve the reviewed licence scope, copyright and complete experiment records. Keep repository storage below500 GB with a450 GB warning threshold.
+The static release needs no additional package installation for this path. Python uses the existing project runtime for msprime, tskit, numpy and torch. All tools, archives, source assets, decompression scratch, inputs, temporary native files, logs and datasets remain inside `/workspace-SR003.nfs2/ARG-GNN`. Paired inference is CPU work. The primary agent owns GPU scheduling, training, commits and publication. Preserve the reviewed licence scope, copyright and complete experiment records. Keep repository storage below500 GB with a450 GB warning threshold.
 
 Before a main paired benchmark, freeze parent simulation seeds/configuration, variant filtering, inference settings, polarization condition, sample manifest and coverage rule. Generate adequate ancestry tracts on longer independent parents, infer matching trees, and train/evaluate the same model/baseline families separately on true and inferred trees. Report matched-coordinate differences and uncertainty over independent parent replicates. A tsinfer/tsdate backup remains useful as a separately licensed inference family, not a drop-in reproduction of Relate.
+
+
+## Frozen v3 paired inferred panel
+
+`configs/inferred_common_input_pilot_v3.json` binds the exact v2 source protocol and manifest by SHA256. It keeps the same 16 training and 4 validation parents, models, adapter, eight global windows and training settings. There are no test parents in this pilot. Source metadata, raw tensors and prepared tensors are checked before inference. Each inferred record also binds the source truth archive by hash for target provenance, while genotype export reads only the cleaned observation.
+
+The independent inference master seed is 20261013. Each parent gets a signed-31-bit seed from SHA256 of the UTF-8 string `ARG-GNN/Relate/v1.2.4/{master_seed}/{split}/{replicate}`, interpreting its first eight bytes as an unsigned big-endian integer, taking modulo `2**31-1`, then adding one. The scheme does not consume or replace the ancestry/mutation seeds. The v3 protocol pins mutation rate 1.25e-8, recombination rate 1e-8, effective haploid size 30,000, MAC 1, memory .25 GB, four CPU threads and a 1,200-second native command timeout.
+
+```bash
+source scripts/project_env.sh
+CUDA_VISIBLE_DEVICES='' "$ARGGNN_PYTHON" -m arggnn.prepare_relate_study \
+  --config configs/inferred_common_input_pilot_v3.json \
+  --output data/ancient_inferred_common_input_pilot_v3
+```
+
+The preparation module processes every parent sequentially and fails on any nonzero native status. Existing versioned output is preserved. It writes raw inferred inputs plus the exact reference-adapter cache and integrity fields expected by `train_study.load_cases`. Inferred metadata has an explicit inferred benchmark family, the original source family separately, parent hashes, unchanged parent ancestry/mutation seeds, independent inference settings and exact retained target/position/query alignment.
+
+Before completing the manifest, the actual training loader checks all raw metadata/tensor and prepared-cache bindings. Global fixed windows intersect genuine inferred coverage, without extrapolation or renormalization. Concatenating their positions and labels must recover each paired case exactly once in its original order. `verification.json` records those checks and clipped versus global bounds. The compact tracked `docs/relate_v3_provenance.json` reports the finished panel, with full generated records retained in the dataset manifest.
+
+**Copyright © 2018, University of Oxford** applies to this Relate output and its descriptions.
+
+
+The completed panel retained 2,559 of 2,560 original parent grid points. Nineteen parents retained all 128. Validation parent 3 retained 127 because source grid index 127 lies outside its observed SNP coverage. Physical coverage averaged 99.81692% and was at least 99.5657%. Both native commands returned zero for every parent. Full preparation took 201.72 seconds, including resource guards, packing, caching and loader/window verification. The sum of recorded native command times was 9.22 seconds. These are distinct timings for this actual run, not throughput guarantees.
+
+The actual loader verified all 20 raw and prepared cases. Prepared inputs have 48 features with the exact original eight-feature prefix and unchanged nonfeature GraphSequence fields. Each case produced eight fixed global tiles, clipped only to its genuine coverage. Their labels and positions concatenate to the original retained case exactly. No raw truth genealogy or test directory is present in the inferred panel. Paired oracle evaluation must exclude validation parent 3's missing source grid index 127, using the recorded retained indexes for every parent.
