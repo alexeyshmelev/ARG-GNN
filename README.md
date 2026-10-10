@@ -20,20 +20,22 @@ Method features:
 
 ## Comparison with existing methods
 
-Completed development results as of 2026-10-10. **Higher accuracy is better. Lower NLL and Brier are better.** Primary results concern 64 present-day query haplotypes.
+Completed development results as of 2026-10-10. **Higher accuracy is better. Lower NLL, Brier and ECE are better.** Primary results concern 64 present-day query haplotypes.
 
-| Method | Accuracy ↑ | NLL ↓ | Brier ↓ | Optimizer seeds |
-| --- | ---: | ---: | ---: | --- |
-| ARGMix, current author release | 85.55% | 0.4353 | 0.2191 | 50 |
-| Our candidate, age D2 | 84.89% | 0.4273 | 0.2231 | 101 |
-| Our candidate, plain D2 | 84.84% | 0.4274 | 0.2237 | 101 |
-| Matched GRU D2 | 84.18% | 0.4520 | 0.2330 | 101 |
-| AncestralPaths, released Dense | 82.06% | 0.8191† | 0.2857† | 101, 202, 303 |
-| GST-style reconstruction, width 32 | 80.03% | 0.5689 | 0.2920 | 101 |
-| GST-style reconstruction, width 64 | 79.86% | 0.5690 | 0.2928 | 101 |
-| ARGformer, author implementation | Pending qualified comparison | — | — | Native fits completed |
+| Method | Accuracy ↑ | NLL ↓ | Brier ↓ | ECE ↓ | Optimizer seeds |
+| --- | ---: | ---: | ---: | ---: | --- |
+| ARGMix, current author release | 85.55% | 0.4353 | 0.2191 | 0.0861 | 50 |
+| Our candidate, age D2 | 84.89% | 0.4273 | 0.2231 | 0.0323 | 101 |
+| Our candidate, plain D2 | 84.84% | 0.4274 | 0.2237 | 0.0328 | 101 |
+| Matched GRU D2 | 84.18% | 0.4520 | 0.2330 | 0.0343 | 101 |
+| AncestralPaths, released Dense | 82.06% | 0.8191† | 0.2857† | 0.0940† | 101, 202, 303 |
+| GST-style reconstruction, width 32 | 80.03% | 0.5689 | 0.2920 | 0.0236 | 101 |
+| GST-style reconstruction, width 64 | 79.86% | 0.5690 | 0.2928 | 0.0310 | 101 |
+| ARGformer, author implementation | Pending qualified comparison | — | — | — | Native fits completed |
 
-† AncestralPaths NLL and Brier use a disclosed auxiliary stable-logit evaluation with unchanged trained weights and identical class predictions. Its original raw probability underflow and infinite NLL are preserved in the experiment records. No probability floor is applied.
+† AncestralPaths NLL, Brier and ECE use a disclosed auxiliary stable-logit evaluation with unchanged trained weights and identical class predictions. Its original raw probability underflow and infinite NLL are preserved in the experiment records. No probability floor is applied.
+
+Metrics: accuracy is the fraction of correctly assigned query base pairs. NLL is negative log probability of the true class, in nats. Brier is the sum of squared errors across the four class probabilities. ECE measures the confidence-versus-accuracy gap in 15 equally spaced confidence bins. Scores weight exact physical query support and average parent-level values. GST32 has the lowest ECE in this pilot, despite its lower accuracy. Calibration alone does not establish better ancestry inference.
 
 **Against our strongest current comparator:** the age-D2 candidate trails ARGMix by 0.66 accuracy percentage points. Age and plain candidates differ by only 0.05 points. Neither age conditioning nor overall superiority is established by this pilot.
 
@@ -61,6 +63,7 @@ Input features, supervision, native selection rules and post-processing differ b
 
 ## Evidence and research log
 
+- [Full README metrics and pairwise differences](experiments/results/readme_biological_summary_v2/summary.json).
 - [Concise comparison status](docs/biological_comparison_status_v1.md) and [machine-readable table](experiments/results/biological_comparison_status_v1/summary.json).
 - [Candidate results](experiments/results/biological_candidate_pilot_v1_seed101_summary/summary.json), [ARGMix results](experiments/results/official_argmix_biological_metadata_repair_v3_summary/summary.json), [AncestralPaths stable evaluation](experiments/results/ancestralpaths_stable_readout_v1/summary.json), and [GST results](experiments/results/biological_gst_control_v1_seed101_summary/summary.json).
 - [Biological benchmark contract](docs/biological_benchmark_contract_v1.md), [estimand and features](docs/biological_estimand_and_features_v1.md), and [census prototype](docs/census_tree_encoder_v1.md).
