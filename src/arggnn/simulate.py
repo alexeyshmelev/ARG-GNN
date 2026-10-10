@@ -20,6 +20,7 @@ import torch
 import tskit
 
 from .data import GraphSequence, slice_genomic_window
+from .resources import require_storage
 
 SPLIT_CODES = {"train": 0, "val": 1, "test": 2}
 FEATURE_TIME_SCALE = 10_000.0
@@ -141,7 +142,7 @@ def true_ancestry_switch_counts(
     admixed_population: int, source_population_to_class: Mapping[int, int], pulse_time: float,
 ) -> list[int]:
     """Count ancestry transitions at all recorded pulse-migration boundaries."""
-    boundaries = sorted({0.0, float(ts.sequence_length), *[
+    boundaries = sorted({0.0, float(ts.sequence_length), *ts.breakpoints(), *[
         coordinate for migration in ts.migrations()
         if migration.source == admixed_population and migration.dest in source_population_to_class
         and np.isclose(migration.time, pulse_time, rtol=0, atol=1e-9)
@@ -339,6 +340,11 @@ def _project_path(path: str | Path) -> Path:
 
 def save_replicate(dataset: SimulatedDataset, directory: str | Path) -> dict[str, Any]:
     directory = _project_path(directory)
+    tensor_bytes=sum(t.numel()*t.element_size() for t in dataset.sequence.as_dict().values() if t is not None)
+    tensor_bytes+=dataset.labels.numel()*dataset.labels.element_size()
+    tensor_bytes+=dataset.baseline_probabilities.numel()*dataset.baseline_probabilities.element_size()
+    tree_bytes=0 if dataset.tree_sequence is None else dataset.tree_sequence.nbytes
+    require_storage(headroom_bytes=int(1.1*tensor_bytes+2.2*tree_bytes+10_000_000))
     directory.mkdir(parents=True, exist_ok=True)
     dataset.sequence.validate()
     if dataset.labels.shape != (dataset.sequence.positions.numel(), dataset.sequence.num_queries):
@@ -386,6 +392,7 @@ def generate_dataset(
                 "master_seed": master_seed, "config": asdict(config), "replicates": []}
     for split, count in counts.items():
         for replicate in range(count):
+            require_storage(headroom_bytes=1_000_000_000)
             dataset = simulate_replicate(config, master_seed=master_seed, split=split, replicate=replicate)
             record = save_replicate(dataset, directory / split / f"rep{replicate:03d}")
             manifest["replicates"].append(record)

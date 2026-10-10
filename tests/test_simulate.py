@@ -176,3 +176,30 @@ def test_recombining_ordering_pilot_truth_and_windows():
         expected[:, 1].clamp_(max=right)
         torch.testing.assert_close(tile.sequence.intervals, expected)
         tile.sequence.validate()
+
+
+def test_switch_counts_include_genealogy_breakpoints():
+    import tskit
+    from arggnn.simulate import true_ancestry_switch_counts, migration_ancestry_at_positions
+    tables=tskit.TableCollection(sequence_length=100)
+    for _ in range(4):
+        tables.populations.add_row()
+    for _ in range(4):
+        tables.nodes.add_row(flags=tskit.NODE_IS_SAMPLE,time=0,population=2)
+    a=tables.nodes.add_row(time=10,population=2)
+    b=tables.nodes.add_row(time=10,population=2)
+    root=tables.nodes.add_row(time=100,population=3)
+    for parent,children,left,right in [(a,[0,1],0,50),(b,[2,3],0,50),
+                                       (a,[1,2],50,100),(b,[0,3],50,100)]:
+        for child in children:
+            tables.edges.add_row(left=left,right=right,parent=parent,child=child)
+    for child in [a,b]:
+        tables.edges.add_row(left=0,right=100,parent=root,child=child)
+    tables.migrations.add_row(left=0,right=100,node=a,source=2,dest=0,time=20)
+    tables.migrations.add_row(left=0,right=100,node=b,source=2,dest=1,time=20)
+    tables.sort()
+    ts=tables.tree_sequence()
+    kwargs=dict(admixed_population=2,source_population_to_class={0:0,1:1},pulse_time=20)
+    labels=migration_ancestry_at_positions(ts,[0,1,2,3],[25,75],**kwargs)
+    assert labels.tolist()==[[0,0,1,1],[1,0,0,1]]
+    assert true_ancestry_switch_counts(ts,[0,1,2,3],**kwargs)==[1,0,1,0]

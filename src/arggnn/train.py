@@ -64,6 +64,8 @@ def main():
     if args.device=="cuda":
         if os.environ.get("ARGGNN_PHYSICAL_GPU") not in {"2","3","4","5"} or not os.environ.get("ARGGNN_GPU_LEASE"):
             raise RuntimeError("GPU training requires the project resource launcher")
+        lease_fd=int(os.environ["ARGGNN_GPU_LEASE_FD"])
+        os.fstat(lease_fd)
         if torch.cuda.device_count()!=1:
             raise RuntimeError("A job must see exactly one reserved GPU")
         torch.cuda.reset_peak_memory_stats()
@@ -77,6 +79,11 @@ def main():
     config_sha=hashlib.sha256(project_path(args.config).read_bytes()).hexdigest()
     if manifest["protocol_sha256"]!=config_sha:
         raise RuntimeError("Dataset and training protocol hashes differ")
+    for record in manifest["replicates"]:
+        actual=hashlib.sha256(project_path(record["tensor_file"]).read_bytes()).hexdigest()
+        if actual!=record["tensor_sha256"]:
+            raise RuntimeError("Dataset tensor integrity check failed")
+    manifest_sha=hashlib.sha256((data_dir/"manifest.json").read_bytes()).hexdigest()
     output=project_path(args.output)
     if (output/"results.json").exists():
         raise RuntimeError("Completed output exists. Choose a fresh versioned run.")
@@ -95,13 +102,15 @@ def main():
     results={"stage":settings["stage"],"interpretation":settings["interpretation"],
              "input_kind":"oracle_true_genealogies","evaluation":settings["evaluation"],
              "training_seed":args.seed,"protocol_sha256":config_sha,
+             "dataset_directory":str(data_dir),"dataset_manifest_sha256":manifest_sha,
              "git_commit":subprocess.check_output(["git","rev-parse","HEAD"],cwd=ROOT,text=True).strip(),
              "physical_gpu":os.environ.get("ARGGNN_PHYSICAL_GPU"),
              "environment":{"torch":torch.__version__,"cuda":torch.version.cuda},
              "models":{}}
     nearest=[classification_metrics(c.baseline_probabilities,c.labels) for c in cases["test"]]
     results["nearest_tmrca"]={"per_replicate":nearest,**replicate_summary(nearest,args.seed)}
-    checkpoint_root=project_path(Path("checkpoints")/output.name)
+    checkpoint_id=hashlib.sha256(str(output.relative_to(ROOT)).encode()).hexdigest()[:16]
+    checkpoint_root=project_path(Path("checkpoints")/(output.name+"_"+checkpoint_id))
     checkpoint_root.mkdir(parents=True,exist_ok=True)
     for name in selected:
         set_seed(args.seed)

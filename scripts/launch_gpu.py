@@ -66,6 +66,7 @@ def main() -> int:
     env["ARGGNN_PHYSICAL_GPU"] = str(selected)
     env["ARGGNN_JOB_NAME"] = args.job
     env["ARGGNN_GPU_LEASE"] = str(lock_dir / f"gpu_{selected}.lock")
+    env["ARGGNN_GPU_LEASE_FD"] = str(lease.fileno())
     env["OMP_NUM_THREADS"] = env.get("OMP_NUM_THREADS", "4")
     env["MKL_NUM_THREADS"] = env.get("MKL_NUM_THREADS", "4")
     child = None
@@ -73,7 +74,8 @@ def main() -> int:
         command = [str(ROOT / ".runtime/env/bin/python"), "-m", args.module, *args.module_args]
         print(json.dumps({"event": "launch", "gpu": selected, "uuid": candidates[selected]["uuid"],
                           "job": args.job, "command_module": args.module}), flush=True)
-        child = subprocess.Popen(command, cwd=ROOT, env=env, start_new_session=True)
+        child = subprocess.Popen(command, cwd=ROOT, env=env, start_new_session=True,
+                                 pass_fds=(lease.fileno(),))
         def stop(signum, _frame):
             if child is not None and child.poll() is None:
                 os.killpg(child.pid, signum)
