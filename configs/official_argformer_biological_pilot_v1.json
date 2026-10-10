@@ -1,0 +1,78 @@
+{
+  "schema": "official_argformer_biological_pilot_v1",
+  "status": "implementation_pending_observed_graphs_and_root_execution",
+  "parent_ids": [
+    "bio_paths_pilot_train_000",
+    "bio_paths_pilot_train_001",
+    "bio_paths_pilot_val_000",
+    "bio_paths_pilot_val_001"
+  ],
+  "inferred_manifest": "data/biological_paths_execution_pilot_v1/relate_inferred_v1/manifest.json",
+  "inferred_manifest_status": "four_development_parents_inferred_pre_and_post_five_iterations",
+  "inferred_condition": "post_five_size_iterations_primary",
+  "source_commit": "f7545be7bca0200fb39aeb7f94a8e5f0b6bf5596",
+  "source_unchanged": true,
+  "sequence_length": 128,
+  "skip_extant_tokens": true,
+  "path_split_train_fraction": 0.9,
+  "path_split_seed": 42,
+  "pure_reference_haplotypes": 96,
+  "query_haplotypes": 120,
+  "total_observed_haplotypes": 280,
+  "class_order": [
+    "ANA",
+    "CHG",
+    "WHG",
+    "EHG"
+  ],
+  "pretraining": {
+    "epochs": 5,
+    "seed": 17,
+    "logical_batch": 512,
+    "microbatch": 64,
+    "train_masking_probability": 0.3,
+    "validation_masking_probability": 0.15,
+    "precision": "amp_bf16",
+    "optimizer_and_scheduler": "released_mlm.yaml unchanged"
+  },
+  "contrastive": {
+    "epochs": 1,
+    "seed": 36,
+    "logical_batch": 4096,
+    "microbatch": 4096,
+    "default_execution": "full_batch",
+    "gradient_cache_chunk": 64,
+    "precision": "fp32",
+    "temperature": 0.3,
+    "phantom_classifier_num_labels": 3,
+    "classifier_used_for_ancestry": false,
+    "reference_classes_in_loss": 4,
+    "class_weights": "released uniform fallback",
+    "optimizer_and_scheduler": "released_contrastive.yaml unchanged"
+  },
+  "gradient_cache_parity": {
+    "real_paths": 16,
+    "chunk": 4,
+    "evaluation_mode_dropout_disabled": true,
+    "loss_absolute_tolerance": 1e-05,
+    "global_gradient_relative_l2_tolerance": 0.01,
+    "required_before_cache_fit": true
+  },
+  "readout": {
+    "kind": "explicit_downstream_C4_local_class_mean_exp_cosine",
+    "temperature": 0.3,
+    "embedding_batch": 128,
+    "coordinate_chunk": 32,
+    "fixed_grid_bin_bp": 100,
+    "center_formula_bp0": "50 + 100*grid_index",
+    "local_position": "original_bp0 - local_to_original_offset_bp",
+    "use_only_declared_retained_fixed100bp_indexes": true,
+    "tail_extrapolation": false,
+    "calibration_fitted": false,
+    "calibration_status": "pending_external_biological_VAL"
+  },
+  "fitting_regime": "within_ARG_transductive; independent vocabulary/checkpoints per observed ARG",
+  "query_ancestry_targets_read": false,
+  "scientific_results_validated": false,
+  "inferred_manifest_kind": "biological_paths_relate_v1"
+}
