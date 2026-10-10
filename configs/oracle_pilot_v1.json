@@ -1,0 +1,47 @@
+{
+  "stage": "engineering_and_mechanism_pilot",
+  "benchmark": "three-source-neutral-pulse-oracle",
+  "master_seed": 20261010,
+  "simulation": {
+    "sequence_length": 1000000,
+    "recombination_rate": 1e-8,
+    "mutation_rate": 1.25e-8,
+    "population_size": 500,
+    "split_time": 2000,
+    "admixture_time": 300,
+    "proportions": [
+      0.34,
+      0.33,
+      0.33
+    ],
+    "reference_diploids_per_source": 8,
+    "query_diploids": 8,
+    "grid_points": 128,
+    "landmarks_per_source": 4,
+    "max_graph_nodes": 1000000
+  },
+  "splits": {
+    "train": 16,
+    "val": 4,
+    "test": 8
+  },
+  "windows": 8,
+  "models": [
+    "independent",
+    "set_pool",
+    "gru",
+    "late_transformer",
+    "supra_mpnn",
+    "interval_lineage",
+    "no_correspondence"
+  ],
+  "hidden_dim": 32,
+  "num_layers": 2,
+  "epochs": 12,
+  "patience": 4,
+  "learning_rate": 0.001,
+  "weight_decay": 0.0001,
+  "selection": "minimum validation NLL, final test only after selecting a checkpoint",
+  "evaluation": "uniform fixed-coordinate grid, oracle genealogies, independent parent replicates",
+  "interpretation": "Engineering pilot and headroom check. These data do not establish inferred-ARG performance or a publication contribution."
+}

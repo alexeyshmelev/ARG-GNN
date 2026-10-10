@@ -24,3 +24,7 @@ export SSH_AUTH_SOCK="$ARGGNN_ROOT/.runtime/ssh/agent.sock"
 export PYTHONPATH="$ARGGNN_ROOT/src"
 export PYTHONUNBUFFERED=1
 export ARGGNN_PYTHON="$ARGGNN_ROOT/.runtime/env/bin/python"
+export TORCHINDUCTOR_CACHE_DIR="$ARGGNN_ROOT/.runtime/cache/torchinductor"
+export TRITON_CACHE_DIR="$ARGGNN_ROOT/.runtime/cache/triton"
+export PYTHONNOUSERSITE=1
+export PIP_CONFIG_FILE=/dev/null
