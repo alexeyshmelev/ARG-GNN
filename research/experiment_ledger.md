@@ -185,3 +185,13 @@ Evidence: [research/reviews/confirmatory_workflow_audit_v1](../research/reviews/
 **Next/repeat rule:** Prespecify a falsifiable hypothesis and public-data provenance first. Report concordance/robustness with uncertainty rather than known ancestry accuracy.
 
 Evidence: [docs/ancestralpaths_native_protocol_v1.md](../docs/ancestralpaths_native_protocol_v1.md), [docs/benchmark_plan.md](../docs/benchmark_plan.md).
+
+## H020: Native competitors and the candidate improve source/path ancestry on a matched biological panel
+
+**biological_execution_pilot_proposed_not_run.** Four new2Mb development parents,2TRAIN/2VAL/TEST0, proposed140 diploids with96 pure reference haplotypes,64 mixed-reference haplotypes and120 queries. Source-derived11-population demographic model, six path classes plus explicit C4 collapse.
+
+**Conclusion:** The biological panel and full-span score contract are proposed. Actual simulations, Relate inferred observations and native fits remain pending. The140-diploid panel is distinct from the authors'476 diagnostic cohort. No final holdout count or performance claim is frozen.
+
+**Next/repeat rule:** Review/freeze executable demographic/sample/seed details, then run these new development parents and source-default methods. Existing Q64 engineering scores cannot answer this task. Power final comparison from development variation before any final outcomes.
+
+Evidence: [docs/biological_benchmark_contract_v1.md](../docs/biological_benchmark_contract_v1.md), [configs/biological_benchmark_contract_v1.json](../configs/biological_benchmark_contract_v1.json).
