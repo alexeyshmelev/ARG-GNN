@@ -1,0 +1,238 @@
+{
+  "created_utc": "2026-10-10T17:44:16.134444+00:00",
+  "findings": [
+    {
+      "conclusion": "Official default converter allocates N-1 fresh internal nodes per tree; samples persist.",
+      "evidence": [
+        {
+          "file": "ConvertToTreeSequence.pinned.cpp",
+          "lines": [
+            338,
+            348
+          ]
+        },
+        {
+          "file": "ConvertToTreeSequence.pinned.cpp",
+          "lines": [
+            383,
+            384
+          ]
+        },
+        {
+          "file": "ConvertToTreeSequence.pinned.cpp",
+          "lines": [
+            419,
+            433
+          ]
+        },
+        {
+          "file": "official_input_data.html",
+          "lines": [
+            501,
+            502
+          ]
+        }
+      ],
+      "id": "default_export_tree_local_internal_ids"
+    },
+    {
+      "conclusion": "Owned clean_converted_tree preserves node count and sample mapping and does not merge or relabel ancestors.",
+      "evidence": [
+        {
+          "file": "scripts/infer_biological_paths_relate_v1.py",
+          "lines": [
+            279,
+            343
+          ]
+        }
+      ],
+      "id": "cleaning_preserves_identity"
+    },
+    {
+      "conclusion": "The pinned/current converter neither reads the generic flag nor calls branch association. --flag 1 is not an inspected source-supported ancestral-identity repair.",
+      "id": "no_supported_lossless_flag_demonstrated",
+      "scope": "Inspected official source and documentation only; no claim about all third-party tools."
+    },
+    {
+      "conclusion": "Branch association includes approximate descendant/parent-descendant correlations with threshold 0.95; associated fields are branch mutation count and SNP spans, not shared tskit coalescent IDs.",
+      "evidence": [
+        {
+          "file": "FindEquivalentBranches.cpp",
+          "lines": [
+            92,
+            107
+          ]
+        },
+        {
+          "file": "anc_builder.cpp",
+          "lines": [
+            1440,
+            1595
+          ]
+        },
+        {
+          "file": "anc.cpp",
+          "lines": [
+            1862,
+            1862
+          ]
+        }
+      ],
+      "id": "branch_association_not_global_event_ids"
+    },
+    {
+      "conclusion": "Local rank, clade equality, approximate branch matches or SNP spans alone do not establish ancestral-event identity; a shared tskit node also requires one consistent time.",
+      "id": "merging_not_proven_lossless",
+      "implementation_proposed": false
+    },
+    {
+      "author_commit": "f7545be7bca0200fb39aeb7f94a8e5f0b6bf5596",
+      "conclusion": "Published simulated-genotype inference uses tsinfer+tsdate; author preprocessing deduplicates full raw-ID leaf-to-root tuples and assigns tokens by node ID. The paper explicitly motivates shared ancestral nodes across trees.",
+      "id": "argformer_native_family_and_representation",
+      "paper_doi": "10.1093/bioinformatics/btag438",
+      "runtime_compatibility_implies_representation_adequacy": false
+    }
+  ],
+  "identity_evidence": {
+    "attribution": "root_corrected_observation_only_receipt",
+    "bytes": 3239,
+    "four_tree_arrays_reopened": false,
+    "identity_counts_recomputed": false,
+    "method": "Union ancestors reached by walking tree.parent from each actual sampled haplotype. Isolated non-sample nodes are excluded. IDs measured within each inferred tree sequence. No query ancestry truth or oracle accessed.",
+    "parents": [
+      {
+        "adjacent_shared_internal_max": 0,
+        "adjacent_shared_internal_mean": 0.0,
+        "adjacent_shared_internal_min": 0,
+        "connected_internal_occurrences": 266445,
+        "connected_unique_internal_ids": 266445,
+        "implied_full_leaf_to_root_path_count": 267400,
+        "implied_path_count_kind": "arithmetic_from_attributed_connected_identity_receipt_not_corpus_measurement",
+        "internal_reuse_occurrences": 0,
+        "observed_tree_sha256": "3f05feef1086bf0e3e2cb57133351e15d51fff6118ddfdfd03378cf84db12e29",
+        "parent_id": "bio_paths_pilot_train_000",
+        "per_tree_internal_max": 279,
+        "per_tree_internal_min": 279,
+        "samples": 280,
+        "total_TS_nodes": 266725,
+        "trees": 955
+      },
+      {
+        "adjacent_shared_internal_max": 0,
+        "adjacent_shared_internal_mean": 0.0,
+        "adjacent_shared_internal_min": 0,
+        "connected_internal_occurrences": 250263,
+        "connected_unique_internal_ids": 250263,
+        "implied_full_leaf_to_root_path_count": 251160,
+        "implied_path_count_kind": "arithmetic_from_attributed_connected_identity_receipt_not_corpus_measurement",
+        "internal_reuse_occurrences": 0,
+        "observed_tree_sha256": "8e94151c1c02e3f76a3da06a5f8498fb770c1aaa76a84f9d3167a9f66d891b2b",
+        "parent_id": "bio_paths_pilot_train_001",
+        "per_tree_internal_max": 279,
+        "per_tree_internal_min": 279,
+        "samples": 280,
+        "total_TS_nodes": 250543,
+        "trees": 897
+      },
+      {
+        "adjacent_shared_internal_max": 0,
+        "adjacent_shared_internal_mean": 0.0,
+        "adjacent_shared_internal_min": 0,
+        "connected_internal_occurrences": 263934,
+        "connected_unique_internal_ids": 263934,
+        "implied_full_leaf_to_root_path_count": 264880,
+        "implied_path_count_kind": "arithmetic_from_attributed_connected_identity_receipt_not_corpus_measurement",
+        "internal_reuse_occurrences": 0,
+        "observed_tree_sha256": "8d78149fa607e2096f580b024f8ae4ac0cef5441f2de128c5bc984224e390e52",
+        "parent_id": "bio_paths_pilot_val_000",
+        "per_tree_internal_max": 279,
+        "per_tree_internal_min": 279,
+        "samples": 280,
+        "total_TS_nodes": 264214,
+        "trees": 946
+      },
+      {
+        "adjacent_shared_internal_max": 0,
+        "adjacent_shared_internal_mean": 0.0,
+        "adjacent_shared_internal_min": 0,
+        "connected_internal_occurrences": 256680,
+        "connected_unique_internal_ids": 256680,
+        "implied_full_leaf_to_root_path_count": 257600,
+        "implied_path_count_kind": "arithmetic_from_attributed_connected_identity_receipt_not_corpus_measurement",
+        "internal_reuse_occurrences": 0,
+        "observed_tree_sha256": "c42f4b03619d4712428bc279d4dc91fe2fdc9a68398c28d858928a776417b1f7",
+        "parent_id": "bio_paths_pilot_val_001",
+        "per_tree_internal_max": 279,
+        "per_tree_internal_min": 279,
+        "samples": 280,
+        "total_TS_nodes": 256960,
+        "trees": 920
+      }
+    ],
+    "path": "experiments/results/relate_observed_identity_audit_v1/receipt.json",
+    "sha256": "8b575be1728fc8d25a069f8d217272afd2ef2e34dc01aabc7baa76c0bdd6af23",
+    "supersedes": "Invalid because the preliminary tree.nodes traversal counted isolated roots. Superseded by connected-sample ancestor counts."
+  },
+  "kind": "relate_ancestral_identity_source_findings_v1",
+  "outcome_claims": {
+    "exact_paper_reproduction": false,
+    "negative_ancestry_score": false,
+    "superiority": false
+  },
+  "recommendation": {
+    "compare_different_inference_families_as": "end_to_end_method_and_inference_pipeline",
+    "existing_AP_ARGMix_candidate_default_Relate_comparisons": "remain_valid_as_common_data_marginal_tree_comparisons",
+    "existing_ARGformer_condition_label": "within_ARG_transductive_on_default_Relate_tree_local_internal_ID_v1",
+    "freeze_before_prepare": [
+      "tsinfer_version",
+      "tsdate_version",
+      "native_compatible_defaults",
+      "ancient_nonzero_sample_time_support",
+      "polarization_and_build_conventions",
+      "variant_site_sample_joins",
+      "inference_and_dating_seeds",
+      "coordinates",
+      "coverage",
+      "failure_policy"
+    ],
+    "fresh_artifacts_required": [
+      "observed_ARG_hash_namespace",
+      "vocabulary",
+      "corpus",
+      "checkpoints"
+    ],
+    "implemented": false,
+    "next_stage": "source_only_observation_producer_plan_and_capability_review",
+    "old_node_token_checkpoint_transfer_admitted": false,
+    "proposed_condition_id": "native_ARGformer_tsinfer_tsdate_biological_v1",
+    "query_ancestry_targets_or_truth_in_inference_or_training": false,
+    "query_genotypes_in_observation_panel": true,
+    "registered": false,
+    "repeat_unchanged_native_fits_as_identity_remedy": false,
+    "same_observations": {
+      "class_order": true,
+      "common_physical_scored_support": true,
+      "mixed_unlabeled_haplotypes": 64,
+      "observed_sample_dates": true,
+      "original_output_lattice_bp": 100,
+      "panel_haplotypes": 280,
+      "phased_genotypes": true,
+      "pure_reference_haplotypes": 96,
+      "query_haplotypes": 120
+    },
+    "same_tree_representation_comparison": "separate_frozen_methods_prepared_on_identical_qualified_tree_sequence"
+  },
+  "review_role": "author_not_independent_review",
+  "scope": {
+    "GPU": false,
+    "Git": false,
+    "conversion_inference_dating_fitting": false,
+    "data_or_converter_changed": false,
+    "frozen_source_or_config_changed": false,
+    "install": false,
+    "native_model_instantiation": false,
+    "tree_arrays_reopened": false,
+    "truth_score_checkpoint_arrays_opened": false
+  },
+  "status": "source_documentation_complete_not_runtime_admission"
+}

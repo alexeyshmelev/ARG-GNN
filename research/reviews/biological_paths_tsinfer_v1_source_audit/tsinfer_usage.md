@@ -1,0 +1,752 @@
+---
+jupytext:
+  text_representation:
+    extension: .md
+    format_name: myst
+    format_version: 0.12
+    jupytext_version: 1.9.1
+kernelspec:
+  display_name: Python 3
+  language: python
+  name: python3
+---
+
+:::{currentmodule} tsinfer
+:::
+
+
+(sec_usage)=
+
+# Usage
+
+(sec_usage_toy_example)=
+
+## Toy example
+
+_Tsinfer_ takes as input a [Zarr](https://zarr.readthedocs.io/) file, with phased variant 
+data encoded in the [VCF Zarr](https://github.com/sgkit-dev/vcf-zarr-spec/) (.vcz) format.
+For simplicity, we first demonstrate using a pre-generated .vcz file (later, in the
+{ref}`sec_usage_data_example` section, we describe how to create such a file e.g. from
+a VCF using [vcf2zarr](https://sgkit-dev.github.io/bio2zarr/vcf2zarr/overview.html)).
+
+
+```{code-cell} ipython3
+import zarr
+vcf_zarr = zarr.open("_static/example_data.vcz")
+```
+
+Here's what the genotypes stored in that datafile look like:
+
+```{code-cell}
+:"tags": ["remove-input"]
+import numpy as np
+G = vcf_zarr['call_genotype'][:] # read full genotype matrix into memory
+positions = vcf_zarr['variant_position'][:]
+alleles = vcf_zarr['variant_allele'][:]
+
+assert any([np.sum(g) == 1 for g in G]) # at least one singleton
+assert any([np.sum(g) == 0 for g in G]) # at least one non-variable
+assert all(len(np.unique(a)) == len(a) for a in vcf_zarr['variant_allele'][:]) 
+
+num_sites, num_samples, ploidy = G.shape
+print("Diploid sample id:", " ".join(f"    {i}      " for i in range(num_samples)))
+print("Genome for sample: ", " ".join(f" {p} {'  ' * p} " for _ in range(num_samples) for p in range(ploidy)))
+print("-" * 54)
+for site_id, pos in enumerate(positions):
+    print(f"      position {pos}:", end="   ")
+    for sample_id in range(num_samples):
+        genotypes = G[site_id, sample_id, :]
+        site_alleles = alleles[site_id].astype(str)
+        print(" ".join(f"{a:<4}" for a in site_alleles[genotypes.flatten()]), end="   ")
+    print()
+```
+
+:::{note}
+The last site, at position 95, is an indel (insertion or deletion). Indels can be used
+for inference as long as the indel does not overlap with other variants, only two
+alleles exist, and the ancestral state is known.
+:::
+
+(sec_usage_toy_example_variant_data)=
+
+
+### VariantData
+
+_Tsinfer_ produces a genealogy that could have given rise to the data set above,
+based on the sites that vary between the samples. To provide extra information
+to the algorithm, you must wrap the .vcz file in a lightweight
+{class}`tsinfer.VariantData` object, using syntax like:
+
+```{code} python
+vdata = tsinfer.VariantData("file.vcz", ancestral_state=***, ...)
+```
+
+#### Ancestral states
+
+Importantly, the {class}`~tsinfer.VariantData` object requires an
+*ancestral state* to be provided for each site used in inference.
+There are many methods for determing ancestral states: details are outside
+the scope of this manual, but we have started a
+[discussion topic](https://github.com/tskit-dev/tsinfer/discussions/523)
+on this issue to provide some recommendations.
+
+Ancestral states can be specified in several ways:
+
+* Using an existing array in the .vcz file. Some VCF files already contain an ancestral
+  state, e.g. in the `AA` ("ancestral allele") `info` field. In this case the `variant_AA`
+  field of the .vcz file can be specified, as follows.
+  ```{code}
+  vdata = tsinfer.VariantData("file.vcz", ancestral_state="variant_AA")
+  ```
+  A worked example is shown in the {ref}`real data example<sec_usage_read_vcf_inference>`
+  later on this page.
+* Using a numpy array of ancestral state strings, of the same length as the number
+  of unmasked variants. For example, if you wish to treat the reference ("REF") allele
+  as the ancestral state, you can take advantage of the fact that the .vcz format
+  always stores the zeroth allele as the REF, suggesting the following syntax:
+  ```{code}
+  vcf_zarr = zarr.load("file.vcz")
+  vdata = tsinfer.VariantData("file.vcz", ancestral_state=vcf_zarr["variant_allele"][:, 0])
+  ```
+  A worked example of using an array of strings is provided in the
+  {ref}`simulation example<sec_usage_simulation_example_inference>` later on this page.
+* Using a single string of ancestral states, e.g. from a FASTA file. The string
+  should cover the entire genetic sequence, such that the `i`th character in the
+  string is taken as the ancestral state for an inference site at position `i`. In this
+  case, the {meth}`add_ancestral_state_array` method can be used to extract the states
+  and save them to the VCF Zarr dataset, under the name `ancestral_state`. Note
+  that if, as is common, variant positions in the .vcz file are one-based (starting at 1), rather than zero-based, you should add a padding character at the start of the string.
+  
+
+Below we illustrate the single string method, using a stored FASTA file.
+In this file, the 16th, 44th, 50th, 55th, 71st, 75th, 85th, and 95th characters are
+`G`, `G`, `C`, `T`, `C`, `A`, `T`, and `A` (note that the 85th character, `T`, does not match any of the alleles in the .vcz genotypes for position 85).
+
+```{code-cell}
+import tsinfer
+import zarr
+import pyfaidx
+
+vcf_zarr = zarr.open("_static/example_data.vcz")
+
+reader = pyfaidx.Fasta("_static/example_ancestral_state.fa")
+ancestral_str = str(reader["chr1"])
+# We consider positions in the .vcz file to be one-based, so we prepend an X to the string
+ancestral_str = "X" + ancestral_str
+
+tsinfer.add_ancestral_state_array(vcf_zarr, ancestral_str) 
+vdata = tsinfer.VariantData("_static/example_data.vcz", ancestral_state="ancestral_state")
+```
+
+Because the ancestral state at position 85 does not match any of the
+alleles at that site, a warning has been given that the ancestral state
+will be considered unknown. As a consequence, although it will appear in
+the inferred tree sequence, the site at position 85 will be treated as a
+"noninference" site.
+
+### Inference sites
+
+Certain sites are not used by _tsinfer_ for inferring the genealogy.
+These _noninference_ sites are nevertheless included in the final
+tree sequence, but with their mutations placed by
+{meth}`parsimony<tskit.Tree.map_mutations>`. Such sites include:
+
+* Non-variable (fixed) sites, e.g. the site at position 71 above
+* Singleton sites, where only one genome has the derived allele
+  e.g. the site at position 75 above
+* Sites where the ancestral allele is unknown, e.g. site 85 (see above).
+* Multialleleic sites, with more than 2 alleles (but see
+  [here](https://github.com/tskit-dev/tsinfer/issues/670) for a workaround)
+
+Additional sites can be deliberately flagged as not-for-use in inference,
+for example if their genotypes or ancestral states are deemed unreliable,
+via the `exclude_positions` parameter when running the inference
+step of _tsinfer_.
+
+### Topology inference
+
+Once our data is wrapped in a {class}`~tsinfer.VariantData` object, we can infer
+a {ref}`tree sequence<sec_python_api_trees_and_tree_sequences>` e.g. using
+_tsinfer_'s {ref}`Python API<sec_api>`. Note that each sample in the original
+.vcz file will correspond to an *individual* in the resulting tree sequence.
+Since these three individuals are diploid, the resulting
+tree sequence will have `ts.num_samples == 6` (unlike in a .vcz file, a "sample" in
+tskit refers to a haploid genome, not a diploid individual).
+
+```{code-cell} ipython3
+inferred_ts = tsinfer.infer(vdata)
+print(f"Inferred a genetic genealogy for {inferred_ts.num_samples} (haploid) genomes")
+```
+
+And that's it: we now have a fully functional {class}`tskit.TreeSequence`
+object that we can interrogate in the usual ways. For example, we can look
+at the {meth}`variants<tskit.TreeSequence.variants>` in the tree sequence:
+
+```{code-cell} ipython3
+print("TS sample", "\t".join(str(s) for s in inferred_ts.samples()), sep="\t")
+print("TS individual", "\t".join(str(inferred_ts.node(s).individual) for s in inferred_ts.samples()), sep="\t")
+print("-" * 60)
+print("Pos (anc state)")
+for v in inferred_ts.variants():
+    print(
+        f"{int(v.site.position)}   ({v.site.ancestral_state})",
+        "\t".join(f"{a:<4}" for a in np.array(v.alleles)[v.genotypes]),
+        sep="\t")
+```
+
+Comparing the genotypes of each individual in the inferred tree sequence
+against the equivalent diploid samples in the .vcz file, you can see that they
+are identical. Apart from the imputation of
+{ref}`missing data<sec_inference_data_requirements>`, _tsinfer_ is guaranteed to
+losslessly encode any genetic variation data, regardless of the inferred topology. You can
+check this programatically if you want:
+
+```{code-cell} ipython3
+import numpy as np
+for v_orig, v_inferred in zip(vdata.variants(), inferred_ts.variants()):
+    if any(
+        np.array(v_orig.alleles)[v_orig.genotypes] !=
+        np.array(v_inferred.alleles)[v_inferred.genotypes]
+    ):
+        raise ValueError("Genotypes in original dataset and inferred tree seq not equal")
+print("** Genotypes in original dataset and inferred ts are identical **")
+```
+
+We can examine the inferred genetic genealogy, in the form of
+{ref}`local trees<tutorials:sec_what_is_local_trees>`. _Tsinfer_ has
+placed mutations on the genealogy to explain the observed genetic variation:
+
+```{code-cell} ipython3
+mut_labels = {
+    m.id: "{:g}: {}→{}".format(
+        s.position,
+        inferred_ts.mutation(m.parent).derived_state if m.parent >= 0 else s.ancestral_state,
+        m.derived_state,
+    )
+    for s in inferred_ts.sites()
+    for m in s.mutations
+}
+node_labels = {u: u for u in inferred_ts.samples()}
+
+inferred_ts.draw_svg(
+    size=(600, 300),
+    canvas_size=(640, 300),
+    node_labels=node_labels,
+    mutation_labels=mut_labels,
+    y_axis=True
+)
+```
+
+We have inferred 4 trees along the genome. Note that there are "polytomies" in the
+trees, where some nodes have more than two children (e.g. the root node in the first tree).
+This is a common feature of trees inferred by _tsinfer_ and signals that there was not
+sufficient information to resolve the tree at this internal node. By default, the ancestry
+in the flanking regions (to the left of the first provided site and the right of the last provided site) is considered {ref}`unknown<tskit:sec_data_model_missing_data>`, and hence not drawn above.
+
+
+Each internal (non-sample) node in this inferred genealogy represents an ancestral sequence,
+constructed on the basis of shared, derived alleles at one or more of the sites. By
+default, the time of each such node is *not* measured in years or generations, but
+is simply the frequency of the shared derived allele(s) on which the ancestral sequence
+is based. For this reason, the time units are described as "uncalibrated" in the plot,
+and trying to calculate statistics based on branch lengths will raise an error:
+
+```{code-cell} ipython3
+:tags: ["raises-exception"]
+inferred_ts.diversity(mode="branch")
+```
+
+To add meaningful dates to an inferred tree sequence, allowing meaningful branch length
+statistics to be calulated, you must use additional
+software such as [tsdate](https://tskit.dev/software/tsdate.html): the _tsinfer_
+algorithm is only intended to infer the genetic relationships between the samples
+(i.e. the *topology* of the tree sequence).
+
+(sec_usage_toy_example_masks)=
+
+### Masks
+
+As well as marking sites as not-for-inference, is possible to *completely* exclude
+sites and samples, by specifing a boolean `site_mask` and/or a `sample_mask` when
+creating the `VariantData` object. Sites or samples with a mask value of `True` will
+be completely omitted both from inference and the final tree sequence.
+This can be useful, for example, if you wish to select only a subset of the chromosome for
+inference, e.g. to reduce computational load. You can also use it to subset inference to a
+particular contig, if your dataset contains multiple contigs. Note that if a `site_mask` is provided,
+the ancestral states array should only specify alleles for the unmasked sites.
+
+Below, for instance, is an example of including only sites up to position six in the contig
+labelled "chr1" in the `example_data.vcz` file:
+
+```{code-cell}
+import numpy as np
+import zarr
+
+vcf_zarr = zarr.open("_static/example_data.vcz")
+
+# mask out any sites not associated with the contig named "chr1"
+# (for demonstration: all sites in this .vcz file are from "chr1" anyway)
+chr1_index = np.where(vcf_zarr.contig_id[:] == "chr1")[0]
+site_mask = vcf_zarr.variant_contig[:] != chr1_index
+# also mask out any sites with a position >= 80
+site_mask[vcf_zarr.variant_position[:] >= 80] = True
+
+smaller_vdata = tsinfer.VariantData(
+    "_static/example_data.vcz",
+    ancestral_state="ancestral_state",
+    site_mask=site_mask,
+)
+print(f"The `smaller_vdata` object returns data for only {smaller_vdata.num_sites} sites")
+```
+
+
+(sec_usage_simulation_example)=
+
+## Simulation example
+
+The previous example showed how we can infer a tree sequence using the Python API for a trivial
+toy example. However, for real data we will not prepare our data and infer the tree sequence all
+in one go; rather, we will usually split the process into at least two distinct steps.
+
+The first step in any inference is to prepare your data and create the .vcz file.
+For simplicity here we'll use
+Python to simulate some data under the coalescent with recombination, using
+[msprime](https://msprime.readthedocs.io/en/stable/api.html#msprime.simulate):
+
+```{code-cell} ipython3
+
+import builtins
+import sys
+import os
+import subprocess
+
+import msprime
+import numpy as np
+import tsinfer
+
+if getattr(builtins, "__IPYTHON__", False):  # if running IPython: e.g. in a notebook
+    num_diploids, seq_len = 100, 10_000
+    name = "notebook-simulation"
+    python = sys.executable
+else:  # Take parameters from the command-line
+    num_diploids, seq_len = int(sys.argv[1]), float(sys.argv[2])
+    name = "cli-simulation"
+    python = "python"
+
+ts = msprime.sim_ancestry(
+    num_diploids,
+    population_size=10**4,
+    recombination_rate=1e-8,
+    sequence_length=seq_len,
+    random_seed=6,
+)
+ts = msprime.sim_mutations(ts, rate=1e-8, random_seed=7)
+ts_name = name + "-source.trees"
+ts.dump(ts_name)
+print(
+    f"Simulated {ts.num_samples} samples over {seq_len/1e6} Mb:",
+    f"{ts.num_trees} trees and {ts.num_sites} sites"
+)
+
+ret = subprocess.run(
+    [python, "-m", "bio2zarr", "tskit2zarr", "convert", "--force", ts_name, f"{name}.vcz"],
+    stderr = subprocess.DEVNULL if name == "notebook-simulation" else None,
+)
+assert os.path.exists(f"{name}.vcz")
+
+if ret.returncode == 0:
+    print(f"Converted to {name}.vcz")
+```
+
+Here we first run a simulation then we create a vcf file and convert it to .vcz format.
+If we store this code in a file named `simulate-data.py`, we can run it on the
+command line, providing parameters to generate much bigger datasets:
+
+
+```{code} bash
+% python simulate-data.py 5000 10_000_000
+Simulated 10000 samples over 10.0 Mb: 36204 trees and 38988 sites
+    Scan: 100%|████████████████████████████████████████████████████████████████████| 1.00/1.00 [00:00<00:00, 2.86files/s]
+ Explode: 100%|████████████████████████████████████████████████████████████████████| 39.0k/39.0k [01:17<00:00, 501vars/s]
+  Encode: 100%|███████████████████████████████████████████████████████████████████████| 976M/976M [00:12<00:00, 78.0MB/s]
+Finalise: 100%|█████████████████████████████████████████████████████████████████████| 10.0/10.0 [00:00<00:00, 421array/s]
+```
+
+Here, we simulated a sample of 10 thousand chromosomes, each 10Mb long, under
+human-like parameters. That has created 39K segregating sites. The output
+above shows the state of the vcf-to-zarr conversion at the end of this process,
+indicating that it took about a minute to convert the data into .vcz format
+(this only needs doing once)
+
+Examining the files on the command line, we then see the following::
+
+```{code} bash
+$ du -sh cli-simulation*
+156K	cli-simulation-AA.npy
+8.8M	cli-simulation-source.trees
+ 25M	cli-simulation.vcf.gz
+8.0K	cli-simulation.vcf.gz.tbi
+9.4M	cli-simulation.vcz
+```
+
+The `cli-simulation.vcz` zarr data is quite small, about the same size as the
+original `msprime` tree sequence file. Since (like all zarr datastores)
+ `cli-simulation.vcz` is a directory
+we can peer inside to look where everything is stored:
+
+```{code} bash
+$ du -sh cli-simulation.vcz/*
+8.7M	cli-simulation.vcz/call_genotype
+ 88K	cli-simulation.vcz/call_genotype_mask
+ 88K	cli-simulation.vcz/call_genotype_phased
+ 12K	cli-simulation.vcz/contig_id
+ 12K	cli-simulation.vcz/contig_length
+ 12K	cli-simulation.vcz/filter_id
+ 28K	cli-simulation.vcz/sample_id
+ 52K	cli-simulation.vcz/variant_allele
+ 24K	cli-simulation.vcz/variant_contig
+ 24K	cli-simulation.vcz/variant_filter
+ 48K	cli-simulation.vcz/variant_id
+ 24K	cli-simulation.vcz/variant_id_mask
+144K	cli-simulation.vcz/variant_position
+ 24K	cli-simulation.vcz/variant_quality
+```
+
+Most of this output is not particularly interesting here, but we can see that the
+`call_genotype` array which holds all of the sample genotypes (and thus the vast bulk of the
+actual data) only requires about 8.7MB compared to 25MB for the compressed vcf file.
+In practice this means we can keep such files lying around without taking up too much space.
+
+Once we have our `.vcz` file created, running the inference is straightforward.
+
+(sec_usage_simulation_example_inference)=
+
+```{code-cell} ipython3
+# Infer & save a ts from the notebook simulation.
+vcf_zarr = zarr.load(f"{name}.vcz")  # currently must load the zarr to get ancestral states
+vdata = tsinfer.VariantData(f"{name}.vcz", ancestral_state=vcf_zarr["variant_allele"][:, 0])
+inferred_ts = tsinfer.infer(vdata, progress_monitor=True, num_threads=4)
+inferred_ts.dump(name + ".trees")
+```
+
+Running the `infer` command runs the full inference pipeline in one go (the individual steps
+are explained {ref}`here <sec_inference>`). We provided two extra arguments to `infer`:
+`progress_monitor` gives us the progress bars show above, and `num_threads=4` tells
+_tsinfer_ to use four worker threads whenever it can use them.
+
+Performing this inference on the `cli-simulation` data using Core i5 processor (launched 2009)
+with 4GiB of RAM, took about eighteen minutes. The maximum memory usage was about 600MiB.
+
+The output files look like this:
+
+```{code} bash
+$ ls -lh cli-simulation*
+-rw-r--r--  1 user  group   8.2M 14 Oct 13:45 cli-simulation-source.trees
+-rw-r--r--  1 user  group    22M 14 Oct 13:45 cli-simulation.samples
+-rw-r--r--  1 user  group   8.1M 14 Oct 13:50 cli-simulation.trees
+```
+
+Therefore our output tree sequence file that we have just inferred in a few minutes is
+*even smaller* than the original ``msprime`` simulated tree sequence!
+Because the output file is also a {class}`tskit.TreeSequence`, we can use the same API
+to work with both. For example, to load up the original and inferred tree sequences
+from their corresponding `.trees` files you can simply use the {func}`tskit.load`
+function, as shown below.
+
+However, there are thousands of trees in these tree sequences, each of which has
+10 thousand samples: much too much to easily visualise. Therefore, in the code below, we
+we subset both tree sequences down to their minimal representations for the first six
+sample nodes using {meth}`tskit.TreeSequence.simplify`, while keeping all sites, even if
+they do not show genetic variation between the six selected samples.
+:::{note}
+Using this tiny subset of the overall data allows us to get an informal
+feel for the trees that are inferred by _tsinfer_, but this is certainly
+not a recommended approach for validating the inference!
+:::
+
+Once we've subsetted the tree sequences down to something that we can comfortably look
+at, we can plot the trees in particular regions of interest, for example the first
+2kb of genome. Below, for simplicity we use the smaller dataset that was simulated and
+inferred within the the notebook, but exactly the same code will work with
+the larger version run from the cli simulation.  
+
+
+```{code-cell} ipython3
+import tskit
+
+subset = range(0, 6)  # show first 6 samples
+limit = (0, 2_000)    # show only the trees covering the first 2kb
+
+prefix = "notebook"  # Or use "cli" for the larger example
+source = tskit.load(prefix + "-simulation-source.trees")
+source_subset = source.simplify(subset, filter_sites=False)
+print(f"True tree seq, simplified to {len(subset)} sampled genomes")
+source_subset.draw_svg(size=(800, 200), x_lim=limit, time_scale="rank")
+```
+
+```{code-cell} ipython3
+inferred = tskit.load(prefix + "-simulation.trees")
+inferred_subset = inferred.simplify(subset, filter_sites=False)
+print(f"Inferred tree seq, simplified to {len(subset)} sampled genomes")
+inferred_subset.draw_svg(size=(800, 200), x_lim=limit)
+```
+
+There are a number of things to note when comparing the plots above. Most
+obviously, the first tree in the inferred tree sequence is empty: by default, _tsinfer_
+will not generate a genealogy before the first site in the genome (here, position 655)
+or past the last site, as there is, by definition, no data in these regions.
+
+You can also see that the inferred tree sequence has fewer trees than the original,
+simulated one. There are two reasons for this. First, there are some tree changes that
+do not involve a change of topology (e.g. the first two trees in the original tree
+sequence are topologically identical, as are two trees after that).
+Even if we had different mutations on the
+different edges in these trees, such tree changes are unlikely to be spotted.
+Second, our inference depends on the mutational information that is present. If no
+mutations fall on a particular edge in the tree sequence, then we have no way of
+inferring that this edge existed. The fact that there are no mutations in the first,
+third, and fifth trees shows that tree changes can occur without associated mutations.
+As a result, there will be tree transitions that we cannot pick up. In the simulation
+that we performed, the mutation rate is equal to the recombination rate, and so we
+expect that many recombinations will be invisible to us.
+
+For similar reasons, there will be many nodes in the tree at which
+polytomies occur. Here we correctly infer that sample nodes 0 and 4 group together,
+as do 1 and 2. However, in the middle inferred tree we were not able to distinguish
+whether node 3 was closer to node 1 or 2, so we have three children of node 7 in that
+tree.
+
+Finally, you should note that inference does not always get the right answer. At the
+first site in the inferred trees, node 5 is placed as an outgroup, but at this site
+it is actually closer to the group consisting of nodes 0 and 4.
+
+:::{note}
+Other than the sample node IDs, it is meaningless to compare node numbers in the
+source and inferred tree sequences.
+:::
+
+(sec_usage_data_example)=
+
+## Data example
+
+Inputting real data for inference is similar in principle to the previous examples.
+All that is required is a .vcz file, which can be created using
+[vcf2zarr](https://sgkit-dev.github.io/bio2zarr/vcf2zarr/overview.html) as above.
+
+(sec_usage_read_vcf)=
+
+### Reading a VCF
+
+For example data, we use a publicly available VCF file of the genetic
+variants from chromosome 24 of ten Norwegian and French house sparrows,
+*Passer domesticus* (thanks to Mark Ravinet for the data file):
+
+```{code-cell} ipython3
+:tags: ["remove-output"]
+import zarr
+
+vcf_location = "_static/P_dom_chr24_phased.vcf.gz"
+!python -m bio2zarr vcf2zarr convert --force {vcf_location} sparrows.vcz
+```
+
+This creates the `sparrows.vcz` datastore, which we open using
+{class}`tsinfer.VariantData`. The original VCF had the ancestral allelic
+state specified in the `AA` INFO field, so we can simply provide the
+string `"variant_AA"` as the ancestral_state parameter.
+
+```{code-cell} ipython3
+# Do the inference: this VCF has ancestral states in the AA field
+vdata = tsinfer.VariantData("sparrows.vcz", ancestral_state="variant_AA")
+ts = tsinfer.infer(vdata)
+print(
+    "Inferred tree sequence: {} trees over {} Mb ({} edges)".format(
+        ts.num_trees, ts.sequence_length / 1e6, ts.num_edges
+    )
+)
+```
+
+On a modern computer, this should only take a few seconds to run.
+
+#### Adding more metadata
+
+We can add additional data to the zarr file, which will make it through to the tree sequence.
+For instance, we might want to mark which population each individual comes from.
+This can be done by adding some descriptive metadata for each population, and the assigning
+each sample to one of those populations. In our case, the sample sparrow IDs beginning with
+"FR" are from France:
+
+```{code-cell} ipython3
+import json
+import numpy as np
+import tskit
+import zarr
+
+vcf_zarr = zarr.load("sparrows.vcz")
+
+populations = ("Norway", "France")
+# save the population data in json format
+schema = json.dumps(tskit.MetadataSchema.permissive_json().schema).encode()
+zarr.save("sparrows.vcz/populations_metadata_schema", schema)
+metadata = [
+    json.dumps({"name": pop, "description": "The country from which this sample comes"}).encode()
+    for pop in populations
+]
+zarr.save("sparrows.vcz/populations_metadata", metadata)
+
+# Now assign each diploid sample to a population
+num_individuals = vcf_zarr["sample_id"].shape[0]
+individuals_population = np.full(num_individuals, tskit.NULL, dtype=np.int32)
+for i, name in enumerate(vcf_zarr["sample_id"]):
+    if name.startswith("FR"):
+        individuals_population[i] = populations.index("France")
+    else:
+        individuals_population[i] = populations.index("Norway")
+zarr.save("sparrows.vcz/individuals_population", individuals_population)
+```
+
+(sec_usage_read_vcf_inference)=
+
+### _Tsinfer_ inference
+
+Note that the steps above to generate a .vcz file are not strictly part of
+_tsinfer_. We only invoke _tsinfer_ subsequently, when creating a
+{class}`~tsinfer.VariantData` object. Moreover, _tsinfer_ treats the
+.vcz information as read-only, and does not make a copy of it.
+This means _tsinfer_ is well-suited to using publicly provided, read-only
+.vcz datafiles. Furthermore, {ref}`sec_usage_toy_example_masks` make it easy
+to use subsets of such datafiles, e.g. if they contain multiple chromosomes
+or more samples than are required for your analysis.
+
+As the .vcz file we are now using contains population metadata, `tsinfer` will create
+a tree sequence whose sample nodes are correctly assigned to named populations:
+
+```{code-cell} ipython3
+vdata = tsinfer.VariantData("sparrows.vcz", ancestral_state="variant_AA", individuals_population="individuals_population")
+sparrow_ts = tsinfer.infer(vdata)
+
+for sample_node_id in sparrow_ts.samples():
+    individual_id = sparrow_ts.node(sample_node_id).individual
+    population_id = sparrow_ts.node(sample_node_id).population
+    print(
+        "Node",
+        sample_node_id,
+        "labels a chr24 sampled from individual",
+        sparrow_ts.individual(individual_id).metadata["variant_data_sample_id"],
+        "in",
+        sparrow_ts.population(population_id).metadata["name"],
+    )
+```
+
+### Analysis
+
+To analyse your inferred tree sequence you can use all the analysis functions built in to
+the [tskit](https://tskit.dev/tskit/docs/stable/) library. The
+{ref}`tskit tutorial<sec_tutorial_stats>` provides much more detail. Below we just give a
+flavour of the possibilities.
+
+
+To quickly eyeball small datasets, we can draw the entire tree sequence, or
+{meth}`~tskit.Tree.draw` the tree at any particular genomic position. The following
+code demonstrates how to use the {meth}`tskit.TreeSequence.at` method to obtain the tree
+1Mb from the start of the sequence, and plot it, colouring the tips according to
+population:
+
+```{code-cell} ipython3
+colours = {"Norway": "red", "France": "blue"}
+colours_for_node = {}
+for n in sparrow_ts.samples():
+    population_data = sparrow_ts.population(sparrow_ts.node(n).population)
+    colours_for_node[n] = colours[population_data.metadata["name"]]
+
+individual_for_node = {}
+for n in sparrow_ts.samples():
+    individual_data = sparrow_ts.individual(sparrow_ts.node(n).individual)
+    individual_for_node[n] = individual_data.metadata["variant_data_sample_id"]
+
+tree = sparrow_ts.at(1e6)
+tree.draw(
+    path="tree_at_1Mb.svg",
+    height=700,
+    width=1200,
+    node_labels=individual_for_node,
+    node_colours=colours_for_node,
+)
+```
+
+This tree seems to suggest that Norwegian and French individuals may not fall into
+discrete groups on the tree, but be part of a larger mixing population. Note, however,
+that this is only one of thousands of trees, and may not be typical of the genome as a
+whole. Additionally, most data sets will have far more samples than this example, so
+trees visualized in this way are likely to be huge and difficult to understand. As in
+the {ref}`simulation example <sec_usage_simulation_example>` above, one possibility
+is to {meth}`~tskit.TreeSequence.simplify` the tree sequence to a limited number of
+samples, but it is likely that most studies will
+instead rely on various statistical summaries of the trees. Storing genetic data as a
+tree sequence makes many of these calculations fast and efficient, and tskit has both a
+set of {ref}`commonly used methods<sec_stats>` and a framework that
+{ref}`generalizes population genetic statistics<sec_stats_general_api>`. For example,
+the allele or site frequency spectrum (SFS) can be calculated using
+{meth}`tskit.TreeSequence.allele_frequency_spectrum` and the allelic diversity ("Tajima's
+{math}`{\pi}`") using {meth}`tskit.TreeSequence.diversity`, both of which can also be
+calculated locally (e.g. {ref}`per tree or in genomic windows <sec_stats_windows>`). As
+a basic example, here's how to calculate genome-wide {math}`F_{st}` between the Norwegian
+and French (sub)populations:
+
+```{code-cell} ipython3
+samples_listed_by_population = [
+    sparrow_ts.samples(population=pop_id)
+    for pop_id in range(sparrow_ts.num_populations)
+]
+
+print("Fst between populations:", sparrow_ts.Fst(samples_listed_by_population))
+```
+
+As noted above, the times of nodes are uncalibrated so we shouldn't perform
+calculations that reply on branch lengths. However, some statistics, such as the
+genealogical nearest neighbour (GNN) proportions are calculated from the topology
+of the trees. Here's an example, using the individual and population metadata to format the results table in
+a tidy manner
+
+```{code-cell} ipython3
+import pandas as pd
+
+gnn = sparrow_ts.genealogical_nearest_neighbours(
+    sparrow_ts.samples(), samples_listed_by_population
+)
+
+# Tabulate GNN nicely using a Pandas dataframe with named rows and columns
+sample_nodes = [sparrow_ts.node(n) for n in sparrow_ts.samples()]
+sample_ids = [n.id for n in sample_nodes]
+sample_names = [
+    sparrow_ts.individual(n.individual).metadata["variant_data_sample_id"]
+    for n in sample_nodes
+]
+sample_pops = [
+    sparrow_ts.population(n.population).metadata["name"]
+    for n in sample_nodes
+]
+gnn_table = pd.DataFrame(
+    data=gnn,
+    index=[
+        pd.Index(sample_ids, name="Sample node"),
+        pd.Index(sample_names, name="Bird"),
+        pd.Index(sample_pops, name="Country"),
+    ],
+    columns=[p.metadata["name"] for p in sparrow_ts.populations()],
+)
+
+print(gnn_table)
+# Summarize GNN for all birds from the same country
+print(gnn_table.groupby(level="Country").mean())
+```
+
+From this, it can be seen that the genealogical nearest neighbours of birds in Norway
+tend also to be in Norway, and vice versa for birds from France. In other words, there is
+a small but noticable degree of population structure in the data. The bird ``8L19766``
+and one of the chromosomes of bird `FR046` seem to buck this trend, and it would
+probably be worth checking these data points further (perhaps they are migrant birds),
+and verifying if other chromosomes in these individuals show the same pattern.
+
+Much more can be done with the genomic statistics built into tskit. For further
+information, please refer to the {ref}`statistics section<sec_stats>` of the
+tskit documentation.

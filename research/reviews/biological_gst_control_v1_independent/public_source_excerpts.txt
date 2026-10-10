@@ -1,0 +1,133 @@
+2: import torch.nn as nn
+3: import torch.nn.functional as F
+4: from torch_geometric.nn import (
+5:     AttentionalAggregation,
+6:     GCNConv,
+7:     GraphNorm,
+8:     global_add_pool,
+9:     global_max_pool,
+10:     global_mean_pool,
+11: )
+12: from torch_geometric.utils import to_dense_batch
+13: 
+14: 
+27: 
+28: 
+29: class PerNodeSetCrossAttention(nn.Module):
+30:     def __init__(self, dim: int, num_heads: int, dropout: float = 0.0):
+31:         super().__init__()
+32:         assert dim % num_heads == 0, f"dim {dim} not divisible by num_heads {num_heads}"
+33:         self.dim = dim
+34:         self.num_heads = num_heads
+35:         self.head_dim = dim // num_heads
+36:         self.q_proj = nn.Linear(dim, dim)
+37:         self.kv_proj = nn.Linear(dim, 2 * dim)
+38:         self.out_proj = nn.Linear(dim, dim)
+39:         self.dropout = dropout
+40: 
+41:     def forward(self, x_nodes, z_set_tokens, node_set_id, set_mask):
+42:         N = x_nodes.shape[0]
+43:         S, K_max, D = z_set_tokens.shape
+44:         H, Hd = self.num_heads, self.head_dim
+45: 
+46:         q = self.q_proj(x_nodes).view(N, H, 1, Hd)
+47:         kv = self.kv_proj(z_set_tokens)
+48:         k_set, v_set = kv.chunk(2, dim=-1)
+49:         k_set = k_set.view(S, K_max, H, Hd).transpose(1, 2)
+50:         v_set = v_set.view(S, K_max, H, Hd).transpose(1, 2)
+51:         k = k_set[node_set_id]
+52:         v = v_set[node_set_id]
+75:         pooling="attn",
+76:         use_gating=True,
+77:         ffn_multiplier=2,
+78:         num_heads=4,
+79:         drop_path=0.0,
+80:         node_set_mode="cross_attn",
+81:     ):
+82:         super().__init__()
+83:         self.filters = filters
+84:         self.pooling = pooling
+85:         self.use_gating = use_gating
+86:         self.node_set_mode = node_set_mode
+87: 
+88:         self.gcn_layer = GCNConv(in_channels, filters, improved=True)
+89:         self.gcn_norm = GraphNorm(filters)
+90:         self.gcn_dropout = nn.Dropout(
+91:             gcn_dropout if gcn_dropout is not None else ffn_dropout
+92:         )
+93:         self.act = self._build_activation(activation)
+94: 
+95:         if pooling == "attn":
+96:             self.attn_pooling = AttentionalAggregation(
+97:                 gate_nn=nn.Sequential(
+98:                     nn.Linear(filters, filters),
+99:                     nn.ReLU(),
+100:                     nn.Linear(filters, 1),
+101:                 ),
+102:                 nn=None,
+103:             )
+104:         elif pooling == "multi":
+105:             self.pool_proj = nn.Linear(2 * filters, filters)
+106: 
+107:         if num_heads == 0:
+108:             num_heads = max(1, filters // 16)
+109:         assert filters % num_heads == 0, (
+110:             f"filters ({filters}) must be divisible by num_heads ({num_heads})"
+111:         )
+112: 
+113:         self.ln1 = nn.LayerNorm(filters)
+114:         self.mha = nn.MultiheadAttention(
+115:             embed_dim=filters,
+116:             num_heads=num_heads,
+117:             dropout=mhsa_dropout,
+118:             batch_first=True,
+119:         )
+120:         self.ln2 = nn.LayerNorm(filters)
+121:         self.ffn = nn.Sequential(
+122:             nn.Linear(filters, filters * ffn_multiplier),
+133:             self.ln_q = nn.LayerNorm(filters)
+134:             self.node_ca = PerNodeSetCrossAttention(
+135:                 filters,
+136:                 num_heads,
+137:                 dropout=mhsa_dropout,
+138:             )
+139:         elif node_set_mode != "broadcast":
+140:             raise ValueError(
+141:                 f"Unknown node_set_mode: {node_set_mode!r}. "
+142:                 "Use 'cross_attn' or 'broadcast'."
+143:             )
+144: 
+145:         if use_gating:
+146:             self.gate = nn.Sequential(
+147:                 nn.Linear(filters * 2, filters),
+148:                 self._build_activation(activation),
+149:                 nn.Linear(filters, filters),
+150:             )
+151:             nn.init.constant_(self.gate[-1].bias, -1.0)
+152: 
+153:     def _build_activation(self, activation):
+154:         activations = {
+155:             "relu": nn.ReLU,
+156:             "gelu": nn.GELU,
+157:             "elu": nn.ELU,
+166:         elif self.pooling == "max":
+167:             return global_max_pool(x, batch)
+168:         elif self.pooling == "sum":
+169:             return global_add_pool(x, batch)
+170:         elif self.pooling == "multi":
+171:             pooled = torch.cat(
+172:                 [global_mean_pool(x, batch), global_max_pool(x, batch)], dim=-1
+173:             )
+174:             return self.pool_proj(pooled)
+175:         elif self.pooling == "attn":
+213:             set_info = z_set[batch]
+214: 
+215:         if self.use_gating:
+216:             gate_input = torch.cat([x, set_info], dim=-1)
+217:             g_set = torch.sigmoid(self.gate(gate_input))
+218:             x_out = x + graph_info + g_set * set_info
+219:         else:
+220:             x_out = x + graph_info + set_info
+221: 
+222:         if return_graph_emb:
+223:             return x_out, z_set

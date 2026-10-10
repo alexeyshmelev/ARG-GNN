@@ -1,0 +1,199 @@
+{
+  "additional_test_source_sha256": {
+    "src/arggnn/age_interface.py": "15f9615a84a230386d8f71f5a317a46051c395f75408c79a6213f1b07f101f3d",
+    "src/arggnn/biological_candidate.py": "6b3a25d0e59026cab7189032eb41221feb7d1bdf69e15f6c737a672dfb711dd3",
+    "src/arggnn/reference_encoder.py": "039f3b25383ea92f243090c2eaf592df590768fea7abf41d15fd7c34a7715138",
+    "tests/test_biological_gst_control_v1.py": "1954a44c01be76f41c95f52d686d766660a2c293f2e8cd9cda3e6220604af1b2",
+    "tests/test_gst_baseline.py": "c0f6397c4dd92d8e20635ef3e7086b904fc6d77ba0b11ca9badf84ca788584e0"
+  },
+  "blocking_findings": [],
+  "cached_paper_extraction_sha256": "5f13f70a345f654fa68a7240e6d97eefa535de2caccde5d9a4058193ace9c869",
+  "completed_utc": "2026-10-10T18:11:31.425756+00:00",
+  "contracts": [
+    {
+      "assessment": "verified_source_contract",
+      "contract": "whole280_leaf_and_internal_node_admission",
+      "evidence": [
+        "biological_candidate.py:351-382 enumerates every postorder node of one-root trees and requires all280 leaves",
+        "biological_candidate.py:493-525 persists complete whole graphs with hashed round-trip metadata",
+        "biological_gst_control_v1.py:155-218 checks leaf identities, roles, complete topology metadata and loads only hashed whole objects",
+        "biological_gst_control_v1.py:254-272 admits all3718 unique marginal IDs plus declared tile-boundary copies"
+      ],
+      "limit": "No biological cache tensors were read. Internal completeness ultimately relies on pinned writer provenance and immutable whole-file hashes; the runtime validator is not a general connectivity certificate for arbitrary untrusted graphs."
+    },
+    {
+      "assessment": "verified",
+      "contract": "all_node_F47_projection",
+      "evidence": [
+        "biological_gst_control_v1.py:19,113-117 removes only raw parent-branch column7, retaining 0..6 and8..47 on every node",
+        "biological_candidate.py:572 uses the same F47 column tuple for H020 leaf features",
+        "reference_encoder.py:169-176 constructs the fixed observed reference summaries before persistence"
+      ],
+      "limit": "GST accesses F47 on internal nodes and full topology; H020 uses leaf F47 plus Kron responses. This is disclosed method-specific input/aggregation access, not identical internal representations."
+    },
+    {
+      "assessment": "verified",
+      "contract": "full_Q184_then_actual_Q120_readout",
+      "evidence": [
+        "biological_candidate.py:232-247 fixes Q120/mixed64/pure96/dynamics184 roles and pure24 per C4 class",
+        "biological_gst_control_v1.py:127-134 selects actual120 indexes only after full model output",
+        "gst_baseline.py:238-240 computes [P,Q184,C4] from query-leaf lookup",
+        "handmade full184 tests verify mixed output columns have zero direct loss gradient"
+      ],
+      "limit": "Mixed leaves legitimately participate as unlabeled context. Zero direct gradient on mixed output logits does not mean their internal representations cannot influence supervised outputs."
+    },
+    {
+      "assessment": "verified_source_and_handmade_behavior",
+      "contract": "complete_physical_tile_as_one_set",
+      "evidence": [
+        "biological_gst_control_v1.py:208-218 loads the whole tile without graph subsets",
+        "biological_gst_control_v1.py:383-404 performs one complete tile forward/update per active arm",
+        "gst_baseline.py:225-236 attends to all graph tokens in that supplied set",
+        "unscored graph context and independent full280 span-refinement CPU tests pass"
+      ],
+      "limit": "A set is one existing physical tile, not the entire two-megabase parent. No hidden thinning, nearest-reference selection, graph minibatch fallback or OOM architecture fallback was found."
+    },
+    {
+      "assessment": "verified",
+      "contract": "H020_loss_selection_support",
+      "evidence": [
+        "GST/H020 training caps, patience, LR, WD, clip, selection, supervision and calibration policy match",
+        "GST metrics dictionary is exactly equal to frozen H020 metrics",
+        "biological_gst_control_v1.py:137-152 matches exact class-span loss/raw zero-probability NLL",
+        "biological_gst_control_v1.py:427-446 uses unweighted two-parent present64 mean and strict less-than earliest tie",
+        "independent handmade class-mixture/width loss and NLL comparisons with H020 pass"
+      ],
+      "limit": "GST AdamW decays all its learned parameters; H020 excludes its separate rate/mixture parameters from decay. That architecture-specific grouping is explicit and does not change loss or scored-support definitions."
+    },
+    {
+      "assessment": "verified",
+      "contract": "seeds_capacity_and_configuration_freeze",
+      "evidence": [
+        "seeds101,202,303; width32 primary and width64 prespecified capacity arm",
+        "frozen H009 score-free metadata/config binding identifies the existing gst_ca_span control",
+        "analytic formula39H^2+105H+4 gives43300 and166468; CPU instantiation confirms both",
+        "both arms retain depth2, heads4, dropout0, cross-attention, span measure, paper-formula gate and FFN2"
+      ],
+      "limit": "Capacity parity with H020 is not established. The reviewer did not inspect historical outcomes or Git chronology and therefore does not certify outcome-relative prespecification timing."
+    },
+    {
+      "assessment": "verified_source_contract",
+      "contract": "prediction_seals_before_score",
+      "evidence": [
+        "biological_gst_control_v1.py:276-308 writes fresh NPZ then computes its hash",
+        "biological_gst_control_v1.py:405-414 seals both VAL parents for every active arm before scoring loop415",
+        "ExternalTruthCapability checks first VAL prediction hash before opening VAL truth",
+        "selected checkpoint is restored before selected predictions and final metrics",
+        "independent AST sealing/order check passes"
+      ],
+      "limit": "VAL truth is cached after its first permitted admission and used only for common selection/scoring. No full fit or biological prediction was executed during review."
+    },
+    {
+      "assessment": "required_label",
+      "contract": "architectural_control_not_native_author_reproduction",
+      "evidence": [
+        "gst_baseline.py independently reconstructs GCN/GraphNorm/pooling/MHSA/feedback equations",
+        "public pinned author code SHA bc08c15d55247b32bda98e4b03fcaee988ceb8f654423240a33ca632ce11ef72 verified by read-only HTTP200",
+        "author source uses one set gate with x+home+gate*context, while chosen paper-formula variant uses separately gated home/context",
+        "span log-width key measure and ARG query-leaf/fixed-coordinate readout are explicit task adaptations",
+        "the biological integration leaves existing GST layers/readout implementation unchanged"
+      ],
+      "limit": "It is neither imported author code nor original-domain data, training or numerical reproduction. Do not claim native GST or verified author initialization parity."
+    }
+  ],
+  "decision": "No blocking source defect identified in the declared architectural-control protocol.",
+  "independence": "Did not implement biological GST. Previously performed narrow bootstrap compatibility for the separate GPU pool; this scientific review independently inspected the pinned implementation, source/provenance and handmade semantics.",
+  "public_source_inspection": {
+    "bytes": 7155,
+    "code_executed": false,
+    "code_imported": false,
+    "completed_utc": "2026-10-10T17:54:33.201796+00:00",
+    "sha256": "bc08c15d55247b32bda98e4b03fcaee988ceb8f654423240a33ca632ce11ef72",
+    "status": 200,
+    "url": "https://raw.githubusercontent.com/daenuprobst/gst-conference/6469d56aa131463325058b897b1e435c6d2edcd2/src/graph_set_transformer/models/gst.py"
+  },
+  "qualifications": [
+    {
+      "detail": "Independent tensor reconstruction, paper/source gate discrepancy, span-key weighting, ARG query-leaf readout and project hyperparameters make this an architectural control. Docs/config already state this boundary.",
+      "id": "Q1",
+      "recommendation": "Use wording such as independently reconstructed GST-style span-weighted ARG architectural control.",
+      "severity": "nonblocking_claim_scope",
+      "title": "Native reproduction must not be claimed"
+    },
+    {
+      "detail": "Cached v1 Step5 groups W_g1, W_g2 and b_g2 in its zero-initialization sentence. The implementation zeros only the output layer and bias while the first gate layer uses ordinary initialization. Existing docs disclose this as an interpretation; it is not verified paper/native initialization parity.",
+      "id": "Q2",
+      "recommendation": "Keep that choice explicit in reproducibility material and avoid unqualified claims of exact paper-gate initialization.",
+      "severity": "nonblocking_interpretation",
+      "title": "Gate initialization is a disclosed interpretation"
+    },
+    {
+      "detail": "GST reads all-node F47/topology with43300/166468 parameters; H020 uses leaf F47/Kron operators. Identical losses/support do not imply identical input aggregation or capacity.",
+      "id": "Q3",
+      "recommendation": "Report this access difference and both capacities when interpreting architectural comparisons.",
+      "severity": "nonblocking_comparison_scope",
+      "title": "Internal-node access and capacity differ"
+    },
+    {
+      "detail": "Review uses source and handmade CPU data only. Frozen biological tensors, labels, model fits, GPU behavior, runtime memory and accuracy were not inspected.",
+      "id": "Q4",
+      "recommendation": "Retain separate root-owned actual cache/runtime/admission and experiment receipts.",
+      "severity": "scope_limit",
+      "title": "Actual cache and execution not certified here"
+    }
+  ],
+  "reviewer": "development_producer_audit",
+  "schema": "biological_gst_control_v1_independent_review",
+  "scientific_judgment": "An independent GST-style architectural control with paper-equation reconstruction, explicit span key weighting and ARG task readout. It is not native author reproduction or original-domain numerical reproduction.",
+  "scope": {
+    "CUDA_contexts": 0,
+    "GPU_inventory_queries": 0,
+    "Git_operations": 0,
+    "installs": 0,
+    "model_or_native_fits": 0,
+    "optimizer_steps": 0,
+    "outcome_arrays_read": 0,
+    "pinned_source_or_config_edits": 0,
+    "scientific_arrays_read": 0,
+    "truth_arrays_read": 0
+  },
+  "status": "source_contract_acceptable_with_disclosed_adaptations",
+  "tests": {
+    "CUDA_VISIBLE_DEVICES": "",
+    "command": [
+      "project Python",
+      "-m",
+      "pytest",
+      "-q",
+      "-p",
+      "no:cacheprovider",
+      "--basetemp",
+      "owned_audit/tmp/pytest",
+      "tests/test_biological_gst_control_v1.py",
+      "tests/test_gst_baseline.py",
+      "owned_audit/test_independent_gst_semantics.py"
+    ],
+    "existing_handmade_tests": 36,
+    "independent_source_sha256": "4edb0a165a07618a73a75f16bd0d766eff1eb49e4406a2c158c0b951364fdf41",
+    "independent_tests": 5,
+    "log": "cpu_tests.log",
+    "log_sha256": "47dbc98c469261d3f7b87eb10f45091cb3b7afb991591c983216774ab89814d7",
+    "optimizer_steps_executed": 0,
+    "passed": 41,
+    "seconds": 3.09
+  },
+  "unchanged_source_sha256": {
+    "configs/biological_candidate_pilot_v1.json": "4151e7e156db3f188512bcc738b43597407d7707bc77c420509165c2e9bfc2f1",
+    "configs/biological_gst_control_v1.json": "eadbfc52e5cefaa385695c04063850626c7269d671f95aaa9d64239bdbc96b62",
+    "configs/inferred_cohort64_gst_graphssm_controls_v1.json": "37f7c3235f22ac89debdb517affe06ebe51d178e9bf2c39111f078305c5074bd",
+    "docs/biological_gst_control_v1.md": "f8f4e6bff7fe12458ea795beb28e2ea571b13aadd443dd04fd29551d7d50b340",
+    "docs/gst_baseline.md": "4592b20aef9ec3b582375388990a0cc53db74c512fa345dc8659f38a0210f881",
+    "docs/gst_baseline_provenance.json": "fe3b47567cf7245e795e21f1f81a2d364dd61fa13221636bef657320b0a8dc87",
+    "scripts/train_biological_gst_control_v1.py": "e8496eb6a92cc2f9edb5f107a89d23cdbc945a82ae0e00bf2a4e0f00ed9ab72b",
+    "src/arggnn/biological_gst_control_v1.py": "66788b41cabcb852c739505200a641bdc93fea3c9fbb642c291d52cefc77350f",
+    "src/arggnn/data.py": "fb4e4b3ad8744731e6d2c5966cc2679f9f2d59dfd079facc280d69fbc61ef654",
+    "src/arggnn/gst_baseline.py": "68d7283b99dbabd6c9a3254f8a9bb71272b1288ccea25a6821610804c354cc73",
+    "src/arggnn/models.py": "8429bd02a40950a3dc4d76046ab4b31b366871499d95e295a16ade730f567df5",
+    "src/arggnn/study_models.py": "3a94878f349a1b1ee6cf9dff18aecf74060c258590418c5130365e775c21f489"
+  }
+}

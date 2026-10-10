@@ -1,0 +1,148 @@
+{
+  "kind": "biological_paths_tsinfer_v1_pinned_API_evidence",
+  "created_utc": "2026-10-10T18:10:23.882560+00:00",
+  "source_versions": {
+    "tsinfer": {
+      "version": "0.5.1",
+      "commit": "14e25566dfd44b292b8a6dbbd59e93834cad3747"
+    },
+    "tsdate": {
+      "version": "0.2.7",
+      "commit": "ee6082b4c17a333d1a54efc4a4be833b2820bca2"
+    },
+    "tskit": {
+      "version": "1.0.3",
+      "commit": "b62f75f04af81fbf5f0d6fb38953cb97b587737f"
+    }
+  },
+  "signatures": {
+    "tsinfer_inference.py": [
+      {
+        "name": "infer",
+        "line": 270,
+        "signature": "variant_data, *, recombination_rate=None, mismatch_ratio=None, path_compression=True, exclude_positions=None, post_process=None, num_threads=0, precision=None, likelihood_threshold=None, engine=constants.C_ENGINE, progress_monitor=None, time_units=None, simplify=None, record_provenance=True"
+      },
+      {
+        "name": "generate_ancestors",
+        "line": 402,
+        "signature": "variant_data, *, path=None, exclude_positions=None, num_threads=0, genotype_encoding=None, mmap_temp_dir=None, engine=constants.C_ENGINE, progress_monitor=None, record_provenance=True, **kwargs"
+      },
+      {
+        "name": "match_ancestors",
+        "line": 513,
+        "signature": "variant_data, ancestor_data, *, recombination_rate=None, mismatch_ratio=None, path_compression=True, num_threads=0, recombination=None, mismatch=None, precision=None, likelihood_threshold=None, engine=constants.C_ENGINE, progress_monitor=None, extended_checks=False, time_units=None, record_provenance=True"
+      },
+      {
+        "name": "match_samples",
+        "line": 1506,
+        "signature": "variant_data, ancestors_ts, *, recombination_rate=None, mismatch_ratio=None, path_compression=True, indexes=None, post_process=None, force_sample_times=False, num_threads=0, overlay_non_inference_sites=None, recombination=None, mismatch=None, precision=None, likelihood_threshold=None, extended_checks=False, engine=constants.C_ENGINE, progress_monitor=None, simplify=None, record_provenance=True, results=None"
+      },
+      {
+        "name": "match_ancestors",
+        "line": 2555,
+        "signature": "self, ancestor_grouping"
+      },
+      {
+        "name": "match_samples",
+        "line": 2761,
+        "signature": "self, sample_indexes, sample_times=None, results=None, slice_=None"
+      }
+    ],
+    "tsinfer_formats.py": [
+      {
+        "name": "subset",
+        "line": 1446,
+        "signature": "self, individuals=None, sites=None, *, sequence_length=None, **kwargs"
+      },
+      {
+        "name": "add_individual",
+        "line": 1746,
+        "signature": "self, ploidy=1, metadata=None, population=None, location=None, time=0, flags=None"
+      },
+      {
+        "name": "add_site",
+        "line": 1824,
+        "signature": "self, position, genotypes, alleles=None, metadata=None, inference=None, time=None, ancestral_allele=None"
+      },
+      {
+        "name": "insert_proxy_samples",
+        "line": 3312,
+        "signature": "self, variant_data, *, sample_ids=None, epsilon=None, allow_mutation=False, **kwargs"
+      }
+    ],
+    "tsdate_core.py": [
+      {
+        "name": "variational_gamma",
+        "line": 771,
+        "signature": "tree_sequence, *, mutation_rate, max_iterations=None, rescaling_intervals=None, rescaling_iterations=None, match_segregating_sites=None, max_shape=None, regularise_roots=None, singletons_phased=None, eps=None, **kwargs"
+      },
+      {
+        "name": "date",
+        "line": 897,
+        "signature": "tree_sequence, *, mutation_rate, recombination_rate=None, time_units=None, method=None, constr_iterations=None, min_branch_length=None, set_metadata=None, return_fit=None, return_likelihood=None, allow_unary=None, progress=None, record_provenance=True, **kwargs"
+      }
+    ],
+    "tsdate_util.py": [
+      {
+        "name": "preprocess_ts",
+        "line": 61,
+        "signature": "tree_sequence, *, minimum_gap=None, erase_flanks=None, delete_intervals=None, split_disjoint=None, filter_populations=False, filter_individuals=False, filter_sites=False, record_provenance=None, remove_telomeres=None, **kwargs"
+      },
+      {
+        "name": "sites_time_from_ts",
+        "line": 242,
+        "signature": "tree_sequence, *, unconstrained=True, node_selection='child', min_time=1"
+      },
+      {
+        "name": "add_sampledata_times",
+        "line": 335,
+        "signature": "samples, sites_time"
+      }
+    ]
+  },
+  "author_version_evidence": {
+    "paper_inference_family": "tsinfer+tsdate",
+    "versions_specified": false,
+    "pinned_author_source_exact_tsinfer_tsdate_mentions": [],
+    "scope": "Python/Markdown/YAML/TOML/text at ARGformer f7545be7bca0200fb39aeb7f94a8e5f0b6bf5596 inspected, no model/data arrays"
+  },
+  "polarization_chain": [
+    {
+      "source": "src/arggnn/biological_paths_simulation.py",
+      "lines": [
+        378,
+        380
+      ],
+      "rule": "default observed.write_vcf, ploidy2, explicit names and position+1"
+    },
+    {
+      "source": "tskit_vcf.py",
+      "lines": [
+        127,
+        127
+      ],
+      "rule": "source header records writer version"
+    },
+    {
+      "source": "tskit_vcf.py",
+      "lines": [
+        187,
+        190
+      ],
+      "rule": "REF = variant.alleles[0]"
+    },
+    {
+      "source": "tskit_genotypes.py",
+      "lines": [
+        59,
+        67
+      ],
+      "rule": "default encoding guarantees allele0 = site ancestral_state"
+    }
+  ],
+  "heterochronous_workflow": "official modern subset -> native inference/date -> sites_time_from_ts -> add_sampledata_times observed ancient bounds -> generate_ancestors -> historical proxy ancestors allow_mutation=True -> matching force_sample_times=True -> native redating",
+  "official_warning": "historical tsinfer plus variational_gamma not extensively tested; date/stability capability unqualified",
+  "disclosed_nondefault_coverage_rule": "preprocess delete_intervals=[] prevents gap/tail deletion; native split_disjoint retained",
+  "no_heuristic_frequency_scaling_no_date_reset_no_ID_merging": true,
+  "runtime_inference_executed": false
+}
