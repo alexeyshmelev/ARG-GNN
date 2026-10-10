@@ -1,0 +1,43 @@
+{
+  "concerns": [
+    {
+      "blocking_current_source_only_CLI": false,
+      "evidence": "native_capsule includes json_new and load_frozen in its pure set. Independent spies observed json_new reaching Path.open(mode=x) and load_frozen reaching importlib.util.spec_from_file_location while execution_enabled=false. Spies raised before any write or import. The CLI --execute and all 15 non-pure capsule functions still reject before native side effects.",
+      "id": "C1",
+      "implication": "The callable capsule is an implementation container, not a complete side-effect authorization boundary. Documentation saying all native side-effect functions are guarded overstates this boundary.",
+      "lines": [
+        146,
+        155
+      ],
+      "must_resolve_before_executable_stage_dispatcher": true,
+      "required_for_activation": "Expose only stage-authorized operations in the executable dispatcher, or guard writer/importer access as well. Do not treat native_capsule return value as a permit or independently executable admission.",
+      "severity": "medium",
+      "source": "src/arggnn/official_argformer_tsinfer_biological_v2.py",
+      "tests": [
+        "test_internal_json_new_is_unguarded_but_no_write_occurs",
+        "test_internal_load_frozen_reaches_import_gate_without_import"
+      ],
+      "title": "Capsule internal writer and module loader are not protected by inactive execution policy"
+    },
+    {
+      "blocking_current_source_only_CLI": false,
+      "evidence": "Three handmade dictionaries were accepted despite pure_reference_train>MLM_train, pure_reference_val>MLM_val, or query_full_paths_scored>unique_full_paths-pure_reference_train-pure_reference_val. The existing validator correctly rejects below4096, aggregate overflow, boolean/noninteger counts, and pair-cost overflow.",
+      "id": "C2",
+      "implication": "corpus_budget is arithmetic on caller-provided counts and cannot itself certify coherent actual corpus membership or fit-update admission.",
+      "lines": [
+        329,
+        347
+      ],
+      "must_resolve_before_executable_stage_dispatcher": true,
+      "required_for_activation": "Derive all counts from the same sealed actual full-path corpus/split/roster/query joins. Require per-split pure counts<=corresponding MLM counts and scored-query count<=remaining nonreference unique paths, plus exact membership checks, before budget admission.",
+      "severity": "medium",
+      "source": "src/arggnn/official_argformer_tsinfer_biological_v2.py",
+      "tests": [
+        "test_document_count_consistency_gap_current_inactive_api"
+      ],
+      "title": "Corpus budget validator accepts impossible split and query cardinalities"
+    }
+  ],
+  "kind": "independent_inactive_bridge_concerns",
+  "verdict": "PASS_SOURCE_ONLY_WITH_ACTIVATION_CONCERNS"
+}
