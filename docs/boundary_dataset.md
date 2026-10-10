@@ -261,3 +261,42 @@ Current tested dataset module SHA256: `06f5dfebd40c4a3c39a21c8be7b655e40c422edd1
   }
 ]
 ```
+
+## Complete-scan CPU precision and consumer-state audit
+
+A read-only probe at 2026-10-10T03:45:10.621741+00:00 verified the primary-agent-created inferred cache `data/boundary_inferred_common_input_pilot_v1`, manifest SHA256 `481e241c3f0aa61f8a62f743e1379f0009fcda795bf315cb1f2f7ad52cf532ed`, preparation SHA256 `c1749a89c2776debadb16a814516a1998057f380fada0c9efe8acafaed284642`. The complete cache had 20 parents and 160 exact tiles. It then evaluated observed **train rep000 (210 graphs)** and **validation rep000 (169 graphs)**, each as a whole observed parent and as the combined eight exact clipped tiles. Prediction/context tensors from tiles were scattered back to original parent coordinate order. No parent label value entered a model or loss.
+
+The probe used the current `BoundaryMemoryModel` with width 32, two graph layers, eight latent channels, four outputs, ordered positive-duration forward/reverse scans and symmetric readout. All three controls used the same seeded learned parameter schema. Reference weights were initialized at seed 42 in the normal float32 construction, promoted to float64, and loaded into the float32 counterpart. Every stored parameter matched **exactly** after promoting the float32 copy, in all 24 comparisons. Original interval/position/window coordinates remained float64 in both variants. The geometry/eigenpairs were precomputed in float64, then cast with the model-facing bank for float32 evaluation.
+
+The label-free loss was the mean of squared logits over every retained parent position, query and output channel. Input gradients are derivatives with respect to the cached `leaf_x` tensors, with observed geometry fixed. They are not derivatives through the CPU observed-tree/reference-statistic preparation. No optimizer update, ancestry-performance score, GPU context or hyperparameter selection occurred.
+
+Nominal rate/damping pairs were `lambda=20, delta=1` and the stiffer `lambda=200, delta=0.1`. For each rate pair and control, the table gives maxima over train/validation and whole-parent/exact-tile modes. Relative infinity error means `max(abs(float32-float64)) / max(max(abs(float64)),1e-12)`, computed within each comparison before taking these maxima. Relative L2 errors and each reference magnitude are retained in the raw record.
+
+| Lambda / delta | Control | Logit max abs | Logit relative infinity | Leaf-gradient max abs | Leaf-gradient relative infinity |
+| --- | --- | ---: | ---: | ---: | ---: |
+| 20 / 1 | full | 4.401e-7 | 4.061e-7 | 2.459e-10 | 5.526e-7 |
+| 20 / 1 | gain_matched_diagonal | 4.247e-7 | 4.216e-7 | 2.882e-10 | 5.396e-7 |
+| 20 / 1 | gain_leak_diagonal | 4.452e-7 | 4.165e-7 | 2.845e-10 | 5.490e-7 |
+| 200 / 0.1 | full | 4.730e-7 | 4.804e-7 | 2.576e-10 | 5.469e-7 |
+| 200 / 0.1 | gain_matched_diagonal | 4.455e-7 | 4.627e-7 | 2.165e-10 | 4.612e-7 |
+| 200 / 0.1 | gain_leak_diagonal | 4.501e-7 | 4.612e-7 | 2.333e-10 | 5.083e-7 |
+
+| Lambda / delta | Control | Local context max abs / rel | Forward memory max abs / rel | Backward memory max abs / rel |
+| --- | --- | ---: | ---: | ---: |
+| 20 / 1 | full | 1.536e-6 / 3.974e-7 | 8.128e-7 / 1.002e-6 | 6.819e-7 / 8.910e-7 |
+| 20 / 1 | gain_matched_diagonal | 1.536e-6 / 3.974e-7 | 2.541e-7 / 3.395e-7 | 2.490e-7 / 3.255e-7 |
+| 20 / 1 | gain_leak_diagonal | 1.536e-6 / 3.974e-7 | 3.243e-7 / 3.978e-7 | 2.960e-7 / 3.870e-7 |
+| 200 / 0.1 | full | 1.536e-6 / 3.974e-7 | 5.709e-7 / 6.471e-7 | 5.289e-7 / 6.045e-7 |
+| 200 / 0.1 | gain_matched_diagonal | 1.536e-6 / 3.974e-7 | 3.703e-7 / 4.201e-7 | 3.914e-7 / 4.397e-7 |
+| 200 / 0.1 | gain_leak_diagonal | 1.536e-6 / 3.974e-7 | 3.895e-7 / 4.425e-7 | 3.742e-7 / 4.206e-7 |
+
+All outputs, input gradients and local/forward/backward contexts were finite. Across the 24 comparisons, maximum absolute logit error was `4.730e-7`, logit relative infinity error `4.804e-7`, input-gradient absolute error `2.882e-10`, input-gradient relative infinity error `5.526e-7`, and context absolute error `1.536e-6`. These are CPU observations for initialized weights and selected inputs. They do not establish trained-weight, different-hardware or GPU precision guarantees.
+
+The consumer's validation rejected four in-memory corrupted bank states: missing query cache, changed query-ID order, a noncontiguous interval partition and a feature/matrix dtype inconsistent with model parameters. Dataset verification additionally enforces exact observed-source feature/coordinate identity and tile-specific bag reconstruction, which are intentionally not repeated inside every model recurrence. Frozen verified tensors must remain mutation-free after CPU validation.
+
+The final combined primitive/dataset suite passed **33 CPU tests in 6.03 seconds**, including the primary agent's component-wise analytic single-boundary response regressions. A fresh confined pytest directory was used, with no temporary-file deletion or cache overwrite workflow.
+
+Evaluated model SHA256: `a056cd10d1c848d7dabdc1daf646548876fd90e8f489667c46a374ac28cd11dc`. Dataset module SHA256: `06f5dfebd40c4a3c39a21c8be7b655e40c422edd1629bdde0b8e75d3c25022a2`. Primitive SHA256: `09ec6286c185e7aa2b13d76dcbe8fea24b3a1c785a6619ac9bc5464e0de66d69`. PyTorch 2.6.0+cu124, one CPU thread. The complete precision/state-validation record follows:
+
+The complete precision record is retained in [boundary_precision_audit_v1.json](../research/reviews/boundary_precision_audit_v1.json).
+
