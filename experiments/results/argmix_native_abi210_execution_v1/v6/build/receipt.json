@@ -1,0 +1,2236 @@
+{
+  "hypothesis_id": "H012",
+  "kind": "argmix_native_abi210_root_execution_v1",
+  "phase": "build",
+  "run_id": "v6",
+  "status": "stock_native_build_passed_CPU_runtime_admission_pending",
+  "started_utc": "2026-10-10T14:41:12.052315+00:00",
+  "driver_sha256": "d473c76f3c74f7d0def6d05fe0cad5e9634b32a27af3a073fe389c13d1529e22",
+  "input_sha256": {
+    "configs/official_argmix_native_environment_v1/abi-admission.json": "36cb7ddab5e38f21ab0808a56bed4f89b833c69d1f49b1d7756159d1fd720556",
+    "configs/official_argmix_native_environment_v1/resolved-toolchain-linux-64-v1.txt": "a91809e4046038613f1d2bccab297ea6e78e863f6b21613355b94bb8e0a3fd4d",
+    "experiments/results/argmix_native_dependency_resolution_v1/completion.json": "64bf246769fc9257f580b0ba6e3a66fb40c2c0e52604e945ad90e389f017771f",
+    "experiments/results/argmix_native_dependency_resolution_v1/conda_solve.json": "5ccf635891f17e62ba2ed316925c8c19490473bcdcb31ff212e39a3cef9d7ef4",
+    "experiments/results/argmix_native_toolchain_install_v1/completion.json": "e3d661ebf3edb96db39b408793fd3b2725ac7b0dbf2ae99b3c86b83f52eb4a6a",
+    "experiments/results/argmix_native_toolchain_install_v1/installed-package-records.json": "62469af93d146527f9e64978aae4b12542667b3d2bc9ebdec642dbf39bf11087",
+    ".runtime/tmp/official_argmix_native_v1/author_original_source_inventory.json": "eaa1fd3f358158085ee647db0ea52aa49572f20f9acff08b6848e266556eb1c4",
+    "configs/official_argmix_native_environment_v1/approved-connection-pool-source-build-v1.json": "a16b40d410609d9e77d66485c01a67c88d613f895069eb7b1f2a57759066a003",
+    "configs/official_argmix_native_environment_v1/built-connection-pool-wheel-v1.json": "52038a3132f4811a9579a6a5e6fb810b37c1524c2e10646945fc7443b17447d5",
+    "configs/official_argmix_native_environment_v1/resolved-python-artifacts-v2.json": "8a97a356d19c568a3d6ae12d883586dac41c56244a0dddb9cac539b058568e44"
+  },
+  "author_commit": "c2481248eb0de5fda659d68f59c51e0e27becd20",
+  "author_files": 86,
+  "commands": [
+    {
+      "argv": [
+        "/workspace-SR003.nfs2/ARG-GNN/.runtime/official_argmix_abi210_v1/cu129/env/bin/python",
+        "-c",
+        "import importlib.metadata as m,json,sys,pathlib;assert pathlib.Path(sys.prefix).resolve()==pathlib.Path(sys.argv[1]).resolve();print(json.dumps({d.metadata['Name'].lower().replace('_','-'):d.version for d in m.distributions()}))",
+        "/workspace-SR003.nfs2/ARG-GNN/.runtime/official_argmix_abi210_v1/cu129/env"
+      ],
+      "cwd": "/workspace-SR003.nfs2/ARG-GNN",
+      "started_utc": "2026-10-10T14:41:27.023286+00:00",
+      "exit_code": 0,
+      "seconds": 0.6257293038070202,
+      "stdout": {
+        "path": "experiments/results/argmix_native_abi210_execution_v1/v6/build/00_installed_python_inventory.stdout",
+        "sha256": "bc46b125887856c660c9553952c11d22970f90237c677ba91c16b37a8618876b"
+      },
+      "stderr": {
+        "path": "experiments/results/argmix_native_abi210_execution_v1/v6/build/00_installed_python_inventory.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "argv": [
+        "/workspace-SR003.nfs2/ARG-GNN/.runtime/official_argmix_abi210_v1/cu129/env/bin/python",
+        "-c",
+        "\nimport importlib.metadata as md\nimport json, os, pathlib, shutil, sys\np=pathlib.Path(sys.argv[1]).resolve()\nif pathlib.Path(sys.prefix).resolve()!=p or sys.version_info[:3]!=(3,12,13):\n    raise RuntimeError(\"Candidate interpreter/prefix mismatch\")\nfor name in (\"python\",\"python3\"):\n    if pathlib.Path(shutil.which(name)).resolve()!=pathlib.Path(sys.executable).resolve():\n        raise RuntimeError(\"torch-sys PATH interpreter mismatch: \"+name)\nif \"LIBTORCH_BYPASS_VERSION_CHECK\" in os.environ:\n    raise RuntimeError(\"Any bypass presence, including zero, is forbidden\")\nimport torch, torchvision\nfrom torch.utils.cpp_extension import include_paths, library_paths\nif torch.__version__!=\"2.10.0+cu129\" or torchvision.__version__!=\"0.25.0+cu129\":\n    raise RuntimeError(\"Coherent core tuple mismatch\")\nif torch.version.cuda!=\"12.9\":\n    raise RuntimeError(\"Unexpected compiled CUDA version\")\nincludes,libs=include_paths(),library_paths()\nif any(not pathlib.Path(x).resolve().is_relative_to(p) for x in includes+libs):\n    raise RuntimeError(\"Torch include/library paths outside candidate prefix\")\nprint(json.dumps({\"python\":sys.version,\"executable\":sys.executable,\n \"torch\":torch.__version__,\"torchvision\":torchvision.__version__,\n \"compiled_cuda\":torch.version.cuda,\"CXX11_ABI\":bool(torch._C._GLIBCXX_USE_CXX11_ABI),\n \"include_paths\":includes,\"library_paths\":libs,\"GPU_context_requested\":False}))\n",
+        "/workspace-SR003.nfs2/ARG-GNN/.runtime/official_argmix_abi210_v1/cu129/env"
+      ],
+      "cwd": "/workspace-SR003.nfs2/ARG-GNN",
+      "started_utc": "2026-10-10T14:41:27.663329+00:00",
+      "exit_code": 0,
+      "seconds": 6.3777386005967855,
+      "stdout": {
+        "path": "experiments/results/argmix_native_abi210_execution_v1/v6/build/01_Torch_ABI_preflight.stdout",
+        "sha256": "bcfed0812160b02ca0ab922605e7025df19e652dbaafcabfe26ff63101f66895"
+      },
+      "stderr": {
+        "path": "experiments/results/argmix_native_abi210_execution_v1/v6/build/01_Torch_ABI_preflight.stderr",
+        "sha256": "f6d0bea74ca434c27664ad62e04e64545a535d1cba132c436b217a32e7b4c782"
+      }
+    },
+    {
+      "argv": [
+        "/workspace-SR003.nfs2/ARG-GNN/.runtime/official_argmix_abi210_v1/cu129/env/bin/cargo",
+        "fetch",
+        "--locked",
+        "--manifest-path",
+        "/workspace-SR003.nfs2/ARG-GNN/.runtime/official_argmix_abi210_v1/cu129/source/src/rust/ancpath/Cargo.toml"
+      ],
+      "cwd": "/workspace-SR003.nfs2/ARG-GNN",
+      "started_utc": "2026-10-10T14:41:34.115371+00:00",
+      "exit_code": 0,
+      "seconds": 1.0186024196445942,
+      "stdout": {
+        "path": "experiments/results/argmix_native_abi210_execution_v1/v6/build/02_locked_Cargo_fetch.stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "experiments/results/argmix_native_abi210_execution_v1/v6/build/02_locked_Cargo_fetch.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "argv": [
+        "/workspace-SR003.nfs2/ARG-GNN/.runtime/official_argmix_abi210_v1/cu129/env/bin/maturin",
+        "develop",
+        "--release",
+        "--locked",
+        "--target-dir",
+        "/workspace-SR003.nfs2/ARG-GNN/.runtime/official_argmix_abi210_v1/cu129/targets/python"
+      ],
+      "cwd": "/workspace-SR003.nfs2/ARG-GNN/.runtime/official_argmix_abi210_v1/cu129/source/src/rust/ancpath",
+      "started_utc": "2026-10-10T14:41:35.155970+00:00",
+      "exit_code": 0,
+      "seconds": 65.82147996500134,
+      "stdout": {
+        "path": "experiments/results/argmix_native_abi210_execution_v1/v6/build/03_stock_default_Torch_extension.stdout",
+        "sha256": "cb25e5b9a4469c1e02da731da8bfbabb901d44a094e7d99a73b3ed25bcbad291"
+      },
+      "stderr": {
+        "path": "experiments/results/argmix_native_abi210_execution_v1/v6/build/03_stock_default_Torch_extension.stderr",
+        "sha256": "f9817ce2859022b1e977ed3b578136e499442257c316729f5d0ffd516795ec3f"
+      }
+    },
+    {
+      "argv": [
+        "/workspace-SR003.nfs2/ARG-GNN/.runtime/official_argmix_abi210_v1/cu129/env/bin/cargo",
+        "build",
+        "--release",
+        "--locked",
+        "--no-default-features",
+        "--manifest-path",
+        "/workspace-SR003.nfs2/ARG-GNN/.runtime/official_argmix_abi210_v1/cu129/source/src/rust/ancpath/Cargo.toml",
+        "--bin",
+        "build_training",
+        "--target-dir",
+        "/workspace-SR003.nfs2/ARG-GNN/.runtime/official_argmix_abi210_v1/cu129/source/src/rust/ancpath/target/cli"
+      ],
+      "cwd": "/workspace-SR003.nfs2/ARG-GNN",
+      "started_utc": "2026-10-10T14:42:40.990879+00:00",
+      "exit_code": 0,
+      "seconds": 97.61672542244196,
+      "stdout": {
+        "path": "experiments/results/argmix_native_abi210_execution_v1/v6/build/04_stock_extraction_CLI.stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "experiments/results/argmix_native_abi210_execution_v1/v6/build/04_stock_extraction_CLI.stderr",
+        "sha256": "d29ca16ae4325d0c69f87e29dc497cb817ed9ab3eeb66e8156f03f01438238a3"
+      }
+    },
+    {
+      "argv": [
+        "ldd",
+        "/workspace-SR003.nfs2/ARG-GNN/.runtime/official_argmix_abi210_v1/cu129/env/lib/python3.12/site-packages/ancpath/ancpath.cpython-312-x86_64-linux-gnu.so"
+      ],
+      "cwd": "/workspace-SR003.nfs2/ARG-GNN",
+      "started_utc": "2026-10-10T14:44:18.897527+00:00",
+      "exit_code": 0,
+      "seconds": 0.10333597846329212,
+      "stdout": {
+        "path": "experiments/results/argmix_native_abi210_execution_v1/v6/build/05_ldd_0.stdout",
+        "sha256": "a0d7658ad135045bcc6496fe1dc20e32fb421ad5c994cfb4f0cc3f009aa3d1ce"
+      },
+      "stderr": {
+        "path": "experiments/results/argmix_native_abi210_execution_v1/v6/build/05_ldd_0.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "argv": [
+        "readelf",
+        "-d",
+        "/workspace-SR003.nfs2/ARG-GNN/.runtime/official_argmix_abi210_v1/cu129/env/lib/python3.12/site-packages/ancpath/ancpath.cpython-312-x86_64-linux-gnu.so"
+      ],
+      "cwd": "/workspace-SR003.nfs2/ARG-GNN",
+      "started_utc": "2026-10-10T14:44:19.009635+00:00",
+      "exit_code": 0,
+      "seconds": 0.018714978359639645,
+      "stdout": {
+        "path": "experiments/results/argmix_native_abi210_execution_v1/v6/build/06_rpath_0.stdout",
+        "sha256": "619ce5713460f7da6ea9c1403ed4a7e0fdb65188abdeedc264da5d7863fba5a7"
+      },
+      "stderr": {
+        "path": "experiments/results/argmix_native_abi210_execution_v1/v6/build/06_rpath_0.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "argv": [
+        "ldd",
+        "/workspace-SR003.nfs2/ARG-GNN/.runtime/official_argmix_abi210_v1/cu129/source/src/rust/ancpath/target/cli/release/build_training"
+      ],
+      "cwd": "/workspace-SR003.nfs2/ARG-GNN",
+      "started_utc": "2026-10-10T14:44:19.046682+00:00",
+      "exit_code": 0,
+      "seconds": 0.017395823262631893,
+      "stdout": {
+        "path": "experiments/results/argmix_native_abi210_execution_v1/v6/build/07_ldd_1.stdout",
+        "sha256": "d1f9087581e62f396ad65694cf622126b825af8fa5921fa1e9ed1139fda60c77"
+      },
+      "stderr": {
+        "path": "experiments/results/argmix_native_abi210_execution_v1/v6/build/07_ldd_1.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "argv": [
+        "readelf",
+        "-d",
+        "/workspace-SR003.nfs2/ARG-GNN/.runtime/official_argmix_abi210_v1/cu129/source/src/rust/ancpath/target/cli/release/build_training"
+      ],
+      "cwd": "/workspace-SR003.nfs2/ARG-GNN",
+      "started_utc": "2026-10-10T14:44:19.071724+00:00",
+      "exit_code": 0,
+      "seconds": 0.0065619004890322685,
+      "stdout": {
+        "path": "experiments/results/argmix_native_abi210_execution_v1/v6/build/08_rpath_1.stdout",
+        "sha256": "e4258680b9276996955878c084bece60899e31cd08350b804a7dda70c384be14"
+      },
+      "stderr": {
+        "path": "experiments/results/argmix_native_abi210_execution_v1/v6/build/08_rpath_1.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "GPU_used": false,
+  "python_install_attempted": false,
+  "python_install_command_succeeded": false,
+  "compiled": true,
+  "native_extension_build_command_succeeded": true,
+  "extraction_CLI_build_command_succeeded": true,
+  "native_runtime_admitted": false,
+  "full_native_pipeline_admitted": false,
+  "exact_author_Pixi_environment": false,
+  "label": "unchanged current author source; separate ABI210 runtime candidate",
+  "storage_admission": {
+    "root_shared_guard": {
+      "path": "experiments/results/biological_paths_relate_v1/completion.json",
+      "sha256_at_admission": "f76cabb1984e7529f7b4e71d15d42ed2f7c2144b602b88fe86fea9d148f7a1f9",
+      "bytes": 58976223232,
+      "headroom_bytes": 30000000000,
+      "reason": "Reuse same-turn root complete repository du rather than simultaneous repeated NFS scans"
+    },
+    "candidate_bulk_reservation_bytes": 30000000000,
+    "repository_warning_bytes": 450000000000,
+    "repository_stop_bytes": 500000000000,
+    "full_repository_scan_repeated": false
+  },
+  "verified_Conda_archive_closure": [
+    {
+      "name": "liblzma",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/liblzma-5.8.3-hb03c661_1.conda",
+      "sha256": "9787df8c22a59c9a70d3e5a10db9ad663485e75e9ccc3f09bd092cb7b95e0dab",
+      "bytes": 112995
+    },
+    {
+      "name": "rust-std-x86_64-unknown-linux-gnu",
+      "url": "https://conda.anaconda.org/conda-forge/noarch/rust-std-x86_64-unknown-linux-gnu-1.90.0-h2c6d0dc_0.conda",
+      "sha256": "364d902ca1b4aa1b92ff4d88e04abaa31713f02aeccd7e86ca854c0100291894",
+      "bytes": 38036262
+    },
+    {
+      "name": "libsanitizer",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/libsanitizer-14.3.0-h8f1669f_19.conda",
+      "sha256": "8766de5423b0a510e2b1bdd1963d0554bdad2119f3e31d8fbd4189af434235ca",
+      "bytes": 7947790
+    },
+    {
+      "name": "c-ares",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/c-ares-1.34.8-hebe6cf0_2.conda",
+      "sha256": "9c37cc233238adf366ea75b0e845662a5be07ceadf62e458183516369340274b",
+      "bytes": 228700
+    },
+    {
+      "name": "compiler-rt21_linux-64",
+      "url": "https://conda.anaconda.org/conda-forge/noarch/compiler-rt21_linux-64-21.1.8-h0e38de2_2.conda",
+      "sha256": "0ab3df2645e4437265dfd8ccf9d8308c191fece502a651e47337db291478b429",
+      "bytes": 46404405
+    },
+    {
+      "name": "gcc",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/gcc-14.3.0-h0dff253_19.conda",
+      "sha256": "e3f541c4be7296b800a972482b7a5e399614d5e3310d3d083257fbdb4df81ea0",
+      "bytes": 29459
+    },
+    {
+      "name": "libdeflate",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/libdeflate-1.26-h351257e_0.conda",
+      "sha256": "f437f68abb1fa1dededd082a0c2800bec40495e01cf9ec46f4e693e34d60b644",
+      "bytes": 74338
+    },
+    {
+      "name": "patchelf",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/patchelf-0.19.2-hee9eb32_0.conda",
+      "sha256": "74ba13a7cd793cae441317d1963f824b1c45f49adde34f9801b3c766986592c5",
+      "bytes": 152126
+    },
+    {
+      "name": "gsl",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/gsl-2.6-he838d99_2.tar.bz2",
+      "sha256": "7c0b3547dba6d27ffd765a290b0fdce4f5cb40907bd5b7e0b7140876764fa013",
+      "bytes": 3323107
+    },
+    {
+      "name": "compiler-rt",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/compiler-rt-21.1.8-ha770c72_2.conda",
+      "sha256": "9c1b38847116dc33595452af60491a19f175148ea9b48f26d847a778cbdd0ad8",
+      "bytes": 16221
+    },
+    {
+      "name": "maturin",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/maturin-1.14.1-py310h67c5e53_2.conda",
+      "sha256": "420dd288ed066282e43b876629a02e512e269ed1a775991b37ee5701b60fac52",
+      "bytes": 9539973
+    },
+    {
+      "name": "setuptools",
+      "url": "https://conda.anaconda.org/conda-forge/noarch/setuptools-84.0.0-pyh332efcf_0.conda",
+      "sha256": "9e200ee5f9ff19a4d94e4b51c4856d53dec849f91032f345cf0c6bc3d51a7183",
+      "bytes": 524488
+    },
+    {
+      "name": "keyutils",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/keyutils-1.6.3-h7cc23a3_1.conda",
+      "sha256": "dd053c96dcb0dcfd59422aefea9d2fe937a190167f34fba7893ec1e10a7e8963",
+      "bytes": 135295
+    },
+    {
+      "name": "clang",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/clang-21.1.8-default_cfg_hfed155c_7.conda",
+      "sha256": "bf0c13b2bab0e5f9c85ab73587fce21184ed4081e55118f820ded959d574bca0",
+      "bytes": 32451
+    },
+    {
+      "name": "libxml2-16",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/libxml2-16-2.15.4-hf3af7cc_1.conda",
+      "sha256": "d1906463070c21f3215cd5de93164f31c44d5bac6ae9b5d8f5adf42b1e304039",
+      "bytes": 569062
+    },
+    {
+      "name": "libgomp",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/libgomp-16.2.0-he0feb66_7.conda",
+      "sha256": "92a0bb350c7be6a4eedcb4e111c60aefd176018e6b1c009a6e025dbe9bbcd758",
+      "bytes": 640566
+    },
+    {
+      "name": "libedit",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/libedit-3.1.20260512-pl5321h373387f_0.conda",
+      "sha256": "45301f14f4eb66da57cfaf2d265f3eeee73f8b07e99614ee3afc5b26eea91126",
+      "bytes": 135877
+    },
+    {
+      "name": "python",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/python-3.12.13-h8ab3286_1_cpython.conda",
+      "sha256": "df3d1e5f972e79e78b61730c09135c795f6e7aa45b7777835c95f451e85eff0d",
+      "bytes": 31527849
+    },
+    {
+      "name": "libxml2",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/libxml2-2.15.4-h7df9aa5_1.conda",
+      "sha256": "8c32be9e8720bc413d2b4267517459d7d71fad4a5f398a2aa8319b6d7b8a00e6",
+      "bytes": 46570
+    },
+    {
+      "name": "c-compiler",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/c-compiler-1.11.0-h4d9bdce_0.conda",
+      "sha256": "8e7a40f16400d7839c82581410aa05c1f8324a693c9d50079f8c50dc9fb241f0",
+      "bytes": 6693
+    },
+    {
+      "name": "libsqlite",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/libsqlite-3.54.0-h13e7031_1.conda",
+      "sha256": "4823e42fe95fc318d7af6125dc6ef33bd60c1152054d41661413250dc0e84e6c",
+      "bytes": 984364
+    },
+    {
+      "name": "tk",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/tk-8.6.13-noxft_h1df4ec4_4.conda",
+      "sha256": "a1a241d172c1ccab067ba245206dd048bc3c2d1b84504b53c9468e99adfc16a1",
+      "bytes": 3566806
+    },
+    {
+      "name": "htslib",
+      "url": "https://conda.anaconda.org/bioconda/linux-64/htslib-1.24-ha79157c_0.conda",
+      "sha256": "97e0f0b8700f56b1ade3034f81070ede705fce3ef9a1b5f15e79e3eb9997ac17",
+      "bytes": 1166222
+    },
+    {
+      "name": "libblas",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/libblas-3.11.0-11_h4a7cf45_openblas.conda",
+      "sha256": "d942e0c820d60a613a6f786d074f0820fb6343e3f1ccfb110b1d98b44fb75968",
+      "bytes": 18246
+    },
+    {
+      "name": "llvm-openmp",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/llvm-openmp-23.1.3-h7148c6a_0.conda",
+      "sha256": "684b08c8a127ed0c45e6ab137df7ee5c8fc76643099b62d97fc1575de6f4e29e",
+      "bytes": 6125613
+    },
+    {
+      "name": "sysroot_linux-64",
+      "url": "https://conda.anaconda.org/conda-forge/noarch/sysroot_linux-64-2.34-h087de78_3.conda",
+      "sha256": "08c50c314b331730eeb8f87c39a45e5426a5463e078392ab283e2552d753443e",
+      "bytes": 40779381
+    },
+    {
+      "name": "libffi",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/libffi-3.7.0-h81df57d_1.conda",
+      "sha256": "c8c7583ef063bc3c430f1d48298e5ad24f796a35c22ed5b14183325825a61106",
+      "bytes": 68004
+    },
+    {
+      "name": "rust",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/rust-1.90.0-h53717f1_0.conda",
+      "sha256": "fb9070195495b51787a08430d867a120da2fce4e795df82d77ccc0c62f1ef41a",
+      "bytes": 227708625
+    },
+    {
+      "name": "perl",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/perl-5.44.0-1_h7cc23a3_perl5.conda",
+      "sha256": "43afad1c27c24ccc40d98461ab7e1648ccac876421a8783167861ae19c4edc83",
+      "bytes": 11438995
+    },
+    {
+      "name": "pkg-config",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/pkg-config-0.29.2-h1114479_1013.conda",
+      "sha256": "8f27ee1b6166c5be505dba4b0dd0f3b3b81ddec811f6118cc337b90cbd3937a4",
+      "bytes": 141376
+    },
+    {
+      "name": "conda-gcc-specs",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/conda-gcc-specs-14.3.0-he8ccf15_20.conda",
+      "sha256": "4f938c0e555ff03447ad1eb403396abbaa4d6abcf3bc9783ac7764e21153dcae",
+      "bytes": 32238
+    },
+    {
+      "name": "libgcc",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/libgcc-16.2.0-ha9f2e26_7.conda",
+      "sha256": "e031634c3a928f9594eba868bc46ef5230d6571a364a0c63215b06c4563bfcea",
+      "bytes": 1058444
+    },
+    {
+      "name": "tomli",
+      "url": "https://conda.anaconda.org/conda-forge/noarch/tomli-2.5.0-pyh5ded981_0.conda",
+      "sha256": "93b6f517fb7adff00b62be02b798d384a1b34d0e368fdb576fb248bcb3bb9ec7",
+      "bytes": 21687
+    },
+    {
+      "name": "libnsl",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/libnsl-2.0.1-hb9d3cd8_1.conda",
+      "sha256": "927fe72b054277cde6cb82597d0fcf6baf127dcbce2e0a9d8925a68f1265eef5",
+      "bytes": 33731
+    },
+    {
+      "name": "packaging",
+      "url": "https://conda.anaconda.org/conda-forge/noarch/packaging-26.3-pyhc364b38_0.conda",
+      "sha256": "c432626b16768b8dab228bfb706f7060c2d462a21c516d240f68f2f902b5a044",
+      "bytes": 116363
+    },
+    {
+      "name": "zstd",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/zstd-1.5.7-hb78ec9c_7.conda",
+      "sha256": "47d682b9f6d6ec9eb1a6e6c3e75ea6273e899e78fb7fc59f81d39745009fbc60",
+      "bytes": 601301
+    },
+    {
+      "name": "libgfortran5",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/libgfortran5-16.2.0-h6b99dfc_7.conda",
+      "sha256": "04dbab12c925b92977bb835dd2f5eda413607afa79f95a554e5a04b07a380322",
+      "bytes": 2528180
+    },
+    {
+      "name": "gcc_impl_linux-64",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/gcc_impl_linux-64-14.3.0-h235f0fe_19.conda",
+      "sha256": "1e2500ca976d4831c953d1c6db7b238d2e6806910b930e3eb631b79ba5c3ba41",
+      "bytes": 77667192
+    },
+    {
+      "name": "libzlib",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/libzlib-1.3.2-h25fd6f3_3.conda",
+      "sha256": "eb8a0db0aa570124f7d2a93d7c7f596e3390df5e047818d873baad32985fc736",
+      "bytes": 63713
+    },
+    {
+      "name": "libcblas",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/libcblas-3.11.0-11_h0358290_openblas.conda",
+      "sha256": "f7d1bbdea61cf94ba219d17b2cb571a29830f8025385af799bff5a7ad1ef45e6",
+      "bytes": 18196
+    },
+    {
+      "name": "tzdata",
+      "url": "https://conda.anaconda.org/conda-forge/noarch/tzdata-2026c-h151e31d_0.conda",
+      "sha256": "b928c30ddcb0e3f544c6eade8352737e6e610e263276b90232db6a578ef899d8",
+      "bytes": 118849
+    },
+    {
+      "name": "libstdcxx",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/libstdcxx-16.2.0-h934c35e_7.conda",
+      "sha256": "fa7018298629fc429971fffd6ecba3d27a7b02e4e890d6a93ea01ffebe8cb745",
+      "bytes": 6615436
+    },
+    {
+      "name": "libnghttp2",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/libnghttp2-1.68.1-h74cf4be_1.conda",
+      "sha256": "11a2f54a6f391e25738bce0023e6ef499600147bbcf21c1fa69d2e251b03cc6a",
+      "bytes": 649974
+    },
+    {
+      "name": "icu",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/icu-78.3-py310h44b86e0_2.conda",
+      "sha256": "9f07834f0c546ab14d885ce0366285f61f44e326c0edd1fc63b8294e113ae432",
+      "bytes": 14459115
+    },
+    {
+      "name": "ld_impl_linux-64",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/ld_impl_linux-64-2.45.1-default_hbd61a6d_102.conda",
+      "sha256": "3d584956604909ff5df353767f3a2a2f60e07d070b328d109f30ac40cd62df6c",
+      "bytes": 728002
+    },
+    {
+      "name": "libopenblas",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/libopenblas-0.3.34-pthreads_hf13c14d_2.conda",
+      "sha256": "69a722751e14eab2eb3bfdcb9acb1187afbd962b0c49b48d829341e0f6787f60",
+      "bytes": 6845411
+    },
+    {
+      "name": "libgcc-ng",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/libgcc-ng-16.2.0-h69a702a_7.conda",
+      "sha256": "03b54d7008de080a17cc2174b0e4acd6d06e1c981b2eb19846f46d8f59966034",
+      "bytes": 28616
+    },
+    {
+      "name": "ncurses",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/ncurses-6.6-hdb14827_1.conda",
+      "sha256": "5d46557214ed184381dafe835b7c94a474a1c3b307a08a250b1ea4779b44ffb3",
+      "bytes": 911196
+    },
+    {
+      "name": "libgcc-devel_linux-64",
+      "url": "https://conda.anaconda.org/conda-forge/noarch/libgcc-devel_linux-64-14.3.0-hf649bbc_119.conda",
+      "sha256": "e1815bb11d5abe886979e95889d84310d83d078d36a3567ca67cbf57a3876d88",
+      "bytes": 3091520
+    },
+    {
+      "name": "clang_impl_linux-64",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/clang_impl_linux-64-21.1.8-default_hbd963a2_7.conda",
+      "sha256": "e3cf6a9244fa4717ed868bb262ae7151e7a73fb288540f204c3499acc52f3ea4",
+      "bytes": 32070
+    },
+    {
+      "name": "binutils",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/binutils-2.45.1-default_h4852527_102.conda",
+      "sha256": "3c7c5580c1720206f28b7fa3d60d17986b3f32465e63009c14c9ae1ea64f926c",
+      "bytes": 35436
+    },
+    {
+      "name": "libaec",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/libaec-1.1.5-h088129d_0.conda",
+      "sha256": "822e4ae421a7e9c04e841323526321185f6659222325e1a9aedec811c686e688",
+      "bytes": 36544
+    },
+    {
+      "name": "clang-21",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/clang-21-21.1.8-default_h6209e06_7.conda",
+      "sha256": "0649a9048387f19a9cc4c643286204b291e8126ce9030233bb1ee42cb164985e",
+      "bytes": 844510
+    },
+    {
+      "name": "libxcrypt",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/libxcrypt-4.4.38-h280c20c_0.conda",
+      "sha256": "f7e9292dd219a6435bbb1223da9586c3e70d66d169c5a92f08db3f2127df04e9",
+      "bytes": 101957
+    },
+    {
+      "name": "libclang-cpp21.1",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/libclang-cpp21.1-21.1.8-default_h6209e06_7.conda",
+      "sha256": "0363cccf3aea5d660f0b5b3b404b1e6bad981866e18599d417c21663c232df57",
+      "bytes": 21481070
+    },
+    {
+      "name": "libcurl",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/libcurl-8.22.0-ha042cf0_0.conda",
+      "sha256": "483b7eb97f56fbb3a9cb7190d33012dfa0a5aaed99ede61465563cd97dd82504",
+      "bytes": 499651
+    },
+    {
+      "name": "libpsl",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/libpsl-0.23.1-hd9e3e90_1.conda",
+      "sha256": "09e8effdc89bc5d021349318d32b85594f5b8d8e3ab8f90a85b81f8fe695a566",
+      "bytes": 72519
+    },
+    {
+      "name": "binutils_impl_linux-64",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/binutils_impl_linux-64-2.45.1-default_hfdba357_102.conda",
+      "sha256": "0a7d405064f53b9d91d92515f1460f7906ee5e8523f3cd8973430e81219f4917",
+      "bytes": 3661455
+    },
+    {
+      "name": "hdf5",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/hdf5-1.14.6-nompi_h19486de_110.conda",
+      "sha256": "ac57ce3abbda2a82d6192bc36fbd7fe96e867d84c999ef81a3da034dfd01a995",
+      "bytes": 3721555
+    },
+    {
+      "name": "compiler-rt21",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/compiler-rt21-21.1.8-h7148c6a_2.conda",
+      "sha256": "bf5aa7a7d5757767684554fb7d05ecec7c24ffa8cb1418a151da74fc4808160b",
+      "bytes": 114887
+    },
+    {
+      "name": "compiler-rt_linux-64",
+      "url": "https://conda.anaconda.org/conda-forge/noarch/compiler-rt_linux-64-21.1.8-ha770c72_2.conda",
+      "sha256": "ca9203541fcaf2f009de61f3b2849a0750c3b54c00f609cc4a716030546bba0e",
+      "bytes": 16233
+    },
+    {
+      "name": "libuuid",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/libuuid-2.42.4-hcfc3c73_0.conda",
+      "sha256": "f34b8d1de9a2bf62476d8608057d9b8a918d97444236dc53a47128f2fae79041",
+      "bytes": 34442
+    },
+    {
+      "name": "krb5",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/krb5-1.22.2-hbc21106_2.conda",
+      "sha256": "2a5c38c85e63df84c4e69ee71439841ce570d259ae3060627bb9a49a938d66f4",
+      "bytes": 1394333
+    },
+    {
+      "name": "openssl",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/openssl-3.6.5-h781a0a9_0.conda",
+      "sha256": "9c1533f1cf784f0e250919c0c9762d0b0e6bc727a79290ffb7cea1ceca1d038c",
+      "bytes": 3195299
+    },
+    {
+      "name": "libiconv",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/libiconv-1.18-h0cb94f2_3.conda",
+      "sha256": "f943117edb9cd4d9c61cc972eee5a34291dc55ea7a6e9e38da104995841cbcb6",
+      "bytes": 789471
+    },
+    {
+      "name": "plink2",
+      "url": "https://conda.anaconda.org/bioconda/linux-64/plink2-2.0.0a.7.8-hea6131b_0.conda",
+      "sha256": "d1b2a38e95a4a39851b21bac4380b383375b0eb1b8f993ce392218507bca4003",
+      "bytes": 1427988
+    },
+    {
+      "name": "libgfortran",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/libgfortran-16.2.0-h69a702a_7.conda",
+      "sha256": "9682ae4dd11487e10b904b3cb3ab6379cad25233d45fdfdf90d54349df244494",
+      "bytes": 28571
+    },
+    {
+      "name": "gcc_linux-64",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/gcc_linux-64-14.3.0-h50e9bb6_28.conda",
+      "sha256": "9fd801f04e12cc3c8f0ea1f92086995ab7dc8071211e3452c506c5f5abf1a0ff",
+      "bytes": 29378
+    },
+    {
+      "name": "libstdcxx-devel_linux-64",
+      "url": "https://conda.anaconda.org/conda-forge/noarch/libstdcxx-devel_linux-64-14.3.0-h9f08a49_119.conda",
+      "sha256": "1b4263aa5d8c8c659e8e38b66868f42867347e0c8941513ee77269afc00a5186",
+      "bytes": 20199810
+    },
+    {
+      "name": "ca-certificates",
+      "url": "https://conda.anaconda.org/conda-forge/noarch/ca-certificates-2026.7.22-hbd8a1cb_0.conda",
+      "sha256": "0a0544cf95f64394fe4959286f5c71f5444ad58feb0602e53becb27448d24da6",
+      "bytes": 131780
+    },
+    {
+      "name": "_openmp_mutex",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/_openmp_mutex-4.5-20_gnu.conda",
+      "sha256": "1dd3fffd892081df9726d7eb7e0dea6198962ba775bd88842135a4ddb4deb3c9",
+      "bytes": 28948
+    },
+    {
+      "name": "libexpat",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/libexpat-2.8.5-hd2095e1_0.conda",
+      "sha256": "6de73033a7c5f712c9c5a54124e4581e025691029835e5bceaf10a333a7e7bc0",
+      "bytes": 77893
+    },
+    {
+      "name": "readline",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/readline-8.3-hd6e31c0_1.conda",
+      "sha256": "01b3fe073a66e321970d09e04b388708f8cbdca5cdfbfcb7c9eeb470ad10383d",
+      "bytes": 348899
+    },
+    {
+      "name": "libssh2",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/libssh2-1.11.1-h6154650_1.conda",
+      "sha256": "7e463000fa1cba3f3a6597b776f6ab301d425a96e3bc20d0d9d76a3b9f237aa3",
+      "bytes": 306045
+    },
+    {
+      "name": "wheel",
+      "url": "https://conda.anaconda.org/conda-forge/noarch/wheel-0.48.0-pyhd8ed1ab_0.conda",
+      "sha256": "ba64b29b6d418024cb565081a1799262cb2780d2534ff4c14f76aa858c4286cd",
+      "bytes": 34528
+    },
+    {
+      "name": "openblas",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/openblas-0.3.34-pthreads_h299a788_2.conda",
+      "sha256": "0e8629ce8f0f5ccce78535ed43dcdb8165f7b9541d5e3def6639850737d400e2",
+      "bytes": 7576474
+    },
+    {
+      "name": "bcftools",
+      "url": "https://conda.anaconda.org/bioconda/linux-64/bcftools-1.24-h118bc1c_4.conda",
+      "sha256": "f2dd5cb44c4200734fee9a3054d9ee2d9a4a0f184e2d68d906d9fa0bc23f4559",
+      "bytes": 964513
+    },
+    {
+      "name": "libev",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/libev-4.33-h280c20c_3.conda",
+      "sha256": "e4418f68d01a6307c4431b585c71b584f40189877364e542ee87deb777f5e85b",
+      "bytes": 43220
+    },
+    {
+      "name": "libllvm21",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/libllvm21-21.1.8-h474f4eb_1.conda",
+      "sha256": "b007641e1da9de002af0518b89b07d4c59e513a6f465c9da86f24685ef86cc8b",
+      "bytes": 44794307
+    },
+    {
+      "name": "libcompiler-rt",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/libcompiler-rt-21.1.8-h7148c6a_2.conda",
+      "sha256": "b64e2c32f192fe8acd17094d88182a76a3c030dec56f6ed8be677b6e78a4574b",
+      "bytes": 10269479
+    },
+    {
+      "name": "kernel-headers_linux-64",
+      "url": "https://conda.anaconda.org/conda-forge/noarch/kernel-headers_linux-64-5.14.0-he073ed8_3.conda",
+      "sha256": "c4d973dd80ab10028b3e4c58c1c6d8f437bfeaf6069dafb1130dabc550e9caf4",
+      "bytes": 1410267
+    },
+    {
+      "name": "bzip2",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/bzip2-1.0.8-hda65f42_10.conda",
+      "sha256": "1a0d382c515ebf55f8ee1f38c8b81bc95af5c2acc42ad53b66bc5df932032f96",
+      "bytes": 257808
+    },
+    {
+      "name": "pip",
+      "url": "https://conda.anaconda.org/conda-forge/noarch/pip-25.3-pyh8b19718_0.conda",
+      "sha256": "b67692da1c0084516ac1c9ada4d55eaf3c5891b54980f30f3f444541c2706f1e",
+      "bytes": 1177534
+    },
+    {
+      "name": "binutils_linux-64",
+      "url": "https://conda.anaconda.org/conda-forge/linux-64/binutils_linux-64-2.45.1-default_h4852527_102.conda",
+      "sha256": "78a58d523d072b7f8e591b8f8572822e044b31764ed7e8d170392e7bc6d58339",
+      "bytes": 36304
+    }
+  ],
+  "Cargo_lock_package_closure": [
+    {
+      "name": "adler2",
+      "version": "2.0.1",
+      "sha256": "320119579fcad9c21884f5c4861d16174d0e06250625266f50fe6898340abefa",
+      "url": "https://static.crates.io/crates/adler2/adler2-2.0.1.crate"
+    },
+    {
+      "name": "aes",
+      "version": "0.8.4",
+      "sha256": "b169f7a6d4742236a0a00c541b845991d0ac43e546831af1249753ab4c3aa3a0",
+      "url": "https://static.crates.io/crates/aes/aes-0.8.4.crate"
+    },
+    {
+      "name": "aho-corasick",
+      "version": "1.1.4",
+      "sha256": "ddd31a130427c27518df266943a5308ed92d4b226cc639f5a8f1002816174301",
+      "url": "https://static.crates.io/crates/aho-corasick/aho-corasick-1.1.4.crate"
+    },
+    {
+      "name": "aliasable",
+      "version": "0.1.3",
+      "sha256": "250f629c0161ad8107cf89319e990051fae62832fd343083bea452d93e2205fd",
+      "url": "https://static.crates.io/crates/aliasable/aliasable-0.1.3.crate"
+    },
+    {
+      "name": "ancpath",
+      "version": "0.1.0",
+      "source": "unchanged local author tree"
+    },
+    {
+      "name": "ancpath_incremental",
+      "version": "0.1.0",
+      "source": "unchanged local author tree"
+    },
+    {
+      "name": "anyhow",
+      "version": "1.0.102",
+      "sha256": "7f202df86484c868dbad7eaa557ef785d5c66295e41b460ef922eca0723b842c",
+      "url": "https://static.crates.io/crates/anyhow/anyhow-1.0.102.crate"
+    },
+    {
+      "name": "arbitrary",
+      "version": "1.4.2",
+      "sha256": "c3d036a3c4ab069c7b410a2ce876bd74808d2d0888a82667669f8e783a898bf1",
+      "url": "https://static.crates.io/crates/arbitrary/arbitrary-1.4.2.crate"
+    },
+    {
+      "name": "ascii",
+      "version": "1.1.0",
+      "sha256": "d92bec98840b8f03a5ff5413de5293bfcd8bf96467cf5452609f939ec6f5de16",
+      "url": "https://static.crates.io/crates/ascii/ascii-1.1.0.crate"
+    },
+    {
+      "name": "autocfg",
+      "version": "1.5.0",
+      "sha256": "c08606f8c3cbf4ce6ec8e28fb0014a2c086708fe954eaa885384a6165172e7e8",
+      "url": "https://static.crates.io/crates/autocfg/autocfg-1.5.0.crate"
+    },
+    {
+      "name": "base64",
+      "version": "0.22.1",
+      "sha256": "72b3254f16251a8381aa12e40e3c4d2f0199f8c6508fbecb9d91f575e0fbb8c6",
+      "url": "https://static.crates.io/crates/base64/base64-0.22.1.crate"
+    },
+    {
+      "name": "base64ct",
+      "version": "1.8.3",
+      "sha256": "2af50177e190e07a26ab74f8b1efbfe2ef87da2116221318cb1c2e82baf7de06",
+      "url": "https://static.crates.io/crates/base64ct/base64ct-1.8.3.crate"
+    },
+    {
+      "name": "bindgen",
+      "version": "0.69.5",
+      "sha256": "271383c67ccabffb7381723dea0672a673f292304fcb45c01cc648c7a8d58088",
+      "url": "https://static.crates.io/crates/bindgen/bindgen-0.69.5.crate"
+    },
+    {
+      "name": "bitflags",
+      "version": "2.11.0",
+      "sha256": "843867be96c8daad0d758b57df9392b6d8d271134fce549de6ce169ff98a92af",
+      "url": "https://static.crates.io/crates/bitflags/bitflags-2.11.0.crate"
+    },
+    {
+      "name": "block-buffer",
+      "version": "0.10.4",
+      "sha256": "3078c7629b62d3f0439517fa394996acacc5cbc91c5a20d8c658e77abd503a71",
+      "url": "https://static.crates.io/crates/block-buffer/block-buffer-0.10.4.crate"
+    },
+    {
+      "name": "bumpalo",
+      "version": "3.20.2",
+      "sha256": "5d20789868f4b01b2f2caec9f5c4e0213b41e3e5702a50157d699ae31ced2fcb",
+      "url": "https://static.crates.io/crates/bumpalo/bumpalo-3.20.2.crate"
+    },
+    {
+      "name": "byteorder",
+      "version": "1.5.0",
+      "sha256": "1fd0f2584146f6f2ef48085050886acf353beff7305ebd1ae69500e27c67f64b",
+      "url": "https://static.crates.io/crates/byteorder/byteorder-1.5.0.crate"
+    },
+    {
+      "name": "bzip2",
+      "version": "0.4.4",
+      "sha256": "bdb116a6ef3f6c3698828873ad02c3014b3c85cadb88496095628e3ef1e347f8",
+      "url": "https://static.crates.io/crates/bzip2/bzip2-0.4.4.crate"
+    },
+    {
+      "name": "bzip2-sys",
+      "version": "0.1.13+1.0.8",
+      "sha256": "225bff33b2141874fe80d71e07d6eec4f85c5c216453dd96388240f96e1acc14",
+      "url": "https://static.crates.io/crates/bzip2-sys/bzip2-sys-0.1.13+1.0.8.crate"
+    },
+    {
+      "name": "cc",
+      "version": "1.2.56",
+      "sha256": "aebf35691d1bfb0ac386a69bac2fde4dd276fb618cf8bf4f5318fe285e821bb2",
+      "url": "https://static.crates.io/crates/cc/cc-1.2.56.crate"
+    },
+    {
+      "name": "cexpr",
+      "version": "0.6.0",
+      "sha256": "6fac387a98bb7c37292057cffc56d62ecb629900026402633ae9160df93a8766",
+      "url": "https://static.crates.io/crates/cexpr/cexpr-0.6.0.crate"
+    },
+    {
+      "name": "cfg-if",
+      "version": "1.0.4",
+      "sha256": "9330f8b2ff13f34540b44e946ef35111825727b38d33286ef986142615121801",
+      "url": "https://static.crates.io/crates/cfg-if/cfg-if-1.0.4.crate"
+    },
+    {
+      "name": "cipher",
+      "version": "0.4.4",
+      "sha256": "773f3b9af64447d2ce9850330c473515014aa235e6a783b02db81ff39e4a3dad",
+      "url": "https://static.crates.io/crates/cipher/cipher-0.4.4.crate"
+    },
+    {
+      "name": "clang-sys",
+      "version": "1.8.1",
+      "sha256": "0b023947811758c97c59bf9d1c188fd619ad4718dcaa767947df1cadb14f39f4",
+      "url": "https://static.crates.io/crates/clang-sys/clang-sys-1.8.1.crate"
+    },
+    {
+      "name": "console",
+      "version": "0.15.11",
+      "sha256": "054ccb5b10f9f2cbf51eb355ca1d05c2d279ce1804688d0db74b4733a5aeafd8",
+      "url": "https://static.crates.io/crates/console/console-0.15.11.crate"
+    },
+    {
+      "name": "constant_time_eq",
+      "version": "0.1.5",
+      "sha256": "245097e9a4535ee1e3e3931fcfcd55a796a44c643e8596ff6566d68f09b87bbc",
+      "url": "https://static.crates.io/crates/constant_time_eq/constant_time_eq-0.1.5.crate"
+    },
+    {
+      "name": "cpufeatures",
+      "version": "0.2.17",
+      "sha256": "59ed5838eebb26a2bb2e58f6d5b5316989ae9d08bab10e0e6d103e656d1b0280",
+      "url": "https://static.crates.io/crates/cpufeatures/cpufeatures-0.2.17.crate"
+    },
+    {
+      "name": "crc32fast",
+      "version": "1.5.0",
+      "sha256": "9481c1c90cbf2ac953f07c8d4a58aa3945c425b7185c9154d67a65e4230da511",
+      "url": "https://static.crates.io/crates/crc32fast/crc32fast-1.5.0.crate"
+    },
+    {
+      "name": "crossbeam-channel",
+      "version": "0.5.15",
+      "sha256": "82b8f8f868b36967f9606790d1903570de9ceaf870a7bf9fbbd3016d636a2cb2",
+      "url": "https://static.crates.io/crates/crossbeam-channel/crossbeam-channel-0.5.15.crate"
+    },
+    {
+      "name": "crossbeam-deque",
+      "version": "0.8.6",
+      "sha256": "9dd111b7b7f7d55b72c0a6ae361660ee5853c9af73f70c3c2ef6858b950e2e51",
+      "url": "https://static.crates.io/crates/crossbeam-deque/crossbeam-deque-0.8.6.crate"
+    },
+    {
+      "name": "crossbeam-epoch",
+      "version": "0.9.18",
+      "sha256": "5b82ac4a3c2ca9c3460964f020e1402edd5753411d7737aa39c3714ad1b5420e",
+      "url": "https://static.crates.io/crates/crossbeam-epoch/crossbeam-epoch-0.9.18.crate"
+    },
+    {
+      "name": "crossbeam-utils",
+      "version": "0.8.21",
+      "sha256": "d0a5c400df2834b80a4c3327b3aad3a4c4cd4de0629063962b03235697506a28",
+      "url": "https://static.crates.io/crates/crossbeam-utils/crossbeam-utils-0.8.21.crate"
+    },
+    {
+      "name": "crunchy",
+      "version": "0.2.4",
+      "sha256": "460fbee9c2c2f33933d720630a6a0bac33ba7053db5344fac858d4b8952d77d5",
+      "url": "https://static.crates.io/crates/crunchy/crunchy-0.2.4.crate"
+    },
+    {
+      "name": "crypto-common",
+      "version": "0.1.7",
+      "sha256": "78c8292055d1c1df0cce5d180393dc8cce0abec0a7102adb6c7b1eef6016d60a",
+      "url": "https://static.crates.io/crates/crypto-common/crypto-common-0.1.7.crate"
+    },
+    {
+      "name": "deranged",
+      "version": "0.5.8",
+      "sha256": "7cd812cc2bc1d69d4764bd80df88b4317eaef9e773c75226407d9bc0876b211c",
+      "url": "https://static.crates.io/crates/deranged/deranged-0.5.8.crate"
+    },
+    {
+      "name": "derive_arbitrary",
+      "version": "1.4.2",
+      "sha256": "1e567bd82dcff979e4b03460c307b3cdc9e96fde3d73bed1496d2bc75d9dd62a",
+      "url": "https://static.crates.io/crates/derive_arbitrary/derive_arbitrary-1.4.2.crate"
+    },
+    {
+      "name": "digest",
+      "version": "0.10.7",
+      "sha256": "9ed9a281f7bc9b7576e61468ba615a66a5c8cfdff42420a70aa82701a3b1e292",
+      "url": "https://static.crates.io/crates/digest/digest-0.10.7.crate"
+    },
+    {
+      "name": "displaydoc",
+      "version": "0.2.5",
+      "sha256": "97369cbbc041bc366949bc74d34658d6cda5621039731c6310521892a3a20ae0",
+      "url": "https://static.crates.io/crates/displaydoc/displaydoc-0.2.5.crate"
+    },
+    {
+      "name": "either",
+      "version": "1.15.0",
+      "sha256": "48c757948c5ede0e46177b7add2e67155f70e33c07fea8284df6576da70b3719",
+      "url": "https://static.crates.io/crates/either/either-1.15.0.crate"
+    },
+    {
+      "name": "encode_unicode",
+      "version": "1.0.0",
+      "sha256": "34aa73646ffb006b8f5147f3dc182bd4bcb190227ce861fc4a4844bf8e3cb2c0",
+      "url": "https://static.crates.io/crates/encode_unicode/encode_unicode-1.0.0.crate"
+    },
+    {
+      "name": "equivalent",
+      "version": "1.0.2",
+      "sha256": "877a4ace8713b0bcf2a4e7eec82529c029f1d0619886d18145fea96c3ffe5c0f",
+      "url": "https://static.crates.io/crates/equivalent/equivalent-1.0.2.crate"
+    },
+    {
+      "name": "errno",
+      "version": "0.3.14",
+      "sha256": "39cab71617ae0d63f51a36d69f866391735b51691dbda63cf6f96d042b63efeb",
+      "url": "https://static.crates.io/crates/errno/errno-0.3.14.crate"
+    },
+    {
+      "name": "find-msvc-tools",
+      "version": "0.1.9",
+      "sha256": "5baebc0774151f905a1a2cc41989300b1e6fbb29aff0ceffa1064fdd3088d582",
+      "url": "https://static.crates.io/crates/find-msvc-tools/find-msvc-tools-0.1.9.crate"
+    },
+    {
+      "name": "flate2",
+      "version": "1.1.9",
+      "sha256": "843fba2746e448b37e26a819579957415c8cef339bf08564fe8b7ddbd959573c",
+      "url": "https://static.crates.io/crates/flate2/flate2-1.1.9.crate"
+    },
+    {
+      "name": "form_urlencoded",
+      "version": "1.2.2",
+      "sha256": "cb4cb245038516f5f85277875cdaa4f7d2c9a0fa0468de06ed190163b1581fcf",
+      "url": "https://static.crates.io/crates/form_urlencoded/form_urlencoded-1.2.2.crate"
+    },
+    {
+      "name": "futures-core",
+      "version": "0.3.32",
+      "sha256": "7e3450815272ef58cec6d564423f6e755e25379b217b0bc688e295ba24df6b1d",
+      "url": "https://static.crates.io/crates/futures-core/futures-core-0.3.32.crate"
+    },
+    {
+      "name": "futures-task",
+      "version": "0.3.32",
+      "sha256": "037711b3d59c33004d3856fbdc83b99d4ff37a24768fa1be9ce3538a1cde4393",
+      "url": "https://static.crates.io/crates/futures-task/futures-task-0.3.32.crate"
+    },
+    {
+      "name": "futures-util",
+      "version": "0.3.32",
+      "sha256": "389ca41296e6190b48053de0321d02a77f32f8a5d2461dd38762c0593805c6d6",
+      "url": "https://static.crates.io/crates/futures-util/futures-util-0.3.32.crate"
+    },
+    {
+      "name": "generic-array",
+      "version": "0.14.7",
+      "sha256": "85649ca51fd72272d7821adaf274ad91c288277713d9c18820d8499a7ff69e9a",
+      "url": "https://static.crates.io/crates/generic-array/generic-array-0.14.7.crate"
+    },
+    {
+      "name": "getrandom",
+      "version": "0.2.17",
+      "sha256": "ff2abc00be7fca6ebc474524697ae276ad847ad0a6b3faa4bcb027e9a4614ad0",
+      "url": "https://static.crates.io/crates/getrandom/getrandom-0.2.17.crate"
+    },
+    {
+      "name": "getrandom",
+      "version": "0.3.4",
+      "sha256": "899def5c37c4fd7b2664648c28120ecec138e4d395b459e5ca34f9cce2dd77fd",
+      "url": "https://static.crates.io/crates/getrandom/getrandom-0.3.4.crate"
+    },
+    {
+      "name": "glob",
+      "version": "0.3.3",
+      "sha256": "0cc23270f6e1808e30a928bdc84dea0b9b4136a8bc82338574f23baf47bbd280",
+      "url": "https://static.crates.io/crates/glob/glob-0.3.3.crate"
+    },
+    {
+      "name": "half",
+      "version": "2.7.1",
+      "sha256": "6ea2d84b969582b4b1864a92dc5d27cd2b77b622a8d79306834f1be5ba20d84b",
+      "url": "https://static.crates.io/crates/half/half-2.7.1.crate"
+    },
+    {
+      "name": "hashbrown",
+      "version": "0.17.0",
+      "sha256": "4f467dd6dccf739c208452f8014c75c18bb8301b050ad1cfb27153803edb0f51",
+      "url": "https://static.crates.io/crates/hashbrown/hashbrown-0.17.0.crate"
+    },
+    {
+      "name": "hdf5-metno",
+      "version": "0.12.4",
+      "sha256": "f43f0693fa3ce381110a9f355ba7bd2a2fb864278cc60f3307ac17fe30d6109a",
+      "url": "https://static.crates.io/crates/hdf5-metno/hdf5-metno-0.12.4.crate"
+    },
+    {
+      "name": "hdf5-metno-derive",
+      "version": "0.10.0",
+      "sha256": "e5f5b353c797530e868881b12c1c307c0994cd3400195391d7021e6e6db02da6",
+      "url": "https://static.crates.io/crates/hdf5-metno-derive/hdf5-metno-derive-0.10.0.crate"
+    },
+    {
+      "name": "hdf5-metno-sys",
+      "version": "0.11.3",
+      "sha256": "b546cf84b629a51ea1e68c783b37ce2045c80f3d56e4ba1d2d882cfba0364738",
+      "url": "https://static.crates.io/crates/hdf5-metno-sys/hdf5-metno-sys-0.11.3.crate"
+    },
+    {
+      "name": "hdf5-metno-types",
+      "version": "0.11.0",
+      "sha256": "c994ebf205f9128cb490f01e1e41742842b7171b878caadb1a44abdc6a535a88",
+      "url": "https://static.crates.io/crates/hdf5-metno-types/hdf5-metno-types-0.11.0.crate"
+    },
+    {
+      "name": "heck",
+      "version": "0.4.1",
+      "sha256": "95505c38b4572b2d910cecb0281560f54b440a19336cbbcb27bf6ce6adc6f5a8",
+      "url": "https://static.crates.io/crates/heck/heck-0.4.1.crate"
+    },
+    {
+      "name": "heck",
+      "version": "0.5.0",
+      "sha256": "2304e00983f87ffb38b55b444b5e3b60a884b5d30c0fca7d82fe33449bbe55ea",
+      "url": "https://static.crates.io/crates/heck/heck-0.5.0.crate"
+    },
+    {
+      "name": "hermit-abi",
+      "version": "0.5.2",
+      "sha256": "fc0fef456e4baa96da950455cd02c081ca953b141298e41db3fc7e36b1da849c",
+      "url": "https://static.crates.io/crates/hermit-abi/hermit-abi-0.5.2.crate"
+    },
+    {
+      "name": "hmac",
+      "version": "0.12.1",
+      "sha256": "6c49c37c09c17a53d937dfbb742eb3a961d65a994e6bcdcf37e7399d0cc8ab5e",
+      "url": "https://static.crates.io/crates/hmac/hmac-0.12.1.crate"
+    },
+    {
+      "name": "home",
+      "version": "0.5.12",
+      "sha256": "cc627f471c528ff0c4a49e1d5e60450c8f6461dd6d10ba9dcd3a61d3dff7728d",
+      "url": "https://static.crates.io/crates/home/home-0.5.12.crate"
+    },
+    {
+      "name": "icu_collections",
+      "version": "2.1.1",
+      "sha256": "4c6b649701667bbe825c3b7e6388cb521c23d88644678e83c0c4d0a621a34b43",
+      "url": "https://static.crates.io/crates/icu_collections/icu_collections-2.1.1.crate"
+    },
+    {
+      "name": "icu_locale_core",
+      "version": "2.1.1",
+      "sha256": "edba7861004dd3714265b4db54a3c390e880ab658fec5f7db895fae2046b5bb6",
+      "url": "https://static.crates.io/crates/icu_locale_core/icu_locale_core-2.1.1.crate"
+    },
+    {
+      "name": "icu_normalizer",
+      "version": "2.1.1",
+      "sha256": "5f6c8828b67bf8908d82127b2054ea1b4427ff0230ee9141c54251934ab1b599",
+      "url": "https://static.crates.io/crates/icu_normalizer/icu_normalizer-2.1.1.crate"
+    },
+    {
+      "name": "icu_normalizer_data",
+      "version": "2.1.1",
+      "sha256": "7aedcccd01fc5fe81e6b489c15b247b8b0690feb23304303a9e560f37efc560a",
+      "url": "https://static.crates.io/crates/icu_normalizer_data/icu_normalizer_data-2.1.1.crate"
+    },
+    {
+      "name": "icu_properties",
+      "version": "2.1.2",
+      "sha256": "020bfc02fe870ec3a66d93e677ccca0562506e5872c650f893269e08615d74ec",
+      "url": "https://static.crates.io/crates/icu_properties/icu_properties-2.1.2.crate"
+    },
+    {
+      "name": "icu_properties_data",
+      "version": "2.1.2",
+      "sha256": "616c294cf8d725c6afcd8f55abc17c56464ef6211f9ed59cccffe534129c77af",
+      "url": "https://static.crates.io/crates/icu_properties_data/icu_properties_data-2.1.2.crate"
+    },
+    {
+      "name": "icu_provider",
+      "version": "2.1.1",
+      "sha256": "85962cf0ce02e1e0a629cc34e7ca3e373ce20dda4c4d7294bbd0bf1fdb59e614",
+      "url": "https://static.crates.io/crates/icu_provider/icu_provider-2.1.1.crate"
+    },
+    {
+      "name": "idna",
+      "version": "1.1.0",
+      "sha256": "3b0875f23caa03898994f6ddc501886a45c7d3d62d04d2d90788d47be1b1e4de",
+      "url": "https://static.crates.io/crates/idna/idna-1.1.0.crate"
+    },
+    {
+      "name": "idna_adapter",
+      "version": "1.2.1",
+      "sha256": "3acae9609540aa318d1bc588455225fb2085b9ed0c4f6bd0d9d5bcd86f1a0344",
+      "url": "https://static.crates.io/crates/idna_adapter/idna_adapter-1.2.1.crate"
+    },
+    {
+      "name": "indexmap",
+      "version": "2.14.0",
+      "sha256": "d466e9454f08e4a911e14806c24e16fba1b4c121d1ea474396f396069cf949d9",
+      "url": "https://static.crates.io/crates/indexmap/indexmap-2.14.0.crate"
+    },
+    {
+      "name": "indicatif",
+      "version": "0.17.11",
+      "sha256": "183b3088984b400f4cfac3620d5e076c84da5364016b4f49473de574b2586235",
+      "url": "https://static.crates.io/crates/indicatif/indicatif-0.17.11.crate"
+    },
+    {
+      "name": "inout",
+      "version": "0.1.4",
+      "sha256": "879f10e63c20629ecabbb64a8010319738c66a5cd0c29b02d63d272b03751d01",
+      "url": "https://static.crates.io/crates/inout/inout-0.1.4.crate"
+    },
+    {
+      "name": "itertools",
+      "version": "0.12.1",
+      "sha256": "ba291022dbbd398a455acf126c1e341954079855bc60dfdda641363bd6922569",
+      "url": "https://static.crates.io/crates/itertools/itertools-0.12.1.crate"
+    },
+    {
+      "name": "itoa",
+      "version": "1.0.17",
+      "sha256": "92ecc6618181def0457392ccd0ee51198e065e016d1d527a7ac1b6dc7c1f09d2",
+      "url": "https://static.crates.io/crates/itoa/itoa-1.0.17.crate"
+    },
+    {
+      "name": "jobserver",
+      "version": "0.1.34",
+      "sha256": "9afb3de4395d6b3e67a780b6de64b51c978ecf11cb9a462c66be7d4ca9039d33",
+      "url": "https://static.crates.io/crates/jobserver/jobserver-0.1.34.crate"
+    },
+    {
+      "name": "js-sys",
+      "version": "0.3.98",
+      "sha256": "67df7112613f8bfd9150013a0314e196f4800d3201ae742489d999db2f979f08",
+      "url": "https://static.crates.io/crates/js-sys/js-sys-0.3.98.crate"
+    },
+    {
+      "name": "lazy_static",
+      "version": "1.5.0",
+      "sha256": "bbd2bcb4c963f2ddae06a2efc7e9f3591312473c50c6685e1f298068316e66fe",
+      "url": "https://static.crates.io/crates/lazy_static/lazy_static-1.5.0.crate"
+    },
+    {
+      "name": "lazycell",
+      "version": "1.3.0",
+      "sha256": "830d08ce1d1d941e6b30645f1a0eb5643013d835ce3779a5fc208261dbe10f55",
+      "url": "https://static.crates.io/crates/lazycell/lazycell-1.3.0.crate"
+    },
+    {
+      "name": "libc",
+      "version": "0.2.182",
+      "sha256": "6800badb6cb2082ffd7b6a67e6125bb39f18782f793520caee8cb8846be06112",
+      "url": "https://static.crates.io/crates/libc/libc-0.2.182.crate"
+    },
+    {
+      "name": "libloading",
+      "version": "0.8.9",
+      "sha256": "d7c4b02199fee7c5d21a5ae7d8cfa79a6ef5bb2fc834d6e9058e89c825efdc55",
+      "url": "https://static.crates.io/crates/libloading/libloading-0.8.9.crate"
+    },
+    {
+      "name": "linux-raw-sys",
+      "version": "0.4.15",
+      "sha256": "d26c52dbd32dccf2d10cac7725f8eae5296885fb5703b261f7d0a0739ec807ab",
+      "url": "https://static.crates.io/crates/linux-raw-sys/linux-raw-sys-0.4.15.crate"
+    },
+    {
+      "name": "litemap",
+      "version": "0.8.1",
+      "sha256": "6373607a59f0be73a39b6fe456b8192fcc3585f602af20751600e974dd455e77",
+      "url": "https://static.crates.io/crates/litemap/litemap-0.8.1.crate"
+    },
+    {
+      "name": "lock_api",
+      "version": "0.4.14",
+      "sha256": "224399e74b87b5f3557511d98dff8b14089b3dadafcab6bb93eab67d3aace965",
+      "url": "https://static.crates.io/crates/lock_api/lock_api-0.4.14.crate"
+    },
+    {
+      "name": "log",
+      "version": "0.4.29",
+      "sha256": "5e5032e24019045c762d3c0f28f5b6b8bbf38563a65908389bf7978758920897",
+      "url": "https://static.crates.io/crates/log/log-0.4.29.crate"
+    },
+    {
+      "name": "matrixmultiply",
+      "version": "0.3.10",
+      "sha256": "a06de3016e9fae57a36fd14dba131fccf49f74b40b7fbdb472f96e361ec71a08",
+      "url": "https://static.crates.io/crates/matrixmultiply/matrixmultiply-0.3.10.crate"
+    },
+    {
+      "name": "memchr",
+      "version": "2.8.0",
+      "sha256": "f8ca58f447f06ed17d5fc4043ce1b10dd205e060fb3ce5b979b8ed8e59ff3f79",
+      "url": "https://static.crates.io/crates/memchr/memchr-2.8.0.crate"
+    },
+    {
+      "name": "minimal-lexical",
+      "version": "0.2.1",
+      "sha256": "68354c5c6bd36d73ff3feceb05efa59b6acb7626617f4962be322a825e61f79a",
+      "url": "https://static.crates.io/crates/minimal-lexical/minimal-lexical-0.2.1.crate"
+    },
+    {
+      "name": "miniz_oxide",
+      "version": "0.8.9",
+      "sha256": "1fa76a2c86f704bdb222d66965fb3d63269ce38518b83cb0575fca855ebb6316",
+      "url": "https://static.crates.io/crates/miniz_oxide/miniz_oxide-0.8.9.crate"
+    },
+    {
+      "name": "ndarray",
+      "version": "0.16.1",
+      "sha256": "882ed72dce9365842bf196bdeedf5055305f11fc8c03dee7bb0194a6cad34841",
+      "url": "https://static.crates.io/crates/ndarray/ndarray-0.16.1.crate"
+    },
+    {
+      "name": "ndarray-npy",
+      "version": "0.9.1",
+      "sha256": "7b313788c468c49141a9d9b6131fc15f403e6ef4e8446a0b2e18f664ddb278a9",
+      "url": "https://static.crates.io/crates/ndarray-npy/ndarray-npy-0.9.1.crate"
+    },
+    {
+      "name": "nom",
+      "version": "7.1.3",
+      "sha256": "d273983c5a657a70a3e8f2a01329822f3b8c8172b73826411a55751e404a0a4a",
+      "url": "https://static.crates.io/crates/nom/nom-7.1.3.crate"
+    },
+    {
+      "name": "num-bigint",
+      "version": "0.4.6",
+      "sha256": "a5e44f723f1133c9deac646763579fdb3ac745e418f2a7af9cd0c431da1f20b9",
+      "url": "https://static.crates.io/crates/num-bigint/num-bigint-0.4.6.crate"
+    },
+    {
+      "name": "num-complex",
+      "version": "0.4.6",
+      "sha256": "73f88a1307638156682bada9d7604135552957b7818057dcef22705b4d509495",
+      "url": "https://static.crates.io/crates/num-complex/num-complex-0.4.6.crate"
+    },
+    {
+      "name": "num-conv",
+      "version": "0.2.0",
+      "sha256": "cf97ec579c3c42f953ef76dbf8d55ac91fb219dde70e49aa4a6b7d74e9919050",
+      "url": "https://static.crates.io/crates/num-conv/num-conv-0.2.0.crate"
+    },
+    {
+      "name": "num-integer",
+      "version": "0.1.46",
+      "sha256": "7969661fd2958a5cb096e56c8e1ad0444ac2bbcd0061bd28660485a44879858f",
+      "url": "https://static.crates.io/crates/num-integer/num-integer-0.1.46.crate"
+    },
+    {
+      "name": "num-traits",
+      "version": "0.2.19",
+      "sha256": "071dfc062690e90b734c0b2273ce72ad0ffa95f0c74596bc250dcfd960262841",
+      "url": "https://static.crates.io/crates/num-traits/num-traits-0.2.19.crate"
+    },
+    {
+      "name": "num_cpus",
+      "version": "1.17.0",
+      "sha256": "91df4bbde75afed763b708b7eee1e8e7651e02d97f6d5dd763e89367e957b23b",
+      "url": "https://static.crates.io/crates/num_cpus/num_cpus-1.17.0.crate"
+    },
+    {
+      "name": "number_prefix",
+      "version": "0.4.0",
+      "sha256": "830b246a0e5f20af87141b25c173cd1b609bd7779a4617d6ec582abaf90870f3",
+      "url": "https://static.crates.io/crates/number_prefix/number_prefix-0.4.0.crate"
+    },
+    {
+      "name": "once_cell",
+      "version": "1.21.3",
+      "sha256": "42f5e15c9953c5e4ccceeb2e7382a716482c34515315f7b03532b8b4e8393d2d",
+      "url": "https://static.crates.io/crates/once_cell/once_cell-1.21.3.crate"
+    },
+    {
+      "name": "ouroboros",
+      "version": "0.18.5",
+      "sha256": "1e0f050db9c44b97a94723127e6be766ac5c340c48f2c4bb3ffa11713744be59",
+      "url": "https://static.crates.io/crates/ouroboros/ouroboros-0.18.5.crate"
+    },
+    {
+      "name": "ouroboros_macro",
+      "version": "0.18.5",
+      "sha256": "3c7028bdd3d43083f6d8d4d5187680d0d3560d54df4cc9d752005268b41e64d0",
+      "url": "https://static.crates.io/crates/ouroboros_macro/ouroboros_macro-0.18.5.crate"
+    },
+    {
+      "name": "parking_lot",
+      "version": "0.12.5",
+      "sha256": "93857453250e3077bd71ff98b6a65ea6621a19bb0f559a85248955ac12c45a1a",
+      "url": "https://static.crates.io/crates/parking_lot/parking_lot-0.12.5.crate"
+    },
+    {
+      "name": "parking_lot_core",
+      "version": "0.9.12",
+      "sha256": "2621685985a2ebf1c516881c026032ac7deafcda1a2c9b7850dc81e3dfcb64c1",
+      "url": "https://static.crates.io/crates/parking_lot_core/parking_lot_core-0.9.12.crate"
+    },
+    {
+      "name": "password-hash",
+      "version": "0.4.2",
+      "sha256": "7676374caaee8a325c9e7a2ae557f216c5563a171d6997b0ef8a65af35147700",
+      "url": "https://static.crates.io/crates/password-hash/password-hash-0.4.2.crate"
+    },
+    {
+      "name": "paste",
+      "version": "1.0.15",
+      "sha256": "57c0d7b74b563b49d38dae00a0c37d4d6de9b432382b2892f0574ddcae73fd0a",
+      "url": "https://static.crates.io/crates/paste/paste-1.0.15.crate"
+    },
+    {
+      "name": "pbkdf2",
+      "version": "0.11.0",
+      "sha256": "83a0692ec44e4cf1ef28ca317f14f8f07da2d95ec3fa01f86e4467b725e60917",
+      "url": "https://static.crates.io/crates/pbkdf2/pbkdf2-0.11.0.crate"
+    },
+    {
+      "name": "percent-encoding",
+      "version": "2.3.2",
+      "sha256": "9b4f627cb1b25917193a259e49bdad08f671f8d9708acfd5fe0a8c1455d87220",
+      "url": "https://static.crates.io/crates/percent-encoding/percent-encoding-2.3.2.crate"
+    },
+    {
+      "name": "pest",
+      "version": "2.8.6",
+      "sha256": "e0848c601009d37dfa3430c4666e147e49cdcf1b92ecd3e63657d8a5f19da662",
+      "url": "https://static.crates.io/crates/pest/pest-2.8.6.crate"
+    },
+    {
+      "name": "pest_derive",
+      "version": "2.8.6",
+      "sha256": "11f486f1ea21e6c10ed15d5a7c77165d0ee443402f0780849d1768e7d9d6fe77",
+      "url": "https://static.crates.io/crates/pest_derive/pest_derive-2.8.6.crate"
+    },
+    {
+      "name": "pest_generator",
+      "version": "2.8.6",
+      "sha256": "8040c4647b13b210a963c1ed407c1ff4fdfa01c31d6d2a098218702e6664f94f",
+      "url": "https://static.crates.io/crates/pest_generator/pest_generator-2.8.6.crate"
+    },
+    {
+      "name": "pest_meta",
+      "version": "2.8.6",
+      "sha256": "89815c69d36021a140146f26659a81d6c2afa33d216d736dd4be5381a7362220",
+      "url": "https://static.crates.io/crates/pest_meta/pest_meta-2.8.6.crate"
+    },
+    {
+      "name": "pin-project-lite",
+      "version": "0.2.17",
+      "sha256": "a89322df9ebe1c1578d689c92318e070967d1042b512afbe49518723f4e6d5cd",
+      "url": "https://static.crates.io/crates/pin-project-lite/pin-project-lite-0.2.17.crate"
+    },
+    {
+      "name": "pkg-config",
+      "version": "0.3.32",
+      "sha256": "7edddbd0b52d732b21ad9a5fab5c704c14cd949e5e9a1ec5929a24fded1b904c",
+      "url": "https://static.crates.io/crates/pkg-config/pkg-config-0.3.32.crate"
+    },
+    {
+      "name": "portable-atomic",
+      "version": "1.13.1",
+      "sha256": "c33a9471896f1c69cecef8d20cbe2f7accd12527ce60845ff44c153bb2a21b49",
+      "url": "https://static.crates.io/crates/portable-atomic/portable-atomic-1.13.1.crate"
+    },
+    {
+      "name": "portable-atomic-util",
+      "version": "0.2.5",
+      "sha256": "7a9db96d7fa8782dd8c15ce32ffe8680bbd1e978a43bf51a34d39483540495f5",
+      "url": "https://static.crates.io/crates/portable-atomic-util/portable-atomic-util-0.2.5.crate"
+    },
+    {
+      "name": "potential_utf",
+      "version": "0.1.4",
+      "sha256": "b73949432f5e2a09657003c25bca5e19a0e9c84f8058ca374f49e0ebe605af77",
+      "url": "https://static.crates.io/crates/potential_utf/potential_utf-0.1.4.crate"
+    },
+    {
+      "name": "powerfmt",
+      "version": "0.2.0",
+      "sha256": "439ee305def115ba05938db6eb1644ff94165c5ab5e9420d1c1bcedbba909391",
+      "url": "https://static.crates.io/crates/powerfmt/powerfmt-0.2.0.crate"
+    },
+    {
+      "name": "ppv-lite86",
+      "version": "0.2.21",
+      "sha256": "85eae3c4ed2f50dcfe72643da4befc30deadb458a9b590d720cde2f2b1e97da9",
+      "url": "https://static.crates.io/crates/ppv-lite86/ppv-lite86-0.2.21.crate"
+    },
+    {
+      "name": "prettyplease",
+      "version": "0.2.37",
+      "sha256": "479ca8adacdd7ce8f1fb39ce9ecccbfe93a3f1344b3d0d97f20bc0196208f62b",
+      "url": "https://static.crates.io/crates/prettyplease/prettyplease-0.2.37.crate"
+    },
+    {
+      "name": "proc-macro-crate",
+      "version": "3.5.0",
+      "sha256": "e67ba7e9b2b56446f1d419b1d807906278ffa1a658a8a5d8a39dcb1f5a78614f",
+      "url": "https://static.crates.io/crates/proc-macro-crate/proc-macro-crate-3.5.0.crate"
+    },
+    {
+      "name": "proc-macro-error-attr2",
+      "version": "2.0.0",
+      "sha256": "96de42df36bb9bba5542fe9f1a054b8cc87e172759a1868aa05c1f3acc89dfc5",
+      "url": "https://static.crates.io/crates/proc-macro-error-attr2/proc-macro-error-attr2-2.0.0.crate"
+    },
+    {
+      "name": "proc-macro-error2",
+      "version": "2.0.1",
+      "sha256": "11ec05c52be0a07b08061f7dd003e7d7092e0472bc731b4af7bb1ef876109802",
+      "url": "https://static.crates.io/crates/proc-macro-error2/proc-macro-error2-2.0.1.crate"
+    },
+    {
+      "name": "proc-macro2",
+      "version": "1.0.106",
+      "sha256": "8fd00f0bb2e90d81d1044c2b32617f68fcb9fa3bb7640c23e9c748e53fb30934",
+      "url": "https://static.crates.io/crates/proc-macro2/proc-macro2-1.0.106.crate"
+    },
+    {
+      "name": "proc-macro2-diagnostics",
+      "version": "0.10.1",
+      "sha256": "af066a9c399a26e020ada66a034357a868728e72cd426f3adcd35f80d88d88c8",
+      "url": "https://static.crates.io/crates/proc-macro2-diagnostics/proc-macro2-diagnostics-0.10.1.crate"
+    },
+    {
+      "name": "py_literal",
+      "version": "0.4.0",
+      "sha256": "102df7a3d46db9d3891f178dcc826dc270a6746277a9ae6436f8d29fd490a8e1",
+      "url": "https://static.crates.io/crates/py_literal/py_literal-0.4.0.crate"
+    },
+    {
+      "name": "pyo3",
+      "version": "0.28.2",
+      "sha256": "cf85e27e86080aafd5a22eae58a162e133a589551542b3e5cee4beb27e54f8e1",
+      "url": "https://static.crates.io/crates/pyo3/pyo3-0.28.2.crate"
+    },
+    {
+      "name": "pyo3-build-config",
+      "version": "0.28.2",
+      "sha256": "8bf94ee265674bf76c09fa430b0e99c26e319c945d96ca0d5a8215f31bf81cf7",
+      "url": "https://static.crates.io/crates/pyo3-build-config/pyo3-build-config-0.28.2.crate"
+    },
+    {
+      "name": "pyo3-ffi",
+      "version": "0.28.2",
+      "sha256": "491aa5fc66d8059dd44a75f4580a2962c1862a1c2945359db36f6c2818b748dc",
+      "url": "https://static.crates.io/crates/pyo3-ffi/pyo3-ffi-0.28.2.crate"
+    },
+    {
+      "name": "pyo3-macros",
+      "version": "0.28.2",
+      "sha256": "f5d671734e9d7a43449f8480f8b38115df67bef8d21f76837fa75ee7aaa5e52e",
+      "url": "https://static.crates.io/crates/pyo3-macros/pyo3-macros-0.28.2.crate"
+    },
+    {
+      "name": "pyo3-macros-backend",
+      "version": "0.28.2",
+      "sha256": "22faaa1ce6c430a1f71658760497291065e6450d7b5dc2bcf254d49f66ee700a",
+      "url": "https://static.crates.io/crates/pyo3-macros-backend/pyo3-macros-backend-0.28.2.crate"
+    },
+    {
+      "name": "quote",
+      "version": "1.0.45",
+      "sha256": "41f2619966050689382d2b44f664f4bc593e129785a36d6ee376ddf37259b924",
+      "url": "https://static.crates.io/crates/quote/quote-1.0.45.crate"
+    },
+    {
+      "name": "r-efi",
+      "version": "5.3.0",
+      "sha256": "69cdb34c158ceb288df11e18b4bd39de994f6657d83847bdffdbd7f346754b0f",
+      "url": "https://static.crates.io/crates/r-efi/r-efi-5.3.0.crate"
+    },
+    {
+      "name": "rand",
+      "version": "0.8.5",
+      "sha256": "34af8d1a0e25924bc5b7c43c079c942339d8f0a8b57c39049bef581b46327404",
+      "url": "https://static.crates.io/crates/rand/rand-0.8.5.crate"
+    },
+    {
+      "name": "rand_chacha",
+      "version": "0.3.1",
+      "sha256": "e6c10a63a0fa32252be49d21e7709d4d4baf8d231c2dbce1eaa8141b9b127d88",
+      "url": "https://static.crates.io/crates/rand_chacha/rand_chacha-0.3.1.crate"
+    },
+    {
+      "name": "rand_core",
+      "version": "0.6.4",
+      "sha256": "ec0be4795e2f6a28069bec0b5ff3e2ac9bafc99e6a9a7dc3547996c5c816922c",
+      "url": "https://static.crates.io/crates/rand_core/rand_core-0.6.4.crate"
+    },
+    {
+      "name": "rawpointer",
+      "version": "0.2.1",
+      "sha256": "60a357793950651c4ed0f3f52338f53b2f809f32d83a07f72909fa13e4c6c1e3",
+      "url": "https://static.crates.io/crates/rawpointer/rawpointer-0.2.1.crate"
+    },
+    {
+      "name": "rayon",
+      "version": "1.12.0",
+      "sha256": "fb39b166781f92d482534ef4b4b1b2568f42613b53e5b6c160e24cfbfa30926d",
+      "url": "https://static.crates.io/crates/rayon/rayon-1.12.0.crate"
+    },
+    {
+      "name": "rayon-core",
+      "version": "1.13.0",
+      "sha256": "22e18b0f0062d30d4230b2e85ff77fdfe4326feb054b9783a3460d8435c8ab91",
+      "url": "https://static.crates.io/crates/rayon-core/rayon-core-1.13.0.crate"
+    },
+    {
+      "name": "redox_syscall",
+      "version": "0.5.18",
+      "sha256": "ed2bf2547551a7053d6fdfafda3f938979645c44812fbfcda098faae3f1a362d",
+      "url": "https://static.crates.io/crates/redox_syscall/redox_syscall-0.5.18.crate"
+    },
+    {
+      "name": "regex",
+      "version": "1.12.3",
+      "sha256": "e10754a14b9137dd7b1e3e5b0493cc9171fdd105e0ab477f51b72e7f3ac0e276",
+      "url": "https://static.crates.io/crates/regex/regex-1.12.3.crate"
+    },
+    {
+      "name": "regex-automata",
+      "version": "0.4.14",
+      "sha256": "6e1dd4122fc1595e8162618945476892eefca7b88c52820e74af6262213cae8f",
+      "url": "https://static.crates.io/crates/regex-automata/regex-automata-0.4.14.crate"
+    },
+    {
+      "name": "regex-syntax",
+      "version": "0.8.10",
+      "sha256": "dc897dd8d9e8bd1ed8cdad82b5966c3e0ecae09fb1907d58efaa013543185d0a",
+      "url": "https://static.crates.io/crates/regex-syntax/regex-syntax-0.8.10.crate"
+    },
+    {
+      "name": "ring",
+      "version": "0.17.14",
+      "sha256": "a4689e6c2294d81e88dc6261c768b63bc4fcdb852be6d1352498b114f61383b7",
+      "url": "https://static.crates.io/crates/ring/ring-0.17.14.crate"
+    },
+    {
+      "name": "rustc-hash",
+      "version": "1.1.0",
+      "sha256": "08d43f7aa6b08d49f382cde6a7982047c3426db949b1424bc4b7ec9ae12c6ce2",
+      "url": "https://static.crates.io/crates/rustc-hash/rustc-hash-1.1.0.crate"
+    },
+    {
+      "name": "rustix",
+      "version": "0.38.44",
+      "sha256": "fdb5bc1ae2baa591800df16c9ca78619bf65c0488b41b96ccec5d11220d8c154",
+      "url": "https://static.crates.io/crates/rustix/rustix-0.38.44.crate"
+    },
+    {
+      "name": "rustls",
+      "version": "0.23.37",
+      "sha256": "758025cb5fccfd3bc2fd74708fd4682be41d99e5dff73c377c0646c6012c73a4",
+      "url": "https://static.crates.io/crates/rustls/rustls-0.23.37.crate"
+    },
+    {
+      "name": "rustls-pki-types",
+      "version": "1.14.0",
+      "sha256": "be040f8b0a225e40375822a563fa9524378b9d63112f53e19ffff34df5d33fdd",
+      "url": "https://static.crates.io/crates/rustls-pki-types/rustls-pki-types-1.14.0.crate"
+    },
+    {
+      "name": "rustls-webpki",
+      "version": "0.103.9",
+      "sha256": "d7df23109aa6c1567d1c575b9952556388da57401e4ace1d15f79eedad0d8f53",
+      "url": "https://static.crates.io/crates/rustls-webpki/rustls-webpki-0.103.9.crate"
+    },
+    {
+      "name": "rustversion",
+      "version": "1.0.22",
+      "sha256": "b39cdef0fa800fc44525c84ccb54a029961a8215f9619753635a9c0d2538d46d",
+      "url": "https://static.crates.io/crates/rustversion/rustversion-1.0.22.crate"
+    },
+    {
+      "name": "ryu",
+      "version": "1.0.23",
+      "sha256": "9774ba4a74de5f7b1c1451ed6cd5285a32eddb5cccb8cc655a4e50009e06477f",
+      "url": "https://static.crates.io/crates/ryu/ryu-1.0.23.crate"
+    },
+    {
+      "name": "safetensors",
+      "version": "0.3.3",
+      "sha256": "d93279b86b3de76f820a8854dd06cbc33cfa57a417b19c47f6a25280112fb1df",
+      "url": "https://static.crates.io/crates/safetensors/safetensors-0.3.3.crate"
+    },
+    {
+      "name": "scopeguard",
+      "version": "1.2.0",
+      "sha256": "94143f37725109f92c262ed2cf5e59bce7498c01bcc1502d7b9afe439a4e9f49",
+      "url": "https://static.crates.io/crates/scopeguard/scopeguard-1.2.0.crate"
+    },
+    {
+      "name": "serde",
+      "version": "1.0.228",
+      "sha256": "9a8e94ea7f378bd32cbbd37198a4a91436180c5bb472411e48b5ec2e2124ae9e",
+      "url": "https://static.crates.io/crates/serde/serde-1.0.228.crate"
+    },
+    {
+      "name": "serde_core",
+      "version": "1.0.228",
+      "sha256": "41d385c7d4ca58e59fc732af25c3983b67ac852c1a25000afe1175de458b67ad",
+      "url": "https://static.crates.io/crates/serde_core/serde_core-1.0.228.crate"
+    },
+    {
+      "name": "serde_derive",
+      "version": "1.0.228",
+      "sha256": "d540f220d3187173da220f885ab66608367b6574e925011a9353e4badda91d79",
+      "url": "https://static.crates.io/crates/serde_derive/serde_derive-1.0.228.crate"
+    },
+    {
+      "name": "serde_json",
+      "version": "1.0.149",
+      "sha256": "83fc039473c5595ace860d8c4fafa220ff474b3fc6bfdb4293327f1a37e94d86",
+      "url": "https://static.crates.io/crates/serde_json/serde_json-1.0.149.crate"
+    },
+    {
+      "name": "serde_yaml",
+      "version": "0.9.34+deprecated",
+      "sha256": "6a8b1a1a2ebf674015cc02edccce75287f1a0130d394307b36743c2f5d504b47",
+      "url": "https://static.crates.io/crates/serde_yaml/serde_yaml-0.9.34+deprecated.crate"
+    },
+    {
+      "name": "sha1",
+      "version": "0.10.6",
+      "sha256": "e3bf829a2d51ab4a5ddf1352d8470c140cadc8301b2ae1789db023f01cedd6ba",
+      "url": "https://static.crates.io/crates/sha1/sha1-0.10.6.crate"
+    },
+    {
+      "name": "sha2",
+      "version": "0.10.9",
+      "sha256": "a7507d819769d01a365ab707794a4084392c824f54a7a6a7862f8c3d0892b283",
+      "url": "https://static.crates.io/crates/sha2/sha2-0.10.9.crate"
+    },
+    {
+      "name": "shlex",
+      "version": "1.3.0",
+      "sha256": "0fda2ff0d084019ba4d7c6f371c95d8fd75ce3524c3cb8fb653a3023f6323e64",
+      "url": "https://static.crates.io/crates/shlex/shlex-1.3.0.crate"
+    },
+    {
+      "name": "simd-adler32",
+      "version": "0.3.8",
+      "sha256": "e320a6c5ad31d271ad523dcf3ad13e2767ad8b1cb8f047f75a8aeaf8da139da2",
+      "url": "https://static.crates.io/crates/simd-adler32/simd-adler32-0.3.8.crate"
+    },
+    {
+      "name": "slab",
+      "version": "0.4.12",
+      "sha256": "0c790de23124f9ab44544d7ac05d60440adc586479ce501c1d6d7da3cd8c9cf5",
+      "url": "https://static.crates.io/crates/slab/slab-0.4.12.crate"
+    },
+    {
+      "name": "smallvec",
+      "version": "1.15.1",
+      "sha256": "67b1b7a3b5fe4f1376887184045fcf45c69e92af734b7aaddc05fb777b6fbd03",
+      "url": "https://static.crates.io/crates/smallvec/smallvec-1.15.1.crate"
+    },
+    {
+      "name": "stable_deref_trait",
+      "version": "1.2.1",
+      "sha256": "6ce2be8dc25455e1f91df71bfa12ad37d7af1092ae736f3a6cd0e37bc7810596",
+      "url": "https://static.crates.io/crates/stable_deref_trait/stable_deref_trait-1.2.1.crate"
+    },
+    {
+      "name": "static_assertions",
+      "version": "1.1.0",
+      "sha256": "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f",
+      "url": "https://static.crates.io/crates/static_assertions/static_assertions-1.1.0.crate"
+    },
+    {
+      "name": "streaming-iterator",
+      "version": "0.1.9",
+      "sha256": "2b2231b7c3057d5e4ad0156fb3dc807d900806020c5ffa3ee6ff2c8c76fb8520",
+      "url": "https://static.crates.io/crates/streaming-iterator/streaming-iterator-0.1.9.crate"
+    },
+    {
+      "name": "subtle",
+      "version": "2.6.1",
+      "sha256": "13c2bddecc57b384dee18652358fb23172facb8a2c51ccc10d74c157bdea3292",
+      "url": "https://static.crates.io/crates/subtle/subtle-2.6.1.crate"
+    },
+    {
+      "name": "syn",
+      "version": "2.0.117",
+      "sha256": "e665b8803e7b1d2a727f4023456bbbbe74da67099c585258af0ad9c5013b9b99",
+      "url": "https://static.crates.io/crates/syn/syn-2.0.117.crate"
+    },
+    {
+      "name": "synstructure",
+      "version": "0.13.2",
+      "sha256": "728a70f3dbaf5bab7f0c4b1ac8d7ae5ea60a4b5549c8a5914361c99147a709d2",
+      "url": "https://static.crates.io/crates/synstructure/synstructure-0.13.2.crate"
+    },
+    {
+      "name": "target-lexicon",
+      "version": "0.13.5",
+      "sha256": "adb6935a6f5c20170eeceb1a3835a49e12e19d792f6dd344ccc76a985ca5a6ca",
+      "url": "https://static.crates.io/crates/target-lexicon/target-lexicon-0.13.5.crate"
+    },
+    {
+      "name": "tch",
+      "version": "0.23.0",
+      "sha256": "3d1470a4780300b4a62a097ed50dff2fc7c9cf6576c1947560a1d69fab3b258b",
+      "url": "https://static.crates.io/crates/tch/tch-0.23.0.crate"
+    },
+    {
+      "name": "thiserror",
+      "version": "1.0.69",
+      "sha256": "b6aaf5339b578ea85b50e080feb250a3e8ae8cfcdff9a461c9ec2904bc923f52",
+      "url": "https://static.crates.io/crates/thiserror/thiserror-1.0.69.crate"
+    },
+    {
+      "name": "thiserror",
+      "version": "2.0.18",
+      "sha256": "4288b5bcbc7920c07a1149a35cf9590a2aa808e0bc1eafaade0b80947865fbc4",
+      "url": "https://static.crates.io/crates/thiserror/thiserror-2.0.18.crate"
+    },
+    {
+      "name": "thiserror-impl",
+      "version": "1.0.69",
+      "sha256": "4fee6c4efc90059e10f81e6d42c60a18f76588c3d74cb83a0b242a2b6c7504c1",
+      "url": "https://static.crates.io/crates/thiserror-impl/thiserror-impl-1.0.69.crate"
+    },
+    {
+      "name": "thiserror-impl",
+      "version": "2.0.18",
+      "sha256": "ebc4ee7f67670e9b64d05fa4253e753e016c6c95ff35b89b7941d6b856dec1d5",
+      "url": "https://static.crates.io/crates/thiserror-impl/thiserror-impl-2.0.18.crate"
+    },
+    {
+      "name": "time",
+      "version": "0.3.47",
+      "sha256": "743bd48c283afc0388f9b8827b976905fb217ad9e647fae3a379a9283c4def2c",
+      "url": "https://static.crates.io/crates/time/time-0.3.47.crate"
+    },
+    {
+      "name": "time-core",
+      "version": "0.1.8",
+      "sha256": "7694e1cfe791f8d31026952abf09c69ca6f6fa4e1a1229e18988f06a04a12dca",
+      "url": "https://static.crates.io/crates/time-core/time-core-0.1.8.crate"
+    },
+    {
+      "name": "tinystr",
+      "version": "0.8.2",
+      "sha256": "42d3e9c45c09de15d06dd8acf5f4e0e399e85927b7f00711024eb7ae10fa4869",
+      "url": "https://static.crates.io/crates/tinystr/tinystr-0.8.2.crate"
+    },
+    {
+      "name": "toml_datetime",
+      "version": "1.1.1+spec-1.1.0",
+      "sha256": "3165f65f62e28e0115a00b2ebdd37eb6f3b641855f9d636d3cd4103767159ad7",
+      "url": "https://static.crates.io/crates/toml_datetime/toml_datetime-1.1.1+spec-1.1.0.crate"
+    },
+    {
+      "name": "toml_edit",
+      "version": "0.25.11+spec-1.1.0",
+      "sha256": "0b59c4d22ed448339746c59b905d24568fcbb3ab65a500494f7b8c3e97739f2b",
+      "url": "https://static.crates.io/crates/toml_edit/toml_edit-0.25.11+spec-1.1.0.crate"
+    },
+    {
+      "name": "toml_parser",
+      "version": "1.1.2+spec-1.1.0",
+      "sha256": "a2abe9b86193656635d2411dc43050282ca48aa31c2451210f4202550afb7526",
+      "url": "https://static.crates.io/crates/toml_parser/toml_parser-1.1.2+spec-1.1.0.crate"
+    },
+    {
+      "name": "torch-sys",
+      "version": "0.23.0",
+      "sha256": "a7767541e63ff99c36950f2a54cc277e41a1e5a24ab1646aae19ef7f7d3dedf7",
+      "url": "https://static.crates.io/crates/torch-sys/torch-sys-0.23.0.crate"
+    },
+    {
+      "name": "tskit",
+      "version": "0.15.0-alpha.3",
+      "sha256": "02ee77a27f97b927c14914e5aa4c6fdd9f0f5969efd4ff707a35a7a08726787a",
+      "url": "https://static.crates.io/crates/tskit/tskit-0.15.0-alpha.3.crate"
+    },
+    {
+      "name": "typenum",
+      "version": "1.19.0",
+      "sha256": "562d481066bde0658276a35467c4af00bdc6ee726305698a55b86e61d7ad82bb",
+      "url": "https://static.crates.io/crates/typenum/typenum-1.19.0.crate"
+    },
+    {
+      "name": "ucd-trie",
+      "version": "0.1.7",
+      "sha256": "2896d95c02a80c6d6a5d6e953d479f5ddf2dfdb6a244441010e373ac0fb88971",
+      "url": "https://static.crates.io/crates/ucd-trie/ucd-trie-0.1.7.crate"
+    },
+    {
+      "name": "unicode-ident",
+      "version": "1.0.24",
+      "sha256": "e6e4313cd5fcd3dad5cafa179702e2b244f760991f45397d14d4ebf38247da75",
+      "url": "https://static.crates.io/crates/unicode-ident/unicode-ident-1.0.24.crate"
+    },
+    {
+      "name": "unicode-width",
+      "version": "0.2.2",
+      "sha256": "b4ac048d71ede7ee76d585517add45da530660ef4390e49b098733c6e897f254",
+      "url": "https://static.crates.io/crates/unicode-width/unicode-width-0.2.2.crate"
+    },
+    {
+      "name": "unsafe-libyaml",
+      "version": "0.2.11",
+      "sha256": "673aac59facbab8a9007c7f6108d11f63b603f7cabff99fabf650fea5c32b861",
+      "url": "https://static.crates.io/crates/unsafe-libyaml/unsafe-libyaml-0.2.11.crate"
+    },
+    {
+      "name": "untrusted",
+      "version": "0.9.0",
+      "sha256": "8ecb6da28b8a351d773b68d5825ac39017e680750f980f3a1a85cd8dd28a47c1",
+      "url": "https://static.crates.io/crates/untrusted/untrusted-0.9.0.crate"
+    },
+    {
+      "name": "ureq",
+      "version": "2.12.1",
+      "sha256": "02d1a66277ed75f640d608235660df48c8e3c19f3b4edb6a263315626cc3c01d",
+      "url": "https://static.crates.io/crates/ureq/ureq-2.12.1.crate"
+    },
+    {
+      "name": "url",
+      "version": "2.5.8",
+      "sha256": "ff67a8a4397373c3ef660812acab3268222035010ab8680ec4215f38ba3d0eed",
+      "url": "https://static.crates.io/crates/url/url-2.5.8.crate"
+    },
+    {
+      "name": "utf8_iter",
+      "version": "1.0.4",
+      "sha256": "b6c140620e7ffbb22c2dee59cafe6084a59b5ffc27a8859a5f0d494b5d52b6be",
+      "url": "https://static.crates.io/crates/utf8_iter/utf8_iter-1.0.4.crate"
+    },
+    {
+      "name": "version_check",
+      "version": "0.9.5",
+      "sha256": "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a",
+      "url": "https://static.crates.io/crates/version_check/version_check-0.9.5.crate"
+    },
+    {
+      "name": "wasi",
+      "version": "0.11.1+wasi-snapshot-preview1",
+      "sha256": "ccf3ec651a847eb01de73ccad15eb7d99f80485de043efb2f370cd654f4ea44b",
+      "url": "https://static.crates.io/crates/wasi/wasi-0.11.1+wasi-snapshot-preview1.crate"
+    },
+    {
+      "name": "wasip2",
+      "version": "1.0.2+wasi-0.2.9",
+      "sha256": "9517f9239f02c069db75e65f174b3da828fe5f5b945c4dd26bd25d89c03ebcf5",
+      "url": "https://static.crates.io/crates/wasip2/wasip2-1.0.2+wasi-0.2.9.crate"
+    },
+    {
+      "name": "wasm-bindgen",
+      "version": "0.2.121",
+      "sha256": "49ace1d07c165b0864824eee619580c4689389afa9dc9ed3a4c75040d82e6790",
+      "url": "https://static.crates.io/crates/wasm-bindgen/wasm-bindgen-0.2.121.crate"
+    },
+    {
+      "name": "wasm-bindgen-macro",
+      "version": "0.2.121",
+      "sha256": "8e68e6f4afd367a562002c05637acb8578ff2dea1943df76afb9e83d177c8578",
+      "url": "https://static.crates.io/crates/wasm-bindgen-macro/wasm-bindgen-macro-0.2.121.crate"
+    },
+    {
+      "name": "wasm-bindgen-macro-support",
+      "version": "0.2.121",
+      "sha256": "d95a9ec35c64b2a7cb35d3fead40c4238d0940c86d107136999567a4703259f2",
+      "url": "https://static.crates.io/crates/wasm-bindgen-macro-support/wasm-bindgen-macro-support-0.2.121.crate"
+    },
+    {
+      "name": "wasm-bindgen-shared",
+      "version": "0.2.121",
+      "sha256": "c4e0100b01e9f0d03189a92b96772a1fb998639d981193d7dbab487302513441",
+      "url": "https://static.crates.io/crates/wasm-bindgen-shared/wasm-bindgen-shared-0.2.121.crate"
+    },
+    {
+      "name": "web-time",
+      "version": "1.1.0",
+      "sha256": "5a6580f308b1fad9207618087a65c04e7a10bc77e02c8e84e9b00dd4b12fa0bb",
+      "url": "https://static.crates.io/crates/web-time/web-time-1.1.0.crate"
+    },
+    {
+      "name": "webpki-roots",
+      "version": "0.26.11",
+      "sha256": "521bc38abb08001b01866da9f51eb7c5d647a19260e00054a8c7fd5f9e57f7a9",
+      "url": "https://static.crates.io/crates/webpki-roots/webpki-roots-0.26.11.crate"
+    },
+    {
+      "name": "webpki-roots",
+      "version": "1.0.6",
+      "sha256": "22cfaf3c063993ff62e73cb4311efde4db1efb31ab78a3e5c457939ad5cc0bed",
+      "url": "https://static.crates.io/crates/webpki-roots/webpki-roots-1.0.6.crate"
+    },
+    {
+      "name": "which",
+      "version": "4.4.2",
+      "sha256": "87ba24419a2078cd2b0f2ede2691b6c66d8e47836da3b6db8265ebad47afbfc7",
+      "url": "https://static.crates.io/crates/which/which-4.4.2.crate"
+    },
+    {
+      "name": "windows-link",
+      "version": "0.2.1",
+      "sha256": "f0805222e57f7521d6a62e36fa9163bc891acd422f971defe97d64e70d0a4fe5",
+      "url": "https://static.crates.io/crates/windows-link/windows-link-0.2.1.crate"
+    },
+    {
+      "name": "windows-sys",
+      "version": "0.52.0",
+      "sha256": "282be5f36a8ce781fad8c8ae18fa3f9beff57ec1b52cb3de0789201425d9a33d",
+      "url": "https://static.crates.io/crates/windows-sys/windows-sys-0.52.0.crate"
+    },
+    {
+      "name": "windows-sys",
+      "version": "0.59.0",
+      "sha256": "1e38bc4d79ed67fd075bcc251a1c39b32a1776bbe92e5bef1f0bf1f8c531853b",
+      "url": "https://static.crates.io/crates/windows-sys/windows-sys-0.59.0.crate"
+    },
+    {
+      "name": "windows-sys",
+      "version": "0.61.2",
+      "sha256": "ae137229bcbd6cdf0f7b80a31df61766145077ddf49416a728b02cb3921ff3fc",
+      "url": "https://static.crates.io/crates/windows-sys/windows-sys-0.61.2.crate"
+    },
+    {
+      "name": "windows-targets",
+      "version": "0.52.6",
+      "sha256": "9b724f72796e036ab90c1021d4780d4d3d648aca59e491e6b98e725b84e99973",
+      "url": "https://static.crates.io/crates/windows-targets/windows-targets-0.52.6.crate"
+    },
+    {
+      "name": "windows_aarch64_gnullvm",
+      "version": "0.52.6",
+      "sha256": "32a4622180e7a0ec044bb555404c800bc9fd9ec262ec147edd5989ccd0c02cd3",
+      "url": "https://static.crates.io/crates/windows_aarch64_gnullvm/windows_aarch64_gnullvm-0.52.6.crate"
+    },
+    {
+      "name": "windows_aarch64_msvc",
+      "version": "0.52.6",
+      "sha256": "09ec2a7bb152e2252b53fa7803150007879548bc709c039df7627cabbd05d469",
+      "url": "https://static.crates.io/crates/windows_aarch64_msvc/windows_aarch64_msvc-0.52.6.crate"
+    },
+    {
+      "name": "windows_i686_gnu",
+      "version": "0.52.6",
+      "sha256": "8e9b5ad5ab802e97eb8e295ac6720e509ee4c243f69d781394014ebfe8bbfa0b",
+      "url": "https://static.crates.io/crates/windows_i686_gnu/windows_i686_gnu-0.52.6.crate"
+    },
+    {
+      "name": "windows_i686_gnullvm",
+      "version": "0.52.6",
+      "sha256": "0eee52d38c090b3caa76c563b86c3a4bd71ef1a819287c19d586d7334ae8ed66",
+      "url": "https://static.crates.io/crates/windows_i686_gnullvm/windows_i686_gnullvm-0.52.6.crate"
+    },
+    {
+      "name": "windows_i686_msvc",
+      "version": "0.52.6",
+      "sha256": "240948bc05c5e7c6dabba28bf89d89ffce3e303022809e73deaefe4f6ec56c66",
+      "url": "https://static.crates.io/crates/windows_i686_msvc/windows_i686_msvc-0.52.6.crate"
+    },
+    {
+      "name": "windows_x86_64_gnu",
+      "version": "0.52.6",
+      "sha256": "147a5c80aabfbf0c7d901cb5895d1de30ef2907eb21fbbab29ca94c5b08b1a78",
+      "url": "https://static.crates.io/crates/windows_x86_64_gnu/windows_x86_64_gnu-0.52.6.crate"
+    },
+    {
+      "name": "windows_x86_64_gnullvm",
+      "version": "0.52.6",
+      "sha256": "24d5b23dc417412679681396f2b49f3de8c1473deb516bd34410872eff51ed0d",
+      "url": "https://static.crates.io/crates/windows_x86_64_gnullvm/windows_x86_64_gnullvm-0.52.6.crate"
+    },
+    {
+      "name": "windows_x86_64_msvc",
+      "version": "0.52.6",
+      "sha256": "589f6da84c646204747d1270a2a5661ea66ed1cced2631d546fdfb155959f9ec",
+      "url": "https://static.crates.io/crates/windows_x86_64_msvc/windows_x86_64_msvc-0.52.6.crate"
+    },
+    {
+      "name": "winnow",
+      "version": "1.0.2",
+      "sha256": "2ee1708bef14716a11bae175f579062d4554d95be2c6829f518df847b7b3fdd0",
+      "url": "https://static.crates.io/crates/winnow/winnow-1.0.2.crate"
+    },
+    {
+      "name": "winreg",
+      "version": "0.56.0",
+      "sha256": "7d6f32a0ff4a9f6f01231eb2059cc85479330739333e0e58cadf03b6af2cca10",
+      "url": "https://static.crates.io/crates/winreg/winreg-0.56.0.crate"
+    },
+    {
+      "name": "wit-bindgen",
+      "version": "0.51.0",
+      "sha256": "d7249219f66ced02969388cf2bb044a09756a083d0fab1e566056b04d9fbcaa5",
+      "url": "https://static.crates.io/crates/wit-bindgen/wit-bindgen-0.51.0.crate"
+    },
+    {
+      "name": "writeable",
+      "version": "0.6.2",
+      "sha256": "9edde0db4769d2dc68579893f2306b26c6ecfbe0ef499b013d731b7b9247e0b9",
+      "url": "https://static.crates.io/crates/writeable/writeable-0.6.2.crate"
+    },
+    {
+      "name": "yansi",
+      "version": "1.0.1",
+      "sha256": "cfe53a6657fd280eaa890a3bc59152892ffa3e30101319d168b781ed6529b049",
+      "url": "https://static.crates.io/crates/yansi/yansi-1.0.1.crate"
+    },
+    {
+      "name": "yoke",
+      "version": "0.8.1",
+      "sha256": "72d6e5c6afb84d73944e5cedb052c4680d5657337201555f9f2a16b7406d4954",
+      "url": "https://static.crates.io/crates/yoke/yoke-0.8.1.crate"
+    },
+    {
+      "name": "yoke-derive",
+      "version": "0.8.1",
+      "sha256": "b659052874eb698efe5b9e8cf382204678a0086ebf46982b79d6ca3182927e5d",
+      "url": "https://static.crates.io/crates/yoke-derive/yoke-derive-0.8.1.crate"
+    },
+    {
+      "name": "zerocopy",
+      "version": "0.8.40",
+      "sha256": "a789c6e490b576db9f7e6b6d661bcc9799f7c0ac8352f56ea20193b2681532e5",
+      "url": "https://static.crates.io/crates/zerocopy/zerocopy-0.8.40.crate"
+    },
+    {
+      "name": "zerocopy-derive",
+      "version": "0.8.40",
+      "sha256": "f65c489a7071a749c849713807783f70672b28094011623e200cb86dcb835953",
+      "url": "https://static.crates.io/crates/zerocopy-derive/zerocopy-derive-0.8.40.crate"
+    },
+    {
+      "name": "zerofrom",
+      "version": "0.1.6",
+      "sha256": "50cc42e0333e05660c3587f3bf9d0478688e15d870fab3346451ce7f8c9fbea5",
+      "url": "https://static.crates.io/crates/zerofrom/zerofrom-0.1.6.crate"
+    },
+    {
+      "name": "zerofrom-derive",
+      "version": "0.1.6",
+      "sha256": "d71e5d6e06ab090c67b5e44993ec16b72dcbaabc526db883a360057678b48502",
+      "url": "https://static.crates.io/crates/zerofrom-derive/zerofrom-derive-0.1.6.crate"
+    },
+    {
+      "name": "zeroize",
+      "version": "1.8.2",
+      "sha256": "b97154e67e32c85465826e8bcc1c59429aaaf107c1e4a9e53c8d8ccd5eff88d0",
+      "url": "https://static.crates.io/crates/zeroize/zeroize-1.8.2.crate"
+    },
+    {
+      "name": "zerotrie",
+      "version": "0.2.3",
+      "sha256": "2a59c17a5562d507e4b54960e8569ebee33bee890c70aa3fe7b97e85a9fd7851",
+      "url": "https://static.crates.io/crates/zerotrie/zerotrie-0.2.3.crate"
+    },
+    {
+      "name": "zerovec",
+      "version": "0.11.5",
+      "sha256": "6c28719294829477f525be0186d13efa9a3c602f7ec202ca9e353d310fb9a002",
+      "url": "https://static.crates.io/crates/zerovec/zerovec-0.11.5.crate"
+    },
+    {
+      "name": "zerovec-derive",
+      "version": "0.11.2",
+      "sha256": "eadce39539ca5cb3985590102671f2567e659fca9666581ad3411d59207951f3",
+      "url": "https://static.crates.io/crates/zerovec-derive/zerovec-derive-0.11.2.crate"
+    },
+    {
+      "name": "zip",
+      "version": "0.6.6",
+      "sha256": "760394e246e4c28189f19d488c058bf16f564016aefac5d32bb1f3b51d5e9261",
+      "url": "https://static.crates.io/crates/zip/zip-0.6.6.crate"
+    },
+    {
+      "name": "zip",
+      "version": "2.4.2",
+      "sha256": "fabe6324e908f85a1c52063ce7aa26b68dcb7eb6dbc83a2d148403c9bc3eba50",
+      "url": "https://static.crates.io/crates/zip/zip-2.4.2.crate"
+    },
+    {
+      "name": "zmij",
+      "version": "1.0.21",
+      "sha256": "b8848ee67ecc8aedbaf3e4122217aff892639231befc6a1b58d29fff4c2cabaa",
+      "url": "https://static.crates.io/crates/zmij/zmij-1.0.21.crate"
+    },
+    {
+      "name": "zopfli",
+      "version": "0.8.3",
+      "sha256": "f05cd8797d63865425ff89b5c4a48804f35ba0ce8d125800027ad6017d2b5249",
+      "url": "https://static.crates.io/crates/zopfli/zopfli-0.8.3.crate"
+    },
+    {
+      "name": "zstd",
+      "version": "0.11.2+zstd.1.5.2",
+      "sha256": "20cc960326ece64f010d2d2107537f26dc589a6573a316bd5b1dba685fa5fde4",
+      "url": "https://static.crates.io/crates/zstd/zstd-0.11.2+zstd.1.5.2.crate"
+    },
+    {
+      "name": "zstd-safe",
+      "version": "5.0.2+zstd.1.5.2",
+      "sha256": "1d2a5585e04f9eea4b2a3d1eca508c4dee9592a89ef6f450c11719da0726f4db",
+      "url": "https://static.crates.io/crates/zstd-safe/zstd-safe-5.0.2+zstd.1.5.2.crate"
+    },
+    {
+      "name": "zstd-sys",
+      "version": "2.0.16+zstd.1.5.7",
+      "sha256": "91e19ebc2adc8f83e43039e79776e3fda8ca919132d68a1fed6a5faca2683748",
+      "url": "https://static.crates.io/crates/zstd-sys/zstd-sys-2.0.16+zstd.1.5.7.crate"
+    }
+  ],
+  "closure": {
+    "path": ".runtime/official_argmix_abi210_v1/cu129/locks/python-closure-v6.json",
+    "sha256": "d8b488c6cbf7cd4b3e0ef972a5dcd3f87fbfbc69f616e0a3bf8975bba48a76e0"
+  },
+  "installed": true,
+  "actual_Torch_ABI_preflight": {
+    "python": "3.12.13 | packaged by conda-forge | (main, Aug 11 2026, 10:27:28) [GCC 14.4.0]",
+    "executable": "/workspace-SR003.nfs2/ARG-GNN/.runtime/official_argmix_abi210_v1/cu129/env/bin/python",
+    "torch": "2.10.0+cu129",
+    "torchvision": "0.25.0+cu129",
+    "compiled_cuda": "12.9",
+    "CXX11_ABI": true,
+    "include_paths": [
+      "/workspace-SR003.nfs2/ARG-GNN/.runtime/official_argmix_abi210_v1/cu129/env/lib/python3.12/site-packages/torch/include",
+      "/workspace-SR003.nfs2/ARG-GNN/.runtime/official_argmix_abi210_v1/cu129/env/lib/python3.12/site-packages/torch/include/torch/csrc/api/include"
+    ],
+    "library_paths": [
+      "/workspace-SR003.nfs2/ARG-GNN/.runtime/official_argmix_abi210_v1/cu129/env/lib/python3.12/site-packages/torch/lib"
+    ],
+    "GPU_context_requested": false
+  },
+  "native_artifacts": [
+    {
+      "path": ".runtime/official_argmix_abi210_v1/cu129/env/lib/python3.12/site-packages/ancpath/ancpath.cpython-312-x86_64-linux-gnu.so",
+      "sha256": "9144bf360da01e9a459c94b514c6ac54df8694f7b662b59db574dd40a3918d90",
+      "bytes": 2935537
+    },
+    {
+      "path": ".runtime/official_argmix_abi210_v1/cu129/source/src/rust/ancpath/target/cli/release/build_training",
+      "sha256": "ac6257775a1bfb6bab721360ad46a3dd7fb08b69d2bf75c673128e4b4e7ff898",
+      "bytes": 2847248
+    }
+  ],
+  "copied_author_files_unchanged": true,
+  "immutable_author_files_unchanged": true,
+  "admission_commands": {
+    "helper": {
+      "path": "experiments/results/argmix_native_abi210_execution_v1/v6/build/native_torchscript_cpu_probe.py",
+      "sha256": "1e604e82f200dfef315d134bb675fdfbed186cb4f06d3c84306b1ae9b9fc6a7d"
+    },
+    "command": {
+      "path": "experiments/results/argmix_native_abi210_execution_v1/v6/build/run_cpu_library_admission.sh",
+      "sha256": "4547f9d282364691ca033ba316e2f1d6fe0f20be851f0815f415b7a2011a9d23"
+    },
+    "probe_output": ".runtime/official_argmix_abi210_v1/cu129/admission/v6",
+    "executed": false,
+    "native_runtime_admitted": false,
+    "probe_scope": "handmade CPU fixture through actual stock RustTorchScriptInference; not author-model performance"
+  },
+  "CLI_discovery_path_preserved": true,
+  "seconds": 187.04045547917485,
+  "finished_utc": "2026-10-10T14:44:19.092768+00:00"
+}
