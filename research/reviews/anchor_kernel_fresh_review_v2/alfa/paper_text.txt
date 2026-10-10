@@ -1,0 +1,311 @@
+              Graph-Conditioned Kernel Message Passing over Tree Sequences
+
+                                                    Anonymous Submission
+
+
+
+
+                           Abstract                               and Bullo 2013), and Node Decimation Pooling already uses
+                                                                  this reduction within GNN representation learning (Bianchi
+  Marginal genealogies combine changing anonymous ances-          et al. 2022). Graph kernels derived from stochastic differ-
+  tors with persistent sampled individuals. We develop a graph
+                                                                  ential equations model nonseparable space-time covariance
+  neural construction that reduces each observed tree to its
+  sampled electrical interface, then repeatedly exchanges query   (Nikitin et al. 2022). Kernel reconstruction also addresses
+  context through graph-conditioned kernels at fixed genomic      space-time signals on dynamic graphs (Romero, Ioannidis,
+  anchors. Integrated age potentials supply a small geometry      and Giannakis 2017). Our candidate combines a fixed sam-
+  bank while preserving serial subdivision. Exact finite anchor   ple interface with changing boundary operators and exact
+  actions follow the true interval order and admit a positive     genomic-duration processing. The evaluation asks whether
+  semidefinite kernel interpretation, including noncommuting      that combination supplies useful memory beyond these es-
+  operators. Reference-inclusive row normalization bounds ev-     tablished components.
+  ery kernel message. The construction preserves predictions
+  under redundant graph-record subdivision and anonymous se-              2     Boundary Graph Construction
+  rial insertion with invariant observed leaf features. Matched
+  controls separate age geometry, kernel depth, query coupling    2.1   Observed Resistance and Reduction
+  and positive-rate optimization. This working methods docu-      For a tree edge joining observed ages tu < tv , let its re-
+  ment accompanies ongoing validation-only architecture com-      sistance be ruv = κ(tv − tu ) for fixed κ > 0. Ages are
+  parisons.
+                                                                  decoded before subtracting them. Assume every edge has
+                                                                  positive resistance and every connected component contain-
+          1    Problem and Related Work                           ing an interior vertex touches the interface. The undirected
+                                                                  conductance Laplacian is Lg . Partition its vertices into S and
+We observe graphs Gg on a partition of a continuous do-           anonymous interior Ag . The boundary response is
+main into intervals Ig = [ag , bg ). A persistent interface S
+is present in every graph. Other vertices are graph-local.                    Cg = (Lg )SS − (Lg )SA (Lg )−1
+                                                                                                          AA (Lg )AS .       (1)
+Predictions address query vertices Q ⊆ S at fixed coordi-
+                                                                  A linear solve implements the Schur complement. Cg is sym-
+nates xp . Observed reference vertices R = S \ Q can carry
+                                                                  metric positive semidefinite with zero row sums and nonpos-
+labeled panel information. Numerical identifiers define cor-
+                                                                  itive off-diagonal entries. With y(v, u) = (v ⊤ , u⊤ )⊤ , its
+respondence only.
+                                                                  energy characterization is
+   For ancestral recombination graphs, the domain is ge-
+nomic position, each Gg is a marginal genealogy, and S                           v ⊤ Cg v = min y(v, u)⊤ Lg y(v, u).         (2)
+                                                                                             u
+contains sampled haplotypes. Query local ancestry is an
+external supervised target. Labeled reference samples, ob-        These are established Kron properties (Dörfler and Bullo
+served ages and reconstructed topology provide input evi-         2013).
+dence. ARGformer motivates inference from ARGs (Bonet                Define C̄g = Cg /sg , where sg is the mean boundary diag-
+et al. 2026). Graph-transformer ancestry inference supplies       onal. A zero response uses sg = 1. This scalar normalization
+a related task (Shanks et al. 2026), with broader biological      respects boundary permutation and serial-edge equivalence.
+context from ancient Eurasian ancestry (Irving-Pease et al.       It expresses coupling on a common dimensionless scale. Ob-
+2024).                                                            served age summaries remain available to the encoder.
+   Graph Set Transformer interleaves graph processing
+and set attention (Escrig Molina, Chen, and Probst                2.2   Invariant Source Encoding
+2026). GraphSSM studies continuous graph dynamics and             The leaf feature bank XgS contains observed sample roles,
+persistent-node alignment (Li et al. 2024). Message-Passing       ages and fixed reference-relation summaries. The summaries
+State-Space Models propagate persistent hidden states             use source-conditioned observed common-ancestor times,
+through graph shift operators (Ceni et al. 2026). Kron reduc-     reference fractions, nearest-reference tie votes and fixed ker-
+tion preserves a graph’s static boundary response (Dörfler        nel evidence. They are precomputed independently within
+each observed tree. The raw parent-branch feature is ex-           Each branch has a separate propagation state. Nonnegative
+cluded, since inserting a unary ancestor changes that feature      global mixture weights are πℓ,s,h = softmaxs (αℓ,s,h ). Mix-
+at its child.                                                      ing completed kernel actions preserves the branch-specific
+   A graph-local GNN encodes (XgS , C̄g ) into Hg . Its con-       cached bases.
+ductance adjacency is −C̄g,ij off the diagonal. Each residual         Every query eigensystem is fixed offline. On a hold of
+layer uses a weighted neighbor mean, a learned self up-            length ∆, its action is
+date and layer normalization. It receives no temporal state,
+                                                                        T z = Vg,s diag e−∆(λℓ,s,h µg,s +δℓ,s,h ) Vg,s
+                                                                                         (︁                      )︁ ⊤
+                                                                                                                       z.  (12)
+coordinate or numerical-ID embedding. Shared projections
+produce bounded signals                                            Products follow the observed interval order, including partial
+                                                                   holds. This computation differentiates scalar rates and source
+                FgQ = tanh(HgQ WQ⊤ + bQ ),                  (3)    projections while reusing fixed geometry.
+                UgR = tanh(HgR WR⊤ + bR ).                  (4)
+                                                                   3.2   Physical Anchor Sources
+Reference signals depend on observed panel information.            Choose A = 32 equal-width cell midpoints ya on each
+The query ancestry target remains outside this source bank.        supplied tile, with cell-width masses ωa . Anchors depend
+                                                                   on physical endpoints and resolution. The graph-local GNN
+2.3    Integrated Age Geometry                                     supplies query embeddings UQ,a0
+                                                                                                   and observed reference em-
+Older genealogy branches can transmit evidence across pop-                     0
+                                                                   beddings UR,a at the containing graph.
+ulations that are distinct at the ancestry horizon. We therefore     At layer ℓ, bounded shared projections produce
+prepare a fixed positive resistance family from observed end-
+                                                                                                       ℓ
+point ages. For scales s ∈ {350, 1400} generations define                          qℓ,h,a = tanh(Wℓ,Q UQ,a + bℓ,Q )h ,          (13)
+                                                                                                       0
+               ws (t) = 1 + 3t2 /(s2 + t2 ),                (5)                    rℓ,h,a = tanh(Wℓ,R UR,a + bℓ,R )h .          (14)
+               Φs (t) = 4t − 3s arctan(t/s),                (6)    The query source for branch s is
+                  (s)
+                 ruv  = κ[Φs (tv ) − Φs (tu )].             (7)              Sℓ,s,h,a = qℓ,h,a − λℓ,s,h C
+                                                                                                        ˆ︁g(y ),s,QR rℓ,h,a .
+                                                                                                             a
+                                                                                                                                (15)
+The plain branch has Φ0 (t) = t. A common plain scale σg =         Reference embeddings remain graph-local observed sources
+mean diag(Cg,0 ) normalizes every age response, C    ˆ︁g,s =       throughout kernel depth. Query context is updated succes-
+Cg,s /σg . Consequently age attenuation is retained. A plain       sively at fixed anchors.
+zero response uses σg = 1.                                            For any anchor or requested readout x, the numerator is
+  Since 1 ≤ ws ≤ 4, conductance energies and their interior                        ∑︂        ∑︂
+                                                                      Nℓ,h (x) =      πℓ,s,h    ωa Hℓ,s,h (x, ya )Sℓ,s,h,a . (16)
+minima give
+                   1                                                                  s         a
+                   4 Cg,0 ⪯ Cg,s ⪯ Cg,0 .                 (8)
+                                                                   Run the same action on the matching ones source
+Endpoint potentials telescope under serial subdivision. Thus
+each age response and the common normalization preserve                        mℓ,s,h,a = 1Q − λℓ,s,h C
+                                                                                                      ˆ︁g(y ),s,QR 1R
+                                                                                                           a
+                                                                                                                                (17)
+the same electrical equivalence contract as plain geometry.
+   The matched scalar-age control sets                             to obtain Dℓ,h (x), and normalize elementwise as Mℓ,h (x) =
+                                                                   Nℓ,h (x)/Dℓ,h (x).
+                scalar   mean diag(Cg,s ) ˆ︁                          The gated residual update is
+              C
+              ˆ︁g,s    =                 Cg,0 .             (9)
+                               σg                                                              (︁                 )︁
+                                                                         gℓ (U, M ) = sigmoid Wℓ,g [U, M ] + bℓ,g ,        (18)
+It retains age-dependent global attenuation while preserving                  Vℓ (x) = U ℓ (x) + gℓ (x) ⊙ Wℓ,M Mℓ (x),          (19)
+the plain operator’s relative geometry. The source encoder                   ℓ+1
+always uses the plain response and identical observed leaf               U         (x) = LayerNorm(Vℓ (x)).                     (20)
+features.
+                                                                   Here gℓ (x) = gℓ (U ℓ (x), Mℓ (x)). Apply this update at an-
+                                                                   chors and requested coordinates. Only anchor embeddings
+   3    Fixed-Anchor Kernel Message Passing                        create subsequent sources. The final shared linear head pre-
+3.1    Conditional Graph Kernels                                   dicts from the updated readout embedding.
+For layer ℓ, branch s and latent channel h, global positive
+rates define
+                                                                   3.3   Exact Finite Kernel Actions
+                                                                   For one branch/channel, an inclusive forward sum and exclu-
+          Kℓ,s,h (x) = λℓ,s,h C
+                              ˆ︁g(x),s,QQ + δℓ,s,h I.      (10)    sive reverse sum give
+Let Tℓ,s,h (x, y) be its time-ordered homogeneous propagator                  ap = T (yp , yp−1 )ap−1 + ωp Sp ,                 (21)
+for x ≥ y. The symmetric matrix-valued kernel is                                                    ⊤
+                                                                              bp = T (yp+1 , yp ) (bp+1 + ωp+1 Sp+1 ).          (22)
+                            {︃
+                               Tℓ,s,h (x, y),   x ≥ y,             The message is ap + bp , with zero exterior states. Its self
+           Hℓ,s,h (x, y) =                              (11)
+                               Tℓ,s,h (y, x)⊤ , x < y.             term appears once. Additional event coordinates evaluate
+arbitrary readouts using partial homogeneous actions without       therefore produces identical observed interface embeddings.
+creating new impulses. Numerator and denominator share             Splitting an unchanged hold preserves each homogeneous
+one bundled scan.                                                  propagator by the semigroup identity. Fixed anchors, their
+   This is an exact action for the predeclared finite an-          containing observed graph, and source masses remain iden-
+chor measure. With E physical subholds, its dense spec-            tical. The first-layer numerator, denominator and updates
+tral propagation cost is O(LESQ2 H) for kernel depth L, S          are unchanged. Induction preserves all subsequent anchor
+branches and H latent channels. Source construction addi-          sources and readout updates. □
+tionally costs O(LASQRH). The graph encoder and CPU                   The 47-feature ancestry bank excludes raw immediate-
+Schur/eigensystem preparation are separate measured costs.         parent branch length. Persistent numerical IDs serve corre-
+                                                                   spondence only. Requested outputs never become source an-
+   4    Kernel and Representation Properties                       chors, so adding readout coordinates leaves existing predic-
+4.1    Positivity and Bounded Messages                             tions unchanged. Implementation checks cover both subdi-
+                                                                   vision operations, permutation, dense noncommuting propa-
+Proposition 1. For symmetric positive definite piecewise-          gators, self counting, gradients and numerical mass behavior.
+constant K(x), the completed kernel H is positive semidef-
+                                                                      The recorded synthetic probe in Figure 1 isolates homoge-
+inite, including noncommuting holds. Global nonnegative
+                                                                   neous propagation. At coupling rates λ = 5, 20, 80, revers-
+mixtures preserve this property.            √︁                     ing three observed holds gives Frobenius differences 0.278,
+   Proof. Consider dZ = −K(x)Z dx + 2K(x) dW with                  0.185 and 0.109. Triple subdivision gives differences be-
+initial covariance I, independent of later Brownian incre-         low 4.1 × 10−14 in float64. The probe uses fixed geometry
+ments. Its covariance equation is P ′ = −KP − P K + 2K,            without neural fitting.
+with solution P = I. Cross-covariance is T (x, y) for x ≥ y,
+with the transpose in the opposite order. A covariance ker-
+nel is positive semidefinite, as is a nonnegative sum of such               5    Matched Evaluation Protocol
+kernels. □
+   This certificate uses established linear-process covariance     5.1   Attribution Controls
+theory (Särkkä and Solin 2019). The conditional kernel acts
+on coordinates and persistent query samples within one ob-         All anchor comparisons share observed leaf features, the
+served collection.                                                 plain local encoder, fixed physical anchor measure, corre-
+   Proposition 2. For finite positive rates and pos-               spondence and readout coordinates. A factorial design con-
+itive anchor masses, each reference-inclusive normal-              trasts one versus two kernel layers, plain versus age versus
+ized message is an elementwise convex combination of               matched scalar-age geometry, and full versus scalar propa-
+bounded query/reference source signals. In exact arithmetic,       gation.
+|Mℓ,h,q (x)| ≤ 1.                                                     The scalar propagation control replaces CQQ by I only
+   Proof. The conductance response has nonpositive off-            inside K, giving K = (λ + δ)I. It preserves the original ref-
+diagonal entries, so −K is Metzler. Each local exponential is      erence source map, learned projections, mixture weights and
+entrywise nonnegative, as are products and their transposes.       denominator definition. The local source encoder still com-
+Also −λCQR ≥ 0. Thus the expanded numerator has non-               bines spatial evidence. This ordinary temporal-kernel com-
+negative coefficients on every anchored query and reference        parison changes both diagonal decay and spatial coupling.
+signal. The ones-source scan sums exactly those coefficients,      A raw diagonal control instead retains the full generator di-
+producing a strictly positive denominator for finite rates and     agonal. A gain-matched diagonal control additionally trans-
+positive masses. Division gives a convex combination of sig-       forms each numerator and ones source by DK −1 , where
+nals in [−1, 1]. □                                                 D = diag(K). This preserves homogeneous continuous-
+   The normalized action has this bounded aggregation prop-        forcing DC gain while removing transfer between previous
+erty. Its underlying symmetric kernel supplies the PSD state-      query states.
+ment. Finite arithmetic explicitly rejects nonpositive or non-        The three-branch plain control repeats the plain opera-
+finite mass rather than adding an unreported denominator           tor with the same initial rate schedule (5, 20, 80) as the
+floor.                                                             age branches. Full/scalar geometry comparisons have iden-
+                                                                   tical parameter schemas. Kernel depth changes parame-
+4.2    Dual Subdivision Contract                                   ter counts, which are recorded. Matched log-positive and
+Proposition 3. Under exact arithmetic and deterministic            softplus-positive rates have identical initial rates and param-
+evaluation, predictions are preserved by splitting an un-          eters. Rate and mixture parameters receive zero weight decay
+changed graph interval into identical consecutive pieces, or       in every anchor comparison.
+by inserting anonymous serial vertices with preserved end-            Separate earlier boundary controls include graph-local
+point ages. The contract holds at every kernel depth when          prediction, scalar smoothing, recurrent and attention aggre-
+tile endpoints, physical anchors, interface partition, requested   gation, homogeneous bags and matched-gain independent
+coordinates and invariant observed leaf features are fixed.        memory. Graph Set Transformer, GraphSSM and ARGMix
+   Proof. Serial potential differences telescope, so electrical    paper-equation adaptations supply complementary architec-
+series equivalence preserves every response and the com-           tural baselines with their input and reproduction scopes
+mon plain normalization. The shared graph-local encoder            recorded.
+                                                                                                                                                                                                    Reversed order
+                                                                                                                                                                                                    Subdivided holds
+                                CQQ on hold 1                 CQQ on hold 2                 CQQ on hold 3                                                                                           Order probe
+                                                                                                                                                                                            0
+                       0                             0                             0                                                                                                   10
+
+
+
+
+                                                                                                                       Normalized response
+
+
+                                                                                                                                             Propagator difference (Frobenius norm)
+                                                                                                                   1
+                                                                                                                                                                                      10−2
+         Query index
+
+
+
+                       31                            31                            31                              0                                                                  10−4
+
+
+                                                                                                                                                                                      10−6
+
+
+                       63                            63                            63                                                                                                 10−8
+                            0        31         63        0        31         63        0         31        63
+                                 Query index                   Query index                   Query index                                                                              10−10
+
+                                    Hold 1                        Hold 2                        Hold 3
+                                                                                                                                                                                      10−12
+
+Fixed sources
+                                                                                                                                                                                      10−14
+      Readouts
+                                                                                                                                                                                      10−16
+                        0.00                     0.31                               0.72                    1.00                                                                                5        20          80
+
+                                                          Physical coordinate x                                                                                                                     Coupling λ
+
+Figure 1: Structural illustration from an untrained synthetic sequence with 64 query and 24 reference samples. Left: query
+boundary responses on three holds, with 32 fixed source anchors and independent readout coordinates. Right: Frobenius
+differences from the original ordered propagator at damping δ = 1. Reversing the same operator-duration pairs changes the
+action. Splitting each hold into three equal subholds preserves it to floating-point precision. This probe illustrates operator order
+and the semigroup property.
+
+
+5.2    Ancestry and Cross-Domain Studies                                                    tence and multivariate ridge controls accompany neural com-
+                                                                                            parisons. Graph SPDE kernels also evaluate on this dataset
+The engineering cohort uses the pinned stdpopsim 0.3.0                                      (Nikitin et al. 2022), motivating a covariance-based com-
+AncientEurope_4A21 model. Query ancestry labels are                                         parator. This fixed-topology setting evaluates temporal ap-
+external census-lineage targets for ANA, CHG, WHG and                                       plicability alongside the changing-tree ancestry study.
+EHG. Census nodes and hidden population annotations are
+removed from observed trees. The initial cohort contains 16
+independent training parents and four validation parents of
+                                                                                                                       References
+1 Mb, with eight query haplotypes, 24 reference haplotypes                                  Bianchi, F. M.; Grattarola, D.; Livi, L.; and Alippi, C. 2022.
+and 128 fixed coordinates. A separately seeded cohort in-                                   Hierarchical Representation Learning in Graph Neural Net-
+creases the query interface to 64 haplotypes.                                               works With Node Decimation Pooling. IEEE Transactions on
+   The paired Relate 1.2.4 pipeline uses observed phased                                    Neural Networks and Learning Systems, 33(5): 2195–2207.
+variants, sample ages and a declared recombination map. Its                                 Bonet, D.; Shanks, C.; Comajoan Cara, M.; Abante, J.; and
+genuine SNP coverage clips edge tiles without chromosome-                                   Ioannidis, A. G. 2026. ARGformer: learning on ancestral
+tail extrapolation. Exact original grid positions and query                                 recombination graphs with transformers. Bioinformatics,
+identities are retained. Relate attribution: Copyright © 2018,                              42(Supplement 2): btag438.
+University of Oxford.                                                                       Ceni, A.; Gravina, A.; Gallicchio, C.; Bacciu, D.; Schön-
+   Parents are split before constructing eight fixed win-                                   lieb, C.-B.; and Eliasof, M. 2026. Message-Passing State-
+dows. Checkpoints are selected by minimum mean parent-                                      Space Models: Improving Graph Learning with Modern
+validation negative log likelihood. Dataset, parent, prepa-                                 Sequence Modeling. Version 2, revised 26 May 2026,
+ration, code and prediction hashes bind each comparison.                                    arXiv:2505.18728.
+Records retain accuracy, NLL, calibration diagnostics, pa-
+                                                                                            Dörfler, F.; and Bullo, F. 2013. Kron Reduction of Graphs
+rameter count, preparation cost, training time and GPU mem-
+                                                                                            With Applications to Electrical Networks. IEEE Transac-
+ory. Exploratory cohorts contain training and validation data
+                                                                                            tions on Circuits and Systems I: Regular Papers, 60(1): 150–
+only.
+                                                                                            163.
+   The Hungarian Chickenpox Cases dataset supplies an ex-
+ternal chronological forecasting setting on a persistent 20-                                Escrig Molina, J. E.; Chen, B.; and Probst, D. 2026.
+county graph. It has 522 observations and a CC BY 4.0                                       Graph Set Transformer.         ArXiv preprint, version 1,
+license. Inputs contain 52 historical weeks and predict the                                 arXiv:2606.05116.
+following week. The chronological split has 313 training tar-                               Irving-Pease, E. K.; Refoyo-Martínez, A.; Barrie, W.; Inga-
+gets, 78 validation targets and 79 reserved test targets. Nor-                              son, A.; Pearson, A.; Fischer, A.; Sjögren, K.-G.; Halgren,
+malization uses training observations only. Seasonal, persis-                               A. S.; Macleod, R.; Demeter, F.; Henriksen, R. A.; Vimala,
+T.; McColl, H.; Vaughn, A. H.; Speidel, L.; Stern, A. J.; Scor-
+rano, G.; Ramsøe, A.; Schork, A. J.; Rosengren, A.; Zhao,
+L.; Kristiansen, K.; Iversen, A. K. N.; Fugger, L.; Sudmant,
+P. H.; Lawson, D. J.; Durbin, R.; Korneliussen, T.; Werge,
+T.; Allentoft, M. E.; Sikora, M.; Nielsen, R.; Racimo, F.; and
+Willerslev, E. 2024. The selection landscape and genetic
+legacy of ancient Eurasians. Nature, 625(7994): 312–320.
+Li, J.; Wu, R.; Jin, X.; Ma, B.; Chen, L.; and Zheng, Z. 2024.
+State Space Models on Temporal Graphs: A First-Principles
+Study. In Advances in Neural Information Processing Sys-
+tems, volume 37, 127030–127058.
+Nikitin, A. V.; John, S.; Solin, A.; and Kaski, S. 2022. Non-
+separable Spatio-temporal Graph Kernels via SPDEs. In
+Proceedings of the 25th International Conference on Artifi-
+cial Intelligence and Statistics, volume 151 of Proceedings
+of Machine Learning Research, 10640–10660. PMLR.
+Romero, D.; Ioannidis, V. N.; and Giannakis, G. B. 2017.
+Kernel-based Reconstruction of Space-time Functions on
+Dynamic Graphs. IEEE Journal of Selected Topics in Signal
+Processing.
+Särkkä, S.; and Solin, A. 2019. Applied Stochastic Differen-
+tial Equations. Cambridge University Press.
+Shanks, C.; Bonet, D.; Comajoan Cara, M.; and Ioannidis,
+A. G. 2026. Graph transformer for ancient ancestry inference.
+bioRxiv. Preprint, version 1, posted 7 April 2026.
+

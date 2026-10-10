@@ -1,0 +1,1139 @@
+                                                                                                                                                                                       1
+
+
+
+
+                                                            Kernel-based Reconstruction of
+                                                       Space-time Functions on Dynamic Graphs
+                                                       Daniel Romero, Member, IEEE, Vassilis N. Ioannidis, Georgios B. Giannakis, Fellow, IEEE
+
+
+
+
+                                            Abstract—Graph-based methods pervade the inference toolk-                  impact sampling costs by reducing the number of vertices that
+                                         its of numerous disciplines including sociology, biology, neu-                need to be observed to attain a target performance. Such a
+                                         roscience, physics, chemistry, and engineering. A challenging                 reduction is of paramount interest in applications such as in-
+arXiv:1612.03615v2 [cs.LG] 20 May 2017
+
+
+
+
+                                         problem encountered in this context pertains to determining
+                                         the attributes of a set of vertices given those of another subset             vasive electrocorticography (ECoG), where observing a vertex
+                                         at possibly different time instants. Leveraging spatiotemporal                requires the implantation of an intracranial electrode [7].
+                                         dynamics can drastically reduce the number of observed vertices,                 An extensive body of literature has dealt with reconstructing
+                                         and hence the cost of sampling. Alleviating the limited flexibility           time-invariant graph functions. Machine learning works typi-
+                                         of existing approaches, the present paper broadens the exist-                 cally rely on smoothness [2], [3], [6], [8] to reconstruct either
+                                         ing kernel-based graph function reconstruction framework to
+                                         accommodate time-evolving functions over possibly time-evolving               binary-valued (see e.g. [6]) or real-valued functions [8]–[11],
+                                         topologies. This approach inherits the versatility and generality of          whereas the community of signal processing on graphs (SPoG)
+                                         kernel-based methods, for which no knowledge on distributions                 focuses on parametric estimators for real-valued functions
+                                         or second-order statistics is required. Systematic guidelines are             adhering to the bandlimited model, by which those functions
+                                         provided to construct two families of space-time kernels with                 are confined to the span of B eigenvectors of the graph
+                                         complementary strengths. The first facilitates judicious control
+                                         of regularization on a space-time frequency plane, whereas the                Laplacian or adjacency matrices [12]–[16]. Most of these
+                                         second can afford time-varying topologies. Batch and online                   schemes can be subsumed under the encompassing framework
+                                         estimators are also put forth, and a novel kernel Kalman filter is            of time-invariant kernel-based learning [17].
+                                         developed to obtain these estimates at affordable computational                  Schemes tailored for time-evolving functions on graphs
+                                         cost. Numerical tests with real data sets corroborate the merits              include [18] and [19], which predict the function values at
+                                         of the proposed methods relative to competing alternatives.
+                                                                                                                       time t given observations up to time t − 1. However, these
+                                            Index Terms—Graph signal reconstruction, kernel-based learn-               schemes assume that the function of interest adheres to a
+                                         ing, time series on graphs, Kalman filtering, ridge regression.               specific vector autoregression and all vertices are observed at
+                                                                                                                       previous time instances. Moreover, [18] requires Gaussianity
+                                                                  I. I NTRODUCTION                                     along with a rather ad hoc form of stationarity.
+                                            A number of applications involving social, biological, brain,                 Other works target time-invariant functions, but can afford
+                                         sensor, transportation, or communication networks call for                    tracking sufficiently slow variations. This is the case of the
+                                         efficient methods to infer the attributes of some vertices given              dictionary learning approach in [20] and the distributed al-
+                                         the attributes of other vertices [1]. For example, in a social                gorithms in [21] and [22]. Unfortunately, the flexibility of
+                                         network with vertices and edges respectively representing                     these algorithms to capture spatial information is also limited
+                                         persons and friendships, one may be interested in determining                 since [20] focuses on Laplacian regularization, whereas [21]
+                                         an individual’s consumption trends based on those of their                    and [22] require the signal to be bandlimited.         Different
+                                         friends. This task emerges when sampling cost constraints,                    approaches investigate special instances of the reconstruc-
+                                         such as the impossibility to poll one country’s entire popu-                  tion problem with domain-specific requirements and assump-
+                                         lation about political orientation, limit the number of vertices              tions [23], [24]. Finally, it is worth mentioning that no
+                                         with known attributes. Existing approaches typically formulate                approach deals with time-evolving topologies.
+                                         this problem as the reconstruction of a function or signal                       The contribution of this paper is threefold. First, the
+                                         on a graph [1]–[6], and rely on its smoothness with respect                   existing kernel-based learning framework is naturally extended
+                                         to the graph, in the sense that neighboring vertices have                     to subsume time-evolving functions over possibly dynamic
+                                         similar function values. This principle suggests, for instance,               graphs through the notion of graph extension, by which the
+                                         estimating one person’s age by looking at their friends’ age.                 time dimension receives the same treatment as the spatial
+                                            A more challenging problem involves reconstructing time-                   dimension. The versatility of kernel-based methods to leverage
+                                         evolving functions on graphs, such as the ones describing                     spatial information [17] is thereby inherited and broadened
+                                         the time-dependent activity of regions in a brain network,                    to account for temporal dynamics as well. Incidentally, this
+                                         given their values on a subset of vertices and time instants.                 vantage point also accommodates time-varying sampling sets
+                                         Efficiently exploiting spatiotemporal dynamics can markedly                   and topologies. Second, two families of space-time kernels
+                                                                                                                       are introduced by generalizing Laplacian kernels [3]. The first
+                                           This work was supported by ARO grant W911NF-15-1-0492 and NSF               family enables kernel design in a bidimensional frequency
+                                         grants 1343248, 1442686, and 1514056.
+                                           The authors are with the Dept. of ECE and the Digital Tech. Center, Univ.   domain, whereas the second caters for time-varying topologies.
+                                         of Minnesota, USA. E-mail: {dromero,ioann006,georgios}@umn.edu                The third contribution comprises two function estimators with
+                                                                                                                                                       2
+
+
+
+complementary strengths based on the popular kernel ridge                    latter being defined for A ∈ RM ×M and B ∈ RN ×N as
+regression (KRR) criterion; see e.g. [17], [25]. Whereas the                 A ⊕ B := A ⊗ IN + IM ⊗ B. The n-th column of the
+first can handle more sophisticated forms of spatiotemporal                  identity matrix IN is represented by iN,n . If A is a matrix
+regularization, the second can afford a more efficient imple-                and x a vector, then ||x||2A := x> A−1 x and ||x||2 := ||x||I .
+mentation and online operation, meaning that estimates are                   SN+ represents the cone of N × N positive definite matrices.
+refined as observations become available. The proposed kernel                Finally, δ[·] stands for the Kronecker delta, and E for
+Kalman filter (KKF) finds exact online KRR estimates by                      expectation.
+implicitly operating in a (possibly) infinite-dimensional space.
+   The major novelty of this paper is a purely deterministic                                    II. P ROBLEM F ORMULATION
+methodology that obviates the need for assumptions on data
+                                                                                 A time-varying graph1 is a tuple G := (V, {AV [t]}Tt=1 ),
+distributions, stationarity, or knowledge of second-order statis-
+                                                                             where V := {v1 , . . . , vN } is the vertex set and AV [t] is an N ×
+tics. The proposed schemes are therefore of special interest
+                                                                             N adjacency matrix whose (n, n0 )-th entry AV             n,n0 [t] assigns
+in absence of sufficient historical data, yet the latter can
+                                                                             a weight to the pair of vertices (vn , vn0 ) at time t. A time-
+be incorporated if available through covariance kernels [17].
+                                                                             invariant graph is a special case with AV [t] = AV [t0 ] ∀t, t0 .
+Although more complicated dynamics can be accommodated,
+                                                                             As usual, see e.g. [1, Ch. 2], [4], [8], this paper assumes that
+one may simply rely on the assumption that the target function
+                                                                             G (i) has non-negative weights (AV                                0
+                                                                                                                          n,n0 [t] ≥ 0 ∀n, n , t); (ii)
+is smooth over the graph and over time, which is reasonable                                       V
+                                                                             no self-links (An,n [t] = 0 ∀n, t); and, (iii) it is undirected
+whenever the graph is properly constructed and the sampling
+                                                                             (AV               V               0
+                                                                                  n,n0 [t] = An0 ,n [t] ∀n, n , t). The edge set is defined as
+interval is attuned to the temporal dynamics of the function.
+The novel online estimator constitutes the first fully determin-             E[t] := {(vn , vn ) ∈ V × V : AV
+                                                                                                 0
+                                                                                                                     n,n0 [t] 6= 0}, and two vertices
+istic rigorous application of the Kalman filter (KF) to kernel-              v and v 0 are said to be adjacent, connected, or neighbors at
+based learning. Although [26] already proposed a kernel-                     time t if (v, v 0 ) ∈ E[t].
+based KF, this work heavily relies on heuristics and approxi-                    A time-evolving function or signal on a graph,2 is a map f :
+mations to explicitly operate in feature space. Moreover, this               V ×T → R, where T := {1, . . . , T } is the set of time indices.
+algorithm involves solving the challenging preimage problem                  The value f (vn , t) of f at vertex vn and time t, or its shorthand
+per time step, which increases inaccuracy and computational                  version fn [t], can be thought of as the value of an attribute of
+cost. Another KF was developed in [27] within the framework                  vn ∈ V at time t. In a social network, fn [t] may denote the
+of kernel-based learning, but its formulation is probabilistic               annual income of person vn at year t. Function values at time
+and requires historical data to estimate the data distribution.              t will be collected in f [t] := [f1 [t], . . . , fN [t]]> .
+   The rest of the paper is structured as follows. Sec. II                       At time t, the vertices with indices in the time-dependent
+formulates the problem and Sec. III reviews kernel-based                     and arbitrary set S[t] := {n1 [t], . . . , nS[t] [t]}, 1 ≤ n1 [t] <
+learning for time-invariant functions. Sec. IV generalizes this              · · · < nS[t] [t] ≤ N , are observed. The resulting samples can
+framework to reconstruct time-evolving functions and develops                be expressed as ys [t] = fns [t] [t] + es [t], s = 1, . . . , S[t], where
+two estimators together with the KKF. Space-time kernels are                 es [t] models observation error. In social networks, this encom-
+designed in Sec. V. The numerical tests in Sec. VI confirm                   passes scenarios where a subset of persons have been surveyed
+the benefits of the proposed algorithms. Finally, Sec. VII                   about the attribute of interest; e.g. their annual income. By
+summarizes closing remarks whereas the Appendix provides                     letting y[t] := [y1 [t], . . . , yS[t] [t]]> , the observations can be
+the proofs of the main results.                                              conveniently expressed as
+Notation: Scalars are denoted by lowercase letters, vectors                                y[t] = S[t]f [t] + e[t],       t = 1, . . . , T           (1)
+by bold lowercase, and matrices by bold uppercase. (A)m,n
+is the (m, n)-th entry of matrix A. Superscripts > and †                     where e[t] := [e1 [t], . . . , eS[t] [t]]> , and the S[t] × N sam-
+respectively denote transpose and pseudo-inverse. If A :=                    pling matrix S[t] contains ones at positions (s, ns [t]), s =
+[a1 , . . . , aN ], then vec{A} := [a>                  > >
+                                           1 , . . . , aN ]    := a and      1, . . . , S[t] and zeros elsewhere.
+unvec{a} := A. With N ×N matrices {At }t=1 and {Bt }Tt=2T                       The broad goal of this paper is to “reconstruct” f from
+with At = A>       t ∀t, btridiag{A1 , . . . , AT ; B2 , . . . , BT } rep-
+                                                                             the observations {y[t]}Tt=1 in (1). Two formulations will be
+resents the symmetric block tridiagonal matrix                               considered: in the batch formulation, one aims at finding
+                                                                             {f [t]}Tt=1 given G, the sample locations {S[t]}Tt=1 , and all
+                 A1 B2>
+                                                            
+                              0   ...         0          0                   observations {y[t]}Tt=1 . In the online formulation, one is given
+               B2 A2 B3> . . .               0          0                  G together with S[t] and y[t] at time t. The goal is to find
+                                                            
+               0      B3 A3 . . .            0          0                  f [t], possibly based on a previous estimate of f [t − 1], with
+                                                          ..  .
+                                                            
+               ..      ..     .. ..           ..                            bounded complexity per time slot t, even if T → ∞. To solve
+               .        .      .     .         .          . 
+              
+               0       0     0   . . . AT −1 BT> 
+                                                                            these problems, no explicit parametric model for the temporal
+                  0     0     0   ...       BT          AT                   or spatial evolution of f will be adopted. For instance, one
+                                                                             can solely rely on the assumption that f evolves smoothly
+Similarly, bdiag {A1 , . . . , AN }  :=   btridiag{A1 , . . . ,
+                                                                               1 See [28] and references therein for alternative representations of time-
+AN ; 0, . . . , 0} is a block diagonal matrix. Symbols        ,
+                                                                             varying graphs.
+⊗, and ⊕ respectively denote element-wise (Hadamard)                           2 The entire framework can naturally be extended to accommodate complex-
+matrix product, Kronecker product, and Kronecker sum, the                    valued functions f .
+                                                                                                                                                           3
+
+
+                                                                             Kernel name                       Function                 Parameters
+over both space and time, yet more structured dynamics can
+                                                                             Diffusion kernel [2]         r(λ) = exp{σ 2 λ/2}           σ2 ≥ 0
+also be incorporated if known.                                               p-step random walk            r(λ) = (a − λ)−p             a ≥ 2, p positive
+                                                                             kernel [3]                                                 integer
+                                                                             Laplacian regulariza-          r(λ) = 1 + σ 2 λ            σ2      sufficiently
+III. BACKGROUND ON KERNEL - BASED RECONSTRUCTION                             tion [3], [4], [29]                                        large
+                                                                                                                  (
+   This section reviews the existing framework for kernel-                                                            1/β   λ ≤ λmax
+                                                                             Bandlimited [17]            r(λ) =                         β > 0 sufficiently
+based reconstruction of time-invariant functions, a special case                                                      β     otherwise   large, λmax
+of which is the batch problem in Sec. II when T = 1.
+Reflecting this scenario, the notation will be devoid of time                       TABLE I: Common spectral weight functions.
+indices. As a result, the problem becomes finding f ∈ RN
+                  ×N
+given AV ∈ RN   +     , S ∈ {0, 1}S×N , and y = Sf + e ∈ RS .
+   At first, one may feel tempted to seek a least-squares                   and (ii) {uV       N
+                                                                                           n }n=1 are eigensignals of the so-called linear,
+estimate f̂ = arg minf ||y − Sf ||22 , but noting that the N                shift-invariant filters [5], which are the graph counterparts
+unknowns in f cannot be generally identified from the S ≤ N                 of linear, time-invariant PNfilters in signal processing for time
+                                                                                                             ˇ uV resembles in some sense
+samples in y dismisses such an approach. This underdeter-                   signals. Thus, f =               f
+                                                                                                         n=1 n n
+minacy prompts estimates of the form f̂ = arg minf ||y −                    the synthesis equation of the Fourier transform, and one can
+Sf ||22 +µρ(f ), where µ > 0 and the regularizer ρ(f ) promotes             therefore interpret {uV      N
+                                                                                                     n }n=1 as a Fourier basis. Because λ1 ≤
+                                                                                                                                             V
+a certain structure in f . A customary ρ(f ) encourages smooth                         V                         V         V >       V
+                                                                            . . . ≤ λN , it follows from ρLR (un ) = (un ) LV un = λn that V
+estimates by penalizing functions that exhibit pronounced                   ρLR (uV                       V
+                                                                                     1 ) ≤ . . . ≤ ρLR (uN ). Hence, sorting the eigenvectors
+variations among neighboring vertices, for instance by means                     V N
+                                                                            {un }n=1 in increasing order of their associated eigenvalue is
+of the so-called Laplacian regularizer                                      tantamount to sorting them in decreasing order of smoothness.
+                              N     N                                       Similarly, the complex exponentials in the traditional Fourier
+                         1XX V
+             ρLR (f ) :=         An,n0 (fn − fn0 )2                  (2)    basis are indexed by their frequency, which can be thought of
+                         2 n=1 0                                            as an (inverse) proxy of time-domain smoothness. Comparing
+                                  n =1
+                                                                            both scenarios suggests interpreting λV    n , or the index n, as the
+which heavily penalizes differences between function values
+                                                                            graph frequency of uV      .
+at vertices connected by strong links (large AV        n,n0 ). Expression
+                                                                                                     n
+                                                                                Back to (3), it is seen that ρLR (f ) penalizes high-frequency
+(2) formalizes the notion of smoothness introduced in Sec. I,
+                                                                            components more heavily than low-frequency ones, thus pro-
+according to which a function is smooth if it takes similar
+                                                                            moting estimates with a “low-pass” graph Fourier transform.
+values at neighboring vertices. Since ρLR (f ) is small if f
+                                                                            A finer control of how energy is distributed across frequency
+is smooth, and large otherwise, ρLR (f ) acts as a proxy
+                                                                            can be attained upon applying a transformation r : R → R+
+quantifying smoothness of f , in the sense that given two
+                                                                            to λV n , giving rise to regularizers of the form
+functions f and f 0 , the former is said to be smoother than
+the latter iff ρLR (f ) < ρLR (f 0 ) and vice versa. More general                                         N
+                                                                                                                       ˇ 2
+                                                                                                          X
+                                                                                                                                >
+proxies are reviewed next.                                                                ρLK (f ) =            r(λV              †
+                                                                                                                   n )|f n | = f K f                   (4a)
+   Upon defining the N × N Laplacian matrix LV :=                                                         n=1
+
+diag {AV 1} − AV , the functional in (2) can be rewritten after             where
+some algebra as ρLR (f ) = f > LV f ; see e.g. [1, Ch. 2]. It
+readily follows from (2) that ρLR (f ) ≥ 0 ∀f , which in turn                            K † := r(LV ) := UV> diag{r(λV )}UV                          (4b)
+implies that LV is positive semidefinite. Therefore, LV admits              is referred to as Laplacian kernel [3]. Table I summarizes some
+an eigenvalue decomposition LV = UV diag {λV } UV> , where                  well-known examples arising with specific choices of r.
+the eigenvectors in UV := [uV                   V
+                                   1 , . . . , uN ] and the eigenvalues        Further broadening the scope of the generalized Laplacian
+in λV := [λ1 , . . . , λN ] are sorted so that 0 = λV
+              V         V                                              V
+                                                         1 ≤ . . . ≤ λN .   kernel regularizers in (4), the so-called kernel ridge regression
+By letting fˇn := (un ) f , one finds that
+                        V  >
+                                                                            (KRR) estimators are given by
+                                    N                                                                       1
+                                              ˇ 2                                       f̂ := arg min         ||y − Sf ||22 + µf > K † f
+                                    X
+                       ρLR (f ) =         λV                                                                                                            (5)
+                                           n |f n |                  (3)
+                                                                                                     f      S
+                                    n=1
+                                                                            for an arbitrary positive semidefinite matrix K, not necessarily
+which means that ρLR (f ) is the weighted superposition of
+                                                                            a Laplacian kernel. The user-selected parameter µ > 0
+the magnitude of the projections of f onto the eigenvectors
+                                                                            balances the importance of the regularizer relative to the fitting
+of LV with weights given by the corresponding eigenvalues.
+                                                                            term S −1 ||y − Sf ||22 . KRR estimators have well-documented
+As described next, (3) provides an insightful interpretation of
+                                                                            merits and solid grounds on statistical learning theory; see
+ρLR (f ) in a transformed domain. Specifically, a number of
+                                                                            e.g. [25]. Different regularizers and fitting functions lead to
+works advocate the term graph Fourier transform or frequency
+                                                                            even more general algorithms; see e.g. [17].
+representation of f to refer to {fˇn }N
+                                      n=1 ; see e.g. [4]. The main
+argument resides in that {uV     } N
+                               n n=1 play a role analogous to
+complex exponentials in signal processing for time signals, in                  IV. R ECONSTRUCTION OF TIME SERIES ON GRAPHS
+the sense that (i) complex exponentials are eigensignals of the               The framework in Sec. III cannot accommodate functions
+continuous counterpart of the Laplacian operator f 7→ LV f ,                evolving over both space and time. This section generalizes
+                                                                                                                                                       4
+
+
+
+this framework through the notion of graph extension to                             v1           (a)
+flexibly exploit spatial and temporal dynamics.                                                                         v1 [3]
+   An immediate approach to reconstructing time-evolving
+functions is to apply (5) separately for each t = 1, . . . , T ,                               v3        v1 [2]
+yielding the instantaneous estimator (IE)
+                                                                                              v1 [1]
+                          1                                                                                                        v3 [3]
+  f̂ IE [t] := arg min        ||y[t] − S[t]f ||22 + µf > K † [t]f . (6)
+                f        S[t]
+                                                                                                                         v3 [2]     (b)
+Unfortunately, this estimator does not account for the possible
+relation between e.g. fn [t] and fn [t − 1]. If, for instance, f
+                                                                                                           v3 [1]
+varies slowly over time, an estimate of fn [t] may as well                Fig. 1: (a) Original graph G. (b) Extended graph Ḡ for
+benefit from leveraging observations ys [τ ] at time instants             diagonal BT [t]. Edges connecting vertices at the same time
+τ 6= t. Exploiting temporal dynamics potentially reduces                  instant are represented by solid lines whereas edges connecting
+the number of sampled vertices required to attain a target                vertices at different time instants are represented by dot-dashed
+estimation performance, which in turn can markedly reduce                 lines.
+sampling costs.
+   Incorporating temporal dynamics into kernel-based recon-
+struction, which can only handle a single snapshot (cf.                   graph also enables a generalization of the estimators in Sec. III
+Sec. III), necessitates an appropriate reformulation of time-             to reconstruct time-evolving functions. The rest of this section
+evolving function reconstruction as a problem of reconstruct-             develops two KRR estimators along these lines.
+ing a time-invariant function. An appealing possibility is to             PConsider     first the batch formulation, where all the S̄ :=
+                                                                             T                            >             >     >
+replace G with its extended version Ḡ := (V̄, Ā), where                    t=1 S[t] samples in ȳ := [y [1], . . . , y [T ]] are available,
+each vertex in V is replicated T times to yield the extended              and the goal is to estimate f̄ := [f [1], . . . , f [T ]]> . Directly
+                                                                                                              >              >
+
+vertex set V̄ := {vn [t], n = 1, . . . , N, t = 1, . . . , T },           applying the KRR criterion in (5) to reconstruct f̄ on the
+and the (n + N (t − 1), n0 + N (t0 − 1))-th entry of the                  extended graph Ḡ yields
+T N × T N extended adjacency matrix Ā equals the weight
+                                                                                         f̄ˆ := arg min ||ȳ − S̄ f̄ ||2DS + µf̄ K̄ f̄
+                                                                                                                                >  †
+                                                                                                                                                   (8a)
+of the edge (vn [t], vn0 [t0 ]). The time-varying function f can                                  f̄
+thus be replaced with its extended time-invariant counterpart
+f¯ : V̄ → R with f¯(vn [t]) = fn [t].                                     where K̄ is now a T N × T N “space-time” kernel matrix
+   This paper focuses on graph extensions respecting the                  to be designed in Sec. V, S̄ := bdiag {S[1], . . . , S[T ]}, and
+connectivity of G per time slot t, that is, {vn [t]}N                     DS := bdiag S[1]IS[1] , . . . , S[T ]IS[T ] . If K̄ is invertible,
+                                                         n=1 are
+connected according to AV [t], ∀t:                                        (8a) can be solved in closed form as
+                                                                                        f̄ˆ = K̄ S̄ (S̄ K̄ S̄ + µD )−1 ȳ.
+                                                                                                   >         >
+Definition 1. Let V := {v1 , . . . , vN } denote a vertex set and                                                            S         (8b)
+let G := (V, {AV [t]}Tt=1 ) be a time-varying graph. A graph                                       †
+                                                                          For the special K̄ = bdiag K † [1], . . . , K † [T ] , where
+                                                                                                                
+Ḡ with vertex set V̄ := {vn [t], n = 1, . . . , N, t = 1, . . . , T }    K[t] is an N × N kernel matrix for G at time t, then (8a)
+and N T × N T adjacency matrix Ā is an extended graph of                 separates into T sub-problems, each as in (6). This implies that
+G if the t-th N × N diagonal block of Ā equals AV [t].                                     †
+                                                                          only matrices K̄ with non-zero entries off its block diagonal
+   In general, there exist multiple graph extensions for a given          are capable of accounting for temporal dynamics.
+time-varying graph. This is because only the diagonal blocks                           Pt formulation, one aims to estimate f [t] after
+                                                                             In the online
+of Ā are dictated by {AV [t]}Tt=1 , whereas the remaining                the S̄[t] := τ =1 S[τ ] samples in ȳ[t] := [y > [1], . . . , y > [t]]>
+entries of Ā can be freely selected. In the reconstruction               become available. Based on these samples, the KRR estimate
+problem, one is interested in selecting such off-diagonal entries         of f̄ , denoted as f̄ˆ t], is clearly
+to capture the space-time dynamics of f . As an example,
+                                                                             f̄ˆ t] :=
+                                                                                                                                      >     −1
+consider an extended graph with                                                           arg minf̄ ||ȳ[t] − S̄[t]f̄ ||2DS [t] + µf̄ K̄         f̄ (9a)
+                                                                                                  >                 >
+  Ā = btridiag{AV [1], . . . , AV [T ]; BT [2], . . . , BT [T ]} (7)              =         K̄ S̄ [t](S̄[t]K̄ S̄ [t] + µDS [t])−1 ȳ[t].          (9b)
+
+where BT [t] ∈ RN            ×N
+                                  connects {vn [t − 1]}N                  where K̄ is assumed invertible for simplicity,
+                          +                               n=1 to
+         N
+{vn [t]}n=1 , t = 2, . . . , T . For instance, one can connect            DS [t] := bdiag S[1]IS[1] , . . . , S[t]IS[t] , and S̄[t] :=
+each vertex to its neighbors at the previous time instant by              [diag {S[1], . . . , S[t]} , 0S̄[t]×(T −t)N ] ∈ {0, 1}S̄[t]×T N . The
+setting BT [t] = AV [t − 1], or one can connect each vertex               estimate in (9) comprises the per slot estimates {f̂ [τ |t]}Tτ=1 ;
+                                                                                                             >           >             >
+to its replicas at adjacent time instants by setting BT [t] to be         that is, f̄ˆ t] := [f̂ [1|t], f̂ [2|t], . . . , f̂ [T |t]]> with
+diagonal. Fig. 1 pictorially illustrates the latter choice.               f̂ [τ |t] = [fˆ1 [τ |t], . . . , fˆN [τ |t]]> , where f̂ [τ |t] (respectively
+   Notice that the extended graph treats the time dimension               fˆn [τ |t]) is the KRR estimate of f [τ ] (fn [τ ]) given the
+just as the spatial dimension. Thus, the flexibility of graphs to         observations up to time t. Observe that, with this notation, it
+convey relational information carries over to the time domain.            follows that
+As a major benefit, this approach lays the grounds for the
+design of doubly-selective kernels in Sec. V-A. The extended                                      f̂ [τ |t] = (i> ⊗ I )f̄ˆ t]
+                                                                                                              T,τ        N                         (10)
+                                                                                                                                                    5
+
+
+
+for all t, τ .                                                                  Algorithm 1: Recursion to set parameters of KKF
+   Regarding t as the present, (9) therefore provides estimates                  Input: D[t], t = 1, . . . , T , C[t], t = 2, . . . , T .
+of past, present, and future values of f . The solution to the                             −1
+                                                                                  1: Set Σ [T ] = D[T ]
+online problem formulated in Sec. II includes the sequence of                     2: for t = T, T − 1, . . . , 2 do
+present KRR estimates for all t, that is, {f̂ [t|t]}Tt=1 . This can               3:   P [t] = −Σ[t]C[t]
+be obtained by solving (9a) in closed form per t as in (9b) and                   4:   Σ−1 [t − 1] = D[t − 1] − P > [t]Σ−1 [t]P [t]
+then applying (10). However, such an approach does not yield                     Output: Σ[t], t = 1, . . . , T , P [t], t = 2, . . . , T
+a desirable online algorithm since its complexity per time slot
+is cubic in t (see Remark 1) and therefore increasing with
+t. For this reason, this approach is not satisfactory since the                 Algorithm 2: Kernel Kalman filter (KKF)
+online problem formulation in Sec. II requires the complexity                                                              N ×N T
+per time slot of the desired algorithm to be bounded. An algo-                   Input: {Σ[t] ∈ SN        T
+                                                                                                      + }t=1 , {P [t] ∈ R       }t=2 ,
+rithm that does satisfy this bounded-complexity requirement                             {y[t] ∈ R }t=1 , {S[t] ∈ {0, 1}S[t]×N }Tt=1 ,
+                                                                                                    S[t] T
+
+yet provides the exact KRR estimate is developed next for the                           {σe2 [t] > 0}Tt=1 .
+case where the kernel matrix is any positive definite matrix                      1: Set f̂ [0|0] = 0, M [0|0] = 0, P [1] = 0
+K̄ satisfying                                                                     2: for t = 1, . . . , T do
+                                                                                  3:   f̂ [t|t − 1] = P [t]f̂ [t − 1|t − 1]
+        −1
+   K̄        = btridiag{D[1], . . . , D[T ]; C[2], . . . , C[T ]}       (11)      4:   M [t|t − 1] = P [t]M [t − 1|t − 1]P > [t] + Σ[t]
+                                                                                  5:   G[t] = M [t|t − 1]S > [t]×
+for some N ×N matrices {D[t]}Tt=1 and {C[t]}Tt=2 . Kernels in                                     ×(σe2 [t]I + S[t]M [t|t − 1]S > [t])−1
+this important family are designed in Sec. V. Broader classes                     6:   f̂ [t|t] = f̂ [t|t − 1] + G[t](y[t] − S[t]f̂ [t|t − 1])
+of kernels can be accommodated as described in Remark 3.                          7:   M [t|t] = (I − G[t]S[t])M [t|t − 1]
+   The process of developing the desired online algorithm                        Output: f̂ [t|t], t = 1, . . . , T ; M [t], t = 1, . . . , T .
+involves two steps. The first step expresses (9a) as a weighted
+least-squares problem amenable to a KF solver. In the second
+step, the KF is applied to solve such a problem. The first step
+is accomplished by the following result.                                       link suggests that (12) can be minimized using the celebrated
+                                                                               KF [30, Ch. 17].
+Lemma 1. For K̄ of the form (11), the KRR criterion in (9a)
+                                                                                  The following result formalizes the latter claim. The result-
+boils down to the following regularized weighted least-squares
+                                                                               ing algorithm, termed KKF, is summarized as Algorithm 2. In
+objective
+                                                                               the probabilistic KF terminology, step 3 yields the prediction
+                              t
+                                     1                                         of f [t], step 4 provides the covariance matrix of the prediction
+  f̄ˆ t] = arg min
+                              X
+                                             ||y[τ ] − S[τ ]f [τ ]||2          error, step 5 yields the Kalman gain, step 6 returns the
+               {f [τ ]}T          σ 2 [τ ]
+                              τ =1 e
+                       τ =1                                                    posterior estimate upon correcting the prediction with the
+        T
+        X                                                                      innovations scaled by the Kalman gain, and step 7 finds the
+   +           ||f [τ ] − P [τ ]f [τ − 1]||2Σ[τ ] + f > [1]Σ−1 [1]f [1].       error of this posterior estimate.
+        τ =2
+                                                                        (12)   Theorem 1. For K̄ of the form (11), the KKF Algorithm 2
+                                                                               returns the sequence {f̂ [t|t]}Tt=1 , where f̂ [t|t] is given by (10).
+       Proof: See Appendix A.
+                                                  −1
+   Relative to (9a), matrices {D[τ ], C[τ ]} in K̄ have been                         Proof: See Appendix B.
+                                                                                                            −1
+replaced in (12) with matrices {Σ[τ ], P [τ ]}, which can be                      Recapitulating, given K̄     in (11), one just has to run
+found through Algorithm 1.                                                     Algorithms 1 and 2 to find the online KRR estimate of f given
+   Although no probabilistic assumption is required throughout                 by (10). Since the proposed KKF is derived within a fully
+the derivation of the proposed online algorithm, exploring the                 deterministic framework, notions such as mean, covariance,
+link between (12) and the conventional probabilistic setup for                 statistical independence, or mean-square error are not required,
+state estimation provides the intuition behind why (12) can                    yet they have been used to describe the connection with
+be solved through Kalman filtering. To this end, suppose that                  the classical KF. Furthermore, the proposed KKF does not
+f [τ ] obeys the random model f [τ ] = P [τ ]f [τ − 1] + w[τ ]                 explicitly involve any state-space model, which is a major
+for τ = 2, . . . , T , initialized by f [1] = w[1], with zero-                 novelty and indeed a surprising result of the present paper.
+mean noise w[τ ] having covariance Σ[τ ], and the that the
+observations follow the model y[τ ] = S[t]f [τ ] + e[τ ] for
+τ = 1, . . . , T , with e[τ ] zero-mean noise having covariance                   The proposed KKF generalizes the probabilistic KF since
+σe2 [τ ]I. In this state estimation problem, P [τ ] is referred                the latter is recovered upon setting K̄ to be the covariance
+to as the state-transition matrix. In this scenario, one can                   matrix of f̄ in the previously mentioned probabilistic setup.
+easily see that obtaining the maximum a posteriori (MAP)                       It is therefore natural that the assumptions required by the
+and the minimum mean square error (MMSE) estimators of f̄ˆ                     probabilistic KF are stronger than those involved in the KKF.
+given the observations up to time T when {w[τ ], e[τ ]}Tτ=1                    Specifically, in the probabilistic KF, f [t] must adhere to a
+are Gaussian distributed reduces to minimizing (12). This                      linear state-space model with known transition matrix P [t],
+                                                                                                                                                6
+
+
+
+where the state noise w[t] is uncorrelated over time and has                 setting K̄ = r† (L̄), where L̄ := diag{Ā1} − Ā denotes the
+known covariance matrix Σ[t], and the observation noise y[t]                 Laplacian matrix of the extended graph. Unfortunately, such a
+must be uncorrelated over time and have known covariance                     design prevents separate control of the spatial and temporal
+matrix. Correspondingly, the performance guarantees of the                   variability of the estimates, thus limiting the user’s ability
+probabilistic KF are also stronger: the resulting estimate is                to flexibly account for spatial and temporal information. For
+optimal in the mean-square error sense among all linear                      instance, sampling intervals that are small relative to the time
+estimators. Furthermore, if w[t] and y[t] are jointly Gaussian,              dynamics of f , meaning that f does not vary significantly
+t = 1, . . . , T , then the probabilistic KF estimate is optimal in          between samples t − 1 and t, favors estimates that sacrifice
+the mean-square error sense among all (not necessarily linear)               spatial smoothness to increase temporal smoothness.
+estimators. In contrast, the requirements of the proposed KKF                   This section proposes families of space-time kernels for
+are much weaker since it only requires f to evolve smoothly                  which temporal and spatial smoothness can be separately
+with respect to a given extended graph, but the guarantees are               tuned. Sec. V-A describes designs for time-invariant topolo-
+also weaker; see e.g. [25, Ch. 5]. However, since the KKF gen-               gies, whereas Sec. V-B deals with the time-varying case.
+eralizes the probabilistic KF, the reconstruction performance
+of the former for judiciously selected K̄ cannot be worse
+than the reconstruction performance of the latter for any given              A. Doubly-selective space-time kernels
+criterion. The caveat, however, is that such a selection is not                 In Sec. III, the frequency interpretation of (3) proved
+necessarily easy.                                                            decisive to interpret and design Laplacian kernels for re-
+Remark 1. Algorithm 2 requires O(N 3 ) operations per time                   constructing time-invariant functions. Introducing the time
+slot, whereas the complexity of evaluating (9b) for the t-th                 dimension in Sec. IV prompts an analogous methodology,
+                  3                                                          where kernels are specified in a bidimensional plane of spatio-
+time slot is O(S̄ [t]), which increases with t and becomes
+eventually prohibitive. For large t, Algorithm 2 is computa-                 temporal frequency; see [32] for graph filter design in this
+tionally more efficient than a single plain evaluation of (9b):              domain. This section accomplishes this task by generalizing
+whereas the overall complexity of the former is O(tN 3 ), the                the Laplacian kernels from Sec. III. How much the regularizers
+                  2                                                                        >     †
+latter is O(N T S̄ [t]), which e.g. for constant S[t] = S is                 ρ(f̄ ) = f̄ K̄ f̄ associated with the proposed kernels weight
+         2 2
+O(N T t S ).                                                                 each spatial and temporal frequency component of f̄ can be
+                                                                             separately prescribed. Throughout this section, a time-invariant
+Remark 2. Algorithm 2 provides estimates of the form f̂ [t|t]                topology will be assumed, i.e., AV [t] = AV , t = 1, . . . , T .
+and f̂ [t|t − 1]. To obtain estimates f̂ [t|t0 ] for t > t0 + 1, one            Clearly, (4a) can be rewritten as ρLK (f ) = r > (f̌        f̌ )
+may set S[τ ] = ∅ for τ > t0 + 1 and execute Algorithm 2                     for f̌ := UV> f the frequency transform of f and r :=
+up to time t. Conversely, to obtain estimates f̂ [t|t0 ] for which           [r(λV                 V >
+                                                                                  1 ), . . . , r(λN )] . One can separately weight each fre-
+t < t0 , one may extend Algorithm 2 by capitalizing on the                   quency component by selecting r, which can be thought of
+notion of Kalman smoothing [31].                                             as the “frequency response” of the regularizer. For instance,
+                                                                             one may promote low pass estimates by setting the first entries
+                                                                             of r to low values and the rest to high values.
+Remark 3. Similar to the probabilistic KF, which requires                       Inspired by this view, one may seek kernels K̄ for which
+the inverse covariance matrix of f̄ to be block tridiagonal,                                                                   
+the proposed KKF requires the inverse kernel matrix to be                                                >  †             ˇ F̄
+                                                                                              ρ(f̄ ) = f̄ K̄ f̄ = Tr R> (F̄  ˇ)           (13)
+of the form (11). Fortunately, it is straightforward to extend
+both algorithms to accommodate inverse covariance or kernel                                     ˇ are N × T matrices to be specified later
+                                                                             where R and F̄
+matrices with any number of non-zero diagonals at the price
+                                                                             respectively containing the frequency response of the regular-
+of increasing the time interval between consecutive estimates.
+                                                                 −1          izer and the bidimensional transform of f . The (ň, ť)-th entry
+To illustrate such an approach, suppose that K̄                     is not
+                                                                             of these matrices corresponds to the ň-th spatial frequency
+block tridiagonal when blocks are of size N × N , but it
+                                                                             and ť-th temporal frequency. Kernels satisfying the second
+is block tridiagonal if blocks are of size 2N × 2N . In
+                                                                             equality in (13) will be termed doubly (frequency) selective.
+such a case, one can use the proposed KKF to estimate
+           T /2                                                              Such kernels preserve the flexibility of their counterparts for
+{f 0 [t0 ]}t0 =1 , where f 0 [t0 ] := [f > [2t0 − 1], f > [2t0 ]]> ∈ R2N ,   time-invariant functions. For instance, if K̄ promotes doubly
+just by replacing y[t] with y 0 [t0 ] := [y > [2t0 − 1], y > [2t0 ]]> ,      low-pass estimates, then the top left entries of R are small
+S[t] with S 0 [t0 ] := bdiag {S[2t0 − 1]S[2t0 ]}, and e[t] with              whereas the rest are large.
+e0 [t0 ] := [e> [2t0 − 1], e> [2t0 ]]> , t0 = 1, . . . , T /2. Note that
+                                                                                To determine the form of a doubly-selective kernel, let
+the sampling interval associated with the index t0 is twice that
+                                                                             F̄ := [f [1], . . . , f [T ]] and recall that a linear bidimensional
+associated with t.                                                                                                   ˇ := U > F̄ U , where the
+                                                                             transform can be expressed as F̄                 V     T
+                                                                             N × N matrix UV and the T × T matrix UT stand for orthog-
+             V. D ESIGN OF SPACE - TIME KERNELS                              onal transformations along space and time, respectively. On
+  Sec. IV assumed that the kernel matrix K̄ is given and                     the other hand, vectorizing the rightmost term of (13) yields
+described no methodology to address its design. An immediate                                                       >
+                                                                                            ρ(f̄ ) = f̄ K̄ f̄ = f̄ˇ diag {r} f̄ˇ
+                                                                                                       >  †
+approach is to mimic the Laplacian kernels of Sec. III by                                                                                   (14)
+                                                                                                                                                     7
+
+
+
+where r := vec{R} and                                                   temporal frequencies λV and λT , such a map must take two
+                                                                        arguments as r(λT , λV ). This results in r = r(λT ⊗1N , 1T ⊗
+   f̄ˇ := vec{F̄
+               ˇ } = vec{U > F̄ U } = (U ⊗ U )> f̄ .
+                          V      T      T   V                   (15)    λV ) and (16) becomes
+Any doubly-selective kernel, or equivalently any kernel satis-                  †
+                                                                            K̄ =(UT ⊗ UV )                                                        (18)
+fying the second equality of (14), is therefore of the form                                                                                   >
+                                                                                     × diag {r(λT ⊗ 1N , 1T ⊗ λV )} (UT ⊗ UV ) .
+             †
+          K̄ = (UT ⊗ UV ) diag {r} (UT ⊗ UV )>                  (16)
+                                                                        Kernels of this form will be referred to as Kronecker space-
+for some orthogonal N ×N matrix UT , some orthogonal T ×T               time kernels. The transformation r can be selected in several
+matrix UV , and some entrywise non-negative vector r.                   ways. For instance, the immediate construction at the begin-
+   Expression (16) provides the general form of a doubly-               ning of Sec. V is recovered for r(λT , λV ) = r(λT + λV ),
+selective kernel, but a specific construction for UT , UV , and         with r(λ) a one-dimensional spectral weight map such as the
+r capturing the spatiotemporal dynamics of f is still required.         ones in Table I. Another possibility is to focus on separable
+The next procedure serves this purpose by paralleling the               maps of the form r(λT , λV ) = rT (λT )rV (λV ) where rT
+approach in Sec. III. This involves the following two steps.            and rV denote one-dimensional spectral maps. The resulting
+S1: Since a Laplacian kernel matrix shares eigenvectors with            Kronecker kernel can expressed as3
+the Laplacian matrix, one should construct an extended graph
+Ḡ so that its Laplacian matrix L̄ is diagonalizable by a matrix                                    K̄ = KT ⊗ KV                                  (19)
+of the form UT ⊗ UV for some orthogonal UT ∈ RT ×T and                  where KT     := UT diag{rT (λT )}UT> and KV :=
+UV ∈ RN ×N . S2: One must design a spectral weight map r                UV diag{rV (λV )}UV> . For example, doubly bandlimited es-
+to obtain the eigenvalues of K̄ from those of L̄.                       timates can be obtained by setting both KT and KV to
+   Regarding S1, an explicit construction of an extended graph          be bandlimited kernels (Table I). A further possibility is to
+whose Laplacian matrix is diagonalizable by a matrix of the             consider maps of the form r(λT , λV ) = rT (λT ) + rV (λV ),
+form UT ⊗ UV with orthogonal UT ∈ RT ×T and UV ∈                        which clearly result in kernels of the form
+RN ×N is provided next. To this end, consider the extended                                            †
+adjacency matrix                                                                                   K̄ = KT† ⊕ KV† .                               (20)
+
+                         Ā = AT ⊕ AV                           (17)       To sum up, the proposed Kronecker kernels arise from an
+                                                                        intuitive graph extension and can afford flexible adjustment
+where AV is the given adjacency matrix of G and the T × T               of their frequency response. Unfortunately, not any Kronecker
+adjacency matrix AT is selected to capture temporal dynam-              kernel is suitable for the online algorithm in Sec. IV since the
+ics. Specifically, with Ā as in (17), the definition of extended       latter requires the inverse of the kernel matrix K̄ to be block
+adjacency matrix in Sec. IV dictates that the weight of the             tridiagonal. The rest of this section describes a subfamily of
+edge (vn1 [t], vn2 [t]) for all t is given by the (n1 , n2 )-th entry   Kronecker kernels that is suitable for this algorithm.
+                                                                                                      †
+of AV , whereas the weight of the edge (vn [t1 ], vn [t2 ]) for all        Clearly, in order for K̄ as in (19) or (20) to be block
+n is given by the (t1 , t2 )-th entry of AT . A simple choice           tridiagonal, it is necessary that KT† be tridiagonal, i.e., the
+for AT will be described later. Note that (17) differs from             (t, t0 )-th entry of KT† must be zero if |t − t0 | > 1. Such
+Kronecker graphs [33], for which Ā = AT ⊗ AV , although it             a KT† can be obtained if, for instance, one sets the (t, t0 )-th
+can be interpreted as the Cartesian graph of V and {1, . . . , T }      entry of AT to be 0 unless |t − t0 | = 1. In this extended graph
+[34], [35]. Cartesian graphs have been considered in the graph          construction, vertex vn [t], 1 < t < T , is connected to vn [t − 1]
+signal processing literature for graph filtering and Fourier            and vn [t + 1], which are its replicas in adjacent time slots. For
+transforms of time-varying functions [35], but not for signal           KT† to be tridiagonal, one may set rT (λT ) = λT + , where
+reconstruction.                                                          > 0 ensures that KT is invertible.
+   With Ā as in (17), it can be readily seen that L̄ :=                   Thus, the price to be paid for an online implementation
+diag{Ā1} − Ā = LT ⊕ LV , where LT := diag{AT 1} − AT                  with the KKF from Sec. IV is limited flexibility in speci-
+and LV := diag{AV 1} − AV are the Laplacian matri-                      fying the temporal frequency response. Note that this is not
+ces associated with AT and AV , respectively. If LT =                   an intrinsic limitation of the proposed algorithm, but it is
+UT diag {λT } UT> and LV = UV diag {λV } UV> , then                     inherent to the classical KF as well; just recall that the latter
+L̄ = (UT ⊗ UV ) [diag {λT } ⊕ diag {λV }] (UT ⊗ UV )>                   assumes vector autoregressive processes of order 1. In any
+                                                                        case, the temporal frequency response of a kernel for which
+   = (UT ⊗ UV ) diag {λT ⊗ 1N + 1T ⊗ λV } (UT ⊗ UV )> .
+                                                                        (AT )t,t0 = δ[|t − t0 | − 1] can be obtained analytically by
+This expression reveals that the graph extension proposed in            approximating the resulting Laplacian LT for sufficiently large
+(17) indeed satisfies the objective of S1, which requires the           T with a circulant matrix. This implies that (i) the eigenvectors
+eigenvector matrix of L̄ to be of the form UT ⊗ UV . Thus,              in UT are approximately those in the conventional Fourier
+it is always possible to construct a graph extension satisfying         basis and therefore the notion of temporal frequency embodied
+the goal of S1.                                                         in UT preserves its conventional meaning; and (ii), upon
+   For S2, one must construct a spectral map r that yields                 3 The notion of Kronecker kernels together with (19) shows up in the
+r upon entrywise application to λT ⊗ 1N + 1T ⊗ λV . To                  literature of pairwise classification [34], but the resemblance is merely
+separately control the frequency response along the spatial and         illusional since the underlying kernel is a function of two pairs of vertices.
+                                                                                                                                                  8
+
+
+
+applying [17, Example 3], the resulting frequency response                (21) and diagonal {BT [t]}Tt=1 , one can show that
+is low pass. Both (i) and (ii) are intuitively reasonable. Thus,                       T
+although the KKF solves only a subset of KRR problems, this                  >
+                                                                                       X
+                                                                           f̄ L̄f̄ =         f > [t]LV [t]f [t]                              (22)
+subset is of practical relevance.                                                      t=1
+                                                                                           T
+Remark 4. In this paper, the rows of F̄ can be thought of                                  X
+                                                                                       +     (f [t] − f [t − 1])> BT [t](f [t] − f [t − 1]).
+as graph functions over a graph with adjacency matrix AT ,
+                                                                                           t=2
+whereas the columns of F̄ can be thought of as graph functions
+over the graph with adjacency matrix AV . In principle, each               Clearly, the first and second sums on the right-hand side
+column of F̄ does not need to correspond to a different time              respectively penalize spatial and temporal variations. As a
+instant, but e.g. to a different movie in a recommender system            special case, if one sets BT [t]
+                                                                                                        PT= bT I ∀t for some bT > 0,
+application. The estimators (8a)-(9b) can therefore be used for           the second sum becomes bT t=2 ||f [t] − f [t − 1]||22 , which
+matrix completion upon properly creating an extended graph                promotes estimates with small changes over time.
+and graph kernel matrix. Towards this end, the space-time                    Applying the notion of Laplacian kernels along the spatial
+kernels defined in (19) and (20) readily generalize to space-             dimension (see Sec. III), but not along time, suggests gener-
+space kernels that promote smoothness over both graphs.                   alizing (22) to obtain the regularizer
+                                                                                                      T
+                                                                                       >      †
+                                                                                                             f > [t]KV† [t]f [t]
+                                                                                                      X
+                                                                             ρ(f̄ ) =f̄ K̄ f̄ =                                              (23)
+B. Space-time kernels for time-varying topologies                                                      t=1
+                                                                                         T
+                                                                                         X
+   For time-invariant topologies, Sec. V-A proposed kernels                          +           (f [t] − f [t − 1])> BT [t](f [t] − f [t − 1])
+that can be designed and interpreted on a two-dimensional                                  t=2
+frequency plane. This section deals with changing topologies,             where  KV† [t]  = rt (LV [t]), t = 1, . . . , T for {rt }Tt=1 a
+for which no bidimensional frequency notion can be defined.               collection of user-selected spectral maps such as those in
+   To recognize this claim, suppose that AV [t] = AV remains              Table I. In that case, (23) corresponds to the kernel matrix
+constant over t and recall that uV  ň is the ň-th eigenvector of                          n                      o
+                                                                                 †
+LV or, equivalently, the ň-th column of UV . In this case,                    K̄ = bdiag KV† [1], . . . , KV† [T ]
+a bidimensional transform exists and can be expressed as                                          
+ ˇ := U > F̄ U , whose (ň, ť)-th entry corresponds to the ň-th                    + btridiag diag {bT [1]} , . . . , diag {bT [T ]} ;
+F̄       V    T
+spatial frequency and ť-th temporal frequency. Fundamentally,                       − BT [2], . . . , −BT [T ] .                            (24)
+the precise meaning of the latter statement is that (F̄    ˇ)
+                                                               ň,ť is      Although kernels of this form do not offer a frequency-
+the ť-th temporal frequency component of the ň-th spatial               domain control of reconstruction along time, they still enjoy
+frequency component of f , i.e., the ť-th temporal frequency             the spatial flexibility of the kernels in Sec. V-A.
+component of the time series {fˇň [t] := (uV     >      T
+                                              ň ) f [t]}t=1 , which                                                 †
+is the time evolution of the ň-th spatial frequency component            Remark 5. To guarantee that K̄ in (24) qualifies for online
+of f . However, for changing topologies one cannot generally              implementation, it suffices to guarantee that K̄ is invertible
+conceive the temporal evolution of a specific spatial frequency           since it is already block tridiagonal. This holds e.g. if KV [t]
+component since the eigenvectors of LV [t] generally differ               is invertible for all t.
+from those of LV [t0 ], thus precluding any natural definition of
+the aforementioned sequence and therefore of a bidimensional                                      VI. S IMULATED TESTS
+frequency transform. Nonetheless, it is shown next that the                  This section compares the performance of the proposed
+notion of spatial frequency per slot t can still be utilized to           schemes with state-of-the-art alternatives and illustrates some
+design space-time kernels for time-varying topologies.                    of the trade-offs inherent to time-varying function reconstruc-
+   To this end, consider the extended graph defined by (7) for            tion through real-data experiments. Unless otherwise stated,
+                        ×N
+arbitrary BT [t] ∈ RN +    . It then follows that                         the compared estimators include distributed least squares
+                                                                          reconstruction (DLSR) [21] with step size µDLSR and param-
+     L̄ := diag{Ā1} − Ā = bdiag {LV [1], . . . , LV [T ]}               eter βDLSR ; the least mean-square (LMS) algorithm in [22]
+                                                                          with step size µLMS ; bandlimited instantaneous estimator (BL-
+                     
+           + btridiag diag {bT [1]} , . . . , diag {bT [T ]} ;
+                                                                          IE), which results from applying [12]–[14] separately per t;
+            − BT [2], . . . , −BT [T ]                            (21)
+                                                                          KRR instantaneous estimator (KRR-IE) reconstruction in (6)
+                                                                          with a diffusion kernel with parameter σ; and the proposed
+where
+                                                                          KKF (Algorithms 1 and 2) with kernel given by (24) for
+                 
+                    >                                                     BT [T ] = bT I and KV [t] a diffusion kernel with parameter σ.
+                 BT [2]1
+                                         if t = 1
+                                                                          DLSR, LMS, and BL-IE also use a bandwidth parameter B.
+        bT [t] := (BT> [t + 1] + BT [t])1 if 1 < t < T                       The first data set comprises hourly temperature measure-
+                 
+                   BT [T ]1               if t = T.                       ments at N = 109 stations across the continental U.S. in
+                 
+                                                                          2010 [36]. Temperature reconstruction has been extensively
+The rationale behind this graph extension is that, for L̄ as in           employed in the literature to analyze the performance of
+                                                                                                                                                                9
+
+
+                   80                                                                1
+                                                                                                                                           DLSR B=2
+                   60                                                              0.8                                                     DLSR B=4
+ Temperature [F]
+
+
+                                                                                                                                           LMS B=2
+                                                                                                                                           LMS B=4
+                   40                                                              0.6
+
+
+
+
+                                                                           NMSE
+                                                                                                                                           BL-IE B=2
+                                                     True Signal
+                                                                                                                                           BL-IE B=4
+                                                     DLSR
+                   20                                                              0.4                                                     KRR-IE
+                                                     LMS
+                                                                                                                                           KKF
+                                                     BL-IE
+                    0                                KRR-IE                        0.2
+                                                     KKF
+
+                   -20                                                               0
+                         0   50       100         150              200                   0   50       100       150    200          250        300        350
+                                  Time [hours]                                                                  Time [day]
+Fig. 2: True temperature and estimates across time at a                   Fig. 3: NMSE of daily temperature estimates over 2010. (µ =
+randomly picked unobserved station (µ = 10−7 , σ = 1.8,                   10−7 , σ = 1.8, bT = 0.01, µDLSR = 1.2, βDLSR = 0.5, µLMS =
+bT = 0.01, µDLSR = 1.2, βDLSR = 0.5, µLMS = 0.6, B = 2).                  0.6).
+
+                                                                                     1
+inference tools over graphs (see e.g. [18], [19], [21]). A                                                                                 DLSR B=2
+time-invariant graph was constructed following the approach                        0.8                                                     DLSR B=4
+in [19] with 7 nearest neighbors, which relies on geographical                                                                             LMS B=2
+distances. Function fn [t] represents the temperature at the n-                                                                            LMS B=4
+                                                                           NMSE    0.6                                                     BL-IE B=2
+th station and t-th sampling instant. In the first experiment,
+                                                                                                                                           BL-IE B=4
+the latter corresponds to the t-th hour, whereas for the rest, it                                                                          KRR-IE
+                                                                                   0.4
+corresponds to the temperature at 12:00 PM of the t-th day.                                                                                KKF
+   Fig. 2 depicts the true temperature measured at an unob-
+                                                                                   0.2
+served randomly picked station over the first 200 hours of
+2010 along with its estimates for a typical realization of the
+                                                                                     0
+time-invariant sampling set S = S[t], ∀t, drawn at random                                    20      30       40      50           60     70         80
+within all sampling sets with S = 44 elements. Different from                                                Sampling size S
+instantaneous alternatives, whose error does not decrease with
+time, KKF is observed to successfully leverage time dynamics              Fig. 4: NMSE for increasing sampling size (µ = 10−7 , σ =
+to track the temperature at the unobserved station. On the other          1.6, bT = 0.01, µDLSR = 1.2, βDLSR = 0.5, µLMS = 0.6).
+hand, DLSR and LMS are unable to track the rapid variations
+of f since their design assumes slowly changing functions.
+   The next experiments compare the cumulative normalized                 KRR (cf. (24)). A large value of bT leads to an estimator that
+mean-square error (NMSE), defined as                                      relies more heavily on time dynamics and vice versa. Fig. 5
+                              Pt                                          shows NMSE(T, {S[τ ]}tτ =1 ), with T = 100 days, averaged
+                                    ||S c [τ ](f [τ ] − f̂ [τ |τ ])||22   over all sets S[τ ] = S ∀τ with S = 44 elements. The
+  NMSE(t, {S[τ ]}tτ =1 ) := τ =1Pt                           2
+                                                c
+                                      τ =1 ||S [τ ]f [τ ]||2              kernel in (24) is adopted with KV [t] being the regularized
+                                                                          Laplacian (KKF-L) or diffusion kernels (KKF-DF) from Table
+where S c [τ ] is an N − S[τ ] × N matrix comprising the rows
+                                                                          I, while BT [t] = bT I. It is observed that there exists an
+of IN whose indices are not in S[t].
+                                                                          optimum value for bT which leads to the best reconstruction
+   Fig. 3 shows the NMSE for S[t] = S, ∀t, averaged over                  performance. This corresponds to the optimal trade-off point
+all possible S with S = 44 elements. It is observed that the
+instantaneous estimators outperform DLSR and LMS, which
+can only cope with slow variations of f . Furthermore, the                         0.6
+error of KKF is half the error of the nearest alternative,
+                                                                                   0.5
+demonstrating the importance of exploiting time dynamics.                                                                                 KKR-L, σ=0.5
+                                                                                   0.4                                                    KKR-L, σ=1
+   Fig. 4 shows the impact of the number of observed vertices
+                                                                            NMSE
+
+
+
+
+                                                                                                                                          KKR-L, σ=1.5
+S in NMSE(T, {S[τ ]}tτ =1 ), with T = 365 days, averaged                           0.3
+                                                                                                                                          KKR-DF, σ=0.5
+                                                                                                                                          KKR-DF, σ=1
+over all sets S[τ ] = S ∀τ with S elements. Observe that KKF                       0.2
+                                                                                                                                          KKR-DF, σ=1.5
+
+consistently outperforms all alternatives. Still, the advantage                    0.1
+
+of KKF over KRR-IE is more pronounced for small S, since                            0
+                                                                                    10 -10            10 0                 10 10
+in that case exploiting the time dynamics is more critical.                                       scaling parameter
+   To illustrate the trade-off between reliance on temporal
+versus spatial information, the next experiment analyzes the              Fig. 5: NMSE for different kernels vs. scale parameter bT
+effects of the scaling parameter bT in the kernel adopted by              (µ = 10−7 ).
+                                                                                                                                                     10
+
+
+                                                                                 0.8
+                                                       DLSR B=2
+        0.9
+                                                       DLSR B=4                  0.7
+        0.8                                            LMS B=2
+                                                       LMS B=4                                                                     DLSR B=2
+                                                                                 0.6
+ NMSE
+
+
+
+
+        0.7                                                                                                                        DLSR B=4
+
+
+
+
+                                                                          NMSE
+                                                       KKF
+                                                                                                                                   LMS B=2
+        0.6                                                                                                                        LMS B=4
+                                                                                 0.5
+                                                                                                                                   KKF
+        0.5
+                                                                                 0.4
+        0.4
+
+        0.3                                                                      0.3
+          1998   2000   2002   2004   2006   2008   2010   2012   2014                 0          50           100           150         200       250
+                                 Time [year]                                                                         Time
+Fig. 6: NMSE for the economic sectors data set (σ = 5.2, µ =             Fig. 7: NMSE for the ECoG data set (σ = 1.2, µ = 10−4 ,
+10−4 , bT = 0.01, µDLSR = 1.2, βDLSR = 0.5, µLMS = 0.6).                 µDLSR = 1.2, bT = 0.01, βDLSR = 0.5, µLMS = 0.6).
+
+
+between reliance on temporal and spatial information. The                space-time kernel was created using (24) with a time-invariant
+optimal NMSE is achieved by a diffusion kernel with σ = 1.5              diffusion kernel KV generated from LV , and a time-invariant
+and bT = 0.01.                                                           BT = bT I. Fig. 7 showcases the superior reconstruction
+   The second data set is provided by the Bureau of Economic             performance of the KKF among competing approaches, even
+Analysis of the U.S. Department of Commerce and contains                 with a small number of samples. This result suggests that the
+the annual investments between each pair of sectors among                ECoG diagnosis technique could be efficiently conducted even
+N = 61 economic sectors in the interval 1997-2014 [37].                  with a smaller number of intracranial electrodes, which may
+Each entry AV       n,n0 [t] of AV [t] contains the investment in
+                                                                         have a great impact on the patient’s experience.
+trillions of dollars between sectors n and n0 for the year
+1995+2t with t = 1, P       2, . . . , T , where T = 9. DLSR and LMS                          VII. C ONCLUSIONS
+                               T
+adopt AV = (1/T ) τ =1 AV [τ ] since they cannot handle                     This paper investigated kernel-based reconstruction of
+time-varying topologies. The value fn [t] corresponds to the             space-time functions on graphs. The adopted approach relied
+total production of the n-th sector in year 1996 + 2t, t =               on the construction of an extended graph, which regards the
+1, 2, . . . , T . The sampling interval was set to two years, so that    time dimension just as a spatial dimension. Several kernel de-
+disjoint subsets of years are used for generating the signal and         signs were introduced together with batch and online function
+constructing the graphs.                                                 estimators. Future research will deal with multi-kernel and
+   The next experiment demonstrates the ability of KKF to                distributed versions of the proposed algorithms.
+handle time-varying topologies. To this end, Fig. 6 plots
+NMSE(t, {S[τ ]}tτ =1 ), averaged over all sets S[t] = S, ∀t,                                                  A PPENDIX
+with S = 37 elements. KKF utilizes the kernel in (24) with               A. Proof of Lemma 1
+KV [t] a diffusion kernel constructed from LV [t] per t and                Start by noting that
+BT [t] = bT I, ∀t. Again, Fig. 6 showcases the superior                      T
+performance of the proposed KKF, whose error is significantly
+                                                                             X
+                                                                                    ||f [τ ] − P [τ ]f [τ − 1]||2Σ[τ ]
+less than the error of competing alternatives.                               τ =2
+   The third data set is obtained from an epilepsy study [7].                X T
+Diagnosis of epilepsy is heavily based on analysis of ECoG               =          (f [τ ] − P [τ ]f [τ − 1])> Σ−1 [τ ](f [τ ] − P [τ ]f [τ − 1])
+data; see Sec. I. The next experiments utilize the ECoG time                 τ =2
+series obtained in [7] from N = 76 electrodes implanted in                   X T 
+a patient’s brain before and after the onset of a seizure. A             =              f > [τ ]Σ−1 [τ ]f [τ ] − f > [τ ]Σ−1 [τ ]P [τ ]f [τ − 1]
+symmetric time-invariant adjacency matrix AV was obtained                    τ =2
+using the method in [38] with ECoG data before the onset                     − f > [τ − 1]P > [τ ]Σ−1 [τ ]f [τ ]
+of the seizure. Function fn [t] comprises the electrical signal                                                                    
+                                                                                    >            >       −1
+at the n-th electrode and t-th sampling instant after the onset              + f [τ −1]P [τ ]Σ                [τ ]P [τ ]f [τ −1]
+of the seizure, for a period of T = 250 samples. The values                  T 
+of fn [t] were normalized by subtracting the temporal mean of            =
+                                                                             X
+                                                                                        f > [τ − 1] Σ−1 [τ − 1] + P > [τ ]Σ−1 [τ ]P [τ ] f [τ − 1]
+                                                                                                                                        
+each time series before the onset of the seizure. The goal of                τ =2
+the experiment is to illustrate the reconstruction performance
+                                                                             − f > [τ ]Σ−1 [τ ]P [τ ]f [τ − 1]
+of the proposed KKF in capturing the complex spatio-temporal                                                             
+dynamics of brain signals.                                                          >             >       −1
+                                                                             − f [τ − 1]P [τ ]Σ                [τ ]f [τ ]
+   Fig. 7 depicts the NMSE(t, {S[τ ]}tτ =1 ), averaged over all
+sets S[t] = S, ∀t, of size S = 53. For the proposed KKF, a                   − f > [1]Σ−1 [1]f [1] + f > [T ]Σ−1 [T ]f [T ].
+                                                                                                                                                                        11
+
+
+
+Recursively solving the equations in Algorithm 1 for                                    where ψ̄[t] := [0>        >      >    >      >            >    >    >
+                                                                                                             N , y [1], 0N , y [2], 0N , . . . , 0N , y [t]] ∈
+{P [τ ]}Tτ=2 and {Σ[τ ]}Tτ=1 yields                                                     R N t+S̄[t]
+                                                                                                    . Indeed, expression (28) corresponds to the weighted
+                                                                                        least-squares solution to
+      T
+      X
+            ||f [τ ] − P [τ ]f [τ − 1]||2Σ[τ ]                                                                         ψ̄[t] = Ā[t]f̄ [t] + ¯[t]                    (29)
+     τ =2
+            T 
+            X                                                                           where ¯[t] ∈ RN t+S̄[t] is an error vector, and admits the
+        =            f > [τ − 1]D[τ − 1]f [τ − 1]                                       closed-form solution
+                                                                                             f̄ˆ [t|t] = (Ā [t]Σ̄ [t]Ā[t])−1 Ā [t]Σ̄ [t]ψ̄[t].
+            τ =2                                                                                            >     −1             >     −1
+                                                                                                                                                 (30)
+            + f > [τ ]C[τ ]f [τ − 1] + f > [τ − 1]C > [τ ]f [τ ]
+                                                                                          Similarly, define the N t + S̄[t − 1] × N t matrix
+            − f > [1]Σ−1 [1]f [1] + f > [T ]D[T ]f [T ]
+                                                                                              0
+              >      −1                                                                   Ā [t] :=
+        =f̄ K̄            f̄ − f > [1]Σ−1 [1]f [1]                               (25)     
+                                                                                                IN               0     0    ...          0             0         0
+                                                                                                                                                                    
+
+where the last equality follows from (11). After substituting                              S[1]                 0     0    ...          0             0         0 
+                                                                                           −P [2]              IN     0    ...          0             0         0 
+                                                                                                                                                                   
+(25) into (12) and recognizing that the first summand in (12)                                    0             S[2]   0    ...          0             0         0 
+equals ||ȳ[t]−S̄[t]f̄ ||2DS [t] , expression (9a) is recovered, which
+                                                                                                                                                                   
+                                                                                                  ..             ..    ..   ..           ..             ..           (31)
+                                                                                                                                                                 .. 
+                                                                                          
+                                                                                                   .              .     .      .          .              .        . 
+                                                                                          
+concludes the proof.                                                                      
+                                                                                                  0              0     0    ...      −P [t − 1]       IN         0 
+                                                                                                                                                                   
+                                                                                          
+                                                                                                 0              0     0    ...          0          S[t − 1]     0 
+B. Proof of Theorem 1                                                                               0            0     0    ...          0           −P [t]     IN
+
+   The first step is to simplify the objective in (12). To this                            which is a submatrix of Ā[t] that results from
+end, note that minimizing (12) with respect to {f [τ ]}Tτ=t0 +1                         removing the last block-row, together with the
+                                                                                                                                                   0
+for any t and t0 such that t0 ≥ t yields                                                N t + S̄[t − 1] × N t + S̄[t − 1]        matrix          Σ̄ [t]   :=
+                                                                                        bdiag{Σ[1], σe2 [1]IS[1] , Σ[2], σe2 [2]IS[2] , . . . , Σ[t − 1],
+             f̂ [τ |t] =P [τ ]f̂ [τ − 1|t], τ = t0 + 1, . . . , T, (26a)                σe2 [t − 1]IS[t−1] , Σ[t]}, which is a submatrix of Σ̄[t] resulting
+                                      t                                                 from removing the last block-row and block-column. Now,
+                  0                 X       1
+    {f̂ [τ |t]}tτ =1 = arg min             2 [τ ]
+                                                  ||y[τ ] − S[τ ]f [τ ]||2              replace t with t − 1 and t0 with t in (26b) to obtain
+                        {f [τ ]}t
+                                 0
+                                    τ =1
+                                         σ e
+                                                                                                        f̄ˆ [t|t − 1] = arg min||ψ̄ [t] − Ā [t]f̄ [t]||Σ̄
+                                     τ =1                                                                                          0        0           2
+                               t 0                                                                                                                        0
+                                                                                                                                                            [t]
+                                                                                                                                                                      (32)
+                               X                                                                                            f̄ [t]
+                           +          ||f [τ ] −      P [τ ]f [τ − 1]||2Σ[τ ]
+                                                                                                            0
+                               τ =2                                                     where          ψ̄ [t]      :=        [0>    >      >    >      >
+                                                                                                                               N , y [1], 0N , y [2], 0N , . . . ,
+                           + f [1]Σ−1 [1]f [1].
+                                 >
+                                                                                (26b)      >
+                                                                                        y [t − 1], 0N ]   > >
+                                                                                                                ∈ R   N t+S̄[t−1]
+                                                                                                                                   is a submatrix of ψ̄[t]
+                                                                                        that results from removing its last block-row. In this case,
+                                                                                        f̄ˆ [t|t − 1] in (32) corresponds to the least-squares solution
+     The goal is therefore to show that the t-th iteration
+                                                                                        to (29) after removing the last S[t] equations, and can be
+of Algorithm 2 returns f̂ [t|t] as given by (26b). To sim-
+plify notation, collect the function values up to time t                                obtained in closed form as
+as f̄ [t] := [f > [1], f > [2], . . . , f > [t]]> ∈ RN t and their                                              0>     0 −1    0        0>      0 −1
+                                                                                             f̄ˆ [t|t − 1] = (Ā [t]Σ̄ [t]Ā [t])−1 Ā [t]Σ̄ [t]ψ̄ [t].
+                                                                                                                                                       0
+
+estimates given observations up to time t0 as f̄ˆ [t|t0 ] :=                                                                                                          (33)
+     >         >                   >
+[f̂ [1|t0 ], f̂ [2|t0 ], . . . , f̂ [t|t0 ]]> ∈ RN t . The rest of the
+proof proceeds along the lines in [30, Ch. 17] by expressing                                The rest of the proof utilizes (30) and (33) to express
+f̄ˆ [t|t] and f̄ˆ [t|t − 1] as the solutions to two least-squares                       f̂ [t|t] in terms of f̂ [t|t − 1], and f̂ [t|t − 1] in terms of
+problems. To this end, define the N t + S̄[t] × N t matrix                              f̂ [t − 1|t − 1]. To this end, define J¯[t] := i>
+                                                                                                                                        t,t ⊗IN , which can
+                                                                                       be used to select the last N × N block-row or block-column
+              IN             0            0    ...    0       0         0
+                                                                            
+            S[1]            0            0    ...    0       0         0              of a matrix, as well as
+            −P [2]         IN            0    ...    0       0         0                                                         0>    0 −1
+                                                                           
+                                                                                                                                                    0          >
+            0              S[2]          0    ...    0       0         0                        M [t|t − 1] := J¯[t](Ā [t]Σ̄                 [t]Ā [t])−1 J¯ [t]   (34)
+                                                                           
+  Ā[t] := 
+            ..              ..           ..   ..     ..       ..       ..      (27)
+            .                .            .      .    .        .        . 
+                                                                                       and
+            0               0            0    ...    0    S[t − 1]     0 
+                                                                           
+                                                                                                                           >     −1             >
+            0               0            0    ...    0     −P [t]     IN                              M [t|t] := J¯[t](Ā [t]Σ̄ [t]Ā[t])−1 J¯ [t],                 (35)
+                    0        0            0    ...    0       0        S[t]
+                                                                                        which respectively correspond to the bottom right N ×
+                                                                                                          0           0>     0 −1    0
+the      N t + S̄[t] × N t + S̄[t]       matrix           Σ̄[t]         :=              N blocks of T̄ [t] := Ā [t]Σ̄ [t]Ā [t] and T̄ [t] :=
+                                                                                          >     −1
+bdiag{Σ[1], σe2 [1]IS[1] , Σ[2], σe2 [2]IS[2] , . . . , σe2 [t − 1]IS[t−1] ,            Ā [t]Σ̄ [t]Ā[t]. Expressions (35) and (34) will be used next
+Σ[t], σe2 [t]IS[t] }, and note from (26b) that                                          to express M [t|t − 1] in terms of M [t − 1|t − 1], and M [t|t]
+                                                                                        in terms of M [t|t − 1].
+                  f̄ˆ [t|t] = arg min||ψ̄[t] − Ā[t]f̄ [t]||2Σ̄[t]
+                                                                                                                                  0
+                                                                                 (28)      Assume for simplicity that Σ̄[t] and Σ̄ [t] equal the identity
+                                 f̄ [t]                                                 matrices of appropriate sizes, although the proof easily carries
+                                                                                                                                                                                  12
+
+
+                                                                                     0
+over to arbitrary positive definite matrices Σ̄[t] and Σ̄ [t]. Note                                   instead of (39), and
+that
+                                                                                                      G[t] = M [t|t − 1]S > [t](σe2 [t]IS[t] + S[t]M [t|t − 1]S > [t])−1
+                     T̄ [t − 1] + V > [t]V [t] V > [t]
+                                                       
+           0
+         T̄ [t] =                                              (36)                                                                                                 (46)
+                                V [t]             IN
+                                                                                                      instead of (43), whereas (44) remains the same. These equa-
+where V [t] := −P [t]J¯[t − 1] ∈ RN ×N (t−1) and observe that                                         tions are precisely those in steps 4, 5 and 7 of Algorithm 2.
+                                                  0 −1
+M [t|t − 1] is the bottom right N × N block of T̄      [t]. Thus,
+applying block matrix inversion to (36) yields                                                          To obtain the rest of the steps, set t to t − 1 and τ to t in
+                                     0 −1         ¯>                                                  (26a) to obtain
+  M [t|t − 1] = J¯[t]T̄                     [t]J [t]
+                                                                                   −1                                   f̂ [t|t − 1] = P [t]f̂ [t − 1|t − 1]                  (47)
+   = IN − V [t] T̄ [t − 1] + V > [t]V [t])−1 V > [t]                                     .     (37)
+Moreover, the matrix inversion lemma yields,                                                          which coincides with step 3 of Algorithm 2. Finally, since
+                               −1     −1            −1
+                                                                                                      f̂ [t|t] is the last block vector of f̄ˆ [t|t], then
+ (T̄ [t − 1] + V > [t]IN V [t]     = T̄ [t − 1] − T̄ [t − 1]×
+                       −1              −1        −1                                                     f̂ [t|t] :=J¯[t]f̄ˆ [t|t]
+ V > [t] IN + V [t]T̄ [t − 1]V > [t]       V [t]T̄ [t − 1]. (38)                                                             −1    >   −1
+                                                                                                                   =J¯[t]T̄ [t]Ā [t]Σ̄ [t]ψ̄[t]
+Substituting (38) into (37), applying the definition of V [t], and                                                                      0 −1      >     −1
+using (35) to identify M [t − 1|t − 1] enables one to express                                                    =(I − G[t]S[t])J¯[t]T̄      [t]Ā [t]Σ̄ [t]ψ̄[t]              (48)
+M [t|t − 1] in terms of M [t − 1|t − 1] as
+                                                                                                      where the second equality follows from (30) and the third
+        M [t|t − 1] = IN + P [t]M [t − 1|t − 1]P > [t].                                        (39)   from (42). From the definitions of Ā[t], Σ̄[t] and ψ̄[t], one
+                                                                                                      obtains that
+                                                                                                          >     −1            0>    0 −1  0         1
+  On the other hand, to express M [t|t] in terms of M [t|t − 1],                                        Ā [t]Σ̄ [t]ψ̄[t] = Ā [t]Σ̄ [t]ψ̄ [t] + 2 W > [t]y[t].
+                           0>                                                                                                                    σe [t]
+note that Ā[t] = [Ā [t], W > [t]]> , where W [t] :=                                                                                                           (49)
+S[t]J¯[t] ∈ RS[t]×N t . Therefore,
+                                    >                                                                 Substituting (49) into (48) yields
+                       T̄ [t] =Ā [t]Ā[t]
+                                                                                                                                            0 −1
+                                    0>           0             >                                            f̂ [t|t] =(I − G[t]S[t])J¯[t]T̄      [t]×
+                                =Ā [t]Ā [t] + W [t]W [t]
+                                                                                                                         0>    0 −1   0           1
+                                    0
+                                =T̄ [t] + W > [t]W [t].                                        (40)                   (Ā [t]Σ̄ [t]ψ̄ [t] + 2 W > [t]y[t])
+                                                                                                                                               σe [t]
+Applying the matrix inversion lemma to (40) yields                                                                  =(I − G[t]S[t])(f̂ [t|t − 1]
+        −1              0 −1              0 −1                                                                           1
+   T̄        [t] =T̄           [t] − T̄          [t]W > [t]×                                   (41)                   + 2 M [t|t − 1]S > [t]y[t])
+                                                                                                                        σe [t]
+                                                 0 −1                −1             0 −1
+                   IS[t] + W [t]T̄                      [t]W > [t]         W [t]T̄           [t].                   =f̂ [t|t − 1] + G[t](y[t] − S[t]f̂ [t|t − 1])              (50)
+Substituting the definition of W [t] into (41) leads to
+                                                                                                      where the second equality follows from (33), f̂ [t|t − 1] =
+          −1
+   J¯[t]T̄ [t] = J¯[t]T̄
+                           0 −1
+                                [t] − J¯[t]T̄
+                                              0 −1      >
+                                                   [t]J¯ [t]S > [t]×                                  J¯[t]f̄ˆ [t|t − 1] and (34); whereas the third follows from
+                        0 −1        >           −1             0 −1
+    IS[t] + S[t]J¯[t]T̄       [t]J¯ [t]S > [t]      S[t]J¯[t]T̄      [t]                                     (IN − G[t]S[t])M [t|t − 1]S > [t] = σe2 [t]G[t]                   (51)
+                  0 −1
+   = J¯[t]T̄      [t] − M [t|t − 1]S > [t]×                                                           which results from rearranging the terms in (46). Noting that
+                                       −1             0 −1                                           expression (50) coincides with step 6 of Algorithm 2 concludes
+         IS[t] + S[t]M [t|t − 1]S > [t]    S[t]J¯[t]T̄      [t]
+                                                                                                      the proof.
+                            0 −1
+   = (IN − G[t]S[t])J¯[t]T̄      [t]                                                           (42)
+where the second equality follows from (34), and the third                                                                          R EFERENCES
+from                                                                                                   [1] E. D. Kolaczyk, Statistical Analysis of Network Data: Methods and
+                                                                                                           Models, Springer New York, 2009.
+ G[t] := M [t|t − 1]S > [t](IS[t] + S[t]M [t|t − 1]S > [t])−1 .                                        [2] R. I. Kondor and J. Lafferty, “Diffusion kernels on graphs and other
+                                                           (43)                                            discrete structures,” in Proc. Int. Conf. Mach. Learn., Sydney, Australia,
+                                                                                                           Jul. 2002, pp. 315–322.
+                                                                               >                       [3] A. J. Smola and R. I. Kondor, “Kernels and regularization on graphs,”
+Finally, multiplying both sides of (42) with J¯ [t] and us-                                                in Learning Theory and Kernel Machines, pp. 144–158. Springer, 2003.
+ing (35) to identify M [t|t] enables one to express M [t|t] in                                         [4] D. I. Shuman, S. K. Narang, P. Frossard, A. Ortega, and P. Van-
+terms of M [t|t − 1] as                                                                                    dergheynst, “The emerging field of signal processing on graphs:
+                                                                                                           Extending high-dimensional data analysis to networks and other irregular
+                 M [t|t] = (IN − G[t]S[t])M [t|t − 1].                                         (44)        domains,” IEEE Sig. Process. Mag., vol. 30, no. 3, pp. 83–98, May 2013.
+                                                                                                       [5] A. Sandryhaila and J. M. F. Moura, “Discrete signal processing on
+                    0                                                                                      graphs,” IEEE Trans. Sig. Process., vol. 61, no. 7, pp. 1644–1656, Apr.
+If Σ̄[t] and Σ̄ [t] are not identity matrices, then one obtains                                            2013.
+                                                                                                       [6] O. Chapelle, B. Schölkopf, A. Zien, et al., Semi-supervised Learning,
+        M [t|t − 1] = Σ[t] + P [t]M [t − 1|t − 1]P > [t]                                       (45)        MIT press Cambridge, 2006.
+                                                                                                                                                              13
+
+
+
+ [7] M. A. Kramer, E. D. Kolaczyk, and H. E. Kirsch, “Emergent network           [34] H. Kashima, S. Oyama, Y. Yamanishi, and K. Tsuda, “On pairwise
+     topology at seizure onset in humans,” Epilepsy Res., vol. 79, no. 2, pp.         kernels: An efficient alternative and generalization analysis,” in Pacific-
+     173–186, 2008.                                                                   Asia Conf. Knowledge Discovery Data Mining. Springer, 2009, pp.
+ [8] M. Belkin, P. Niyogi, and V. Sindhwani, “Manifold regularization: A              1030–1037.
+     geometric framework for learning from labeled and unlabeled examples,”      [35] A. Sandryhaila and J. M. F. Moura, “Big data analysis with signal
+     J. Mach. Learn. Res., vol. 7, pp. 2399–2434, 2006.                               processing on graphs: Representation and processing of massive data
+ [9] O. Chapelle, V. Vapnik, and J. Weston, “Transductive inference for               sets with irregular structure,” IEEE Sig. Process. Mag., vol. 31, no. 5,
+     estimating values of functions,” in Proc. Advances Neural Inf. Process.          pp. 80–90, 2014.
+     Syst., Denver, Colorado, 1999, vol. 12, pp. 42l–427.                        [36] “1981-2010      U.S.      climate    normals,”     [Online].    Available:
+[10] C. Cortes and M. Mohri, “On transductive regression,” in Proc.                   https://www.ncdc.noaa.gov/data-access/land-based-station-data/
+     Advances Neural Inf. Process. Syst., Vancouver, Canada, 2007, pp. 305–           land-based-datasets/climate-normals/1981-2010-normals-data.
+     312.                                                                        [37] “Bureau of economic analysis,” [Online]. Available: http://www.bea.gov/
+[11] J. Lafferty and L. Wasserman, “Statistical analysis of semi-supervised           iTable/index industry io.cfm.
+     regression,” in Proc. Advances Neural Inf. Process. Syst., Vancouver,       [38] Y. Shen, B. Baingana, and G. B. Giannakis, “Nonlinear structural vector
+     Canada, 2007, pp. 801–808.                                                       autoregressive models for inferring effective brain network connectivity,”
+[12] M. Tsitsvero, S. Barbarossa, and P. Di Lorenzo, “Signals on graphs:              arXiv preprint arXiv:1610.06551, 2016.
+     Uncertainty principle and sampling,” IEEE Trans. Sig. Process., vol.
+     64, no. 18, pp. 4845–4860, Sep. 2016.
+[13] A. Anis, A. Gadde, and A. Ortega, “Efficient sampling set selection for
+     bandlimited graph signals using graph spectral proxies,” IEEE Trans.
+     Sig. Process., vol. 64, no. 14, pp. 3775–3789, Jul. 2016.
+[14] S. K. Narang, A. Gadde, E. Sanou, and A. Ortega, “Localized iterative
+     methods for interpolation in graph structured data,” in Global Conf. Sig.
+     Inf. Process., Austin, Texas, 2013, IEEE, pp. 491–494.
+[15] X. Wang, P. Liu, and Y. Gu, “Local-set-based graph signal reconstruc-
+     tion,” IEEE Trans. Sig. Process., vol. 63, no. 9, pp. 2432–2444, May
+     2015.
+[16] A. G. Marques, S. Segarra, G. Leus, and A. Ribeiro, “Sampling of graph
+     signals with successive local aggregations,” IEEE Trans. Sig. Process.,
+     vol. 64, no. 7, pp. 1832–1843, Apr. 2016.
+[17] D. Romero, M. Ma, and G. B. Giannakis, “Kernel-based reconstruction
+     of graph signals,” IEEE Trans. Sig. Process., vol. 65, pp. 2547–2560,
+     May 2017.
+[18] F. R. Bach and M. I. Jordan, “Learning graphical models for stationary
+     time series,” IEEE Trans. Sig. Process., vol. 52, no. 8, pp. 2189–2199,
+     2004.
+[19] J. Mei and J. M. F. Moura, “Signal processing on graphs: Causal
+     modeling of big data,” arXiv preprint arXiv:1503.00173v3, 2016.
+[20] P. A. Forero, K. Rajawat, and G. B. Giannakis, “Prediction of partially
+     observed dynamical processes over networks via dictionary learning,”
+     IEEE Trans. Sig. Process., vol. 62, no. 13, pp. 3305–3320, Jul. 2014.
+[21] X. Wang, M. Wang, and Y. Gu, “A distributed tracking algorithm for
+     reconstruction of graph signals,” IEEE J. Sel. Topics Sig. Process., vol.
+     9, no. 4, pp. 728–740, 2015.
+[22] P. Di Lorenzo, S. Barbarossa, P. Banelli, and S. Sardellitti, “Adaptive
+     least mean squares estimation of graph signals,” IEEE Trans. Sig. Info.
+     Process. Netw., vol. Early Access, 2016.
+[23] K. Rajawat, E. Dall’Anese, and G. B. Giannakis, “Dynamic network
+     delay cartography,” IEEE Trans. Inf. Theory, vol. 60, no. 5, pp. 2910–
+     2920, 2014.
+[24] V. Kekatos, Y. Zhang, and G. B. Giannakis, “Electricity market
+     forecasting via low-rank multi-kernel learning,” IEEE J. Sel. Topics
+     Sig. Process., vol. 8, no. 6, pp. 1182–1193, 2014.
+[25] B. Schölkopf and A. J. Smola, Learning with Kernels: Support Vector
+     Machines, Regularization, Optimization, and Beyond, MIT Press, 2002.
+[26] L. Ralaivola and F. D’Alché-Buc, “Time series filtering, smoothing and
+     learning using the kernel Kalman filter,” in Proc. IEEE Int. Joint Conf.
+     Neural Netw. IEEE, 2005, vol. 3, pp. 1449–1454.
+[27] P. Zhu, B. Chen, and J. C. Prı́ncipe, “Learning nonlinear generative
+     models of time series with a Kalman filter in RKHS,” IEEE Trans. Sig.
+     Process., vol. 62, no. 1, pp. 141–155, Jan. 2014.
+[28] K. Wehmuth, A. Ziviani, and E. Fleury, “A unifying model for
+     representing time-varying graphs,” in Int. Conf. Data Sci. Advanced
+     Analytics, Paris, France, Oct. 2015, pp. 1–10.
+[29] D. Zhou and B. Schölkopf, “A regularization framework for learning
+     from graph data,” in ICML Workshop Stat. Relational Learn. Connec-
+     tions Other Fields, Banff, Canada, Jul. 2004, vol. 15, pp. 67–68.
+[30] G. Strang and K. Borre, Linear Algebra, Geodesy, and GPS, SIAM,
+     1997.
+[31] H. E. Rauch, C. T. Striebel, and F. Tung, “Maximum likelihood estimates
+     of linear dynamic systems,” American Institute Aeronautics Astronautics
+     J., vol. 3, no. 8, pp. 1445–1450, 1965.
+[32] E. Isufi, A. Loukas, A. Simonetto, and G. Leus, “Separable autore-
+     gressive moving average graph-temporal filters,” in Proc. European Sig.
+     Process. Conf., Budapest, Hungary, Aug. 2016.
+[33] P. M. Weichsel, “The Kronecker product of graphs,” Proc. American
+     Mathematical Society, vol. 13, no. 1, pp. 47–52, 1962.
+

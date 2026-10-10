@@ -1,0 +1,1588 @@
+                                                   Non-separable Spatio-temporal Graph Kernels via SPDEs
+
+
+
+                                          Alexander Nikitin1                   ST John1                               Arno Solin1                       Samuel Kaski1, 2
+
+                                         1
+                                             Finnish Center for Artificial Intelligence FCAI, Department of Computer Science, Aalto University, Finland
+                                                                 2
+                                                                   Department of Computer Science, University of Manchester, UK
+arXiv:2111.08524v3 [cs.LG] 27 Dec 2024
+
+
+
+
+                                                               Abstract                                               Prior model         Covariance           GP model
+                                                                                                                 ∂u
+                                                                                                                 ∂t    = ∆u + dWt           k(x, x′ )       GP(m(x), k(x, x′ ))
+
+                                               Gaussian processes (GPs) provide a principled
+
+
+
+
+                                                                                                       Spatial
+                                               and direct approach for inference and learn-
+                                               ing on graphs. However, the lack of justified
+                                               graph kernels for spatio-temporal modelling
+                                                                                                                 du
+                                               has held back their use in graph problems.                        dt   = −L u + dWt
+                                               We leverage an explicit link between stochas-           Graph
+
+                                               tic partial differential equations (SPDEs) and
+                                               GPs on graphs, introduce a framework for
+                                               deriving graph kernels via SPDEs, and de-
+                                               rive non-separable spatio-temporal graph ker-                          Working with the graph allows
+                                               nels that capture interaction across space and                         for direct modelling of spatio-
+                                                                                                                      temporal diffusion over the
+                                               time. We formulate the graph kernels for the                           graph nodes as described by                Time →
+                                               stochastic heat equation and wave equation.                            the SPDE.
+                                               We show that by providing novel tools for
+                                                                                                       Figure 1: We start with an unknown process on a
+                                               spatio-temporal GP modelling on graphs, we
+                                                                                                       particular domain with an SPDE model, discretize
+                                               outperform pre-existing graph kernels in real-
+                                                                                                       it, and derive the GP covariance function from this
+                                               world applications that feature diffusion, os-
+                                                                                                       SPDE. Finally, we use GP inference in the spatial or
+                                               cillation, and other complicated interactions.
+                                                                                                       spatio-temporal model from discrete graph-structured
+                                                                                                       observations.
+
+                                         1     INTRODUCTION
+                                                                                                       In this work, we focus on graph-based prediction of
+                                         Contemporary machine learning typically leverages             temporal signals on graphs. In other words, the goal
+                                         structure within the modelling task or application.           is to approximate spatio-temporal processes on graphs.
+                                         Often, the structure can be represented as a graph,           Many real-life problems belong to this class of tasks,
+                                         where the objects and relations are represented as            including traffic prediction (Jiang and Luo, 2021), epi-
+                                         nodes and edges. Such tasks can be found, for ex-             demiological modelling (Keeling and Eames, 2005), and
+                                         ample, within chemoinformatics (Tsuda, 2011), social          analysis of dynamics in social networks (Carrington
+                                         network analysis (Campbell et al., 2013), and anomaly         et al., 2005). Recently, a number of approaches have
+                                         detection (Akoglu et al., 2015). The abundance of             been developed for temporal machine learning prob-
+                                         graph-structured problems has led to the invention            lems on graphs, including the works by Li et al. (2017),
+                                         of new methods for graph-structured data, including           Yu et al. (2018), and Zhao et al. (2019).
+                                         graph neural networks (GNNs, Scarselli et al., 2008)
+                                         and spectral methods (Chung and Graham, 1997) for             We approach these graph-based learning problems us-
+                                         capturing structure across space and time.                    ing Gaussian processes (GPs, Rasmussen and Williams,
+                                                                                                       2006). GPs are widely used tools in statistical machine
+                                         Proceedings of the 25th International Conference on Artifi-   learning, where including prior knowledge is desired.
+                                         cial Intelligence and Statistics (AISTATS) 2022, Valencia,    Their probabilistic treatment allows for convenient in-
+                                         Spain. PMLR: Volume 151. Copyright 2022 by the au-            ference machinery and enables capturing the uncer-
+                                         thor(s).
+                                                                                                       tainties associated with predictions. However, it is not
+                          Non-separable Spatio-temporal Graph Kernels via SPDEs
+
+
+always apparent how to encode relevant prior knowl-          (Hooten et al., 2017), geographical information system
+edge into the GP prior on graphs. In the continuous          modelling (Burrough et al., 2015), and geostatistical
+domain, bringing in prior knowledge from stochastic          analysis (Moraga et al., 2017).
+partial differential equations (SPDEs) has enabled con-
+                                                             To apply SPDE approaches to graphs, we need to in-
+structing useful kernels, including the Matérn family
+                                                             troduce spectral graph theory, which has a long history
+of kernels (Whittle, 1963; Lindgren et al., 2011), re-
+                                                             of research and applications (e.g., Chung and Graham,
+sulting in improvements in quality and performance in
+                                                             1997; Von Luxburg, 2007). These works typically con-
+many tasks. In this work, we ask whether analogous
+                                                             sider the spectrum of the graph Laplacian and derive
+constructs can be made for graphs and whether they
+                                                             properties that can be helpful for different tasks on
+improve the performance of GPs on spatio-temporal
+                                                             graphs. Belkin and Niyogi (2003) used spectral graph
+graph problems. We hypothesize that because many
+                                                             theory to develop invariant embedding maps. These
+physical processes follow differential equations, deriving
+                                                             embedding maps then showed good results in dimen-
+kernels from their stochastic counterparts will allow
+                                                             sionality reduction (Yan et al., 2007). Spectral graph
+incorporating physical priors in GP models.
+                                                             theory is linked to GPs on graphs by considering suit-
+Apart from challenges in the model specification for         able spatial (pseudo-)differential operators and their
+graph-based GPs, the usual drawbacks also apply:             associated kernels (covariance functions).
+closed-form inference is only possible for conjugate
+                                                             A number of graph kernels were developed using the
+observation models, and a naı̈ve treatment results in a
+                                                             methods from spectral graph theory. Smola and Kon-
+cubic computational scaling with respect to the number
+                                                             dor (2003) proposed the construction of kernels on
+of observations (Rasmussen and Williams, 2006). This
+                                                             graphs by introducing random walk and heat kernels
+means that vanilla GPs are not particularly suitable
+                                                             on graphs, evaluated their performance, and derived
+for large-scale problems. However, a number of mod-
+                                                             necessary properties of the kernels. Recent work on
+ern methods exist to overcome this issue, including
+                                                             graph approaches to Matérn fields considers graph dis-
+sparse Gaussian processes using inducing points (see
+                                                             cretization and theoretically compares the covariances
+Liu et al., 2020, for a recent review). The development
+                                                             produced by discrete approximation and Matérn ker-
+of SPDE-based approaches to Gaussian processes has
+                                                             nels (Sanz-Alonso and Yang, 2020). Graph representa-
+led to several practical solutions. One of those is a
+                                                             tion learning has gained popularity because of its large
+popular R package for approximate Bayesian inference:
+                                                             number of applications (Chami et al., 2020). Kernel
+R-INLA (Lindgren et al., 2015) that uses SPDEs to
+                                                             methods, such as kernel ridge regression, for prediction
+sample from spatial models. The approach we propose
+                                                             on graphs were proposed by Romero et al. (2016). This
+in this paper allows extending this framework to graph
+                                                             approach was extended to spatio-temporal signals on
+problems, and it is illustrated in Fig. 1.
+                                                             dynamic graphs (Romero et al., 2017). Matérn graph
+The contributions of this paper: (i) We extend               kernels were presented by recent works: Matérn kernels
+methods from spatial statistics and, hence, link GPs         on manifolds (Borovitskiy et al., 2020), and, then, on
+to SPDEs for temporal signals on graphs. (ii) We             graphs (Borovitskiy et al., 2021).
+apply this approach to spatio-temporal modelling on
+                                                             We extend and generalize this approach with the SPDE
+graphs and consider the analogs of well-known SPDEs
+                                                             framework for graph kernels and then go beyond spatial
+from spatial statistics, which allows us to derive non-
+                                                             graph kernels to the spatio-temporal domain.
+separable spatio-temporal kernels on graphs. (iii) We
+empirically evaluate these kernels and show their ef-
+fectiveness on both synthetic data sets and applied          3    BACKGROUND
+machine learning problems: prediction of the distribu-
+tion of chickenpox and COVID-19 epidemic.                    Gaussian processes are a non-parametric machine learn-
+                                                             ing paradigm, in which we model the target function
+                                                             as a stochastic process, whose evaluation at any fi-
+2   RELATED WORK                                             nite set of points has a joint Gaussian distribution
+                                                             (Rasmussen and Williams, 2006). A Gaussian process
+The connection between Gaussian processes and                f (x) ∼ GP(m(x), k(x, x′ )) is defined by its mean func-
+stochastic (partial) differential equations was estab-       tion m(x) and covariance function k(x, x′ ) (Bishop,
+lished by Whittle (1963). It resulted in a number of         2006). The covariance function is often called a ‘kernel’.
+works in spatial statistics, most notably the work by        The kernel encapsulates prior knowledge, and defining
+Lindgren et al. (2011), the library R-INLA (Lindgren         a good kernel is one of the key ingredients and chal-
+et al., 2015), and by Solin (2016) in the spatio-temporal    lenges of setting up the GP model (Duvenaud, 2014).
+context. These methods have been applied in many             GPs can be extended to vector-valued functions using
+domains, for example, animal movement prediction             multioutput GPs (Álvarez et al., 2012). Kernels then
+                           Alexander Nikitin, ST John, Arno Solin, Samuel Kaski
+
+
+become matrix-valued: K(x, x′ ) : Rn × Rn → Rm×m ,          4       SPATIO-TEMPORAL KERNELS
+for n-dimensional inputs and m-dimensional outputs.                 ON GRAPHS VIA SPDEs
+Standard GP toolchains include various kernels on
+continuous domains (e.g., periodic, polynomial, and         We consider a spatio-temporal prediction problem on a
+Matérn family). However, application of GPs to other                                                    N
+                                                            graph G = (V, E) given a data set (xi , yi ) i=1 , with
+domains is often restricted by the lack of principled
+                                                            features xi ∈ D, where the domain D = V ×R describes
+kernels.
+                                                            graph vertex and time. We focus on the regression task,
+                                                            where yi are the targets from the real numbers R. We
+3.1   Stochastic Partial Differential Equations             aim to approximate a function f such that f : D → R.
+                                                            The methods we propose are applicable for classification
+                                                            problems f : D → C for a finite set of labels C as well.
+In spatial statistics, Gaussian random fields can be
+represented as solutions to an SPDE. The physical sense     Notation. If not stated otherwise, we denote f (x) :
+of an underlying process can be included in GPs in a        Rn → R a continuous spatial function, v ∈ R|V | a
+natural way by forming the prior covariance function        spatial function on a graph (i.e., a vector whose com-
+as a solution to an SPDE (Särkkä, 2011). Many widely      ponents are the function values at the vertices), and
+used GP kernels can be derived from the corresponding       u(t) : R → R|V | a spatio-temporal function on a graph.
+SPDEs. For example, the Matérn kernel family for           We will denote w(x) spatial white noise1 , w a |V |-
+multidimensional GPs can be derived from underlying         dimensional white noise2 , and dWt the . differential of
+SPDEs (Whittle, 1963).                                      |V |-dimensional Brownian motion. Wt = dW     dt is the
+                                                                                                            t
+
+
+                                                            formal temporal derivative of Brownian motion3 , and
+Stochastic partial differential equations (SPDEs) gen-
+                                                            Wt is Brownian motion.
+eralize partial differential equations via introducing
+random forces (noise) to some terms and coefficients,
+similarly to how stochastic differential equations gener-   4.1     SPDE Framework for Graph Kernels
+alize ordinary differential equations (Oksendal, 2013;
+Gardiner, 2004; Särkkä and Solin, 2019). SPDEs are        Our framework for deriving graph kernels via SPDEs
+applied in various fields, including physics, signal pro-   consists of the following high-level steps: (i) define
+cessing, and machine learning (Schottl, 1997).              an SPDE using prior knowledge about the underly-
+                                                            ing process, (ii) convert it to a graph counterpart,
+                                                            (iii) solve the graph counterpart, and (iv) derive cor-
+3.2   Spectral Graph Theory                                 responding mean and covariance function of GP on
+                                                            graph. Next, we will provide specific examples and use
+Spectral graph theory allows us to derive graph prop-       this framework to derive novel kernels.
+erties by operating with the spectrum of its Laplacian
+                                                            Many PDEs are defined using the Laplace operator
+matrix (a.k.a. graph Laplacian), which will allow us to                                                 Pn ∂ 2
+                                                            ∆. In Euclidean space, it is defined as ∆ = i=1 ∂x   2.
+define partial differential equations (PDEs) on graphs.                                                          i
+                                                            On graphs, we define as the corresponding operator
+Definition 3.1. The graph Laplacian L of a graph            the negative graph Laplacian −L. This is justified by
+G = (V, E) is the matrix                                    considering a lattice approximation of the real plane
+                                                            and ensuring that this operator represents exactly the
+                                                            discretization of ∆ (Wardetzky, 2020).
+                    L = DW − W ,                     (1)
+                                                            We illustrate the approach by considering the ana-
+                                                            logue of Laplace’s equation on graphs. Laplace’s equa-
+where W is the matrix of the edge weights and DW =
+                                                            tion, ∆f (x) = 0, is a second-order partial differential
+diag(wi ) is the P
+                 diagonal matrix of the accumulated
+                                                            equation relevant across physics, for example, in fluid
+weights wi =         wij . In the unweighted case, DW
+             j:(i,j)∈E                                      dynamics and electromagnetism. Its stochastic coun-
+is the degree matrix and W is the adjacency matrix.         terpart, known as Laplace’s stochastic partial differen-
+                                                            tial equation, is ∆f (x) = w(x). For the analogue of
+The graph Laplacian can be normalized to have unit          Laplace’s SPDE on a graph, we replace ∆ with −L
+diagonal entries. All derivations in this article apply
+to both normalized and non-normalized Laplacians
+                                                                1
+                                                                 I.e., E[w(x)] = 0, Cov[w(x), w(x′ )] = δ(x − x′ ).
+                                                                2
+                                                                 I.e., E[w] = 0 and E[ww⊺ ] = I.
+in weighted and unweighted graphs. In practice, the            3
+                                                                 Even though Brownian motion is nowhere differentiable,
+choice between normalized and unnormalized Lapla-           assuming its derivative to be temporal white noise is the
+cians depends on the graph structure and should be          standard way of treating it in SDE literature as discussed
+based on the particular modeling task.                      by Särkkä and Solin (2019).
+                             Non-separable Spatio-temporal Graph Kernels via SPDEs
+
+
+and arrive at                                              We can formulate Eq. (5) on graphs as
+                       −Lv = w.                      (2)
+                                                                                     e = w.
+                                                                                     Lv                               (7)
+Because the space we are considering is discrete
+and the graph Laplacian replaces the Laplace oper-         For a self-adjoint Laplacian L the covariance matrix is
+ator, the graph counterparts of SPDEs become multi-                                               −ν
+dimensional SDEs.                                                                        2ν
+                                                                              K=            I +L         ,            (8)
+                                                                                         κ2
+For a formal derivation using discrete calculus, one can
+consider v as a 0-cochain, as in Grady and Polimeni        and the solution of Eq. (7) is v ∼ N (0, K). These
+(2010). Within our work, it is enough to operate with      results were recently considered by Borovitskiy et al.
+v as a vector. Eq. (2) defines the notion of harmonic      (2021), and here we showed how they fit into a broader
+functions on graphs: in functions that are solutions to    SPDE framework.
+Eq. (2), the value at each node is given by the mean of
+adjacent nodes.
+                                                           4.2    Separable Spatio-Temporal Kernels on
+The solution v of Eq. (2) can be described as a Gaussian          Graphs
+process (which in the discrete case, by definition, is a
+multivariate normal distribution):                         To obtain a kernel on the combination of two domains
+                                                           (here, graph and time), one can take kernels for each
+                  v ∼ N (0, (L⊤ L)+ ),               (3)   domain and combine them, commonly as a product:
+                                                           k(x, t; x′ , t′ ) = kx (x, x′ ) kt (t, t′ ), where x and x′ be-
+where A+ denotes the Moore–Penrose pseudoinverse           long to the spatial domain and t and t′ to the temporal
+of matrix A (Moore, 1920). This defines the Laplacian      domain. The separability of a kernel is a choice made
+kernel on graphs, K = (L⊤ L)+ .                            for convenience. An underlying process is not nec-
+Another example of the SPDE framework applied to           essarily separable; an example of spatial covariance
+graph kernels is the Matérn family of kernels. The        structure changing over time can be easily constructed:
+Matérn kernel family is an essential kernel family for    for instance, in spatio-temporal epidemiological mod-
+many applications of GPs. The isotropic (rotation and      elling, the structure of the spatial covariance changes
+translation invariant) Matérn kernels are defined as      over time (e.g., travel restriction or development of a
+(Rasmussen and Williams, 2006)                             vaccine), thus it is not enough to separate spatial and
+                                                           temporal structure, and they have to be considered
+                                          √                jointly.
+  kMatérn (r) = 21−ν γ ν Kν (γ)/Γ(ν), γ = 2νr/κ, (4)
+
+where r = ∥x − x′ ∥ is the Euclidean distance, κ is the    4.3    Non-Separable Kernels
+lengthscale, and ν controls smoothness (samples from a
+GP with this kernel are (⌈ν⌉ − 1)-times differentiable).   We describe non-separable spatio-temporal graph ker-
+The Matérn kernel in Rd can be derived from this          nels using the SPDE framework. Let us consider two
+SPDE with the fractional Laplace operator (Lindgren        widely used parabolic and hyperbolic equations:
+et al., 2011):                                               • Heat equation: ∂f
+                                                                              ∂t = c∆f ,
+                         ν2 + d4                                                   2
+                 2ν                                          • Wave equation: ∂∂t2f = c2 ∆f .
+                    −∆               f (x) = w(x).   (5)
+                 κ2
+                                                           We will define the stochastic counterparts of these equa-
+This motivates us to use the fractional graph Laplacian:   tions on graphs, derive the corresponding covariance
+Definition 4.1. Fractional graph Laplacian L:  e           functions, and study them. The kernel derivations from
+                                                           these two SPDEs are formulated as propositions. The
+                                    ν2                   full derivations are in Appendices B and C.
+                  e=         2ν
+                  L             I +L ,               (6)
+                             κ2
+                                                           4.4    Stochastic Heat Equation
+where ν and κ are positive scalar parameters.
+                                                           The heat equation is written as ∂f
+                                                                                           ∂t = c∆f . This PDE is
+The fractional graph Laplacian is more flexible than L     called the heat equation because it is used in physics for
+(for ν = 2 and κ → ∞, it coincides with L). Addition-      modeling heat transfer on surfaces. If f is temperature,
+ally, for some combinations of hyperparameters, the        the Laplace operator on the equation’s right-hand side
+fractional graph Laplacian possesses non-local proper-     determines the difference between the temperature at
+ties (see Benzi et al. (2020)).                            a certain point and its neighboring points on a surface.
+                                  Alexander Nikitin, ST John, Arno Solin, Samuel Kaski
+
+
+We consider the discretization of this equation using           Proposition 2. SHEK with matrix-scaled noise.
+the graph Laplacian. Let u(t) be a temporal signal on           A scaled extension of SHEK can be derived from a
+a graph which obeys the heat equation                           stochastic heat equation on graphs with a matrix-
+                                                                scaled white noise:
+                           du
+                              = −cLu,                     (9)                                  .
+                           dt                                                      du     e + ΣWt .
+                                                                                      = −cLu                        (15)
+which is now an ODE with the solution                                              dt
+                                                                The solution for undirected graphs is defined by a
+                      u(t) = e−cLt u(0).                (10)    Gaussian process with covariance matrix in the fol-
+                                                                lowing form:
+This solution is known as the heat kernel. This result
+plays an important role in graph theory. The positive                                  
+                                                                          Cov u(t), u(s) = P ∗ C(t, s)P ,      (16)
+semi-definite matrix e−cLt in this equation can be used
+as a kernel on the graph. This kernel is related to              where P is a unitary matrix:
+graph random walks, which are used widely in graph
+algorithms (Lovász, 1993). To see this, consider a                              e ∗ = diag(λ1 , . . . , λ|V | ).
+                                                                               P LP                                 (17)
+Taylor expansion of this kernel (assume c = 1 for
+                    P+∞ k e−t k                                                                e is normal and positive
+simplicity): e−Lt = k=0 t k!    P , where P = D −1 A            The matrix P exists because L
+is the random walk matrix of the graph. In fact, this           definite. C(t, s) is defined for t ≥ s as:
+kernel defines continuous-time random walks, where
+each jump occurs in Poisson(1) time, similarly to the                             1 (P ΣΣ⊤ P ∗ )i,j
+                                                                   C(t, s)i,j =
+continuous case.                                                                  c    λi + λj
+                                                                                                                
+By adding temporal white noise, we can construct a                    × exp(−cλi |t − s|) − exp(−c(λi t + λj s)) . (18)
+heat SPDE on graphs:
+                                   .                            For a directed graph, the stationary covariance matrix
+                     du
+                        = −cLu + σ Wt .                 (11)    C∗ can be found from the Lyapunov equation
+                     dt
+                                                                                  e ∗ + C∗ L
+                                                                                  LC       e ⊤ = ΣΣ⊤ .               (19)
+Proposition 1. The stochastic heat equation
+kernel (SHEK) on graphs can be defined by adding                4.5     Wave Equation
+spatio-temporal white noise, or for convenient inte-
+gration,
+ .       as a formal derivative of the Wiener process           Spreading waveforms in physics, such as mechanical
+Wt :                                                            waves (e.g., sound waves or seismic waves) as well
+                 du                .                            as light waves, are commonly described by the wave
+                    = −cLue + σ Wt .             (12)
+                 dt                                             equation:
+The solution is given by a Gaussian process:                                         d2 f
+                                                                                          = c2 ∆f.              (20)
+                                                                                     dt2
+       u(t) ∼ GP(µ(t), Cov[u(s), u(t)]),         with           This PDE can be considered on graphs as follows:
+                     e
+                   −cLt
+       µ(t) = e           u(0),                                                      d2 u
+                                                                                          = −c2 Lu.                (21)
+                          σ 2 −cLt−c
+                                e    e⊤s
+                                     L
+                                                                                     dt2
+       Cov[u(t), u(s)] =     e
+                           c                                    The solution of this equation for undirected graphs has
+             e e⊤                e +L e ⊤ )−1 .                 the form
+         (ec(L+L ) min(t,s) − I)(L                      (13)
+                                                                         1√ +         √     .           √
+                    e is self-adjoint (the graph is              u(t) =     L sin(c Lt)u(0) + cos(c Lt)u(0). (22)
+Or, when the matrix L                                                    c
+undirected), as
+                                                                The solution of the stochastic wave equation cannot be
+              e
+            −cLt                                                used directly as a GP kernel (as it was with the heat
+ µ(t) = e          u(0),                                (14)
+                            2                                 equation), but this result is necessary for the deriva-
+                           σ     e           e      e −1 .
+ Cov[u(t), u(s)] =            e−cL|t−s| − e−cL(t+s) L           tion of a GP kernel from stochastic wave equations on
+                           2c                                   graphs.
+The kernel is parameterized by diffusivity c, variance
+                                                                4.6     Stochastic Wave Equation
+σ, and parameters of the fractional Laplacian ν and
+κ. We extend this result to the case of matrix-scaled           In this section, we consider a stochastic extension of the
+white noise:                                                    wave equation on graphs. Adding stochasticity allows
+                          Non-separable Spatio-temporal Graph Kernels via SPDEs
+
+
+us to derive a GP kernel that will include prior infor-    The SPDE framework allows for using the numeri-
+mation about wave nature of the underlying process.        cal solvers of SPDEs, for example, the Ruge–Stüben
+                                                           solver (Ruge and Stüben, 1987) for the spatial case or
+                                                           Euler–Maruyama (Higham et al., 2002) for the spatio-
+Proposition 3. The stochastic wave equation                temporal case. This idea especially shines in the graph
+kernel (SWEK) on undirected graphs is defined by           domain because the Laplacian matrix allows consider-
+the second-order matrix differential equation              ing these equations as matrix equations; thus, it allows
+                                                           using all of the existing tools for numerical solutions of
+                d2 u             .
+                           e + σ Wt ,
+                   2
+                     = −c2 Lu                     (23)     matrix equations. Moreover, in principle, continuous
+                dt                                         domains can be discretized via graph representations,
+and a solution to this equation for undirected graphs      and then numerical solvers can be used for sampling
+can be expressed by the Gaussian process:                  from GPs over continuous domains. We consider this
+                                                           opportunity as one more justification for the SPDE
+ u(t) ∼ GP(µ, Cov[u(s), u(t)], with           (24)         framework and leave its development for future works.
+        1 e− 1    p                 p
+                        .
+                    e u(0)+           e
+ µ(t) = L 2 sin(c Lt)          cos(c Lt)u(0),
+        c                                                 4.8   Visualizations of the Kernels
+                     2   −2
+ Cov[u(s), u(t)] = σ Θ      cos(Θ(t − s)) min(t, s)−       For a deeper understanding of the properties of the
+                                                          kernels and a more pictorial tour of their properties, we
+     1
+       cos(Θ max(t, s)) sin(Θ min(t, s))Θ−1 ,              study visualizations of the kernels on a simple graph
+     2
+                                                           with different values for the kernel hyperparameters.
+            p
+where Θ = c L.e                                            In Fig. 2, we show the visualizations of the proposed
+                                                           kernels on a toy model: a line graph of three vertices.
+We can observe that eigenvalues of the kernel oscil-       The first row shows the temporal part of the covariance
+late with different frequencies. It makes this kernel      matrix (summed over the graph vertices at each time-
+potentially useful for periodic processes on graphs or     point). The following three rows show mean (black)
+discretizations of continuous periodic processes with a    and samples (colored lines) as a function of time at
+graph lattice.                                             each of the nodes, conditioned on y(t = 0) = (0, 0, 10),
+                                                           for different values of the hyperparameter c (ν = 3/2,
+The stochastic wave equation kernel can be extended        κ = 1). For the temporal component, SHEK shows
+to directed graphs similarly by solving the graph wave     the expected behavior for a diffusion process: covari-
+equation through the eigenvectors of L.e                   ance is high between nearby time points and decreases
+In a single-vertex graph, this kernel coincides with the   with the temporal gap, whereas SWEK shows periodic
+product of Brownian motion kernel and cosine kernel.       dependence between temporal components (periods of
+                                                           high covariance are alternating with periods of low co-
+                                                           variance). Additionally, stochasticity accumulates with
+4.7   Sampling in Graph GP Models                          time resulting in higher covariance for later timestamps
+                                                           (analogously to Brownian motion).
+Many methods for sampling from GPs are available. A
+common method involves a Cholesky decomposition of
+the covariance matrix. The computational cost of sam-      5     EXPERIMENTS
+pling is a sum of O(n3 ) on Cholesky factorization and
+O(n2 ) (matrix-vector multiplication) for each sample,     To highlight practical applicability of the proposed
+where n is the number of points.                           methodology and benchmark against alternative ap-
+                                                           proaches, we evaluate the described kernels on graph
+Many other sampling approaches are based on the ex-
+                                                           spatio-temporal applications: heat distribution over a
+pansion of the random field (process) as a series of ba-
+                                                           one-dimensional line (Sec. 5.1), spreading of COVID-19
+sis functions. Those methods include Karhunen–Loeve
+                                                           across the United States (Sec. 5.2), and spreading of
+expansion using the eigenfunctions of a covariance func-
+                                                           chickenpox over Hungarian counties (Sec. 5.3).
+tion, circulant embedding methods based on Fourier
+basis (Graham et al., 2018), and a hierarchical ma-        We used Gaussian process regression with Gaussian
+trix approximation of the covariance matrix (Feischl       likelihood as a method for fitting the models. We
+et al., 2018). The SPDE based approach (Lindgren           maximized the log marginal likelihood with respect
+et al., 2011) requires solving an SPDE using the finite    to kernel hyperparameters (σ and c for SWEK and
+element method, which approximates the GP with a           SHEK) with the L-BFGS optimizer (Liu and Nocedal,
+Gaussian Markov random field (GMRF).                       1989). All the experiments were implemented using
+                               Alexander Nikitin, ST John, Arno Solin, Samuel Kaski
+
+
+                   SHEK                                                   SWEK
+                  c = 0.1      c = 0.5        c=1          c=2            c = 0.1    c = 0.5      c=1        c=2
+
+
+
+
+    f1 (t)
+
+
+
+
+    f2 (t)
+
+
+
+
+    f3 (t)
+
+
+
+
+Figure 2: Temporal visualizations of SHEK (heat, left) and SWEK (wave, right) on a linear three-node graph. The
+first row shows the temporal part of the covariance matrix (summed over the graph vertices at each timepoint).
+The following three rows show mean (black) and samples (colored lines) as a function of time at each of the nodes,
+conditioned on y(t = 0) = (0, 0, 10), for different values of the hyperparameter c.
+
+
+the GPflow (Matthews et al., 2017) library in Python.              error (MAEint and MAEext ) or mean absolute percent-
+                                                                   age error (MAPEint and MAPEext ). We also report
+Extrapolation. Our experiments were repeated for
+                                                                   95% confidence intervals over validation rounds.
+different training and testing intervals (we call them
+validation rounds) for a given data set using sliding
+window backtesting. If we denote number of training                5.1   Heat Transfer Data Set
+timepoints as Ntrain , number of testing timepoints as
+Ntest , and by tr the starting time for the r-th vali-             As a simple spatio-temporal process, we considered
+dation round, then sliding backtesting uses time in-               heat transfer in 1D on a line. We parameterized the
+terval [tr , . . . , tr + Ntrain ] as the training data, and       process with conductivity k, and considered a fun-
+[tr + Ntrain + 1, . . . , tr + Ntrain + Ntest ] as test data.      damental solution of the heat distribution process:
+                                                                   Φ(x, t) = 5/(4πkt) exp(−x2 /4kt). We modelled the
+Interpolation. To evaluate interpolation properties                heat transfer distribution for a one-dimensional segment
+of the methods, we randomly selected ten percent of                and discretized it as a linear graph with 21 vertices.
+the time interval [tr , . . . , tr + Ntrain + Ntest ] as testing
+data set and used the rest for training.                           We compared separable and non-separable graph ker-
+                                                                   nels for temporal signals. We used a continuous time-
+Evaluation. In forecasting problems, modelling may                 separable kernel as a reference model. We used 50
+result in a high variance of the generalization error              timestamps for training data and 10 timestamps as
+across the validation rounds. Thus, the comparison                 test data; we performed ten iterations of backtesting
+of generalization error over the rounds by confidence              validation with different random seeds and different
+intervals can be inaccurate. The generalization errors             starting time points. The results are presented in Ta-
+should be evaluated with a thorough point-wise com-                ble 1; we report extrapolation and interpolation MAE
+parison over each evaluation. To make statistically                with 95% confidence intervals, marking the top re-
+significant conclusions, we used the Diebold–Mariano               sults of the graph kernels in bold. We observed that
+test (Diebold and Mariano, 2002). The variance of the              the non-separable stochastic heat kernel outperformed
+generalization error is also an important model prop-              separable kernels on the extrapolation task, but the
+erty that shows the method’s robustness over different             product graph Matérn kernel and RBF outperformed
+validation rounds. We tested both interpolation and                it on the interpolation task. As expected, exponential
+extrapolation performance and report mean absolute                 kernel over continuous space outperformed graph dis-
+                          Non-separable Spatio-temporal Graph Kernels via SPDEs
+
+Table 1: Interpolation/extrapolation performance for        on extrapolation performance are equal for considered
+the heat distribution problem over a line (MAE × 100).      separable and non-separable cases. However, SHEK’s
+                                                            performance was more stable across validation rounds
+ Kernel                         MAEint        MAEext        on the extrapolation task, resulting in two times smaller
+ Laplacian(G) × RBF(T)       0.42 ± 3.21    4.75 ± 0.36     95% confidence intervals of generalization error. When
+ Matérn-1/2(G) × RBF(T)     0.05 ± 0.05    2.81 ± 4.12     the extrapolation period was increased to four and six
+ SHEK(G, T)                  0.13 ± 0.11    1.29 ± 0.06     weeks, SHEK performed consistently better than other
+ Exp(R) × Exp(T)             0.12 ± 0.12    1.02 ± 0.05     kernels: four weeks period MAE of SHEK(ν = 1/2)
+                                                            was less than MAE of the product of Matérn(1/2) and
+                                                            RBF (DM-test, p < 0.01), as well as on six week period
+cretization for extrapolation but did not outperform        (DM-test, p < 0.05).
+the product of graph Matérn kernel and RBF over time.
+                                                               13000
+                                                                                 MAE on COVID-19 dataset (4 weeks)
+                                                               12000
+5.2   COVID-19 Distribution Across the US
+                                                               11000
+
+
+As a real-world use-case of the proposed method, we            10000
+
+
+
+
+                                                            MAE
+considered the prediction of COVID-19 distribution and            9000
+
+
+spread across the USA. We used data about COVID-19                8000
+                                                                                                                       Matérn( = 5/2) × RBF
+cases and deaths published by The New York Times                  7000                                                 Matérn( = 3/2) × RBF
+                                                                                                                       Matérn( = 1/2) × RBF
+(2020). We aggregated the number of cases by week                 6000
+                                                                         0   1      2    3    4     5    6    7      8
+                                                                                                                       SHEK( 9 = 1/2)
+                                                                                         Validation round #            SHEK( = 3/2)
+for each state. Moreover, we handcrafted a graph that                                                                  SHEK( = 5/2)
+represents the geographical neighbors of the states in                           (a) Four weeks extrapolation.
+the US. Each node of the graph represents a state, and                           MAE on COVID-19 dataset (6 weeks)
+two nodes are connected with an undirected edge if             16000
+
+the corresponding states share a common border. The            14000
+
+approach can be extended to other graphs that arise            12000
+                                                            MAE
+
+
+
+
+from, for example, traffic links or information about
+                                                               10000
+the flights. As a modelling target for the extrapolation
+task, we aimed to predict how many cases there will be            8000                                                 Matérn( = 5/2) × RBF
+                                                                                                                       Matérn( = 3/2) × RBF
+in each state during the next two weeks. For numerical            6000                                                 Matérn( = 1/2) × RBF
+                                                                                                                       SHEK( 9 = 1/2)
+stability, we predicted the natural logarithm of this                    0   1      2    3    4     5    6
+                                                                                         Validation round #
+                                                                                                              7      8
+                                                                                                                       SHEK( = 3/2)
+                                                                                                                       SHEK( = 5/2)
+value. We used 33 weeks as training data and estimated
+the number of cases for the subsequent two weeks. We                              (b) Six weeks extrapolation.
+ran all experiments ten times with a sliding starting
+                                                            Figure 3: Visualization of extrapolation evaluation with
+point and different random seeds. The goal of the
+                                                            extended extrapolation periods of four and six weeks
+experiment was to show that the proposed kernels can
+                                                            on COVID-19 dataset.
+achieve good results within the GP framework. We
+argue that GPs are particularly useful in this case
+because of their excellent interpolation properties and     Experiment with a flight graph. Additionally, We
+the possibility to assess the uncertainties, which is       conducted an experiment to check whether non-spatial
+crucial for decision-making. We compared the results        graph information can be included in the Covid-19
+with a graph neural network (GNN), for which we             modeling task. We collected information about flights
+used a diffusion convolutional recurrent neural network     between the states and used this graph instead of ge-
+(DCRNN) layer (Li et al., 2017) followed by a fully         ographical adjacencies. Results showed MAE statis-
+connected layer. We used the implementation from the        tically better for non-separable (p = 0.05, DM-test);
+library ‘PyTorch Geometric Temporal’ (Rozemberczki          MAPE showed no statistically significant difference
+et al., 2021a). We also deepened the architecture but       between separable and non-separable kernels in this
+the results remained largely unaffected. For this reason,   case.
+we report the results for the simplest architecture.
+                                                            5.3          Hungary Chickenpox Data Set
+The results are shown in Table 2. We can see that the
+models converged to a relatively low MAPE, and SHEK         We evaluated our methods on a data set of chicken-
+showed the best performance. This shows that the            pox cases in Hungary (Rozemberczki et al., 2021b).
+proposed methods are useful for the task we consider.       The data set contains the weekly aggregated numbers
+The results on the interpolation task showed better         of cases of chickenpox in Hungarian counties and Bu-
+performance for SHEK (DM-test, p = 0.1). The results        dapest from 2005 until 2015. The spatial relation of
+                           Alexander Nikitin, ST John, Arno Solin, Samuel Kaski
+
+Table 2: Summary of the interpolation (int) and k-weeks extrapolation (ext-k) results in terms of mean absolute
+error (MAE) and mean absolute percentage error (MAPE) on COVID-19 and Hungarian chickenpox data sets.
+Note that the DCRNN model does not support interpolation.
+
+                                           Chickenpox in Hungary                      COVID-19 in the US
+            Model                   MAEint           MAEext-4        MAEext-6         MAPEint        MAPEext-2
+ Laplacian(G) × RBF(T)            33.95 ± 1.64     34.25 ± 1.68     46.45 ± 4.93    1.58 ± 0.53     0.76 ± 0.03
+ Matérn-3/2(G) × RBF(T)         13.82 ± 0.72     26.45 ± 4.05      32.34 ± 3.07    0.17 ± 0.02     0.27 ± 0.08
+ DCRNN(G,T)                            —           27.96 ± 3.65    30.45 ± 2.19          —          0.56 ± 0.07
+ SHEK(G, T) (ν = 21 , κ = 1)      14.81 ± 0.91    26.46 ± 3.73     30.65 ± 2.51     0.16 ± 0.03     0.25 ± 0.04
+
+
+counties is represented as a graph with each county        tional prior information in graph problems by creating
+as a node (in total 20 nodes) and unweighted edges         new flexible kernels on graphs. These methods can be
+that indicate adjacency of the counties (in total 61       applied to other types of equations resulting in either
+edges). This data set has a different structure than the   an analytical solution or an SPDE that can be numeri-
+COVID-19: the epidemic has strong seasonality and          cally solved. It may lead to the more frequent use of
+does not have periods of fast exponential growth.          probabilistic methods on graphs overcoming predictive
+                                                           power issues with the pre-existing kernels.
+We observed similar results to the COVID-19 case: GP
+approaches outperformed the GNN approach, SHEK             Our work opens up new avenues of research, such as
+has shown comparable performance with separable ker-       the solution of other types of equations on graphs or
+nel on the extrapolation task with more stable perfor-     discretization of continuous kernels using graph approx-
+mance across the validation rounds. On the long-term       imation. Moreover, it gives machine learning tools that
+(six weeks) extrapolation task, DCRNN and SHEK             can be used for essential problems on graphs, such as
+outperformed other approaches. The separable kernel        epidemic modelling. As a side contribution of our work,
+has shown better performance on the interpolation task     we constructed a timely data set of COVID-19 cases
+than SHEK (DM-test, p = 0.05). We repeated the ex-         over a graph that can be used to evaluate temporal
+periment for the longer extrapolation periods: four and    machine learning problems on graphs.
+six weeks and observed that SHEK performed more
+                                                           In future work, the scalability of the methods to larger
+stable and consistently better than separable kernels
+                                                           graphs has to be explored. Possible approaches include
+(DM-test, p = 0.1 for four weeks and p = 0.05 for
+                                                           state space models, numerical solvers for SPDEs, and
+six weeks). We also experimented with other types of
+                                                           sparse methods.
+separable kernels and selected Matérn-3/2 plus RBF as
+a consistently accurate combination on interpolation
+                                                           Source code and data for the experiments are available
+and extrapolation tasks. We provide full results of the
+                                                           at: https://github.com/AaltoPML/
+evaluation and point-wise comparison in Appendix E.2.
+                                                           spatiotemporal-graph-kernels
+
+6   DISCUSSION & CONCLUSION                                Acknowledgments
+
+We considered spatio-temporal problems on graphs.          This work was supported by the Academy of Finland
+We showed how these can be addressed by product-           Flagship Programme Finnish Center for Artificial In-
+separable kernels and, then, introduced a framework        telligence FCAI, Academy of Finland grants 339730,
+to derive spatial and spatio-temporal graph kernels        341763 and 324345, and UKRI Turing AI World-
+based on SPDEs. As concrete instances, we considered       Leading Researcher Fellowship, EP/W002973/1. We
+the stochastic heat and wave equations on graphs, and      also acknowledge the computational resources provided
+solved them to arrive at novel types of graph kernels:     by the Aalto Science-IT Project from Computer Science
+the stochastic heat equation kernel (SHEK) and the         IT. We thank Ivan Yashchuk and Ivan Yaroslavtsev for
+stochastic wave equation kernel (SWEK). We compared        their helpful comments.
+GPs with the proposed kernels against DCRNNs, and
+demonstrated that our approach outperforms graph
+neural networks on some machine learning tasks.            References
+Following our method for deriving kernels from SPDEs,      Akoglu, L., Tong, H., and Koutra, D. (2015). Graph
+this work creates a possibility for direct use of addi-     based anomaly detection and description: a survey.
+                          Non-separable Spatio-temporal Graph Kernels via SPDEs
+
+
+  Data Mining and Knowledge Discovery, 29(3):626–              volume 13 of Springer Series in Synergetics. Springer-
+  688.                                                         Verlag, Berlin, third edition.
+Álvarez, M. A., Rosasco, L., and Lawrence, N. D.            Grady, L. J. and Polimeni, J. R. (2010). Discrete calcu-
+  (2012). Kernels for vector-valued functions: A review.      lus: Applied Analysis on Graphs for Computational
+   Found. Trends Mach. Learn., 4(3):195–266.                  Science. Springer Science & Business Media.
+Belkin, M. and Niyogi, P. (2003). Laplacian eigenmaps        Graham, I. G., Kuo, F. Y., Nuyens, D., Scheichl, R.,
+  for dimensionality reduction and data representation.       and Sloan, I. H. (2018). Analysis of circulant embed-
+  Neural Computation, 15(6):1373–1396.                        ding methods for sampling stationary random fields.
+Benzi, M., Bertaccini, D., Durastante, F., and Simunec,       SIAM Journal on Numerical Analysis, 56(3):1871–
+  I. (2020). Non-local network dynamics via fractional        1895.
+  graph laplacians. Journal of Complex Networks, 8(3).       Higham, D. J., Mao, X., and Stuart, A. M. (2002).
+Bishop, C. M. (2006). Pattern Recognition and Machine          Strong convergence of euler-type methods for nonlin-
+  Learning. Springer, Berlin, Heidelberg.                      ear stochastic differential equations. SIAM Journal
+                                                               on Numerical Analysis, 40(3):1041–1063.
+Borovitskiy, V., Azangulov, I., Terenin, A., Mostowsky,
+  P., Deisenroth, M., and Durrande, N. (2021). Matérn       Hooten, M. B., Johnson, D. S., McClintock, B. T., and
+  Gaussian processes on graphs. In International Con-          Morales, J. M. (2017). Animal Movement: Statistical
+  ference on Artificial Intelligence and Statistics, pages    Models for Telemetry Data. CRC press, Boca Raton,
+  2593–2601. PMLR.                                             Florida.
+Borovitskiy, V., Terenin, A., Mostowsky, P., and Deisen-     Jiang, W. and Luo, J. (2021). Graph neural network
+  roth (he/him), M. (2020). Matérn Gaussian processes         for traffic forecasting: A survey. arXiv preprint
+  on Riemannian manifolds. In Larochelle, H., Ran-             arXiv:2101.11174.
+  zato, M., Hadsell, R., Balcan, M. F., and Lin, H.,         Keeling, M. J. and Eames, K. T. (2005). Networks
+  editors, Advances in Neural Information Process-            and epidemic models. Journal of the Royal Society
+ ing Systems, volume 33, pages 12426–12437. Curran            Interface, 2(4):295–307.
+  Associates, Inc.
+                                                             Li, Y., Yu, R., Shahabi, C., and Liu, Y. (2017).
+Burrough, P. A., McDonnell, R., McDonnell, R. A.,              Diffusion convolutional recurrent neural network:
+ and Lloyd, C. D. (2015). Principles of Geographical           Data-driven traffic forecasting. arXiv preprint
+ Information Systems. Oxford University Press.                 arXiv:1707.01926.
+Campbell, W. M., Dagli, C. K., and Weinstein, C. J.          Lindgren, F., Rue, H., et al. (2015). Bayesian spa-
+ (2013). Social network analysis with content and              tial modelling with R-INLA. Journal of Statistical
+  graphs. Lincoln Laboratory Journal, 20(1):61–81.             Software, 63(19):1–25.
+Carrington, P. J., Scott, J., and Wasserman, S. (2005).
+                                                             Lindgren, F., Rue, H., and Lindström, J. (2011). An
+ Models and Methods in Social Network Analysis, vol-
+                                                               explicit link between Gaussian fields and Gaussian
+  ume 28. Cambridge University Press.
+                                                               Markov random fields: the stochastic partial dif-
+Chami, I., Abu-El-Haija, S., Perozzi, B., Ré, C., and         ferential equation approach. Journal of the Royal
+ Murphy, K. (2020). Machine learning on graphs: A              Statistical Society: Series B (Statistical Methodol-
+ model and comprehensive taxonomy. arXiv preprint              ogy), 73(4):423–498.
+ arXiv:2005.03675.
+                                                             Liu, D. C. and Nocedal, J. (1989). On the limited
+Chung, F. R. and Graham, F. C. (1997). Spectral Graph          memory BFGS method for large scale optimization.
+ Theory. American Mathematical Soc.                            Mathematical Programming, 45(1):503–528.
+Diebold, F. X. and Mariano, R. S. (2002). Comparing          Liu, H., Ong, Y.-S., Shen, X., and Cai, J. (2020). When
+  predictive accuracy. Journal of Business & economic          Gaussian process meets big data: A review of scalable
+  statistics, 20(1):134–144.                                   GPs. IEEE Transactions on Neural Networks and
+Duvenaud, D. (2014). Automatic Model Construction              Learning Systems, 31:4405–4423.
+ with Gaussian Processes. PhD thesis, University of          Lovász, L. (1993). Random walks on graphs. Combi-
+ Cambridge.                                                    natorics, Paul Erdős is Eighty, 2(1–46):4.
+Feischl, M., Kuo, F. Y., and Sloan, I. H. (2018).            Matthews, A. G. d. G., van der Wilk, M., Nickson,
+  Fast random field generation with H-matrices. Nu-           T., Fujii, K., Boukouvalas, A., León-Villagrá, P.,
+  merische Mathematik, 140(3):639–676.                        Ghahramani, Z., and Hensman, J. (2017). GPflow: A
+Gardiner, C. W. (2004). Handbook of Stochastic Meth-          Gaussian process library using TensorFlow. Journal
+ ods for Physics, Chemistry and the Natural Sciences,         of Machine Learning Research, 18(40):1–6.
+                           Alexander Nikitin, ST John, Arno Solin, Samuel Kaski
+
+
+Moore, E. H. (1920). On the reciprocal of the general         proach. Journal of the American Statistical Associa-
+ algebraic matrix. Bulletin of American Mathematical          tion, 92(440):1650–1652.
+ Society, 26:394–395.                                       Smola, A. J. and Kondor, R. (2003). Kernels and
+Moraga, P., Cramb, S. M., Mengersen, K. L., and               regularization on graphs. In Learning Theory and
+ Pagano, M. (2017). A geostatistical model for com-          Kernel Machines, pages 144–158. Springer.
+ bined analysis of point-level and area-level data using    Solin, A. (2016). Stochastic Differential Equation Meth-
+ INLA and SPDE. Spatial Statistics, 21:27–41.                 ods for Spatio-Temporal Gaussian Process Regression.
+Oksendal, B. (2013). Stochastic Differential Equations:       PhD thesis, Aalto University.
+ an Introduction with Applications. Springer Science        The New York Times (2020). Coronavirus (Covid-19)
+ & Business Media.                                           data in the United States. https://github.com/
+Rasmussen, C. and Williams, C. (2006). Gaussian Pro-         nytimes/covid-19-data (accessed 2021-01-04).
+ cesses for Machine Learning. Adaptive Computation          Tsuda, K. (2011). Graph classification methods in
+  and Machine Learning. MIT Press, Cambridge, MA,             chemoinformatics. In Handbook of Statistical Bioin-
+  USA.                                                        formatics, pages 335–351. Springer.
+Romero, D., Ioannidis, V. N., and Giannakis, G. B.          Von Luxburg, U. (2007). A tutorial on spectral clus-
+ (2017). Kernel-based reconstruction of space-time            tering. Statistics and Computing, 17(4):395–416.
+ functions on dynamic graphs. IEEE Journal of Se-
+                                                            Wardetzky, M. (2020). Discrete Laplace operators. An
+ lected Topics in Signal Processing, 11(6):856–869.
+                                                             Excursion Through Discrete Differential Geometry:
+Romero, D., Ma, M., and Giannakis, G. B. (2016).             AMS Short Course, Discrete Differential Geometry,
+ Kernel-based reconstruction of graph signals. IEEE          January 8-9, 2018, San Diego, California, 76:1.
+ Transactions on Signal Processing, 65(3):764–778.
+                                                            Whittle, P. (1963). Stochastic-processes in several
+Rozemberczki, B., Scherer, P., He, Y., Panagopoulos,         dimensions. Bulletin of the International Statistical
+ G., Riedel, A., Astefanoaei, M., Kiss, O., Beres, F.,       Institute, 40(2):974–994.
+ Lopez, G., Collignon, N., and Sarkar, R. (2021a). Py-
+                                                            Yan, S., Xu, D., Zhang, B., Zhang, H., Yang, Q., and
+ Torch Geometric Temporal: Spatiotemporal signal
+                                                              Lin, S. (2007). Graph embedding and extensions:
+ processing with neural machine learning models. In
+                                                              A general framework for dimensionality reduction.
+ Proceedings of the 30th ACM International Confer-
+                                                              IEEE Transactions on Pattern Analysis and Machine
+ ence on Information and Knowledge Management.
+                                                              Intelligence, 29(1):40–51.
+Rozemberczki, B., Scherer, P., Kiss, O., Sarkar, R., and    Yu, B., Yin, H., and Zhu, Z. (2018). Spatio-temporal
+  Ferenci, T. (2021b). Chickenpox cases in hungary:           graph convolutional networks: A deep learning frame-
+  a benchmark dataset for spatiotemporal signal pro-          work for traffic forecasting. In Proceedings of the
+  cessing with graph neural networks. arXiv preprint         Twenty-Seventh International Joint Conference on
+ arXiv:2102.08100.                                           Artificial Intelligence (IJCAI), pages 3634–3640.
+Ruge, J. W. and Stüben, K. (1987). Algebraic multigrid.    Zhao, L., Song, Y., Zhang, C., Liu, Y., Wang, P., Lin,
+  In Multigrid Methods, pages 73–130. SIAM.                   T., Deng, M., and Li, H. (2019). T-gcn: A temporal
+Sanz-Alonso, D. and Yang, R. (2020). The SPDE                 graph convolutional network for traffic prediction.
+  approach to Matérn fields: Graph representations.          IEEE Transactions on Intelligent Transportation Sys-
+  arXiv preprint arXiv:2004.08000.                            tems, 21(9):3848–3858.
+Särkkä, S. (2011). Linear operators and stochastic
+   partial differential equations in gaussian process re-
+   gression. In Artificial Neural Networks and Machine
+  Learning – ICANN 2011, pages 151–158, Berlin, Hei-
+   delberg. Springer Berlin Heidelberg.
+Särkkä, S. and Solin, A. (2019). Applied Stochastic
+  Differential Equations. Cambridge University Press.
+Scarselli, F., Gori, M., Tsoi, A. C., Hagenbuchner, M.,
+  and Monfardini, G. (2008). The graph neural net-
+  work model. IEEE Transactions on Neural Networks,
+  20(1):61–80.
+Schottl, A. (1997). Stochastic partial differential
+  equations: A modeling, white noise functional ap-
+                       Supplementary Material for
+         Non-separable Spatio-temporal Graph Kernels via SPDEs
+
+
+
+A     Preliminaries
+
+In our proofs, we rely on the following theorem.
+Theorem A.1 (Itô isometry, Oksendal (2013)).
+                                                  !2     "Z              #
+                                 Z T                          T
+                             E       f (t, w) dWt     =E       2
+                                                                f (t, w) dt ,                             (A.1)
+                                          S                                   S
+
+
+for all f ∈ V (S, T ).
+Corollary A.1.1.               
+                                    Z t             ! Z                  !       "Z            #
+                                                        t                            t
+                             E           Xt dWt              Yt dWt  = E               Xt Yt dt ,       (A.2)
+                                     0                    0                         0
+
+where Xt and Yt are stochastic processes adapted to natural filtration. This property will be used actively in
+derivations of covariances from SDEs.
+Lemma A.2 (Integration of the matrix exponential).
+                                              Z T                  
+                                                    eAt dt = eAT − I A−1 ,                                (A.3)
+                                               0
+
+where A is a nonsingular matrix.
+
+B    Graph Kernels
+
+In this section, we introduce spatial kernels on graphs derived by the SPDE framework.
+Proposition B.1 (Laplace’s equation in kernel form). Consider a signal (process) v ∈ R|V | on a graph G, where
+L is the Laplacian of G and the signal is described with the Laplace SPDE on the graph: −Lv = w. Then the
+solution v can be described as a Gaussian process:
+                                                               
+                                                              +
+                                             v ∼ N 0, (L∗ L) .                                           (B.1)
+
+Proof. By writing out
+                                                         v = −L+ w,                                       (B.2)
+and noting that the covariance matrix of white noise w is I, the covariance of the random variable u is
+                                                                +
+                                                            ⊤
+                                   Cov −L+ w = L+ Cov [w] L+ = L⊤ L .                                     (B.3)
+
+
+
+Proposition B.2 (Matérn kernels on graphs). Matérn kernels on graphs are described with the equation
+                                                                  ν2
+                                                        2ν
+                                                           I +L          v = w,                           (B.4)
+                                                        κ2
+                              Alexander Nikitin, ST John, Arno Solin, Samuel Kaski
+
+
+and have the form
+                                                                  ⊤           − ν2 −1
+                                                     2ν     − ν            2ν
+                                     KXX =            2
+                                                        I +L 2                 I +L          .             (B.5)
+                                                     κ                      κ2
+
+For the self-adjoint Laplacian L:                                         ν
+                                                                    2ν
+                                                     KXX =             I +L .                              (B.6)
+                                                                    κ2
+Thus, the solution of Eq. (B.4) is                                         
+                                                         v ∼ N 0, KXX .                                    (B.7)
+
+                              ν2
+                       2ν
+Proof. Let A =         κ2 I + L      , then v = A−1 w. Now, we can derive a covariance matrix, analogously as in
+Proposition B.1.
+
+C     Stochastic Heat and Wave Equations on Graphs
+
+C.1    Heat Equation
+
+Proposition C.1 (Heat equation). The heat equation on graphs is defined by the second order matrix differential
+equation
+                                              du
+                                                  = −c Lu,                                                (C.1)
+                                              dt
+and the solution of this equation is:
+
+                                                         KH = e−cLt u(0).                                  (C.2)
+
+Proof. The solution of the differential equation is similar to the homogeneous initial value problem in the
+continuous case and can be written in terms of a matrix exponential:
+
+                                                         u(t) = e−cLt u(0).                                (C.3)
+
+
+
+                                                                                          e instead of the graph
+For stochastic heat and wave equations, we will be using the pseudo-differential operator L
+Laplacian because this operator is more flexible than L (for ν = 1 and κ → ∞, it coincides with L), and because
+it possesses non-local properties as was shown by Benzi et al. (2020).
+Proposition C.2 (Stochastic heat equation on graphs). The stochastic heat equation can be defined on a graph
+by. adding spatio-temporal white noise, or for convenient integration, as the formal derivative of Wiener process
+Wt :
+                                               du                .
+                                                        e + σ Wt .
+                                                   = −cLu                                                   (C.4)
+                                                dt
+The solution can be defined as a Gaussian process:
+
+                                      u(t) ∼ GP(µ(t), Cov[u(s), u(t)]),          with
+                                                   e
+                                                 −cLt
+                                      µ(t) = e          u(0),
+                                                 2
+                                              σ −cLt−c                           
+                                                   e  Le⊤s      e e⊤                e +L
+                                                                                       e ⊤ )−1 .
+                         Cov[u(t), u(s)] =       e           ec(L+L ) min(t,s) − I (L                      (C.5)
+                                               c
+                    e is self-adjoint (the graph is undirected), as
+Or, when the matrix L
+                                                                e
+                                                µ(t) = e−cLt u(0),                                         (C.6)
+                                                       σ 2  −cL|t−s|
+                                                               e           e
+                                                                                 
+                                                                                   e −1 .
+                                     Cov[u(t), u(s)] =      e         − e−cL(t+s) L
+                                                       2c
+                         Non-separable Spatio-temporal Graph Kernels via SPDEs
+
+                e Equation (C.4) is a matrix differential equation and a solution can be written in the form:
+Proof. Let Γ = cL.
+                                                             Z t
+                                           −Γt           −Γt
+                                  u(t) = e     u(0) + σe         eΓs dWs .                               (C.7)
+                                                                      0
+
+
+The solution in Eq. (C.7) can be expressed as a GP. We give the corresponding mean and covariance as follows.
+
+                                                   E[u(t)] = e−Γt u(0).                                     (C.8)
+
+Using Itô isometry, we can derive the covariance:
+                                        h                            ⊤ i
+                      Cov u(s), u(t) = E u(s) − E[u(s)] u(t) − E[u(t)]
+                                                                                    !
+                                                  Z s                 Z t
+                                                                     ⊤         ⊤
+                                      = E  σe−Γs      eΓξ dWξ   σe−Γ t      eΓ ξ dWξ 
+                                                         0                           0
+                                                                                    !
+                                                          Z s          Z t
+                                                    T                          T
+                                        = σ 2 e−Γt−Γ s E      eΓξ dWξ       eΓ ξ dWξ 
+                                                                0                0
+                                                           ⊤
+                                                                                 −1
+                                        = σ 2 e−Γt−Γ s e(Γ+Γ ) min(t,s) − I Γ + Γ⊤
+                                                    T
+                                                                                       .                    (C.9)
+
+                                e the expression can be simplified:
+Or, in the case of self-adjoint L
+                                            σ 2  −Γ|t−s|           
+                                                 e        − e−Γ(t+s) Γ−1 .                                 (C.10)
+                                            2
+
+
+Proposition C.3 (Stochastic heat equation on undirected graphs with matrix-scaled white noise). Let us consider
+the same equation as in the previous theorem but with Σ-scaled white noise on undirected connected graphs:
+                                                        e dt + Σ dWt .
+                                                 du = −cLu                                                 (C.11)
+
+                                                        e and a diagonalization of Γ:
+The covariance can be derived as follows. Consider Γ = cL
+                                        e ∗ = PL
+                                      P LP     e T P + = diag(λ1 , λ2 , . . . , λn ).                      (C.12)
+
+Then, for t ≥ s:                                         
+                                            Cov u(t), u(s) = P ∗ C(t, s)P ,                                (C.13)
+where C(t, s) is defined as:
+
+                                     1 (P ΣΣ⊤ P ∗ )i,j
+                      C(t, s)i,j =                     (exp(−λi c|t − s|) − exp(−c(λi t + λj s))).         (C.14)
+                                     c    λi + λj
+
+Proof. Let us write covariance between u(t) and u(s) and apply Itô isometry
+                                           h                           ⊤ i
+                     Cov[u(t), u⊤ (s)] = E u(t) − E[u(t)] u(s) − E[u(s)
+                                         Z min(t,s)
+                                       =                  e − ξ))ΣΣ⊤ exp(−cL(s
+                                                    exp(−cL(t                e − ξ))dξ.                    (C.15)
+                                             0
+
+                             e ∗ = Ld = diag(λ1 , . . . , λn ). Then the covariance can be re-written as
+Consider a diagonalization P LP
+                                    Z min(t,s)                                                  
+                       ⊤         ∗                                      ⊤ ∗
+            Cov[u(t), u (s)] = P                exp(−cLd (t − ξ))P ΣΣ P exp(−cLd (s − ξ))dξ P .            (C.16)
+                                   | 0                             {z                             }
+                                                                     C(t,s)
+                           Alexander Nikitin, ST John, Arno Solin, Samuel Kaski
+
+
+Because the matrix Ld is diagonal, we can write the C(t, s)ij (for t ≥ s):
+                                                        Z s
+                        C(t, s)ij = (P ΣΣ⊤ P ∗ )ij            exp(−cλi t − cλj s + cξ(λi + λj )) dξ
+                                                         0
+                                       1 P ΣΣ⊤ P ∗                                       
+                                 =                 exp(cλi |t − s|) − exp(−cλi t − cλj s) .               (C.17)
+                                       c λi + λj
+
+
+
+C.2   Wave Equation
+
+Proposition C.4 (Wave equation on an undirected graph). The wave kernel on undirected graphs is defined by
+the second order matrix differential equation
+
+                                                    d2 u
+                                                         = −c2 Lu,                                        (C.18)
+                                                    dt2
+and the solution of this equation has a form:
+
+                                         1√ +    √             √ 
+                                                      .
+                               u(t) =      L sin c Lt u(0) + cos c Lt u(0).                               (C.19)
+                                         c
+
+Proof. L is a symmetric matrix and, consequently, diagonalizable:
+
+                                                    L = P −1 Ld P ,                                       (C.20)
+
+Then the equation will take a form:
+                                  ..                                  ..
+                                  u + c2 P −1 Ld P u = 0 ⇔ P u + c2 Ld P u = 0.                           (C.21)
+
+Replacing the variable y := P u, we will got the following equation:
+                                                   ..
+                                                   y + c2 Ld y = 0.                                       (C.22)
+
+This is equivalent to n independent scalar ODEs:
+                                                   ..
+                                                   yk + c2 λk yk = 0.                                     (C.23)
+
+The solution of each of these equation is:
+                                                   p             p 
+                                       yk = c1 sin c λk t + c2 cos c λk t .                               (C.24)
+
+                                                                  .
+Let the initial conditions of the system be given as y(0), y(0). Then, for λk ̸= 0 c1 and c2 can be expressed by
+                                                  (          .
+                                                   c1 = c√1λ yk (0)
+                                                                  k
+                                                        c2 =     yk (0)
+
+and c1 = c2 = 0 for λk = 0.
+By doing the reverse substitution, we get the result for u:
+
+                                         1√ +    √             √ 
+                                                      .
+                               u(t) =      L sin c Lt u(0) + cos c Lt u(0).                               (C.25)
+                                         c
+                          Non-separable Spatio-temporal Graph Kernels via SPDEs
+
+
+Proposition C.5. The Stochastic wave equation kernel (SWEK) on undirected graphs is defined by second
+order matrix differential equation
+                                       d2 u             .
+                                                  e + σ Wt
+                                          2
+                                            = −c2 Lu                                           (C.26)
+                                       dt
+and the solution to this equation can be expressed as a Gaussian process:
+
+                u(t) ∼ GP(µ, Cov[u(s), u(t)]                                                                                                (C.27)
+                                    p               p 
+                        1 e− 1            .
+                                      e u(0)              e u(0)
+                   µ= L      2 sin  c Lt       + cos c Lt                                                                                   (C.28)
+                        c
+                                                                                             
+                                                         1
+      Cov[u(s), u(t)] = σ 2 Θ−2 cos(Θ(t − s)) min(t, s) − cos(Θ max(t, s)) sin(Θ min(t, s))Θ−1 .                                            (C.29)
+                                                         2
+           p
+             e
+Here, Θ = c L.
+
+
+Proof. The homogeneous solution for wave equation is given in Theorem C.4:
+                                                      p         p 
+                                              e − 12    e           e c2 .
+                                       u(t) = L sin c Lt c1 + cos c Lt
+
+                     p
+Let us define Θ = c L  e for convenience. In order to solve the given SPDE we need to find the inhomogeneous
+part. It can be found by variation of the parameters. The Wronskian of the basis functions (here denoted as Wr
+to distinguish it from the Wiener process) is:
+
+                                                                cos (Θt)           sin (Θt)
+                                   Wr(v1 , v2 )(t) =         d                    d               = Θ,                                      (C.30)
+                                                             dt cos (Θt)          dt sin (Θt)
+
+
+for v1 = cos(Θt) and v2 = sin(Θt). The particular solution will have the form:
+                                                               Z                             Z                      
+                                             −1
+                      u(t) = Wr(v1 , v2 )             −v1 (t)           v2 (t) dWt + v2 (t)       v1 (t) dWt                                (C.31)
+                                                       Z t                                    Z t                        !
+                                −1
+                           =Θ           − cos(Θt)            sin(Θξ) dWξ + sin(Θt)                    cos(Θξ) dWξ                           (C.32)
+                                                        0                                         0
+
+
+
+Then the solutions for the stochastic wave equation on graphs are
+
+     u(t) = v1 (t) + v2 (t) + u0 (t)                                                                                                        (C.33)
+                                                                        Z t                                     Z t                 !
+          = cos(Θt)c1 + sin(Θt)c2 + Θ−1               − cos(Θt)               sin(Θξ) dWξ + sin(Θt)                   cos(Θξ) dWξ       .   (C.34)
+                                                                          0                                      0
+
+
+
+Assuming that u(t) ∼ N (µ, Cov[u(s), u(t)], let us calculate mean and covariance from Equation (C.31):
+
+                    E[u(t)] = c1 cos(Θt) + c2 sin(Θt),                                                                                      (C.35)
+                                  h                            ⊤ i
+             Cov[u(s), u(t)] = E u(s) − E[u(s)] u(t) − E[u(t)]
+                                                 Z t                       Z t             
+                             = σ 2 Θ−2 − cos(Θt)      sin(Θξ) dWξ + sin(Θt)     cos(Θξ) dWξ
+                                                                 0                                      0
+                                                               Z s                                     Z s                    ⊤
+                                         ×       − cos(Θs)               sin(Θξ) dWξ + sin(Θs)                   cos(Θξ) dWξ
+                                                                    0                                       0
+                              = σ 2 Θ−2 C(s, t),                                                                                            (C.36)
+                               Alexander Nikitin, ST John, Arno Solin, Samuel Kaski
+
+
+where C(s, t) is defined as
+                             Z t                                 Z t                 
+  C(s, t) ≜       − cos(Θt)            sin(Θξ) dWξ + sin(Θt)            cos(Θξ) dWξ
+                               0                                   0
+                                                                       Z s                           Z s                  ⊤
+                                                    ×       − cos(Θs)         sin(Θξ) dWξ + sin(Θs)         cos(Θξ) dWξ          . (C.37)
+                                                                         0                             0
+
+
+Opening the brackets in C(s, t) and using Itô isometry, we will get a sum of the four following expressions:
+ 1.
+                                    Z min(t,s)                                                 min(t,s)
+                                                   2                            ξ  sin(2Θξ) −1
+            cos(Θt) cos(Θs)                      sin (Θξ) dξ = cos(Θt) cos(Θs) I −         Θ              ,                          (C.38)
+                                       0                                        2      4
+                                                                                                                0
+
+ 2.
+                                    Z min(t,s)                                                min(t,s)
+                                                   2                           ξ  sin(2Θξ) −1
+              sin(Θt) sin(Θs)                    cos (Θξ)dξ = sin(Θt) sin(Θs) I +         Θ              ,                           (C.39)
+                                       0                                       2      4
+                                                                                                               0
+
+ 3.
+                              Z min(t,s)                                                                            min(t,s)
+                                                                                     cos2 (Θξ) −1
+        − cos(Θt) sin(Θs)                    cos(Θξ) sin(Θξ)dξ = − cos(Θt) sin(Θs) −          Θ                                  ,   (C.40)
+                                   0                                                     2
+                                                                                                                      0
+
+
+ 4.
+                               Z min(t,s)                                                                           min(t,s)
+                                                                                                − cos2 (Θξ) −1
+        − sin(Θt) cos(Θs)                    cos(Θξ) sin(Θξ)dξ = − sin(Θt) cos(Θs)                         Θ                     .   (C.41)
+                                   0                                                                 2
+                                                                                                                      0
+
+
+Then, the covariance is
+
+                min(t, s)                                    
+    C(s, t) =             cos(Θt) cos(Θs) + sin(Θt) sin(Θs)
+                   2
+                                      sin(2Θ min(t, s))                   sin(2Θ min(t, s))
+                + − cos(Θt) cos(Θs)                     + sin(Θt) sin(Θs)
+                                              4                                  4
+                                    2                                          2                   !
+                                     cos (Θ min(t, s)) 1                         cos (Θ min(t, s)) 1
+                 + cos(Θt) sin(Θs)                      −     + sin(Θt) cos(Θs)                   −     Θ−1
+                                             2            2                              2          2
+                                                  1
+           = cos(Θ(t − s)) min(t, s) −              cos(Θ max(t, s)) sin(Θ min(t, s))Θ−1 .                                           (C.42)
+                                                  2
+
+
+
+D     Kernel Visualizations
+
+In Figure S1, we can observe behavior expected for heat and wave processes that start from the third node on a
+line graph. We observed similar visualizations for other types of graphs.
+                            Non-separable Spatio-temporal Graph Kernels via SPDEs
+
+
+
+
+                   SHEK                                             SWEK
+                  c = 0.1     c = 0.5     c=1        c=2            c = 0.1   c = 0.5     c=1        c=2
+
+
+
+
+    f1 (t)
+
+
+
+
+    f2 (t)
+
+
+
+
+    f3 (t)
+
+
+Figure S1: Temporal visualizations of SHEK (heat, left) and SWEK (wave, right) on a linear three-node graph.
+The first row shows the temporal part of the covariance matrix (summed over the graph vertices at each timepoint).
+The following three rows show mean (black) and samples (colored lines) as a function of time at each of the nodes,
+conditioned on y(t = 0) = (0, 0, 10), for different values of the hyperparameter c.
+
+
+
+
+                   SHEK                                             SWEK
+                  c = 0.1     c = 0.5     c=1        c=2            c = 0.1   c = 0.5     c=1        c=2
+
+
+
+             1                                                 10
+
+    f1 (t)   0                                                  0
+
+             1                                                 10
+             1                                                 10
+
+    f2 (t)   0                                                  0
+
+              1                                                10
+             10                                                10
+
+    f3 (t)   5                                                  0
+             0                                                 10
+
+                       Figure S2: As in Fig. S1, here we illustrate mean and marginal variance.
+                                          Alexander Nikitin, ST John, Arno Solin, Samuel Kaski
+
+
+E        Experiment Details
+
+We ran the experiments on a NVIDIA Tesla P100-PCIE-16GB GPU. We repeated the evaluations for several
+validation rounds (from eight to 12 depending on the experiment) using sliding window backtesting. Sliding
+window backtesting is schematically visualized in Figure S3a and explained in the caption. For all measurements,
+we report 95% confidence intervals.
+
+ shift
+                                Dataset
+
+
+
+
+                                                                   t
+          train_1    test_1
+
+
+
+           train_2            test_2
+
+
+
+                                                train_k   test_k
+
+
+
+
+(a) Sliding window backtesting visualization. At each step,
+we select a training time interval ( ) followed by a testing
+time interval ( ) and evaluate the performance. During                        (b) Visualization of the graph of adjacent states. Each
+the next iteration, we select time intervals that are shifted                 node is a state in the US, and each edge indicates the
+by a particular value.                                                        adjacency between two states.
+
+                                                                       Figure S3
+
+
+
+E.1      Synthetic Wave Experiments
+
+We generated a wave distribution process over a one-dimensional      Table S1: Interpolation/extrapolation per-
+line and discretized it with a graph with 11 vertices. We performed  formance for the wave distribution data
+12 iterations of sliding window backtesting on interpolation and     over a line (MAE × 100).
+extrapolation tasks. For the interpolation task, we used ten percent
+of randomly selected measurements over 52 timepoints. For the         Kernel               MAEint       MAEext
+extrapolation task, we used 50 timepoints for training followed
+by two timepoints where we measured generalization error. We          SHEK(ν=5/2)        0.47 ± 0.14  2.74 ± 0.67
+                                                                      SWEK(ν=5/2) 0.28 ± 0.06 1.89 ± 0.28
+compared SHEK(ν=5/2) and SWEK(ν=5/2). We make conclusion
+that MAE is better for SWEK in interpolation (DM-test, p < 0.01) and extrapolation (DM-test, p < 0.01) tasks.
+The results are presented in Table S1.
+The difference between SHEK and SWEK can be seen visually in Figure S4. SWEK allows extrapolating wave
+behavior beyond training data, and SHEK, in contrast, generalizes badly on the synthetic wave dataset.
+
+
+E.2      Chickenpox Experiments
+
+We performed sliding window backtesting for 12 iterations.
+We report point-wise graphs that illustrate the comparison of generalization error on the extrapolation tasks
+with extended extrapolation periods in Figure S5. The statistical significance can be measured with the Diebold-
+Mariano test. For example, on four weeks extrapolation period, MAE of SHEK(ν = 1/2) is less than MAE of
+the product of Matérn(3/2) and RBF (DM-test, p < 0.1), as well as on six week extrapolation period (DM-test,
+p < 0.01).
+We also experimented with a larger number of separable kernels and compared them with each other and SHEK.
+For example, we provide results of four-weeks extrapolation in Figure S6.
+                                                   Non-separable Spatio-temporal Graph Kernels via SPDEs
+
+
+
+       Fit of GP (SHEK) model to synthetic wave dataset (node: 1)                                                              Fit of GP (SWEK) model to synthetic wave dataset (node: 1)
+                                                                                                                              0.75
+       0.4
+                                                                                                                              0.50
+
+       0.2                                                                                                                    0.25
+
+                                                                                                                              0.00
+       0.0
+                                                                                                                              0.25
+       0.2
+                                                                                                                              0.50
+
+       0.4                                                                                                                    0.75
+
+                                                                                                                              1.00
+           0.5       1.0       1.5     2.0       2.5       3.0       3.5       4.0        4.5        5.0                          0.5         1.0       1.5        2.0       2.5       3.0       3.5       4.0      4.5      5.0
+
+
+
+                 (a) SHEK on wave dataset (node #1).                                                                                    (b) SWEK on wave dataset (node #1).
+       Fit of GP (SHEK) model to synthetic wave dataset (node: 2)                                                              Fit of GP (SWEK) model to synthetic wave dataset (node: 2)
+                                                                                                                               0.6
+       0.4
+                                                                                                                               0.4
+       0.2
+                                                                                                                               0.2
+       0.0                                                                                                                     0.0
+
+       0.2                                                                                                                     0.2
+
+                                                                                                                               0.4
+       0.4
+                                                                                                                               0.6
+       0.6
+                                                                                                                               0.8
+       0.8
+          0.5        1.0       1.5     2.0       2.5       3.0       3.5       4.0        4.5        5.0                          0.5         1.0       1.5        2.0       2.5       3.0       3.5       4.0      4.5      5.0
+
+
+
+                 (c) SHEK on wave dataset (node #2).                                                                                    (d) SWEK on wave dataset (node #2).
+
+                                                                                                           Figure S4
+
+
+             MAE on Hungary Chickenpox dataset (4 weeks)                                                                                MAE on Hungary Chickenpox dataset (6 weeks)
+                                                                                                                       42.5
+  36
+                                                                                                                       40.0
+  34
+                                                                                                                       37.5
+  32
+                                                                                                                       35.0
+MAE
+
+
+
+
+                                                                                                                  MAE
+
+
+
+
+  30
+                                                                                                                       32.5
+  28
+                                                                                                                       30.0
+  26
+                                                                                      SHEK( = 1/2)                     27.5                                                                                       SHEK( = 1/2)
+  24                                                                                  SHEK( = 3/2)                                                                                                                SHEK( = 3/2)
+  22
+                                                                                      SHEK( = 5/2)                     25.0                                                                                       SHEK( = 5/2)
+                                                                                      Matérn( = 5/2) × RBF                                                                                                        Matérn( = 5/2) × RBF
+       0         1         2     3     4     5         6         7   8     9         10    11                                    0        1         2         3     4    5         6         7   8     9         10    11
+                                                                                      Matérn( = 3/2) × RBF                                                                                                        Matérn( = 3/2) × RBF
+                                     Validation round #                                                                                                           Validation round #
+                           (a) Four weeks extrapolation.                                                                                            (b) Six weeks extrapolation.
+
+Figure S5: Visualization of evaluation with extended extrapolation periods of four and six weeks on the Hungarian
+chickenpox dataset.
+
+
+
+  45
+             MAE on Hungary Chickenpox dataset (4 weeks)                                                                                MAE on Hungary Chickenpox dataset (6 weeks)
+                                                                                                                       42.5
+
+                                                                                                                       40.0
+  40
+                                                                                                                       37.5
+
+  35                                                                                                                   35.0
+MAE
+
+
+
+
+                                                                                                                  MAE
+
+
+
+
+                                                                                                                       32.5
+  30                                                                                                                   30.0
+
+                                                                                      SHEK( = 1/2)                     27.5                                                                                       SHEK( = 1/2)
+  25                                                                                  Matérn( = 3/2) × RBF                                                                                                        SHEK( = 3/2)
+                                                                                      RW × RBF                         25.0                                                                                       SHEK( = 5/2)
+                                                                                      Diffusion × RBF                                                                                                             Matérn( = 5/2) × RBF
+       0         1         2     3     4     5         6         7   8     9         10         11                               0        1         2         3     4    5         6         7   8     9         10    11
+                                                                                                                                                                                                                  Matérn( = 3/2) × RBF
+                                     Validation round #                                                                                                           Validation round #
+ (a) Four weeks extrapolation (more separable kernels).                                                             (b) Six weeks extrapolation (more separable kernels).
+
+Figure S6: Visualization of evaluation with extended extrapolation periods of four and six weeks on the Hungarian
+chickenpox dataset (more separable kernels).
+                                                                                   Alexander Nikitin, ST John, Arno Solin, Samuel Kaski
+
+
+E.3                        COVID-19 Experiments
+
+The dataset for this use-case consisted of two parts: information about COVID-19 cases and deaths published
+by The New York Times The New York Times (2020), and a graph that was generated as follows. Each vertex
+represents a state, and two nodes v1 and v2 are connected if two states share a common border. The visualization
+of the graph is presented in Figure S3b.
+
+  13000
+                                                   MAE on COVID-19 dataset (4 weeks)                                                                                                      MAE on COVID-19 dataset (6 weeks)
+                                                                                                                                            16000
+  12000
+
+                                                                                                                                            14000
+  11000
+
+  10000                                                                                                                                     12000
+MAE
+
+
+
+
+                                                                                                                                          MAE
+      9000
+                                                                                                                                            10000
+
+      8000
+                                                                                                                   Matérn( = 5/2) × RBF         8000                                                                                                Matérn( = 5/2) × RBF
+      7000                                                                                                         Matérn( = 3/2) × RBF                                                                                                             Matérn( = 3/2) × RBF
+                                                                                                                   Matérn( = 1/2) × RBF         6000                                                                                                Matérn( = 1/2) × RBF
+      6000
+                           0                   1      2             3      4          5     6          7         8
+                                                                                                                   SHEK( 9 = 1/2)                                    0                1      2            3     4          5     6       7        8
+                                                                                                                                                                                                                                                    SHEK( 9 = 1/2)
+                                                                   Validation round #                              SHEK( = 3/2)                                                                           Validation round #                        SHEK( = 3/2)
+                                                                                                                   SHEK( = 5/2)                                                                                                                     SHEK( = 5/2)
+                                                   (a) Four weeks extrapolation.                                                                                                           (b) Six weeks extrapolation.
+
+Figure S7: Visualization of extrapolation evaluation with extended extrapolation periods of four and six weeks on
+COVID-19 dataset.
+
+We evaluated the performance of the model using ten runs with a sliding window backtesting. We used 33 weeks
+as training data and estimated the number of cases for the following two weeks. As a metric, we used mean
+absolute error (MAE).
+We additionally report the results of extrapolation over four and six weeks periods of time in Figure S7. We can
+observe that the MAE of SHEK modifications is lower than separable Matérn kernels. It can be quantitatively
+measured using the Diebold-Mariano test. For example, four weeks period MAE of SHEK(ν = 1/2) is less than
+MAE of the product of Matérn(1/2) and RBF (DM-test, p < 0.01), as well as on six week period (DM-test,
+p < 0.05). Next, we provide the visualizations of fitted GP using the proposed graph kernel for the three states
+with the largest population in the USA. In Figure S8, we showed 97.5% confidence intervals provided by the GP
+that was trained on COVID-19 dataset.
+
+                                                           Weekly COVID-19 modeling in California                                                                                                    Weekly COVID-19 modeling in Texas
+                                                                                                                                                                12
+                      12
+
+                                                                                                                                                                10
+                      10
+        log(#cases)
+
+
+
+
+                                                                                                                                                  log(#cases)
+
+
+
+
+                                                                                                                                                                8
+                      8
+
+
+                                                                                                                                                                6
+                      6
+
+
+                                                                                                                                                                4
+                      4
+
+
+                                        20                         20                2020                   20                  20                                             2020                    2020               2020             2020                  2020
+                               17-02-20                   27-04-20             06-07-           14   -09-20            23-11-20                                          17-02-                  27-04-             06-07-           14-09-             23-11-
+
+
+                                                                        (a) California                                                                                                                         (b) Texas
+                                                               Weekly COVID-19 modeling in Florida                                                                                                Weekly COVID-19 modeling in New York
+                                                                                                                                                                12
+                      12
+                                                                                                                                                                11
+
+                      10                                                                                                                                        10
+        log(#cases)
+
+
+
+
+                                                                                                                                                  log(#cases)
+
+
+
+
+                                                                                                                                                                9
+                      8
+                                                                                                                                                                8
+
+                      6                                                                                                                                         7
+
+                                                                                                                                                                6
+                      4
+                                                                                                                                                                5
+
+                                                                                                                                                                4
+                      2
+                                        2020                    2020                 2020               2020                 2020                                              2020                    2020               2020             2020                  2020
+                               17-02-                     27-04-               06-07-           14-09-                 23-11-                                            17-02-                  27-04-             06-07-           14-09-             23-11-
+
+
+                                                                         (c) Florida                                                                                                                          (d) New York
+
+Figure S8: The visualizations of the GP posterior on the COVID-19 dataset for the most populated states. We
+indicate 97.5% confidence intervals with blue color; we also show samples from the posterior, and training and
+test data points (marked with black and red crosses, respectively).
+               Prior model             Covariance       GP model
+           ∂u
+           ∂t   = ∆u + dWt               k(x, x′ )   GP(m(x), k(x, x′ ))
+Spatial
+
+
+
+
+          du
+          dt    = −L u + dWt
+Graph
+
+
+
+
+          Working with the graph allows for di-
+          rect modelling of spatio-temporal diffu-
+          sion over the graph nodes as described
+          by the SPDE.                                     Time →
+

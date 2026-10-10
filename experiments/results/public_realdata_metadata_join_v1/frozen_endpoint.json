@@ -1,0 +1,119 @@
+{
+  "kind": "public_realdata_metadata_join_v1_frozen_observation_sensitivity_endpoint",
+  "hypothesis_id": "H018",
+  "status": "design_frozen_real_genotypes_ARGs_models_not_run",
+  "reference_subjects": {
+    "Ana_proxy": [
+      "Bar8",
+      "Bon002"
+    ],
+    "CHG_proxy": [
+      "KK1",
+      "SATP"
+    ],
+    "WHG_proxy": [
+      "Loschbour",
+      "Bichon"
+    ],
+    "EHG_proxy": [
+      "Sidelkino",
+      "NEO88"
+    ]
+  },
+  "reference_subject_count": 8,
+  "reference_haplotypes": 16,
+  "query_subjects": [
+    "NEO935",
+    "NEO898",
+    "NEO23",
+    "NEO739",
+    "NEO943",
+    "NEO866",
+    "NEO945",
+    "NEO738",
+    "Gjerrild5",
+    "NEO28",
+    "NEO942",
+    "NEO790"
+  ],
+  "query_haplotypes": 24,
+  "reference_labels": "chronogeographic proxies from source Group label only; not proven pure ancestry",
+  "selection": {
+    "noflag_ID_and_Flag0_required": true,
+    "minimum_global_coverage_x": 0.4,
+    "minimum_global_average_GP": 0.98,
+    "dates": "valid positive cal.BP mean within95CI; source SupplementaryData7; no negative TableI/II BP copied",
+    "ranking": "coverage descending, averageGP descending, exact subjectID ascending",
+    "reference_maximum_subjects_per_source_archaeological_site": 1,
+    "listed_degree0_1_2_edges_forbidden_across_selected_subjects": true,
+    "reference_subjects_per_proxy": 2,
+    "query_group": "Denmark_Neolithic",
+    "query_subjects": 12,
+    "AP_consulted": false,
+    "ancestry_mixture_tables_or_IBD_cluster_labels_consulted": false
+  },
+  "region": {
+    "assembly": "GRCh37/b37",
+    "chromosome": "22",
+    "interval_bp0": [
+      20000000,
+      22000000
+    ],
+    "coordinate_transformation": "absolute_bp0 = VCF_POS_bp1 - 1; original_region_bp0 = absolute_bp0 - 20000000",
+    "normalization_length_bp": 2000000,
+    "prediction_grid_region_bp0": "50,150,...,1999950",
+    "support": "retained center100bp bins clipped to actual inferred coverage; exact query-bp; no tail extrapolation",
+    "tiles_bp": 250000,
+    "map": "real GRCh37 chromosome22 recombination map must be separately obtained/versioned/hashed; no fabricated constant map"
+  },
+  "observation_QC": {
+    "SNP": "biallelic A/C/G/T transversions only",
+    "1000G_strict_mask": "require presence of MASK_1000G Flag",
+    "INFO_minimum": 0.8,
+    "reference_panel_MAF": "min(RAF,1-RAF)>=0.05, finite NumberA scalar; never target AF",
+    "genotype": "all20 selected subjects callable diploid, GP triplet finite[0,1], rounded sum within0.002, maxGP>=0.8; sites failing any selected subject excluded identically for all HS runs",
+    "HS": "all20 have valid 0<=HS<2**(2*NMAIN), NMAIN15, decoded fixed iteration index per individual across entire ligated region",
+    "HS_draw_indexes": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "GT_baseline": "verify actual phased separators in entire admitted region; preserve source GT",
+    "ancestral_state": "pan_troglodytes must encode one A/C/G/T equal to REF or ALT; exclude missing/conflicting/third allele; do not call REF ancestral",
+    "minimum_retained_SNPs": 1000,
+    "failure": "fail cohort/region admission; do not tune thresholds, duplicate references, fabricate phase, or use AP to recover sites"
+  },
+  "primary_endpoint": {
+    "name": "median_query_posterior_observation_Jensen_Shannon_sensitivity_nats",
+    "definition": "For each query subject, average its two haplotype C4 probability vectors to a diploid mean. For each HSdraw0..7 compare with frozen phased-GT run by Jensen-Shannon divergence using natural logs and0log0=0. Integrate over identical represented100bp bins, divide by exact scored diploid-query bp, average over8 draws, then take median across12 subjects.",
+    "falsifiable_claim": "a fixed method/checkpoint is observation-stable on this frozen cohort/region if median<=0.05nats; otherwise claim fails",
+    "threshold_nats": 0.05,
+    "HS_changes": "both genotype and phase posterior uncertainty; never labelled pure phase error",
+    "all_methods_reported_separately": true,
+    "checkpoint_selection": "simulation-trained checkpoint identities frozen before real-data extraction; no real-data tuning/selection"
+  },
+  "secondary_descriptive": [
+    "all12 per-subject sensitivities and query-bp coverage",
+    "raw GT vs HS heterozygosity/dosage changes from admitted observations",
+    "masked SNP/call counts and source global coverage strata",
+    "optional GP>=0.9 condition only under a separately declared common-support report; no primary redefinition"
+  ],
+  "ARGformer_adaptation": "if within-ARG unsupervised adaptation is used, separately disclose/freeze steps/objective/seed; use no proxy/query ancestry targets or AP and report separately from direct simulation-trained inference",
+  "AP_policy": "remove FORMAT/AP and header definitions before any genotype/tree/model artifact; no AP in references,QC,features,tuning,labels. Any future concordance requires separate comparator namespace opened only after outputs are sealed; cannot establish biological accuracy.",
+  "no_true_local_ancestry_labels": true,
+  "biological_accuracy_from_concordance": false,
+  "blockers": [
+    "target_region_not_downloaded_or_genotype_QC_qualified",
+    "full_chromosome_publisher_checksum_unavailable",
+    "genetic_map_and_polarization_region_inputs_not_frozen",
+    "actual_GT_HS_ligation_validity_not_verified_beyond_first32_records",
+    "new_R16_condition_and_runtime_integration_required; original_R96_not_supported_by_metadata_panel",
+    "metadata_QC_and_absence_of_close_pair_listing_do_not_prove_proxy_purity_or_all_individual_independence",
+    "no_real_data_ARG_or_inference_pipeline_executed"
+  ]
+}
