@@ -2,7 +2,7 @@
 
 Research into graph neural networks for sets and ordered interval-bearing graph sequences, with local ancestry inference from ancestral recombination graphs as the primary application.
 
-Status: research design and reproducible infrastructure. No empirical performance or novelty claims are established yet.
+Status: validation-only architecture studies, verified data pipelines and working AAAI methods drafts. Predictive superiority and distinct novelty remain unestablished. See docs/anchor_pilot.md for the current fixed-anchor prototype and matched controls.
 
 The project runs on anogena in /workspace-SR003.nfs2/ARG-GNN. Read AGENTS.md before contributing.
 
