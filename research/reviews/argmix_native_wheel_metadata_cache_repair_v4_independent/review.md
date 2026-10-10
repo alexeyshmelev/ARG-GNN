@@ -1,0 +1,11 @@
+# Independent ARGMix packaging repair v4 review
+
+No static blockers at source SHA256 d473c76f3c74f7d0def6d05fe0cad5e9634b32a27af3a073fe389c13d1529e22. The preserved prior source matches SHA256 4d89964b82776ab6145ee2ac6065760c91aee389586b19f8ae641feeb697d371. All source text outside wheel_metadata and download_wheel is byte-identical, and all ten unchanged FROZEN input hashes match.
+
+The metadata filter requires exactly one two-component top-level *.dist-info/METADATA member. Vendored nested metadata is excluded, and missing or ambiguous top-level records remain failures. The ZIP member is read for email metadata parsing; this helper performs no extraction or package execution.
+
+The unchanged caller derives the wheel filename from the validated URL path basename, requires a fixed 64-digit SHA256 and a .whl suffix, and creates a fresh wheelhouse. Cache reuse searches prior WORK/wheelhouse-* locations, excludes the current target directory, rejects symlink files and resolved paths outside WORK, and requires exact expected SHA256 bytes. Byte-budget and package Name/Version checks occur before the fresh target is hardlinked. os.link preserves bytes and cannot replace an existing target. A hit returns before any HTTP/file-URL fetch, with final_download_url=None, origin_url, verified_cache_source, SHA256/size and reused_frozen_bytes_without_HTTP=True.
+
+Later verify_lock still rehashes every wheel, and installation remains offline with --require-hashes. The changed helpers write no old receipt, author source, ABI recipe, package pin or Cargo input. Original author inventory checks, Python3.12.13/Torch2.10+cu129 tuple, source constraints, core metadata/hash pins, approved source-wheel exception and ABI/build logic remain unchanged.
+
+This is a source-only review with AST parsing, exact comparison and hashes of frozen source/config/provenance metadata. No helper, downloader, installer or package was executed; no hardlink was created by the reviewer. No GPU, Git, installation or biological truth/score-array access occurred. The root-reported setuptools84 archive member count and actual author files were not independently enumerated. Actual freezing, installation and ABI admission remain root execution.

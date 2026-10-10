@@ -1,0 +1,191 @@
+{
+  "schema_version": 2,
+  "kind": "ancestralpaths_biological_pilot_v2",
+  "hypothesis_id": "H020",
+  "status": "source_prepared_fit_not_run",
+  "implementation_sha256": "49e90d848b7e7f7b6ac8d00488108f02e1906ee7c3df13115b87efa6cc5935ef",
+  "repeat_reason": "H014 qualified only native CPU API; H020 v1 source-stride TRAIN quota stalled before any fit. V2 changes only unfilled-quota failure policy, reuses qualified observed feature caches, and fits actual accepted rows. No unchanged feature extraction or prior optimizer fit is repeated.",
+  "v1_definition": "scripts/train_ancestralpaths_biological_v1.py",
+  "v1_config": "configs/ancestralpaths_biological_pilot_v1.json",
+  "v1_execution_receipt": "checkpoints/ancestralpaths_biological_pilot_v1/receipt.json",
+  "frozen_files_sha256": {
+    "scripts/train_ancestralpaths_biological_v1.py": "826a1e8c3053cf63b8374361f793903970dd75d44cbcd536755e9aaa3b985056",
+    "configs/ancestralpaths_biological_pilot_v1.json": "2c87400c94092b91a38b85d8915cf12f385bf26b37ced98c24df45ff91737941",
+    "docs/ancestralpaths_biological_pilot_v1.md": "c5ab47089cd9b348afed4f4d80bc9ad1f4d5751248bbb604597f99803503bd82",
+    "checkpoints/ancestralpaths_biological_pilot_v1/receipt.json": "ef24a030ccb84c88569a5507961f8dfc5014ad32d1aee343fdf73fdcc4348baf"
+  },
+  "reused_feature_caches": {
+    "bio_paths_pilot_train_000": {
+      "path": "checkpoints/ancestralpaths_biological_pilot_v1/feature_cache/bio_paths_pilot_train_000.npz",
+      "sha256": "f3cc38a6a0cdd33568fa96e4d370f550042f383c9d152f5571e04b608910c454",
+      "metadata_path": "checkpoints/ancestralpaths_biological_pilot_v1/feature_cache/bio_paths_pilot_train_000.json",
+      "metadata_sha256": "542764c9c981f684deea2512403bcfb81bd0c0336995a2446a507dd2b701ca4d"
+    },
+    "bio_paths_pilot_train_001": {
+      "path": "checkpoints/ancestralpaths_biological_pilot_v1/feature_cache/bio_paths_pilot_train_001.npz",
+      "sha256": "c0b3d3b2b1016973fa9ee4fb7145cae065370696e26b3f1fab5a181c6fff63f6",
+      "metadata_path": "checkpoints/ancestralpaths_biological_pilot_v1/feature_cache/bio_paths_pilot_train_001.json",
+      "metadata_sha256": "72cfa987b3cc9383feb18f1f9086fb9543c28720db3d6373bd4dd1c5e97031e0"
+    },
+    "bio_paths_pilot_val_000": {
+      "path": "checkpoints/ancestralpaths_biological_pilot_v1/feature_cache/bio_paths_pilot_val_000.npz",
+      "sha256": "d5a4021e6ea46091db0d5792f1a0388da25f1a3685f59e488ce0d9a63ecd2a48",
+      "metadata_path": "checkpoints/ancestralpaths_biological_pilot_v1/feature_cache/bio_paths_pilot_val_000.json",
+      "metadata_sha256": "b9953e44131d1eaf244f06a96abd097ee749e4d2584205748c2f86cb688ce6d2"
+    },
+    "bio_paths_pilot_val_001": {
+      "path": "checkpoints/ancestralpaths_biological_pilot_v1/feature_cache/bio_paths_pilot_val_001.npz",
+      "sha256": "028b7ae68e3630ef1c6c34e98c8155d97ca6dd21774a8ababb601e6f6d11a338",
+      "metadata_path": "checkpoints/ancestralpaths_biological_pilot_v1/feature_cache/bio_paths_pilot_val_001.json",
+      "metadata_sha256": "99474532bb4bcfb6691d61dbe30321ddb01349d6401a6cef2f03f19a9f20d69f"
+    }
+  },
+  "observed_manifest": "data/biological_paths_execution_pilot_v1/relate_inferred_v1/manifest.json",
+  "observed_manifest_sha256": "6872222127c96b3defbfb1b9edb83ba1d5b11b0b60e6888956369bc507cefe28",
+  "tensorflow_cpu_prefix": ".runtime/conda/envs/ancestralpaths_cpu_v1",
+  "native_model": {
+    "input_shape": [
+      5,
+      9
+    ],
+    "flattened_features": 45,
+    "output_classes": 6,
+    "layers": [
+      {
+        "type": "Flatten",
+        "input_shape": [
+          5,
+          9
+        ]
+      },
+      {
+        "type": "Dense",
+        "units": 512,
+        "activation": "relu"
+      },
+      {
+        "type": "Dropout",
+        "rate": 0.2
+      },
+      {
+        "type": "Dense",
+        "units": 6,
+        "activation": "softmax"
+      }
+    ],
+    "optimizer": "adam",
+    "loss": "categorical_crossentropy",
+    "metrics": [
+      "accuracy"
+    ],
+    "epochs": 5,
+    "batch_size": 32,
+    "shuffle": true,
+    "batch_size_and_shuffle_origin": "keras_model_fit_defaults_not_source_literals",
+    "upstream_training_seed": null
+  },
+  "training": {
+    "seeds": [
+      101,
+      202,
+      303
+    ],
+    "epochs": 5,
+    "batch_size": 32,
+    "shuffle": true,
+    "optimizer": "source_native_keras_adam_default",
+    "loss": "categorical_crossentropy",
+    "checkpoint": "final_epoch5",
+    "prediction_batch_size": 1024,
+    "VAL_early_stopping": false,
+    "VAL_calibration_fit": false
+  },
+  "parent_partition": {
+    "train": [
+      "bio_paths_pilot_train_000",
+      "bio_paths_pilot_train_001"
+    ],
+    "val": [
+      "bio_paths_pilot_val_000",
+      "bio_paths_pilot_val_001"
+    ],
+    "test": []
+  },
+  "sampler": {
+    "method": "source_site_id_stride_path_caps_and_repeated_pass_replacement_on_TRAIN_only",
+    "hardcoded_sample_ranges_adapted_to_observed_manifest": true,
+    "source_num_seq_constant": 3,
+    "source_initial_stride_overhead": 3333.3333333333335,
+    "maximum_source_passes": 128,
+    "unfilled_quota_policy": "retain_realized_accepted_rows_and_continue_cohorts",
+    "per_parent_cohort_budgets": {
+      "present_day": {
+        "target": 50000,
+        "per_path_cap": 12500,
+        "candidate_scan_budget": 100000
+      },
+      "Bronze_Age": {
+        "target": 50000,
+        "per_path_cap": 12500,
+        "candidate_scan_budget": 100000
+      },
+      "BAA": {
+        "target": 12500,
+        "per_path_cap": 6250,
+        "candidate_scan_budget": 25000
+      },
+      "Neo": {
+        "target": 25000,
+        "per_path_cap": 12500,
+        "candidate_scan_budget": 50000
+      },
+      "Yam": {
+        "target": 25000,
+        "per_path_cap": 12500,
+        "candidate_scan_budget": 25000
+      }
+    }
+  },
+  "metrics": {
+    "primary_queries": "present_day_64_haplotypes",
+    "secondary_queries": "ancient_56_haplotypes",
+    "physical_bin_bp": 100,
+    "C4_collapse": "sum_native_probabilities_1plus5_2plus6_3_4_before_argmax",
+    "full_truth_intersections": true,
+    "calibration_bins": 15,
+    "boundary_tolerance_bp": 1000.0,
+    "short_tract_cutoff_bp": 10000.0,
+    "native_confusion_orientation": "predicted_rows_truth_columns",
+    "C4_confusion_orientation": "truth_rows_predicted_columns_query_bp",
+    "probability_floor": false,
+    "support": "union_of_declared_retained_center_physical_bins_clipped_to_observed_coverage",
+    "denominator": "exact_scored_query_bp",
+    "normalization_length_bp": 2000000,
+    "uncovered_tail_extrapolation": false
+  },
+  "claims": {
+    "source_native_Dense": true,
+    "published_CNN_reproduction": false,
+    "biological_fit_completed": false,
+    "final_TEST_evaluation": false
+  },
+  "v1_failure_diagnosis": {
+    "parent": "bio_paths_pilot_train_001",
+    "cohort": "Neo",
+    "target": 25000,
+    "realized": 23731,
+    "shortfall": 1269,
+    "native_path_counts": [
+      12500,
+      0,
+      11231,
+      0,
+      0,
+      0
+    ],
+    "unique_rows": 19992,
+    "replacement_duplicates": 3739,
+    "site_rows": 10147,
+    "stop": "pass8 step76.88671875 added0; future exact native site-ID schedules admit only site0 with no uncapped WHG rows"
+  }
+}

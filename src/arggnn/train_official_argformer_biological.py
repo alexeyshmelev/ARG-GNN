@@ -425,6 +425,11 @@ def object_tensor_manifest(value, helpers):
     import torch
     if torch.is_tensor(value):
         return helpers.tensor_info(value)
+    from omegaconf import DictConfig, ListConfig, OmegaConf
+    if isinstance(value, (DictConfig, ListConfig)):
+        return {"container_type": type(value).__name__,
+                "resolved": object_tensor_manifest(OmegaConf.to_container(value, resolve=True), helpers),
+                "unresolved": object_tensor_manifest(OmegaConf.to_container(value, resolve=False), helpers)}
     if isinstance(value, dict):
         return {str(key): object_tensor_manifest(item, helpers) for key, item in value.items()}
     if isinstance(value, (list, tuple)):
@@ -930,8 +935,19 @@ def bootstrap(args, guard, admission):
                ARGGNN_BIOLOGICAL_NATIVE_CODE_SHA256=sha(SCRIPT))
     env.pop("PYTHONHOME", None)
     env["PATH"] = str(PREFIX / "bin") + os.pathsep + env.get("PATH", "")
+    # Multiprocessing resource-sharer AF_UNIX addresses append a 32-byte
+    # /pymp-XXXXXXXX/listener-XXXXXXXX suffix. Long experiment paths overflow
+    # Linux's 107-byte usable socket pathname; keep only TMPDIR short and owned.
+    job_hash = hashlib.sha256(canonical({"output_dir": str(output),
+                                        "job": lease["launcher_metadata"]["job"]})).hexdigest()[:12]
+    short_tmp = guard.project_path(ROOT / ".runtime/tmp/afbio" / job_hash)
+    socket_example = short_tmp / "pymp-12345678/listener-12345678"
+    if len(os.fsencode(socket_example)) > 107:
+        raise RuntimeError("Repository-local multiprocessing socket path exceeds 107 bytes")
+    short_tmp.mkdir(parents=True, exist_ok=False)
+    env["TMPDIR"] = str(short_tmp)
     for name, relative in {
-        "TMPDIR": "tmp", "XDG_CACHE_HOME": "cache", "XDG_CONFIG_HOME": "config",
+        "XDG_CACHE_HOME": "cache", "XDG_CONFIG_HOME": "config",
         "XDG_DATA_HOME": "data", "HF_HOME": "cache/huggingface",
         "TORCH_HOME": "cache/torch", "TRITON_CACHE_DIR": "cache/triton",
         "CUDA_CACHE_PATH": "cache/cuda", "TORCHINDUCTOR_CACHE_DIR": "cache/torchinductor",
@@ -945,7 +961,10 @@ def bootstrap(args, guard, admission):
     if not os.get_inheritable(lease["lease_fd"]) or guard.validate_lease() != lease:
         raise RuntimeError("Lease inheritance admission failed")
     json_new(output / "exec_admission.json", {"lease": lease, "implementation_sha256": sha(SCRIPT),
-                                            "action": args.action, "pid": os.getpid()})
+                                            "action": args.action, "pid": os.getpid(),
+                                            "TMPDIR": str(short_tmp),
+                                            "multiprocessing_socket_example_bytes": len(os.fsencode(socket_example)),
+                                            "multiprocessing_socket_path_limit_bytes": 107})
     argv = [str(PREFIX / "bin/python"), "-B", str(SCRIPT), "--native", *sys.argv[1:]]
     os.execve(PREFIX / "bin/python", argv, env)
 

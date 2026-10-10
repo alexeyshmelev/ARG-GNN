@@ -1,0 +1,98 @@
+{
+  "hypothesis_id": "H012",
+  "status": "single_reviewed_source_wheel_built_and_frozen_not_installed",
+  "started_utc": "2026-10-10T13:25:37.137301+00:00",
+  "pin_sha256": "a16b40d410609d9e77d66485c01a67c88d613f895069eb7b1f2a57759066a003",
+  "GPU_used": false,
+  "native_author_compiled": false,
+  "installed": false,
+  "steps": [
+    {
+      "name": "prepare_command",
+      "command": [
+        "/workspace-SR003.nfs2/ARG-GNN/.runtime/official_argmix_abi210_v1/cu129/env/bin/python",
+        "-c",
+        "import hashlib,importlib.metadata as m,json,pathlib,urllib.request\nR=pathlib.Path(\"/workspace-SR003.nfs2/ARG-GNN\")\npin=json.loads((R/\"configs/official_argmix_native_environment_v1/approved-connection-pool-source-build-v1.json\").read_text())\nP=R/pin[\"candidate_prefix\"]\nimport sys\nassert pathlib.Path(sys.prefix).resolve()==P.resolve()\nfor name,expected in pin[\"build_backend\"][\"packages\"].items():\n    d=m.distribution(name); records={}\n    assert d.version==expected[\"version\"],\"backend version drift: \"+name\n    for f in d.files or []:\n        p=d.locate_file(f).resolve()\n        if (p.suffix==\".py\" or p.name in {\"METADATA\",\"WHEEL\",\"RECORD\",\"entry_points.txt\"}) and p.is_file():\n            p.relative_to(P)\n            records[str(p.relative_to(P))]=hashlib.sha256(p.read_bytes()).hexdigest()\n    raw=json.dumps(records,sort_keys=True,separators=(\",\",\":\")).encode()\n    assert hashlib.sha256(raw).hexdigest()==expected[\"fingerprint_sha256\"],\"backend file drift: \"+name\nwork=R/pin[\"workspace\"];work.mkdir(parents=True,exist_ok=False)\nfor name in (\"tmp\",\"cache\",\"logs\",\"wheels\"): (work/name).mkdir()\ndata=urllib.request.urlopen(pin[\"source_artifact\"][\"url\"],timeout=30).read()\nassert len(data)==pin[\"source_artifact\"][\"bytes\"]\nassert hashlib.sha256(data).hexdigest()==pin[\"source_artifact\"][\"sha256\"]\n(work/pin[\"source_artifact\"][\"filename\"]).write_bytes(data)\n(work/\"prebuild-frozen-pin.json\").write_text(json.dumps(pin,indent=2)+\"\\n\")\nprint(json.dumps({\"status\":\"source_bytes_and_backend_fingerprints_verified_no_source_execution\",\n \"source_sha256\":pin[\"source_artifact\"][\"sha256\"],\"workspace\":str(work)}))\n"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "e4c0d5c32ff300ae0faf70b23531ec4b31ff2db583c97a2c8b0fa89aa19cc241",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "wheel_build_command",
+      "command": [
+        "/workspace-SR003.nfs2/ARG-GNN/.runtime/official_argmix_abi210_v1/cu129/env/bin/python",
+        "-m",
+        "pip",
+        "wheel",
+        "--no-build-isolation",
+        "--no-deps",
+        "--no-index",
+        "--wheel-dir",
+        "/workspace-SR003.nfs2/ARG-GNN/.runtime/official_argmix_abi210_v1/cu129/workspace/connection_pool_source_build_v1/wheels",
+        "/workspace-SR003.nfs2/ARG-GNN/.runtime/official_argmix_abi210_v1/cu129/workspace/connection_pool_source_build_v1/connection_pool-0.0.3.tar.gz"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "7f4da0e07537991ab069f608478baf8cac601848a59e4c34f16e67577aa353c0",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "wheel": {
+    "name": "connection-pool",
+    "version": "0.0.3",
+    "path": ".runtime/official_argmix_abi210_v1/cu129/workspace/connection_pool_source_build_v1/wheels/connection_pool-0.0.3-py3-none-any.whl",
+    "file_url": "file:///workspace-SR003.nfs2/ARG-GNN/.runtime/official_argmix_abi210_v1/cu129/workspace/connection_pool_source_build_v1/wheels/connection_pool-0.0.3-py3-none-any.whl",
+    "sha256": "1e3d8b819323fe8635d9bc267fa56b8f81521657991d08e6a869f1f0c7500586",
+    "bytes": 4106,
+    "source_sha256": "bf429e7aef65921c69b4ed48f3d48d3eac1383b05d2df91884705842d974d0dc",
+    "backend_pins": {
+      "backend": "setuptools.build_meta:__legacy__",
+      "origin": "implicit PEP517 setuptools legacy route; archive has no pyproject.toml",
+      "isolation": false,
+      "automatic_build_dependency_installation": false,
+      "packages": {
+        "setuptools": {
+          "version": "84.0.0",
+          "fingerprint_sha256": "7e5eda17d3bf89c0d9d155010c5cef69defd2ce792ce7a95d1ce288098867cd0",
+          "build_meta_py_sha256": "6f4a583e1b6bb0d5ef3af2ac0a6e9a033d06f364e4a550e3b112812674b38419"
+        },
+        "wheel": {
+          "version": "0.48.0",
+          "fingerprint_sha256": "44d604ab368c62f0cc565d34eb58180dc8f57f4c44b4605bd932450e3c0bfcaf",
+          "bdist_wheel_py_sha256": "6e998d6bbfecf826059158177fd10d0184e2274d57061456e29c47d53f1762c2"
+        }
+      },
+      "fingerprint_algorithm": "SHA256 of compact sort_keys JSON mapping candidate-prefix-relative installed .py plus METADATA/WHEEL/RECORD/entry_points.txt file names to SHA256; pyc excluded; every file must remain inside candidate prefix",
+      "frozen_Conda_package_records": [
+        {
+          "name": "python",
+          "version": "3.12.13",
+          "build": "h8ab3286_1_cpython",
+          "url": "https://conda.anaconda.org/conda-forge/linux-64/python-3.12.13-h8ab3286_1_cpython.conda",
+          "sha256": "df3d1e5f972e79e78b61730c09135c795f6e7aa45b7777835c95f451e85eff0d",
+          "md5": "c6e02a78e3b6427c633328fea9399534"
+        },
+        {
+          "name": "setuptools",
+          "version": "84.0.0",
+          "build": "pyh332efcf_0",
+          "url": "https://conda.anaconda.org/conda-forge/noarch/setuptools-84.0.0-pyh332efcf_0.conda",
+          "sha256": "9e200ee5f9ff19a4d94e4b51c4856d53dec849f91032f345cf0c6bc3d51a7183",
+          "md5": "62ac906f1cd582c6c264c95625cb9d6f"
+        },
+        {
+          "name": "wheel",
+          "version": "0.48.0",
+          "build": "pyhd8ed1ab_0",
+          "url": "https://conda.anaconda.org/conda-forge/noarch/wheel-0.48.0-pyhd8ed1ab_0.conda",
+          "sha256": "ba64b29b6d418024cb565081a1799262cb2780d2534ff4c14f76aa858c4286cd",
+          "md5": "9a2124517bfd5d792e0f7b86eefdfeb8"
+        }
+      ]
+    },
+    "SOURCE_DATE_EPOCH": "1791590400",
+    "pin_sha256": "a16b40d410609d9e77d66485c01a67c88d613f895069eb7b1f2a57759066a003"
+  },
+  "built_wheel_receipt_sha256": "52038a3132f4811a9579a6a5e6fb810b37c1524c2e10646945fc7443b17447d5",
+  "finished_utc": "2026-10-10T13:25:40.325071+00:00"
+}
