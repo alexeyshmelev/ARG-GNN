@@ -37,13 +37,24 @@ accounted for 37.9685 GB. Seed 101 fitting is running through the qualified GPU 
 epochs already provide checkpoint-selection NLL, but final selected-model
 accuracy is not yet available.
 
-Native ARGformer's actual source batch-4096 optimizer probe passed on TRAIN0
-after a receipt-only OmegaConf container repair. It used 46.7586 GB peak GPU
-memory and verified exact temporary-weight restoration. Three native within-ARG fits have completed and the fourth is running, with
-source five-epoch MLM and one-epoch full-batch contrastive fitting. The completed
-fits record changed backbone parameters and unchanged unused classifier.
-Common external ancestry scoring is independently audited and awaits all four
-completed receipts. No fitted ancestry accuracy is available yet.
+All four native ARGformer within-ARG fits completed five MLM epochs and one
+full-batch-4096 contrastive epoch. The genuine source optimizer probe used
+46.7586 GB peak GPU memory and restored temporary weights exactly. The independently
+audited common C4 scorer passed on both sealed VAL products.
+
+| Adapted ARGformer development VAL endpoint | Unweighted parent mean |
+|---|---:|
+| Present-day accuracy | 35.8972% |
+| Present-day macro F1 | 0.342940 |
+| Present-day raw NLL | 1.378963 |
+| Ancient-query accuracy | 36.2109% |
+
+Evidence: [readout summary](../experiments/results/official_argformer_biological_readout_v1/summary.json).
+This uses independent native within-ARG fitting and a fixed pure-reference
+C4 embedding readout. It has different supervision from AP and our candidate,
+and does not reproduce the original paper's task. Its weak endpoint needs a
+representation/readout suitability and native fit-quality assessment before
+rank interpretation. It cannot establish general superiority.
 
 Current official ARGMix release c2481248 compiled successfully with a coherent
 Torch 2.10/CUDA 12.9 runtime for its unchanged tch 0.23 source. The actual
@@ -79,8 +90,10 @@ remain unestablished. The manuscript stays a working methods draft.
 
 ## Resource record
 
-The complete project-root scan ended at 2026-10-10T13:58:32Z and measured
-66,237,984,768 bytes. Subsequent jobs reserve their planned writes below the
-450 GB bulk-write threshold and the 500 GB maximum. Eligible GPUs are the free physical devices 2 through 5. Current project GPU
-jobs are scheduled on 2 and 3, with the prescribed process
-title and actual NVTOP evidence. CPU-only stages hide CUDA explicitly.
+The complete project-root scan ended at 2026-10-10T16:06:16Z and measured
+161,936,973,824 bytes. It reserves 80 GB for native ARGMix and 130 GB for
+concurrent/follow-up writes, leaving about 78 GB before the 450 GB bulk-write
+threshold after those conservative reservations. The maximum is 500 GB.
+Eligible GPUs are free physical devices 2 through 5. ARGformer released GPU2
+for ARGMix admission and fitting. The candidate continues on GPU3, using the
+prescribed process title and actual NVTOP evidence. CPU-only stages hide CUDA.
