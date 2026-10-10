@@ -1,0 +1,97 @@
+\documentclass[letterpaper]{article}
+\usepackage[draft]{aaai2027}
+\usepackage[hyphens]{url}
+\usepackage{graphicx}
+\urlstyle{rm}
+\def\UrlFont{\rm}
+\usepackage{natbib}
+\usepackage{caption}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\frenchspacing
+\pdfinfo{/TemplateVersion (2027.1)}
+\setcounter{secnumdepth}{2}
+\title{Interval-Consistent Message Passing Across Graph Collections}
+\author{Anonymous Submission}
+\affiliations{}
+\begin{document}
+\maketitle
+\begin{abstract}
+Ordered graph collections arise when a graph describes an observation over an interval rather than at a single point. Marginal genealogies are one example: adjacent genomic intervals carry different trees, while sampled individuals persist across them. We formulate a graph collection operator that combines local message passing, observed node correspondence and attention integrated over source intervals. Its predictions at fixed coordinates are unchanged when an identical graph interval is subdivided into multiple records. The construction separates independent local source representations from target states that receive collection context before further message passing. We give the precise conditions for this consistency property and specify common-input comparisons for ancestry inference and temporal graph forecasting. This document records the method and evaluation protocol while empirical studies are in progress.
+\end{abstract}
+
+\section{Introduction}
+A collection of graphs can represent a group of related objects, an evolving relational system, or a piecewise description of a continuous domain. A set model treats the members as unordered. A sequence model also uses their locations and durations. These choices matter for ancestral recombination graphs, whose marginal trees cover genomic intervals. Two adjacent tree records can be identical after an observation or serialization step, and changing that bookkeeping should preserve a prediction at the same genomic coordinate.
+
+Graph Set Transformer couples graph message passing with collection-level attention \citep{gst2026}. GraphSSM studies state-space models on temporal graphs, including persistent-node alignment and irregular observation intervals \citep{graphssm2024}. Continuum attention motivates integration with respect to an underlying measure instead of treating discretization points as interchangeable tokens \citep{continuum2024}. Our construction brings these established ideas into a fixed-coordinate graph collection operator. We distinguish its representation property from the empirical question of whether correspondence and feedback improve prediction.
+
+The motivating biological task is local ancestry classification from observed genealogies. ARGformer and graph-transformer ancestry inference establish useful reference tasks \citep{argformer2026,ancientancestry2026}. Ancient Eurasian ancestry analysis provides a broader biological setting \citep{eurasians2024}. We use explicit simulated ancestry targets and evaluate both true and inferred trees. Labeled reference samples provide observed panel information. Ancestry targets for query samples remain external to all model inputs.
+
+\section{Graph Collection Operator}
+\subsection{Inputs and Local Representations}
+Let $G_g=(V_g,E_g,X_g)$ describe the graph on the interval $I_g=[a_g,b_g)$, for $g=1,\ldots,m$. The intervals form a partition of a declared observation window. Predictions are requested at fixed coordinates $x_p$ inside that window. The graph containing $x_p$ supplies the target topology. Node identifiers are correspondence keys, without numerical embeddings. When observed descendant-landmark indicators are available, $c_u$ denotes the indicator vector at node $u$.
+
+A shared graph encoder builds independent source banks:
+\begin{equation}
+ h_g^{(0)}=\sigma(W_0 X_g),\qquad
+ h_g^{(\ell+1)}=M_\ell(h_g^{(\ell)},E_g).
+\end{equation}
+Here $M_\ell$ is a residual mean-neighbor message layer with layer normalization. Each source bank uses its own graph only. It is therefore unchanged by inserting an identical copy of another interval record.
+
+\subsection{Interval Measure and Correspondence}
+For a target coordinate $x$ and positive scale $\tau_\ell$, define
+\begin{equation}
+ w_{xg}^{(\ell)}=\int_{a_g}^{b_g}
+       \exp(-|x-y|/\tau_\ell)\,dy.
+\end{equation}
+This weight accounts for the full interval rather than evaluating its midpoint. For target node $u$ and source node $v$, define the correspondence bias
+\begin{align}
+ B_{uv}^{(\ell)}={}&\alpha_\ell\,\mathbf{1}\{\mathrm{id}(u)=\mathrm{id}(v)\geq0\}\nonumber\\
+ &+\beta_\ell\,
+ \frac{\langle c_u,c_v\rangle}
+ {\max(1,\|c_u\|_1+\|c_v\|_1-\langle c_u,c_v\rangle)}.
+\end{align}
+The identity term matches observed persistent leaves. The second term compares observed landmark descendants. Query leaves outside the landmark panel have zero landmark incidence. Their direct correspondence term is leaf equality, while ancestral target nodes can use clade overlap and pass context through target edges.
+
+With $v\in V_g$, the attention score is
+\begin{align}
+ s_{uv}^{(\ell)}(x)={}&
+ \frac{\langle Q_\ell z_u,K_\ell h_v^{(\ell+1)}\rangle}{\sqrt d}
+ +B_{uv}^{(\ell)}\nonumber\\
+ &+\log w_{xg}^{(\ell)}-\log |V_g|.
+\end{align}
+Normalizing over all source nodes yields a message formed from $V_\ell h_v^{(\ell+1)}$. The node-count term assigns a uniform empirical node measure within each graph. It is part of the operator definition rather than an assertion that all biological nodes carry equal information.
+
+\subsection{Context Feedback}
+The target state starts from its local input bank. At each depth, a target message-passing layer first propagates the current state along target edges. Cross-graph attention then supplies a gated residual context update with layer normalization. The next depth propagates this updated state. A shared head reads the requested target leaves. The independent source banks remain local throughout this procedure.
+
+The direct computational implementation forms target-to-source node scores at each requested coordinate. For target sizes $n_p$ and packed source size $N$, the attention score work at one layer is $O(dN\sum_p n_p)$, in addition to local message passing and correspondence computation. Source projections are reused across coordinates. We retain measured preparation, runtime and memory costs with each experiment.
+
+\section{Interval Subdivision Consistency}
+\textbf{Proposition.} Replace one source interval $[a,b)$ by a contiguous partition, and repeat the same graph, features, observed identifiers and landmark indicators on each piece. Keep requested coordinates fixed, use the containing copy as target topology, and evaluate deterministically. The exact-integral operator returns the same predictions.
+
+\textbf{Proof.} Local source banks and projected keys and values are identical for all copies. For any fixed target state, each copied source-node score differs only in its interval mass. Exponentiating the score yields a common content and correspondence factor multiplied by $w_{xg}/|V_g|$. Integration is additive over a partition, so summing the copied numerator terms restores the original numerator. The same argument applies to the attention denominator. The resulting context message is unchanged. The containing target copy has identical input state and edges. Induction over target message-passing and context-update depths therefore preserves every target state and final prediction. $\square$
+
+This is a property of repeated identical observations at common coordinates. Deterministic evaluation is needed because independent stochastic masks can make copies differ. The property follows from additive integration and independent source banks. Integral attention itself is established prior art \citep{continuum2024}. A span-weighted unordered control replaces $w_{xg}$ by $b_g-a_g$, retaining the same node correspondence and feedback while removing distance from the requested coordinate.
+
+\section{Common-Input Evaluation Protocol}
+\subsection{Observed Reference Evidence}
+Shallow graph encoders can have a restricted reference receptive field on a whole genealogy. We therefore supply every comparison with the same fixed observed-reference summaries at all nodes. An upward pass counts descendant references. A downward pass accumulates outside references in sibling shells, whose observed common ancestor is known from topology. The summaries include source-conditioned minimum, mean and standard deviation of encoded relation time, reference fractions, nearest-reference tie votes, and three fixed kernel-evidence values. Original features and topology are retained.
+
+The input adapter has no learned parameters and uses no ancestry target, migration record, hidden population assignment or census annotation. It is a domain control. Its CPU preparation and cached storage costs are recorded. A query-feature MLP tests the information available without graph edges. Other controls include an independent GNN, graph-mean set pooling, bidirectional GRU, temporal Transformer, GraphSSM adaptation, direct leaf kernel smoothing and the span-weighted correspondence model. Most GNN controls share the same local mean-message definition. GraphSSM retains its documented native diffusion operator.
+
+\subsection{Ancestry Study}
+The ancient-European simulation uses the pinned stdpopsim 0.3.0 \texttt{AncientEurope\_4A21} demographic model. External labels record the source population of each query's lineage at a census time of 350 generations. The four sources are ANA, CHG, WHG and EHG. Before constructing observed trees, unary census nodes, census-only boundaries and all hidden population annotations are removed. Sample genotypes and pairwise common-ancestor times are preserved.
+
+A paired genotype-to-tree pipeline uses the authorized Relate 1.2.4 release, observed phased variants, sample ages and a declared recombination map. Inferred coverage clips only edge windows. Genomic coordinates are retained in the parent coordinate system, and labels are aligned by exact sample and haplotype keys. Relate attribution: Copyright \copyright\ 2018, University of Oxford.
+
+The engineering studies contain 16 independent training chromosomes and four validation chromosomes, each of length 1 Mb with 128 fixed scoring coordinates and eight query haplotypes. Eight fixed genomic windows supply model context. No final test chromosomes are generated in these studies. Checkpoints are selected by mean parent-validation negative log likelihood. Records include accuracy, multiclass calibration scores, per-class confusion and grid-level boundary diagnostics. A classical continuous-time reset-chain smoother applied to feature-MLP posteriors provides an additional temporal control with a larger parent-wide context.
+
+\subsection{Temporal Graph Applicability}
+The Hungarian Chickenpox Cases dataset contains 522 weekly observations on a fixed graph of 20 counties and is licensed under CC BY 4.0. Each input consists of the preceding 52 weeks, and a scalar regression head predicts the following week. The frozen chronological split uses 313 training targets, 78 validation targets and 79 reserved test targets. Per-county normalization uses training observations only. The studies select checkpoints by validation mean absolute error in original case units.
+
+Controls include the last observed value, a lag-52 seasonal predictor, multivariate ridge autoregression, an unordered model with a current-week readout, and removal of geographic message passing. A chronology intervention permutes the first 51 historical graphs while keeping the final observation fixed. This domain checks temporal graph applicability with a persistent node set and fixed topology.
+
+\bibliography{references}
+\end{document}
