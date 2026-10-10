@@ -1,0 +1,73 @@
+{
+  "recorded_date": "2026-10-10",
+  "scope": "Independent CPU spectral graph OU GP comparator, no exact reproduction claim",
+  "references": [
+    {
+      "url": "https://proceedings.mlr.press/v151/nikitin22a.html",
+      "bytes": 14666,
+      "sha256": "983a9a6e0646b7530d75abf7f79669d9ddf5d1cd914f5680a206fc804b837827",
+      "inspected_sections": [
+        "bibliographic record",
+        "abstract"
+      ],
+      "retrieval": "urllib.request, response read into memory, not executed"
+    },
+    {
+      "url": "https://arxiv.org/html/2111.08524v3",
+      "version": "v3",
+      "version_date": "2024-12-27",
+      "bytes": 451836,
+      "sha256": "dcb9cc88f13e7fa20f7a371bb3e84014d55bcf74691d4e55688e84d2fb856594",
+      "inspected_sections": [
+        "4.1 fractional graph Laplacian",
+        "4.4 stochastic heat equation and matrix-scaled noise",
+        "5 marginal likelihood GPflow/L-BFGS",
+        "5.3 Hungary Chickenpox",
+        "E.2 Chickenpox experiments"
+      ],
+      "retrieval": "urllib.request, response read into memory, stripped HTML inspected, not executed"
+    }
+  ],
+  "citation": "Nikitin, Alexander V.; John, St; Solin, Arno; Kaski, Samuel. Non-separable Spatio-temporal Graph Kernels via SPDEs. AISTATS 2022, PMLR 151:10640-10660.",
+  "author_software": {
+    "url": "https://github.com/AaltoPML/spatiotemporal-graph-kernels",
+    "identified_in": "arXiv v3 Section 6",
+    "code_inspected": false,
+    "code_copied": false
+  },
+  "implementation": "src/arggnn/graph_gp.py",
+  "independent_choices": [
+    "stationary initialization",
+    "shifted linear Laplacian temporal drift",
+    "normalized inverse shifted Laplacian spatial power",
+    "independently fitted spatial covariance and temporal rates",
+    "training-only county standardization",
+    "bounded log-parameter multistart L-BFGS-B",
+    "exact Kalman likelihood with analytic gradients",
+    "one-week forecasts with exactly 52 prior observed weeks"
+  ],
+  "qualifying_environment": {
+    "numpy": "2.4.6",
+    "scipy": "1.17.1",
+    "cuda_visible_devices": "",
+    "omp_num_threads": 1,
+    "openblas_num_threads": 1,
+    "mkl_num_threads": 1
+  },
+  "qualification": {
+    "command": "python -m pytest tests/test_graph_gp.py -q -p no:cacheprovider",
+    "tests_passed": 27,
+    "pytest_wall_seconds": 3.38,
+    "actual_data_forecast_scoring": false,
+    "final_test_evaluated": false
+  },
+  "limitations": [
+    "Not a reproduction of published SHEK or separable RBF controls",
+    "Inspected arXiv v3 postdates AISTATS publication",
+    "Official implementation not independently verified",
+    "Stationary OU lacks seasonal/oscillatory dynamics",
+    "Gaussian count observation approximation",
+    "Hyperparameter and scaler uncertainty omitted",
+    "Fixed undirected graph and complete observations required"
+  ]
+}
