@@ -10,7 +10,7 @@ Updated 2026-10-11.
 
 - **Native ARGformer:** the first tsinfer-parent fit and retrieval completed. It trained for five MLM epochs and one native contrastive epoch. The second parent is training on GPU 2. An ancestry comparison awaits retrieval and scoring on both VAL parents.
 - **Whole-tree development controls:** five Census controls and the previously launched mechanism repeat remain live on GPU 3. Final selected-checkpoint outcomes are pending. No further optimizer-seed repeats are planned during initial architecture discovery.
-- **New architecture:** an FP32 persistence-trace layer is being prepared. It links complete observed trees through shared ancestral branches and adds a learned residual to a strong frozen emitter. The pilot will compare ordinary genomic smoothing, sample-only continuity, genuine ancestral connections and shuffled connections. It has no predictive result yet.
+- **New architecture:** an FP32 persistence-trace layer is implemented, and its pilot driver is being prepared. It links complete observed trees through shared ancestral branches and adds a learned residual to a strong frozen emitter. The pilot will compare ordinary genomic smoothing, sample-only continuity, genuine ancestral connections and shuffled connections. It has no predictive result yet.
 - **Original GST executed:** all four native USPTO models completed a bounded TRAIN/VALID pilot. Their selected validation AP is reported separately below.
 - **Full-parent numerical matrix deferred:** its first CPU cell checked implementation consistency and produced no ancestry accuracy result. Remaining cells will not displace model development.
 
