@@ -2880,7 +2880,7 @@
     },
     {
       "id": "H033",
-      "status": "running_GPU2_epoch5_80updates_per_arm",
+      "status": "completed_FP32_seed101_160updates_per_arm_no_mechanism_accuracy_advantage",
       "registered_utc": "2026-10-11T17:59:31.545033+00:00",
       "hypothesis": "Interleaving confidence-anchored whole-native-tree inference with genomic TV correction improves local ancestry accuracy and transition fidelity beyond the same tree and TV operators applied in blocked order.",
       "method": "Two52-scalar FP32 arms compute (BA)^3 or B^3 A^3. A is an exact positive tree solve with0.01 interior absorption, frozen-emitter confidence precisions at actual query samples, genuine observed reference-source placements and fixed age conductances. B performs8 projected-dual TV updates on the unchanged physical readout sequence. Same frozen H025 skip, source projections, centering and decoder.",
@@ -2921,13 +2921,15 @@
         "research/reviews/next_accuracy_experiment_v1/proposal.md",
         "research/reviews/next_accuracy_experiment_v1/H032_conclusion.md",
         "research/reviews/next_accuracy_experiment_v1/confidence_diagnostic.json",
-        "experiments/results/reference_dependence_full_storage_v1_summary_root/summary.json"
+        "experiments/results/reference_dependence_full_storage_v1_summary_root/summary.json",
+        "experiments/results/interleaved_tree_tv_gnn_v1_summary_root/summary.json"
       ],
-      "conclusion": "Both arms have80actualFP32updates and five sealed epochs. Interleaved/blocked epoch5 accuracy85.9380% and NLL0.388102, no demonstrated interleaving advantage. Unfinished discovery pilot."
+      "conclusion": "Interleaved and blocked operators are effectively tied: selected accuracy85.969702% versus85.969468%, NLL0.386109725 versus0.386111219. Gain over smoothing is0.02999percentagepoints. No convincing operator-interleaving benefit or novel mechanism demonstrated.",
+      "updated_utc": "2026-10-11T19:58:09.171220+00:00"
     },
     {
       "id": "H034",
-      "status": "two_full_panel_TRAIN_parents_completed_three_registered_remaining",
+      "status": "two_full_panel_parents_complete_two_more_CPU_producers_running",
       "registered_utc": "2026-10-11T18:11:56.854990+00:00",
       "hypothesis": "The full author AncestralPaths panel supplies a stronger, independently split biological comparison for native released ancestry methods and the developing whole-tree model on identical observations.",
       "method": "Prepare five frozen independent2Mb parents, full476 diploids/952 haplotypes,686 admixed query and266 pure-source haplotypes. Preserve author demographic recipe, cohort ages, mutation/recombination rates and Relate chain including five population-size iterations. Keep census350 targets separate from observed genotypes and inferred trees.",
@@ -3079,15 +3081,17 @@
         "research/reviews/original_paper_benchmark_next_v1/plan.md",
         "docs/ancestralpaths_full_panel_discovery_v1.md",
         "configs/ancestralpaths_full_panel_discovery_v1.json",
-        "src/arggnn/prepare_ancestralpaths_full_panel_discovery_v1.py"
+        "src/arggnn/prepare_ancestralpaths_full_panel_discovery_v1.py",
+        "research/reviews/full_panel_native_comparison_split_v1/split.json",
+        "research/reviews/full_panel_native_baseline_plan_v2/plan.md"
       ],
-      "conclusion": "ap_full_train_000 and ap_full_train_001 completed simulation and Relate inference. Full952haplotype panel,2Mb,newstreams. No full-panel method scores yet. Remaining three parents have not launched."
+      "conclusion": "TRAIN000/001 completed. Frozen nominalTRAIN002 (downstream INTERNAL_VAL) and outer_discovery000 generation/Relate producers are running. No full-panel method scores yet. Downstream split amendment frozen before these parents. No favorable resampling."
     },
     {
       "id": "H035",
       "registered_utc": "2026-10-11T18:49:02.204758+00:00",
-      "updated_utc": "2026-10-11T18:49:02.204758+00:00",
-      "status": "running_GPU3_graph_preparation",
+      "updated_utc": "2026-10-11T19:58:09.171220+00:00",
+      "status": "completed_FP32_seed101_160updates_per_arm_no_mechanism_accuracy_advantage",
       "hypothesis": "Signed differences of two observed-role tree/alignment compositions improve local ancestry accuracy and NLL over the matched parallel path-sum control and frozen smoothing baseline.",
       "method": "Two matched whole-tree arms use signed_difference=0.5*(A_new*T-T*A_old) or path_sum=0.5*(A_new*T+T*A_old). Both retain the same H030 static encoder/decoder, frozen H025 skip, genuine complete observed trees, shared learned geometry mean and unique observed-role sparse maps. Actual sample identity or unique exact descendant bitset plus observed age defines correspondence, not true ancestor identity. Ambiguous or absent roles reset to zero. No retained recurrence or tile-boundary carry.",
       "protocol": {
@@ -3142,7 +3146,8 @@
         "src/arggnn/observed_role_mixed_path_gnn_v1.py",
         "configs/observed_role_mixed_path_gnn_v1.json",
         "docs/observed_role_mixed_path_gnn_v1.md",
-        "research/reviews/observed_role_mixed_path_gnn_v1_author/source_receipt.json"
+        "research/reviews/observed_role_mixed_path_gnn_v1_author/source_receipt.json",
+        "experiments/results/observed_role_mixed_path_gnn_v1_summary_root/summary.json"
       ],
       "source_refs": [
         {
@@ -3172,14 +3177,68 @@
         "actual_data_and_GPU_runtime_qualified": false,
         "GPU_fit_started": false
       },
-      "conclusion": "Worker1892934 and launcher1892894 live with CUDA and verified NVTOP title. Graph preparation is underway. No actual update or predictive result yet claimed.",
+      "conclusion": "Signed difference scores85.933469%/NLL0.374666 at epoch10, versus path-sum85.943755%/0.374558 at selected epoch7. Signed difference loses to its matched control and smoothing accuracy85.939717%. Likelihood improvement over smoothing does not establish a signed-path mechanism.",
       "actual_input_ref": {
         "path": "research/reviews/observed_role_mixed_path_gnn_v1_root/input_corrected_v2.json",
         "sha256": "346bf2380b60678d671570668d182eb50e3e59306b63c28a404eff18de6000f6"
       }
+    },
+    {
+      "id": "H036",
+      "status": "prospectively_registered_prototype_implementation",
+      "registered_utc": "2026-10-11T19:22:57.405264+00:00",
+      "hypothesis": "Directly supervised complete-tree representations with observed allele-clade concordance routing improve local ancestry accuracy over the same model with shuffled branch support and historical ordinary smoothing.",
+      "method": "Width32 learned site-to-leaf inputs, reference-labelled two-sweep cavity messages gated by observed branch geometry/support, full-parent sample-aligned bidirectional GRU, direct4class head. No frozen teacher, age centering or residual correction.",
+      "protocol": {
+        "TRAIN_parents": 2,
+        "reused_development_VAL_parents": 2,
+        "TEST_parents": 0,
+        "seed": 101,
+        "dtype": "float32",
+        "arms": [
+          "aligned",
+          "shuffled"
+        ],
+        "initial_full_parent_epochs": 10,
+        "initial_optimizer_updates_per_arm": 20,
+        "maximum_updates_without_new_hypothesis": 160,
+        "update_unit": "complete biological parent with all genuine native intervals and all280 sampled haplotypes",
+        "supervised_queries": 120,
+        "primary_present_day_queries": 64,
+        "selection": "earliest minimum equal-parent Present64 development VAL exact-span raw-probability NLL",
+        "prediction_sealing_before_VAL_truth": true,
+        "whole_parent_genomic_history_detached": false,
+        "teacher_used": false,
+        "ancestry_input_labels": "observed96pure_reference_source_prototypes_only",
+        "observed_genealogy": "qualified tsinfer/tsdate, explicitly different from Relate native ARGMix",
+        "feature_targets_sealed_separately": true,
+        "historical_budget_comparison": "20full_parentupdates expose the same10parentepochs as160historical250kb tile updates. A continuation beyond20updates is disclosed as added optimization exposure, not an unchanged equal-budget comparison.",
+        "continuation_rule": "Do not restart. If the declared initial budget has not converged and heldoutNLL continues improving, any checkpoint continuation is logged explicitly before additional updates, with atmost160total.",
+        "placement_sham": "fixed pretarget per-tree whole-support-vector derangement within duration/descendant-count bins; no target-dependent choices",
+        "inconclusive_placement_rule": "fewerthanhalf supported fields move or support has no meaningful variation"
+      },
+      "discovery_decision_margin": {
+        "accuracy_gain_percentage_points": 0.2,
+        "required_against": [
+          "matched_sham",
+          "ordinary_smoothing"
+        ],
+        "positive_direction_on_each_VAL_parent": true,
+        "statistical_significance_claim": false
+      },
+      "novelty_assessment": "Whole-tree supervision, cavity sweeps, gating, genotype/genealogy fusion and GRU recurrence are established. Candidate mechanism is observed mutation-concordance placement. Priority and predictive benefit unresolved; no new generalGNNclaim.",
+      "repeat_policy": "New direct representation/feature-routing hypothesis. Do not repeat answered H028 fixedSNP residual, H029-H032 memory/Gram or H033/H035 operator-order cells.",
+      "evidence": [
+        "research/reviews/next_accuracy_architecture_fresh_v2/proposal.md"
+      ],
+      "proposal_ref": {
+        "path": "research/reviews/next_accuracy_architecture_fresh_v2/proposal.md",
+        "sha256": "e40cd2762d49f93b6e2348dd88d08d97bb178e90790c40c35d4b5aea3fa21b74"
+      },
+      "conclusion": "No real data preparation, fitting or predictive result yet. Neural prototype and observed-only preprocessing are being implemented separately."
     }
   ],
-  "last_root_update_utc": "2026-10-11T18:56:50.371783+00:00",
+  "last_root_update_utc": "2026-10-11T19:58:09.171220+00:00",
   "resource_updates": [
     {
       "recorded_utc": "2026-10-11T00:06:43.195830+00:00",

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "decision_spec_sha256": "6e62e09ebe2fffce990dc3d96331d5d6600cbe68acae06306e8ec58e30fc5d26",
+  "decision_spec_sha256": "0ff3b1aa91db360e027d6474df8fabc91f5ca18532a406799aa45451db06facf",
   "scope": "Concise scientific decisions with complete results indexed separately. Pilot selection evidence is not independent confirmation.",
   "rules": [
     "Register a new scientific question or an explicit reason before repeating a completed cell.",
@@ -1851,6 +1851,10 @@
             {
               "path": "experiments/results/fresh_development_preparation_v1/20261010T074919.252475Z_648842_inferred.json",
               "sha256": "fc1c724e7c0b590c43e9269f6221808a4b8093b6c671068efa3ff91d746345ad"
+            },
+            {
+              "path": "experiments/results/fresh_development_preparation_v1/20261010T165159.182195Z_648842_boundary.json",
+              "sha256": "107056fb19c75ea3698706739aa75b4344aafbf23fd9ba244272fce30ca64d57"
             }
           ]
         }
@@ -4686,7 +4690,7 @@
     },
     {
       "id": "H033",
-      "status": "running_GPU2_epoch5_80updates_per_arm",
+      "status": "completed_FP32_seed101_160updates_per_arm_no_mechanism_accuracy_advantage",
       "registered_utc": "2026-10-11T17:59:31.545033+00:00",
       "hypothesis": "Interleaving confidence-anchored whole-native-tree inference with genomic TV correction improves local ancestry accuracy and transition fidelity beyond the same tree and TV operators applied in blocked order.",
       "method": "Two52-scalar FP32 arms compute (BA)^3 or B^3 A^3. A is an exact positive tree solve with0.01 interior absorption, frozen-emitter confidence precisions at actual query samples, genuine observed reference-source placements and fixed age conductances. B performs8 projected-dual TV updates on the unchanged physical readout sequence. Same frozen H025 skip, source projections, centering and decoder.",
@@ -4727,9 +4731,11 @@
         "research/reviews/next_accuracy_experiment_v1/proposal.md",
         "research/reviews/next_accuracy_experiment_v1/H032_conclusion.md",
         "research/reviews/next_accuracy_experiment_v1/confidence_diagnostic.json",
-        "experiments/results/reference_dependence_full_storage_v1_summary_root/summary.json"
+        "experiments/results/reference_dependence_full_storage_v1_summary_root/summary.json",
+        "experiments/results/interleaved_tree_tv_gnn_v1_summary_root/summary.json"
       ],
-      "conclusion": "Both arms have80actualFP32updates and five sealed epochs. Interleaved/blocked epoch5 accuracy85.9380% and NLL0.388102, no demonstrated interleaving advantage. Unfinished discovery pilot.",
+      "conclusion": "Interleaved and blocked operators are effectively tied: selected accuracy85.969702% versus85.969468%, NLL0.386109725 versus0.386111219. Gain over smoothing is0.02999percentagepoints. No convincing operator-interleaving benefit or novel mechanism demonstrated.",
+      "updated_utc": "2026-10-11T19:58:09.171220+00:00",
       "evidence_receipts": [
         {
           "path": "research/reviews/next_accuracy_experiment_v1/proposal.md",
@@ -4746,12 +4752,16 @@
         {
           "path": "experiments/results/reference_dependence_full_storage_v1_summary_root/summary.json",
           "sha256": "c69c6ad7bd3cbbf596afc22d9d4636e3725da66fa30806f9297d1322a509e092"
+        },
+        {
+          "path": "experiments/results/interleaved_tree_tv_gnn_v1_summary_root/summary.json",
+          "sha256": "42ac31c94c93c954b681f2b7656f1bc77844efab10f9c2f05d5480f8fd975d77"
         }
       ]
     },
     {
       "id": "H034",
-      "status": "two_full_panel_TRAIN_parents_completed_three_registered_remaining",
+      "status": "two_full_panel_parents_complete_two_more_CPU_producers_running",
       "registered_utc": "2026-10-11T18:11:56.854990+00:00",
       "hypothesis": "The full author AncestralPaths panel supplies a stronger, independently split biological comparison for native released ancestry methods and the developing whole-tree model on identical observations.",
       "method": "Prepare five frozen independent2Mb parents, full476 diploids/952 haplotypes,686 admixed query and266 pure-source haplotypes. Preserve author demographic recipe, cohort ages, mutation/recombination rates and Relate chain including five population-size iterations. Keep census350 targets separate from observed genotypes and inferred trees.",
@@ -4903,9 +4913,11 @@
         "research/reviews/original_paper_benchmark_next_v1/plan.md",
         "docs/ancestralpaths_full_panel_discovery_v1.md",
         "configs/ancestralpaths_full_panel_discovery_v1.json",
-        "src/arggnn/prepare_ancestralpaths_full_panel_discovery_v1.py"
+        "src/arggnn/prepare_ancestralpaths_full_panel_discovery_v1.py",
+        "research/reviews/full_panel_native_comparison_split_v1/split.json",
+        "research/reviews/full_panel_native_baseline_plan_v2/plan.md"
       ],
-      "conclusion": "ap_full_train_000 and ap_full_train_001 completed simulation and Relate inference. Full952haplotype panel,2Mb,newstreams. No full-panel method scores yet. Remaining three parents have not launched.",
+      "conclusion": "TRAIN000/001 completed. Frozen nominalTRAIN002 (downstream INTERNAL_VAL) and outer_discovery000 generation/Relate producers are running. No full-panel method scores yet. Downstream split amendment frozen before these parents. No favorable resampling.",
       "evidence_receipts": [
         {
           "path": "research/reviews/original_paper_benchmark_next_v1/plan.md",
@@ -4913,7 +4925,7 @@
         },
         {
           "path": "docs/ancestralpaths_full_panel_discovery_v1.md",
-          "sha256": "cf3a1123e64db517bd76c679bf81a05109548d62bd768c1efe34551376552d98"
+          "sha256": "3968704528106227857df8fe18a9dedbe8ed34741199ee2af507b79e9367041e"
         },
         {
           "path": "configs/ancestralpaths_full_panel_discovery_v1.json",
@@ -4922,14 +4934,22 @@
         {
           "path": "src/arggnn/prepare_ancestralpaths_full_panel_discovery_v1.py",
           "sha256": "ead823158a001dabdbf2224d812e7ef8079b6af4382f6e8e10ca0e0894760e71"
+        },
+        {
+          "path": "research/reviews/full_panel_native_comparison_split_v1/split.json",
+          "sha256": "1ab8b72387e51bbb0f2d429410d31f0a5f007b38b7a6fa11809f3d55c0da2cc7"
+        },
+        {
+          "path": "research/reviews/full_panel_native_baseline_plan_v2/plan.md",
+          "sha256": "f6b538f3ed62b7613d00cc8986af9f5d407cb4893ad0bf95d78ab8058b77ad4d"
         }
       ]
     },
     {
       "id": "H035",
       "registered_utc": "2026-10-11T18:49:02.204758+00:00",
-      "updated_utc": "2026-10-11T18:49:02.204758+00:00",
-      "status": "running_GPU3_graph_preparation",
+      "updated_utc": "2026-10-11T19:58:09.171220+00:00",
+      "status": "completed_FP32_seed101_160updates_per_arm_no_mechanism_accuracy_advantage",
       "hypothesis": "Signed differences of two observed-role tree/alignment compositions improve local ancestry accuracy and NLL over the matched parallel path-sum control and frozen smoothing baseline.",
       "method": "Two matched whole-tree arms use signed_difference=0.5*(A_new*T-T*A_old) or path_sum=0.5*(A_new*T+T*A_old). Both retain the same H030 static encoder/decoder, frozen H025 skip, genuine complete observed trees, shared learned geometry mean and unique observed-role sparse maps. Actual sample identity or unique exact descendant bitset plus observed age defines correspondence, not true ancestor identity. Ambiguous or absent roles reset to zero. No retained recurrence or tile-boundary carry.",
       "protocol": {
@@ -4984,7 +5004,8 @@
         "src/arggnn/observed_role_mixed_path_gnn_v1.py",
         "configs/observed_role_mixed_path_gnn_v1.json",
         "docs/observed_role_mixed_path_gnn_v1.md",
-        "research/reviews/observed_role_mixed_path_gnn_v1_author/source_receipt.json"
+        "research/reviews/observed_role_mixed_path_gnn_v1_author/source_receipt.json",
+        "experiments/results/observed_role_mixed_path_gnn_v1_summary_root/summary.json"
       ],
       "source_refs": [
         {
@@ -5014,7 +5035,7 @@
         "actual_data_and_GPU_runtime_qualified": false,
         "GPU_fit_started": false
       },
-      "conclusion": "Worker1892934 and launcher1892894 live with CUDA and verified NVTOP title. Graph preparation is underway. No actual update or predictive result yet claimed.",
+      "conclusion": "Signed difference scores85.933469%/NLL0.374666 at epoch10, versus path-sum85.943755%/0.374558 at selected epoch7. Signed difference loses to its matched control and smoothing accuracy85.939717%. Likelihood improvement over smoothing does not establish a signed-path mechanism.",
       "actual_input_ref": {
         "path": "research/reviews/observed_role_mixed_path_gnn_v1_root/input_corrected_v2.json",
         "sha256": "346bf2380b60678d671570668d182eb50e3e59306b63c28a404eff18de6000f6"
@@ -5039,6 +5060,70 @@
         {
           "path": "research/reviews/observed_role_mixed_path_gnn_v1_author/source_receipt.json",
           "sha256": "667b93616eb93711a4a9ba7dd2b31f123064f52f436246069c039c1838b396ec"
+        },
+        {
+          "path": "experiments/results/observed_role_mixed_path_gnn_v1_summary_root/summary.json",
+          "sha256": "dc284b41b9e69a17c39435321b39ff4cc368f971f4296d81ef1c4fdd600933ff"
+        }
+      ]
+    },
+    {
+      "id": "H036",
+      "status": "prospectively_registered_prototype_implementation",
+      "registered_utc": "2026-10-11T19:22:57.405264+00:00",
+      "hypothesis": "Directly supervised complete-tree representations with observed allele-clade concordance routing improve local ancestry accuracy over the same model with shuffled branch support and historical ordinary smoothing.",
+      "method": "Width32 learned site-to-leaf inputs, reference-labelled two-sweep cavity messages gated by observed branch geometry/support, full-parent sample-aligned bidirectional GRU, direct4class head. No frozen teacher, age centering or residual correction.",
+      "protocol": {
+        "TRAIN_parents": 2,
+        "reused_development_VAL_parents": 2,
+        "TEST_parents": 0,
+        "seed": 101,
+        "dtype": "float32",
+        "arms": [
+          "aligned",
+          "shuffled"
+        ],
+        "initial_full_parent_epochs": 10,
+        "initial_optimizer_updates_per_arm": 20,
+        "maximum_updates_without_new_hypothesis": 160,
+        "update_unit": "complete biological parent with all genuine native intervals and all280 sampled haplotypes",
+        "supervised_queries": 120,
+        "primary_present_day_queries": 64,
+        "selection": "earliest minimum equal-parent Present64 development VAL exact-span raw-probability NLL",
+        "prediction_sealing_before_VAL_truth": true,
+        "whole_parent_genomic_history_detached": false,
+        "teacher_used": false,
+        "ancestry_input_labels": "observed96pure_reference_source_prototypes_only",
+        "observed_genealogy": "qualified tsinfer/tsdate, explicitly different from Relate native ARGMix",
+        "feature_targets_sealed_separately": true,
+        "historical_budget_comparison": "20full_parentupdates expose the same10parentepochs as160historical250kb tile updates. A continuation beyond20updates is disclosed as added optimization exposure, not an unchanged equal-budget comparison.",
+        "continuation_rule": "Do not restart. If the declared initial budget has not converged and heldoutNLL continues improving, any checkpoint continuation is logged explicitly before additional updates, with atmost160total.",
+        "placement_sham": "fixed pretarget per-tree whole-support-vector derangement within duration/descendant-count bins; no target-dependent choices",
+        "inconclusive_placement_rule": "fewerthanhalf supported fields move or support has no meaningful variation"
+      },
+      "discovery_decision_margin": {
+        "accuracy_gain_percentage_points": 0.2,
+        "required_against": [
+          "matched_sham",
+          "ordinary_smoothing"
+        ],
+        "positive_direction_on_each_VAL_parent": true,
+        "statistical_significance_claim": false
+      },
+      "novelty_assessment": "Whole-tree supervision, cavity sweeps, gating, genotype/genealogy fusion and GRU recurrence are established. Candidate mechanism is observed mutation-concordance placement. Priority and predictive benefit unresolved; no new generalGNNclaim.",
+      "repeat_policy": "New direct representation/feature-routing hypothesis. Do not repeat answered H028 fixedSNP residual, H029-H032 memory/Gram or H033/H035 operator-order cells.",
+      "evidence": [
+        "research/reviews/next_accuracy_architecture_fresh_v2/proposal.md"
+      ],
+      "proposal_ref": {
+        "path": "research/reviews/next_accuracy_architecture_fresh_v2/proposal.md",
+        "sha256": "e40cd2762d49f93b6e2348dd88d08d97bb178e90790c40c35d4b5aea3fa21b74"
+      },
+      "conclusion": "No real data preparation, fitting or predictive result yet. Neural prototype and observed-only preprocessing are being implemented separately.",
+      "evidence_receipts": [
+        {
+          "path": "research/reviews/next_accuracy_architecture_fresh_v2/proposal.md",
+          "sha256": "e40cd2762d49f93b6e2348dd88d08d97bb178e90790c40c35d4b5aea3fa21b74"
         }
       ]
     }
@@ -15428,6 +15513,16 @@
       "status": "complete"
     },
     {
+      "study": "fresh_development_preparation_v1",
+      "artifact": "experiments/results/fresh_development_preparation_v1/20261010T165159.182195Z_648842_boundary.json",
+      "sha256": "107056fb19c75ea3698706739aa75b4344aafbf23fd9ba244272fce30ca64d57",
+      "context_receipts": [],
+      "kind": "engineering_receipt",
+      "metrics": {},
+      "bindings": {},
+      "status": "complete"
+    },
+    {
       "study": "gpu3_parallel_fits_v1_root",
       "artifact": "experiments/results/gpu3_parallel_fits_v1_root/authority_validation.json",
       "sha256": "bb71f2e738c355149b066cac6552da07457ea186f6e1c5a0e959b2b9ea8d610b",
@@ -18077,6 +18172,92 @@
     },
     {
       "study": "interleaved_tree_tv_gnn_v1_seed101_GPU2",
+      "artifact": "experiments/results/interleaved_tree_tv_gnn_v1_seed101_GPU2/blocked.epoch_06.metrics.json",
+      "sha256": "6a650086a4609a592dffbbd10d084bfd987b8872d1db79c133f02c681098ac30",
+      "context_receipts": [],
+      "kind": "engineering_receipt",
+      "metrics": {},
+      "bindings": {},
+      "checkpoint": {
+        "path": "experiments/results/interleaved_tree_tv_gnn_v1_seed101_GPU2/blocked.epoch_06.pt",
+        "sha256": "3c71839471661bf2b3559c0ac5f2513c7a7b4cd65889bf994d1fc007af84bcb0"
+      }
+    },
+    {
+      "study": "interleaved_tree_tv_gnn_v1_seed101_GPU2",
+      "artifact": "experiments/results/interleaved_tree_tv_gnn_v1_seed101_GPU2/blocked.epoch_07.metrics.json",
+      "sha256": "c57581b2da0bf6a4b9fe8edf04d767393e2ffc031c9367fcce0b99f31d6237aa",
+      "context_receipts": [],
+      "kind": "engineering_receipt",
+      "metrics": {},
+      "bindings": {},
+      "checkpoint": {
+        "path": "experiments/results/interleaved_tree_tv_gnn_v1_seed101_GPU2/blocked.epoch_07.pt",
+        "sha256": "007ff37685bfc83d204f100307e04be343c11be3c3393c1a2ddf5e2fe43003a4"
+      }
+    },
+    {
+      "study": "interleaved_tree_tv_gnn_v1_seed101_GPU2",
+      "artifact": "experiments/results/interleaved_tree_tv_gnn_v1_seed101_GPU2/blocked.epoch_08.metrics.json",
+      "sha256": "85b9936174b280121baab1ecdf7548f283375237c12411ef38d0a7670454447e",
+      "context_receipts": [],
+      "kind": "engineering_receipt",
+      "metrics": {},
+      "bindings": {},
+      "checkpoint": {
+        "path": "experiments/results/interleaved_tree_tv_gnn_v1_seed101_GPU2/blocked.epoch_08.pt",
+        "sha256": "e95c71f77bdd13ffe7d0e23d3efa811c04ba58d4198fe4f7e8f8c4107beb7c11"
+      }
+    },
+    {
+      "study": "interleaved_tree_tv_gnn_v1_seed101_GPU2",
+      "artifact": "experiments/results/interleaved_tree_tv_gnn_v1_seed101_GPU2/blocked.epoch_09.metrics.json",
+      "sha256": "b3289efd9c5d0f968ba39c842678d9e25cf7fa3f9420442d1058f3c7f62cf67b",
+      "context_receipts": [],
+      "kind": "engineering_receipt",
+      "metrics": {},
+      "bindings": {},
+      "checkpoint": {
+        "path": "experiments/results/interleaved_tree_tv_gnn_v1_seed101_GPU2/blocked.epoch_09.pt",
+        "sha256": "3d96ced02d222a518fe672cc552f2962a7a495b3b60c75515017e433bce727e3"
+      }
+    },
+    {
+      "study": "interleaved_tree_tv_gnn_v1_seed101_GPU2",
+      "artifact": "experiments/results/interleaved_tree_tv_gnn_v1_seed101_GPU2/blocked.epoch_10.metrics.json",
+      "sha256": "b77a4abf01acc0c44dcc337773ba535fb535151de36f0ae9741fe11b581f3eaa",
+      "context_receipts": [],
+      "kind": "engineering_receipt",
+      "metrics": {},
+      "bindings": {},
+      "checkpoint": {
+        "path": "experiments/results/interleaved_tree_tv_gnn_v1_seed101_GPU2/blocked.epoch_10.pt",
+        "sha256": "51d4c4ef709cebaa440e0fb0733b61d2f2c1726c3cd4ccc5bdfa0f595d9a318b"
+      }
+    },
+    {
+      "study": "interleaved_tree_tv_gnn_v1_seed101_GPU2",
+      "artifact": "experiments/results/interleaved_tree_tv_gnn_v1_seed101_GPU2/comparison.json",
+      "sha256": "1ab3bcab16a9003f70a9fa8f817b32db213bbddc07b466ad08db4106c6b377f6",
+      "context_receipts": [],
+      "kind": "engineering_receipt",
+      "metrics": {},
+      "bindings": {}
+    },
+    {
+      "study": "interleaved_tree_tv_gnn_v1_seed101_GPU2",
+      "artifact": "experiments/results/interleaved_tree_tv_gnn_v1_seed101_GPU2/completed.json",
+      "sha256": "1ba927858d591118da440e43e5bca1969741a0ee227af47b4199d087e0a10e45",
+      "context_receipts": [],
+      "kind": "engineering_receipt",
+      "metrics": {
+        "elapsed_seconds": 4662.33863854222
+      },
+      "bindings": {},
+      "status": "completed_one_seed_FP32_interleaved_tree_TV_utility_fit"
+    },
+    {
+      "study": "interleaved_tree_tv_gnn_v1_seed101_GPU2",
       "artifact": "experiments/results/interleaved_tree_tv_gnn_v1_seed101_GPU2/first_training_tile.json",
       "sha256": "7bd231aef15fb76aeefaf6511898b33127c3923ffa51de8fb3a1a0611fa0fb81",
       "context_receipts": [],
@@ -18182,6 +18363,80 @@
     },
     {
       "study": "interleaved_tree_tv_gnn_v1_seed101_GPU2",
+      "artifact": "experiments/results/interleaved_tree_tv_gnn_v1_seed101_GPU2/interleaved.epoch_06.metrics.json",
+      "sha256": "843fcbfe1dceed05a928af33f0d13b435b34a84270733dd6c633a9d07cda5ec1",
+      "context_receipts": [],
+      "kind": "engineering_receipt",
+      "metrics": {},
+      "bindings": {},
+      "checkpoint": {
+        "path": "experiments/results/interleaved_tree_tv_gnn_v1_seed101_GPU2/interleaved.epoch_06.pt",
+        "sha256": "6c8d9fc30645fb9667fb0247ba3e02d436eceb7591a0f745b63a2047fa5a3a99"
+      }
+    },
+    {
+      "study": "interleaved_tree_tv_gnn_v1_seed101_GPU2",
+      "artifact": "experiments/results/interleaved_tree_tv_gnn_v1_seed101_GPU2/interleaved.epoch_07.metrics.json",
+      "sha256": "d49f365701e34252fe3e2c670313b5a0c221c8e1e85b8047932dd96b1e346af1",
+      "context_receipts": [],
+      "kind": "engineering_receipt",
+      "metrics": {},
+      "bindings": {},
+      "checkpoint": {
+        "path": "experiments/results/interleaved_tree_tv_gnn_v1_seed101_GPU2/interleaved.epoch_07.pt",
+        "sha256": "c8235bb5fd7d623400a4840fe109ec9040d41cfb8559e98c5f5c98bc56479361"
+      }
+    },
+    {
+      "study": "interleaved_tree_tv_gnn_v1_seed101_GPU2",
+      "artifact": "experiments/results/interleaved_tree_tv_gnn_v1_seed101_GPU2/interleaved.epoch_08.metrics.json",
+      "sha256": "9380eaf68d9ca77ef982be5df59cae8c269fbf25e20accfa03a8cf60727753bd",
+      "context_receipts": [],
+      "kind": "engineering_receipt",
+      "metrics": {},
+      "bindings": {},
+      "checkpoint": {
+        "path": "experiments/results/interleaved_tree_tv_gnn_v1_seed101_GPU2/interleaved.epoch_08.pt",
+        "sha256": "974e3d404b9e990412944d7375da65ba0f0ac8c1f2c5c38a9b54d38711ce8d77"
+      }
+    },
+    {
+      "study": "interleaved_tree_tv_gnn_v1_seed101_GPU2",
+      "artifact": "experiments/results/interleaved_tree_tv_gnn_v1_seed101_GPU2/interleaved.epoch_09.metrics.json",
+      "sha256": "1a100130fac46164c649114f2dd9b3880cdd63112ae7a8f38a2918a6d9685d88",
+      "context_receipts": [],
+      "kind": "engineering_receipt",
+      "metrics": {},
+      "bindings": {},
+      "checkpoint": {
+        "path": "experiments/results/interleaved_tree_tv_gnn_v1_seed101_GPU2/interleaved.epoch_09.pt",
+        "sha256": "7b699f2a5c1dd0864aa16d4db0cfc690ca61a8fdfd8ac370609f5c231e762821"
+      }
+    },
+    {
+      "study": "interleaved_tree_tv_gnn_v1_seed101_GPU2",
+      "artifact": "experiments/results/interleaved_tree_tv_gnn_v1_seed101_GPU2/interleaved.epoch_10.metrics.json",
+      "sha256": "dc897b0b09539c766e0619644dc37696217f37db0c914993989bc73068c70f86",
+      "context_receipts": [],
+      "kind": "engineering_receipt",
+      "metrics": {},
+      "bindings": {},
+      "checkpoint": {
+        "path": "experiments/results/interleaved_tree_tv_gnn_v1_seed101_GPU2/interleaved.epoch_10.pt",
+        "sha256": "17557ca8b5ad1a6c6fe8829f0c8716a12d44de6becee7b877270564667b29e9a"
+      }
+    },
+    {
+      "study": "interleaved_tree_tv_gnn_v1_seed101_GPU2",
+      "artifact": "experiments/results/interleaved_tree_tv_gnn_v1_seed101_GPU2/launcher_exit_full_storage_v1.json",
+      "sha256": "6f5080c1a82f6e79f6652dd4eb7f06900344717f23c43011318731886d0dc369",
+      "context_receipts": [],
+      "kind": "engineering_receipt",
+      "metrics": {},
+      "bindings": {}
+    },
+    {
+      "study": "interleaved_tree_tv_gnn_v1_seed101_GPU2",
       "artifact": "experiments/results/interleaved_tree_tv_gnn_v1_seed101_GPU2/started.json",
       "sha256": "2aeb4dba623f83bedd290f78e8ca99ef05a3bc7f1b55cb6b6ef5ef98f7797066",
       "context_receipts": [],
@@ -18189,6 +18444,15 @@
       "metrics": {},
       "bindings": {},
       "status": "running"
+    },
+    {
+      "study": "interleaved_tree_tv_gnn_v1_summary_root",
+      "artifact": "experiments/results/interleaved_tree_tv_gnn_v1_summary_root/summary.json",
+      "sha256": "42ac31c94c93c954b681f2b7656f1bc77844efab10f9c2f05d5480f8fd975d77",
+      "context_receipts": [],
+      "kind": "engineering_receipt",
+      "metrics": {},
+      "bindings": {}
     },
     {
       "study": "manuscript_biological_methods_update_v1",
@@ -18473,6 +18737,336 @@
     },
     {
       "study": "observed_role_mixed_path_gnn_v1_seed101_GPU3",
+      "artifact": "experiments/results/observed_role_mixed_path_gnn_v1_seed101_GPU3/comparison.json",
+      "sha256": "3df3fd59b117fc1c20d6fea97749f8590eb6d7887ef1a387f76cfc26f220cd7c",
+      "context_receipts": [],
+      "kind": "engineering_receipt",
+      "metrics": {},
+      "bindings": {}
+    },
+    {
+      "study": "observed_role_mixed_path_gnn_v1_seed101_GPU3",
+      "artifact": "experiments/results/observed_role_mixed_path_gnn_v1_seed101_GPU3/completed.json",
+      "sha256": "461b72136239bca00d98f0646816f29f8c41def369d0865dcb2ccefebdad162e",
+      "context_receipts": [],
+      "kind": "engineering_receipt",
+      "metrics": {
+        "elapsed_seconds": 1524.710378587246
+      },
+      "bindings": {},
+      "status": "completed_one_seed_FP32_observed_role_mixed_path_utility_fit"
+    },
+    {
+      "study": "observed_role_mixed_path_gnn_v1_seed101_GPU3",
+      "artifact": "experiments/results/observed_role_mixed_path_gnn_v1_seed101_GPU3/first_training_tile.json",
+      "sha256": "40df46415cc093943ea7872ca8a6bc7dafa85c65f0b827c20719b0cb039bae2f",
+      "context_receipts": [],
+      "kind": "engineering_receipt",
+      "metrics": {},
+      "bindings": {}
+    },
+    {
+      "study": "observed_role_mixed_path_gnn_v1_seed101_GPU3",
+      "artifact": "experiments/results/observed_role_mixed_path_gnn_v1_seed101_GPU3/frozen_H026_native_reference.metrics.json",
+      "sha256": "13f3d293c5018cd13d7ff134d3a1395ace66fd055ddc2b84cd67787997bdf5dd",
+      "context_receipts": [],
+      "kind": "engineering_receipt",
+      "metrics": {},
+      "bindings": {},
+      "checkpoint": {
+        "path": "experiments/results/reference_census_innovation_v1_seed101_GPU3/native_reference.epoch_10.pt",
+        "sha256": "e820a53367642d67081f314abb41f349aa01a019d165f26da293da1603d46121"
+      }
+    },
+    {
+      "study": "observed_role_mixed_path_gnn_v1_seed101_GPU3",
+      "artifact": "experiments/results/observed_role_mixed_path_gnn_v1_seed101_GPU3/frozen_genomic_smoothing.metrics.json",
+      "sha256": "7c9c60e0f84b43c06795cde8fad017389a642e1ce88e086c03015914ad7ca6d2",
+      "context_receipts": [],
+      "kind": "engineering_receipt",
+      "metrics": {},
+      "bindings": {}
+    },
+    {
+      "study": "observed_role_mixed_path_gnn_v1_seed101_GPU3",
+      "artifact": "experiments/results/observed_role_mixed_path_gnn_v1_seed101_GPU3/geometry.json",
+      "sha256": "e5b577c8800b09ee56a37e4b588e0c7a567853caeb6cf9b135546ab99ed2710d",
+      "context_receipts": [],
+      "kind": "engineering_receipt",
+      "metrics": {},
+      "bindings": {}
+    },
+    {
+      "study": "observed_role_mixed_path_gnn_v1_seed101_GPU3",
+      "artifact": "experiments/results/observed_role_mixed_path_gnn_v1_seed101_GPU3/launcher_exit_full_storage_v1.json",
+      "sha256": "48fa89c5f9a5bc3fa965de1a005ee63002e0bf1027c5b145f44197ca49d7075c",
+      "context_receipts": [],
+      "kind": "engineering_receipt",
+      "metrics": {},
+      "bindings": {}
+    },
+    {
+      "study": "observed_role_mixed_path_gnn_v1_seed101_GPU3",
+      "artifact": "experiments/results/observed_role_mixed_path_gnn_v1_seed101_GPU3/path_sum.epoch_01.metrics.json",
+      "sha256": "f92c55545fba3f8dccebecbfa94c705f1bdea2b8888fee83a3a472b06ce739d0",
+      "context_receipts": [],
+      "kind": "engineering_receipt",
+      "metrics": {},
+      "bindings": {},
+      "checkpoint": {
+        "path": "experiments/results/observed_role_mixed_path_gnn_v1_seed101_GPU3/path_sum.epoch_01.pt",
+        "sha256": "d10348128a5991750e9ad9e892139819680009356b900090d78de3aa09ef6da4"
+      }
+    },
+    {
+      "study": "observed_role_mixed_path_gnn_v1_seed101_GPU3",
+      "artifact": "experiments/results/observed_role_mixed_path_gnn_v1_seed101_GPU3/path_sum.epoch_02.metrics.json",
+      "sha256": "e8817d012a3c09d1d31f17583e0af8f5150544edb6925e05953cdfe865fdb4ce",
+      "context_receipts": [],
+      "kind": "engineering_receipt",
+      "metrics": {},
+      "bindings": {},
+      "checkpoint": {
+        "path": "experiments/results/observed_role_mixed_path_gnn_v1_seed101_GPU3/path_sum.epoch_02.pt",
+        "sha256": "19aeb8d2441f398e76ef9571163bad9477a56d67c7ebf51554e356d98d185ce5"
+      }
+    },
+    {
+      "study": "observed_role_mixed_path_gnn_v1_seed101_GPU3",
+      "artifact": "experiments/results/observed_role_mixed_path_gnn_v1_seed101_GPU3/path_sum.epoch_03.metrics.json",
+      "sha256": "d1d37569cf3f122756f412a8e60a18e0cd6285a3a2323750a8f5f01159399a32",
+      "context_receipts": [],
+      "kind": "engineering_receipt",
+      "metrics": {},
+      "bindings": {},
+      "checkpoint": {
+        "path": "experiments/results/observed_role_mixed_path_gnn_v1_seed101_GPU3/path_sum.epoch_03.pt",
+        "sha256": "fffe71eeb205891cb6b305745913e3748d4e006f66717022f7154ac4971620dc"
+      }
+    },
+    {
+      "study": "observed_role_mixed_path_gnn_v1_seed101_GPU3",
+      "artifact": "experiments/results/observed_role_mixed_path_gnn_v1_seed101_GPU3/path_sum.epoch_04.metrics.json",
+      "sha256": "572f48e99e5ae50a2ab48121e2beb6e18937c972211a9e663e1dea61ab6b098e",
+      "context_receipts": [],
+      "kind": "engineering_receipt",
+      "metrics": {},
+      "bindings": {},
+      "checkpoint": {
+        "path": "experiments/results/observed_role_mixed_path_gnn_v1_seed101_GPU3/path_sum.epoch_04.pt",
+        "sha256": "7bb3fb5a95fd8a79380cd7a7d147f197f2050ae3db7cc40b13402da3ea5e76d1"
+      }
+    },
+    {
+      "study": "observed_role_mixed_path_gnn_v1_seed101_GPU3",
+      "artifact": "experiments/results/observed_role_mixed_path_gnn_v1_seed101_GPU3/path_sum.epoch_05.metrics.json",
+      "sha256": "ddb3da85ff3872ecf02632673b13325757cc53a88750bc562fdb08814ef52207",
+      "context_receipts": [],
+      "kind": "engineering_receipt",
+      "metrics": {},
+      "bindings": {},
+      "checkpoint": {
+        "path": "experiments/results/observed_role_mixed_path_gnn_v1_seed101_GPU3/path_sum.epoch_05.pt",
+        "sha256": "80e2503a14c4a07f931e0163baff06351ded022c58a64097856197561d8d6d4d"
+      }
+    },
+    {
+      "study": "observed_role_mixed_path_gnn_v1_seed101_GPU3",
+      "artifact": "experiments/results/observed_role_mixed_path_gnn_v1_seed101_GPU3/path_sum.epoch_06.metrics.json",
+      "sha256": "9089840fddbbab04e6089aba251afff10841fdb7efc9e8e96e2067f2b1a5da79",
+      "context_receipts": [],
+      "kind": "engineering_receipt",
+      "metrics": {},
+      "bindings": {},
+      "checkpoint": {
+        "path": "experiments/results/observed_role_mixed_path_gnn_v1_seed101_GPU3/path_sum.epoch_06.pt",
+        "sha256": "0dc8dd07f0bbd924a2ce3174e3176f5e9b37e39f55c5343ce74a11df8e9187ec"
+      }
+    },
+    {
+      "study": "observed_role_mixed_path_gnn_v1_seed101_GPU3",
+      "artifact": "experiments/results/observed_role_mixed_path_gnn_v1_seed101_GPU3/path_sum.epoch_07.metrics.json",
+      "sha256": "aa92ef90a9a57cf66aa4335fa74246312534f417b85fc07ec941e7af91b93c73",
+      "context_receipts": [],
+      "kind": "engineering_receipt",
+      "metrics": {},
+      "bindings": {},
+      "checkpoint": {
+        "path": "experiments/results/observed_role_mixed_path_gnn_v1_seed101_GPU3/path_sum.epoch_07.pt",
+        "sha256": "bbd3f6ecb34675a91972dda1b19acefe6c6c57839e8a8581ce1fc7eda8240f84"
+      }
+    },
+    {
+      "study": "observed_role_mixed_path_gnn_v1_seed101_GPU3",
+      "artifact": "experiments/results/observed_role_mixed_path_gnn_v1_seed101_GPU3/path_sum.epoch_08.metrics.json",
+      "sha256": "d3380566e00b44e71641a5a27f6c4da4a483133eb6251028bd4263ca8ae3ca9d",
+      "context_receipts": [],
+      "kind": "engineering_receipt",
+      "metrics": {},
+      "bindings": {},
+      "checkpoint": {
+        "path": "experiments/results/observed_role_mixed_path_gnn_v1_seed101_GPU3/path_sum.epoch_08.pt",
+        "sha256": "1e29d70d20547144ff51183d7b00e5bf102a2e6e7835d4089507be219a3001ba"
+      }
+    },
+    {
+      "study": "observed_role_mixed_path_gnn_v1_seed101_GPU3",
+      "artifact": "experiments/results/observed_role_mixed_path_gnn_v1_seed101_GPU3/path_sum.epoch_09.metrics.json",
+      "sha256": "ec6b31967e5223ad55be1a2054566b23ada622d2a8ad3ac2bf7a0718c0a49cf3",
+      "context_receipts": [],
+      "kind": "engineering_receipt",
+      "metrics": {},
+      "bindings": {},
+      "checkpoint": {
+        "path": "experiments/results/observed_role_mixed_path_gnn_v1_seed101_GPU3/path_sum.epoch_09.pt",
+        "sha256": "c890f418c91b0b32158c7b62bade6c5582e6ee85452b274e724ceccbebf0f6ec"
+      }
+    },
+    {
+      "study": "observed_role_mixed_path_gnn_v1_seed101_GPU3",
+      "artifact": "experiments/results/observed_role_mixed_path_gnn_v1_seed101_GPU3/path_sum.epoch_10.metrics.json",
+      "sha256": "7d16606b3bcd2c24009490e093e2e5995b8cf0217449c0c0904b9bcdf8399469",
+      "context_receipts": [],
+      "kind": "engineering_receipt",
+      "metrics": {},
+      "bindings": {},
+      "checkpoint": {
+        "path": "experiments/results/observed_role_mixed_path_gnn_v1_seed101_GPU3/path_sum.epoch_10.pt",
+        "sha256": "468fa730a41a8730e7adea2ba0ff7c50c0838d1bc54afb579edfd4b704c0456d"
+      }
+    },
+    {
+      "study": "observed_role_mixed_path_gnn_v1_seed101_GPU3",
+      "artifact": "experiments/results/observed_role_mixed_path_gnn_v1_seed101_GPU3/signed_difference.epoch_01.metrics.json",
+      "sha256": "b18b34c6337e70eaff3c1e4b8fe49744cb5a29b22322338c3c8137a49e427714",
+      "context_receipts": [],
+      "kind": "engineering_receipt",
+      "metrics": {},
+      "bindings": {},
+      "checkpoint": {
+        "path": "experiments/results/observed_role_mixed_path_gnn_v1_seed101_GPU3/signed_difference.epoch_01.pt",
+        "sha256": "9426fea83b538ca0302b48c19b8eed19d3706acb72fa3abe76ea13a36bf0b1d5"
+      }
+    },
+    {
+      "study": "observed_role_mixed_path_gnn_v1_seed101_GPU3",
+      "artifact": "experiments/results/observed_role_mixed_path_gnn_v1_seed101_GPU3/signed_difference.epoch_02.metrics.json",
+      "sha256": "1b6b721db16bad8d096973ace1bba0de765c5054fe719113de0b25aaff887cc9",
+      "context_receipts": [],
+      "kind": "engineering_receipt",
+      "metrics": {},
+      "bindings": {},
+      "checkpoint": {
+        "path": "experiments/results/observed_role_mixed_path_gnn_v1_seed101_GPU3/signed_difference.epoch_02.pt",
+        "sha256": "f0b776756a026377a648034a5da80d0ecc0277488e9d09f5460ccd6870d5c1a5"
+      }
+    },
+    {
+      "study": "observed_role_mixed_path_gnn_v1_seed101_GPU3",
+      "artifact": "experiments/results/observed_role_mixed_path_gnn_v1_seed101_GPU3/signed_difference.epoch_03.metrics.json",
+      "sha256": "8d33f90ac3f34427aa7f1a00aa9673f5a70d90315ecc18968d8a3c30aaaf6807",
+      "context_receipts": [],
+      "kind": "engineering_receipt",
+      "metrics": {},
+      "bindings": {},
+      "checkpoint": {
+        "path": "experiments/results/observed_role_mixed_path_gnn_v1_seed101_GPU3/signed_difference.epoch_03.pt",
+        "sha256": "2a3944547afa20905dd761beefcee4d92fe0e18e1f48ccdf0aba55558b6bd9a4"
+      }
+    },
+    {
+      "study": "observed_role_mixed_path_gnn_v1_seed101_GPU3",
+      "artifact": "experiments/results/observed_role_mixed_path_gnn_v1_seed101_GPU3/signed_difference.epoch_04.metrics.json",
+      "sha256": "7c7b7adff2b9830a59501dd2cb3a46ca9ea4e686a88d8291c18d4037893bbf5a",
+      "context_receipts": [],
+      "kind": "engineering_receipt",
+      "metrics": {},
+      "bindings": {},
+      "checkpoint": {
+        "path": "experiments/results/observed_role_mixed_path_gnn_v1_seed101_GPU3/signed_difference.epoch_04.pt",
+        "sha256": "36eeac617868bd587ea0c367c65f5f755f23ac5fb612c39f864343d2112bb84a"
+      }
+    },
+    {
+      "study": "observed_role_mixed_path_gnn_v1_seed101_GPU3",
+      "artifact": "experiments/results/observed_role_mixed_path_gnn_v1_seed101_GPU3/signed_difference.epoch_05.metrics.json",
+      "sha256": "36d43378df4b3e6f058aecccf4099e352db684f1f034e4dfdf7933cc733f457f",
+      "context_receipts": [],
+      "kind": "engineering_receipt",
+      "metrics": {},
+      "bindings": {},
+      "checkpoint": {
+        "path": "experiments/results/observed_role_mixed_path_gnn_v1_seed101_GPU3/signed_difference.epoch_05.pt",
+        "sha256": "f8309d09f90cb7188eac95531ad3df1e0cfc39c522e6f30f49b4dedc33c63d17"
+      }
+    },
+    {
+      "study": "observed_role_mixed_path_gnn_v1_seed101_GPU3",
+      "artifact": "experiments/results/observed_role_mixed_path_gnn_v1_seed101_GPU3/signed_difference.epoch_06.metrics.json",
+      "sha256": "0545b2539f20d43dd6202b7251abb77df82c45a51212cfdc8526b62c724809e6",
+      "context_receipts": [],
+      "kind": "engineering_receipt",
+      "metrics": {},
+      "bindings": {},
+      "checkpoint": {
+        "path": "experiments/results/observed_role_mixed_path_gnn_v1_seed101_GPU3/signed_difference.epoch_06.pt",
+        "sha256": "9572349ffae090b85e9862a35917c2d0877940e35196eb42c29fdde9a49a226a"
+      }
+    },
+    {
+      "study": "observed_role_mixed_path_gnn_v1_seed101_GPU3",
+      "artifact": "experiments/results/observed_role_mixed_path_gnn_v1_seed101_GPU3/signed_difference.epoch_07.metrics.json",
+      "sha256": "d73c309b90718c4c41741e96eec70e139e95a17e274da1f9175457bc3a730439",
+      "context_receipts": [],
+      "kind": "engineering_receipt",
+      "metrics": {},
+      "bindings": {},
+      "checkpoint": {
+        "path": "experiments/results/observed_role_mixed_path_gnn_v1_seed101_GPU3/signed_difference.epoch_07.pt",
+        "sha256": "a29d11db1885ace35cfd296a00c3f3b6a32dfd3be6d2064b5bc2ef5b4d66c2f5"
+      }
+    },
+    {
+      "study": "observed_role_mixed_path_gnn_v1_seed101_GPU3",
+      "artifact": "experiments/results/observed_role_mixed_path_gnn_v1_seed101_GPU3/signed_difference.epoch_08.metrics.json",
+      "sha256": "78716af65d45643112f3e7a35e04680d04807c5479df0bf33309608029eb7568",
+      "context_receipts": [],
+      "kind": "engineering_receipt",
+      "metrics": {},
+      "bindings": {},
+      "checkpoint": {
+        "path": "experiments/results/observed_role_mixed_path_gnn_v1_seed101_GPU3/signed_difference.epoch_08.pt",
+        "sha256": "0636510ed0f64e9d1978a9988d65512c77ac779d8e26b6f0bf87912a85c1bb29"
+      }
+    },
+    {
+      "study": "observed_role_mixed_path_gnn_v1_seed101_GPU3",
+      "artifact": "experiments/results/observed_role_mixed_path_gnn_v1_seed101_GPU3/signed_difference.epoch_09.metrics.json",
+      "sha256": "8d00e662b8c415b50d1eb5ab02454b9ce604f7f8ae01dfdf676ea1d3c8f69d36",
+      "context_receipts": [],
+      "kind": "engineering_receipt",
+      "metrics": {},
+      "bindings": {},
+      "checkpoint": {
+        "path": "experiments/results/observed_role_mixed_path_gnn_v1_seed101_GPU3/signed_difference.epoch_09.pt",
+        "sha256": "7596562b5f80139f5cb16c60cfe42dbbb5ed3d408d6fffb2486ac03be8c632de"
+      }
+    },
+    {
+      "study": "observed_role_mixed_path_gnn_v1_seed101_GPU3",
+      "artifact": "experiments/results/observed_role_mixed_path_gnn_v1_seed101_GPU3/signed_difference.epoch_10.metrics.json",
+      "sha256": "60283cb3a11710eb2070b6dfbfb21ca57786cef758e49579293e3a0c13b74260",
+      "context_receipts": [],
+      "kind": "engineering_receipt",
+      "metrics": {},
+      "bindings": {},
+      "checkpoint": {
+        "path": "experiments/results/observed_role_mixed_path_gnn_v1_seed101_GPU3/signed_difference.epoch_10.pt",
+        "sha256": "e29e17811ddde117e1f96b6427c3f985718e3793d74b32708542067f6542bcc8"
+      }
+    },
+    {
+      "study": "observed_role_mixed_path_gnn_v1_seed101_GPU3",
       "artifact": "experiments/results/observed_role_mixed_path_gnn_v1_seed101_GPU3/started.json",
       "sha256": "d7c604de217d6c0dbb0610e714daf9c9af9d8cc8615db97fdf0407603eaf06d6",
       "context_receipts": [],
@@ -18480,6 +19074,15 @@
       "metrics": {},
       "bindings": {},
       "status": "running"
+    },
+    {
+      "study": "observed_role_mixed_path_gnn_v1_summary_root",
+      "artifact": "experiments/results/observed_role_mixed_path_gnn_v1_summary_root/summary.json",
+      "sha256": "dc284b41b9e69a17c39435321b39ff4cc368f971f4296d81ef1c4fdd600933ff",
+      "context_receipts": [],
+      "kind": "engineering_receipt",
+      "metrics": {},
+      "bindings": {}
     },
     {
       "study": "observed_variant_residual_v1_seed101_GPU3",
