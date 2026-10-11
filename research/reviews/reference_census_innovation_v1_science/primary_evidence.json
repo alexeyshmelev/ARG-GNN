@@ -1,0 +1,78 @@
+{
+  "schema": "reference_census_innovation_primary_evidence_v1",
+  "literature": [
+    {
+      "id": "LGC",
+      "citation": "Zhou D, Bousquet O, Lal TN, Weston J, Scholkopf B. Learning with Local and Global Consistency. NeurIPS2003 proceedings/NIPS16(2004).",
+      "url": "https://proceedings.neurips.cc/paper/2003/file/87682805257e619d49b8e0dfdc14affa-Paper.pdf",
+      "read": "primary PDF fetched read-only and pdftotext to memory; Sections1-2",
+      "response_sha256": "a2cd9d7e344c6b934a96791134a549851815c3ffde4891c950e5a4798d574eb5",
+      "response_bytes": 211917,
+      "evidence": "Normalized S=D^-1/2 W D^-1/2; iterate F_next=alpha*S*F+(1-alpha)*Y; closed form F*=(1-alpha)(I-alpha*S)^-1Y. Explicitly described as a graph/diffusion kernel.",
+      "implication": "label spreading, normalized diffusion and screened inverse on reference class sources are established, not novel mathematics"
+    },
+    {
+      "id": "ARGMix",
+      "citation": "ARGMix April2026 preprint DOI10.64898/2026.04.05.714076v1, compared separately with checked current released source.",
+      "url": "https://doi.org/10.64898/2026.04.05.714076",
+      "source_commit": "c2481248eb0de5fda659d68f59c51e0e27becd20",
+      "source_refs": [
+        ".runtime/author_sources/argmix_c2481248eb0d/src/joint_interval_model.py",
+        ".runtime/author_sources/argmix_c2481248eb0d/src/tmrca_attn.py"
+      ],
+      "read_anchors": "joint_interval_model.py lines214-316 TmrcaKernelWeighted;319-402 JointIntervalGru;tmrca_attn.py lines46-165 SpatialBiasAttention",
+      "evidence": "Current weighted source computes exp(-distance/tau) reference one-hot weighted votes, normalization, class bias and temperature; transformer uses TMRCA spatial attention and the joint model uses bidirectional GRU/genetic-map features.",
+      "implication": "H026 is close to an existing reference-TMRCA-kernel baseline. Its cuts, age-family separation and context-only paired controls are a biological discovery comparison, not a new general architecture.",
+      "version_limit": "Current source read, not assertion of source identity with April preprint"
+    },
+    {
+      "id": "ARGformer",
+      "citation": "ARGformer: learning on ancestral recombination graphs with transformers. DOI10.1093/bioinformatics/btag438.",
+      "url": "https://doi.org/10.1093/bioinformatics/btag438",
+      "source_ref": "data/literature/argformer_btag438_source_check_v1/body.txt",
+      "evidence": "Shared ancestral-node tokens on leaf-to-root paths; masked pretraining; reference-population supervised contrastive tuning; ancestry by reference retrieval.",
+      "implication": "Reference-labelled genealogical affinity and cross-tree shared ancestry structure are established; H026 adds no evidence for a novel ordered whole-tree operator"
+    },
+    {
+      "id": "AncestralPaths",
+      "citation": "Irving-Pease EK et al. The selection landscape and genetic legacy of ancient Eurasians. Nature625:312-320(2024).",
+      "url": "https://doi.org/10.1038/s41586-023-06705-1",
+      "source_refs": [
+        ".runtime/author_sources/ancestralpaths_supplement_41586_2023_6705_MOESM1_ESM.txt",
+        ".runtime/author_sources/ancestralpaths_77db3cfae100/training.py"
+      ],
+      "read_anchors": "Supplementary Note3 printed pp30-32;training.py lines101-145 and173",
+      "evidence": "Ancestor-shell cohort proportions excluding previously seen leaves, plus node ages; supervised path classifier. Paper says CNN, inspected source flattens5x9 into Dense512.",
+      "implication": "Reference cohort composition plus coalescent age is not new. Full observed input retention does not alone make H026 a learned full-tree contribution"
+    },
+    {
+      "id": "GraphSSM",
+      "citation": "Li J et al. State Space Models on Temporal Graphs: A First-Principles Study. NeurIPS2024, arXiv2406.00943v2.",
+      "url": "https://arxiv.org/abs/2406.00943v2",
+      "source_ref": ".runtime/cache/prior-art-audit/2406.00943v2.txt",
+      "evidence": "Laplacian-regularized history approximation; piecewise graph-conditioned dynamics; diffusion/input filtering and persistent/new-node alignment.",
+      "implication": "Temporal structure/memory, continuous gaps and identity alignment are already established; the deferred innovation hypothesis must beat an equally tuned generic difference/SSM comparator"
+    },
+    {
+      "id": "GST",
+      "citation": "Graph Set Transformer, arXiv2606.05116v1.",
+      "url": "https://arxiv.org/abs/2606.05116v1",
+      "source_ref": ".runtime/cache/gst-baseline/paper.txt",
+      "evidence": "Interleaved local graph propagation, cross-graph set attention and gated feedback.",
+      "implication": "Generic whole-collection contextual feedback is established. H026 is simpler pairwise reference affinity, not a new GST-type layer"
+    },
+    {
+      "id": "dynamic_graph_kernels",
+      "citation": "Romero D et al. Kernel-based Reconstruction of Space-time Functions on Dynamic Graphs, arXiv1612.03615v2.",
+      "url": "https://arxiv.org/abs/1612.03615v2",
+      "evidence": "Existing read-only primary comparison records: time-evolving topology extended graph kernels and kernel Kalman estimators.",
+      "implication": "Ordered graph kernels and inverse operators alone cannot support a novelty claim"
+    }
+  ],
+  "biological_source_proof": {
+    "source": "src/arggnn/biological_paths_simulation.py",
+    "anchors": "lines26-41 source population/admixture/merge constants;61-96 observed sample/cohort class construction;174-184 demography",
+    "facts": "Source merges at600/800; all admixtures derive mixed populations; no migration specified; SOURCE_CLASSES are observed sampling-population proxies; census350 target labels remain external."
+  },
+  "fresh_fetch_limit": "Focused primary comparisons, not exhaustive priority search. No additional future-architecture literature sweep or acceptance claim."
+}

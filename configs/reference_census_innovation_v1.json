@@ -1,0 +1,96 @@
+{
+  "TRAIN_tiles_per_epoch": 16,
+  "arms": [
+    "native_reference",
+    "age_free_reference",
+    "census_reference",
+    "census_sham"
+  ],
+  "base_fit_config": {
+    "path": "configs/census_tsinfer_fit_v1.json",
+    "sha256": "7c2436d5479e68beb1a8f3edb04ca0ee729a23be35ca2d7893827c0db68e3b00"
+  },
+  "census_contrast": "census_vs_age_free_isolates_MRCA_below350_clamping; native_vs_age_free_isolates_young_donor_age_weighting",
+  "centering": "each_original_readout_over_full_actual_Q_with_the_same_exact_observed_age; unlabeled_transductive_context",
+  "channels": 8,
+  "class_balancing": "inverse_observed_class_count_separately_young_old;stable_per_class_and_total_logsumexp;no_probability_floor",
+  "condition": "frozen_H025_genomic_smoothing_plus_census_conditioned_observed_reference_kernel_refinement",
+  "context": {
+    "census": 350,
+    "older_scale_generations": 1400,
+    "younger_scale_generations": 350
+  },
+  "dtype": "float32",
+  "emitter_condition": "native_ARGMix_Relate_frozen_emitter",
+  "epochs": 10,
+  "frozen_baseline": "immutable_selected_H025_genomic_smoothing_epoch10; exact_original_per250kb_tile_computation",
+  "gradient_clip_norm": 1,
+  "head": "zero_initialized_bias_free_linear8_to4_context_only; no_baseline_logits_input_or_standalone_calibration_path",
+  "helper_refs": {
+    "context_module": {
+      "path": "src/arggnn/reference_census_innovation_v1.py",
+      "sha256": "2c6d67702ce16efedbd324e2e4fcc703f8be0b386e4c3828cbbeb4f1114161c8"
+    },
+    "metrics": {
+      "path": "scripts/train_ancestralpaths_biological_v1.py",
+      "sha256": "826a1e8c3053cf63b8374361f793903970dd75d44cbcd536755e9aaa3b985056"
+    },
+    "span_loss": {
+      "path": "src/arggnn/biological_gst_control_v1.py",
+      "sha256": "66788b41cabcb852c739505200a641bdc93fea3c9fbb642c291d52cefc77350f"
+    },
+    "targets_scores": {
+      "path": "src/arggnn/census_tsinfer_fit_v1.py",
+      "sha256": "fd55aaa6b8f88983514ff6888ad2efbadca4ee8b2e3acabd09fbd4a361b5acf3"
+    },
+    "whole_tree_geometry": {
+      "path": "src/arggnn/persistence_trace_kernel_v1.py",
+      "sha256": "25bfc4719ae03621289856e09ed4b2040090568aaedee4d05a1e47b218398507"
+    }
+  },
+  "hypothesis_id": "H026",
+  "kind": "reference_census_innovation_v1",
+  "learning_rate": 0.001,
+  "metrics": {
+    "aggregation": "unweighted_parent_mean_one_seed_no_probability_ensemble",
+    "boundary_tolerance_bp": 1000.0,
+    "calibration_bins": 15,
+    "normalization_length_bp": 2000000,
+    "posthoc_renormalization": false,
+    "primary": "present_day64",
+    "probability_floor": false,
+    "purity_filter": false,
+    "secondary": [
+      "all120",
+      "ancient56",
+      "Bronze_Age16_age135",
+      "BAA8_age155",
+      "Neo16_age200",
+      "Yam16_age170"
+    ],
+    "short_tract_cutoff_bp": 10000.0,
+    "support": "same_ARGMix_original100bp_center_bins_clipped_to_coverage_no_missing_bins_no_tail_extrapolation"
+  },
+  "novel_GNN_claim": false,
+  "older_reference_policy": "observed_native_nodes_only; exactly_shared_normalized_affinity_field_in_native_age_free_census; absent_ANA_donors_remain_absent",
+  "optimizer": "AdamW",
+  "optimizer_steps_per_arm": 160,
+  "ordered_cross_tree_mechanism_tested": false,
+  "output_cap_bytes": 4000000000,
+  "parameters_per_arm": 32,
+  "readout": "containing_original_native_tree;no_cross_tree_context_interpolation",
+  "reference_input": "identical84_younger_and12_older_observed_pure_reference_proxy_labels_in_every_arm; no_query_truth",
+  "retention": "fixed_context_RAM_only;compact_epoch_metrics;only_frozen_baseline_and_current_best_predictions_and_current_best_checkpoints",
+  "scope": "diagnostic_reference_kernel_refinement_close_to_existing_ARGMix_TmrcaKernelWeighted;no_novelty_or_superiority_claim",
+  "seeds": [
+    101
+  ],
+  "selection": "earliest_minimum_equal_parent_development_VAL_present64_exact_span_raw_probability_NLL",
+  "sham": "fixed_parent_wide_derangement_within_exact_age_diploid_blocks;both_haplotypes_map_together_in_original_haplotype_order",
+  "supervision": "TRAIN_actual_query120_exact_class_span_mass_only",
+  "tile_bp": 250000,
+  "trace_condition": "independent_observation_only_tsinfer_tsdate",
+  "weight_decay": 0.0001,
+  "whole_trees": "complete_sample_ancestor_unions_preserved;cutpoints_marked_analytically_without_deleting_or_contracting_vertices",
+  "younger_reference_policy": "native_nodes_in_native_reference; analytic_original_edge_cut350_points_in_census; soft_proxy_affinity_not_ancestral_truth"
+}

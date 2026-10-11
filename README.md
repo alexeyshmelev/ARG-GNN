@@ -4,7 +4,7 @@ Graph neural networks for ordered collections of whole genealogical trees, with 
 
 ## Current experiments
 
-Updated 2026-10-11 11:14 UTC.
+Updated 2026-10-11 11:47 UTC.
 
 **FP32 development pilot: all four controls have completed epoch 10 of 10, with one seed and 160 updates per trained arm.** The inputs combine frozen native ARGMix predictions from Relate trees with independently inferred tsinfer graphs. TRAIN emissions are in-sample. Scores use the same two development VAL parents and exact physical coverage as the main biological comparison.
 
@@ -18,11 +18,13 @@ Updated 2026-10-11 11:14 UTC.
 
 **The refinement improves the frozen emitter, but ancestral connections have no demonstrated advantage over the simpler controls.** These are completed development observations on two repeatedly used validation parents. They do not establish a novel graph contribution, independent biological superiority or original-paper numerical reproduction. [Completed compact receipt](experiments/results/persistence_trace_pilot_v1_summary_root/summary.json).
 
-- **GPU 3:** the FP32 persistence pilot completed. Its genuine-graph arm gains 0.39 accuracy percentage points over frozen ARGMix, but trails ordinary smoothing by about 0.001 points. The next experiment must demonstrate useful graph information beyond this stronger baseline.
-- **GPU 2:** native ARGformer VAL001 fit r003 is running. Both TRAIN fits and retrievals completed, and the queue advanced past VAL000. Completed VAL retrieval products will be verified before the common ancestry comparison is reported. Native models, objectives, batches and post-processing are unchanged.
+- **GPU 3:** H026 is running: native-age reference affinity, age-free affinity, census350 affinity and a diploid/age-matched query-context sham, all over the frozen 85.94% smoothing baseline. One seed101 and160updates per arm. This is a discovery reference-kernel refinement.
+- **Native ARGformer:** all four native fits and retrievals completed. Genuine top1 ancestry accuracy is75.68%, with fixed top5 sensitivity75.14%. Both retain infinite raw-vote NLL. The adapted EuropeanC4/tsinfer task and per-ARG transductive training are disclosed below. GPU2 is now free. A reference-driven whole-tree trace follow-up, H027, is being implemented for that device.
 - **Stopped at saved checkpoints:** the extra mechanism-seed repeat and weaker Census pilot were interrupted to redirect compute. Census has 22 complete metric epochs. These partial runs are retained and are not final 30-epoch results.
 - **Original GST:** all four native USPTO models completed the bounded TRAIN/VALID pilot reported below.
 - **Numerical matrix:** remaining full-parent equivalence cells remain deferred.
+
+H026 adds only observed reference-class and age context to the frozen smoother. Its four controls separate donor-age weighting, sub350-MRCA saturation and correct query-context correspondence. Older reference labels remain proxies. The kernel is close to ARGMix's existing weighted-TMRCA alternative, so no novel GNN is claimed. H027 will test reference-only sources in the whole-tree ordered trace layer, with no direct local-logit correction path.
 
 New launches can use the existing v4 storage reservations rather than repeating a recursive repository scan. The faster launcher preserves the original GPU locking, assignment and signal handling. Current live workers finish through their existing launchers.
 
@@ -30,9 +32,9 @@ At most physical GPUs 2 and 3 are assigned to the project. GPU workers are title
 
 ## Main advantages and current evidence
 
-**Current development result: our age-D2 candidate averages 84.78% present-day ancestry accuracy over all three planned optimizer seeds, 101/202/303. Current-release ARGMix reaches 85.55%.** Our candidate has slightly lower negative log likelihood. Overall superiority and distinct architectural novelty remain research objectives.
+**Strongest completed development pipeline: frozen native ARGMix plus ordinary smoothing reaches 85.94% present-day accuracy and NLL 0.3891.** Frozen ARGMix reaches 85.55% and NLL 0.4353. The ancestral-trace layer matches this refinement result, without outperforming the simpler control. The earlier standalone age-D2 candidate averages 84.78% over optimizer seeds 101/202/303. A distinct, stronger GNN contribution remains a research objective.
 
-Measured advantages in this pilot:
+Measured advantages of the earlier standalone candidate:
 
 - **Accuracy gains over three controls.** Our age-D2 candidate gains 2.72 percentage points over released AncestralPaths Dense, 4.75 over the GST-style width 32 reconstruction, and 0.71 over the matched GRU.
 - **Better likelihood and calibration than ARGMix in this development run.** Present-day NLL is 0.4299 versus 0.4353. The same 15-bin calibration ECE is 0.0327 versus 0.0861. ARGMix has higher accuracy and a better present-day Brier score. These observations need independent confirmation.
@@ -46,10 +48,11 @@ Method features:
 
 ## Comparison with existing methods
 
-Completed development results as of 2026-10-10. **Higher accuracy is better. Lower NLL, Brier and ECE are better.** Primary results concern 64 present-day query haplotypes.
+Completed development results, including the 2026-10-11 FP32 refinement pilot. **Higher accuracy is better. Lower NLL, Brier and ECE are better.** Primary results concern 64 present-day query haplotypes.
 
 | Method | Accuracy ↑ | NLL ↓ | Brier ↓ | ECE ↓ | Optimizer seeds |
 | --- | ---: | ---: | ---: | ---: | --- |
+| ARGMix plus ordinary smoothing, development refinement | 85.94% | 0.3891 | 0.2004 | 0.0260 | 101, emitter 50 |
 | ARGMix, current author release | 85.55% | 0.4353 | 0.2191 | 0.0861 | 50 |
 | Our candidate, age D2 | 84.78% | 0.4299 | 0.2244 | 0.0327 | 101, 202, 303 |
 | Our candidate, plain D2 | 84.79% | 0.4299 | 0.2247 | 0.0325 | 101, 202, 303 |
@@ -57,13 +60,15 @@ Completed development results as of 2026-10-10. **Higher accuracy is better. Low
 | AncestralPaths, released Dense | 82.06% | 0.8191† | 0.2857† | 0.0940† | 101, 202, 303 |
 | GST-style reconstruction, width 32 | 80.03% | 0.5689 | 0.2920 | 0.0236 | 101 |
 | GST-style reconstruction, width 64 | 79.86% | 0.5690 | 0.2928 | 0.0310 | 101 |
-| ARGformer, author implementation | Pending VAL ancestry comparison | — | — | — | First native tsinfer fit and retrieval completed, remaining parents in progress |
+| ARGformer, genuine native tsinfer pilot, top1 | 75.68% | ∞ | 0.4864 | 0.2432 | Native5MLM+1contrastiveepoch perARG |
+
+ARGformer uses unchanged author model, objectives, full native batches and retrieval. It was fitted separately on each observed ARG, including VAL observations without query ancestry labels. Primary top1 is75.68% and prespecified top5 is75.14%. Raw hard votes assign zero probability to some true classes, preserving infinite NLL. Its tsinfer/tsdate genealogy differs from the supervised Relate ARGMix pipeline. These are descriptive scores on identical query/physical support, with a reduced EuropeanC4 transfer task and brief training, rather than original-paper numerical reproduction or a matched-topology architecture comparison. [Native ancestry summary and diagnostics](experiments/results/native_argformer_tsinfer_fit_v7_summary_v2/summary.json).
 
 † AncestralPaths NLL, Brier and ECE use a disclosed auxiliary stable-logit evaluation with unchanged trained weights and identical class predictions. Its original raw probability underflow and infinite NLL are preserved in the experiment records. No probability floor is applied.
 
 Metrics: accuracy is the fraction of correctly assigned query base pairs. NLL is negative log probability of the true class, in nats. Brier is the sum of squared errors across the four class probabilities. ECE measures the confidence-versus-accuracy gap in 15 equally spaced confidence bins. Scores weight exact physical query support and average parent-level values. GST32 has the lowest ECE in this pilot, despite its lower accuracy. Calibration alone does not establish better ancestry inference.
 
-**Against our strongest current comparator:** the age-D2 candidate trails ARGMix by 0.77 accuracy percentage points. Age and plain candidates differ by only 0.01 points. Neither age conditioning nor overall superiority is established by this pilot.
+**For the earlier standalone candidate:** age-D2 trails native ARGMix by 0.77 accuracy percentage points. Age and plain candidates differ by only 0.01 points. Neither age conditioning nor overall superiority is established by this pilot.
 
 Other query strata, using the same selected models:
 

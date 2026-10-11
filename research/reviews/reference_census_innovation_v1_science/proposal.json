@@ -1,0 +1,172 @@
+{
+  "schema": "reference_census_innovation_v1_science",
+  "hypothesis_id": "H026",
+  "created_utc": "2026-10-11T11:33:38.889361+00:00",
+  "classification": "established-method biological information discovery; no novel general GNN/kernel/priority claim",
+  "doc_ref": {
+    "path": "docs/reference_census_innovation_v1.md",
+    "sha256": "c2e9c4f8268764be2713e7dfcff4089b79dfceb0e28e734db37f9921c5365193"
+  },
+  "H025_metrics_source": "root-supplied completed one-seed development metrics, not independently rescored here",
+  "H025_present64": {
+    "plain_ARGMix": {
+      "accuracy": 0.855537,
+      "NLL": 0.435323
+    },
+    "genomic_smoothing": {
+      "accuracy": 0.859397,
+      "NLL": 0.389136
+    },
+    "sample_only": {
+      "accuracy": 0.859403,
+      "NLL": 0.389081
+    },
+    "genuine_ancestor": {
+      "accuracy": 0.859387,
+      "NLL": 0.389093
+    },
+    "sham_ancestor": {
+      "accuracy": 0.859355,
+      "NLL": 0.38934
+    }
+  },
+  "H025_assessment": "No meaningful incremental graph-specific gain established. Shared affine baseline-logit residual path prevents attribution of overall gains to context.",
+  "reference_panel": {
+    "class_order": [
+      "ANA",
+      "CHG",
+      "WHG",
+      "EHG"
+    ],
+    "census_generations": 350,
+    "young_age_less_than350": [
+      24,
+      16,
+      22,
+      22
+    ],
+    "old_age_greater_than350": [
+      0,
+      8,
+      2,
+      2
+    ],
+    "equal350": 0,
+    "age_range_generations": [
+      176,
+      473
+    ],
+    "actual_query_counts_by_age": {
+      "0": 64,
+      "135": 16,
+      "155": 8,
+      "170": 16,
+      "200": 16
+    }
+  },
+  "geometry_contract": {
+    "trees": "complete independent observed tsinfer/tsdate sample-ancestor unions; unlabeled mixed64 retained",
+    "cuts": "analytic points on observed original edges for samples younger than350 only",
+    "older_reference_semantics": "observed sampling-cohort proxy at native age, separate channels; no descendant/census350 state invented",
+    "young_reference_semantics": "sampling-class proxy lifted to observed350 cut; biological meaning relies on pure source populations persisting through350; no hard inferred-clade labels",
+    "sample_and_native_IDs": "actual observation/provenance joins only, never numerical embeddings",
+    "representation": "pairwise MRCA/metric-tree-derived kernel, not learned full-tree message passing"
+  },
+  "kernel": {
+    "arithmetic": "FP32 log-score softmax, no probability floor",
+    "young_scale_generations": 350,
+    "old_scale_generations": 1400,
+    "reference_weight": "inverse represented age-family/class haplotype count",
+    "features": "four younger-reference class affinities plus four older-reference class affinities",
+    "common_old_score": "-(2*T_MRCA-a_ref)/1400-log(n_old,class)",
+    "native_young_score": "-(2*T_MRCA-a_query-a_ref)/350-log(n_young,class)",
+    "age_free_young_score": "-2*T_MRCA/350-log(n_young,class)",
+    "census_young_score": "-2*max(T_MRCA-350,0)/350-log(n_young,class)"
+  },
+  "arms": [
+    {
+      "id": "native_reference",
+      "purpose": "ordinary dated reference affinity"
+    },
+    {
+      "id": "age_free_reference",
+      "purpose": "removes donor-age weighting without350 saturation"
+    },
+    {
+      "id": "census_reference",
+      "purpose": "observed350 saturation plus identical common older affinity"
+    },
+    {
+      "id": "census_sham",
+      "purpose": "same census features but fixed exact-age diploid-block derangement of query-context association; true reference labels/native mapping and baseline unchanged"
+    }
+  ],
+  "head": {
+    "input": "8-channel context after mean subtraction over FULL actual same-observed-age Q roster per original position",
+    "output": "bias-free8to4 linear, zero initialized, added to frozen selected H025 smoother log probabilities",
+    "forbidden_paths": [
+      "baseline logits as head input",
+      "free class bias",
+      "temperature",
+      "query-ID embedding",
+      "learned age/group intercept"
+    ],
+    "transductive": "unlabeled query group context; predictions depend on roster composition; no targets or minibatch/subset means used"
+  },
+  "experiment": {
+    "seed": 101,
+    "epochs": 10,
+    "updates_per_arm": 160,
+    "source_emitter": "frozen native ARGMix Relate plus selected H025 smoother epoch10",
+    "matched": "same observed labels, whole trees, feature dimensions, head/init, optimizer and budget",
+    "selection": "unchanged equal-parent VAL Present64 NLL; no class-specific VAL-informed tuning",
+    "primary_contrasts": [
+      "age_free-native: donor-age weighting",
+      "census-age_free: observed pre350 saturation",
+      "census-sham: query-specific reference association",
+      "each-frozen_smoother: incremental practical value"
+    ],
+    "metrics": "unchanged original support/clipping/span loss; parent accuracy/NLL, all120/ancient56, C4 recalls/confusions/calibration/short tracts/boundaryF1 at1000bp",
+    "confirmation_limit": "reused four development parents and one fit seed, not independent confirmation",
+    "TRAIN_frozen_skip_predictions": "in_sample_not_out_of_fold"
+  },
+  "algebra": {
+    "old_cancellation": "d_old_cut=2T-350-a_r=d_old_native+(a_q-350); old scores differ by row constant(350-a_q)/1400, so normalized old affinities identical",
+    "young_native_row_constant": "score_native=-2T/350+a_r/350-log(n)+a_q/350; a_q term cancels",
+    "census_vs_age_free": "if every young-reference T>=350, census score=age_free_score+2 and softmax fields identical; differences require at least one observed young-reference T<350",
+    "centering_invariant": "adding any query-independent class context offset before same-age group centering has no effect; output class corrections sum to zero within each Q-age group"
+  },
+  "deferred_unimplemented_ordered_hypothesis": {
+    "name": "reference-driven edit-resolved innovations",
+    "object": "whole-tree reference response Phi_i=A_i^-1 B_i E with observed reference proxy sources and age-valid census source/readout placement",
+    "known_identity": "m_i-m_prev=(P_i-P_prev)Phi_prev+P_i A_i^-1[(B_i-B_prev)E-(A_i-A_prev)Phi_prev] on a common qualified carrier",
+    "proposed_retained_information": "signed edge-edit influence before query/graph pooling, cut-source relocation, observed coalescent ages, physical genomic distances and partial producer-qualified correspondence",
+    "no_preservation_claim": "shared native edges identify response calculations, not ancestry persistence or true unchanged genealogy",
+    "unresolved_question": "useful interactions beyond static reference context plus matched generic filtering of context differences",
+    "novelty_limit": "resolvent identity/diffusion/event memory already known; no implementation, novelty priority, theorem or predictive result claimed"
+  },
+  "scope": {
+    "new_model_source_by_science_author": false,
+    "GPU_or_fit": false,
+    "actual_target_or_prediction_arrays_opened": false,
+    "installs_commits_existing_source_edits": false,
+    "only_new_docs_and_requested_packet_written": true
+  },
+  "source_sha256": {
+    "src/arggnn/biological_paths_simulation.py": "f0f4520b8fdfd4074bc78024073dd5b331ecac996911f40af787b6df68f213e8",
+    "research/reviews/biological_estimand_and_features_v1/estimand_source_contract.json": "d14d8c4f868d1c549822f4ef618d0071577848c800aeb358d72ed08da5bbe31b",
+    "research/reviews/biological_estimand_and_features_v1/panel_and_partition_source_contract.json": "e07abe3e5225bc7f4b332343805604e00016476e5e9e070ef89a3b436c6ec7bf",
+    "src/arggnn/train_persistence_trace_pilot_v1.py": "5c913f031dde31098fe71fd72bd4c7648b836f7669fe9cef0a8852fcc9a52231",
+    "src/arggnn/persistence_trace_kernel_v1.py": "25bfc4719ae03621289856e09ed4b2040090568aaedee4d05a1e47b218398507",
+    "configs/persistence_trace_pilot_v1.json": "577d76aa6118cb87a2bd6bc69127834cedc42567044a94d0c71be66bccedd688",
+    ".runtime/author_sources/argmix_c2481248eb0d/src/joint_interval_model.py": "8e30a7ece3cf52366a25114093ae69a67a5ca1d15ecaacfd2abf5baa0705e8eb",
+    ".runtime/author_sources/argmix_c2481248eb0d/src/tmrca_attn.py": "8cc88e2acc4a93d3038ea0ac862f4d48e860c58dc202dc93b64c634c75fa76f4",
+    ".runtime/author_sources/ancestralpaths_77db3cfae100/training.py": "13b4f30ab0df75fc461b764ae2cdbd1fdc071ff45200e6401e84faa565508e4f",
+    ".runtime/author_sources/ancestralpaths_supplement_41586_2023_6705_MOESM1_ESM.txt": "f4d21b9b08ead8f4f9a25ba6510123ff91d1f83005a46d8839b0feb87c839b7d",
+    "data/literature/argformer_btag438_source_check_v1/body.txt": "ca8b72e780bc885f8c53cc9d13bf7d147c0588742be2f1b31cebbf241640251b",
+    ".runtime/cache/prior-art-audit/2406.00943v2.txt": "8a036aae07be4a6409a8cf2b80f97cab4b14e431bb8eaddec1ba2382f8eb1168",
+    ".runtime/cache/gst-baseline/paper.txt": "5f13f70a345f654fa68a7240e6d97eefa535de2caccde5d9a4058193ace9c869",
+    "research/reviews/coalescence_structured_layer_feasibility_v1_author/primary_evidence.json": "920d5e8ed6ac322c5a811acc658dbabbc13c8e694cf1e33bc167187c9a3f865d",
+    "docs/reference_census_innovation_v1.md": "c2e9c4f8268764be2713e7dfcff4089b79dfceb0e28e734db37f9921c5365193"
+  }
+}
