@@ -14,7 +14,7 @@ Our latest standalone model uses PyTorch Geometric whole-tree message passing, o
 
 These scores use two reused validation simulations and 64 present-day query haplotypes. Our standalone model uses tsinfer/tsdate trees and raw SNPs, while ARGMix uses Relate trees. Training budgets also differ. They are descriptive pilot results, with no top-1 or novel-mechanism claim.
 
-The next stage uses **32 independent training simulations, eight validation simulations and eight reserved evaluation simulations**, with the full 952-haplotype author panel. All 16 TRAIN simulations in the first batch have completed simulation and Relate inference. The remaining development parents and full-panel fits are pending. New model runs use PyTorch and PyTorch Geometric. Competitors retain their authors' code and algorithms, with any dataset or pipeline adaptation disclosed.
+The next stage uses **32 independent training simulations, eight validation simulations and eight reserved evaluation simulations**, with the full 952-haplotype author panel. All 32 TRAIN simulations and six VAL simulations have completed simulation and Relate inference. The final two VAL parents and repaired eight-worker observation-cache job have been launched. Full-panel GPU fitting has not started yet. New model runs use PyTorch and PyTorch Geometric. Competitors retain their authors' code and algorithms, with any dataset or pipeline adaptation disclosed.
 
 Training will evaluate checkpoints every 160 whole-parent updates, with a maximum of 960 updates and prospective early stopping. Final selected predictions receive the full biological diagnostics. Preprocessing, training, validation, memory and accuracy will be reported separately.
 
@@ -28,7 +28,7 @@ Training will evaluate checkpoints every 160 whole-parent updates, with a maximu
 
 ## Current experiments
 
-Updated 2026-10-11 21:40 UTC.
+Updated 2026-10-11 23:20 UTC. Latest full-panel progress: [32 TRAIN and six VAL completed](research/reviews/expanded_full_panel_v1_root/progress_32TRAIN_6VAL_v1.json).
 
 **The completed FP32 discovery comparisons below use one seed and 160 updates per arm.** All rows below use the same two repeatedly reused development VAL parents, present-day query identities and exact physical scoring support. Each trained arm uses its prespecified minimum-NLL checkpoint.
 
