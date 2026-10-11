@@ -1,0 +1,496 @@
+{
+  "created_utc": "2026-10-11T04:47:13.189450+00:00",
+  "direct_evidence": [
+    {
+      "claim": "All three specified workers were present at every one of 24 /proc snapshots with unchanged starttime ticks.",
+      "evidence": "sample.json: summary.processes.*.all_24_alive_same_starttime",
+      "id": "D1"
+    },
+    {
+      "claim": "GPU2 mean utilization was20.42%; GPU3 aggregate mean was60.17% over46.00 seconds. Compute-app UUIDs associate1230680 withGPU2 and both1317405/1317433 withGPU3.",
+      "evidence": "sample.json: summary.gpu and samples[0/-1].compute_apps",
+      "id": "D2"
+    },
+    {
+      "claim": "Uncached202 had completed epoch12 log before sample. Sample opened VAL bank files and created scalar-age epoch13 VAL001 probability filename. Scientific output contents were never read.",
+      "evidence": "sample.json: metadata_before/after and project_open_fd_paths; phase_and_forest_evidence.json: logs",
+      "id": "D3"
+    },
+    {
+      "claim": "Cached303 and Census101 each have completed epoch1 stage log before sample. Cached303 opened TRAIN bank path during sample; epoch1 output metadata is complete. Census finer current tile/function remains unobserved.",
+      "evidence": "phase_and_forest_evidence.json: logs; sample.json: metadata and project_open_fd_paths",
+      "id": "D4"
+    },
+    {
+      "claim": "Main-thread scheduler runqueue wait deltas were0.006881s,0.000364s and0.003965s respectively; measured CPU totals49.33s,46.05s and77.92s. No process was sampled inD state.",
+      "evidence": "sample.json: summary.processes",
+      "id": "D5"
+    },
+    {
+      "claim": "Cached303's pt_autograd_0 thread consumed25.64CPU seconds versus20.36s main-threadCPU. Census main consumed42.66s with three other workers each~10.6s.",
+      "evidence": "sample.json: thread_deltas; thread_metadata.json: thread_names",
+      "id": "D6"
+    },
+    {
+      "claim": "Both epoch-stage logs occur only after full TRAIN and VAL work for all controls/models; mechanism receipt is also written at the end of the full epoch.",
+      "evidence": "source_sections.json: biological_mechanism_controls_v1.py315-448 and census_biological_fit_v2.py342-421",
+      "id": "D7"
+    },
+    {
+      "claim": "Cache-hit source preserves synchronous full bank SHA on every loader request. Uncached loader additionally decodes/transfers fixed prepared bank. Sample rchar deltas were23.991GB/1.221GB/44.876MB.",
+      "evidence": "loader_validation_sections.json: biological_candidate.py43-81 and549-581; source_sections.json: biological_bank_cache_v1.py133-186; sample.json: io_deltas",
+      "id": "D8"
+    },
+    {
+      "claim": "Census builds certified fixed CPU forest at preparation, but current forward passes cert.inputs and rebuilds the forest in each control encoder invocation. Certificate and model default time scales both equal10000.",
+      "evidence": "census_preparation_sections.json: census_biological_bank_v1.py227 and census_tree_encoder_v1.py237-262; loader_validation_sections.json: forward_certified_census_biological_v1; phase_and_forest_evidence.json: forest_source",
+      "id": "D9"
+    }
+  ],
+  "inferences": [
+    {
+      "basis": [
+        "D1",
+        "D3",
+        "D4",
+        "D7"
+      ],
+      "claim": "The workers are progressing; absence of the first epoch log was insufficient evidence of a stall.",
+      "id": "I1",
+      "limit": "Alive counters and one completed epoch do not guarantee eventual successful completion."
+    },
+    {
+      "basis": [
+        "D2",
+        "D5",
+        "D6",
+        "D8",
+        "D9"
+      ],
+      "claim": "CPU-side execution and synchronization provide plausible remaining GPU idle gaps; this sample does not support host scheduler saturation as their cause.",
+      "id": "I2",
+      "limit": "/proc counters do not identify Python frames or split CPU preprocessing, hashing, tensor work, autograd dispatch and device waits. No attached stack/profile was taken."
+    },
+    {
+      "basis": [
+        "D6",
+        "D8"
+      ],
+      "claim": "The cached training window still contains substantial backward/autograd work; bank caching alone cannot be assumed to remove all idle time.",
+      "id": "I3",
+      "limit": "CPU time of autograd thread does not establish specific kernels, timings or speedup."
+    },
+    {
+      "basis": [
+        "D9"
+      ],
+      "claim": "Repeated fixed Census forest construction is a concrete candidate for a narrow future improvement.",
+      "id": "I4",
+      "limit": "Operation repetition is directly established from exact source; its share of actual elapsed time has not been measured."
+    }
+  ],
+  "kind": "concurrent_worker_bottleneck_v1_author_diagnosis",
+  "limits": [
+    "GPU3 utilization is aggregate across both workers; nvidia snapshots supply per-PID memory only.",
+    "The GPU2 VAL13 and GPU3 post-epoch1/TRAIN-window phases differ, so these GPU means are not a cache throughput comparison or whole-run speed estimate.",
+    "rchar includes read syscalls and is not equivalent to physical storage traffic. Low read_bytes does not by itself prove page-cache hits on this NFS filesystem.",
+    "The Census current function/tile is not directly observed; epoch progress/log placement only bound the coarse phase.",
+    "No scientific payload, checkpoint, probability or metrics content was read; only output paths, sizes and timestamps.",
+    "No attached stack/gdb, worker modification, installation, actual capture, new CUDA context/job, budget mutation or Git action."
+  ],
+  "observation_finish_utc": "2026-10-11T04:43:47.723514+00:00",
+  "observation_start_utc": "2026-10-11T04:43:01.457285+00:00",
+  "recommended_narrow_future_change": {
+    "cached_bank_followup": "Retain full SHA validation. Do not repeat unchanged one-tile experiment or remove changed-byte detection. Any further cache/overlap improvement requires new measured phase evidence.",
+    "candidate": "Thread already certified cert.forest into the existing encoder forest branch instead of rebuilding fixed CPU geometry on every control forward.",
+    "expected_benefit": "Remove provably repeated fixed CPU forest construction; no quantified speedup claim.",
+    "future_only": true,
+    "preserve": [
+      "all complete whole-tree inputs and graph/role/topology checks",
+      "same source and per-use full certificate SHA validation, including post-TRAIN validation",
+      "same time_scale10000 and fixed tensor content/order/dtype",
+      "same neural operations, learned tensors, initialization, forward/backward order, optimizer steps, epochs, training tile order and scoring",
+      "unchanged current worker/pool and no appended work"
+    ],
+    "required_future_gates": [
+      "explicit time-scale/content binding and mutation rejection for reused forest",
+      "handmade numerical forward/loss/gradient/optimizer parity against existing branch for every control",
+      "bounded future phase timing separating preparation, certificate hashing, forward/backward, validation/scoring and saving",
+      "fresh root registration/review/admission for any successor; no current launch authority"
+    ]
+  },
+  "root_worker_source_binding_checks": {
+    "src/arggnn/biological_bank_cache_v1.py": {
+      "current_sha256": "1582c493c54e9b75dfa65c910fd6cec47fa11622ca4ae8bbb30564391a82caec",
+      "expected_sha256": "1582c493c54e9b75dfa65c910fd6cec47fa11622ca4ae8bbb30564391a82caec",
+      "match": true
+    },
+    "src/arggnn/biological_mechanism_controls_v1.py": {
+      "current_sha256": "28f3e7d3f28a48eeee0944b2e4ad55e3ea6ebb314d8b0342bd785facb08dcbeb",
+      "expected_sha256": "28f3e7d3f28a48eeee0944b2e4ad55e3ea6ebb314d8b0342bd785facb08dcbeb",
+      "match": true
+    },
+    "src/arggnn/census_biological_fit_v2.py": {
+      "current_sha256": "c21884ad90a2c940b49968353545edc52d345c0c7bc10fd87c492c54d4b38c34",
+      "expected_sha256": "c21884ad90a2c940b49968353545edc52d345c0c7bc10fd87c492c54d4b38c34",
+      "match": true
+    }
+  },
+  "sample_summary": {
+    "elapsed_between_first_last_s": 46.000079167075455,
+    "gpu": {
+      "2": {
+        "gpu_util_max_percent": 40.0,
+        "gpu_util_mean_percent": 20.416666666666668,
+        "gpu_util_min_percent": 0.0,
+        "memory_used_max_MiB": 9373.0,
+        "memory_used_min_MiB": 9373.0,
+        "memory_util_mean_percent": 0.125,
+        "samples": 24
+      },
+      "3": {
+        "gpu_util_max_percent": 100.0,
+        "gpu_util_mean_percent": 60.166666666666664,
+        "gpu_util_min_percent": 0.0,
+        "memory_used_max_MiB": 24409.0,
+        "memory_used_min_MiB": 23381.0,
+        "memory_util_mean_percent": 24.333333333333332,
+        "samples": 24
+      }
+    },
+    "processes": {
+      "1230680": {
+        "all_24_alive_same_starttime": true,
+        "cpu_percent_one_core": 107.23894587404958,
+        "cpu_s": 49.33,
+        "io_deltas": {
+          "cancelled_write_bytes": 0,
+          "rchar": 23991172716,
+          "read_bytes": 66736128,
+          "syscr": 12080,
+          "syscw": 29,
+          "wchar": 66735078,
+          "write_bytes": 66785280
+        },
+        "rchar_MiB_s": 497.385344851575,
+        "read_bytes_MiB_s": 1.3835743851404838,
+        "starttime_ticks": 435395427,
+        "states": {
+          "R": 24
+        },
+        "thread_deltas": [
+          {
+            "cpu_s": 45.89,
+            "runqueue_wait_s": 0.006881256,
+            "sched_cpu_s": 45.883554016,
+            "tid": 1230680
+          },
+          {
+            "cpu_s": 1.14,
+            "runqueue_wait_s": 0.000243402,
+            "sched_cpu_s": 1.139577986,
+            "tid": 1230972
+          },
+          {
+            "cpu_s": 1.14,
+            "runqueue_wait_s": 0.000388991,
+            "sched_cpu_s": 1.138898703,
+            "tid": 1230973
+          },
+          {
+            "cpu_s": 1.14,
+            "runqueue_wait_s": 0.000243639,
+            "sched_cpu_s": 1.140276387,
+            "tid": 1230974
+          },
+          {
+            "cpu_s": 0.02,
+            "runqueue_wait_s": 5.22e-06,
+            "sched_cpu_s": 0.017837115,
+            "tid": 1230929
+          },
+          {
+            "cpu_s": 0.01,
+            "runqueue_wait_s": 0.0,
+            "sched_cpu_s": 0.011577188,
+            "tid": 1230932
+          },
+          {
+            "cpu_s": 0.0,
+            "runqueue_wait_s": 0.0,
+            "sched_cpu_s": 0.0,
+            "tid": 1230681
+          },
+          {
+            "cpu_s": 0.0,
+            "runqueue_wait_s": 0.0,
+            "sched_cpu_s": 0.0,
+            "tid": 1230682
+          },
+          {
+            "cpu_s": 0.0,
+            "runqueue_wait_s": 0.0,
+            "sched_cpu_s": 0.0,
+            "tid": 1230683
+          },
+          {
+            "cpu_s": 0.0,
+            "runqueue_wait_s": 0.0,
+            "sched_cpu_s": 0.0,
+            "tid": 1230923
+          },
+          {
+            "cpu_s": 0.0,
+            "runqueue_wait_s": 0.0,
+            "sched_cpu_s": 0.0,
+            "tid": 1230924
+          },
+          {
+            "cpu_s": 0.0,
+            "runqueue_wait_s": 0.0,
+            "sched_cpu_s": 0.0,
+            "tid": 1230925
+          },
+          {
+            "cpu_s": 0.0,
+            "runqueue_wait_s": 0.0,
+            "sched_cpu_s": 0.0,
+            "tid": 1230926
+          },
+          {
+            "cpu_s": 0.0,
+            "runqueue_wait_s": 0.0,
+            "sched_cpu_s": 0.0,
+            "tid": 1231011
+          }
+        ]
+      },
+      "1317405": {
+        "all_24_alive_same_starttime": true,
+        "cpu_percent_one_core": 100.10852336306472,
+        "cpu_s": 46.05,
+        "io_deltas": {
+          "cancelled_write_bytes": 0,
+          "rchar": 1220793298,
+          "read_bytes": 0,
+          "syscr": 1167,
+          "syscw": 0,
+          "wchar": 0,
+          "write_bytes": 0
+        },
+        "rchar_MiB_s": 25.309504570957028,
+        "read_bytes_MiB_s": 0.0,
+        "starttime_ticks": 436677342,
+        "states": {
+          "R": 10,
+          "S": 14
+        },
+        "thread_deltas": [
+          {
+            "cpu_s": 25.64,
+            "runqueue_wait_s": 0.00083216,
+            "sched_cpu_s": 25.645717617,
+            "tid": 1317688
+          },
+          {
+            "cpu_s": 20.36,
+            "runqueue_wait_s": 0.000363781,
+            "sched_cpu_s": 20.349506219,
+            "tid": 1317405
+          },
+          {
+            "cpu_s": 0.03,
+            "runqueue_wait_s": 2.0719e-05,
+            "sched_cpu_s": 0.025020796,
+            "tid": 1317623
+          },
+          {
+            "cpu_s": 0.02,
+            "runqueue_wait_s": 1.082e-05,
+            "sched_cpu_s": 0.018228755,
+            "tid": 1317626
+          },
+          {
+            "cpu_s": 0.01,
+            "runqueue_wait_s": 0.0,
+            "sched_cpu_s": 0.007026992,
+            "tid": 1317671
+          },
+          {
+            "cpu_s": 0.01,
+            "runqueue_wait_s": 0.0,
+            "sched_cpu_s": 0.007006654,
+            "tid": 1317672
+          },
+          {
+            "cpu_s": 0.0,
+            "runqueue_wait_s": 0.0,
+            "sched_cpu_s": 0.0,
+            "tid": 1317406
+          },
+          {
+            "cpu_s": 0.0,
+            "runqueue_wait_s": 0.0,
+            "sched_cpu_s": 0.0,
+            "tid": 1317407
+          },
+          {
+            "cpu_s": 0.0,
+            "runqueue_wait_s": 0.0,
+            "sched_cpu_s": 0.0,
+            "tid": 1317408
+          },
+          {
+            "cpu_s": 0.0,
+            "runqueue_wait_s": 0.0,
+            "sched_cpu_s": 0.0,
+            "tid": 1317619
+          },
+          {
+            "cpu_s": 0.0,
+            "runqueue_wait_s": 0.0,
+            "sched_cpu_s": 0.0,
+            "tid": 1317620
+          },
+          {
+            "cpu_s": 0.0,
+            "runqueue_wait_s": 0.0,
+            "sched_cpu_s": 0.0,
+            "tid": 1317621
+          },
+          {
+            "cpu_s": 0.0,
+            "runqueue_wait_s": 0.0,
+            "sched_cpu_s": 0.0,
+            "tid": 1317622
+          },
+          {
+            "cpu_s": 0.0,
+            "runqueue_wait_s": 1.204e-05,
+            "sched_cpu_s": 0.007021874,
+            "tid": 1317670
+          }
+        ]
+      },
+      "1317433": {
+        "all_24_alive_same_starttime": true,
+        "cpu_percent_one_core": 169.39101282193275,
+        "cpu_s": 77.92,
+        "io_deltas": {
+          "cancelled_write_bytes": 0,
+          "rchar": 44875722,
+          "read_bytes": 0,
+          "syscr": 416,
+          "syscw": 0,
+          "wchar": 0,
+          "write_bytes": 0
+        },
+        "rchar_MiB_s": 0.9303641271169535,
+        "read_bytes_MiB_s": 0.0,
+        "starttime_ticks": 436677698,
+        "states": {
+          "R": 23,
+          "S": 1
+        },
+        "thread_deltas": [
+          {
+            "cpu_s": 42.66,
+            "runqueue_wait_s": 0.003964871,
+            "sched_cpu_s": 42.653293385,
+            "tid": 1317433
+          },
+          {
+            "cpu_s": 10.72,
+            "runqueue_wait_s": 0.000112361,
+            "sched_cpu_s": 10.723135363,
+            "tid": 1317498
+          },
+          {
+            "cpu_s": 10.65,
+            "runqueue_wait_s": 0.000426728,
+            "sched_cpu_s": 10.646327157,
+            "tid": 1317497
+          },
+          {
+            "cpu_s": 10.63,
+            "runqueue_wait_s": 0.000499099,
+            "sched_cpu_s": 10.626919059,
+            "tid": 1317499
+          },
+          {
+            "cpu_s": 3.23,
+            "runqueue_wait_s": 1.674e-05,
+            "sched_cpu_s": 3.234192297,
+            "tid": 1317578
+          },
+          {
+            "cpu_s": 0.02,
+            "runqueue_wait_s": 1.513e-05,
+            "sched_cpu_s": 0.021102586,
+            "tid": 1317470
+          },
+          {
+            "cpu_s": 0.02,
+            "runqueue_wait_s": 7.9729e-05,
+            "sched_cpu_s": 0.013523717,
+            "tid": 1317471
+          },
+          {
+            "cpu_s": 0.0,
+            "runqueue_wait_s": 0.0,
+            "sched_cpu_s": 0.0,
+            "tid": 1317434
+          },
+          {
+            "cpu_s": 0.0,
+            "runqueue_wait_s": 0.0,
+            "sched_cpu_s": 0.0,
+            "tid": 1317435
+          },
+          {
+            "cpu_s": 0.0,
+            "runqueue_wait_s": 0.0,
+            "sched_cpu_s": 0.0,
+            "tid": 1317436
+          },
+          {
+            "cpu_s": 0.0,
+            "runqueue_wait_s": 0.0,
+            "sched_cpu_s": 0.0,
+            "tid": 1317466
+          },
+          {
+            "cpu_s": 0.0,
+            "runqueue_wait_s": 0.0,
+            "sched_cpu_s": 0.0,
+            "tid": 1317467
+          },
+          {
+            "cpu_s": 0.0,
+            "runqueue_wait_s": 0.0,
+            "sched_cpu_s": 0.0,
+            "tid": 1317468
+          },
+          {
+            "cpu_s": 0.0,
+            "runqueue_wait_s": 0.0,
+            "sched_cpu_s": 0.0,
+            "tid": 1317469
+          }
+        ]
+      }
+    },
+    "sample_count": 24
+  },
+  "scope": "source/metadata/read-only process and nvidia-smi observation; writes restricted to this author evidence directory",
+  "source_sha256": {
+    "src/arggnn/biological_bank_cache_v1.py": "1582c493c54e9b75dfa65c910fd6cec47fa11622ca4ae8bbb30564391a82caec",
+    "src/arggnn/biological_candidate.py": "6b3a25d0e59026cab7189032eb41221feb7d1bdf69e15f6c737a672dfb711dd3",
+    "src/arggnn/biological_mechanism_controls_v1.py": "28f3e7d3f28a48eeee0944b2e4ad55e3ea6ebb314d8b0342bd785facb08dcbeb",
+    "src/arggnn/census_biological_bank_v1.py": "1e89e93a23827e15439eceaabea505c6fae088fc407b62e1fd06c71dd26460c6",
+    "src/arggnn/census_biological_fit_v2.py": "c21884ad90a2c940b49968353545edc52d345c0c7bc10fd87c492c54d4b38c34",
+    "src/arggnn/census_native_qualification_runner_v1.py": "a63c9481c934247fabe077aed8dabe02bb1cc831f7bbfe441f5974b397346140",
+    "src/arggnn/census_tree_encoder_v1.py": "09351221d2d91f72c8b1df12bc3799ed72e538597c31a55737ed1bec111f886e"
+  },
+  "status": "completed_bounded_readonly_observation"
+}

@@ -1,0 +1,467 @@
+{
+  "forest_source": {
+    "171": {
+      "lines": [
+        {
+          "number": 171,
+          "text": "def prepare_retained_observed_forest_v1(inputs_by_graph: Sequence[WholeTreeEncoderInputsV1], *,"
+        },
+        {
+          "number": 172,
+          "text": "        time_scale: float = 10000.) -> RetainedObservedForestV1:"
+        },
+        {
+          "number": 173,
+          "text": "    \"\"\"Checked CPU height/depth batches, including every edge in every whole tree."
+        },
+        {
+          "number": 174,
+          "text": ""
+        },
+        {
+          "number": 175,
+          "text": "    Forests batch independent trees at the same level. Administrative Python"
+        },
+        {
+          "number": 176,
+          "text": "    topology loops occur only in preparation, outside all neural vertex actions."
+        },
+        {
+          "number": 177,
+          "text": "    The returned geometry can be cached for already qualified inputs."
+        },
+        {
+          "number": 178,
+          "text": "    \"\"\""
+        },
+        {
+          "number": 179,
+          "text": "    if not inputs_by_graph:"
+        },
+        {
+          "number": 180,
+          "text": "        raise ValueError(\"Require at least one complete retained tree\")"
+        },
+        {
+          "number": 181,
+          "text": "    nodes, edges, parent, child_count, children, height, depth = [], [], [], [], [], [], []"
+        },
+        {
+          "number": 182,
+          "text": "    offsets = [0]"
+        },
+        {
+          "number": 183,
+          "text": "    for inputs in inputs_by_graph:"
+        },
+        {
+          "number": 184,
+          "text": "        observed = retained_observed_features_v1(inputs, time_scale=time_scale)"
+        },
+        {
+          "number": 185,
+          "text": "        n, offset = len(inputs.parent), offsets[-1]"
+        },
+        {
+          "number": 186,
+          "text": "        local_height, local_depth = [0]*n, [0]*n"
+        },
+        {
+          "number": 187,
+          "text": "        for node in inputs.upward_order:"
+        },
+        {
+          "number": 188,
+          "text": "            values = observed.children[node]"
+        },
+        {
+          "number": 189,
+          "text": "            if values:"
+        },
+        {
+          "number": 190,
+          "text": "                local_height[node] = 1+max(local_height[child] for child in values)"
+        },
+        {
+          "number": 191,
+          "text": "        for node in inputs.downward_order:"
+        },
+        {
+          "number": 192,
+          "text": "            ancestor = int(inputs.parent[node])"
+        },
+        {
+          "number": 193,
+          "text": "            if ancestor >= 0:"
+        },
+        {
+          "number": 194,
+          "text": "                local_depth[node] = local_depth[ancestor]+1"
+        },
+        {
+          "number": 195,
+          "text": "        nodes.append(observed.node);edges.append(observed.edge_time)"
+        },
+        {
+          "number": 196,
+          "text": "        parent.extend(-1 if value<0 else value+offset for value in inputs.parent.tolist())"
+        },
+        {
+          "number": 197,
+          "text": "        child_count.extend(len(values) for values in observed.children)"
+        },
+        {
+          "number": 198,
+          "text": "        children.extend(tuple(child+offset for child in values) for values in observed.children)"
+        },
+        {
+          "number": 199,
+          "text": "        height.extend(local_height);depth.extend(local_depth);offsets.append(offset+n)"
+        },
+        {
+          "number": 200,
+          "text": "    up_levels, up_children, up_rank = [], [], []"
+        },
+        {
+          "number": 201,
+          "text": "    for level in range(max(height)+1):"
+        },
+        {
+          "number": 202,
+          "text": "        members = [node for node,value in enumerate(height) if value==level]"
+        },
+        {
+          "number": 203,
+          "text": "        level_children, ranks = [], []"
+        },
+        {
+          "number": 204,
+          "text": "        for rank,node in enumerate(members):"
+        },
+        {
+          "number": 205,
+          "text": "            level_children.extend(children[node]);ranks.extend([rank]*len(children[node]))"
+        },
+        {
+          "number": 206,
+          "text": "        up_levels.append(torch.tensor(members,dtype=torch.long))"
+        },
+        {
+          "number": 207,
+          "text": "        up_children.append(torch.tensor(level_children,dtype=torch.long))"
+        },
+        {
+          "number": 208,
+          "text": "        up_rank.append(torch.tensor(ranks,dtype=torch.long))"
+        },
+        {
+          "number": 209,
+          "text": "    down_levels = tuple(torch.tensor([node for node,value in enumerate(depth) if value==level],dtype=torch.long)"
+        },
+        {
+          "number": 210,
+          "text": "                        for level in range(max(depth)+1))"
+        },
+        {
+          "number": 211,
+          "text": "    return RetainedObservedForestV1(torch.cat(nodes),torch.cat(edges),torch.tensor(parent,dtype=torch.long),"
+        },
+        {
+          "number": 212,
+          "text": "        torch.tensor(child_count,dtype=torch.float64),tuple(offsets),tuple(up_levels),tuple(up_children),tuple(up_rank),down_levels)"
+        }
+      ],
+      "name": "prepare_retained_observed_forest_v1"
+    },
+    "222": {
+      "lines": [
+        {
+          "number": 222,
+          "text": "    def __init__(self, hidden_dim: int = 32, *, time_scale: float = 10000.):"
+        },
+        {
+          "number": 223,
+          "text": "        super().__init__()"
+        },
+        {
+          "number": 224,
+          "text": "        if not isinstance(hidden_dim, int) or hidden_dim < 1 or not math.isfinite(time_scale) or time_scale <= 0:"
+        },
+        {
+          "number": 225,
+          "text": "            raise ValueError(\"Encoder dimensions/time scale must be positive\")"
+        },
+        {
+          "number": 226,
+          "text": "        self.hidden_dim = hidden_dim"
+        },
+        {
+          "number": 227,
+          "text": "        self.time_scale = float(time_scale)"
+        },
+        {
+          "number": 228,
+          "text": "        self.input_projection = nn.Linear(51, hidden_dim)"
+        },
+        {
+          "number": 229,
+          "text": "        self.up_message = nn.Linear(hidden_dim, hidden_dim, bias=False)"
+        },
+        {
+          "number": 230,
+          "text": "        self.up_edge = nn.Linear(1, hidden_dim, bias=False)"
+        },
+        {
+          "number": 231,
+          "text": "        self.up_update = nn.Linear(2 * hidden_dim, hidden_dim)"
+        },
+        {
+          "number": 232,
+          "text": "        self.down_message = nn.Linear(hidden_dim, hidden_dim, bias=False)"
+        },
+        {
+          "number": 233,
+          "text": "        self.down_edge = nn.Linear(1, hidden_dim, bias=False)"
+        },
+        {
+          "number": 234,
+          "text": "        self.down_update = nn.Linear(2 * hidden_dim, hidden_dim)"
+        },
+        {
+          "number": 235,
+          "text": "        self.output_projection = nn.Linear(2 * hidden_dim, hidden_dim)"
+        }
+      ],
+      "name": "__init__"
+    }
+  },
+  "logs": {
+    ".runtime/gpup/gpu3_fits_v2/jobs/census-relate101-fit2-v2.log": {
+      "bytes": 86,
+      "epoch_events": [
+        {
+          "all_five_controls_steps": 16,
+          "epoch": 1,
+          "seed": 101,
+          "stage": "census_fit_epoch"
+        }
+      ],
+      "mtime_ns": 1791693610876230994,
+      "sha256": "ac769b81a7b7aec020b01ee2a38938b8006375cdeb03bf0b4bae631f2bfd3c62"
+    },
+    ".runtime/gpup/gpu3_fits_v2/jobs/mechanisms303-cache-v2.log": {
+      "bytes": 281,
+      "epoch_events": [
+        {
+          "active_models": [
+            "bio_mc_v1_scalar_age_d2",
+            "bio_mc_v1_age_propagation_only_d2",
+            "bio_mc_v1_age_source_only_d2",
+            "bio_mc_v1_age_gainmatched_d2",
+            "bio_mc_v1_noncontext_age_d2",
+            "bio_mc_v1_age_d1",
+            "bio_mc_v1_age_d1_plus_pointwise"
+          ],
+          "epoch": 1,
+          "seed": 303,
+          "stage": "fit_epoch"
+        }
+      ],
+      "mtime_ns": 1791693737130668632,
+      "sha256": "80823d6de16dbb10c3aa11774b30bb0f1a370386f463dc79d781156d94f2abb1"
+    },
+    "experiments/results/biological_mechanisms_seed202_parallel_v1_root/launch.stdout": {
+      "bytes": 3558,
+      "epoch_events": [
+        {
+          "active_models": [
+            "bio_mc_v1_scalar_age_d2",
+            "bio_mc_v1_age_propagation_only_d2",
+            "bio_mc_v1_age_source_only_d2",
+            "bio_mc_v1_age_gainmatched_d2",
+            "bio_mc_v1_noncontext_age_d2",
+            "bio_mc_v1_age_d1",
+            "bio_mc_v1_age_d1_plus_pointwise"
+          ],
+          "epoch": 1,
+          "seed": 202,
+          "stage": "fit_epoch"
+        },
+        {
+          "active_models": [
+            "bio_mc_v1_scalar_age_d2",
+            "bio_mc_v1_age_propagation_only_d2",
+            "bio_mc_v1_age_source_only_d2",
+            "bio_mc_v1_age_gainmatched_d2",
+            "bio_mc_v1_noncontext_age_d2",
+            "bio_mc_v1_age_d1",
+            "bio_mc_v1_age_d1_plus_pointwise"
+          ],
+          "epoch": 2,
+          "seed": 202,
+          "stage": "fit_epoch"
+        },
+        {
+          "active_models": [
+            "bio_mc_v1_scalar_age_d2",
+            "bio_mc_v1_age_propagation_only_d2",
+            "bio_mc_v1_age_source_only_d2",
+            "bio_mc_v1_age_gainmatched_d2",
+            "bio_mc_v1_noncontext_age_d2",
+            "bio_mc_v1_age_d1",
+            "bio_mc_v1_age_d1_plus_pointwise"
+          ],
+          "epoch": 3,
+          "seed": 202,
+          "stage": "fit_epoch"
+        },
+        {
+          "active_models": [
+            "bio_mc_v1_scalar_age_d2",
+            "bio_mc_v1_age_propagation_only_d2",
+            "bio_mc_v1_age_source_only_d2",
+            "bio_mc_v1_age_gainmatched_d2",
+            "bio_mc_v1_noncontext_age_d2",
+            "bio_mc_v1_age_d1",
+            "bio_mc_v1_age_d1_plus_pointwise"
+          ],
+          "epoch": 4,
+          "seed": 202,
+          "stage": "fit_epoch"
+        },
+        {
+          "active_models": [
+            "bio_mc_v1_scalar_age_d2",
+            "bio_mc_v1_age_propagation_only_d2",
+            "bio_mc_v1_age_source_only_d2",
+            "bio_mc_v1_age_gainmatched_d2",
+            "bio_mc_v1_noncontext_age_d2",
+            "bio_mc_v1_age_d1",
+            "bio_mc_v1_age_d1_plus_pointwise"
+          ],
+          "epoch": 5,
+          "seed": 202,
+          "stage": "fit_epoch"
+        },
+        {
+          "active_models": [
+            "bio_mc_v1_scalar_age_d2",
+            "bio_mc_v1_age_propagation_only_d2",
+            "bio_mc_v1_age_source_only_d2",
+            "bio_mc_v1_age_gainmatched_d2",
+            "bio_mc_v1_noncontext_age_d2",
+            "bio_mc_v1_age_d1",
+            "bio_mc_v1_age_d1_plus_pointwise"
+          ],
+          "epoch": 6,
+          "seed": 202,
+          "stage": "fit_epoch"
+        },
+        {
+          "active_models": [
+            "bio_mc_v1_scalar_age_d2",
+            "bio_mc_v1_age_propagation_only_d2",
+            "bio_mc_v1_age_source_only_d2",
+            "bio_mc_v1_age_gainmatched_d2",
+            "bio_mc_v1_noncontext_age_d2",
+            "bio_mc_v1_age_d1",
+            "bio_mc_v1_age_d1_plus_pointwise"
+          ],
+          "epoch": 7,
+          "seed": 202,
+          "stage": "fit_epoch"
+        },
+        {
+          "active_models": [
+            "bio_mc_v1_scalar_age_d2",
+            "bio_mc_v1_age_propagation_only_d2",
+            "bio_mc_v1_age_source_only_d2",
+            "bio_mc_v1_age_gainmatched_d2",
+            "bio_mc_v1_noncontext_age_d2",
+            "bio_mc_v1_age_d1",
+            "bio_mc_v1_age_d1_plus_pointwise"
+          ],
+          "epoch": 8,
+          "seed": 202,
+          "stage": "fit_epoch"
+        },
+        {
+          "active_models": [
+            "bio_mc_v1_scalar_age_d2",
+            "bio_mc_v1_age_propagation_only_d2",
+            "bio_mc_v1_age_source_only_d2",
+            "bio_mc_v1_age_gainmatched_d2",
+            "bio_mc_v1_noncontext_age_d2",
+            "bio_mc_v1_age_d1",
+            "bio_mc_v1_age_d1_plus_pointwise"
+          ],
+          "epoch": 9,
+          "seed": 202,
+          "stage": "fit_epoch"
+        },
+        {
+          "active_models": [
+            "bio_mc_v1_scalar_age_d2",
+            "bio_mc_v1_age_propagation_only_d2",
+            "bio_mc_v1_age_source_only_d2",
+            "bio_mc_v1_age_gainmatched_d2",
+            "bio_mc_v1_noncontext_age_d2",
+            "bio_mc_v1_age_d1",
+            "bio_mc_v1_age_d1_plus_pointwise"
+          ],
+          "epoch": 10,
+          "seed": 202,
+          "stage": "fit_epoch"
+        },
+        {
+          "active_models": [
+            "bio_mc_v1_scalar_age_d2",
+            "bio_mc_v1_age_propagation_only_d2",
+            "bio_mc_v1_age_source_only_d2",
+            "bio_mc_v1_age_gainmatched_d2",
+            "bio_mc_v1_noncontext_age_d2",
+            "bio_mc_v1_age_d1",
+            "bio_mc_v1_age_d1_plus_pointwise"
+          ],
+          "epoch": 11,
+          "seed": 202,
+          "stage": "fit_epoch"
+        },
+        {
+          "active_models": [
+            "bio_mc_v1_scalar_age_d2",
+            "bio_mc_v1_age_propagation_only_d2",
+            "bio_mc_v1_age_source_only_d2",
+            "bio_mc_v1_age_gainmatched_d2",
+            "bio_mc_v1_noncontext_age_d2",
+            "bio_mc_v1_age_d1",
+            "bio_mc_v1_age_d1_plus_pointwise"
+          ],
+          "epoch": 12,
+          "seed": 202,
+          "stage": "fit_epoch"
+        }
+      ],
+      "mtime_ns": 1791693051007337376,
+      "sha256": "2bd818dca48f4f58970512c642d6b816528da7c6b7e5c03fb347ab70bd50b692"
+    }
+  },
+  "observation_timestamp": "after bounded sample; log lines are progress metadata, no scientific metrics read",
+  "source_binding_verification": {
+    "src/arggnn/biological_bank_cache_v1.py": {
+      "current_sha256": "1582c493c54e9b75dfa65c910fd6cec47fa11622ca4ae8bbb30564391a82caec",
+      "expected_sha256": "1582c493c54e9b75dfa65c910fd6cec47fa11622ca4ae8bbb30564391a82caec",
+      "match": true
+    },
+    "src/arggnn/biological_mechanism_controls_v1.py": {
+      "current_sha256": "28f3e7d3f28a48eeee0944b2e4ad55e3ea6ebb314d8b0342bd785facb08dcbeb",
+      "expected_sha256": "28f3e7d3f28a48eeee0944b2e4ad55e3ea6ebb314d8b0342bd785facb08dcbeb",
+      "match": true
+    },
+    "src/arggnn/census_biological_fit_v2.py": {
+      "current_sha256": "c21884ad90a2c940b49968353545edc52d345c0c7bc10fd87c492c54d4b38c34",
+      "expected_sha256": "c21884ad90a2c940b49968353545edc52d345c0c7bc10fd87c492c54d4b38c34",
+      "match": true
+    }
+  }
+}

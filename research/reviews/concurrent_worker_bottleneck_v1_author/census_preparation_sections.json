@@ -1,0 +1,713 @@
+{
+  "src/arggnn/census_biological_bank_v1.py": {
+    "functions": [
+      {
+        "lines": [
+          {
+            "number": 28,
+            "text": "def fingerprint_v1(value):"
+          },
+          {
+            "number": 29,
+            "text": "    if isinstance(value,Tensor):"
+          },
+          {
+            "number": 30,
+            "text": "        if value.device.type!='cpu' or value.requires_grad:"
+          },
+          {
+            "number": 31,
+            "text": "            raise ValueError('Certification requires fixed CPU observed tensors')"
+          },
+          {
+            "number": 32,
+            "text": "        array=value.detach().contiguous().numpy()"
+          },
+          {
+            "number": 33,
+            "text": "        return {'dtype':str(value.dtype),'shape':list(value.shape),'stride':list(value.stride()),'sha256':hashlib.sha256(array.tobytes()).hexdigest()}"
+          },
+          {
+            "number": 34,
+            "text": "    if is_dataclass(value):"
+          },
+          {
+            "number": 35,
+            "text": "        return {'type':type(value).__name__,'fields':{f.name:fingerprint_v1(getattr(value,f.name)) for f in fields(value)}}"
+          },
+          {
+            "number": 36,
+            "text": "    if isinstance(value,Mapping):return {str(k):fingerprint_v1(v) for k,v in sorted(value.items(),key=lambda x:str(x[0]))}"
+          },
+          {
+            "number": 37,
+            "text": "    if isinstance(value,(tuple,list)):return [fingerprint_v1(v) for v in value]"
+          },
+          {
+            "number": 38,
+            "text": "    if isinstance(value,(set,frozenset)):return [fingerprint_v1(v) for v in sorted(value)]"
+          },
+          {
+            "number": 39,
+            "text": "    if value is None or isinstance(value,(str,int,float,bool)):"
+          },
+          {
+            "number": 40,
+            "text": "        if isinstance(value,float) and not math.isfinite(value):raise ValueError('Nonfinite certification metadata')"
+          },
+          {
+            "number": 41,
+            "text": "        return value"
+          },
+          {
+            "number": 42,
+            "text": "    raise ValueError('Unsupported observation certificate type')"
+          }
+        ],
+        "name": "fingerprint_v1"
+      },
+      {
+        "lines": [
+          {
+            "number": 45,
+            "text": "def fingerprint_sha256_v1(value):"
+          },
+          {
+            "number": 46,
+            "text": "    return hashlib.sha256(json.dumps(fingerprint_v1(value),sort_keys=True,separators=(',',':'),allow_nan=False).encode()).hexdigest()"
+          }
+        ],
+        "name": "fingerprint_sha256_v1"
+      },
+      {
+        "lines": [
+          {
+            "number": 131,
+            "text": "def prepare_census_biological_bank_v1(ts,serialized_observation:Mapping,roster:Sequence[ObservedSampleRoleV1],"
+          },
+          {
+            "number": 132,
+            "text": "        *,left_bp:float,right_bp:float,offset_bp:float,positions_bp:Tensor,original_grid_indexes:Tensor,"
+          },
+          {
+            "number": 133,
+            "text": "        source_bindings:Mapping,parent_id:str,split:str,tile_id:int,config=None):"
+          },
+          {
+            "number": 134,
+            "text": "    \"\"\"Join admitted decoded observations; do not open project files or targets."
+          },
+          {
+            "number": 135,
+            "text": ""
+          },
+          {
+            "number": 136,
+            "text": "    Reproduce the pinned producer's full native postorder x48/edges/landmarks"
+          },
+          {
+            "number": 137,
+            "text": "    first. Only after exact full parity may branch-column deletion and anonymous"
+          },
+          {
+            "number": 138,
+            "text": "    unary suppression occur. No whole-TS million-node F47 table is constructed."
+          },
+          {
+            "number": 139,
+            "text": "    \"\"\""
+          },
+          {
+            "number": 140,
+            "text": "    config=_config(config);bindings=_bindings(source_bindings)"
+          },
+          {
+            "number": 141,
+            "text": "    dynamic,scored,refs,landmarks=_roster(ts,roster,config)"
+          },
+          {
+            "number": 142,
+            "text": "    if split not in {'train','val'} or not isinstance(parent_id,str) or not isinstance(tile_id,int) or tile_id not in range(8):raise ValueError('Development parent/split/tile metadata required')"
+          },
+          {
+            "number": 143,
+            "text": "    if (not 0<=left_bp<right_bp<=config['normalization_length_bp'] or not math.isfinite(offset_bp)"
+          },
+          {
+            "number": 144,
+            "text": "            or positions_bp.device.type!='cpu' or positions_bp.dtype!=torch.float64 or positions_bp.ndim!=1 or not positions_bp.numel()"
+          },
+          {
+            "number": 145,
+            "text": "            or original_grid_indexes.device.type!='cpu' or original_grid_indexes.dtype!=torch.long or original_grid_indexes.shape!=positions_bp.shape"
+          },
+          {
+            "number": 146,
+            "text": "            or not torch.equal(positions_bp,50.+100.*original_grid_indexes.double())"
+          },
+          {
+            "number": 147,
+            "text": "            or not bool(((positions_bp>=left_bp)&(positions_bp<right_bp)).all())"
+          },
+          {
+            "number": 148,
+            "text": "            or not bool((original_grid_indexes[1:]>original_grid_indexes[:-1]).all())):raise ValueError('Exact original100bp centers/order and physical tile required')"
+          },
+          {
+            "number": 149,
+            "text": "    all_centers=torch.arange(50.,config['normalization_length_bp'],100.,dtype=torch.float64)"
+          },
+          {
+            "number": 150,
+            "text": "    expected_indexes=torch.nonzero((all_centers>=left_bp)&(all_centers<right_bp),as_tuple=False).flatten()"
+          },
+          {
+            "number": 151,
+            "text": "    if not torch.equal(original_grid_indexes,expected_indexes) or not tile_id*config['tile_bp']<=left_bp<right_bp<=(tile_id+1)*config['tile_bp']:"
+          },
+          {
+            "number": 152,
+            "text": "        raise ValueError('All original centers and original tile identity must be preserved')"
+          },
+          {
+            "number": 153,
+            "text": "    if set(serialized_observation)!={'sequence','labels_in_input'} or serialized_observation['labels_in_input'] is not False:"
+          },
+          {
+            "number": 154,
+            "text": "        raise ValueError('Observation whitelist excludes targets/truth/labels')"
+          },
+          {
+            "number": 155,
+            "text": "    if set(serialized_observation['sequence'])!=SEQUENCE_FIELDS:raise ValueError('Exact observation GraphSequence fields required')"
+          },
+          {
+            "number": 156,
+            "text": "    stored=GraphSequence.from_dict(serialized_observation['sequence'])"
+          },
+          {
+            "number": 157,
+            "text": "    if any(isinstance(getattr(stored,f.name),Tensor) and (getattr(stored,f.name).device.type!='cpu' or getattr(stored,f.name).requires_grad) for f in fields(stored)):"
+          },
+          {
+            "number": 158,
+            "text": "        raise ValueError('Stored observations must be fixed CPU tensors')"
+          },
+          {
+            "number": 159,
+            "text": "    if stored.x.dtype!=torch.float32 or stored.x.shape[1]!=48:raise ValueError('Pinned stored x48 float32 required before F47 deletion')"
+          },
+          {
+            "number": 160,
+            "text": "    n_bp=config['normalization_length_bp'];all_samples={row.native_sample_node for row in roster}"
+          },
+          {
+            "number": 161,
+            "text": "    native_to_actual={row.native_sample_node:row.actual_id for row in roster};reference={row.native_sample_node:row.observed_reference_class for row in refs};actual_scored={row.native_sample_node for row in scored}"
+          },
+          {
+            "number": 162,
+            "text": "    xs,clades,node_ids,node_graph,edges,intervals,native_maps,native_trees,tree_ids,excluded,durations=[],[],[],[],[],[],[],[],[],[],[]"
+          },
+          {
+            "number": 163,
+            "text": "    physical_intervals=[]"
+          },
+          {
+            "number": 164,
+            "text": "    for tree in ts.trees():"
+          },
+          {
+            "number": 165,
+            "text": "        start=max(float(tree.interval.left)+offset_bp,left_bp);stop=min(float(tree.interval.right)+offset_bp,right_bp)"
+          },
+          {
+            "number": 166,
+            "text": "        if stop<=start:continue"
+          },
+          {
+            "number": 167,
+            "text": "        union=set()"
+          },
+          {
+            "number": 168,
+            "text": "        for sample in all_samples:"
+          },
+          {
+            "number": 169,
+            "text": "            node=sample;path=set()"
+          },
+          {
+            "number": 170,
+            "text": "            while node!=-1:"
+          },
+          {
+            "number": 171,
+            "text": "                if node in path:raise ValueError('Native sample-ancestor cycle')"
+          },
+          {
+            "number": 172,
+            "text": "                path.add(node);union.add(node);node=tree.parent(node)"
+          },
+          {
+            "number": 173,
+            "text": "        packed=list(tree.nodes(order='postorder'))"
+          },
+          {
+            "number": 174,
+            "text": "        if set(packed)!=union or len(packed)!=len(union) or tree.num_roots!=1 or set(tree.leaves())!=all_samples:raise ValueError('Pinned native postorder must equal complete sample-ancestor union')"
+          },
+          {
+            "number": 175,
+            "text": "        lookup={node:len(xs)+i for i,node in enumerate(packed)};local={node:i for i,node in enumerate(packed)};graph=len(intervals)"
+          },
+          {
+            "number": 176,
+            "text": "        parents,times,branch=[],[],[]"
+          },
+          {
+            "number": 177,
+            "text": "        for node in packed:"
+          },
+          {
+            "number": 178,
+            "text": "            ancestor=tree.parent(node);age=float(tree.time(node));dt=0. if ancestor==-1 else float(tree.time(ancestor))-age"
+          },
+          {
+            "number": 179,
+            "text": "            if not math.isfinite(age) or age<0 or dt<0:raise ValueError('Direct native float64 dates/durations invalid')"
+          },
+          {
+            "number": 180,
+            "text": "            feature=np.zeros(8,dtype=np.float32)"
+          },
+          {
+            "number": 181,
+            "text": "            if node in reference:feature[reference[node]]=1."
+          },
+          {
+            "number": 182,
+            "text": "            feature[4]=float(node in actual_scored);feature[5]=float(node in all_samples)"
+          },
+          {
+            "number": 183,
+            "text": "            feature[6]=math.log1p(age)/math.log1p(config['time_scale']);feature[7]=math.log1p(dt)/math.log1p(config['time_scale'])"
+          },
+          {
+            "number": 184,
+            "text": "            xs.append(feature);clades.append([float(tree.is_descendant(landmark,node)) for landmark in landmarks])"
+          },
+          {
+            "number": 185,
+            "text": "            node_ids.append(node if node in all_samples else -1);node_graph.append(graph)"
+          },
+          {
+            "number": 186,
+            "text": "            if ancestor!=-1:edges.extend([(lookup[ancestor],lookup[node]),(lookup[node],lookup[ancestor])])"
+          },
+          {
+            "number": 187,
+            "text": "            parents.append(-1 if ancestor==-1 else local[ancestor]);times.append(age);branch.append(dt)"
+          },
+          {
+            "number": 188,
+            "text": "        native_trees.append(ObservedDatedTreeV1(torch.tensor(parents),torch.tensor(times,dtype=torch.float64),"
+          },
+          {
+            "number": 189,
+            "text": "            torch.tensor([row.actual_id for row in roster]),torch.tensor([local[row.native_sample_node] for row in roster])))"
+          },
+          {
+            "number": 190,
+            "text": "        native_maps.append(torch.tensor(packed));durations.append(torch.tensor(branch,dtype=torch.float64))"
+          },
+          {
+            "number": 191,
+            "text": "        intervals.append([start/n_bp,stop/n_bp]);physical_intervals.append([start,stop]);tree_ids.append(int(tree.index));excluded.append(ts.num_nodes-len(union))"
+          },
+          {
+            "number": 192,
+            "text": "    if not intervals:raise ValueError('No original trees in clipped support')"
+          },
+          {
+            "number": 193,
+            "text": "    intervals=torch.tensor(intervals,dtype=torch.float64)"
+          },
+          {
+            "number": 194,
+            "text": "    if (intervals[0,0].item()!=left_bp/n_bp or intervals[-1,1].item()!=right_bp/n_bp or not torch.equal(intervals[:-1,1],intervals[1:,0])):raise ValueError('Exact common clipped native coverage required')"
+          },
+          {
+            "number": 195,
+            "text": "    positions=torch.from_numpy(positions_bp.numpy()/n_bp)"
+          },
+          {
+            "number": 196,
+            "text": "    target=torch.tensor(np.searchsorted(intervals[:,1].numpy(),positions.numpy(),side='right'),dtype=torch.long)"
+          },
+          {
+            "number": 197,
+            "text": "    base=GraphSequence(torch.from_numpy(np.asarray(xs,dtype=np.float32)),torch.tensor(edges,dtype=torch.long).reshape(-1,2).T.contiguous(),"
+          },
+          {
+            "number": 198,
+            "text": "        torch.tensor(node_graph),torch.tensor(node_ids),torch.tensor(clades,dtype=torch.float32),intervals,"
+          },
+          {
+            "number": 199,
+            "text": "        torch.tensor([row.native_sample_node for row in dynamic]),positions,target,torch.tensor([left_bp/n_bp,right_bp/n_bp],dtype=torch.float64))"
+          },
+          {
+            "number": 200,
+            "text": "    expected=ReferenceFeatureAdapter(8,reference_columns=(0,1,2,3),time_column=6,branch_column=7,kernel_scales=config['sigmas']).precompute(base)"
+          },
+          {
+            "number": 201,
+            "text": "    for field in fields(stored):"
+          },
+          {
+            "number": 202,
+            "text": "        actual=getattr(stored,field.name);wanted=getattr(expected,field.name)"
+          },
+          {
+            "number": 203,
+            "text": "        if actual is None or wanted is None:"
+          },
+          {
+            "number": 204,
+            "text": "            equal=actual is wanted"
+          },
+          {
+            "number": 205,
+            "text": "        else:equal=actual.dtype==wanted.dtype and actual.shape==wanted.shape and actual.stride()==wanted.stride() and torch.equal(actual,wanted)"
+          },
+          {
+            "number": 206,
+            "text": "        if not equal:raise ValueError('Native/serialized exact parity failed: '+field.name)"
+          },
+          {
+            "number": 207,
+            "text": "    feature_columns=tuple(config['feature_columns']);inputs=[];row_maps=[];sample_maps=[];start_row=0"
+          },
+          {
+            "number": 208,
+            "text": "    for graph,tree in enumerate(native_trees):"
+          },
+          {
+            "number": 209,
+            "text": "        count=len(tree.parent);rows=torch.arange(start_row,start_row+count);f47=stored.x[rows][:,feature_columns].clone()"
+          },
+          {
+            "number": 210,
+            "text": "        prepared=prepare_whole_tree_encoder_inputs_v1(tree,f47)"
+          },
+          {
+            "number": 211,
+            "text": "        # Translate retained provenance back to exact native vertices and source rows."
+          },
+          {
+            "number": 212,
+            "text": "        retained=prepared.native_vertex_index"
+          },
+          {
+            "number": 213,
+            "text": "        from dataclasses import replace"
+          },
+          {
+            "number": 214,
+            "text": "        prepared=replace(prepared,native_vertex_index=native_maps[graph][retained])"
+          },
+          {
+            "number": 215,
+            "text": "        inputs.append(prepared);row_maps.append(rows);sample_maps.append({'actual_ids':tree.sample_ids,'native_sample_nodes':torch.tensor([row.native_sample_node for row in roster]),'source_rows':rows[tree.sample_nodes]})"
+          },
+          {
+            "number": 216,
+            "text": "        start_row+=count"
+          },
+          {
+            "number": 217,
+            "text": "    bank=prepare_census_exchange_bank_v1(native_trees,intervals,positions,torch.tensor([row.actual_id for row in dynamic]),"
+          },
+          {
+            "number": 218,
+            "text": "        torch.tensor([row.actual_id for row in refs]),torch.tensor([row.actual_id for row in scored]),num_anchors=config['num_anchors'],sigmas=config['sigmas'])"
+          },
+          {
+            "number": 219,
+            "text": "    # Shared physical bp values have one division representation. Frozen anchor"
+          },
+          {
+            "number": 220,
+            "text": "    # arithmetic may differ; reject an intended collision instead of adding eps."
+          },
+          {
+            "number": 221,
+            "text": "    anchor_bp=left_bp+(np.arange(config['num_anchors'],dtype=np.float64)+.5)*((right_bp-left_bp)/config['num_anchors'])"
+          },
+          {
+            "number": 222,
+            "text": "    event_bp=[left_bp]+[pair[1] for pair in physical_intervals]"
+          },
+          {
+            "number": 223,
+            "text": "    event_norm=[left_bp/n_bp]+intervals[:,1].tolist()"
+          },
+          {
+            "number": 224,
+            "text": "    for i,value in enumerate(anchor_bp):"
+          },
+          {
+            "number": 225,
+            "text": "        for bp,norm in zip(event_bp+positions_bp.tolist(),event_norm+positions.tolist()):"
+          },
+          {
+            "number": 226,
+            "text": "            if float(value)==bp and bank.layout.anchors[i].item()!=norm:raise ValueError('Physical anchor collision has unequal canonical normalized values')"
+          },
+          {
+            "number": 227,
+            "text": "    forest=prepare_retained_observed_forest_v1(inputs)"
+          },
+          {
+            "number": 228,
+            "text": "    provenance={'parent_id':parent_id,'split':split,'tile_id':tile_id,'source_bindings':bindings,'original_tree_ids':tree_ids,"
+          },
+          {
+            "number": 229,
+            "text": "        'native_vertex_by_source_row':native_maps,'source_rows_by_tree':row_maps,'sample_joins_by_tree':sample_maps,"
+          },
+          {
+            "number": 230,
+            "text": "        'native_endpoint_duration_by_source_row':durations,'landmark_native_nodes':landmarks,'excluded_unrelated_nodes_by_tree':excluded,"
+          },
+          {
+            "number": 231,
+            "text": "        'original_grid_indexes':original_grid_indexes.clone(),'positions_bp':positions_bp.clone(),'physical_bounds_bp':[left_bp,right_bp],"
+          },
+          {
+            "number": 232,
+            "text": "        'physical_intervals_bp':physical_intervals,'offset_bp':offset_bp,'feature_columns':feature_columns,'full_x48_and_all_GraphSequence_fields_exact_parity':True,"
+          },
+          {
+            "number": 233,
+            "text": "        'age_source':'direct_native_float64_never_inverted','unary_policy':'only_source-derived_non_sample_nonroot_unary_rows_disposable_after_full_parity',"
+          },
+          {
+            "number": 234,
+            "text": "        'source_native_float64_tree_fingerprint':fingerprint_sha256_v1(native_trees)}"
+          },
+          {
+            "number": 235,
+            "text": "    cert=CertifiedCensusBiologicalBankV1(tuple(inputs),bank,forest,tuple(native_trees),stored,provenance,config,'')"
+          },
+          {
+            "number": 236,
+            "text": "    from dataclasses import replace"
+          },
+          {
+            "number": 237,
+            "text": "    return replace(cert,certificate_sha256=fingerprint_sha256_v1(_content(cert)))"
+          }
+        ],
+        "name": "prepare_census_biological_bank_v1"
+      }
+    ],
+    "sha256": "1e89e93a23827e15439eceaabea505c6fae088fc407b62e1fd06c71dd26460c6"
+  },
+  "src/arggnn/census_tree_encoder_v1.py": {
+    "functions": [
+      {
+        "lines": [
+          {
+            "number": 270,
+            "text": "def encode_whole_tree_contexts_v1(encoder: CensusWholeTreeEncoderV1,"
+          },
+          {
+            "number": 271,
+            "text": "        inputs_by_graph: Sequence[WholeTreeEncoderInputsV1], query_ids: Tensor,"
+          },
+          {
+            "number": 272,
+            "text": "        reference_ids: Tensor) -> tuple[Tensor, Tensor]:"
+          },
+          {
+            "number": 273,
+            "text": "    \"\"\"Process complete retained trees and gather Q/R with actual identities only.\"\"\""
+          },
+          {
+            "number": 274,
+            "text": "    if not inputs_by_graph:"
+          },
+          {
+            "number": 275,
+            "text": "        raise ValueError(\"Require at least one complete retained tree\")"
+          },
+          {
+            "number": 276,
+            "text": "    query_contexts, reference_contexts = [], []"
+          },
+          {
+            "number": 277,
+            "text": "    dates = None"
+          },
+          {
+            "number": 278,
+            "text": "    encoded_by_graph = encoder(inputs_by_graph)"
+          },
+          {
+            "number": 279,
+            "text": "    for inputs, encoded in zip(inputs_by_graph, encoded_by_graph):"
+          },
+          {
+            "number": 280,
+            "text": "        query, reference = gather_whole_tree_context_v1(inputs, encoded, query_ids, reference_ids)"
+          },
+          {
+            "number": 281,
+            "text": "        lookup = dict(zip(inputs.sample_ids.tolist(), inputs.sample_nodes.tolist()))"
+          },
+          {
+            "number": 282,
+            "text": "        observed_dates = inputs.node_times[torch.tensor([lookup[q] for q in query_ids.tolist() + reference_ids.tolist()])]"
+          },
+          {
+            "number": 283,
+            "text": "        if dates is not None and not torch.equal(observed_dates, dates):"
+          },
+          {
+            "number": 284,
+            "text": "            raise ValueError(\"Persistent observed sample dates changed across encoder inputs\")"
+          },
+          {
+            "number": 285,
+            "text": "        dates = observed_dates"
+          },
+          {
+            "number": 286,
+            "text": "        query_contexts.append(query)"
+          },
+          {
+            "number": 287,
+            "text": "        reference_contexts.append(reference)"
+          },
+          {
+            "number": 288,
+            "text": "    return torch.stack(query_contexts), torch.stack(reference_contexts)"
+          }
+        ],
+        "name": "encode_whole_tree_contexts_v1"
+      },
+      {
+        "lines": [
+          {
+            "number": 237,
+            "text": "    def forward_forest(self, inputs: Sequence[WholeTreeEncoderInputsV1] | RetainedObservedForestV1) -> tuple[Tensor, ...]:"
+          },
+          {
+            "number": 238,
+            "text": "        forest = inputs if isinstance(inputs,RetainedObservedForestV1) else prepare_retained_observed_forest_v1(inputs,time_scale=self.time_scale)"
+          },
+          {
+            "number": 239,
+            "text": "        parameter = self.input_projection.weight"
+          },
+          {
+            "number": 240,
+            "text": "        forest = forest.to(parameter.device,parameter.dtype)"
+          },
+          {
+            "number": 241,
+            "text": "        base = self.input_projection(forest.node).tanh()"
+          },
+          {
+            "number": 242,
+            "text": "        upward = torch.zeros_like(base)"
+          },
+          {
+            "number": 243,
+            "text": "        for members,children,ranks in zip(forest.upward_levels,forest.upward_children,forest.upward_parent_rank):"
+          },
+          {
+            "number": 244,
+            "text": "            aggregate = base.new_zeros((len(members),self.hidden_dim))"
+          },
+          {
+            "number": 245,
+            "text": "            if children.numel():"
+          },
+          {
+            "number": 246,
+            "text": "                messages = self.up_message(upward[children])+self.up_edge(forest.edge_time[children])"
+          },
+          {
+            "number": 247,
+            "text": "                aggregate = aggregate.index_add(0,ranks,messages)"
+          },
+          {
+            "number": 248,
+            "text": "                aggregate = aggregate/forest.child_count[members,None]"
+          },
+          {
+            "number": 249,
+            "text": "            updated = self.up_update(torch.cat((base[members],aggregate),-1)).tanh()"
+          },
+          {
+            "number": 250,
+            "text": "            upward = upward.index_copy(0,members,updated)"
+          },
+          {
+            "number": 251,
+            "text": "        downward = torch.zeros_like(base)"
+          },
+          {
+            "number": 252,
+            "text": "        for level,members in enumerate(forest.downward_levels):"
+          },
+          {
+            "number": 253,
+            "text": "            if level:"
+          },
+          {
+            "number": 254,
+            "text": "                context = self.down_message(downward[forest.parent[members]])+self.down_edge(forest.edge_time[members])"
+          },
+          {
+            "number": 255,
+            "text": "            else:"
+          },
+          {
+            "number": 256,
+            "text": "                context = base.new_zeros((len(members),self.hidden_dim))"
+          },
+          {
+            "number": 257,
+            "text": "            updated = self.down_update(torch.cat((upward[members],context),-1)).tanh()"
+          },
+          {
+            "number": 258,
+            "text": "            downward = downward.index_copy(0,members,updated)"
+          },
+          {
+            "number": 259,
+            "text": "        encoded = self.output_projection(torch.cat((upward,downward),-1)).tanh()"
+          },
+          {
+            "number": 260,
+            "text": "        if not bool(torch.isfinite(encoded).all()):"
+          },
+          {
+            "number": 261,
+            "text": "            raise ValueError(\"Whole-tree encoded contexts are nonfinite\")"
+          },
+          {
+            "number": 262,
+            "text": "        return tuple(encoded[left:right] for left,right in zip(forest.graph_offsets[:-1],forest.graph_offsets[1:]))"
+          }
+        ],
+        "name": "forward_forest"
+      }
+    ],
+    "sha256": "09351221d2d91f72c8b1df12bc3799ed72e538597c31a55737ed1bec111f886e"
+  }
+}

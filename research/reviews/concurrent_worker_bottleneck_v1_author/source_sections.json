@@ -1,0 +1,1427 @@
+{
+  "src/arggnn/biological_bank_cache_v1.py": {
+    "sections": [
+      {
+        "end": 186,
+        "lines": [
+          {
+            "number": 93,
+            "text": "    def __init__(self,prepared_manifest_ref,config_ref,observed_manifest_ref,*,cpu_budget_bytes,gpu_budget_bytes,source_sha256=None,active_guard=None):"
+          },
+          {
+            "number": 94,
+            "text": "        if type(cpu_budget_bytes) is not int or cpu_budget_bytes<0 or type(gpu_budget_bytes) is not int or gpu_budget_bytes<0:raise ValueError('Explicit nonnegative byte budgets required')"
+          },
+          {
+            "number": 95,
+            "text": "        self.cpu_budget=cpu_budget_bytes;self.gpu_budget=gpu_budget_bytes;self.active_guard=active_guard"
+          },
+          {
+            "number": 96,
+            "text": "        self.refs=[dict(r) for r in (prepared_manifest_ref,config_ref,observed_manifest_ref)]+[{'path':p,'sha256':h} for p,h in (source_sha256 or {}).items()]"
+          },
+          {
+            "number": 97,
+            "text": "        self.ref_identity={}"
+          },
+          {
+            "number": 98,
+            "text": "        for ref in self.refs:"
+          },
+          {
+            "number": 99,
+            "text": "            p=frozen.checked(ref);self.ref_identity[ref['path']]=_identity(p)"
+          },
+          {
+            "number": 100,
+            "text": "        self.cfg=json.loads(frozen.checked(config_ref).read_text())"
+          },
+          {
+            "number": 101,
+            "text": "        manifest=json.loads(frozen.checked(prepared_manifest_ref).read_text())"
+          },
+          {
+            "number": 102,
+            "text": "        if manifest.get('status')!='complete_observed_only_Q184_R96_actualQ120' or manifest.get('truth_opened') is not False:raise ValueError('Completed target-free original prepared manifest required')"
+          },
+          {
+            "number": 103,
+            "text": "        self.tiles={}"
+          },
+          {
+            "number": 104,
+            "text": "        for parent in manifest['parents']:"
+          },
+          {
+            "number": 105,
+            "text": "            for tile in parent['tiles']:"
+          },
+          {
+            "number": 106,
+            "text": "                identity=(parent['parent_id'],tile['tile_id'])"
+          },
+          {
+            "number": 107,
+            "text": "                if identity in self.tiles:raise ValueError('Duplicate parent/tile manifest identity')"
+          },
+          {
+            "number": 108,
+            "text": "                self.tiles[identity]=(frozen.fingerprint_sha(tile),dict(tile['bank']))"
+          },
+          {
+            "number": 109,
+            "text": "        self.cpu=OrderedDict();self.gpu=OrderedDict();self.joins={};self.bank_identity={}"
+          },
+          {
+            "number": 110,
+            "text": "        self.cpu_used=self.gpu_used=0;self.closed=False"
+          },
+          {
+            "number": 111,
+            "text": "        self.stats={'requests':0,'CPU_hits':0,'GPU_hits':0,'cold_original_loads':0,'CPU_evictions':0,'GPU_evictions':0,'CPU_oversized_bypass':0,'GPU_oversized_bypass':0,'bank_sha_verified_bytes':0,'CPU_peak_resident_bytes':0,'GPU_peak_resident_bytes':0,'request_elapsed_seconds':0.}"
+          },
+          {
+            "number": 112,
+            "text": ""
+          },
+          {
+            "number": 113,
+            "text": "    def _bindings(self):"
+          },
+          {
+            "number": 114,
+            "text": "        if self.closed:raise ValueError('Cache already closed')"
+          },
+          {
+            "number": 115,
+            "text": "        if self.active_guard:self.active_guard()"
+          },
+          {
+            "number": 116,
+            "text": "        for ref in self.refs:"
+          },
+          {
+            "number": 117,
+            "text": "            p=frozen.path(ref['path'])"
+          },
+          {
+            "number": 118,
+            "text": "            if _identity(p)!=self.ref_identity[ref['path']]:"
+          },
+          {
+            "number": 119,
+            "text": "                # Re-hash for diagnosis, but any immutable file-identity change fails."
+          },
+          {
+            "number": 120,
+            "text": "                frozen.checked(ref);raise ValueError('Pinned source/manifest file identity changed: '+ref['path'])"
+          },
+          {
+            "number": 121,
+            "text": ""
+          },
+          {
+            "number": 122,
+            "text": "    def _evict_gpu(self,key):"
+          },
+          {
+            "number": 123,
+            "text": "        entry=self.gpu[key];self._unchanged(entry);self.gpu.pop(key);self.gpu_used-=entry['bytes'];self.stats['GPU_evictions']+=1"
+          },
+          {
+            "number": 124,
+            "text": ""
+          },
+          {
+            "number": 125,
+            "text": "    def _evict_cpu(self,key):"
+          },
+          {
+            "number": 126,
+            "text": "        entry=self.cpu[key];self._unchanged(entry);self.cpu.pop(key);self.cpu_used-=entry['bytes'];self.stats['CPU_evictions']+=1"
+          },
+          {
+            "number": 127,
+            "text": "        for devicekey in list(self.gpu):"
+          },
+          {
+            "number": 128,
+            "text": "            if devicekey[:2]==key:self._evict_gpu(devicekey)"
+          },
+          {
+            "number": 129,
+            "text": ""
+          },
+          {
+            "number": 130,
+            "text": "    def _unchanged(self,entry):"
+          },
+          {
+            "number": 131,
+            "text": "        if _guard(entry['bank'])!=entry['guard']:raise ValueError('Reviewed fixed bank was mutated in memory')"
+          },
+          {
+            "number": 132,
+            "text": ""
+          },
+          {
+            "number": 133,
+            "text": "    def __call__(self,tile,cfg,parent,device,dtype=torch.float32):"
+          },
+          {
+            "number": 134,
+            "text": "        begin=time.perf_counter();self._bindings()"
+          },
+          {
+            "number": 135,
+            "text": "        if dtype!=torch.float32:raise ValueError('Original loader always uses float32 feature/operator dtype')"
+          },
+          {
+            "number": 136,
+            "text": "        if cfg!=self.cfg:raise ValueError('Changed scientific configuration cannot reuse cache')"
+          },
+          {
+            "number": 137,
+            "text": "        identity=(parent['parent_id'],tile['tile_id']);expected=self.tiles.get(identity)"
+          },
+          {
+            "number": 138,
+            "text": "        if expected is None or frozen.fingerprint_sha(tile)!=expected[0] or tile['bank']!=expected[1]:raise ValueError('Parent/tile/file role differs from pinned original manifest')"
+          },
+          {
+            "number": 139,
+            "text": "        join=_parent_join(parent)"
+          },
+          {
+            "number": 140,
+            "text": "        if identity in self.joins and self.joins[identity]!=join:raise ValueError('Parent role, actual identity or physical grid changed')"
+          },
+          {
+            "number": 141,
+            "text": "        self.joins[identity]=join"
+          },
+          {
+            "number": 142,
+            "text": "        # Preserve original changed-BYTE detection, even on both cache-hit paths."
+          },
+          {
+            "number": 143,
+            "text": "        p=frozen.checked(tile['bank']);current=_identity(p);self.stats['bank_sha_verified_bytes']+=current[2]"
+          },
+          {
+            "number": 144,
+            "text": "        if identity in self.bank_identity and self.bank_identity[identity]!=current:raise ValueError('Immutable bank file identity changed')"
+          },
+          {
+            "number": 145,
+            "text": "        self.bank_identity[identity]=current;self.stats['requests']+=1"
+          },
+          {
+            "number": 146,
+            "text": "        if not isinstance(device,(str,torch.device)):raise ValueError('Explicit original CPU/CUDA device required')"
+          },
+          {
+            "number": 147,
+            "text": "        target=torch.device(device)"
+          },
+          {
+            "number": 148,
+            "text": "        if target.type=='cpu':"
+          },
+          {
+            "number": 149,
+            "text": "            if target.index not in (None,0):raise ValueError('Ambiguous CPU index unsupported')"
+          },
+          {
+            "number": 150,
+            "text": "            target=torch.device('cpu')"
+          },
+          {
+            "number": 151,
+            "text": "        elif target.type=='cuda':"
+          },
+          {
+            "number": 152,
+            "text": "            if target.index not in (None,0):raise ValueError('Original single exposed logical CUDA0 required')"
+          },
+          {
+            "number": 153,
+            "text": "            target=torch.device('cuda:0')"
+          },
+          {
+            "number": 154,
+            "text": "        else:raise ValueError('Original CPU/CUDA devices only')"
+          },
+          {
+            "number": 155,
+            "text": "        if identity in self.cpu:"
+          },
+          {
+            "number": 156,
+            "text": "            entry=self.cpu[identity];self._unchanged(entry);self.cpu.move_to_end(identity);self.stats['CPU_hits']+=1"
+          },
+          {
+            "number": 157,
+            "text": "            cpu_bank=entry['bank']"
+          },
+          {
+            "number": 158,
+            "text": "        else:"
+          },
+          {
+            "number": 159,
+            "text": "            # Exact unchanged loader: all schema, roles, feature and float64 grid checks."
+          },
+          {
+            "number": 160,
+            "text": "            cpu_bank=BASE_LOAD_BANK(tile,cfg,parent,torch.device('cpu'));self.stats['cold_original_loads']+=1"
+          },
+          {
+            "number": 161,
+            "text": "            if _identity(p)!=current:raise ValueError('Bank changed during original decode')"
+          },
+          {
+            "number": 162,
+            "text": "            size=resident_bytes_v1(cpu_bank)"
+          },
+          {
+            "number": 163,
+            "text": "            if size<=self.cpu_budget:"
+          },
+          {
+            "number": 164,
+            "text": "                while self.cpu and self.cpu_used+size>self.cpu_budget:self._evict_cpu(next(iter(self.cpu)))"
+          },
+          {
+            "number": 165,
+            "text": "                entry={'bank':cpu_bank,'bytes':size,'guard':_guard(cpu_bank)};self.cpu[identity]=entry;self.cpu_used+=size"
+          },
+          {
+            "number": 166,
+            "text": "                self.stats['CPU_peak_resident_bytes']=max(self.stats['CPU_peak_resident_bytes'],self.cpu_used)"
+          },
+          {
+            "number": 167,
+            "text": "            else:self.stats['CPU_oversized_bypass']+=1"
+          },
+          {
+            "number": 168,
+            "text": "        if target.type=='cpu':result=cpu_bank"
+          },
+          {
+            "number": 169,
+            "text": "        else:"
+          },
+          {
+            "number": 170,
+            "text": "            devicekey=identity+(str(target),str(dtype))"
+          },
+          {
+            "number": 171,
+            "text": "            if devicekey in self.gpu:"
+          },
+          {
+            "number": 172,
+            "text": "                entry=self.gpu[devicekey];self._unchanged(entry);self.gpu.move_to_end(devicekey);self.stats['GPU_hits']+=1;result=entry['bank']"
+          },
+          {
+            "number": 173,
+            "text": "            else:"
+          },
+          {
+            "number": 174,
+            "text": "                upper=transfer_upper_bytes_v1(cpu_bank)"
+          },
+          {
+            "number": 175,
+            "text": "                eligible=identity in self.cpu and upper<=self.gpu_budget"
+          },
+          {
+            "number": 176,
+            "text": "                if eligible:"
+          },
+          {
+            "number": 177,
+            "text": "                    while self.gpu and self.gpu_used+upper>self.gpu_budget:self._evict_gpu(next(iter(self.gpu)))"
+          },
+          {
+            "number": 178,
+            "text": "                result=cpu_bank.to(target,dtype=torch.float32)"
+          },
+          {
+            "number": 179,
+            "text": "                size=resident_bytes_v1(result)"
+          },
+          {
+            "number": 180,
+            "text": "                if eligible and size<=upper and self.gpu_used+size<=self.gpu_budget:"
+          },
+          {
+            "number": 181,
+            "text": "                    self.gpu[devicekey]={'bank':result,'bytes':size,'guard':_guard(result)};self.gpu_used+=size"
+          },
+          {
+            "number": 182,
+            "text": "                    self.stats['GPU_peak_resident_bytes']=max(self.stats['GPU_peak_resident_bytes'],self.gpu_used)"
+          },
+          {
+            "number": 183,
+            "text": "                else:self.stats['GPU_oversized_bypass']+=1"
+          },
+          {
+            "number": 184,
+            "text": "        if self.active_guard:self.active_guard()"
+          },
+          {
+            "number": 185,
+            "text": "        self.stats['request_elapsed_seconds']+=time.perf_counter()-begin"
+          },
+          {
+            "number": 186,
+            "text": "        return result"
+          }
+        ],
+        "start": 93
+      },
+      {
+        "end": 263,
+        "lines": [
+          {
+            "number": 243,
+            "text": "def run_original_mechanisms_with_cache_v1(record,original_argv):"
+          },
+          {
+            "number": 244,
+            "text": "    cache,admission,cfg=admit_cache_v1(record,phase='fit')"
+          },
+          {
+            "number": 245,
+            "text": "    parser=argparse.ArgumentParser(add_help=False)"
+          },
+          {
+            "number": 246,
+            "text": "    parser.add_argument('--expected-config-sha256');parser.add_argument('--expected-observed-manifest-sha256');parser.add_argument('--expected-prepared-manifest-sha256')"
+          },
+          {
+            "number": 247,
+            "text": "    parser.add_argument('--config',default='configs/biological_mechanism_controls_v1.json');parser.add_argument('--observed-manifest',default='data/biological_paths_execution_pilot_v1/relate_inferred_v1/manifest.json');parser.add_argument('--prepared-manifest',default='data/biological_candidate_pilot_v1/manifest.json');parser.add_argument('--output');parser.add_argument('--seed',type=int,default=101);parser.add_argument('--device',default='cuda')"
+          },
+          {
+            "number": 248,
+            "text": "    args,_=parser.parse_known_args(original_argv)"
+          },
+          {
+            "number": 249,
+            "text": "    for role,name,sha_name in [('original_config','config','expected_config_sha256'),('observed_manifest','observed_manifest','expected_observed_manifest_sha256'),('prepared_manifest','prepared_manifest','expected_prepared_manifest_sha256')]:"
+          },
+          {
+            "number": 250,
+            "text": "        expected=admission['refs'][role]"
+          },
+          {
+            "number": 251,
+            "text": "        if frozen.path(getattr(args,name))!=frozen.path(expected['path']) or getattr(args,sha_name)!=expected['sha256']:raise ValueError('Original runner arguments must preserve exact manifest/config bindings')"
+          },
+          {
+            "number": 252,
+            "text": "    if '--train' not in original_argv or args.seed!=admission['seed'] or args.device!=admission['device'] or args.output!=admission['output_directory']:raise ValueError('Same root seed/device/fresh output and unchanged training arguments required')"
+          },
+          {
+            "number": 253,
+            "text": "    old_argv=sys.argv"
+          },
+          {
+            "number": 254,
+            "text": "    try:"
+          },
+          {
+            "number": 255,
+            "text": "        sys.argv=[str(ROOT/'scripts/train_biological_mechanism_controls_v1.py'),*original_argv]"
+          },
+          {
+            "number": 256,
+            "text": "        with installed_cache_v1(cache):controls.main()"
+          },
+          {
+            "number": 257,
+            "text": "    finally:"
+          },
+          {
+            "number": 258,
+            "text": "        sys.argv=old_argv"
+          },
+          {
+            "number": 259,
+            "text": "        output=frozen.path(admission['output_directory'])"
+          },
+          {
+            "number": 260,
+            "text": "        if output.is_dir():"
+          },
+          {
+            "number": 261,
+            "text": "            report=cache.report();report.update(cache_admission_ref=record,original_science_argv=list(original_argv),original_source_sha256=cfg['original_source_sha256'])"
+          },
+          {
+            "number": 262,
+            "text": "            target=output/'bank_cache_execution_v1.json'"
+          },
+          {
+            "number": 263,
+            "text": "            with target.open('x') as stream:json.dump(report,stream,sort_keys=True,indent=2);stream.write('\\n')"
+          }
+        ],
+        "start": 243
+      }
+    ],
+    "sha256": "1582c493c54e9b75dfa65c910fd6cec47fa11622ca4ae8bbb30564391a82caec"
+  },
+  "src/arggnn/biological_mechanism_controls_v1.py": {
+    "sections": [
+      {
+        "end": 451,
+        "lines": [
+          {
+            "number": 350,
+            "text": "            optimizer=torch.optim.AdamW(optimizer_groups(model,cfg),lr=cfg[\"training\"][\"learning_rate\"]),"
+          },
+          {
+            "number": 351,
+            "text": "            best=float(\"inf\"), best_epoch=None, stale=0, active=True, history=[],"
+          },
+          {
+            "number": 352,
+            "text": "            initial_weights={k:v.detach().cpu().clone() for k,v in model.state_dict().items()},steps=0)"
+          },
+          {
+            "number": 353,
+            "text": "        receipt[\"models\"][name] = dict(status=\"pending\",parameters=sum(p.numel() for p in model.parameters()),"
+          },
+          {
+            "number": 354,
+            "text": "                                      configuration=model.configuration_manifest(),"
+          },
+          {
+            "number": 355,
+            "text": "                                      actual_coordinate_units=\"original physical bp/2000000\","
+          },
+          {
+            "number": 356,
+            "text": "                                      initial_parameter_fingerprint_sha256=fingerprint_sha(model.state_dict()),"
+          },
+          {
+            "number": 357,
+            "text": "                                      query_dynamics=184,reference_sources=96,actual_supervised_outputs=120,"
+          },
+          {
+            "number": 358,
+            "text": "                                      mixed_latent_outputs=64,mixed_query_feature_flag=0,"
+          },
+          {
+            "number": 359,
+            "text": "                                      optimizer_groups=[{\"parameters\":sum(p.numel() for p in g[\"params\"]),"
+          },
+          {
+            "number": 360,
+            "text": "                                                        \"weight_decay\":g[\"weight_decay\"]}"
+          },
+          {
+            "number": 361,
+            "text": "                                                        for g in optimizer_groups(model,cfg)])"
+          },
+          {
+            "number": 362,
+            "text": "    train_truth, val_truth = {}, {}"
+          },
+          {
+            "number": 363,
+            "text": "    train_parents = [p for p in parents if p[\"split\"]==\"train\"]"
+          },
+          {
+            "number": 364,
+            "text": "    val_parents = [p for p in parents if p[\"split\"]==\"val\"]"
+          },
+          {
+            "number": 365,
+            "text": "    for p in train_parents:"
+          },
+          {
+            "number": 366,
+            "text": "        capability = ExternalTruthCapability(p,cfg,\"TRAIN_loss\")"
+          },
+          {
+            "number": 367,
+            "text": "        train_truth[p[\"parent_id\"]] = capability.target_mass(p,helpers)"
+          },
+          {
+            "number": 368,
+            "text": "    tiles = [(p,tile) for p in train_parents for tile in records[p[\"parent_id\"]][\"tiles\"]]"
+          },
+          {
+            "number": 369,
+            "text": "    started = time.monotonic()"
+          },
+          {
+            "number": 370,
+            "text": "    try:"
+          },
+          {
+            "number": 371,
+            "text": "        for epoch in range(1,cfg[\"training\"][\"epochs\"]+1):"
+          },
+          {
+            "number": 372,
+            "text": "            check_fit_lease(lease)"
+          },
+          {
+            "number": 373,
+            "text": "            verify_bindings(cfg, config_path, expected_config, manifest_path, expected_manifest,"
+          },
+          {
+            "number": 374,
+            "text": "                            prepared_path, prepared_sha)"
+          },
+          {
+            "number": 375,
+            "text": "            active = [n for n,s in states.items() if s[\"active\"]]"
+          },
+          {
+            "number": 376,
+            "text": "            if not active:"
+          },
+          {
+            "number": 377,
+            "text": "                break"
+          },
+          {
+            "number": 378,
+            "text": "            order = list(range(len(tiles)))"
+          },
+          {
+            "number": 379,
+            "text": "            random.Random(seed+epoch).shuffle(order)"
+          },
+          {
+            "number": 380,
+            "text": "            losses = {n:[] for n in active}"
+          },
+          {
+            "number": 381,
+            "text": "            for index in order:"
+          },
+          {
+            "number": 382,
+            "text": "                parent,tile = tiles[index]"
+          },
+          {
+            "number": 383,
+            "text": "                bank = load_bank(tile,cfg,parent,device)"
+          },
+          {
+            "number": 384,
+            "text": "                positions = np.asarray(tile[\"position_indexes\"],dtype=int)"
+          },
+          {
+            "number": 385,
+            "text": "                mass = torch.from_numpy(train_truth[parent[\"parent_id\"]][positions]).to(device,dtype=torch.float32)"
+          },
+          {
+            "number": 386,
+            "text": "                outputs = torch.as_tensor(parent[\"output_indexes\"],dtype=torch.long,device=device)"
+          },
+          {
+            "number": 387,
+            "text": "                for name in active:"
+          },
+          {
+            "number": 388,
+            "text": "                    state = states[name];model=state[\"model\"];model.train()"
+          },
+          {
+            "number": 389,
+            "text": "                    state[\"optimizer\"].zero_grad(set_to_none=True)"
+          },
+          {
+            "number": 390,
+            "text": "                    logits = model(bank).index_select(1,outputs)"
+          },
+          {
+            "number": 391,
+            "text": "                    if logits.shape != mass.shape:"
+          },
+          {
+            "number": 392,
+            "text": "                        raise ValueError(\"Loss must address exactly actual120 query outputs\")"
+          },
+          {
+            "number": 393,
+            "text": "                    loss = -(torch.log_softmax(logits,dim=-1)*mass).sum()/mass.sum()"
+          },
+          {
+            "number": 394,
+            "text": "                    if not bool(torch.isfinite(loss)):"
+          },
+          {
+            "number": 395,
+            "text": "                        raise ValueError(\"Nonfinite exact TRAIN query-bp loss\")"
+          },
+          {
+            "number": 396,
+            "text": "                    loss.backward()"
+          },
+          {
+            "number": 397,
+            "text": "                    if any(p.grad is not None and not bool(torch.isfinite(p.grad).all()) for p in model.parameters()):"
+          },
+          {
+            "number": 398,
+            "text": "                        raise ValueError(\"Nonfinite candidate gradient\")"
+          },
+          {
+            "number": 399,
+            "text": "                    torch.nn.utils.clip_grad_norm_(model.parameters(),1.)"
+          },
+          {
+            "number": 400,
+            "text": "                    state[\"optimizer\"].step()"
+          },
+          {
+            "number": 401,
+            "text": "                    state[\"steps\"]+=1"
+          },
+          {
+            "number": 402,
+            "text": "                    losses[name].append(float(loss.detach()))"
+          },
+          {
+            "number": 403,
+            "text": "                del bank"
+          },
+          {
+            "number": 404,
+            "text": "            for name in active:"
+          },
+          {
+            "number": 405,
+            "text": "                state=states[name];val_cells=[]"
+          },
+          {
+            "number": 406,
+            "text": "                for parent in val_parents:"
+          },
+          {
+            "number": 407,
+            "text": "                    pfile=output/f\"{name}.epoch_{epoch:02d}.{parent['parent_id']}.probabilities.npz\""
+          },
+          {
+            "number": 408,
+            "text": "                    probabilities,sealed=seal_prediction(state[\"model\"],records[parent[\"parent_id\"]],"
+          },
+          {
+            "number": 409,
+            "text": "                                                           parent,cfg,pfile,storage,device,prediction_bindings)"
+          },
+          {
+            "number": 410,
+            "text": "                    if parent[\"parent_id\"] not in val_truth:"
+          },
+          {
+            "number": 411,
+            "text": "                        val_truth[parent[\"parent_id\"]]=ExternalTruthCapability("
+          },
+          {
+            "number": 412,
+            "text": "                            parent,cfg,\"VAL_after_sealed_prediction\",sealed)"
+          },
+          {
+            "number": 413,
+            "text": "                    mass=val_truth[parent[\"parent_id\"]].target_mass(parent,helpers)"
+          },
+          {
+            "number": 414,
+            "text": "                    primary=np.flatnonzero(parent[\"cohorts\"]==\"present_day\")"
+          },
+          {
+            "number": 415,
+            "text": "                    nll,infinite=exact_probability_nll(probabilities,mass,primary)"
+          },
+          {
+            "number": 416,
+            "text": "                    val_cells.append(dict(parent_id=parent[\"parent_id\"],nll=nll,"
+          },
+          {
+            "number": 417,
+            "text": "                                          infinite_nll_query_bp=infinite,sealed_prediction=sealed))"
+          },
+          {
+            "number": 418,
+            "text": "                mean_nll=float(np.mean([v[\"nll\"] for v in val_cells]))"
+          },
+          {
+            "number": 419,
+            "text": "                row=dict(epoch=epoch, mean_parent_VAL_present64_NLL=mean_nll, VAL=val_cells,"
+          },
+          {
+            "number": 420,
+            "text": "                         mean_tile_TRAIN_query120_NLL=float(np.mean(losses[name])),"
+          },
+          {
+            "number": 421,
+            "text": "                         selection_scope=\"exact retained-center clipped-bin query-bp per parent; unweighted parent mean\","
+          },
+          {
+            "number": 422,
+            "text": "                         optimizer_steps=state[\"steps\"],"
+          },
+          {
+            "number": 423,
+            "text": "                         maximum_parameter_delta_from_initial=max(float((v.detach().cpu()-state[\"initial_weights\"][k]).abs().max())"
+          },
+          {
+            "number": 424,
+            "text": "                              for k,v in state[\"model\"].state_dict().items() if v.is_floating_point()),"
+          },
+          {
+            "number": 425,
+            "text": "                         dynamic_controls=state[\"model\"].configuration_manifest())"
+          },
+          {
+            "number": 426,
+            "text": "                state[\"history\"].append(row)"
+          },
+          {
+            "number": 427,
+            "text": "                if mean_nll < state[\"best\"]:"
+          },
+          {
+            "number": 428,
+            "text": "                    checkpoint=output/f\"{name}.best_epoch_{epoch:02d}.pt\""
+          },
+          {
+            "number": 429,
+            "text": "                    torch.save({\"model_state\":state[\"model\"].state_dict(),"
+          },
+          {
+            "number": 430,
+            "text": "                        \"optimizer_state\":state[\"optimizer\"].state_dict(),\"epoch\":epoch,\"seed\":seed,"
+          },
+          {
+            "number": 431,
+            "text": "                        \"config_sha256\":expected_config,\"observed_manifest_sha256\":expected_manifest,"
+          },
+          {
+            "number": 432,
+            "text": "                        \"prepared_manifest_sha256\":prepared_sha,\"selection_VAL_NLL\":mean_nll,"
+          },
+          {
+            "number": 433,
+            "text": "                         \"reference_config_sha256\":BASE_CONFIG_SHA256,\"source_sha256\":cfg[\"source_sha256\"],"
+          },
+          {
+            "number": 434,
+            "text": "                         \"model_name\":name,\"condition\":CONTROL_SPECS[name]},checkpoint)"
+          },
+          {
+            "number": 435,
+            "text": "                    storage.account(checkpoint)"
+          },
+          {
+            "number": 436,
+            "text": "                    state.update(best=mean_nll,best_epoch=epoch,stale=0,"
+          },
+          {
+            "number": 437,
+            "text": "                                 checkpoint={\"path\":str(checkpoint),\"sha256\":sha(checkpoint)})"
+          },
+          {
+            "number": 438,
+            "text": "                else:"
+          },
+          {
+            "number": 439,
+            "text": "                    state[\"stale\"]+=1"
+          },
+          {
+            "number": 440,
+            "text": "                state[\"active\"]=state[\"stale\"]<cfg[\"training\"][\"patience\"]"
+          },
+          {
+            "number": 441,
+            "text": "                receipt[\"models\"][name].update(status=\"fitting\",history=state[\"history\"],"
+          },
+          {
+            "number": 442,
+            "text": "                    best_epoch=state[\"best_epoch\"],best_mean_parent_VAL_present64_NLL=state[\"best\"],"
+          },
+          {
+            "number": 443,
+            "text": "                    checkpoint=state.get(\"checkpoint\"))"
+          },
+          {
+            "number": 444,
+            "text": "            verify_bindings(cfg, config_path, expected_config, manifest_path, expected_manifest,"
+          },
+          {
+            "number": 445,
+            "text": "                            prepared_path, prepared_sha)"
+          },
+          {
+            "number": 446,
+            "text": "            receipt[\"storage\"]=storage.record()"
+          },
+          {
+            "number": 447,
+            "text": "            write_json(output/\"receipt.json\",receipt)"
+          },
+          {
+            "number": 448,
+            "text": "            print(json.dumps({\"stage\":\"fit_epoch\",\"seed\":seed,\"epoch\":epoch,\"active_models\":active}),flush=True)"
+          },
+          {
+            "number": 449,
+            "text": "        for name,state in states.items():"
+          },
+          {
+            "number": 450,
+            "text": "            if state[\"best_epoch\"] is None:"
+          },
+          {
+            "number": 451,
+            "text": "                raise ValueError(\"No finite VAL-selected checkpoint for \"+name)"
+          }
+        ],
+        "start": 350
+      }
+    ],
+    "sha256": "28f3e7d3f28a48eeee0944b2e4ad55e3ea6ebb314d8b0342bd785facb08dcbeb"
+  },
+  "src/arggnn/census_biological_fit_v2.py": {
+    "sections": [
+      {
+        "end": 317,
+        "lines": [
+          {
+            "number": 293,
+            "text": "def train_step_v1(state,cert,expected_hash,mass,control,permutation,cfg,device):"
+          },
+          {
+            "number": 294,
+            "text": "    if cert.provenance['split']!='train':raise ValueError('TRAIN-only backward requires TRAIN observed parent')"
+          },
+          {
+            "number": 295,
+            "text": "    model=state['model'];model.train();state['optimizer'].zero_grad(set_to_none=True)"
+          },
+          {
+            "number": 296,
+            "text": "    kwargs={'group_permutation':permutation} if control=='permuted_groups' else {}"
+          },
+          {
+            "number": 297,
+            "text": "    result=forward_certified_census_biological_v1(model,cert,expected_certificate_sha256=expected_hash,control=control,readout_chunk_size=cfg['readout_chunk_size'],**kwargs)"
+          },
+          {
+            "number": 298,
+            "text": "    target=torch.as_tensor(mass,dtype=torch.float64,device=device)"
+          },
+          {
+            "number": 299,
+            "text": "    if result.logits.shape!=target.shape or not bool(torch.isfinite(target).all() & (target>=0).all()) or not target.sum()>0:raise ValueError('Actual query120 exact TRAIN mass shape/values differ')"
+          },
+          {
+            "number": 300,
+            "text": "    loss=-(torch.log_softmax(result.logits,dim=-1).double()*target).sum()/target.sum()"
+          },
+          {
+            "number": 301,
+            "text": "    if not bool(torch.isfinite(loss)):raise ValueError('Nonfinite exact TRAIN query-bp loss')"
+          },
+          {
+            "number": 302,
+            "text": "    loss.backward()"
+          },
+          {
+            "number": 303,
+            "text": "    if any(p.grad is not None and not torch.isfinite(p.grad).all() for p in model.parameters()):raise ValueError('Nonfinite TRAIN gradient')"
+          },
+          {
+            "number": 304,
+            "text": "    norm=torch.nn.utils.clip_grad_norm_(model.parameters(),cfg['training']['gradient_clip_norm'],error_if_nonfinite=True)"
+          },
+          {
+            "number": 305,
+            "text": "    state['optimizer'].step();state['steps']+=1"
+          },
+          {
+            "number": 306,
+            "text": "    if not all(torch.isfinite(p).all() for p in model.parameters()):raise ValueError('Nonfinite fitted parameter')"
+          },
+          {
+            "number": 307,
+            "text": "    validate_census_biological_certificate_v1(cert,expected_hash)"
+          },
+          {
+            "number": 308,
+            "text": "    return {'loss':float(loss.detach()),'unclipped_gradient_norm':float(norm),'steps':state['steps']}"
+          },
+          {
+            "number": 309,
+            "text": ""
+          },
+          {
+            "number": 310,
+            "text": ""
+          },
+          {
+            "number": 311,
+            "text": "def raw_prediction_v1(state,cert,expected_hash,control,permutation,cfg):"
+          },
+          {
+            "number": 312,
+            "text": "    state['model'].eval();kwargs={'group_permutation':permutation} if control=='permuted_groups' else {}"
+          },
+          {
+            "number": 313,
+            "text": "    with torch.no_grad():"
+          },
+          {
+            "number": 314,
+            "text": "        result=forward_certified_census_biological_v1(state['model'],cert,expected_certificate_sha256=expected_hash,control=control,readout_chunk_size=cfg['readout_chunk_size'],**kwargs)"
+          },
+          {
+            "number": 315,
+            "text": "        logits=result.logits.detach().cpu();p=logits.softmax(-1).numpy()"
+          },
+          {
+            "number": 316,
+            "text": "    if not np.isfinite(p).all() or np.any(p<0) or not np.allclose(p.sum(-1),1.,rtol=1e-5,atol=1e-6):raise ValueError('Raw C4 probabilities invalid without floors/renormalization')"
+          },
+          {
+            "number": 317,
+            "text": "    return logits.numpy(),p,result.scored_query_ids.numpy()"
+          }
+        ],
+        "start": 293
+      },
+      {
+        "end": 444,
+        "lines": [
+          {
+            "number": 342,
+            "text": "def run_fit_v1(admission_ref):"
+          },
+          {
+            "number": 343,
+            "text": "    \"\"\"Actual use is root-admitted only. Author tests call handmade components.\"\"\""
+          },
+          {
+            "number": 344,
+            "text": "    admission,cfg,native_admission,qcfg,bindings,reader,storage=admit_fit_v1(admission_ref)"
+          },
+          {
+            "number": 345,
+            "text": "    helpers=metric_helpers_v1();paired=read_manifests_v1(native_admission,qcfg,reader)"
+          },
+          {
+            "number": 346,
+            "text": "    output=FitOutputV1(admission['output_directory'],storage,reader);tmp=output.path/'tmp';tmp.mkdir()"
+          },
+          {
+            "number": 347,
+            "text": "    from .biological_candidate import configure_fit,check_fit_lease"
+          },
+          {
+            "number": 348,
+            "text": "    device,runtime,lease=configure_fit(admission['device'],cfg,output.path)"
+          },
+          {
+            "number": 349,
+            "text": "    output.used=sum(max(p.stat().st_size,p.stat().st_blocks*512)+8192 for p in output.path.rglob('*') if p.is_file())"
+          },
+          {
+            "number": 350,
+            "text": "    if output.used>output.limit:raise ValueError('Runtime qualification writes exceeded fit reservation')"
+          },
+          {
+            "number": 351,
+            "text": "    states=matched_states_v1(cfg,admission['seed'],device);permutation=torch.tensor(admission['group_permutation'],dtype=torch.long)"
+          },
+          {
+            "number": 352,
+            "text": "    receipt={'schema':'census_biological_fit_evidence_v2','status':'running','hypothesis_id':'H021','job_id':admission['job_id'],'admission_ref':admission_ref,"
+          },
+          {
+            "number": 353,
+            "text": "        'seed':admission['seed'],'source_sha256':admission['source_sha256'],'config_ref':admission['refs']['config'],'numerical_ref':admission['refs']['numerical_evidence'],"
+          },
+          {
+            "number": 354,
+            "text": "        'runtime':runtime,'same_initial_weights_sha256':states['proposed']['initial_sha256'],'models':{},'development_VAL_parents':2,'TEST_parents':0,"
+          },
+          {
+            "number": 355,
+            "text": "        'handmade_fixture':bool(runtime.get('handmade_CPU',False)),'full_whole_tree_architecture':True,'target_inputs':False,'older_reference_proxy_evidence':True,'fitting_claim':False}"
+          },
+          {
+            "number": 356,
+            "text": "    output.save('started.json',receipt);start=time.monotonic()"
+          },
+          {
+            "number": 357,
+            "text": "    try:"
+          },
+          {
+            "number": 358,
+            "text": "        for epoch in range(1,cfg['training']['epochs']+1):"
+          },
+          {
+            "number": 359,
+            "text": "            _check_resources_v1(admission,storage,lease)"
+          },
+          {
+            "number": 360,
+            "text": "            order=list(range(cfg['training']['TRAIN_tiles_per_epoch']));random.Random(admission['seed']+epoch).shuffle(order)"
+          },
+          {
+            "number": 361,
+            "text": "            # Load one qualified full TRAIN parent at a time, but honor frozen global tile order."
+          },
+          {
+            "number": 362,
+            "text": "            loaded_by_parent={};parent_scores={};targets={};train_tiles=[]"
+          },
+          {
+            "number": 363,
+            "text": "            for parent,bank in paired:"
+          },
+          {
+            "number": 364,
+            "text": "                if parent['split']!='train':continue"
+          },
+          {
+            "number": 365,
+            "text": "                loaded=load_parent_v1(parent,bank,native_admission,qcfg,reader,tmp_directory=tmp)"
+          },
+          {
+            "number": 366,
+            "text": "                loaded_by_parent[parent['parent_id']]=loaded"
+          },
+          {
+            "number": 367,
+            "text": "                score_parent=scoring_parent_v1(parent,bank,loaded,reader,bindings['parents'][parent['parent_id']]);parent_scores[parent['parent_id']]=score_parent"
+          },
+          {
+            "number": 368,
+            "text": "                target=ExternalTargetV1(score_parent,bindings['parents'][parent['parent_id']],'TRAIN_loss',reader)"
+          },
+          {
+            "number": 369,
+            "text": "                targets[parent['parent_id']]=target.target_mass(score_parent,helpers)"
+          },
+          {
+            "number": 370,
+            "text": "                train_tiles.extend((parent,bank,tile) for tile in sorted(bank['tiles'],key=lambda t:t['tile_id']))"
+          },
+          {
+            "number": 371,
+            "text": "            losses={c:[] for c in CONTROLS}"
+          },
+          {
+            "number": 372,
+            "text": "            for index in order:"
+          },
+          {
+            "number": 373,
+            "text": "                _check_resources_v1(admission,storage,lease)"
+          },
+          {
+            "number": 374,
+            "text": "                parent,bank,tile=train_tiles[index];cert,_,_=prepare_tile_v1(parent,bank,tile,loaded_by_parent[parent['parent_id']],native_admission,qcfg,reader)"
+          },
+          {
+            "number": 375,
+            "text": "                identity=f\"{parent['parent_id']}:{tile['tile_id']}\";expected=admission['expected_certificates'][identity]"
+          },
+          {
+            "number": 376,
+            "text": "                validate_census_biological_certificate_v1(cert,expected)"
+          },
+          {
+            "number": 377,
+            "text": "                indexes=np.asarray(tile['position_indexes'],dtype=int)"
+          },
+          {
+            "number": 378,
+            "text": "                for control in CONTROLS:"
+          },
+          {
+            "number": 379,
+            "text": "                    _check_resources_v1(admission,storage,lease)"
+          },
+          {
+            "number": 380,
+            "text": "                    losses[control].append(train_step_v1(states[control],cert,expected,targets[parent['parent_id']][indexes],control,permutation,cfg,device)['loss'])"
+          },
+          {
+            "number": 381,
+            "text": "                del cert"
+          },
+          {
+            "number": 382,
+            "text": "            del loaded_by_parent,targets"
+          },
+          {
+            "number": 383,
+            "text": "            # All five models' VAL predictions are sealed before any epoch VAL target read."
+          },
+          {
+            "number": 384,
+            "text": "            seals={c:[] for c in CONTROLS};val_parents={}"
+          },
+          {
+            "number": 385,
+            "text": "            for parent,bank in paired:"
+          },
+          {
+            "number": 386,
+            "text": "                if parent['split']!='val':continue"
+          },
+          {
+            "number": 387,
+            "text": "                loaded=load_parent_v1(parent,bank,native_admission,qcfg,reader,tmp_directory=tmp)"
+          },
+          {
+            "number": 388,
+            "text": "                score_parent=scoring_parent_v1(parent,bank,loaded,reader,bindings['parents'][parent['parent_id']]);val_parents[parent['parent_id']]=score_parent"
+          },
+          {
+            "number": 389,
+            "text": "                logits={c:np.empty((len(score_parent['positions']),120,4),dtype=np.float32) for c in CONTROLS};seen=np.zeros(len(score_parent['positions']),dtype=bool)"
+          },
+          {
+            "number": 390,
+            "text": "                for tile in sorted(bank['tiles'],key=lambda t:t['tile_id']):"
+          },
+          {
+            "number": 391,
+            "text": "                    _check_resources_v1(admission,storage,lease)"
+          },
+          {
+            "number": 392,
+            "text": "                    cert,_,_=prepare_tile_v1(parent,bank,tile,loaded,native_admission,qcfg,reader);expected=admission['expected_certificates'][f\"{parent['parent_id']}:{tile['tile_id']}\"]"
+          },
+          {
+            "number": 393,
+            "text": "                    indexes=np.asarray(tile['position_indexes'],dtype=int)"
+          },
+          {
+            "number": 394,
+            "text": "                    if seen[indexes].any():raise ValueError('Repeated VAL physical output bins')"
+          },
+          {
+            "number": 395,
+            "text": "                    for control in CONTROLS:"
+          },
+          {
+            "number": 396,
+            "text": "                        _check_resources_v1(admission,storage,lease)"
+          },
+          {
+            "number": 397,
+            "text": "                        values,_,ids=raw_prediction_v1(states[control],cert,expected,control,permutation,cfg)"
+          },
+          {
+            "number": 398,
+            "text": "                        if not np.array_equal(ids,score_parent['query_ids']):raise ValueError('VAL query output identity differs')"
+          },
+          {
+            "number": 399,
+            "text": "                        logits[control][indexes]=values"
+          },
+          {
+            "number": 400,
+            "text": "                    seen[indexes]=True;del cert"
+          },
+          {
+            "number": 401,
+            "text": "                if not seen.all():raise ValueError('Missing VAL bins, no denominator reduction')"
+          },
+          {
+            "number": 402,
+            "text": "                for control in CONTROLS:"
+          },
+          {
+            "number": 403,
+            "text": "                    values=logits[control];p=torch.from_numpy(values).softmax(-1).numpy()"
+          },
+          {
+            "number": 404,
+            "text": "                    seal=output.save(f'{control}.epoch_{epoch:02d}.{parent[\"parent_id\"]}.npz',{'logits':values,'C4_probabilities':p,"
+          },
+          {
+            "number": 405,
+            "text": "                        'positions_bp':score_parent['positions'],'bin_edges_bp':score_parent['edges'],'retained_fixed100bp_indexes':score_parent['retained_indexes'],"
+          },
+          {
+            "number": 406,
+            "text": "                        'query_sample_indexes':score_parent['query_slots'],'normalization_length_bp':np.array(2000000)},'npz')"
+          },
+          {
+            "number": 407,
+            "text": "                    seals[control].append((parent['parent_id'],seal))"
+          },
+          {
+            "number": 408,
+            "text": "                del loaded,logits"
+          },
+          {
+            "number": 409,
+            "text": "            _check_active_v1(admission)"
+          },
+          {
+            "number": 410,
+            "text": "            for control in CONTROLS:"
+          },
+          {
+            "number": 411,
+            "text": "                _check_resources_v1(admission,storage,lease)"
+          },
+          {
+            "number": 412,
+            "text": "                cells=[score_sealed_v1(seal,val_parents[parent_id],bindings['parents'][parent_id],reader,helpers,cfg) for parent_id,seal in seals[control]]"
+          },
+          {
+            "number": 413,
+            "text": "                nll=float(np.mean([_nll_v1(cell['groups']['primary_present_day_64']) for cell in cells]));state=states[control]"
+          },
+          {
+            "number": 414,
+            "text": "                row={'epoch':epoch,'TRAIN_mean_tile_query120_NLL':float(np.mean(losses[control])),'VAL_equal_parent_present64_NLL':None if not np.isfinite(nll) else nll,'VAL_NLL_is_infinite':not np.isfinite(nll),'optimizer_steps':state['steps'],'cells':cells}"
+          },
+          {
+            "number": 415,
+            "text": "                state['history'].append(row);output.save(f'{control}.epoch_{epoch:02d}.metrics.json',row)"
+          },
+          {
+            "number": 416,
+            "text": "                # Every epoch runs. Selection is descriptive development VAL minimum, earliest tie."
+          },
+          {
+            "number": 417,
+            "text": "                if state['best_epoch'] is None or nll<state['best']:"
+          },
+          {
+            "number": 418,
+            "text": "                    checkpoint=output.save(f'{control}.best_epoch_{epoch:02d}.pt',{'model_state':{k:v.detach().cpu() for k,v in state['model'].state_dict().items()},"
+          },
+          {
+            "number": 419,
+            "text": "                        'optimizer_state':state['optimizer'].state_dict(),'epoch':epoch,'control':control,'seed':admission['seed'],'admission_ref':admission_ref},'torch')"
+          },
+          {
+            "number": 420,
+            "text": "                    state.update(best=nll,best_epoch=epoch,checkpoint=checkpoint)"
+          },
+          {
+            "number": 421,
+            "text": "            print(json.dumps({'stage':'census_fit_epoch','seed':admission['seed'],'epoch':epoch,'all_five_controls_steps':epoch*cfg['training']['TRAIN_tiles_per_epoch']}),flush=True)"
+          },
+          {
+            "number": 422,
+            "text": "        for control,state in states.items():"
+          },
+          {
+            "number": 423,
+            "text": "            if state['steps']!=cfg['training']['optimizer_steps_per_control_seed'] or state['best_epoch'] is None:raise ValueError('Incomplete fixed-budget/finite-selected-checkpoint fit')"
+          },
+          {
+            "number": 424,
+            "text": "            saved=torch.load(io.BytesIO(reader.read(state['checkpoint'])),map_location='cpu',weights_only=True)"
+          },
+          {
+            "number": 425,
+            "text": "            delta=max(float((v-state['initial'][k]).abs().max()) for k,v in saved['model_state'].items() if v.is_floating_point())"
+          },
+          {
+            "number": 426,
+            "text": "            if not delta>0:raise ValueError('Selected checkpoint has no genuine trained weight change')"
+          },
+          {
+            "number": 427,
+            "text": "            selected=state['history'][state['best_epoch']-1]"
+          },
+          {
+            "number": 428,
+            "text": "            means={}"
+          },
+          {
+            "number": 429,
+            "text": "            for group in strata_v1(next(iter(val_parents.values()))):"
+          },
+          {
+            "number": 430,
+            "text": "                means[group]={key:float(np.mean([cell['groups'][group][key] for cell in selected['cells']])) for key in ('accuracy','brier','calibration_ece')}"
+          },
+          {
+            "number": 431,
+            "text": "                cells=[cell['groups'][group] for cell in selected['cells']]"
+          },
+          {
+            "number": 432,
+            "text": "                means[group]['nll']=None if any(c['infinite_nll_query_bp'] for c in cells) else float(np.mean([c['nll'] for c in cells]))"
+          },
+          {
+            "number": 433,
+            "text": "                means[group]['NLL_is_infinite']=any(c['infinite_nll_query_bp'] for c in cells)"
+          },
+          {
+            "number": 434,
+            "text": "            receipt['models'][control]={'status':f\"fixed{cfg['training']['epochs']}epochs_{state['steps']}steps_complete\",'initial_sha256':state['initial_sha256'],'selected_epoch':state['best_epoch'],"
+          },
+          {
+            "number": 435,
+            "text": "                'checkpoint':state['checkpoint'],'optimizer_steps':state['steps'],'selected_weight_max_delta':delta,'selected_metrics':selected,'equal_parent_metrics':means}"
+          },
+          {
+            "number": 436,
+            "text": "        _check_resources_v1(admission,storage,lease)"
+          },
+          {
+            "number": 437,
+            "text": "        # Recheck all pinned sources and admission bytes at terminal completion."
+          },
+          {
+            "number": 438,
+            "text": "        reader.read(admission_ref)"
+          },
+          {
+            "number": 439,
+            "text": "        for path,sha in admission['source_sha256'].items():reader.read({'path':path,'sha256':sha})"
+          },
+          {
+            "number": 440,
+            "text": "        receipt.update(status='completed_five_fixed_budget_development_controls_one_seed',fitting_claim=not receipt['handmade_fixture'],optimizer_fit_completed=True,elapsed_seconds=time.monotonic()-start,output_accounted_bytes=output.used)"
+          },
+          {
+            "number": 441,
+            "text": "    except Exception as error:"
+          },
+          {
+            "number": 442,
+            "text": "        receipt.update(status='failed_partial_preserved',error_type=type(error).__name__,error=str(error),elapsed_seconds=time.monotonic()-start,output_accounted_bytes=output.used)"
+          },
+          {
+            "number": 443,
+            "text": "        output.save('failed.json',receipt);raise"
+          },
+          {
+            "number": 444,
+            "text": "    output.save('completed.json',receipt);return receipt"
+          }
+        ],
+        "start": 342
+      }
+    ],
+    "sha256": "c21884ad90a2c940b49968353545edc52d345c0c7bc10fd87c492c54d4b38c34"
+  }
+}
