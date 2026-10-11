@@ -2,31 +2,18 @@
 
 Graph neural networks for ordered collections of whole genealogical trees, with local ancestry inference from ancestral recombination graphs as the main application. The manuscript uses the AAAI template.
 
-## Current execution and utilization
+## Current experiments
 
-Updated 2026-10-11 at 06:50 UTC. **Three GPU workers run concurrently on physical GPUs 2 and 3.** They cover 19 model/seed fits. Each worker interleaves its controls, with three independent workers active together.
+Updated 2026-10-11 at 08:37 UTC.
 
-| GPU | Experiment | Complete epochs for every control |
-| --- | --- | ---: |
-| 2 | Seven mechanism controls, seed 202 | 19 |
-| 3 | Cached seven mechanism controls, seed 303 | 9 |
-| 3 | Whole-tree Census, five controls, seed 101 | 9 |
+- **Completed:** all seven mechanism controls for seed 202. The one-layer age variant scores 84.87% present-day ancestry accuracy and 0.4211 NLL on the two development VAL parents. The extra pointwise layer scores 84.28% and 0.4327. It does not show a consistent benefit across seeds 101 and 202.
+- **Training on GPU 3:** seven controls for seed 303 and five whole-tree Census controls for seed 101. Both workers are active concurrently. The Census controls have completed validation through epoch 16. Their final selected-checkpoint scores are pending.
+- **Native ARGformer on GPU 2:** the first queued attempt stopped before model training because the launch packet used a prefixed GPU UUID where the native guard expects a bare UUID. The corrected r002 queue is now launched on GPU 2. Each parent's full-batch probe precedes its own fit and retrieval. The native model, data, objectives and full batch sizes are unchanged. [Launch and continuation](research/reviews/native_argformer_tsinfer_fit_v7_execution_root_v4/launch.json).
+- **Engineering check deferred:** one full-parent CPU cell compared two implementations of the same optimizer step and passed. It used about 52 GB peak CPU RAM and produced no ancestry accuracy result. The remaining numerical matrix is deferred so it does not displace predictive experiments.
 
-These are ongoing development fits, with no new completed accuracy comparison. The Census fit uses Relate trees. CPU numerical qualification on all 32 same-tsinfer tiles is still running.
+At most physical GPUs 2 and 3 are assigned to the project. Every GPU worker is titled 'AI Auto Research Pipeline Test'. Utilization varies across loading, neural computation and validation. The latest GPU 3 snapshot was 100%, which is an instantaneous reading rather than a sustained throughput result.
 
-**Both GPUs are active, but utilization remains bursty.** The latest 40-observation sample spans 45.6 seconds and averages **56.4% on GPU 2 and 26.8% on GPU 3**. GPU 3 has 15 zero-utilization observations, despite both workers remaining live. A separate initial snapshot showed 67%/100%, illustrating why a single NVTOP reading is insufficient. These short, phase-dependent windows do not establish a throughput improvement. [Current measurements](research/reviews/gpu_utilization_followup_v4_root/summary.json) and [worker progress and CPU/I/O evidence](research/reviews/gpu_utilization_followup_v4_root/progress.json).
-
-The same window recorded 45.9, 46.3 and 85.4 CPU seconds for the three workers. The cached worker read 19.78 GB through read calls during this phase. This is not a measurement of physical disk traffic and does not by itself identify the costly function. CPU preparation, validation and small sequential graph operations are the current throughput investigation. Root is preparing successor work while these registered fits finish. Native ARGformer is already queued for GPU 2.
-
-Measured gaps include CPU tree-bank loading/checking, geometry construction, validation and autograd work. Scheduler waiting was negligible in the completed [phase diagnosis](research/reviews/concurrent_worker_bottleneck_v1_author/README.md). Every GPU process uses 'AI Auto Research Pipeline Test'.
-
-The cache preserves fields, logits, gradients, clipped optimizer updates and RNG behavior for all seven controls. One-tile warm loading averaged 0.993 seconds versus 2.023 seconds originally, a 50.9% latency reduction. Full-training speedup is unmeasured. Source inspection identified a remaining bottleneck: even hot cache hits rehash the complete original bank, and seven-control validation requests 112 banks per epoch. The [registered cache successor](research/reviews/biological_bank_snapshot_cache_v2_registration_root.json) will retain once-verified bank snapshots in CPU memory with the original training and validation loops. It is being implemented and has no actual throughput qualification yet. [Source and timing diagnosis](research/reviews/gpu_utilization_throughput_audit_v1_author/report.json). The cached worker is active alongside the independent whole-tree hypothesis. [Accepted paired launch](research/reviews/gpu3_parallel_fits_v2_root/plan_independent_review.json).
-
-The next Census optimization reuses certified fixed tree geometry through the unchanged neural forward. All five controls, gradients, two clipped AdamW steps and raw validation outputs matched bitwise in the handmade checks. Independent review passed 170 fresh checks plus 6,688 replayed assertions. Genuine CPU timing now passed on the original TRAIN000 tile1, retaining all 132 trees and all five controls twice. It recorded one forest binding and nine reuses in ten calls, a 120.90-second whole process and a sampled peak RSS of 3.98 GB. The objective was squared observed logits, with no targets, optimizer or fit. This establishes execution of geometry reuse, without a paired speedup measurement. GPU and full-training benefit remain unmeasured. The accepted successor uses the user-authorized 1 TB limit and combined accounting. [Actual CPU timing](research/reviews/census_certified_forest_reuse_CPU_timing_v2_root/root_acceptance.json). [Source review](research/reviews/census_certified_forest_reuse_v1_independent/receipt.json).
-
-Native ARGformer v7 completed actual CPU runtime capture, covering 12 scientific modules, 179 distributions and 40,619 executable import records. Its four full-batch probes, four native fits and four exhaustive retrieval stages remain pending. The earlier v6 probe reached CUDA and an optimizer step, then failed a temporary-scope guard. The source correction preserves the native scientific methods. The exact V3 GPU 2 successor queue passed independent review and is armed. Its live CPU supervisor waits for the current exclusive worker and launcher to exit naturally before the four full-batch probes. No new native GPU stage has started. [Queue activation](research/reviews/native_argformer_tsinfer_fit_v7_execution_root_v3/root_acceptance.json). [Runtime capture](experiments/results/native_argformer_tsinfer_fit_v7_root/compact_runtime_inventory.json).
-
-The whole-parent continuity route reconstructed and assembled **all 955 original TRAIN000 trees**, all eight original tiles and all 256 cached anchors. It preserves 280 leaves, 184 query/context states, 96 references and 47 observed feature fields. This is observed-input qualification, with no targets, model profile or fitting. Full-support numerical, device and exact-mass loss checks precede the matched reset/carry experiment. [Actual input acceptance](research/reviews/anchor_parent_producer_actual_train000_v1_root/observed_acceptance.json).
+The research priorities are the native ARGformer comparison, completion of the whole-tree model experiments, and experiments that test whether observed clade changes and genomic continuity improve ancestry inference. Numerical equivalence is recorded as engineering evidence and is not an accuracy or novelty claim.
 
 ## Main advantages and current evidence
 
@@ -72,27 +59,27 @@ Other query strata, using the same selected models:
 | Ancient queries, 56 haplotypes | 88.43% | 89.33% | 0.3281 | 0.3433 |
 | All queries, 120 haplotypes | 86.48% | 87.32% | 0.3824 | 0.3924 |
 
-### Completed mechanism ablations, seed101
+### Completed mechanism ablations, seeds 101 and 202
 
-Same two development VAL parents and64 present-day queries as the main biological comparison. Each row uses its own NLL-selected checkpoint. These single-seed results are separate from the three-seed means above, with independent confirmation pending.
+Same two development VAL parents and 64 present-day queries as the main biological comparison. Each row uses its own NLL-selected checkpoint. These are optimizer repeats on the same biological parents.
 
-| Model mechanism | Accuracy ↑ | NLL ↓ |
-| --- | ---: | ---: |
-| scalar age d2 | 84.80% | 0.4281 |
-| age propagation only d2 | 84.86% | 0.4279 |
-| age source only d2 | 84.85% | 0.4269 |
-| age gainmatched d2 | 83.73% | 0.4531 |
-| noncontext age d2 | 84.88% | 0.4262 |
-| age d1 | 84.70% | 0.4258 |
-| age d1 plus pointwise | 84.74% | 0.4246 |
+| Model mechanism | Accuracy, seed 101 ↑ | Accuracy, seed 202 ↑ | NLL, seed 101 ↓ | NLL, seed 202 ↓ |
+| --- | ---: | ---: | ---: | ---: |
+| Scalar age D2 | 84.80% | 84.64% | 0.4281 | 0.4343 |
+| Age propagation only D2 | 84.86% | 84.74% | 0.4279 | 0.4338 |
+| Age source only D2 | 84.85% | 84.65% | 0.4269 | 0.4331 |
+| Age gain-matched D2 | 83.73% | 83.14% | 0.4531 | 0.4530 |
+| Noncontext age D2 | 84.88% | 84.66% | 0.4262 | 0.4327 |
+| Age D1 | 84.70% | 84.87% | 0.4258 | 0.4211 |
+| Age D1 plus pointwise | 84.74% | 84.28% | 0.4246 | 0.4327 |
 
-The noncontext control has the highest selected accuracy and depth1-plus-pointwise the lowest selected NLL. These results do not establish an age or cross-query feedback benefit. [Exact metrics and original output bindings](experiments/results/biological_mechanism_seed101_summary_v1_root/summary.json).
+Age D1 has the lowest two-seed mean NLL, 0.4235. The pointwise addition has no consistent benefit, and the gain-matched control is weaker in both seeds. Cross-query feedback and age-conditioning advantages are not established. Seed 303 is still running. [Seed 101 metrics](experiments/results/biological_mechanism_seed101_summary_v1_root/summary.json) and [seed 202 metrics](experiments/results/biological_mechanism_seed202_summary_v1_root/summary.json).
 
 ### What these comparisons mean
 
 The common task is four-source ancestry, ANA/CHG/WHG/EHG, at census 350 generations. Data comprise four independent 2 Mb simulation parents, split into two TRAIN and two VAL parents before extraction. Each parent has 96 pure references, 64 unlabeled mixed-context haplotypes and 120 queries, including 64 present-day and 56 ancient queries. All methods are scored on identical observed physical coverage and query identities. Accuracy, NLL and Brier weight exact class-span intersections within 100 bp bins, then average the two parent scores equally.
 
-These are validation results used during model development and checkpoint selection. **No final TEST results or statistical superiority claim are reported.** All three planned candidate/GRU optimizer seeds, 101/202/303, are completed and included. Optimizer seeds are not independent biological replicates. Seed 101 mechanism controls are completed. Seven controls continue under seed 202 on GPU 2, while seed 303 uses the qualified cache on GPU 3 alongside the five-control whole-tree Census experiment. Seed means summarize separate fits, without ensembling probabilities. All optimizer repeats reuse the same two validation parents.
+These are validation results used during model development and checkpoint selection. **No final TEST results or statistical superiority claim are reported.** All three planned candidate/GRU optimizer seeds, 101/202/303, are completed and included. Optimizer seeds are not independent biological replicates. Mechanism controls are completed for seeds 101 and 202. Seed 303 continues on GPU 3 alongside the five-control whole-tree Census experiment. Seed means summarize separate fits, without ensembling probabilities. All optimizer repeats reuse the same two validation parents.
 
 Baseline fidelity:
 
@@ -128,7 +115,7 @@ A smaller simulation, current code release or changed ancestry endpoint is repor
 
 The project runs on anogena in `/workspace-SR003.nfs2/ARG-GNN`. Read [AGENTS.md](AGENTS.md) before contributing. Source `scripts/project_env.sh` before installing packages or running Python. The main environment is `.runtime/env`. Runtime state, datasets and checkpoints stay on the server and are excluded from Git.
 
-The user increased the project storage allowance to **1 TB on 2026-10-11**, with a 950 GB scheduling ceiling. The latest completed allocated-size scan measured **232.12 GB**. Combined conservative storage reservations project **868.51 GB**, which is an accounting projection rather than actual used space. See the [resource authorization](research/resource_authorizations/project_storage_1TB_20261011.json).
+The user increased the project storage allowance to **1 TB on 2026-10-11**, with a 950 GB scheduling ceiling. The latest completed allocated-size scan measured **232.12 GB**. Combined conservative storage reservations project **909.51 GB**, which is an accounting projection rather than actual used space. See the [resource authorization](research/resource_authorizations/project_storage_1TB_20261011.json).
 
 Current resource execution is summarized at the top of this README. The corrected GPU 3 pool admits the cached mechanism worker and the whole-tree Census worker together. Their conservative reservations total 64 GiB, plus 8 GiB device headroom, within the A100's 80 GiB. The earlier cache launch failed on a missing storage-snapshot command field and was stopped by root. Its partial Census artifacts and failure assessment are preserved. The corrected snapshot passed the unchanged original storage class before relaunch. See the [paired pool](research/reviews/gpu3_parallel_fits_v2_root/pool_admission.json), [original snapshot preflight](research/reviews/gpu3_parallel_fits_v2_root/original_snapshot_preflight.json), and [preserved failure assessment](research/reviews/gpu3_cache_snapshot_failure_v1_independent/assessment.json).
 
