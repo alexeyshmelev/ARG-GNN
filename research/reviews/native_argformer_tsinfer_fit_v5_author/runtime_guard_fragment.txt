@@ -1,0 +1,191 @@
+def native_executable(c):
+    # The pinned conda bin/python is a final-component symlink to python3.11.
+    # Admit only that fixed alias and its confined same-bin target, never input
+    # artifact symlink traversal or an interpreter from another environment.
+    prefix=confined(c['runtime']['prefix']);p=Path(c['runtime']['interpreter'])
+    p=p if p.is_absolute() else ROOT/p
+    if p!=prefix/'bin/python' or p.resolve().parent!=prefix/'bin' or not p.is_file() or not os.access(p,os.X_OK):
+        raise ValueError('fixed native Python alias with same-prefix canonical target required')
+    return p
+
+def import_executable_name(name):
+    suffixes=set(importlib.machinery.all_suffixes())|{'.pyo','.pth','.dll','.dylib','.pyd'}
+    return any(name.endswith(s) for s in suffixes) or re.search(r'\.so(?:\.\d+)*$',name) is not None
+
+def additive_helper_paths(c,runtime):
+    """Validate exact helper bytes, but expose no helper directory on sys.path."""
+    helpers=runtime.get('additive_helpers',[])
+    contract=c['runtime_inventory_contract']
+    if not exact(helpers,contract['expected_additive_helpers']):raise ValueError('exact root-prepared pinned helper authority required')
+    if contract['helper_provenance'] is not None:
+        provenance=read_json(contract['helper_provenance'])
+        if len(helpers)!=1:raise ValueError('exact single root-prepared helper required')
+        h=helpers[0]
+        require_fields(provenance,{'kind':'native_threadpoolctl_isolated_helper_v1',
+          'status':'source_helper_prepared_not_activated','version':h['version'],'source':h['implementation'],
+          'wheel_sha256':h['wheel']['sha256'],'wheel_digest_matches_official_PyPI':True,
+          'native_prefix_modified':False,'sys_path_modified':False},'exact retained root helper provenance required')
+    if not isinstance(helpers,list) or len(helpers)>1:raise ValueError('bounded explicit additive runtime helper required')
+    for h in helpers:
+        if set(h)!={'module','version','implementation','wheel','directory_inventory'} or h['module']!='threadpoolctl' or not isinstance(h['version'],str):
+            raise ValueError('only exactly bound threadpoolctl helper supported')
+        module=bound(h['implementation']);bound(h['wheel'])
+        roots=[confined(p) for p in c['runtime_inventory_contract']['allowed_additive_helper_roots']]
+        if not any(p in module.parents for p in roots) or module.name!='threadpoolctl.py':
+            raise ValueError('root-bound exact helper source under native_helpers required')
+        inventory=read_json(h['directory_inventory'])
+        if set(inventory)!={'directory','files_sha256'} or inventory['directory']!=str(module.parent) or not isinstance(inventory['files_sha256'],dict):
+            raise ValueError('complete exact isolated helper inventory required')
+        actual={}
+        for p in module.parent.rglob('*'):
+            if p.is_symlink():raise ValueError('helper symlinks forbidden')
+            if p.is_file():actual[str(p.relative_to(module.parent))]=sha(p)
+        if not exact(actual,inventory['files_sha256']):raise ValueError('isolated helper directory bytes changed')
+        if any(import_executable_name(Path(p).name) and p!='threadpoolctl.py' for p in actual):
+            raise ValueError('helper extra executable import suffix forbidden, including pyc/pyo/extensions/pth')
+    return []
+
+def load_exact_helpers(c,runtime):
+    additive_helper_paths(c,runtime)
+    actual=[]
+    for h in runtime.get('additive_helpers',[]):
+        path=bound(h['implementation']);name=h['module']
+        if name in sys.modules:
+            module=sys.modules[name]
+        else:
+            spec=importlib.util.spec_from_file_location(name,path)
+            module=importlib.util.module_from_spec(spec)
+            sys.modules[name]=module
+            try:spec.loader.exec_module(module)
+            except BaseException:
+                sys.modules.pop(name,None);raise
+        if Path(module.__file__).resolve()!=path or getattr(module,'__version__',None)!=h['version']:
+            raise ValueError('actual helper source origin/version differs')
+        if str(path.parent) in sys.path or os.environ.get('PYTHONPATH',''):
+            raise ValueError('helper directory must never enter generic scientific import search')
+        if sha(path)!=h['implementation']['sha256']:raise ValueError('helper source changed during import')
+        actual.append({**h,'version':module.__version__,'implementation':reference(path)})
+    return actual
+
+def distribution_name(value):
+    if not isinstance(value,str) or not value:raise ValueError('typed nonempty distribution name required')
+    return re.sub(r'[-_.]+','-',value).lower()
+
+def parse_runtime_inventory(c,value,runtime):
+    keys={'kind','status','prefix','python','distributions','scientific_modules','import_file_sha256','additive_helpers'}
+    contract=c['runtime_inventory_contract'];prefix=confined(c['runtime']['prefix'])
+    if not isinstance(value,dict) or set(value)!=keys:raise ValueError('complete strict native scientific inventory schema required')
+    require_fields(value,{'kind':contract['kind'],'status':contract['status'],'prefix':str(prefix),
+      'additive_helpers':runtime.get('additive_helpers',[])},'exact inventory kind/prefix/helper binding required')
+    py=value['python']
+    if not isinstance(py,dict) or set(py)!={'version','executable','resolved_executable','sha256'}:
+        raise ValueError('exact native Python inventory required')
+    require_fields(py,{'version':c['runtime']['python_version'],'executable':str(ROOT/c['runtime']['interpreter']),
+      'sha256':runtime['python_executable_sha256']},'exact Python version/executable bytes required')
+    resolved=Path(py['resolved_executable'])
+    if resolved.parent!=prefix/'bin' or not re.fullmatch('[0-9a-f]{64}',str(py['sha256'])):
+        raise ValueError('same native bin target and valid executable SHA required')
+    d=value['distributions']
+    if not isinstance(d,dict) or not d or any(distribution_name(k)!=k or not isinstance(v,str) or not v for k,v in d.items()):
+        raise ValueError('complete canonical distribution map required')
+    for name,expected in contract['expected_scientific_distributions'].items():
+        if d.get(distribution_name(name),'').split('+')[0]!=expected:raise ValueError('pinned scientific distribution differs: '+name)
+    modules=value['scientific_modules']
+    if not isinstance(modules,dict) or set(modules)!=set(contract['scientific_modules']):raise ValueError('all exact native scientific import records required')
+    files=value['import_file_sha256']
+    if not isinstance(files,dict) or len(files)<len(modules):raise ValueError('nonempty complete native executable import byte inventory required')
+    for relative,record in files.items():
+        p=Path(relative)
+        if p.is_absolute() or '..' in p.parts or not import_executable_name(p.name):raise ValueError('canonical supported native executable import path required')
+        if not isinstance(record,dict) or set(record)!={'resolved_path','sha256'} or not re.fullmatch('[0-9a-f]{64}',str(record['sha256'])):
+            raise ValueError('exact native import target and byte SHA required')
+        target=Path(record['resolved_path'])
+        if target.is_absolute() or '..' in target.parts:raise ValueError('confined native import target required')
+    for name,distribution in contract['scientific_modules'].items():
+        r=modules[name]
+        if not isinstance(r,dict) or set(r)!={'distribution','distribution_version','module_version','origin','sha256','loader'}:
+            raise ValueError('strict actual scientific module identity record required')
+        if r['distribution']!=distribution_name(distribution) or r['distribution_version']!=d[r['distribution']]:raise ValueError('module/distribution version binding differs')
+        if r['module_version'] is not None and not isinstance(r['module_version'],str):raise ValueError('typed actual scientific module version required')
+        origin=Path(r['origin'])
+        if prefix not in origin.parents or not isinstance(r['loader'],str) or not r['loader']:raise ValueError('native-prefix module origin/loader required')
+        relative=str(origin.relative_to(prefix))
+        if relative not in files or files[relative]['sha256']!=r['sha256']:raise ValueError('scientific import origin is not bound in complete native byte inventory')
+    return value
+
+def native_import_bytes(prefix):
+    """Read-only complete executable import bytes, including existing bytecode."""
+    prefix=Path(prefix);records={}
+    def onerror(error):raise error
+    for parent,dirs,files in os.walk(prefix,followlinks=False,onerror=onerror):
+        for name in dirs:
+            if (Path(parent)/name).is_symlink():raise ValueError('native prefix import directory symlinks unsupported')
+        for name in files:
+            if not import_executable_name(name):continue
+            p=Path(parent)/name;resolved=p.resolve()
+            if prefix not in resolved.parents or not resolved.is_file():raise ValueError('native executable import escapes pinned prefix')
+            records[str(p.relative_to(prefix))]={'resolved_path':str(resolved.relative_to(prefix)),'sha256':sha(resolved)}
+    return dict(sorted(records.items()))
+
+def native_distributions(prefix):
+    import importlib.metadata
+    site=Path(prefix)/'lib/python3.11/site-packages';records={}
+    for d in importlib.metadata.distributions(path=[str(site)]):
+        name=distribution_name(d.metadata['Name'])
+        if name in records:raise ValueError('ambiguous duplicate native distribution metadata')
+        records[name]=d.version
+    return dict(sorted(records.items()))
+
+def actual_scientific_modules(c,distributions):
+    records={};prefix=confined(c['runtime']['prefix'])
+    for name,distribution in c['runtime_inventory_contract']['scientific_modules'].items():
+        module=importlib.import_module(name);origin=Path(module.__file__).resolve()
+        if prefix not in origin.parents or not origin.is_file():raise ValueError('shadowed scientific module outside native prefix: '+name)
+        loader=module.__spec__.loader
+        d=distribution_name(distribution)
+        records[name]={'distribution':d,'distribution_version':distributions[d],
+          'module_version':getattr(module,'__version__',None),'origin':str(origin),'sha256':sha(origin),
+          'loader':type(loader).__module__+'.'+type(loader).__qualname__}
+    return records
+
+def capture_runtime_inventory(c,runtime):
+    """Root-only specification callable: actual readonly native packages, no model."""
+    if (Path(sys.prefix).resolve()!=confined(c['runtime']['prefix']) or list(sys.version_info[:3])!=c['runtime']['python_version']
+      or os.environ.get('CUDA_VISIBLE_DEVICES')!='' or not sys.dont_write_bytecode or os.environ.get('PYTHONPATH','')):
+        raise ValueError('root capture requires exact native Python, CUDA hidden, no generic helper path and no bytecode writes')
+    executable=native_executable(c);prefix=confined(c['runtime']['prefix'])
+    if Path(sys.executable).resolve()!=executable.resolve():raise ValueError('root capture actual interpreter target differs')
+    if sha(executable)!=runtime['python_executable_sha256']:raise ValueError('root capture executable binding differs')
+    before=native_import_bytes(prefix);distributions=native_distributions(prefix)
+    helpers=load_exact_helpers(c,runtime);modules=actual_scientific_modules(c,distributions)
+    after=native_import_bytes(prefix)
+    if not exact(before,after):raise ValueError('native prefix import bytes changed during readonly capture')
+    import torch
+    if torch.cuda.is_initialized():raise ValueError('runtime capture must never create CUDA context')
+    value={'kind':c['runtime_inventory_contract']['kind'],'status':c['runtime_inventory_contract']['status'],
+      'prefix':str(prefix),'python':{'version':list(sys.version_info[:3]),'executable':str(executable),
+        'resolved_executable':str(executable.resolve()),'sha256':sha(executable)},'distributions':distributions,
+      'scientific_modules':modules,'import_file_sha256':after,'additive_helpers':helpers}
+    return parse_runtime_inventory(c,value,runtime)
+
+def runtime_preflight(c,runtime,CPU_only):
+    executable=native_executable(c);prefix=confined(c['runtime']['prefix'])
+    if (Path(sys.prefix).resolve()!=prefix or Path(sys.executable).resolve()!=executable.resolve()
+      or list(sys.version_info[:3])!=c['runtime']['python_version'] or sha(executable)!=runtime['python_executable_sha256']):
+        raise ValueError('exact isolated native interpreter required')
+    if CPU_only and os.environ.get('CUDA_VISIBLE_DEVICES')!='':raise ValueError('CPU retrieval must explicitly hide CUDA')
+    if os.environ.get('PYTHONPATH','') or not sys.dont_write_bytecode:raise ValueError('empty scientific PYTHONPATH and disabled bytecode writes required')
+    inventory=parse_runtime_inventory(c,read_json(runtime['environment_inventory_receipt']),runtime)
+    if inventory['python']['resolved_executable']!=str(executable.resolve()):raise ValueError('actual native executable target differs')
+    actual_files=native_import_bytes(prefix)
+    if not exact(actual_files,inventory['import_file_sha256']):raise ValueError('actual native executable import bytes differ')
+    distributions=native_distributions(prefix)
+    if not exact(distributions,inventory['distributions']):raise ValueError('actual complete native distribution versions differ')
+    load_exact_helpers(c,runtime)
+    modules=actual_scientific_modules(c,distributions)
+    if not exact(modules,inventory['scientific_modules']):raise ValueError('actual child scientific module origin/version/import bytes differ')
+    if not exact(native_import_bytes(prefix),actual_files):raise ValueError('native prefix changed during child scientific imports')
+    return {'interpreter':str(executable),'executable_sha256':sha(executable),'CPU_only':CPU_only,
+      'inventory':runtime['environment_inventory_receipt'],'scientific_module_count':len(modules),
+      'import_file_count':len(actual_files),'distribution_count':len(distributions),
+      'inventory_matches_actual_child_scientific_runtime':True,'helper_import_mode':'exact_bound_source_no_PYTHONPATH'}

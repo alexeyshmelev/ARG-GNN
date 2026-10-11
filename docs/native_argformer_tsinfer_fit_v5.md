@@ -1,0 +1,25 @@
+# Native ARGformer tsinfer fit v5: all terminal entries are immutable
+
+V5 is an inactive source-only successor to the sealed v4 independent REJECT. A dangling exit_status symlink was invisible to .exists(), so the early policy-failure path could create receipt.json before exit_status exclusive creation failed. All v4 and earlier sealed sources, configurations, receipts, tests and rejection evidence remain immutable.
+
+V5 adds one shared lstat-based terminal-entry presence function and replaces the three existing terminal-presence checks in early entry ownership, execute() ownership and terminal_receipt(). The helper confines the output path and treats either existing receipt.json or exit_status directory entry as immutable, regardless of target existence or file type. A regular file, symlink, dangling symlink or directory prevents every terminal addition and overwrite. Metadata errors fail closed. The helper creates no directory or file.
+
+The whole source is exactly v4 after only enumerated version bindings, insertion of that helper and the three presence replacements. The entire configuration equals v4 after only version/output/tmp/reservation/inventory-kind normalization. All30 scientific ASTs, fitting/retrieval wrappers, native recipe, source commit, prepared v3 dispatchers and original native runtime remain unchanged. Genuine threadpoolctl3.7.0 source/wheel/inventory/provenance and the project_budget_v4 contract remain exact.
+
+The secure real-main ownership path from v4 is retained: rejected config bytes supply neither output scope nor receipt limit. Only an already existing canonical native child with exact root admission, independent source/config PASS, reviewed source/config arguments, child exec marker and TMPDIR can receive an early failed receipt/exit_status1. Source-only, bootstrap, missing/unproven/symlinked output and existing terminal-entry cases create no outputs. Normal source/root/runtime/scientific handling remains unchanged after policy succeeds.
+
+## Bounded evidence
+
+The handmade_checks.json report records323 passing checks. It includes inherited strict scientific runtime inventories and actual-import comparisons under explicit handmade providers, exact helper origin/version/import-byte checks without generic import search, shadow suffix rejection, real bootstrap with execve stub, source-only and owned real-main policy failures, sealed predecessor preservation, original scientific ASTs/wrappers and12 inactive stage templates.
+
+There are24 targeted terminal-entry cases: both terminal names, four preexisting types (regular, symlink to regular, dangling symlink, directory), and three routes (real main(argv), execute(), direct terminal_receipt()). Every case blocks all additions/overwrites; blocked execute never enters runtime preflight. These are fresh contained scalar-metadata fixtures. The inherited unchanged actual CPU retrieval wrapper uses only4976 handmade full paths,4608 pure references,240 queries and1105920 exhaustive pairs with real768-dimensional CPU tensors. No native scientific arrays/model, GPU/device query, live ledger or production lock is accessed.
+
+## Fresh root route
+
+The source and config are native_argformer_tsinfer_fit_v5. A new independent PASS for those exact hashes is required. The root runtime inventory kind is native_argformer_tsinfer_fit_v5_environment_inventory and requires genuine read-only CPU capture under the exact pinned native Python3.11.9, CUDA hidden, -B and empty PYTHONPATH with the exact helper. Capture imports actual scientific packages and checks versions, prefix origins and all executable import bytes before/after without a model or CUDA context.
+
+Each parent needs a fresh20GB combined reservation with key native_argformer_tsinfer_fit_v5/<parent>, output experiments/results/native_argformer_tsinfer_fit_v5/<parent> and short tmp .runtime/tmp/afts5/<first12 SHA256 of canonical absolute parent output>. Four scopes total80GB. The12 inactive stage templates, four-parent budgetv4 scope template and ready probe/capture proposals are review artifacts, not authority. Root owns reservations, exact runtime/storage/H013/stage admissions and actual execution.
+
+MLM5 logical512/micro64 seed17, contrastive1 full4096 seed36, per-ARG original node vocabulary, full pure-reference train-plus-val corpus, exhaustive k1 primary/k5 sensitivity and query-truth exclusion until seals remain unchanged. A genuine actual source4096 optimizer-memory qualification remains required before fitting. The original eligible-free GPU launcher, two-physical-device ceiling, held OFD/title/UUID guards, du startup and measured500GB hard guard remain unchanged. The reviewed supplemental projection does not bypass that measured guard.
+
+V5 remains the European heterochronous C4 transfer condition, with no scientific fallback or AmericanAdmixture paper reproduction claim. Genuine full native runtime capture and actual4096 VRAM qualification remain pending root after fresh independent review. Author work performs no installation, native-prefix mutation, source edits to predecessors, live-ledger changes or Git.

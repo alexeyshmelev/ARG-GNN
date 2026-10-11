@@ -1,0 +1,12 @@
+# Proposal only: fresh root gates and eligible-free GPU2 are required.
+# Replace ROOT_RECORDED_ADMISSION_SHA256 with the exact immutable active admission SHA.
+# Match logical job/run-id/output/log to that admission. Source scripts/project_env.sh first.
+ARGGNN_LOGICAL_JOB_NAME=native_argformer_tsinfer_fit_v4_train000_probe_memory_r001 \
+  "$ARGGNN_PYTHON" -B scripts/launch_gpu.py --gpu 2 \
+  --job native_argformer_tsinfer_fit_v4_train000_probe_memory_r001 \
+  arggnn.native_argformer_tsinfer_fit_v4 --execute \
+  --parent bio_paths_pilot_train_000 --stage probe-memory --run-id train000_probe_memory_r001 \
+  --expected-source-sha256 0cc1a9d47d69e1533a00de4ce8a8cefb2db2a8b342cba112072e64e24cc40457 \
+  --expected-config-sha256 04aa7e623575c97b527ebbd45e3d68e5fdcbd6db16d71b41b9bf6ba3a4813061 \
+  --admission experiments/results/native_argformer_tsinfer_fit_v4_root/bio_paths_pilot_train_000_probe_memory_admission.json \
+  --expected-admission-sha256 ROOT_RECORDED_ADMISSION_SHA256

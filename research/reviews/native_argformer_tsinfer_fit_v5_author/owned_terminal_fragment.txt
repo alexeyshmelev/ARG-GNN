@@ -1,0 +1,179 @@
+def terminal_entries_present(output):
+    """Any pre-existing terminal directory entry is immutable, including dangling links."""
+    output=confined(output)
+    for name in ('receipt.json','exit_status'):
+        try:(output/name).lstat()
+        except FileNotFoundError:continue
+        else:return True
+    return False
+
+def terminal_receipt(c,output,result):
+    """Bounded, terminal evidence even when inventory/child admission is rejected."""
+    if terminal_entries_present(output):raise ValueError('existing terminal evidence is immutable')
+    limit=c['storage']['failure_receipt_max_bytes']
+    def encode(value):return json.dumps(value,sort_keys=True,indent=2,allow_nan=False)+'\n'
+    def safe_failure(value):
+        context=value if isinstance(value,dict) else {}
+        error=context.get('failure',{})
+        error=error if isinstance(error,dict) else {}
+        compact={k:(v[:4096] if isinstance(v,str) else v) for k,v in context.items()
+                 if isinstance(k,str) and isinstance(v,(str,int,bool)) and not isinstance(v,float)}
+        compact.update(status='failed_partial_preserved',exit_code=1,
+          failure={'type':str(error.get('type','terminal_serialization'))[:256],
+                   'message':str(error.get('message','malformed terminal context'))[:4096]},
+          malformed_or_large_context_omitted=True)
+        if len(encode(compact).encode())>limit:
+            compact={k:compact[k] for k in ('status','exit_code','action','parent_id','implementation_sha256',
+              'config_sha256','root_actual_execution','true_query_ancestry_read','failure') if k in compact}
+        if len(encode(compact).encode())>limit:
+            compact={'status':'failed_partial_preserved','exit_code':1,'root_actual_execution':False,
+                     'malformed_or_large_context_omitted':True,'failure':compact['failure']}
+        return compact
+    try:payload=encode(result)
+    except (ValueError,TypeError,OverflowError):
+        result=safe_failure(result);payload=encode(result)
+    if not isinstance(result,dict) or type(result.get('exit_code')) is not int:
+        result=safe_failure(result);payload=encode(result)
+    if len(payload.encode())>limit and result.get('exit_code')!=0:
+        result=safe_failure(result);payload=encode(result)
+    if len(payload.encode())>limit and result.get('exit_code')!=0:raise ValueError('terminal diagnostic bound exceeded')
+    with (output/'receipt.json').open('x') as stream:stream.write(payload)
+    with (output/'exit_status').open('x') as stream:stream.write(str(result['exit_code'])+'\n')
+    return result
+
+def execute(c,args):
+    # All owned-child authority, runtime and exec-admission failures are inside
+    # this one terminal path. A terminal output is never amended or reused.
+    _,output,tmp,_=scopes(c,args.parent,args.stage,args.run_id)
+    owned=bool(args.native and output.is_dir() and not terminal_entries_present(output))
+    ownership={'owns_output':False};a={};runtime={};prepared={};storage=None
+    result={'status':'failed_partial_preserved','exit_code':1,'action':args.stage,'parent_id':args.parent,
+      'implementation_sha256':sha(SCRIPT),'config_sha256':sha(CONFIG),'true_query_ancestry_read':False,
+      'root_actual_execution':False,'failure_stage':'source_and_root_authority'}
+    started=time.monotonic();timer=False
+    def timeout(signum,frame):raise TimeoutError('root-admitted stage walltime ceiling exceeded')
+    try:
+        if Path(__file__).resolve()!=SCRIPT or SCRIPT.is_symlink():raise ValueError('fixed new executor source required')
+        if args.expected_source_sha256!=sha(SCRIPT) or args.expected_config_sha256!=sha(CONFIG):raise ValueError('exact reviewed source/config activation opt-in required')
+        if not args.admission or not args.expected_admission_sha256:raise ValueError('fresh root stage admission required')
+        verify_source(c)
+        a=read_json({'path':args.admission,'sha256':args.expected_admission_sha256})
+        review=read_json(a['independent_review']);runtime=read_json(a['runtime']);registration=read_json(a['experiment_registration'])
+        validate_admission(c,args.parent,args.stage,args.run_id,a,review,runtime,registration)
+        prepared=prepared_metadata(c,args.parent,a['prepared_dispatcher'])
+        storage=Storage(c,args.parent,args.stage,args.run_id,read_json(a['storage']))
+        if not args.native:
+            result['failure_stage']='bootstrap'
+            bootstrap(c,args,a,runtime,storage,ownership)
+            raise RuntimeError('native exec unexpectedly returned')
+        if not owned:raise ValueError('fresh owned native child stage required; existing terminal evidence cannot be reused')
+        signal.signal(signal.SIGALRM,timeout);signal.setitimer(signal.ITIMER_REAL,c['maximum_walltime_seconds'][args.stage]);timer=True
+        result['failure_stage']='owned_child_exec_admission'
+        admission=read_json(reference(output/'exec_admission.json'))
+        require_fields(admission,{'implementation_sha256':sha(SCRIPT),'stage':args.stage,
+          'root_admission':{'path':str(confined(args.admission).relative_to(ROOT)),'sha256':args.expected_admission_sha256},
+          'TMPDIR':str(tmp)},'exact fresh owned child exec admission required')
+        if os.environ.get('TMPDIR')!=str(tmp):raise ValueError('exact short native temporary scope required')
+        if args.stage!='retrieve':
+            guard=load_frozen_module(c,'src/arggnn/native_argformer_exec.py','_v5_child_title_before_scientific_import')
+            guard.apply_and_validate_title();guard.validate_lease()
+        result['failure_stage']='owned_child_runtime_preflight'
+        runtime_proof=runtime_preflight(c,runtime,args.stage=='retrieve')
+        result['failure_stage']='scientific_stage'
+        result=(execute_retrieval(c,args,a,prepared,storage,runtime) if args.stage=='retrieve'
+                else execute_fit(c,args,a,prepared,storage,runtime,result))
+        result['runtime_inventory_validation']=runtime_proof
+        verify_source(c);prepared_metadata(c,args.parent,a['prepared_dispatcher']);result['storage']=storage.check()
+        result.pop('failure_stage',None)
+    except BaseException as error:
+        owned=owned or ownership['owns_output']
+        if not owned:raise
+        result.update(status='failed_partial_preserved',exit_code=1,
+          failure={'type':type(error).__name__,'message':str(error),'traceback':traceback.format_exc()})
+    finally:
+        if timer:signal.setitimer(signal.ITIMER_REAL,0)
+        if owned or ownership['owns_output']:
+            result.update(elapsed_seconds=time.monotonic()-started,created_utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),
+              disclosed_additive_runtime_helpers=runtime.get('additive_helpers',[]) if isinstance(runtime,dict) else [],paper_reproduction_claimed=False,scientific_fallback=False)
+            if args.admission and args.expected_admission_sha256:
+                try:result['root_admission']={'path':str(confined(args.admission).relative_to(ROOT)),'sha256':args.expected_admission_sha256}
+                except (ValueError,TypeError):result['root_admission_reference_rejected']=True
+            if isinstance(a,dict) and 'prepared_dispatcher' in a:result['prepared_dispatcher']=a['prepared_dispatcher']
+            try:
+                result['native_ASTs']=ast_proof(c)
+                result['artifacts_sha256']={str(p.relative_to(output)):sha(p) for p in sorted(output.rglob('*'))
+                  if p.is_file() and 'write_scopes' not in p.relative_to(output).parts and p.name not in ('receipt.json','exit_status')}
+            except BaseException as error:
+                result.update(status='failed_partial_preserved',exit_code=1,finalization_error={'type':type(error).__name__,'message':str(error)[:4096]})
+            result=terminal_receipt(c,output,result)
+    return result
+
+def existing_entry_ownership(args):
+    """Prove a bound existing native child scope before early diagnostic writes.
+
+    No directory is created, and a rejected config supplies no path or limit.
+    This authority can only finalize failure; it never authorizes science.
+    """
+    if not (args.execute and args.native and args.admission and args.expected_admission_sha256):
+        return None
+    try:
+        if (args.expected_source_sha256!=sha(SCRIPT)
+          or args.expected_config_sha256!=CONFIG_SHA256 or Path(__file__).resolve()!=SCRIPT or SCRIPT.is_symlink()):
+            return None
+        scope,output,tmp,log=scopes(ENTRY_OWNERSHIP,args.parent,args.stage,args.run_id)
+        output=confined(output)
+        if not output.is_dir() or terminal_entries_present(output):
+            return None
+        root_ref={'path':str(confined(args.admission).relative_to(ROOT)),'sha256':args.expected_admission_sha256}
+        a=read_json(root_ref)
+        expected={'kind':'native_argformer_tsinfer_fit_v5_root_admission','authorizer':'root_agent',
+          'active':True,'status':'root_authorized_exact_native_stage','condition':ENTRY_OWNERSHIP['condition'],
+          'scope_parents':[args.parent],'stage':args.stage,'run_id':args.run_id,
+          'implementation':reference(SCRIPT),'config':{'path':str(CONFIG.relative_to(ROOT)),'sha256':CONFIG_SHA256},
+          'parent_storage_scope':str(scope),'output':str(output),'short_tmp':str(tmp),'launch_log':str(log),
+          'CPU_only':args.stage=='retrieve','query_truth_authorized':False,'scientific_fallback':False,
+          'paper_reproduction_claimed':False,'contrastive_execution':'full_batch'}
+        require_fields(a,expected,'exact root-owned native child scope required for policy failure')
+        review=read_json(a['independent_review'])
+        require_fields(review,{'kind':'native_argformer_tsinfer_fit_v5_independent_review',
+          'review_role':'independent_reviewer','verdict':'PASS','implementation':expected['implementation'],
+          'config':expected['config']},'exact independent source/config binding required for owned policy failure')
+        marker=read_json(reference(output/'exec_admission.json'))
+        require_fields(marker,{'implementation_sha256':args.expected_source_sha256,'stage':args.stage,
+          'root_admission':root_ref,'TMPDIR':str(tmp)},'exact existing owned child exec marker required')
+        if os.environ.get('TMPDIR')!=str(tmp):return None
+        return {'output':output,'root_admission':root_ref,'exec_admission':reference(output/'exec_admission.json')}
+    except (ValueError,TypeError,KeyError,OSError,AttributeError):
+        return None
+
+def finalize_entry_policy_failure(args,ownership,error):
+    """Only a previously proven existing child receives immutable failure evidence."""
+    try:observed_config_sha256=sha(CONFIG)
+    except OSError:observed_config_sha256=None
+    result={'status':'failed_partial_preserved','exit_code':1,'action':args.stage,'parent_id':args.parent,
+      'implementation_sha256':sha(SCRIPT),'config_sha256':observed_config_sha256,
+      'reviewed_config_sha256':CONFIG_SHA256,'root_admission':ownership['root_admission'],
+      'owned_exec_admission':ownership['exec_admission'],'failure_stage':'main_policy_preflight',
+      'failure':{'type':type(error).__name__,'message':str(error),'traceback':traceback.format_exc()},
+      'root_actual_execution':False,'true_query_ancestry_read':False,'paper_reproduction_claimed':False,
+      'scientific_fallback':False,'created_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),
+      'scope_established_from_reviewed_source_contract':True,'rejected_config_used_for_scope_or_limit':False}
+    return terminal_receipt(ENTRY_OWNERSHIP,ownership['output'],result)
+
+def main(argv=None):
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--execute',action='store_true');parser.add_argument('--templates',action='store_true')
+    parser.add_argument('--parent',default='bio_paths_pilot_train_000');parser.add_argument('--stage',choices=STAGES,default='probe-memory')
+    parser.add_argument('--run-id',default='root_assign_fresh_run');parser.add_argument('--expected-source-sha256')
+    parser.add_argument('--expected-config-sha256');parser.add_argument('--admission');parser.add_argument('--expected-admission-sha256')
+    parser.add_argument('--native',action='store_true',help=argparse.SUPPRESS)
+    args=parser.parse_args(argv);sys.dont_write_bytecode=True
+    try:c=policy()
+    except BaseException as error:
+        ownership=existing_entry_ownership(args)
+        if ownership is None:raise
+        result=finalize_entry_policy_failure(args,ownership,error)
+        print(json.dumps(result,indent=2));return result['exit_code']
+    if args.execute:
+        result=execute(c,args);print(json.dumps(result,indent=2));return result['exit_code']
+    print(json.dumps(templates(c,args.parent,args.stage,args.run_id) if args.templates else source_report(c),indent=2));return 0

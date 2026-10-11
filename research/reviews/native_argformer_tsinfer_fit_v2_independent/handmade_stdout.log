@@ -1,0 +1,37 @@
+{"stage": "exact_CPU_retrieval", "parent_id": "bio_paths_pilot_val_001", "unique_query_paths_completed": 128, "unique_query_paths": 240, "elapsed_seconds": 0.014734704978764057}
+{"stage": "exact_CPU_retrieval", "parent_id": "bio_paths_pilot_val_001", "unique_query_paths_completed": 240, "unique_query_paths": 240, "elapsed_seconds": 0.028111837804317474}
+{
+  "status": "completed_with_concrete_guard_counterexamples",
+  "check_count": 125,
+  "counterexamples": [
+    {
+      "id": "RUNTIME_INVENTORY_NOT_ENFORCED",
+      "source_lines": [
+        248,
+        249,
+        387,
+        399
+      ],
+      "accepted_fixture": {
+        "path": "research/reviews/native_argformer_tsinfer_fit_v2_independent/fixtures_final/empty_inventory.json",
+        "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      },
+      "observation": "An empty immutable JSON qualifies as environment_inventory_receipt and native runtime_preflight passes. No expected inventory schema, complete native environment bytes, retrieval numpy/torch versions, or tskit version is compared. Native GPU path later checks distribution versions only and not inventory bytes."
+    },
+    {
+      "id": "OWNED_CHILD_PREFLIGHT_FAILURE_NO_RECEIPT",
+      "source_lines": [
+        650,
+        651,
+        652,
+        655,
+        656,
+        657,
+        658,
+        660
+      ],
+      "fixture_output": "research/reviews/native_argformer_tsinfer_fit_v2_independent/fixtures_final/child_failure/bio_paths_pilot_train_000/retrieve/child",
+      "observation": "Complete execute(native=True) rejects a child runtime-preflight mismatch after bootstrap owns output, but the exception lies outside try/finally and leaves exec_admission.json without receipt.json or exit_status."
+    }
+  ]
+}

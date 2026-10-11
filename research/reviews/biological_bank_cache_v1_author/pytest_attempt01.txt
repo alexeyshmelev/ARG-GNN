@@ -1,0 +1,1588 @@
+EEEEEEEEEEEEEEEEEEEEEE                                                   [100%]
+==================================== ERRORS ====================================
+_ ERROR at setup of test_all_seven_full_default_models_complete_field_logit_VJP_AdamW_RNG_parity[bio_mc_v1_scalar_age_d2] _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/biological_bank_cache_v1_aut...N/research/reviews/biological_bank_cache_v1_author/pytest_tmp_attempt01'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def handmade(tmp_path_factory):
+        torch.set_num_threads(1);directory=tmp_path_factory.mktemp('full280')
+        tables=tskit.TableCollection(sequence_length=2000.)
+        ages=[0.]*64+[130.]*16+[135.]*16+[136.]*8+[155.]*8+[170.]*32+[200.]*16+[165.]*8+[170.]*16+[300.+4*(i//2) for i in range(96)]
+        for age in ages:tables.nodes.add_row(flags=tskit.NODE_IS_SAMPLE,time=age)
+        for number,age in enumerate((1000.,1200.,900.,1500.)):
+            root=tables.nodes.add_row(time=age)
+            for child in range(280):tables.edges.add_row(number*500.,(number+1)*500.,root,child)
+        tables.sort();ts=tables.tree_sequence()
+        query=np.r_[np.arange(64),np.arange(80,96),np.arange(104,112),np.arange(144,160),np.arange(168,184)]
+        rows=[{'observed_reference_class':None if i<184 else (i-184)//24} for i in range(280)]
+        parent={'parent_id':'handmade_train_000','split':'train','observation':{'nodes':np.arange(280),'offset':0.},'dynamics_slots':np.arange(184),'reference_slots':np.arange(184,280),'query_slots':query,'positions':np.arange(50.,2000.,100.),'samples':rows,'output_indexes':query}
+        tiles=[]
+        for number in range(2):
+            seq,indexes,tree_ids,landmarks=frozen.pack_observed_tile(ts,parent,number*1000.,(number+1)*1000.)
+            age=precompute_age_interfaces(seq,time_column=6,parent_branch_column=7,time_scale=10000.,resistance_scale=.0001,age_scales=(350.,1400.),strength=3.,reference_ids=torch.arange(184,280),max_condition=1e12)
+            prepared=prepare_anchor_kernel_bank(age.plain_bank,age.operator_cache,num_anchors=32,num_scales=3)
+            bankfile=directory/f'tile{number}.bank.pt';bundle={'schema':'biological_candidate_full_age_bank_v1','age_bank':age.as_dict(),'fixed_prepared':prepared};torch.save(bundle,bankfile)
+            tiles.append({'tile_id':number,'bank':{'path':str(bankfile.relative_to(frozen.ROOT)),'sha256':frozen.sha(bankfile)},'position_indexes':indexes,'exact_serialization_roundtrip_checked':True,'all_original_age_cache_fields_retained':True,'full_bank_field_fingerprint_sha256':frozen.fingerprint_sha(bundle),'original_tree_ids':tree_ids})
+        cfg=json.loads((frozen.ROOT/'configs/biological_mechanism_controls_v1.json').read_text());configref=write_json(directory/'config.json',cfg)
+>       manifest={'status':'complete_observed_only_Q184_R96_actualQ120','truth_opened':False,'parents':[{'parent_id':parent['parent_id'],'tiles':tiles}]};preparedref=write_json(directory/'prepared.json',manifest);observedref=write_json(directory/'observed.json',{'handmade':True})
+                                                                                                                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+research/reviews/biological_bank_cache_v1_author/test_cache_v1.py:46: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+research/reviews/biological_bank_cache_v1_author/test_cache_v1.py:22: in write_json
+    path.write_text(json.dumps(obj,sort_keys=True)+'\n');return {'path':str(path.relative_to(frozen.ROOT)),'sha256':frozen.sha(path)}
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/__init__.py:238: in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/encoder.py:200: in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/encoder.py:258: in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <json.encoder.JSONEncoder object at 0x7888d03e6890>
+o = array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+
+    def default(self, o):
+        """Implement this method in a subclass such that it returns
+        a serializable object for ``o``, or calls the base implementation
+        (to raise a ``TypeError``).
+    
+        For example, to support arbitrary iterators, you could
+        implement default like this::
+    
+            def default(self, o):
+                try:
+                    iterable = iter(o)
+                except TypeError:
+                    pass
+                else:
+                    return list(iterable)
+                # Let the base class default method raise the TypeError
+                return super().default(o)
+    
+        """
+>       raise TypeError(f'Object of type {o.__class__.__name__} '
+                        f'is not JSON serializable')
+E       TypeError: Object of type ndarray is not JSON serializable
+
+.runtime/env/lib/python3.11/json/encoder.py:180: TypeError
+_ ERROR at setup of test_all_seven_full_default_models_complete_field_logit_VJP_AdamW_RNG_parity[bio_mc_v1_age_propagation_only_d2] _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/biological_bank_cache_v1_aut...N/research/reviews/biological_bank_cache_v1_author/pytest_tmp_attempt01'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def handmade(tmp_path_factory):
+        torch.set_num_threads(1);directory=tmp_path_factory.mktemp('full280')
+        tables=tskit.TableCollection(sequence_length=2000.)
+        ages=[0.]*64+[130.]*16+[135.]*16+[136.]*8+[155.]*8+[170.]*32+[200.]*16+[165.]*8+[170.]*16+[300.+4*(i//2) for i in range(96)]
+        for age in ages:tables.nodes.add_row(flags=tskit.NODE_IS_SAMPLE,time=age)
+        for number,age in enumerate((1000.,1200.,900.,1500.)):
+            root=tables.nodes.add_row(time=age)
+            for child in range(280):tables.edges.add_row(number*500.,(number+1)*500.,root,child)
+        tables.sort();ts=tables.tree_sequence()
+        query=np.r_[np.arange(64),np.arange(80,96),np.arange(104,112),np.arange(144,160),np.arange(168,184)]
+        rows=[{'observed_reference_class':None if i<184 else (i-184)//24} for i in range(280)]
+        parent={'parent_id':'handmade_train_000','split':'train','observation':{'nodes':np.arange(280),'offset':0.},'dynamics_slots':np.arange(184),'reference_slots':np.arange(184,280),'query_slots':query,'positions':np.arange(50.,2000.,100.),'samples':rows,'output_indexes':query}
+        tiles=[]
+        for number in range(2):
+            seq,indexes,tree_ids,landmarks=frozen.pack_observed_tile(ts,parent,number*1000.,(number+1)*1000.)
+            age=precompute_age_interfaces(seq,time_column=6,parent_branch_column=7,time_scale=10000.,resistance_scale=.0001,age_scales=(350.,1400.),strength=3.,reference_ids=torch.arange(184,280),max_condition=1e12)
+            prepared=prepare_anchor_kernel_bank(age.plain_bank,age.operator_cache,num_anchors=32,num_scales=3)
+            bankfile=directory/f'tile{number}.bank.pt';bundle={'schema':'biological_candidate_full_age_bank_v1','age_bank':age.as_dict(),'fixed_prepared':prepared};torch.save(bundle,bankfile)
+            tiles.append({'tile_id':number,'bank':{'path':str(bankfile.relative_to(frozen.ROOT)),'sha256':frozen.sha(bankfile)},'position_indexes':indexes,'exact_serialization_roundtrip_checked':True,'all_original_age_cache_fields_retained':True,'full_bank_field_fingerprint_sha256':frozen.fingerprint_sha(bundle),'original_tree_ids':tree_ids})
+        cfg=json.loads((frozen.ROOT/'configs/biological_mechanism_controls_v1.json').read_text());configref=write_json(directory/'config.json',cfg)
+>       manifest={'status':'complete_observed_only_Q184_R96_actualQ120','truth_opened':False,'parents':[{'parent_id':parent['parent_id'],'tiles':tiles}]};preparedref=write_json(directory/'prepared.json',manifest);observedref=write_json(directory/'observed.json',{'handmade':True})
+                                                                                                                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+research/reviews/biological_bank_cache_v1_author/test_cache_v1.py:46: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+research/reviews/biological_bank_cache_v1_author/test_cache_v1.py:22: in write_json
+    path.write_text(json.dumps(obj,sort_keys=True)+'\n');return {'path':str(path.relative_to(frozen.ROOT)),'sha256':frozen.sha(path)}
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/__init__.py:238: in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/encoder.py:200: in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/encoder.py:258: in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <json.encoder.JSONEncoder object at 0x7888d03e6890>
+o = array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+
+    def default(self, o):
+        """Implement this method in a subclass such that it returns
+        a serializable object for ``o``, or calls the base implementation
+        (to raise a ``TypeError``).
+    
+        For example, to support arbitrary iterators, you could
+        implement default like this::
+    
+            def default(self, o):
+                try:
+                    iterable = iter(o)
+                except TypeError:
+                    pass
+                else:
+                    return list(iterable)
+                # Let the base class default method raise the TypeError
+                return super().default(o)
+    
+        """
+>       raise TypeError(f'Object of type {o.__class__.__name__} '
+                        f'is not JSON serializable')
+E       TypeError: Object of type ndarray is not JSON serializable
+
+.runtime/env/lib/python3.11/json/encoder.py:180: TypeError
+_ ERROR at setup of test_all_seven_full_default_models_complete_field_logit_VJP_AdamW_RNG_parity[bio_mc_v1_age_source_only_d2] _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/biological_bank_cache_v1_aut...N/research/reviews/biological_bank_cache_v1_author/pytest_tmp_attempt01'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def handmade(tmp_path_factory):
+        torch.set_num_threads(1);directory=tmp_path_factory.mktemp('full280')
+        tables=tskit.TableCollection(sequence_length=2000.)
+        ages=[0.]*64+[130.]*16+[135.]*16+[136.]*8+[155.]*8+[170.]*32+[200.]*16+[165.]*8+[170.]*16+[300.+4*(i//2) for i in range(96)]
+        for age in ages:tables.nodes.add_row(flags=tskit.NODE_IS_SAMPLE,time=age)
+        for number,age in enumerate((1000.,1200.,900.,1500.)):
+            root=tables.nodes.add_row(time=age)
+            for child in range(280):tables.edges.add_row(number*500.,(number+1)*500.,root,child)
+        tables.sort();ts=tables.tree_sequence()
+        query=np.r_[np.arange(64),np.arange(80,96),np.arange(104,112),np.arange(144,160),np.arange(168,184)]
+        rows=[{'observed_reference_class':None if i<184 else (i-184)//24} for i in range(280)]
+        parent={'parent_id':'handmade_train_000','split':'train','observation':{'nodes':np.arange(280),'offset':0.},'dynamics_slots':np.arange(184),'reference_slots':np.arange(184,280),'query_slots':query,'positions':np.arange(50.,2000.,100.),'samples':rows,'output_indexes':query}
+        tiles=[]
+        for number in range(2):
+            seq,indexes,tree_ids,landmarks=frozen.pack_observed_tile(ts,parent,number*1000.,(number+1)*1000.)
+            age=precompute_age_interfaces(seq,time_column=6,parent_branch_column=7,time_scale=10000.,resistance_scale=.0001,age_scales=(350.,1400.),strength=3.,reference_ids=torch.arange(184,280),max_condition=1e12)
+            prepared=prepare_anchor_kernel_bank(age.plain_bank,age.operator_cache,num_anchors=32,num_scales=3)
+            bankfile=directory/f'tile{number}.bank.pt';bundle={'schema':'biological_candidate_full_age_bank_v1','age_bank':age.as_dict(),'fixed_prepared':prepared};torch.save(bundle,bankfile)
+            tiles.append({'tile_id':number,'bank':{'path':str(bankfile.relative_to(frozen.ROOT)),'sha256':frozen.sha(bankfile)},'position_indexes':indexes,'exact_serialization_roundtrip_checked':True,'all_original_age_cache_fields_retained':True,'full_bank_field_fingerprint_sha256':frozen.fingerprint_sha(bundle),'original_tree_ids':tree_ids})
+        cfg=json.loads((frozen.ROOT/'configs/biological_mechanism_controls_v1.json').read_text());configref=write_json(directory/'config.json',cfg)
+>       manifest={'status':'complete_observed_only_Q184_R96_actualQ120','truth_opened':False,'parents':[{'parent_id':parent['parent_id'],'tiles':tiles}]};preparedref=write_json(directory/'prepared.json',manifest);observedref=write_json(directory/'observed.json',{'handmade':True})
+                                                                                                                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+research/reviews/biological_bank_cache_v1_author/test_cache_v1.py:46: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+research/reviews/biological_bank_cache_v1_author/test_cache_v1.py:22: in write_json
+    path.write_text(json.dumps(obj,sort_keys=True)+'\n');return {'path':str(path.relative_to(frozen.ROOT)),'sha256':frozen.sha(path)}
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/__init__.py:238: in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/encoder.py:200: in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/encoder.py:258: in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <json.encoder.JSONEncoder object at 0x7888d03e6890>
+o = array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+
+    def default(self, o):
+        """Implement this method in a subclass such that it returns
+        a serializable object for ``o``, or calls the base implementation
+        (to raise a ``TypeError``).
+    
+        For example, to support arbitrary iterators, you could
+        implement default like this::
+    
+            def default(self, o):
+                try:
+                    iterable = iter(o)
+                except TypeError:
+                    pass
+                else:
+                    return list(iterable)
+                # Let the base class default method raise the TypeError
+                return super().default(o)
+    
+        """
+>       raise TypeError(f'Object of type {o.__class__.__name__} '
+                        f'is not JSON serializable')
+E       TypeError: Object of type ndarray is not JSON serializable
+
+.runtime/env/lib/python3.11/json/encoder.py:180: TypeError
+_ ERROR at setup of test_all_seven_full_default_models_complete_field_logit_VJP_AdamW_RNG_parity[bio_mc_v1_age_gainmatched_d2] _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/biological_bank_cache_v1_aut...N/research/reviews/biological_bank_cache_v1_author/pytest_tmp_attempt01'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def handmade(tmp_path_factory):
+        torch.set_num_threads(1);directory=tmp_path_factory.mktemp('full280')
+        tables=tskit.TableCollection(sequence_length=2000.)
+        ages=[0.]*64+[130.]*16+[135.]*16+[136.]*8+[155.]*8+[170.]*32+[200.]*16+[165.]*8+[170.]*16+[300.+4*(i//2) for i in range(96)]
+        for age in ages:tables.nodes.add_row(flags=tskit.NODE_IS_SAMPLE,time=age)
+        for number,age in enumerate((1000.,1200.,900.,1500.)):
+            root=tables.nodes.add_row(time=age)
+            for child in range(280):tables.edges.add_row(number*500.,(number+1)*500.,root,child)
+        tables.sort();ts=tables.tree_sequence()
+        query=np.r_[np.arange(64),np.arange(80,96),np.arange(104,112),np.arange(144,160),np.arange(168,184)]
+        rows=[{'observed_reference_class':None if i<184 else (i-184)//24} for i in range(280)]
+        parent={'parent_id':'handmade_train_000','split':'train','observation':{'nodes':np.arange(280),'offset':0.},'dynamics_slots':np.arange(184),'reference_slots':np.arange(184,280),'query_slots':query,'positions':np.arange(50.,2000.,100.),'samples':rows,'output_indexes':query}
+        tiles=[]
+        for number in range(2):
+            seq,indexes,tree_ids,landmarks=frozen.pack_observed_tile(ts,parent,number*1000.,(number+1)*1000.)
+            age=precompute_age_interfaces(seq,time_column=6,parent_branch_column=7,time_scale=10000.,resistance_scale=.0001,age_scales=(350.,1400.),strength=3.,reference_ids=torch.arange(184,280),max_condition=1e12)
+            prepared=prepare_anchor_kernel_bank(age.plain_bank,age.operator_cache,num_anchors=32,num_scales=3)
+            bankfile=directory/f'tile{number}.bank.pt';bundle={'schema':'biological_candidate_full_age_bank_v1','age_bank':age.as_dict(),'fixed_prepared':prepared};torch.save(bundle,bankfile)
+            tiles.append({'tile_id':number,'bank':{'path':str(bankfile.relative_to(frozen.ROOT)),'sha256':frozen.sha(bankfile)},'position_indexes':indexes,'exact_serialization_roundtrip_checked':True,'all_original_age_cache_fields_retained':True,'full_bank_field_fingerprint_sha256':frozen.fingerprint_sha(bundle),'original_tree_ids':tree_ids})
+        cfg=json.loads((frozen.ROOT/'configs/biological_mechanism_controls_v1.json').read_text());configref=write_json(directory/'config.json',cfg)
+>       manifest={'status':'complete_observed_only_Q184_R96_actualQ120','truth_opened':False,'parents':[{'parent_id':parent['parent_id'],'tiles':tiles}]};preparedref=write_json(directory/'prepared.json',manifest);observedref=write_json(directory/'observed.json',{'handmade':True})
+                                                                                                                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+research/reviews/biological_bank_cache_v1_author/test_cache_v1.py:46: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+research/reviews/biological_bank_cache_v1_author/test_cache_v1.py:22: in write_json
+    path.write_text(json.dumps(obj,sort_keys=True)+'\n');return {'path':str(path.relative_to(frozen.ROOT)),'sha256':frozen.sha(path)}
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/__init__.py:238: in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/encoder.py:200: in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/encoder.py:258: in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <json.encoder.JSONEncoder object at 0x7888d03e6890>
+o = array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+
+    def default(self, o):
+        """Implement this method in a subclass such that it returns
+        a serializable object for ``o``, or calls the base implementation
+        (to raise a ``TypeError``).
+    
+        For example, to support arbitrary iterators, you could
+        implement default like this::
+    
+            def default(self, o):
+                try:
+                    iterable = iter(o)
+                except TypeError:
+                    pass
+                else:
+                    return list(iterable)
+                # Let the base class default method raise the TypeError
+                return super().default(o)
+    
+        """
+>       raise TypeError(f'Object of type {o.__class__.__name__} '
+                        f'is not JSON serializable')
+E       TypeError: Object of type ndarray is not JSON serializable
+
+.runtime/env/lib/python3.11/json/encoder.py:180: TypeError
+_ ERROR at setup of test_all_seven_full_default_models_complete_field_logit_VJP_AdamW_RNG_parity[bio_mc_v1_noncontext_age_d2] _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/biological_bank_cache_v1_aut...N/research/reviews/biological_bank_cache_v1_author/pytest_tmp_attempt01'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def handmade(tmp_path_factory):
+        torch.set_num_threads(1);directory=tmp_path_factory.mktemp('full280')
+        tables=tskit.TableCollection(sequence_length=2000.)
+        ages=[0.]*64+[130.]*16+[135.]*16+[136.]*8+[155.]*8+[170.]*32+[200.]*16+[165.]*8+[170.]*16+[300.+4*(i//2) for i in range(96)]
+        for age in ages:tables.nodes.add_row(flags=tskit.NODE_IS_SAMPLE,time=age)
+        for number,age in enumerate((1000.,1200.,900.,1500.)):
+            root=tables.nodes.add_row(time=age)
+            for child in range(280):tables.edges.add_row(number*500.,(number+1)*500.,root,child)
+        tables.sort();ts=tables.tree_sequence()
+        query=np.r_[np.arange(64),np.arange(80,96),np.arange(104,112),np.arange(144,160),np.arange(168,184)]
+        rows=[{'observed_reference_class':None if i<184 else (i-184)//24} for i in range(280)]
+        parent={'parent_id':'handmade_train_000','split':'train','observation':{'nodes':np.arange(280),'offset':0.},'dynamics_slots':np.arange(184),'reference_slots':np.arange(184,280),'query_slots':query,'positions':np.arange(50.,2000.,100.),'samples':rows,'output_indexes':query}
+        tiles=[]
+        for number in range(2):
+            seq,indexes,tree_ids,landmarks=frozen.pack_observed_tile(ts,parent,number*1000.,(number+1)*1000.)
+            age=precompute_age_interfaces(seq,time_column=6,parent_branch_column=7,time_scale=10000.,resistance_scale=.0001,age_scales=(350.,1400.),strength=3.,reference_ids=torch.arange(184,280),max_condition=1e12)
+            prepared=prepare_anchor_kernel_bank(age.plain_bank,age.operator_cache,num_anchors=32,num_scales=3)
+            bankfile=directory/f'tile{number}.bank.pt';bundle={'schema':'biological_candidate_full_age_bank_v1','age_bank':age.as_dict(),'fixed_prepared':prepared};torch.save(bundle,bankfile)
+            tiles.append({'tile_id':number,'bank':{'path':str(bankfile.relative_to(frozen.ROOT)),'sha256':frozen.sha(bankfile)},'position_indexes':indexes,'exact_serialization_roundtrip_checked':True,'all_original_age_cache_fields_retained':True,'full_bank_field_fingerprint_sha256':frozen.fingerprint_sha(bundle),'original_tree_ids':tree_ids})
+        cfg=json.loads((frozen.ROOT/'configs/biological_mechanism_controls_v1.json').read_text());configref=write_json(directory/'config.json',cfg)
+>       manifest={'status':'complete_observed_only_Q184_R96_actualQ120','truth_opened':False,'parents':[{'parent_id':parent['parent_id'],'tiles':tiles}]};preparedref=write_json(directory/'prepared.json',manifest);observedref=write_json(directory/'observed.json',{'handmade':True})
+                                                                                                                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+research/reviews/biological_bank_cache_v1_author/test_cache_v1.py:46: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+research/reviews/biological_bank_cache_v1_author/test_cache_v1.py:22: in write_json
+    path.write_text(json.dumps(obj,sort_keys=True)+'\n');return {'path':str(path.relative_to(frozen.ROOT)),'sha256':frozen.sha(path)}
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/__init__.py:238: in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/encoder.py:200: in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/encoder.py:258: in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <json.encoder.JSONEncoder object at 0x7888d03e6890>
+o = array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+
+    def default(self, o):
+        """Implement this method in a subclass such that it returns
+        a serializable object for ``o``, or calls the base implementation
+        (to raise a ``TypeError``).
+    
+        For example, to support arbitrary iterators, you could
+        implement default like this::
+    
+            def default(self, o):
+                try:
+                    iterable = iter(o)
+                except TypeError:
+                    pass
+                else:
+                    return list(iterable)
+                # Let the base class default method raise the TypeError
+                return super().default(o)
+    
+        """
+>       raise TypeError(f'Object of type {o.__class__.__name__} '
+                        f'is not JSON serializable')
+E       TypeError: Object of type ndarray is not JSON serializable
+
+.runtime/env/lib/python3.11/json/encoder.py:180: TypeError
+_ ERROR at setup of test_all_seven_full_default_models_complete_field_logit_VJP_AdamW_RNG_parity[bio_mc_v1_age_d1] _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/biological_bank_cache_v1_aut...N/research/reviews/biological_bank_cache_v1_author/pytest_tmp_attempt01'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def handmade(tmp_path_factory):
+        torch.set_num_threads(1);directory=tmp_path_factory.mktemp('full280')
+        tables=tskit.TableCollection(sequence_length=2000.)
+        ages=[0.]*64+[130.]*16+[135.]*16+[136.]*8+[155.]*8+[170.]*32+[200.]*16+[165.]*8+[170.]*16+[300.+4*(i//2) for i in range(96)]
+        for age in ages:tables.nodes.add_row(flags=tskit.NODE_IS_SAMPLE,time=age)
+        for number,age in enumerate((1000.,1200.,900.,1500.)):
+            root=tables.nodes.add_row(time=age)
+            for child in range(280):tables.edges.add_row(number*500.,(number+1)*500.,root,child)
+        tables.sort();ts=tables.tree_sequence()
+        query=np.r_[np.arange(64),np.arange(80,96),np.arange(104,112),np.arange(144,160),np.arange(168,184)]
+        rows=[{'observed_reference_class':None if i<184 else (i-184)//24} for i in range(280)]
+        parent={'parent_id':'handmade_train_000','split':'train','observation':{'nodes':np.arange(280),'offset':0.},'dynamics_slots':np.arange(184),'reference_slots':np.arange(184,280),'query_slots':query,'positions':np.arange(50.,2000.,100.),'samples':rows,'output_indexes':query}
+        tiles=[]
+        for number in range(2):
+            seq,indexes,tree_ids,landmarks=frozen.pack_observed_tile(ts,parent,number*1000.,(number+1)*1000.)
+            age=precompute_age_interfaces(seq,time_column=6,parent_branch_column=7,time_scale=10000.,resistance_scale=.0001,age_scales=(350.,1400.),strength=3.,reference_ids=torch.arange(184,280),max_condition=1e12)
+            prepared=prepare_anchor_kernel_bank(age.plain_bank,age.operator_cache,num_anchors=32,num_scales=3)
+            bankfile=directory/f'tile{number}.bank.pt';bundle={'schema':'biological_candidate_full_age_bank_v1','age_bank':age.as_dict(),'fixed_prepared':prepared};torch.save(bundle,bankfile)
+            tiles.append({'tile_id':number,'bank':{'path':str(bankfile.relative_to(frozen.ROOT)),'sha256':frozen.sha(bankfile)},'position_indexes':indexes,'exact_serialization_roundtrip_checked':True,'all_original_age_cache_fields_retained':True,'full_bank_field_fingerprint_sha256':frozen.fingerprint_sha(bundle),'original_tree_ids':tree_ids})
+        cfg=json.loads((frozen.ROOT/'configs/biological_mechanism_controls_v1.json').read_text());configref=write_json(directory/'config.json',cfg)
+>       manifest={'status':'complete_observed_only_Q184_R96_actualQ120','truth_opened':False,'parents':[{'parent_id':parent['parent_id'],'tiles':tiles}]};preparedref=write_json(directory/'prepared.json',manifest);observedref=write_json(directory/'observed.json',{'handmade':True})
+                                                                                                                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+research/reviews/biological_bank_cache_v1_author/test_cache_v1.py:46: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+research/reviews/biological_bank_cache_v1_author/test_cache_v1.py:22: in write_json
+    path.write_text(json.dumps(obj,sort_keys=True)+'\n');return {'path':str(path.relative_to(frozen.ROOT)),'sha256':frozen.sha(path)}
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/__init__.py:238: in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/encoder.py:200: in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/encoder.py:258: in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <json.encoder.JSONEncoder object at 0x7888d03e6890>
+o = array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+
+    def default(self, o):
+        """Implement this method in a subclass such that it returns
+        a serializable object for ``o``, or calls the base implementation
+        (to raise a ``TypeError``).
+    
+        For example, to support arbitrary iterators, you could
+        implement default like this::
+    
+            def default(self, o):
+                try:
+                    iterable = iter(o)
+                except TypeError:
+                    pass
+                else:
+                    return list(iterable)
+                # Let the base class default method raise the TypeError
+                return super().default(o)
+    
+        """
+>       raise TypeError(f'Object of type {o.__class__.__name__} '
+                        f'is not JSON serializable')
+E       TypeError: Object of type ndarray is not JSON serializable
+
+.runtime/env/lib/python3.11/json/encoder.py:180: TypeError
+_ ERROR at setup of test_all_seven_full_default_models_complete_field_logit_VJP_AdamW_RNG_parity[bio_mc_v1_age_d1_plus_pointwise] _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/biological_bank_cache_v1_aut...N/research/reviews/biological_bank_cache_v1_author/pytest_tmp_attempt01'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def handmade(tmp_path_factory):
+        torch.set_num_threads(1);directory=tmp_path_factory.mktemp('full280')
+        tables=tskit.TableCollection(sequence_length=2000.)
+        ages=[0.]*64+[130.]*16+[135.]*16+[136.]*8+[155.]*8+[170.]*32+[200.]*16+[165.]*8+[170.]*16+[300.+4*(i//2) for i in range(96)]
+        for age in ages:tables.nodes.add_row(flags=tskit.NODE_IS_SAMPLE,time=age)
+        for number,age in enumerate((1000.,1200.,900.,1500.)):
+            root=tables.nodes.add_row(time=age)
+            for child in range(280):tables.edges.add_row(number*500.,(number+1)*500.,root,child)
+        tables.sort();ts=tables.tree_sequence()
+        query=np.r_[np.arange(64),np.arange(80,96),np.arange(104,112),np.arange(144,160),np.arange(168,184)]
+        rows=[{'observed_reference_class':None if i<184 else (i-184)//24} for i in range(280)]
+        parent={'parent_id':'handmade_train_000','split':'train','observation':{'nodes':np.arange(280),'offset':0.},'dynamics_slots':np.arange(184),'reference_slots':np.arange(184,280),'query_slots':query,'positions':np.arange(50.,2000.,100.),'samples':rows,'output_indexes':query}
+        tiles=[]
+        for number in range(2):
+            seq,indexes,tree_ids,landmarks=frozen.pack_observed_tile(ts,parent,number*1000.,(number+1)*1000.)
+            age=precompute_age_interfaces(seq,time_column=6,parent_branch_column=7,time_scale=10000.,resistance_scale=.0001,age_scales=(350.,1400.),strength=3.,reference_ids=torch.arange(184,280),max_condition=1e12)
+            prepared=prepare_anchor_kernel_bank(age.plain_bank,age.operator_cache,num_anchors=32,num_scales=3)
+            bankfile=directory/f'tile{number}.bank.pt';bundle={'schema':'biological_candidate_full_age_bank_v1','age_bank':age.as_dict(),'fixed_prepared':prepared};torch.save(bundle,bankfile)
+            tiles.append({'tile_id':number,'bank':{'path':str(bankfile.relative_to(frozen.ROOT)),'sha256':frozen.sha(bankfile)},'position_indexes':indexes,'exact_serialization_roundtrip_checked':True,'all_original_age_cache_fields_retained':True,'full_bank_field_fingerprint_sha256':frozen.fingerprint_sha(bundle),'original_tree_ids':tree_ids})
+        cfg=json.loads((frozen.ROOT/'configs/biological_mechanism_controls_v1.json').read_text());configref=write_json(directory/'config.json',cfg)
+>       manifest={'status':'complete_observed_only_Q184_R96_actualQ120','truth_opened':False,'parents':[{'parent_id':parent['parent_id'],'tiles':tiles}]};preparedref=write_json(directory/'prepared.json',manifest);observedref=write_json(directory/'observed.json',{'handmade':True})
+                                                                                                                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+research/reviews/biological_bank_cache_v1_author/test_cache_v1.py:46: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+research/reviews/biological_bank_cache_v1_author/test_cache_v1.py:22: in write_json
+    path.write_text(json.dumps(obj,sort_keys=True)+'\n');return {'path':str(path.relative_to(frozen.ROOT)),'sha256':frozen.sha(path)}
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/__init__.py:238: in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/encoder.py:200: in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/encoder.py:258: in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <json.encoder.JSONEncoder object at 0x7888d03e6890>
+o = array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+
+    def default(self, o):
+        """Implement this method in a subclass such that it returns
+        a serializable object for ``o``, or calls the base implementation
+        (to raise a ``TypeError``).
+    
+        For example, to support arbitrary iterators, you could
+        implement default like this::
+    
+            def default(self, o):
+                try:
+                    iterable = iter(o)
+                except TypeError:
+                    pass
+                else:
+                    return list(iterable)
+                # Let the base class default method raise the TypeError
+                return super().default(o)
+    
+        """
+>       raise TypeError(f'Object of type {o.__class__.__name__} '
+                        f'is not JSON serializable')
+E       TypeError: Object of type ndarray is not JSON serializable
+
+.runtime/env/lib/python3.11/json/encoder.py:180: TypeError
+_ ERROR at setup of test_every_nested_original_field_and_shared_stride_is_present_and_unchanged _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/biological_bank_cache_v1_aut...N/research/reviews/biological_bank_cache_v1_author/pytest_tmp_attempt01'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def handmade(tmp_path_factory):
+        torch.set_num_threads(1);directory=tmp_path_factory.mktemp('full280')
+        tables=tskit.TableCollection(sequence_length=2000.)
+        ages=[0.]*64+[130.]*16+[135.]*16+[136.]*8+[155.]*8+[170.]*32+[200.]*16+[165.]*8+[170.]*16+[300.+4*(i//2) for i in range(96)]
+        for age in ages:tables.nodes.add_row(flags=tskit.NODE_IS_SAMPLE,time=age)
+        for number,age in enumerate((1000.,1200.,900.,1500.)):
+            root=tables.nodes.add_row(time=age)
+            for child in range(280):tables.edges.add_row(number*500.,(number+1)*500.,root,child)
+        tables.sort();ts=tables.tree_sequence()
+        query=np.r_[np.arange(64),np.arange(80,96),np.arange(104,112),np.arange(144,160),np.arange(168,184)]
+        rows=[{'observed_reference_class':None if i<184 else (i-184)//24} for i in range(280)]
+        parent={'parent_id':'handmade_train_000','split':'train','observation':{'nodes':np.arange(280),'offset':0.},'dynamics_slots':np.arange(184),'reference_slots':np.arange(184,280),'query_slots':query,'positions':np.arange(50.,2000.,100.),'samples':rows,'output_indexes':query}
+        tiles=[]
+        for number in range(2):
+            seq,indexes,tree_ids,landmarks=frozen.pack_observed_tile(ts,parent,number*1000.,(number+1)*1000.)
+            age=precompute_age_interfaces(seq,time_column=6,parent_branch_column=7,time_scale=10000.,resistance_scale=.0001,age_scales=(350.,1400.),strength=3.,reference_ids=torch.arange(184,280),max_condition=1e12)
+            prepared=prepare_anchor_kernel_bank(age.plain_bank,age.operator_cache,num_anchors=32,num_scales=3)
+            bankfile=directory/f'tile{number}.bank.pt';bundle={'schema':'biological_candidate_full_age_bank_v1','age_bank':age.as_dict(),'fixed_prepared':prepared};torch.save(bundle,bankfile)
+            tiles.append({'tile_id':number,'bank':{'path':str(bankfile.relative_to(frozen.ROOT)),'sha256':frozen.sha(bankfile)},'position_indexes':indexes,'exact_serialization_roundtrip_checked':True,'all_original_age_cache_fields_retained':True,'full_bank_field_fingerprint_sha256':frozen.fingerprint_sha(bundle),'original_tree_ids':tree_ids})
+        cfg=json.loads((frozen.ROOT/'configs/biological_mechanism_controls_v1.json').read_text());configref=write_json(directory/'config.json',cfg)
+>       manifest={'status':'complete_observed_only_Q184_R96_actualQ120','truth_opened':False,'parents':[{'parent_id':parent['parent_id'],'tiles':tiles}]};preparedref=write_json(directory/'prepared.json',manifest);observedref=write_json(directory/'observed.json',{'handmade':True})
+                                                                                                                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+research/reviews/biological_bank_cache_v1_author/test_cache_v1.py:46: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+research/reviews/biological_bank_cache_v1_author/test_cache_v1.py:22: in write_json
+    path.write_text(json.dumps(obj,sort_keys=True)+'\n');return {'path':str(path.relative_to(frozen.ROOT)),'sha256':frozen.sha(path)}
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/__init__.py:238: in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/encoder.py:200: in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/encoder.py:258: in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <json.encoder.JSONEncoder object at 0x7888d03e6890>
+o = array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+
+    def default(self, o):
+        """Implement this method in a subclass such that it returns
+        a serializable object for ``o``, or calls the base implementation
+        (to raise a ``TypeError``).
+    
+        For example, to support arbitrary iterators, you could
+        implement default like this::
+    
+            def default(self, o):
+                try:
+                    iterable = iter(o)
+                except TypeError:
+                    pass
+                else:
+                    return list(iterable)
+                # Let the base class default method raise the TypeError
+                return super().default(o)
+    
+        """
+>       raise TypeError(f'Object of type {o.__class__.__name__} '
+                        f'is not JSON serializable')
+E       TypeError: Object of type ndarray is not JSON serializable
+
+.runtime/env/lib/python3.11/json/encoder.py:180: TypeError
+_ ERROR at setup of test_CPU_LRU_evicts_whole_entries_and_bypasses_oversize_without_changing_values _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/biological_bank_cache_v1_aut...N/research/reviews/biological_bank_cache_v1_author/pytest_tmp_attempt01'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def handmade(tmp_path_factory):
+        torch.set_num_threads(1);directory=tmp_path_factory.mktemp('full280')
+        tables=tskit.TableCollection(sequence_length=2000.)
+        ages=[0.]*64+[130.]*16+[135.]*16+[136.]*8+[155.]*8+[170.]*32+[200.]*16+[165.]*8+[170.]*16+[300.+4*(i//2) for i in range(96)]
+        for age in ages:tables.nodes.add_row(flags=tskit.NODE_IS_SAMPLE,time=age)
+        for number,age in enumerate((1000.,1200.,900.,1500.)):
+            root=tables.nodes.add_row(time=age)
+            for child in range(280):tables.edges.add_row(number*500.,(number+1)*500.,root,child)
+        tables.sort();ts=tables.tree_sequence()
+        query=np.r_[np.arange(64),np.arange(80,96),np.arange(104,112),np.arange(144,160),np.arange(168,184)]
+        rows=[{'observed_reference_class':None if i<184 else (i-184)//24} for i in range(280)]
+        parent={'parent_id':'handmade_train_000','split':'train','observation':{'nodes':np.arange(280),'offset':0.},'dynamics_slots':np.arange(184),'reference_slots':np.arange(184,280),'query_slots':query,'positions':np.arange(50.,2000.,100.),'samples':rows,'output_indexes':query}
+        tiles=[]
+        for number in range(2):
+            seq,indexes,tree_ids,landmarks=frozen.pack_observed_tile(ts,parent,number*1000.,(number+1)*1000.)
+            age=precompute_age_interfaces(seq,time_column=6,parent_branch_column=7,time_scale=10000.,resistance_scale=.0001,age_scales=(350.,1400.),strength=3.,reference_ids=torch.arange(184,280),max_condition=1e12)
+            prepared=prepare_anchor_kernel_bank(age.plain_bank,age.operator_cache,num_anchors=32,num_scales=3)
+            bankfile=directory/f'tile{number}.bank.pt';bundle={'schema':'biological_candidate_full_age_bank_v1','age_bank':age.as_dict(),'fixed_prepared':prepared};torch.save(bundle,bankfile)
+            tiles.append({'tile_id':number,'bank':{'path':str(bankfile.relative_to(frozen.ROOT)),'sha256':frozen.sha(bankfile)},'position_indexes':indexes,'exact_serialization_roundtrip_checked':True,'all_original_age_cache_fields_retained':True,'full_bank_field_fingerprint_sha256':frozen.fingerprint_sha(bundle),'original_tree_ids':tree_ids})
+        cfg=json.loads((frozen.ROOT/'configs/biological_mechanism_controls_v1.json').read_text());configref=write_json(directory/'config.json',cfg)
+>       manifest={'status':'complete_observed_only_Q184_R96_actualQ120','truth_opened':False,'parents':[{'parent_id':parent['parent_id'],'tiles':tiles}]};preparedref=write_json(directory/'prepared.json',manifest);observedref=write_json(directory/'observed.json',{'handmade':True})
+                                                                                                                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+research/reviews/biological_bank_cache_v1_author/test_cache_v1.py:46: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+research/reviews/biological_bank_cache_v1_author/test_cache_v1.py:22: in write_json
+    path.write_text(json.dumps(obj,sort_keys=True)+'\n');return {'path':str(path.relative_to(frozen.ROOT)),'sha256':frozen.sha(path)}
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/__init__.py:238: in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/encoder.py:200: in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/encoder.py:258: in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <json.encoder.JSONEncoder object at 0x7888d03e6890>
+o = array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+
+    def default(self, o):
+        """Implement this method in a subclass such that it returns
+        a serializable object for ``o``, or calls the base implementation
+        (to raise a ``TypeError``).
+    
+        For example, to support arbitrary iterators, you could
+        implement default like this::
+    
+            def default(self, o):
+                try:
+                    iterable = iter(o)
+                except TypeError:
+                    pass
+                else:
+                    return list(iterable)
+                # Let the base class default method raise the TypeError
+                return super().default(o)
+    
+        """
+>       raise TypeError(f'Object of type {o.__class__.__name__} '
+                        f'is not JSON serializable')
+E       TypeError: Object of type ndarray is not JSON serializable
+
+.runtime/env/lib/python3.11/json/encoder.py:180: TypeError
+_ ERROR at setup of test_GPU_LRU_bookkeeping_with_explicit_mock_transfer_uses_no_GPU _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/biological_bank_cache_v1_aut...N/research/reviews/biological_bank_cache_v1_author/pytest_tmp_attempt01'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def handmade(tmp_path_factory):
+        torch.set_num_threads(1);directory=tmp_path_factory.mktemp('full280')
+        tables=tskit.TableCollection(sequence_length=2000.)
+        ages=[0.]*64+[130.]*16+[135.]*16+[136.]*8+[155.]*8+[170.]*32+[200.]*16+[165.]*8+[170.]*16+[300.+4*(i//2) for i in range(96)]
+        for age in ages:tables.nodes.add_row(flags=tskit.NODE_IS_SAMPLE,time=age)
+        for number,age in enumerate((1000.,1200.,900.,1500.)):
+            root=tables.nodes.add_row(time=age)
+            for child in range(280):tables.edges.add_row(number*500.,(number+1)*500.,root,child)
+        tables.sort();ts=tables.tree_sequence()
+        query=np.r_[np.arange(64),np.arange(80,96),np.arange(104,112),np.arange(144,160),np.arange(168,184)]
+        rows=[{'observed_reference_class':None if i<184 else (i-184)//24} for i in range(280)]
+        parent={'parent_id':'handmade_train_000','split':'train','observation':{'nodes':np.arange(280),'offset':0.},'dynamics_slots':np.arange(184),'reference_slots':np.arange(184,280),'query_slots':query,'positions':np.arange(50.,2000.,100.),'samples':rows,'output_indexes':query}
+        tiles=[]
+        for number in range(2):
+            seq,indexes,tree_ids,landmarks=frozen.pack_observed_tile(ts,parent,number*1000.,(number+1)*1000.)
+            age=precompute_age_interfaces(seq,time_column=6,parent_branch_column=7,time_scale=10000.,resistance_scale=.0001,age_scales=(350.,1400.),strength=3.,reference_ids=torch.arange(184,280),max_condition=1e12)
+            prepared=prepare_anchor_kernel_bank(age.plain_bank,age.operator_cache,num_anchors=32,num_scales=3)
+            bankfile=directory/f'tile{number}.bank.pt';bundle={'schema':'biological_candidate_full_age_bank_v1','age_bank':age.as_dict(),'fixed_prepared':prepared};torch.save(bundle,bankfile)
+            tiles.append({'tile_id':number,'bank':{'path':str(bankfile.relative_to(frozen.ROOT)),'sha256':frozen.sha(bankfile)},'position_indexes':indexes,'exact_serialization_roundtrip_checked':True,'all_original_age_cache_fields_retained':True,'full_bank_field_fingerprint_sha256':frozen.fingerprint_sha(bundle),'original_tree_ids':tree_ids})
+        cfg=json.loads((frozen.ROOT/'configs/biological_mechanism_controls_v1.json').read_text());configref=write_json(directory/'config.json',cfg)
+>       manifest={'status':'complete_observed_only_Q184_R96_actualQ120','truth_opened':False,'parents':[{'parent_id':parent['parent_id'],'tiles':tiles}]};preparedref=write_json(directory/'prepared.json',manifest);observedref=write_json(directory/'observed.json',{'handmade':True})
+                                                                                                                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+research/reviews/biological_bank_cache_v1_author/test_cache_v1.py:46: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+research/reviews/biological_bank_cache_v1_author/test_cache_v1.py:22: in write_json
+    path.write_text(json.dumps(obj,sort_keys=True)+'\n');return {'path':str(path.relative_to(frozen.ROOT)),'sha256':frozen.sha(path)}
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/__init__.py:238: in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/encoder.py:200: in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/encoder.py:258: in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <json.encoder.JSONEncoder object at 0x7888d03e6890>
+o = array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+
+    def default(self, o):
+        """Implement this method in a subclass such that it returns
+        a serializable object for ``o``, or calls the base implementation
+        (to raise a ``TypeError``).
+    
+        For example, to support arbitrary iterators, you could
+        implement default like this::
+    
+            def default(self, o):
+                try:
+                    iterable = iter(o)
+                except TypeError:
+                    pass
+                else:
+                    return list(iterable)
+                # Let the base class default method raise the TypeError
+                return super().default(o)
+    
+        """
+>       raise TypeError(f'Object of type {o.__class__.__name__} '
+                        f'is not JSON serializable')
+E       TypeError: Object of type ndarray is not JSON serializable
+
+.runtime/env/lib/python3.11/json/encoder.py:180: TypeError
+_ ERROR at setup of test_no_substitution_across_tile_parent_roles_grid_device_dtype_or_config[tile] _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/biological_bank_cache_v1_aut...N/research/reviews/biological_bank_cache_v1_author/pytest_tmp_attempt01'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def handmade(tmp_path_factory):
+        torch.set_num_threads(1);directory=tmp_path_factory.mktemp('full280')
+        tables=tskit.TableCollection(sequence_length=2000.)
+        ages=[0.]*64+[130.]*16+[135.]*16+[136.]*8+[155.]*8+[170.]*32+[200.]*16+[165.]*8+[170.]*16+[300.+4*(i//2) for i in range(96)]
+        for age in ages:tables.nodes.add_row(flags=tskit.NODE_IS_SAMPLE,time=age)
+        for number,age in enumerate((1000.,1200.,900.,1500.)):
+            root=tables.nodes.add_row(time=age)
+            for child in range(280):tables.edges.add_row(number*500.,(number+1)*500.,root,child)
+        tables.sort();ts=tables.tree_sequence()
+        query=np.r_[np.arange(64),np.arange(80,96),np.arange(104,112),np.arange(144,160),np.arange(168,184)]
+        rows=[{'observed_reference_class':None if i<184 else (i-184)//24} for i in range(280)]
+        parent={'parent_id':'handmade_train_000','split':'train','observation':{'nodes':np.arange(280),'offset':0.},'dynamics_slots':np.arange(184),'reference_slots':np.arange(184,280),'query_slots':query,'positions':np.arange(50.,2000.,100.),'samples':rows,'output_indexes':query}
+        tiles=[]
+        for number in range(2):
+            seq,indexes,tree_ids,landmarks=frozen.pack_observed_tile(ts,parent,number*1000.,(number+1)*1000.)
+            age=precompute_age_interfaces(seq,time_column=6,parent_branch_column=7,time_scale=10000.,resistance_scale=.0001,age_scales=(350.,1400.),strength=3.,reference_ids=torch.arange(184,280),max_condition=1e12)
+            prepared=prepare_anchor_kernel_bank(age.plain_bank,age.operator_cache,num_anchors=32,num_scales=3)
+            bankfile=directory/f'tile{number}.bank.pt';bundle={'schema':'biological_candidate_full_age_bank_v1','age_bank':age.as_dict(),'fixed_prepared':prepared};torch.save(bundle,bankfile)
+            tiles.append({'tile_id':number,'bank':{'path':str(bankfile.relative_to(frozen.ROOT)),'sha256':frozen.sha(bankfile)},'position_indexes':indexes,'exact_serialization_roundtrip_checked':True,'all_original_age_cache_fields_retained':True,'full_bank_field_fingerprint_sha256':frozen.fingerprint_sha(bundle),'original_tree_ids':tree_ids})
+        cfg=json.loads((frozen.ROOT/'configs/biological_mechanism_controls_v1.json').read_text());configref=write_json(directory/'config.json',cfg)
+>       manifest={'status':'complete_observed_only_Q184_R96_actualQ120','truth_opened':False,'parents':[{'parent_id':parent['parent_id'],'tiles':tiles}]};preparedref=write_json(directory/'prepared.json',manifest);observedref=write_json(directory/'observed.json',{'handmade':True})
+                                                                                                                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+research/reviews/biological_bank_cache_v1_author/test_cache_v1.py:46: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+research/reviews/biological_bank_cache_v1_author/test_cache_v1.py:22: in write_json
+    path.write_text(json.dumps(obj,sort_keys=True)+'\n');return {'path':str(path.relative_to(frozen.ROOT)),'sha256':frozen.sha(path)}
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/__init__.py:238: in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/encoder.py:200: in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/encoder.py:258: in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <json.encoder.JSONEncoder object at 0x7888d03e6890>
+o = array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+
+    def default(self, o):
+        """Implement this method in a subclass such that it returns
+        a serializable object for ``o``, or calls the base implementation
+        (to raise a ``TypeError``).
+    
+        For example, to support arbitrary iterators, you could
+        implement default like this::
+    
+            def default(self, o):
+                try:
+                    iterable = iter(o)
+                except TypeError:
+                    pass
+                else:
+                    return list(iterable)
+                # Let the base class default method raise the TypeError
+                return super().default(o)
+    
+        """
+>       raise TypeError(f'Object of type {o.__class__.__name__} '
+                        f'is not JSON serializable')
+E       TypeError: Object of type ndarray is not JSON serializable
+
+.runtime/env/lib/python3.11/json/encoder.py:180: TypeError
+_ ERROR at setup of test_no_substitution_across_tile_parent_roles_grid_device_dtype_or_config[parent] _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/biological_bank_cache_v1_aut...N/research/reviews/biological_bank_cache_v1_author/pytest_tmp_attempt01'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def handmade(tmp_path_factory):
+        torch.set_num_threads(1);directory=tmp_path_factory.mktemp('full280')
+        tables=tskit.TableCollection(sequence_length=2000.)
+        ages=[0.]*64+[130.]*16+[135.]*16+[136.]*8+[155.]*8+[170.]*32+[200.]*16+[165.]*8+[170.]*16+[300.+4*(i//2) for i in range(96)]
+        for age in ages:tables.nodes.add_row(flags=tskit.NODE_IS_SAMPLE,time=age)
+        for number,age in enumerate((1000.,1200.,900.,1500.)):
+            root=tables.nodes.add_row(time=age)
+            for child in range(280):tables.edges.add_row(number*500.,(number+1)*500.,root,child)
+        tables.sort();ts=tables.tree_sequence()
+        query=np.r_[np.arange(64),np.arange(80,96),np.arange(104,112),np.arange(144,160),np.arange(168,184)]
+        rows=[{'observed_reference_class':None if i<184 else (i-184)//24} for i in range(280)]
+        parent={'parent_id':'handmade_train_000','split':'train','observation':{'nodes':np.arange(280),'offset':0.},'dynamics_slots':np.arange(184),'reference_slots':np.arange(184,280),'query_slots':query,'positions':np.arange(50.,2000.,100.),'samples':rows,'output_indexes':query}
+        tiles=[]
+        for number in range(2):
+            seq,indexes,tree_ids,landmarks=frozen.pack_observed_tile(ts,parent,number*1000.,(number+1)*1000.)
+            age=precompute_age_interfaces(seq,time_column=6,parent_branch_column=7,time_scale=10000.,resistance_scale=.0001,age_scales=(350.,1400.),strength=3.,reference_ids=torch.arange(184,280),max_condition=1e12)
+            prepared=prepare_anchor_kernel_bank(age.plain_bank,age.operator_cache,num_anchors=32,num_scales=3)
+            bankfile=directory/f'tile{number}.bank.pt';bundle={'schema':'biological_candidate_full_age_bank_v1','age_bank':age.as_dict(),'fixed_prepared':prepared};torch.save(bundle,bankfile)
+            tiles.append({'tile_id':number,'bank':{'path':str(bankfile.relative_to(frozen.ROOT)),'sha256':frozen.sha(bankfile)},'position_indexes':indexes,'exact_serialization_roundtrip_checked':True,'all_original_age_cache_fields_retained':True,'full_bank_field_fingerprint_sha256':frozen.fingerprint_sha(bundle),'original_tree_ids':tree_ids})
+        cfg=json.loads((frozen.ROOT/'configs/biological_mechanism_controls_v1.json').read_text());configref=write_json(directory/'config.json',cfg)
+>       manifest={'status':'complete_observed_only_Q184_R96_actualQ120','truth_opened':False,'parents':[{'parent_id':parent['parent_id'],'tiles':tiles}]};preparedref=write_json(directory/'prepared.json',manifest);observedref=write_json(directory/'observed.json',{'handmade':True})
+                                                                                                                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+research/reviews/biological_bank_cache_v1_author/test_cache_v1.py:46: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+research/reviews/biological_bank_cache_v1_author/test_cache_v1.py:22: in write_json
+    path.write_text(json.dumps(obj,sort_keys=True)+'\n');return {'path':str(path.relative_to(frozen.ROOT)),'sha256':frozen.sha(path)}
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/__init__.py:238: in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/encoder.py:200: in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/encoder.py:258: in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <json.encoder.JSONEncoder object at 0x7888d03e6890>
+o = array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+
+    def default(self, o):
+        """Implement this method in a subclass such that it returns
+        a serializable object for ``o``, or calls the base implementation
+        (to raise a ``TypeError``).
+    
+        For example, to support arbitrary iterators, you could
+        implement default like this::
+    
+            def default(self, o):
+                try:
+                    iterable = iter(o)
+                except TypeError:
+                    pass
+                else:
+                    return list(iterable)
+                # Let the base class default method raise the TypeError
+                return super().default(o)
+    
+        """
+>       raise TypeError(f'Object of type {o.__class__.__name__} '
+                        f'is not JSON serializable')
+E       TypeError: Object of type ndarray is not JSON serializable
+
+.runtime/env/lib/python3.11/json/encoder.py:180: TypeError
+_ ERROR at setup of test_no_substitution_across_tile_parent_roles_grid_device_dtype_or_config[roles] _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/biological_bank_cache_v1_aut...N/research/reviews/biological_bank_cache_v1_author/pytest_tmp_attempt01'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def handmade(tmp_path_factory):
+        torch.set_num_threads(1);directory=tmp_path_factory.mktemp('full280')
+        tables=tskit.TableCollection(sequence_length=2000.)
+        ages=[0.]*64+[130.]*16+[135.]*16+[136.]*8+[155.]*8+[170.]*32+[200.]*16+[165.]*8+[170.]*16+[300.+4*(i//2) for i in range(96)]
+        for age in ages:tables.nodes.add_row(flags=tskit.NODE_IS_SAMPLE,time=age)
+        for number,age in enumerate((1000.,1200.,900.,1500.)):
+            root=tables.nodes.add_row(time=age)
+            for child in range(280):tables.edges.add_row(number*500.,(number+1)*500.,root,child)
+        tables.sort();ts=tables.tree_sequence()
+        query=np.r_[np.arange(64),np.arange(80,96),np.arange(104,112),np.arange(144,160),np.arange(168,184)]
+        rows=[{'observed_reference_class':None if i<184 else (i-184)//24} for i in range(280)]
+        parent={'parent_id':'handmade_train_000','split':'train','observation':{'nodes':np.arange(280),'offset':0.},'dynamics_slots':np.arange(184),'reference_slots':np.arange(184,280),'query_slots':query,'positions':np.arange(50.,2000.,100.),'samples':rows,'output_indexes':query}
+        tiles=[]
+        for number in range(2):
+            seq,indexes,tree_ids,landmarks=frozen.pack_observed_tile(ts,parent,number*1000.,(number+1)*1000.)
+            age=precompute_age_interfaces(seq,time_column=6,parent_branch_column=7,time_scale=10000.,resistance_scale=.0001,age_scales=(350.,1400.),strength=3.,reference_ids=torch.arange(184,280),max_condition=1e12)
+            prepared=prepare_anchor_kernel_bank(age.plain_bank,age.operator_cache,num_anchors=32,num_scales=3)
+            bankfile=directory/f'tile{number}.bank.pt';bundle={'schema':'biological_candidate_full_age_bank_v1','age_bank':age.as_dict(),'fixed_prepared':prepared};torch.save(bundle,bankfile)
+            tiles.append({'tile_id':number,'bank':{'path':str(bankfile.relative_to(frozen.ROOT)),'sha256':frozen.sha(bankfile)},'position_indexes':indexes,'exact_serialization_roundtrip_checked':True,'all_original_age_cache_fields_retained':True,'full_bank_field_fingerprint_sha256':frozen.fingerprint_sha(bundle),'original_tree_ids':tree_ids})
+        cfg=json.loads((frozen.ROOT/'configs/biological_mechanism_controls_v1.json').read_text());configref=write_json(directory/'config.json',cfg)
+>       manifest={'status':'complete_observed_only_Q184_R96_actualQ120','truth_opened':False,'parents':[{'parent_id':parent['parent_id'],'tiles':tiles}]};preparedref=write_json(directory/'prepared.json',manifest);observedref=write_json(directory/'observed.json',{'handmade':True})
+                                                                                                                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+research/reviews/biological_bank_cache_v1_author/test_cache_v1.py:46: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+research/reviews/biological_bank_cache_v1_author/test_cache_v1.py:22: in write_json
+    path.write_text(json.dumps(obj,sort_keys=True)+'\n');return {'path':str(path.relative_to(frozen.ROOT)),'sha256':frozen.sha(path)}
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/__init__.py:238: in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/encoder.py:200: in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/encoder.py:258: in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <json.encoder.JSONEncoder object at 0x7888d03e6890>
+o = array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+
+    def default(self, o):
+        """Implement this method in a subclass such that it returns
+        a serializable object for ``o``, or calls the base implementation
+        (to raise a ``TypeError``).
+    
+        For example, to support arbitrary iterators, you could
+        implement default like this::
+    
+            def default(self, o):
+                try:
+                    iterable = iter(o)
+                except TypeError:
+                    pass
+                else:
+                    return list(iterable)
+                # Let the base class default method raise the TypeError
+                return super().default(o)
+    
+        """
+>       raise TypeError(f'Object of type {o.__class__.__name__} '
+                        f'is not JSON serializable')
+E       TypeError: Object of type ndarray is not JSON serializable
+
+.runtime/env/lib/python3.11/json/encoder.py:180: TypeError
+_ ERROR at setup of test_no_substitution_across_tile_parent_roles_grid_device_dtype_or_config[grid] _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/biological_bank_cache_v1_aut...N/research/reviews/biological_bank_cache_v1_author/pytest_tmp_attempt01'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def handmade(tmp_path_factory):
+        torch.set_num_threads(1);directory=tmp_path_factory.mktemp('full280')
+        tables=tskit.TableCollection(sequence_length=2000.)
+        ages=[0.]*64+[130.]*16+[135.]*16+[136.]*8+[155.]*8+[170.]*32+[200.]*16+[165.]*8+[170.]*16+[300.+4*(i//2) for i in range(96)]
+        for age in ages:tables.nodes.add_row(flags=tskit.NODE_IS_SAMPLE,time=age)
+        for number,age in enumerate((1000.,1200.,900.,1500.)):
+            root=tables.nodes.add_row(time=age)
+            for child in range(280):tables.edges.add_row(number*500.,(number+1)*500.,root,child)
+        tables.sort();ts=tables.tree_sequence()
+        query=np.r_[np.arange(64),np.arange(80,96),np.arange(104,112),np.arange(144,160),np.arange(168,184)]
+        rows=[{'observed_reference_class':None if i<184 else (i-184)//24} for i in range(280)]
+        parent={'parent_id':'handmade_train_000','split':'train','observation':{'nodes':np.arange(280),'offset':0.},'dynamics_slots':np.arange(184),'reference_slots':np.arange(184,280),'query_slots':query,'positions':np.arange(50.,2000.,100.),'samples':rows,'output_indexes':query}
+        tiles=[]
+        for number in range(2):
+            seq,indexes,tree_ids,landmarks=frozen.pack_observed_tile(ts,parent,number*1000.,(number+1)*1000.)
+            age=precompute_age_interfaces(seq,time_column=6,parent_branch_column=7,time_scale=10000.,resistance_scale=.0001,age_scales=(350.,1400.),strength=3.,reference_ids=torch.arange(184,280),max_condition=1e12)
+            prepared=prepare_anchor_kernel_bank(age.plain_bank,age.operator_cache,num_anchors=32,num_scales=3)
+            bankfile=directory/f'tile{number}.bank.pt';bundle={'schema':'biological_candidate_full_age_bank_v1','age_bank':age.as_dict(),'fixed_prepared':prepared};torch.save(bundle,bankfile)
+            tiles.append({'tile_id':number,'bank':{'path':str(bankfile.relative_to(frozen.ROOT)),'sha256':frozen.sha(bankfile)},'position_indexes':indexes,'exact_serialization_roundtrip_checked':True,'all_original_age_cache_fields_retained':True,'full_bank_field_fingerprint_sha256':frozen.fingerprint_sha(bundle),'original_tree_ids':tree_ids})
+        cfg=json.loads((frozen.ROOT/'configs/biological_mechanism_controls_v1.json').read_text());configref=write_json(directory/'config.json',cfg)
+>       manifest={'status':'complete_observed_only_Q184_R96_actualQ120','truth_opened':False,'parents':[{'parent_id':parent['parent_id'],'tiles':tiles}]};preparedref=write_json(directory/'prepared.json',manifest);observedref=write_json(directory/'observed.json',{'handmade':True})
+                                                                                                                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+research/reviews/biological_bank_cache_v1_author/test_cache_v1.py:46: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+research/reviews/biological_bank_cache_v1_author/test_cache_v1.py:22: in write_json
+    path.write_text(json.dumps(obj,sort_keys=True)+'\n');return {'path':str(path.relative_to(frozen.ROOT)),'sha256':frozen.sha(path)}
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/__init__.py:238: in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/encoder.py:200: in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/encoder.py:258: in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <json.encoder.JSONEncoder object at 0x7888d03e6890>
+o = array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+
+    def default(self, o):
+        """Implement this method in a subclass such that it returns
+        a serializable object for ``o``, or calls the base implementation
+        (to raise a ``TypeError``).
+    
+        For example, to support arbitrary iterators, you could
+        implement default like this::
+    
+            def default(self, o):
+                try:
+                    iterable = iter(o)
+                except TypeError:
+                    pass
+                else:
+                    return list(iterable)
+                # Let the base class default method raise the TypeError
+                return super().default(o)
+    
+        """
+>       raise TypeError(f'Object of type {o.__class__.__name__} '
+                        f'is not JSON serializable')
+E       TypeError: Object of type ndarray is not JSON serializable
+
+.runtime/env/lib/python3.11/json/encoder.py:180: TypeError
+_ ERROR at setup of test_no_substitution_across_tile_parent_roles_grid_device_dtype_or_config[dtype] _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/biological_bank_cache_v1_aut...N/research/reviews/biological_bank_cache_v1_author/pytest_tmp_attempt01'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def handmade(tmp_path_factory):
+        torch.set_num_threads(1);directory=tmp_path_factory.mktemp('full280')
+        tables=tskit.TableCollection(sequence_length=2000.)
+        ages=[0.]*64+[130.]*16+[135.]*16+[136.]*8+[155.]*8+[170.]*32+[200.]*16+[165.]*8+[170.]*16+[300.+4*(i//2) for i in range(96)]
+        for age in ages:tables.nodes.add_row(flags=tskit.NODE_IS_SAMPLE,time=age)
+        for number,age in enumerate((1000.,1200.,900.,1500.)):
+            root=tables.nodes.add_row(time=age)
+            for child in range(280):tables.edges.add_row(number*500.,(number+1)*500.,root,child)
+        tables.sort();ts=tables.tree_sequence()
+        query=np.r_[np.arange(64),np.arange(80,96),np.arange(104,112),np.arange(144,160),np.arange(168,184)]
+        rows=[{'observed_reference_class':None if i<184 else (i-184)//24} for i in range(280)]
+        parent={'parent_id':'handmade_train_000','split':'train','observation':{'nodes':np.arange(280),'offset':0.},'dynamics_slots':np.arange(184),'reference_slots':np.arange(184,280),'query_slots':query,'positions':np.arange(50.,2000.,100.),'samples':rows,'output_indexes':query}
+        tiles=[]
+        for number in range(2):
+            seq,indexes,tree_ids,landmarks=frozen.pack_observed_tile(ts,parent,number*1000.,(number+1)*1000.)
+            age=precompute_age_interfaces(seq,time_column=6,parent_branch_column=7,time_scale=10000.,resistance_scale=.0001,age_scales=(350.,1400.),strength=3.,reference_ids=torch.arange(184,280),max_condition=1e12)
+            prepared=prepare_anchor_kernel_bank(age.plain_bank,age.operator_cache,num_anchors=32,num_scales=3)
+            bankfile=directory/f'tile{number}.bank.pt';bundle={'schema':'biological_candidate_full_age_bank_v1','age_bank':age.as_dict(),'fixed_prepared':prepared};torch.save(bundle,bankfile)
+            tiles.append({'tile_id':number,'bank':{'path':str(bankfile.relative_to(frozen.ROOT)),'sha256':frozen.sha(bankfile)},'position_indexes':indexes,'exact_serialization_roundtrip_checked':True,'all_original_age_cache_fields_retained':True,'full_bank_field_fingerprint_sha256':frozen.fingerprint_sha(bundle),'original_tree_ids':tree_ids})
+        cfg=json.loads((frozen.ROOT/'configs/biological_mechanism_controls_v1.json').read_text());configref=write_json(directory/'config.json',cfg)
+>       manifest={'status':'complete_observed_only_Q184_R96_actualQ120','truth_opened':False,'parents':[{'parent_id':parent['parent_id'],'tiles':tiles}]};preparedref=write_json(directory/'prepared.json',manifest);observedref=write_json(directory/'observed.json',{'handmade':True})
+                                                                                                                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+research/reviews/biological_bank_cache_v1_author/test_cache_v1.py:46: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+research/reviews/biological_bank_cache_v1_author/test_cache_v1.py:22: in write_json
+    path.write_text(json.dumps(obj,sort_keys=True)+'\n');return {'path':str(path.relative_to(frozen.ROOT)),'sha256':frozen.sha(path)}
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/__init__.py:238: in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/encoder.py:200: in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/encoder.py:258: in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <json.encoder.JSONEncoder object at 0x7888d03e6890>
+o = array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+
+    def default(self, o):
+        """Implement this method in a subclass such that it returns
+        a serializable object for ``o``, or calls the base implementation
+        (to raise a ``TypeError``).
+    
+        For example, to support arbitrary iterators, you could
+        implement default like this::
+    
+            def default(self, o):
+                try:
+                    iterable = iter(o)
+                except TypeError:
+                    pass
+                else:
+                    return list(iterable)
+                # Let the base class default method raise the TypeError
+                return super().default(o)
+    
+        """
+>       raise TypeError(f'Object of type {o.__class__.__name__} '
+                        f'is not JSON serializable')
+E       TypeError: Object of type ndarray is not JSON serializable
+
+.runtime/env/lib/python3.11/json/encoder.py:180: TypeError
+_ ERROR at setup of test_no_substitution_across_tile_parent_roles_grid_device_dtype_or_config[device] _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/biological_bank_cache_v1_aut...N/research/reviews/biological_bank_cache_v1_author/pytest_tmp_attempt01'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def handmade(tmp_path_factory):
+        torch.set_num_threads(1);directory=tmp_path_factory.mktemp('full280')
+        tables=tskit.TableCollection(sequence_length=2000.)
+        ages=[0.]*64+[130.]*16+[135.]*16+[136.]*8+[155.]*8+[170.]*32+[200.]*16+[165.]*8+[170.]*16+[300.+4*(i//2) for i in range(96)]
+        for age in ages:tables.nodes.add_row(flags=tskit.NODE_IS_SAMPLE,time=age)
+        for number,age in enumerate((1000.,1200.,900.,1500.)):
+            root=tables.nodes.add_row(time=age)
+            for child in range(280):tables.edges.add_row(number*500.,(number+1)*500.,root,child)
+        tables.sort();ts=tables.tree_sequence()
+        query=np.r_[np.arange(64),np.arange(80,96),np.arange(104,112),np.arange(144,160),np.arange(168,184)]
+        rows=[{'observed_reference_class':None if i<184 else (i-184)//24} for i in range(280)]
+        parent={'parent_id':'handmade_train_000','split':'train','observation':{'nodes':np.arange(280),'offset':0.},'dynamics_slots':np.arange(184),'reference_slots':np.arange(184,280),'query_slots':query,'positions':np.arange(50.,2000.,100.),'samples':rows,'output_indexes':query}
+        tiles=[]
+        for number in range(2):
+            seq,indexes,tree_ids,landmarks=frozen.pack_observed_tile(ts,parent,number*1000.,(number+1)*1000.)
+            age=precompute_age_interfaces(seq,time_column=6,parent_branch_column=7,time_scale=10000.,resistance_scale=.0001,age_scales=(350.,1400.),strength=3.,reference_ids=torch.arange(184,280),max_condition=1e12)
+            prepared=prepare_anchor_kernel_bank(age.plain_bank,age.operator_cache,num_anchors=32,num_scales=3)
+            bankfile=directory/f'tile{number}.bank.pt';bundle={'schema':'biological_candidate_full_age_bank_v1','age_bank':age.as_dict(),'fixed_prepared':prepared};torch.save(bundle,bankfile)
+            tiles.append({'tile_id':number,'bank':{'path':str(bankfile.relative_to(frozen.ROOT)),'sha256':frozen.sha(bankfile)},'position_indexes':indexes,'exact_serialization_roundtrip_checked':True,'all_original_age_cache_fields_retained':True,'full_bank_field_fingerprint_sha256':frozen.fingerprint_sha(bundle),'original_tree_ids':tree_ids})
+        cfg=json.loads((frozen.ROOT/'configs/biological_mechanism_controls_v1.json').read_text());configref=write_json(directory/'config.json',cfg)
+>       manifest={'status':'complete_observed_only_Q184_R96_actualQ120','truth_opened':False,'parents':[{'parent_id':parent['parent_id'],'tiles':tiles}]};preparedref=write_json(directory/'prepared.json',manifest);observedref=write_json(directory/'observed.json',{'handmade':True})
+                                                                                                                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+research/reviews/biological_bank_cache_v1_author/test_cache_v1.py:46: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+research/reviews/biological_bank_cache_v1_author/test_cache_v1.py:22: in write_json
+    path.write_text(json.dumps(obj,sort_keys=True)+'\n');return {'path':str(path.relative_to(frozen.ROOT)),'sha256':frozen.sha(path)}
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/__init__.py:238: in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/encoder.py:200: in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/encoder.py:258: in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <json.encoder.JSONEncoder object at 0x7888d03e6890>
+o = array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+
+    def default(self, o):
+        """Implement this method in a subclass such that it returns
+        a serializable object for ``o``, or calls the base implementation
+        (to raise a ``TypeError``).
+    
+        For example, to support arbitrary iterators, you could
+        implement default like this::
+    
+            def default(self, o):
+                try:
+                    iterable = iter(o)
+                except TypeError:
+                    pass
+                else:
+                    return list(iterable)
+                # Let the base class default method raise the TypeError
+                return super().default(o)
+    
+        """
+>       raise TypeError(f'Object of type {o.__class__.__name__} '
+                        f'is not JSON serializable')
+E       TypeError: Object of type ndarray is not JSON serializable
+
+.runtime/env/lib/python3.11/json/encoder.py:180: TypeError
+_ ERROR at setup of test_no_substitution_across_tile_parent_roles_grid_device_dtype_or_config[config] _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/biological_bank_cache_v1_aut...N/research/reviews/biological_bank_cache_v1_author/pytest_tmp_attempt01'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def handmade(tmp_path_factory):
+        torch.set_num_threads(1);directory=tmp_path_factory.mktemp('full280')
+        tables=tskit.TableCollection(sequence_length=2000.)
+        ages=[0.]*64+[130.]*16+[135.]*16+[136.]*8+[155.]*8+[170.]*32+[200.]*16+[165.]*8+[170.]*16+[300.+4*(i//2) for i in range(96)]
+        for age in ages:tables.nodes.add_row(flags=tskit.NODE_IS_SAMPLE,time=age)
+        for number,age in enumerate((1000.,1200.,900.,1500.)):
+            root=tables.nodes.add_row(time=age)
+            for child in range(280):tables.edges.add_row(number*500.,(number+1)*500.,root,child)
+        tables.sort();ts=tables.tree_sequence()
+        query=np.r_[np.arange(64),np.arange(80,96),np.arange(104,112),np.arange(144,160),np.arange(168,184)]
+        rows=[{'observed_reference_class':None if i<184 else (i-184)//24} for i in range(280)]
+        parent={'parent_id':'handmade_train_000','split':'train','observation':{'nodes':np.arange(280),'offset':0.},'dynamics_slots':np.arange(184),'reference_slots':np.arange(184,280),'query_slots':query,'positions':np.arange(50.,2000.,100.),'samples':rows,'output_indexes':query}
+        tiles=[]
+        for number in range(2):
+            seq,indexes,tree_ids,landmarks=frozen.pack_observed_tile(ts,parent,number*1000.,(number+1)*1000.)
+            age=precompute_age_interfaces(seq,time_column=6,parent_branch_column=7,time_scale=10000.,resistance_scale=.0001,age_scales=(350.,1400.),strength=3.,reference_ids=torch.arange(184,280),max_condition=1e12)
+            prepared=prepare_anchor_kernel_bank(age.plain_bank,age.operator_cache,num_anchors=32,num_scales=3)
+            bankfile=directory/f'tile{number}.bank.pt';bundle={'schema':'biological_candidate_full_age_bank_v1','age_bank':age.as_dict(),'fixed_prepared':prepared};torch.save(bundle,bankfile)
+            tiles.append({'tile_id':number,'bank':{'path':str(bankfile.relative_to(frozen.ROOT)),'sha256':frozen.sha(bankfile)},'position_indexes':indexes,'exact_serialization_roundtrip_checked':True,'all_original_age_cache_fields_retained':True,'full_bank_field_fingerprint_sha256':frozen.fingerprint_sha(bundle),'original_tree_ids':tree_ids})
+        cfg=json.loads((frozen.ROOT/'configs/biological_mechanism_controls_v1.json').read_text());configref=write_json(directory/'config.json',cfg)
+>       manifest={'status':'complete_observed_only_Q184_R96_actualQ120','truth_opened':False,'parents':[{'parent_id':parent['parent_id'],'tiles':tiles}]};preparedref=write_json(directory/'prepared.json',manifest);observedref=write_json(directory/'observed.json',{'handmade':True})
+                                                                                                                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+research/reviews/biological_bank_cache_v1_author/test_cache_v1.py:46: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+research/reviews/biological_bank_cache_v1_author/test_cache_v1.py:22: in write_json
+    path.write_text(json.dumps(obj,sort_keys=True)+'\n');return {'path':str(path.relative_to(frozen.ROOT)),'sha256':frozen.sha(path)}
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/__init__.py:238: in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/encoder.py:200: in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/encoder.py:258: in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <json.encoder.JSONEncoder object at 0x7888d03e6890>
+o = array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+
+    def default(self, o):
+        """Implement this method in a subclass such that it returns
+        a serializable object for ``o``, or calls the base implementation
+        (to raise a ``TypeError``).
+    
+        For example, to support arbitrary iterators, you could
+        implement default like this::
+    
+            def default(self, o):
+                try:
+                    iterable = iter(o)
+                except TypeError:
+                    pass
+                else:
+                    return list(iterable)
+                # Let the base class default method raise the TypeError
+                return super().default(o)
+    
+        """
+>       raise TypeError(f'Object of type {o.__class__.__name__} '
+                        f'is not JSON serializable')
+E       TypeError: Object of type ndarray is not JSON serializable
+
+.runtime/env/lib/python3.11/json/encoder.py:180: TypeError
+_ ERROR at setup of test_changed_bank_BYTES_fail_even_after_restored_mtime_and_before_cache_hit _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/biological_bank_cache_v1_aut...N/research/reviews/biological_bank_cache_v1_author/pytest_tmp_attempt01'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def handmade(tmp_path_factory):
+        torch.set_num_threads(1);directory=tmp_path_factory.mktemp('full280')
+        tables=tskit.TableCollection(sequence_length=2000.)
+        ages=[0.]*64+[130.]*16+[135.]*16+[136.]*8+[155.]*8+[170.]*32+[200.]*16+[165.]*8+[170.]*16+[300.+4*(i//2) for i in range(96)]
+        for age in ages:tables.nodes.add_row(flags=tskit.NODE_IS_SAMPLE,time=age)
+        for number,age in enumerate((1000.,1200.,900.,1500.)):
+            root=tables.nodes.add_row(time=age)
+            for child in range(280):tables.edges.add_row(number*500.,(number+1)*500.,root,child)
+        tables.sort();ts=tables.tree_sequence()
+        query=np.r_[np.arange(64),np.arange(80,96),np.arange(104,112),np.arange(144,160),np.arange(168,184)]
+        rows=[{'observed_reference_class':None if i<184 else (i-184)//24} for i in range(280)]
+        parent={'parent_id':'handmade_train_000','split':'train','observation':{'nodes':np.arange(280),'offset':0.},'dynamics_slots':np.arange(184),'reference_slots':np.arange(184,280),'query_slots':query,'positions':np.arange(50.,2000.,100.),'samples':rows,'output_indexes':query}
+        tiles=[]
+        for number in range(2):
+            seq,indexes,tree_ids,landmarks=frozen.pack_observed_tile(ts,parent,number*1000.,(number+1)*1000.)
+            age=precompute_age_interfaces(seq,time_column=6,parent_branch_column=7,time_scale=10000.,resistance_scale=.0001,age_scales=(350.,1400.),strength=3.,reference_ids=torch.arange(184,280),max_condition=1e12)
+            prepared=prepare_anchor_kernel_bank(age.plain_bank,age.operator_cache,num_anchors=32,num_scales=3)
+            bankfile=directory/f'tile{number}.bank.pt';bundle={'schema':'biological_candidate_full_age_bank_v1','age_bank':age.as_dict(),'fixed_prepared':prepared};torch.save(bundle,bankfile)
+            tiles.append({'tile_id':number,'bank':{'path':str(bankfile.relative_to(frozen.ROOT)),'sha256':frozen.sha(bankfile)},'position_indexes':indexes,'exact_serialization_roundtrip_checked':True,'all_original_age_cache_fields_retained':True,'full_bank_field_fingerprint_sha256':frozen.fingerprint_sha(bundle),'original_tree_ids':tree_ids})
+        cfg=json.loads((frozen.ROOT/'configs/biological_mechanism_controls_v1.json').read_text());configref=write_json(directory/'config.json',cfg)
+>       manifest={'status':'complete_observed_only_Q184_R96_actualQ120','truth_opened':False,'parents':[{'parent_id':parent['parent_id'],'tiles':tiles}]};preparedref=write_json(directory/'prepared.json',manifest);observedref=write_json(directory/'observed.json',{'handmade':True})
+                                                                                                                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+research/reviews/biological_bank_cache_v1_author/test_cache_v1.py:46: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+research/reviews/biological_bank_cache_v1_author/test_cache_v1.py:22: in write_json
+    path.write_text(json.dumps(obj,sort_keys=True)+'\n');return {'path':str(path.relative_to(frozen.ROOT)),'sha256':frozen.sha(path)}
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/__init__.py:238: in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/encoder.py:200: in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/encoder.py:258: in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <json.encoder.JSONEncoder object at 0x7888d03e6890>
+o = array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+
+    def default(self, o):
+        """Implement this method in a subclass such that it returns
+        a serializable object for ``o``, or calls the base implementation
+        (to raise a ``TypeError``).
+    
+        For example, to support arbitrary iterators, you could
+        implement default like this::
+    
+            def default(self, o):
+                try:
+                    iterable = iter(o)
+                except TypeError:
+                    pass
+                else:
+                    return list(iterable)
+                # Let the base class default method raise the TypeError
+                return super().default(o)
+    
+        """
+>       raise TypeError(f'Object of type {o.__class__.__name__} '
+                        f'is not JSON serializable')
+E       TypeError: Object of type ndarray is not JSON serializable
+
+.runtime/env/lib/python3.11/json/encoder.py:180: TypeError
+_ ERROR at setup of test_source_or_manifest_identity_change_fails_without_native_decode _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/biological_bank_cache_v1_aut...N/research/reviews/biological_bank_cache_v1_author/pytest_tmp_attempt01'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def handmade(tmp_path_factory):
+        torch.set_num_threads(1);directory=tmp_path_factory.mktemp('full280')
+        tables=tskit.TableCollection(sequence_length=2000.)
+        ages=[0.]*64+[130.]*16+[135.]*16+[136.]*8+[155.]*8+[170.]*32+[200.]*16+[165.]*8+[170.]*16+[300.+4*(i//2) for i in range(96)]
+        for age in ages:tables.nodes.add_row(flags=tskit.NODE_IS_SAMPLE,time=age)
+        for number,age in enumerate((1000.,1200.,900.,1500.)):
+            root=tables.nodes.add_row(time=age)
+            for child in range(280):tables.edges.add_row(number*500.,(number+1)*500.,root,child)
+        tables.sort();ts=tables.tree_sequence()
+        query=np.r_[np.arange(64),np.arange(80,96),np.arange(104,112),np.arange(144,160),np.arange(168,184)]
+        rows=[{'observed_reference_class':None if i<184 else (i-184)//24} for i in range(280)]
+        parent={'parent_id':'handmade_train_000','split':'train','observation':{'nodes':np.arange(280),'offset':0.},'dynamics_slots':np.arange(184),'reference_slots':np.arange(184,280),'query_slots':query,'positions':np.arange(50.,2000.,100.),'samples':rows,'output_indexes':query}
+        tiles=[]
+        for number in range(2):
+            seq,indexes,tree_ids,landmarks=frozen.pack_observed_tile(ts,parent,number*1000.,(number+1)*1000.)
+            age=precompute_age_interfaces(seq,time_column=6,parent_branch_column=7,time_scale=10000.,resistance_scale=.0001,age_scales=(350.,1400.),strength=3.,reference_ids=torch.arange(184,280),max_condition=1e12)
+            prepared=prepare_anchor_kernel_bank(age.plain_bank,age.operator_cache,num_anchors=32,num_scales=3)
+            bankfile=directory/f'tile{number}.bank.pt';bundle={'schema':'biological_candidate_full_age_bank_v1','age_bank':age.as_dict(),'fixed_prepared':prepared};torch.save(bundle,bankfile)
+            tiles.append({'tile_id':number,'bank':{'path':str(bankfile.relative_to(frozen.ROOT)),'sha256':frozen.sha(bankfile)},'position_indexes':indexes,'exact_serialization_roundtrip_checked':True,'all_original_age_cache_fields_retained':True,'full_bank_field_fingerprint_sha256':frozen.fingerprint_sha(bundle),'original_tree_ids':tree_ids})
+        cfg=json.loads((frozen.ROOT/'configs/biological_mechanism_controls_v1.json').read_text());configref=write_json(directory/'config.json',cfg)
+>       manifest={'status':'complete_observed_only_Q184_R96_actualQ120','truth_opened':False,'parents':[{'parent_id':parent['parent_id'],'tiles':tiles}]};preparedref=write_json(directory/'prepared.json',manifest);observedref=write_json(directory/'observed.json',{'handmade':True})
+                                                                                                                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+research/reviews/biological_bank_cache_v1_author/test_cache_v1.py:46: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+research/reviews/biological_bank_cache_v1_author/test_cache_v1.py:22: in write_json
+    path.write_text(json.dumps(obj,sort_keys=True)+'\n');return {'path':str(path.relative_to(frozen.ROOT)),'sha256':frozen.sha(path)}
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/__init__.py:238: in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/encoder.py:200: in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/encoder.py:258: in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <json.encoder.JSONEncoder object at 0x7888d03e6890>
+o = array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+
+    def default(self, o):
+        """Implement this method in a subclass such that it returns
+        a serializable object for ``o``, or calls the base implementation
+        (to raise a ``TypeError``).
+    
+        For example, to support arbitrary iterators, you could
+        implement default like this::
+    
+            def default(self, o):
+                try:
+                    iterable = iter(o)
+                except TypeError:
+                    pass
+                else:
+                    return list(iterable)
+                # Let the base class default method raise the TypeError
+                return super().default(o)
+    
+        """
+>       raise TypeError(f'Object of type {o.__class__.__name__} '
+                        f'is not JSON serializable')
+E       TypeError: Object of type ndarray is not JSON serializable
+
+.runtime/env/lib/python3.11/json/encoder.py:180: TypeError
+_ ERROR at setup of test_known_tensor_mutation_fails_and_scoped_aliases_restore_on_exception _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/biological_bank_cache_v1_aut...N/research/reviews/biological_bank_cache_v1_author/pytest_tmp_attempt01'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def handmade(tmp_path_factory):
+        torch.set_num_threads(1);directory=tmp_path_factory.mktemp('full280')
+        tables=tskit.TableCollection(sequence_length=2000.)
+        ages=[0.]*64+[130.]*16+[135.]*16+[136.]*8+[155.]*8+[170.]*32+[200.]*16+[165.]*8+[170.]*16+[300.+4*(i//2) for i in range(96)]
+        for age in ages:tables.nodes.add_row(flags=tskit.NODE_IS_SAMPLE,time=age)
+        for number,age in enumerate((1000.,1200.,900.,1500.)):
+            root=tables.nodes.add_row(time=age)
+            for child in range(280):tables.edges.add_row(number*500.,(number+1)*500.,root,child)
+        tables.sort();ts=tables.tree_sequence()
+        query=np.r_[np.arange(64),np.arange(80,96),np.arange(104,112),np.arange(144,160),np.arange(168,184)]
+        rows=[{'observed_reference_class':None if i<184 else (i-184)//24} for i in range(280)]
+        parent={'parent_id':'handmade_train_000','split':'train','observation':{'nodes':np.arange(280),'offset':0.},'dynamics_slots':np.arange(184),'reference_slots':np.arange(184,280),'query_slots':query,'positions':np.arange(50.,2000.,100.),'samples':rows,'output_indexes':query}
+        tiles=[]
+        for number in range(2):
+            seq,indexes,tree_ids,landmarks=frozen.pack_observed_tile(ts,parent,number*1000.,(number+1)*1000.)
+            age=precompute_age_interfaces(seq,time_column=6,parent_branch_column=7,time_scale=10000.,resistance_scale=.0001,age_scales=(350.,1400.),strength=3.,reference_ids=torch.arange(184,280),max_condition=1e12)
+            prepared=prepare_anchor_kernel_bank(age.plain_bank,age.operator_cache,num_anchors=32,num_scales=3)
+            bankfile=directory/f'tile{number}.bank.pt';bundle={'schema':'biological_candidate_full_age_bank_v1','age_bank':age.as_dict(),'fixed_prepared':prepared};torch.save(bundle,bankfile)
+            tiles.append({'tile_id':number,'bank':{'path':str(bankfile.relative_to(frozen.ROOT)),'sha256':frozen.sha(bankfile)},'position_indexes':indexes,'exact_serialization_roundtrip_checked':True,'all_original_age_cache_fields_retained':True,'full_bank_field_fingerprint_sha256':frozen.fingerprint_sha(bundle),'original_tree_ids':tree_ids})
+        cfg=json.loads((frozen.ROOT/'configs/biological_mechanism_controls_v1.json').read_text());configref=write_json(directory/'config.json',cfg)
+>       manifest={'status':'complete_observed_only_Q184_R96_actualQ120','truth_opened':False,'parents':[{'parent_id':parent['parent_id'],'tiles':tiles}]};preparedref=write_json(directory/'prepared.json',manifest);observedref=write_json(directory/'observed.json',{'handmade':True})
+                                                                                                                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+research/reviews/biological_bank_cache_v1_author/test_cache_v1.py:46: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+research/reviews/biological_bank_cache_v1_author/test_cache_v1.py:22: in write_json
+    path.write_text(json.dumps(obj,sort_keys=True)+'\n');return {'path':str(path.relative_to(frozen.ROOT)),'sha256':frozen.sha(path)}
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/__init__.py:238: in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/encoder.py:200: in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/encoder.py:258: in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <json.encoder.JSONEncoder object at 0x7888d03e6890>
+o = array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+
+    def default(self, o):
+        """Implement this method in a subclass such that it returns
+        a serializable object for ``o``, or calls the base implementation
+        (to raise a ``TypeError``).
+    
+        For example, to support arbitrary iterators, you could
+        implement default like this::
+    
+            def default(self, o):
+                try:
+                    iterable = iter(o)
+                except TypeError:
+                    pass
+                else:
+                    return list(iterable)
+                # Let the base class default method raise the TypeError
+                return super().default(o)
+    
+        """
+>       raise TypeError(f'Object of type {o.__class__.__name__} '
+                        f'is not JSON serializable')
+E       TypeError: Object of type ndarray is not JSON serializable
+
+.runtime/env/lib/python3.11/json/encoder.py:180: TypeError
+_ ERROR at setup of test_scope_covers_both_TRAIN_and_VAL_loader_aliases_and_restores_normal_errors _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/biological_bank_cache_v1_aut...N/research/reviews/biological_bank_cache_v1_author/pytest_tmp_attempt01'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def handmade(tmp_path_factory):
+        torch.set_num_threads(1);directory=tmp_path_factory.mktemp('full280')
+        tables=tskit.TableCollection(sequence_length=2000.)
+        ages=[0.]*64+[130.]*16+[135.]*16+[136.]*8+[155.]*8+[170.]*32+[200.]*16+[165.]*8+[170.]*16+[300.+4*(i//2) for i in range(96)]
+        for age in ages:tables.nodes.add_row(flags=tskit.NODE_IS_SAMPLE,time=age)
+        for number,age in enumerate((1000.,1200.,900.,1500.)):
+            root=tables.nodes.add_row(time=age)
+            for child in range(280):tables.edges.add_row(number*500.,(number+1)*500.,root,child)
+        tables.sort();ts=tables.tree_sequence()
+        query=np.r_[np.arange(64),np.arange(80,96),np.arange(104,112),np.arange(144,160),np.arange(168,184)]
+        rows=[{'observed_reference_class':None if i<184 else (i-184)//24} for i in range(280)]
+        parent={'parent_id':'handmade_train_000','split':'train','observation':{'nodes':np.arange(280),'offset':0.},'dynamics_slots':np.arange(184),'reference_slots':np.arange(184,280),'query_slots':query,'positions':np.arange(50.,2000.,100.),'samples':rows,'output_indexes':query}
+        tiles=[]
+        for number in range(2):
+            seq,indexes,tree_ids,landmarks=frozen.pack_observed_tile(ts,parent,number*1000.,(number+1)*1000.)
+            age=precompute_age_interfaces(seq,time_column=6,parent_branch_column=7,time_scale=10000.,resistance_scale=.0001,age_scales=(350.,1400.),strength=3.,reference_ids=torch.arange(184,280),max_condition=1e12)
+            prepared=prepare_anchor_kernel_bank(age.plain_bank,age.operator_cache,num_anchors=32,num_scales=3)
+            bankfile=directory/f'tile{number}.bank.pt';bundle={'schema':'biological_candidate_full_age_bank_v1','age_bank':age.as_dict(),'fixed_prepared':prepared};torch.save(bundle,bankfile)
+            tiles.append({'tile_id':number,'bank':{'path':str(bankfile.relative_to(frozen.ROOT)),'sha256':frozen.sha(bankfile)},'position_indexes':indexes,'exact_serialization_roundtrip_checked':True,'all_original_age_cache_fields_retained':True,'full_bank_field_fingerprint_sha256':frozen.fingerprint_sha(bundle),'original_tree_ids':tree_ids})
+        cfg=json.loads((frozen.ROOT/'configs/biological_mechanism_controls_v1.json').read_text());configref=write_json(directory/'config.json',cfg)
+>       manifest={'status':'complete_observed_only_Q184_R96_actualQ120','truth_opened':False,'parents':[{'parent_id':parent['parent_id'],'tiles':tiles}]};preparedref=write_json(directory/'prepared.json',manifest);observedref=write_json(directory/'observed.json',{'handmade':True})
+                                                                                                                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+research/reviews/biological_bank_cache_v1_author/test_cache_v1.py:46: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+research/reviews/biological_bank_cache_v1_author/test_cache_v1.py:22: in write_json
+    path.write_text(json.dumps(obj,sort_keys=True)+'\n');return {'path':str(path.relative_to(frozen.ROOT)),'sha256':frozen.sha(path)}
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/__init__.py:238: in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/encoder.py:200: in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/encoder.py:258: in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <json.encoder.JSONEncoder object at 0x7888d03e6890>
+o = array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+
+    def default(self, o):
+        """Implement this method in a subclass such that it returns
+        a serializable object for ``o``, or calls the base implementation
+        (to raise a ``TypeError``).
+    
+        For example, to support arbitrary iterators, you could
+        implement default like this::
+    
+            def default(self, o):
+                try:
+                    iterable = iter(o)
+                except TypeError:
+                    pass
+                else:
+                    return list(iterable)
+                # Let the base class default method raise the TypeError
+                return super().default(o)
+    
+        """
+>       raise TypeError(f'Object of type {o.__class__.__name__} '
+                        f'is not JSON serializable')
+E       TypeError: Object of type ndarray is not JSON serializable
+
+.runtime/env/lib/python3.11/json/encoder.py:180: TypeError
+_ ERROR at setup of test_transfer_upper_bound_handles_expanded_aliases_and_integer_coordinate_fields _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/biological_bank_cache_v1_aut...N/research/reviews/biological_bank_cache_v1_author/pytest_tmp_attempt01'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def handmade(tmp_path_factory):
+        torch.set_num_threads(1);directory=tmp_path_factory.mktemp('full280')
+        tables=tskit.TableCollection(sequence_length=2000.)
+        ages=[0.]*64+[130.]*16+[135.]*16+[136.]*8+[155.]*8+[170.]*32+[200.]*16+[165.]*8+[170.]*16+[300.+4*(i//2) for i in range(96)]
+        for age in ages:tables.nodes.add_row(flags=tskit.NODE_IS_SAMPLE,time=age)
+        for number,age in enumerate((1000.,1200.,900.,1500.)):
+            root=tables.nodes.add_row(time=age)
+            for child in range(280):tables.edges.add_row(number*500.,(number+1)*500.,root,child)
+        tables.sort();ts=tables.tree_sequence()
+        query=np.r_[np.arange(64),np.arange(80,96),np.arange(104,112),np.arange(144,160),np.arange(168,184)]
+        rows=[{'observed_reference_class':None if i<184 else (i-184)//24} for i in range(280)]
+        parent={'parent_id':'handmade_train_000','split':'train','observation':{'nodes':np.arange(280),'offset':0.},'dynamics_slots':np.arange(184),'reference_slots':np.arange(184,280),'query_slots':query,'positions':np.arange(50.,2000.,100.),'samples':rows,'output_indexes':query}
+        tiles=[]
+        for number in range(2):
+            seq,indexes,tree_ids,landmarks=frozen.pack_observed_tile(ts,parent,number*1000.,(number+1)*1000.)
+            age=precompute_age_interfaces(seq,time_column=6,parent_branch_column=7,time_scale=10000.,resistance_scale=.0001,age_scales=(350.,1400.),strength=3.,reference_ids=torch.arange(184,280),max_condition=1e12)
+            prepared=prepare_anchor_kernel_bank(age.plain_bank,age.operator_cache,num_anchors=32,num_scales=3)
+            bankfile=directory/f'tile{number}.bank.pt';bundle={'schema':'biological_candidate_full_age_bank_v1','age_bank':age.as_dict(),'fixed_prepared':prepared};torch.save(bundle,bankfile)
+            tiles.append({'tile_id':number,'bank':{'path':str(bankfile.relative_to(frozen.ROOT)),'sha256':frozen.sha(bankfile)},'position_indexes':indexes,'exact_serialization_roundtrip_checked':True,'all_original_age_cache_fields_retained':True,'full_bank_field_fingerprint_sha256':frozen.fingerprint_sha(bundle),'original_tree_ids':tree_ids})
+        cfg=json.loads((frozen.ROOT/'configs/biological_mechanism_controls_v1.json').read_text());configref=write_json(directory/'config.json',cfg)
+>       manifest={'status':'complete_observed_only_Q184_R96_actualQ120','truth_opened':False,'parents':[{'parent_id':parent['parent_id'],'tiles':tiles}]};preparedref=write_json(directory/'prepared.json',manifest);observedref=write_json(directory/'observed.json',{'handmade':True})
+                                                                                                                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+research/reviews/biological_bank_cache_v1_author/test_cache_v1.py:46: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+research/reviews/biological_bank_cache_v1_author/test_cache_v1.py:22: in write_json
+    path.write_text(json.dumps(obj,sort_keys=True)+'\n');return {'path':str(path.relative_to(frozen.ROOT)),'sha256':frozen.sha(path)}
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/__init__.py:238: in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/encoder.py:200: in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/json/encoder.py:258: in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <json.encoder.JSONEncoder object at 0x7888d03e6890>
+o = array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+
+    def default(self, o):
+        """Implement this method in a subclass such that it returns
+        a serializable object for ``o``, or calls the base implementation
+        (to raise a ``TypeError``).
+    
+        For example, to support arbitrary iterators, you could
+        implement default like this::
+    
+            def default(self, o):
+                try:
+                    iterable = iter(o)
+                except TypeError:
+                    pass
+                else:
+                    return list(iterable)
+                # Let the base class default method raise the TypeError
+                return super().default(o)
+    
+        """
+>       raise TypeError(f'Object of type {o.__class__.__name__} '
+                        f'is not JSON serializable')
+E       TypeError: Object of type ndarray is not JSON serializable
+
+.runtime/env/lib/python3.11/json/encoder.py:180: TypeError
+=========================== short test summary info ============================
+ERROR research/reviews/biological_bank_cache_v1_author/test_cache_v1.py::test_all_seven_full_default_models_complete_field_logit_VJP_AdamW_RNG_parity[bio_mc_v1_scalar_age_d2]
+ERROR research/reviews/biological_bank_cache_v1_author/test_cache_v1.py::test_all_seven_full_default_models_complete_field_logit_VJP_AdamW_RNG_parity[bio_mc_v1_age_propagation_only_d2]
+ERROR research/reviews/biological_bank_cache_v1_author/test_cache_v1.py::test_all_seven_full_default_models_complete_field_logit_VJP_AdamW_RNG_parity[bio_mc_v1_age_source_only_d2]
+ERROR research/reviews/biological_bank_cache_v1_author/test_cache_v1.py::test_all_seven_full_default_models_complete_field_logit_VJP_AdamW_RNG_parity[bio_mc_v1_age_gainmatched_d2]
+ERROR research/reviews/biological_bank_cache_v1_author/test_cache_v1.py::test_all_seven_full_default_models_complete_field_logit_VJP_AdamW_RNG_parity[bio_mc_v1_noncontext_age_d2]
+ERROR research/reviews/biological_bank_cache_v1_author/test_cache_v1.py::test_all_seven_full_default_models_complete_field_logit_VJP_AdamW_RNG_parity[bio_mc_v1_age_d1]
+ERROR research/reviews/biological_bank_cache_v1_author/test_cache_v1.py::test_all_seven_full_default_models_complete_field_logit_VJP_AdamW_RNG_parity[bio_mc_v1_age_d1_plus_pointwise]
+ERROR research/reviews/biological_bank_cache_v1_author/test_cache_v1.py::test_every_nested_original_field_and_shared_stride_is_present_and_unchanged
+ERROR research/reviews/biological_bank_cache_v1_author/test_cache_v1.py::test_CPU_LRU_evicts_whole_entries_and_bypasses_oversize_without_changing_values
+ERROR research/reviews/biological_bank_cache_v1_author/test_cache_v1.py::test_GPU_LRU_bookkeeping_with_explicit_mock_transfer_uses_no_GPU
+ERROR research/reviews/biological_bank_cache_v1_author/test_cache_v1.py::test_no_substitution_across_tile_parent_roles_grid_device_dtype_or_config[tile]
+ERROR research/reviews/biological_bank_cache_v1_author/test_cache_v1.py::test_no_substitution_across_tile_parent_roles_grid_device_dtype_or_config[parent]
+ERROR research/reviews/biological_bank_cache_v1_author/test_cache_v1.py::test_no_substitution_across_tile_parent_roles_grid_device_dtype_or_config[roles]
+ERROR research/reviews/biological_bank_cache_v1_author/test_cache_v1.py::test_no_substitution_across_tile_parent_roles_grid_device_dtype_or_config[grid]
+ERROR research/reviews/biological_bank_cache_v1_author/test_cache_v1.py::test_no_substitution_across_tile_parent_roles_grid_device_dtype_or_config[dtype]
+ERROR research/reviews/biological_bank_cache_v1_author/test_cache_v1.py::test_no_substitution_across_tile_parent_roles_grid_device_dtype_or_config[device]
+ERROR research/reviews/biological_bank_cache_v1_author/test_cache_v1.py::test_no_substitution_across_tile_parent_roles_grid_device_dtype_or_config[config]
+ERROR research/reviews/biological_bank_cache_v1_author/test_cache_v1.py::test_changed_bank_BYTES_fail_even_after_restored_mtime_and_before_cache_hit
+ERROR research/reviews/biological_bank_cache_v1_author/test_cache_v1.py::test_source_or_manifest_identity_change_fails_without_native_decode
+ERROR research/reviews/biological_bank_cache_v1_author/test_cache_v1.py::test_known_tensor_mutation_fails_and_scoped_aliases_restore_on_exception
+ERROR research/reviews/biological_bank_cache_v1_author/test_cache_v1.py::test_scope_covers_both_TRAIN_and_VAL_loader_aliases_and_restores_normal_errors
+ERROR research/reviews/biological_bank_cache_v1_author/test_cache_v1.py::test_transfer_upper_bound_handles_expanded_aliases_and_integer_coordinate_fields
+22 errors in 4.23s

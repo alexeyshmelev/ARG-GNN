@@ -1,0 +1,23 @@
+# Proposal only: root executes after fresh independent PASS for this exact source/config.
+# Choose a fresh root-owned output and charge/record it under root storage authority.
+# Source scripts/project_env.sh first; this never installs or instantiates models.
+env -u PYTHONHOME CUDA_VISIBLE_DEVICES="" PYTHONPATH="" PYTHONNOUSERSITE=1 \
+  .runtime/conda/envs/argformer_native_v1/bin/python -B - \
+  1f05220ddfe7ba2fd3e55b079088eb361c6901323a9520145b0f037f6cfd22e0 6d58f126a9fa16f9dfc04956215e85569f9696cb3b12c06f63fa458d8bb0986f \
+  experiments/results/native_argformer_tsinfer_fit_v5_root/environment_inventory.json <<'ROOT_CAPTURE'
+import importlib.util,json,sys
+from pathlib import Path
+p=Path("src/arggnn/native_argformer_tsinfer_fit_v5.py")
+spec=importlib.util.spec_from_file_location("_root_native_v3_inventory",p)
+m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+if m.sha(m.SCRIPT)!=sys.argv[1]:raise ValueError("exact reviewed native v3 source required")
+c=m.policy(sys.argv[2])
+runtime={"python_executable_sha256":m.sha(m.native_executable(c)),
+"additive_helpers":c["runtime_inventory_contract"]["expected_additive_helpers"]}
+value=m.capture_runtime_inventory(c,runtime)
+output=m.confined(sys.argv[3]);output.parent.mkdir(parents=True,exist_ok=True)
+with output.open("x") as stream:json.dump(value,stream,indent=2,sort_keys=True,allow_nan=False);stream.write("\n")
+print(json.dumps({"inventory":m.reference(output),"module_count":len(value["scientific_modules"]),
+"distribution_count":len(value["distributions"]),"import_file_count":len(value["import_file_sha256"]),
+"actual_helper_versions":[h["version"] for h in value["additive_helpers"]]}))
+ROOT_CAPTURE

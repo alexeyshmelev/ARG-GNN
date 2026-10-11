@@ -10,8 +10,9 @@ Use the existing conda executable at /home/jovyan/miniconda3/bin/conda with scri
 Do not write credentials or key passphrases into project files, Git, command logs or research artifacts.
 
 ## Resources
-Total repository storage, including ignored files and the environment, must remain below 500 GB.
-Use a 450 GB warning threshold and stop bulk writes before reaching 500 GB.
+The user increased total repository storage, including ignored files and environments, to 1 TB on 2026-10-11.
+Use a 950 GB scheduling ceiling and stop bulk writes before reaching 1 TB.
+Preserve existing pinned legacy runtime/accounting guards. New admissions use the independently reviewed project_budget_v4 companion and the recorded user authorization.
 At most two distinct physical GPUs may be used by this project at once.
 The user explicitly allows multiple model worker processes to share those devices.
 Use an audited shared-lease pool with memory reservations, separate logical job records and prescribed GPU process titles for concurrent workers.
