@@ -10,8 +10,8 @@ Use the existing conda executable at /home/jovyan/miniconda3/bin/conda with scri
 Do not write credentials or key passphrases into project files, Git, command logs or research artifacts.
 
 ## Resources
-Total repository storage, including ignored files and the environment, must remain below 500 GB.
-Use a 450 GB warning threshold and stop bulk writes before reaching 500 GB.
+Total repository storage, including ignored files and the environment, must remain below 1 TB, as authorized by the user.
+Use a 950 GB warning threshold and stop bulk writes before reaching 1 TB.
 At most two distinct physical GPUs may be used by this project at once.
 The user explicitly allows multiple model worker processes to share those devices.
 Use an audited shared-lease pool with memory reservations, separate logical job records and prescribed GPU process titles for concurrent workers.
@@ -23,6 +23,7 @@ Use the project GPU launcher, record physical GPU assignment and verify the proc
 Do not terminate or change other users' processes.
 
 ## Scientific integrity
+All new experiments with our models use PyTorch and PyTorch Geometric. Competitor experiments use the authors' repository code, with necessary adaptations disclosed.
 Separate hypotheses, implementations, pilot observations and validated claims.
 Never fabricate results, references or reviewer verdicts.
 Split simulation replicates and subjects before windowing or sampling.

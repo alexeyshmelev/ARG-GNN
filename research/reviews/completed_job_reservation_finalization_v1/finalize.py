@@ -14,8 +14,8 @@ def save(packet,name,value):
  p=packet/name
  with p.open("x") as f: json.dump(value,f,indent=2,sort_keys=True); f.write("\n")
  return b.v4.reference(ROOT,p)
-def run(key):
- packet=ROOT/"research/reviews/completed_job_reservation_finalization_v1"/key.split("/")[0]
+def run(key,receipt_tag=None):
+ packet=ROOT/"research/reviews/completed_job_reservation_finalization_v1"/(receipt_tag or key.split("/")[0])
  packet.mkdir(parents=True,exist_ok=False)
  with b.v4.mutex(ROOT):
   c,bindings=b.reviewed(ROOT,CORE,BASE)
@@ -75,6 +75,7 @@ def run(key):
    save(packet,"receipt.json",result);print(json.dumps(result),flush=True)
   finally:fcntl.flock(fd,fcntl.LOCK_UN);os.close(fd)
 if __name__=="__main__":
- parser=argparse.ArgumentParser();parser.add_argument("key")
- try:run(parser.parse_args().key)
+ parser=argparse.ArgumentParser();parser.add_argument("key");parser.add_argument("--receipt-tag")
+ try:
+  args=parser.parse_args();run(args.key,args.receipt_tag)
  except Exception:traceback.print_exc(file=sys.stdout);raise SystemExit(1)
