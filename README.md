@@ -4,35 +4,39 @@ Graph neural networks for ordered collections of whole genealogical trees, with 
 
 ## Current experiments
 
-Updated 2026-10-11 11:47 UTC.
+Updated 2026-10-11 12:40 UTC.
 
-**FP32 development pilot: all four controls have completed epoch 10 of 10, with one seed and 160 updates per trained arm.** The inputs combine frozen native ARGMix predictions from Relate trees with independently inferred tsinfer graphs. TRAIN emissions are in-sample. Scores use the same two development VAL parents and exact physical coverage as the main biological comparison.
+**The latest FP32 discovery experiments completed with one seed and 160 updates per arm.** All rows below use the same two repeatedly reused development VAL parents, present-day query identities and exact physical scoring support. Each trained arm uses its prespecified minimum-NLL checkpoint.
 
-| Completed FP32 pilot, NLL-selected epoch 10 | Present-day accuracy ↑ | NLL ↓ |
+| Completed development pipeline | Present-day accuracy ↑ | NLL ↓ |
 | --- | ---: | ---: |
 | Frozen native ARGMix | 85.55% | 0.4353 |
-| ARGMix plus ordinary smoothing | 85.94% | 0.3891 |
-| ARGMix plus sample continuity | 85.94% | 0.3891 |
-| ARGMix plus genuine ancestral traces | 85.94% | 0.3891 |
-| ARGMix plus shuffled ancestral traces | 85.94% | 0.3893 |
+| ARGMix plus ordinary smoothing, H025 | 85.94% | 0.3891 |
+| Smoothing plus native-age reference context, H026 | 85.91% | 0.3824 |
+| Smoothing plus census350 reference context, H026 | 85.91% | 0.3824 |
+| Smoothing plus sample-only reference propagation, H027 | 85.93% | 0.3827 |
+| Smoothing plus genuine ancestral-reference propagation, H027 | 85.93% | 0.3826 |
+| Smoothing plus sham ancestral-reference propagation, H027 | 86.04% | 0.3837 |
 
-**The refinement improves the frozen emitter, but ancestral connections have no demonstrated advantage over the simpler controls.** These are completed development observations on two repeatedly used validation parents. They do not establish a novel graph contribution, independent biological superiority or original-paper numerical reproduction. [Completed compact receipt](experiments/results/persistence_trace_pilot_v1_summary_root/summary.json).
+**Observed reference context improves likelihood, but genuine ancestral continuity and census conditioning have no demonstrated accuracy advantage.** The sham row is a control, not the proposed method. Its higher accuracy cannot support a genuine ancestry mechanism claim. We have not established a novel GNN contribution or final-test superiority.
 
-- **GPU 3:** H026 is running: native-age reference affinity, age-free affinity, census350 affinity and a diploid/age-matched query-context sham, all over the frozen 85.94% smoothing baseline. One seed101 and160updates per arm. This is a discovery reference-kernel refinement.
-- **Native ARGformer:** all four native fits and retrievals completed. Genuine top1 ancestry accuracy is75.68%, with fixed top5 sensitivity75.14%. Both retain infinite raw-vote NLL. The adapted EuropeanC4/tsinfer task and per-ARG transductive training are disclosed below. GPU2 is now free. A reference-driven whole-tree trace follow-up, H027, is being implemented for that device.
-- **Stopped at saved checkpoints:** the extra mechanism-seed repeat and weaker Census pilot were interrupted to redirect compute. Census has 22 complete metric epochs. These partial runs are retained and are not final 30-epoch results.
-- **Original GST:** all four native USPTO models completed the bounded TRAIN/VALID pilot reported below.
-- **Numerical matrix:** remaining full-parent equivalence cells remain deferred.
+[H026 selected results and parent/class/boundary diagnostics](experiments/results/reference_census_innovation_v1_summary_root/summary.json) and [H027 selected results and diagnostics](experiments/results/reference_trace_residual_v1_summary_root/summary.json). H026 native, age-free and census arms select epoch10. Its sham selects epoch6. H027 arms select epoch10. H027's positive normalization-mass check passed, but very small reference masses need care in interpreting local normalized fields.
 
-H026 adds only observed reference-class and age context to the frozen smoother. Its four controls separate donor-age weighting, sub350-MRCA saturation and correct query-context correspondence. Older reference labels remain proxies. The kernel is close to ARGMix's existing weighted-TMRCA alternative, so no novel GNN is claimed. H027 will test reference-only sources in the whole-tree ordered trace layer, with no direct local-logit correction path.
+- **Next input hypothesis, H028:** observed pure-reference allele evidence with genotype-only, graph-only and fusion controls. This tests additional biological information, and does not itself establish architectural novelty. Implementation is underway.
+- **Next learned architecture, H029:** whole-tree reference/cavity encoding with carrier memory before query pooling. A matched carrier-GRU and ancestral-history sham will test the structured update against close temporal-GNN alternatives. Implementation is underway, with no measured gain yet.
+- **Native ARGformer:** genuine author training and retrieval completed on all four adapted EuropeanC4/tsinfer parents. Present-day top1 accuracy is75.68%, fixed top5 is75.14%, and unmodified raw-vote NLL is infinite. The main comparison below explains the differing genealogy and training objective.
+- **Original GST:** all four native USPTO models completed the bounded TRAIN/VALID pilot below.
+- **Previous partial runs:** interrupted mechanism-seed and Census fits remain preserved. They are not final30epoch results. Large FP64 equivalence sweeps remain deferred.
 
-New launches can use the existing v4 storage reservations rather than repeating a recursive repository scan. The faster launcher preserves the original GPU locking, assignment and signal handling. Current live workers finish through their existing launchers.
+Frozen ARGMix predictions derive from Relate trees. The new graph context comes from independently inferred tsinfer/tsdate trees. TRAIN emitter predictions are in-sample and the frozen smoother was development-selected. No TEST parent has been evaluated.
 
-At most physical GPUs 2 and 3 are assigned to the project. GPU workers are titled 'AI Auto Research Pipeline Test'. Current storage authorization is 1 TB. See [development priorities](docs/development_priorities_20261011.md).
+Novelty is assessed throughout development. The latest independent [design critique](research/reviews/edge_innovation_novelty_fresh_v1/critique.md) identifies TGN and Gated DeltaNet precedents. Whole-tree cavity construction plus carrier-conditioned memory remains a hypothesis about useful biological coupling, with priority and predictive benefit unresolved. Existing kernels, recurrence and message passing are discovery tools.
+
+At most physical GPUs2 and3 are assigned to the project. GPU workers are titled 'AI Auto Research Pipeline Test'. Current storage authorization is1TB. See [development priorities](docs/development_priorities_20261011.md).
 
 ## Main advantages and current evidence
 
-**Strongest completed development pipeline: frozen native ARGMix plus ordinary smoothing reaches 85.94% present-day accuracy and NLL 0.3891.** Frozen ARGMix reaches 85.55% and NLL 0.4353. The ancestral-trace layer matches this refinement result, without outperforming the simpler control. The earlier standalone age-D2 candidate averages 84.78% over optimizer seeds 101/202/303. A distinct, stronger GNN contribution remains a research objective.
+**The strongest supported accuracy refinement remains ordinary smoothing at85.94%, versus85.55% for frozen ARGMix.** Native-age reference context reduces NLL further to0.3824, while accuracy is85.91%. Neither new reference-conditioning nor ancestral-continuity controls establish the requested graph mechanism. The higher86.04% sham accuracy is reported transparently as a control result. The earlier standalone age-D2 candidate averages84.78% over optimizer seeds101/202/303. A distinct, stronger GNN contribution remains a research objective.
 
 Measured advantages of the earlier standalone candidate:
 
@@ -52,6 +56,8 @@ Completed development results, including the 2026-10-11 FP32 refinement pilot. *
 
 | Method | Accuracy ↑ | NLL ↓ | Brier ↓ | ECE ↓ | Optimizer seeds |
 | --- | ---: | ---: | ---: | ---: | --- |
+| Smoothing plus native-age reference context, H026 | 85.91% | 0.3824 | 0.1977 | 0.0250 | 101, emitter 50 |
+| Smoothing plus genuine ancestral-reference context, H027 | 85.93% | 0.3826 | 0.1978 | 0.0237 | 101, emitter 50 |
 | ARGMix plus ordinary smoothing, development refinement | 85.94% | 0.3891 | 0.2004 | 0.0260 | 101, emitter 50 |
 | ARGMix, current author release | 85.55% | 0.4353 | 0.2191 | 0.0861 | 50 |
 | Our candidate, age D2 | 84.78% | 0.4299 | 0.2244 | 0.0327 | 101, 202, 303 |
@@ -117,7 +123,7 @@ Baseline fidelity:
 - **ARGMix:** current author implementation at commit `c2481248`, with its native model, objective, checkpoint selection, refinement and overlap averaging retained. This is a common-task transfer. The available release differs from the April preprint, so this table is not its numerical reproduction.
 - **AncestralPaths:** released TensorFlow Dense model, preserving its native features and six path outputs, followed by a disclosed six-path-to-four-source probability mapping. The paper's unspecified CNN is not reproduced by this released Dense baseline.
 - **GST:** independently reconstructed Graph Set Transformer style controls adapted to per-query ancestry outputs. These rows are architectural controls, not executions of the authors' implementation.
-- **ARGformer:** native training and retrieval ran on Relate trees. That export does not preserve shared internal ancestor IDs across trees, which ARGformer requires. Its ranking is withheld and a separate current tsinfer/tsdate inference condition has now completed for all four development parents, preserving genotypes, sampling ages and connected shared internal IDs. The native tskit 0.6.4 reader loaded the exact new tree written with tskit 1.0.3, preserving all 280 sample IDs without conversion. Full native path/corpus preparation now passed on all four development parents, including the author tokenizer, genuine shared internal IDs, both path splits and full pure-reference corpus. MLM uses paths from all 280 observed samples. Pure-reference filtering to 96 samples applies to contrastive training and retrieval. The original 512-sample MLM and 4,096-sample contrastive batches are feasible in every corpus. The first native fit and retrieval on this new condition completed. Remaining parents are in progress, and the VAL ancestry comparison is pending. Shared ancestry IDs will not be fabricated from local numbering or matching clades.
+- **ARGformer:** native training and retrieval ran on Relate trees. That export does not preserve shared internal ancestor IDs across trees, which ARGformer requires. Its ranking is withheld and a separate current tsinfer/tsdate inference condition has now completed for all four development parents, preserving genotypes, sampling ages and connected shared internal IDs. The native tskit 0.6.4 reader loaded the exact new tree written with tskit 1.0.3, preserving all 280 sample IDs without conversion. Full native path/corpus preparation now passed on all four development parents, including the author tokenizer, genuine shared internal IDs, both path splits and full pure-reference corpus. MLM uses paths from all 280 observed samples. Pure-reference filtering to 96 samples applies to contrastive training and retrieval. The original 512-sample MLM and 4,096-sample contrastive batches are feasible in every corpus. All four native fits and exhaustive retrievals on this condition completed. The genuine VAL ancestry comparison is reported above, with raw top1 and prespecified top5 votes. Shared ancestry IDs will not be fabricated from local numbering or matching clades.
 
 Input features, supervision, native selection rules and post-processing differ between methods and are disclosed in the [baseline fidelity policy](docs/biological_baseline_fidelity_v1.md). Matched scoring support provides a common endpoint, rather than an exact reproduction of each paper's original dataset and pipeline.
 
@@ -146,14 +152,10 @@ A smaller simulation, current code release or changed ancestry endpoint is repor
 
 The project runs on anogena in `/workspace-SR003.nfs2/ARG-GNN`. Read [AGENTS.md](AGENTS.md) before contributing. Source `scripts/project_env.sh` before installing packages or running Python. The main environment is `.runtime/env`. Runtime state, datasets and checkpoints stay on the server and are excluded from Git.
 
-The user increased the project storage allowance to **1 TB on 2026-10-11**, with a 950 GB scheduling ceiling. The latest completed allocated-size scan measured **232.12 GB**. Combined conservative storage reservations project **909.51 GB**, which is an accounting projection rather than actual used space. See the [resource authorization](research/resource_authorizations/project_storage_1TB_20261011.json).
+The user increased the project storage allowance to **1 TB on2026-10-11**, with a950GB scheduling ceiling. The latest completed whole-project measurement was about289.7GB. Historical conservative reservations project947.53GB, an accounting projection rather than physical usage. A scoped, append-only accounting successor is being prepared to close completed reservations without rescanning the whole repository or rewriting old admissions. See the [resource authorization](research/resource_authorizations/project_storage_1TB_20261011.json).
 
-Current resource execution is summarized at the top of this README. The corrected GPU 3 pool admits the cached mechanism worker and the whole-tree Census worker together. Their conservative reservations total 64 GiB, plus 8 GiB device headroom, within the A100's 80 GiB. The earlier cache launch failed on a missing storage-snapshot command field and was stopped by root. Its partial Census artifacts and failure assessment are preserved. The corrected snapshot passed the unchanged original storage class before relaunch. See the [paired pool](research/reviews/gpu3_parallel_fits_v2_root/pool_admission.json), [original snapshot preflight](research/reviews/gpu3_parallel_fits_v2_root/original_snapshot_preflight.json), and [preserved failure assessment](research/reviews/gpu3_cache_snapshot_failure_v1_independent/assessment.json).
-
-A new [boundary diagnostic](docs/biological_tile_boundary_diagnostic_v1.md) reuses unchanged completed predictions on the two development VAL parents. Age-D2 accuracy trails current-release ARGMix by 1.61 points within 10 kb of artificial tile boundaries, 1.82 points at 10–25 kb, and 0.57 points at 50–125 kb. The overall deficit remains 0.77 points. This exploratory association motivates testing cross-tile continuity. It does not establish a cause or a new accuracy gain.
-
-Native ARGformer v7 completed genuine CPU-only runtime capture with 12 scientific modules and 179 distributions in the original environment. Full native fits remain pending. The census fit v2 protocol and GPU profile source passed independent review. The separate same-tsinfer census observation inspection completed on CPU: all 32 cells passed, covering 15,956 marginal trees. Root froze the 32 certificates and rehashed all 64 materialized files (2.16 GB), then rechecked 110 source/observed/metadata objects. CPU numerical qualification is running. Dedicated same-tsinfer device/fit consumers passed source and handmade independent review, while actual same-tsinfer GPU profiling and fitting remain pending. See the [native capture evidence](experiments/results/native_argformer_tsinfer_fit_v7_root/compact_runtime_inventory.json), [fit protocol](docs/census_biological_fit_v2.md), and [same-tsinfer bridge](docs/census_tsinfer_observation_v1.md). The native ARGformer plan requires four same-parent full-batch 4,096 probes, four genuine fits, and four exhaustive retrieval stages. Each corpus retains the original native batches and all pure-reference paths. The completed runtime capture does not qualify memory or predict accuracy. See the [12-stage packet](research/reviews/native_argformer_tsinfer_fit_v6_execution_root/execution_plan.json) and [same-tree inspection freeze](research/reviews/census_tsinfer_actual32_numerical_v1_root/inspection_freeze.json).
+Native ARGformer v7 completed genuine fitting and retrieval in the original captured author environment. Both VAL predictions were sealed before unchanged external scoring. The same-tsinfer Census observation and CPU numerical checks completed, but this separate interrupted model has no final superiority result. [Native capture evidence](experiments/results/native_argformer_tsinfer_fit_v7_root/compact_runtime_inventory.json) and [completed ancestry comparison](experiments/results/native_argformer_tsinfer_fit_v7_summary_v2/summary.json).
 
 Run `.runtime/env/bin/python scripts/update_research_ledger.py` after new results. Record a hypothesis or explicit repeat reason before each substantive experiment. Preserve complete outcomes, provenance and failures, and push concise conclusions regularly.
 
-The next scientific checks are native ARGformer fits and full-corpus retrieval, completed optimizer/mechanism comparisons, independent simulation-parent confirmation, demographic shifts and a justified real-data endpoint. Published ancestry paintings are comparator outputs, rather than ground truth.
+The next scientific checks are accuracy and mechanism discovery with matched controls, followed by independent simulation-parent confirmation, original-paper task comparisons, demographic shifts and a justified real-data endpoint. Published ancestry paintings are comparator outputs, rather than ground truth.
