@@ -2,6 +2,12 @@
 
 Graph neural networks for ordered collections of whole genealogical trees, with local ancestry inference from ancestral recombination graphs as the main application. The manuscript uses the AAAI template.
 
+## Current execution and utilization
+
+Updated 2026-10-11. GPU2 continues the seven-mechanism seed202 run. The native ARGformer probe reached CUDA but failed a temporary-scope storage guard. That queue is paused for a narrow correction. A cached seven-mechanism fit and a separate five-control whole-tree fit are prepared to share GPU3, with launch acceptance pending. CPU numerical qualification of our whole-tree model on all32 same-tsinfer tiles runs independently. A queued/startup job is not a completed fit.
+
+The latest45-second sample measured49.4% mean GPU2 utilization. The completed one-tile cache profile preserves exact logits, gradients and optimizer/RNG behavior for allseven controls. Warm loading averaged0.99s versus2.02s originally, a50.9% reduction in load latency. A full-training speedup is still unmeasured. See the [measured diagnosis](research/reviews/gpu_utilization_followup_v1_matched/report.md).
+
 ## Main advantages and current evidence
 
 **Current development result: our age-D2 candidate averages 84.78% present-day ancestry accuracy over all three planned optimizer seeds, 101/202/303. Current-release ARGMix reaches 85.55%.** Our candidate has slightly lower negative log likelihood. Overall superiority and distinct architectural novelty remain research objectives.
@@ -46,6 +52,22 @@ Other query strata, using the same selected models:
 | Ancient queries, 56 haplotypes | 88.43% | 89.33% | 0.3281 | 0.3433 |
 | All queries, 120 haplotypes | 86.48% | 87.32% | 0.3824 | 0.3924 |
 
+### Completed mechanism ablations, seed101
+
+Same two development VAL parents and64 present-day queries as the main biological comparison. Each row uses its own NLL-selected checkpoint. These single-seed results are separate from the three-seed means above, with independent confirmation pending.
+
+| Model mechanism | Accuracy ↑ | NLL ↓ |
+| --- | ---: | ---: |
+| scalar age d2 | 84.80% | 0.4281 |
+| age propagation only d2 | 84.86% | 0.4279 |
+| age source only d2 | 84.85% | 0.4269 |
+| age gainmatched d2 | 83.73% | 0.4531 |
+| noncontext age d2 | 84.88% | 0.4262 |
+| age d1 | 84.70% | 0.4258 |
+| age d1 plus pointwise | 84.74% | 0.4246 |
+
+The noncontext control has the highest selected accuracy and depth1-plus-pointwise the lowest selected NLL. These results do not establish an age or cross-query feedback benefit. [Exact metrics and original output bindings](experiments/results/biological_mechanism_seed101_summary_v1_root/summary.json).
+
 ### What these comparisons mean
 
 The common task is four-source ancestry, ANA/CHG/WHG/EHG, at census 350 generations. Data comprise four independent 2 Mb simulation parents, split into two TRAIN and two VAL parents before extraction. Each parent has 96 pure references, 64 unlabeled mixed-context haplotypes and 120 queries, including 64 present-day and 56 ancient queries. All methods are scored on identical observed physical coverage and query identities. Accuracy, NLL and Brier weight exact class-span intersections within 100 bp bins, then average the two parent scores equally.
@@ -86,7 +108,7 @@ A smaller simulation, current code release or changed ancestry endpoint is repor
 
 The project runs on anogena in `/workspace-SR003.nfs2/ARG-GNN`. Read [AGENTS.md](AGENTS.md) before contributing. Source `scripts/project_env.sh` before installing packages or running Python. The main environment is `.runtime/env`. Runtime state, datasets and checkpoints stay on the server and are excluded from Git.
 
-The user increased the project storage allowance to **1 TB on 2026-10-11**, with a 950 GB scheduling ceiling. The latest completed allocated-size scan measured **221.81 GB**. Combined conservative storage reservations project **502.47 GB**, which is an accounting projection rather than actual used space. See the [resource authorization](research/resource_authorizations/project_storage_1TB_20261011.json).
+The user increased the project storage allowance to **1 TB on 2026-10-11**, with a 950 GB scheduling ceiling. The latest completed allocated-size scan measured **229.85 GB**. Combined conservative storage reservations project **502.47 GB**, which is an accounting projection rather than actual used space. See the [resource authorization](research/resource_authorizations/project_storage_1TB_20261011.json).
 
 **Both GPU workers are alive, but GPU computation is bursty.** GPUs 2 and 3 each have one worker interleaving seven mechanism variants. This is 14 ongoing fits across two processes, with two fits computing simultaneously at most. Both process titles were verified in NVTOP. The latest 30-second observation averaged 61.6% utilization on GPU 2 and 3.4% on GPU 3. The earlier 32.5-second observation averaged 22.9% and 46.6%. These short samples show changing phases, rather than full-run throughput. A TRAIN-tile CPU profile measured 0.934 seconds for full SHA checking, 0.729 seconds for archive loading and 0.165 seconds for CPU preparation, averaging 1.828 seconds per bank. Validation reloads the same 16 banks separately for each active variant, up to 112 bank loads per epoch. This identifies a repeated-load path without establishing its share of total runtime.
 
@@ -94,7 +116,7 @@ The independently reviewed cache wrapper preserves original model/data/training/
 
 A new [boundary diagnostic](docs/biological_tile_boundary_diagnostic_v1.md) reuses unchanged completed predictions on the two development VAL parents. Age-D2 accuracy trails current-release ARGMix by 1.61 points within 10 kb of artificial tile boundaries, 1.82 points at 10–25 kb, and 0.57 points at 50–125 kb. The overall deficit remains 0.77 points. This exploratory association motivates testing cross-tile continuity. It does not establish a cause or a new accuracy gain.
 
-Native ARGformer v6 completed genuine CPU-only runtime capture with 12 scientific modules and 179 distributions in the original environment. Full native fits remain pending. The census fit v2 protocol and GPU profile source passed independent review. A separate same-tsinfer census observation inspection is running on CPU to prepare a comparison using the identical inferred trees. See the [native capture evidence](experiments/results/native_argformer_tsinfer_fit_v6_root/capture_exit.json), [fit protocol](docs/census_biological_fit_v2.md), and [same-tsinfer bridge](docs/census_tsinfer_observation_v1.md).
+Native ARGformer v6 completed genuine CPU-only runtime capture with 12 scientific modules and 179 distributions in the original environment. Full native fits remain pending. The census fit v2 protocol and GPU profile source passed independent review. The separate same-tsinfer census observation inspection completed on CPU: all 32 cells passed, covering 15,956 marginal trees. Root froze the 32 certificates and rehashed all 64 materialized files (2.16 GB), then rechecked 110 source/observed/metadata objects. Numerical qualification and a dedicated same-tsinfer device/fit consumer are still pending. See the [native capture evidence](experiments/results/native_argformer_tsinfer_fit_v6_root/capture_exit.json), [fit protocol](docs/census_biological_fit_v2.md), and [same-tsinfer bridge](docs/census_tsinfer_observation_v1.md). The native ARGformer plan requires four same-parent full-batch 4,096 probes, four genuine fits, and four exhaustive retrieval stages. Each corpus retains the original native batches and all pure-reference paths. The completed runtime capture does not qualify memory or predict accuracy. See the [12-stage packet](research/reviews/native_argformer_tsinfer_fit_v6_execution_root/execution_plan.json) and [same-tree inspection freeze](research/reviews/census_tsinfer_actual32_numerical_v1_root/inspection_freeze.json).
 
 Run `.runtime/env/bin/python scripts/update_research_ledger.py` after new results. Record a hypothesis or explicit repeat reason before each substantive experiment. Preserve complete outcomes, provenance and failures, and push concise conclusions regularly.
 

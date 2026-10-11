@@ -1,0 +1,155 @@
+{
+  "kind": "anchor_parent_context_v2_independent_source_and_handmade_review",
+  "review_role": "independent_reviewer",
+  "verdict": "REJECT",
+  "scope": "exact sealed H024v2 source/config and handmade CPU only",
+  "implementation": {
+    "path": "src/arggnn/anchor_parent_context_v2.py",
+    "sha256": "e93fe2a6cc064ccfc69379ee89de8512ebec8d6dc59231027c734474b8a551ad"
+  },
+  "config": {
+    "path": "configs/anchor_parent_context_v2.json",
+    "sha256": "62a1b8a87f47eed0db5ce7dd2013cbf7d45a42090198de0be9f92be69709ffdc"
+  },
+  "author_receipt": {
+    "path": "research/reviews/anchor_parent_context_v2_author/author_receipt.json",
+    "sha256": "b597514dc6fd826474f3d5508f34ec5e28be86bb78e996a7a183a95d789153a8"
+  },
+  "preserved_v1_independent_REJECT": {
+    "path": "research/reviews/anchor_parent_context_v1_independent/receipt.json",
+    "sha256": "2f77aba99fb2c9c82b7ec7d05528eb09bc380bf70675032abab55d9db97d6f2c"
+  },
+  "source_delta_evidence": {
+    "path": "research/reviews/anchor_parent_context_v2_author/source_delta_evidence.json",
+    "sha256": "b690f4af06a2bea92efee43de11ec6af4ebda9f580a3b6b3bdc3db259049e85e"
+  },
+  "author_replay": {
+    "core_checks": {
+      "count": 152,
+      "report": {
+        "path": "research/reviews/anchor_parent_context_v2_independent/core_checks.json",
+        "sha256": "6add099eecae08b773740e036fd6832043c02bd15609f8f15d3d3f7700cb98dc"
+      },
+      "status": "reproduced"
+    },
+    "adapted_oracle_checks": {
+      "count": 427,
+      "report": {
+        "path": "research/reviews/anchor_parent_context_v2_independent/adapted_oracle_checks.json",
+        "sha256": "b31555ef8cbd4543c421a95e73b3f00528fe2572bf6e4ee0c32230741982105c"
+      },
+      "status": "reproduced"
+    },
+    "correction_checks": {
+      "count": 120,
+      "report": {
+        "path": "research/reviews/anchor_parent_context_v2_independent/correction_checks.json",
+        "sha256": "f3becb8be26f504fd30dbcbde34927d509e759cbb61514b9f3246aa434b41aeb"
+      },
+      "status": "reproduced"
+    }
+  },
+  "author_total_checks": 699,
+  "author_replays_per_suite": 1,
+  "borrowed_prior_reviewer_oracle_is_author_corroboration_not_this_verdict": true,
+  "fresh_independent_assertions": 113,
+  "independent_results": {
+    "path": "research/reviews/anchor_parent_context_v2_independent/independent_checks.json",
+    "sha256": "f1e5e79d177357ad99d0c4602632ed50e3bb65bd89b9f368975b2b252699e861"
+  },
+  "previous_findings_status": {
+    "F1": "Addressed in tested source: unique original-tree fixed leaf/response row validation, exact one-batch encoding and initial Q/R reuse; arbitrary encoded entry explicitly fixture-only; incompatible one-ULP initial rows rejected; evolved context divergence retained without cache/anchor deduplication",
+    "F2": "Addressed in tested source: original finite and strictly-positive computed-decay guard before each hold; overflow, tiny negative and exact zero examples reject in ordinary/checkpoint paths",
+    "F3": "Addressed for optimizer binding/path/actual-gradient cases tested: per-cell foreign/disconnected paths and aggregate missing active parameters reject, finite actual gradients required, inactive parameters explicitly declared, legitimate connected zeros permitted. New callback gradient contamination remains below"
+  },
+  "findings": [
+    {
+      "id": "F4",
+      "priority": "P1",
+      "title": "Callback gradients contaminate the advertised single aggregate update",
+      "function": "matched_parent_step_v2",
+      "source_lines": [
+        429,
+        451
+      ],
+      "condition": "The helper zeroes gradients before loss callbacks, but accepts callback-created p.grad tensors. Its later loss.backward accumulates into those tensors.",
+      "cases": {
+        "result": {
+          "loss": 0.13,
+          "query_bp": 1.0,
+          "loss_cells": 1,
+          "gradient_norm_before_single_clip": 10.417293314484334,
+          "backward_calls": 1,
+          "clip_calls": 1,
+          "optimizer_steps": 1,
+          "parameters_fixed_across_loss_cells": true,
+          "connected_optimizer_parameters": 1,
+          "declared_inactive_parameters": 0,
+          "optimizer_parameter_binding_verified": true,
+          "actual_fit_or_data_admission": false
+        },
+        "actual_parameter": [
+          0.10016601541592511,
+          -0.29424034704322644
+        ],
+        "clean_reference_parameter": [
+          0.16,
+          -0.24
+        ],
+        "maximum_parameter_difference": 0.05983398458407489,
+        "actual_backward_hook_calls": 1
+      },
+      "second_case": {
+        "result": {
+          "loss": 0.13,
+          "query_bp": 1.0,
+          "loss_cells": 1,
+          "gradient_norm_before_single_clip": 1.4422205101855958,
+          "backward_calls": 1,
+          "clip_calls": 1,
+          "optimizer_steps": 1,
+          "parameters_fixed_across_loss_cells": true,
+          "connected_optimizer_parameters": 1,
+          "declared_inactive_parameters": 0,
+          "optimizer_parameter_binding_verified": true,
+          "actual_fit_or_data_admission": false
+        },
+        "actual_parameter": [
+          0.1445300188389889,
+          -0.21679502825848332
+        ],
+        "clean_reference_parameter": [
+          0.16,
+          -0.24
+        ],
+        "maximum_parameter_difference": 0.023204971741516672,
+        "actual_backward_hook_calls": 2
+      },
+      "impact": "Valid connected finite numerators at unchanged parameters can produce parameter updates that differ from the clean parent aggregate. A callback-side backward produces two actual gradient-hook calls while the helper reports backward_calls=1.",
+      "recommendation": "Reject optimizer parameter gradients created during callback evaluation, checking p.grad is None after every cell and immediately before the aggregate backward. Do not silently clear contaminated gradients. If the API promises a literal one-backward contract against arbitrary callbacks, guard backward activity during the evaluation phase as well."
+    }
+  ],
+  "reference_fixture_coverage": {
+    "unique_original_trees": 5,
+    "cache_occurrences": 8,
+    "tiles": 4,
+    "anchors": 20,
+    "float64_float32": true,
+    "explicit_leaf_ID_order_permutation_context_and_parameter_VJP": true,
+    "selected_target_order_with_global_layers_checkpointed": true,
+    "reencoding_after_parameter_change": true,
+    "dense_legacy_nonlinear_context_parity": true,
+    "one_ULP_Q_R_leaf_response_mismatch_rejection": true,
+    "positive_zero_missing_nonfinite_actual_parameter_gradient_cases": true,
+    "explicit_frozen_and_unused_inactive_parameters": true,
+    "optimizer_binding_mutation_in_cell_and_backward_rejection": true,
+    "qualification_tolerances_unchanged": true
+  },
+  "all_v1_v2_sealed_source_config_author_and_prior_rejection_files_verified_preserved": true,
+  "temporary_and_cache_writes_confined_to_ownership": true,
+  "actual_arrays_data_TEST_simulations_fits_GPU_device_queries_live_ledgers_locks_resources_installs_or_Git": false,
+  "actual_CUDA_qualified": false,
+  "genuine_parent_source_and_data_lineage_qualified": false,
+  "actual_fit_admitted": false,
+  "created_utc": "2026-10-11T03:46:48.526905+00:00"
+}

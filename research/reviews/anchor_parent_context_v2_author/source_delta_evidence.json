@@ -1,0 +1,88 @@
+{
+  "kind": "anchor_parent_context_v2_source_delta_evidence",
+  "predecessor": {
+    "path": "src/arggnn/anchor_parent_context_v1.py",
+    "sha256": "3934a7b0e2afb105b42384ec562d509374cd336f9764a429d52ad40a8e4dbe05"
+  },
+  "successor": {
+    "path": "src/arggnn/anchor_parent_context_v2.py",
+    "sha256": "e93fe2a6cc064ccfc69379ee89de8512ebec8d6dc59231027c734474b8a551ad"
+  },
+  "original_sources": {
+    "src/arggnn/anchor_kernel.py": {
+      "sha256": "2b8cc1c1726f746f961c0d63a4870e806a1a9d3d6e1fa6724dc0bda39967b083",
+      "unchanged": true
+    },
+    "src/arggnn/biological_candidate.py": {
+      "sha256": "6b3a25d0e59026cab7189032eb41221feb7d1bdf69e15f6c737a672dfb711dd3",
+      "unchanged": true
+    }
+  },
+  "original_kernel_scientific_AST_sha256": {
+    "_hold_action": "d177b55c5f9e4c3fae16c5d088492b54529baa18be1624e62c8d2003ba5d739b",
+    "anchor_kernel_action": "7a329cbdedee46f480886ea8f57d0b903fce2b14c39270d7c1131132ab3c18d7",
+    "AnchorKernelLayer": "69e889d93f5886700815405f63a53ab27aeb0db19056f9d07a6aed09c9d1cd46",
+    "AnchorKernelModel": "0ac20c0b650415a62df796c6b058276d011d26aba89eb41093309c1ff71b61ac"
+  },
+  "version_renaming_only_AST_identical": {
+    "_tile_evaluations": {
+      "normalized_AST_identical": true,
+      "predecessor_AST_sha256": "667e16838c44c46c8295d343bbcf82954429a16bef821332faa981ec1705a0d6"
+    },
+    "stitch_context_v1": {
+      "normalized_AST_identical": true,
+      "predecessor_AST_sha256": "0e9794cc2dec655a7d1758b9830d0d89904cc9ce8fa06332755f81961e0a48d6"
+    },
+    "parent_layer_messages_v1": {
+      "normalized_AST_identical": true,
+      "predecessor_AST_sha256": "4f09def45ccc7b79574d795ba83964d1caee7de499473a8074ec34d14ba36093"
+    },
+    "TileContextV1": {
+      "normalized_AST_identical": true,
+      "predecessor_AST_sha256": "cb8de0ac7dc2a4150856fda7f0c6e5483c5faaab96c846b49a85a19161a0fd57"
+    },
+    "ParentContextV1": {
+      "normalized_AST_identical": true,
+      "predecessor_AST_sha256": "19ad155920c2f9168ce51d5d91078bc6a960288a9d70674c9a0ddd839a6d3b18"
+    },
+    "ParentActionV1": {
+      "normalized_AST_identical": true,
+      "predecessor_AST_sha256": "2605afd493d5510e618db698121b22ac0819eee344851e4d3786bcde42cac0cf"
+    },
+    "ParentLatentContextV1": {
+      "normalized_AST_identical": true,
+      "predecessor_AST_sha256": "0159b19b0aa1e05565e5445c8aaf629bfe1a39a8565ed68f5419f814556d0493"
+    }
+  },
+  "streamed_action_inverse_delta_AST_identical": true,
+  "streamed_action_exact_delta": {
+    "old": "                    factors=torch.exp(-dt*(eigenvalues[...,None]*lam[:,None,:]+delta[:,None,:]))",
+    "new": "                    decay=eigenvalues[...,None]*lam[:,None,:]+delta[:,None,:]\n                    if not bool(torch.isfinite(decay).all()) or bool((decay<=0).any()):\n                        raise ValueError('Kernel decay is not numerically positive')\n                    factors=torch.exp(-dt*decay)"
+  },
+  "encoded_context_inverse_delta_AST_identical": true,
+  "encoded_context_added_validation_only": [
+    "    weight=model.encoder.input_linear.weight\n    if any(x.ndim!=3 or x.shape[2]!=model.hidden_dim or x.dtype!=weight.dtype or x.device!=weight.device or not bool(torch.isfinite(x).all()) for x in (query_by_cache_graph,reference_by_cache_graph)):\n        raise ValueError('Finite original initial encoder rows with model hidden/device/dtype required')\n    _original_row_plan_v2(parent,(query_by_cache_graph,reference_by_cache_graph))\n",
+    "    if target.dtype!=torch.long or target.device.type!='cpu' or target.ndim!=1 or bool((target<0).any()) or bool((target>=len(L.target_output)).any()):\n        raise ValueError('Original target indexes required')\n"
+  ],
+  "production_entry_delta": "parent_context_v2 now receives fixed original leaf/response banks and explicit leaf-ID joins; encode_parent_sources_v2 validates repeated original input rows, encodes unique original rows once and reuses their exact initial Q/R outputs. The preserved nonlinear loop then runs over all cached occurrences.",
+  "step_predecessor_AST_sha256": "8e3b14992425702b01798df3abe7fe6db04d2e80a8090db217768478eaf3e5db",
+  "step_successor_AST_sha256": "915205ed013d8464dcf16fc0fdd3b4835a787d907a46169a7ceefd30c8a6e8d8",
+  "step_guard_delta": [
+    "explicit inactive parameter subset and finite leaf/differentiable active set",
+    "snapshot complete optimizer group parameter binding",
+    "each numerator reaches at least one active optimizer leaf",
+    "aggregate graph reaches exactly declared active parameters",
+    "actual active gradients present and finite; inactive gradients absent",
+    "optimizer binding rechecked after callback and backward before clipping/step"
+  ],
+  "step_preserved_calls": {
+    "backward": 1,
+    "clip_grad_norm_": 1,
+    "step": 1,
+    "grad": 0
+  },
+  "step_gradient_graph_check_requires_no_second_backward": true,
+  "source_graph_encoder_layers_rates_mass_gate_head_original_AST_unchanged": true,
+  "qualification_tolerances_unchanged": true,
+  "actual_source_bank_producer_binding_CUDA_fit_admission": false
+}

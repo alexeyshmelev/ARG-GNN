@@ -1,0 +1,26 @@
+{
+  "changes": [
+    {
+      "old": "            mode=item.external_attr>>16",
+      "new": "            dos_directory=bool(item.external_attr&0x10)\n            if dos_directory and not directory or item.create_system==0 and dos_directory!=directory:raise ValueError('DOS directory/name disagreement')\n            extra_fields=_extra_metadata(item,name)\n            mode=item.external_attr>>16"
+    },
+    {
+      "old": "item.flag_bits&1 or item.flag_bits&0x40",
+      "new": "item.flag_bits&(1|0x40|0x2000)"
+    },
+    {
+      "old": "            basename=parts[-1]\n            if not directory and basename in LOGICAL:",
+      "new": "            basename=parts[-1]\n            logical=unicodedata.normalize('NFC',basename).casefold()\n            if not directory and logical in LOGICAL:\n                if basename!=logical:raise ValueError('Exact native logical split spelling required')"
+    },
+    {
+      "old": "\"extra_bytes\":len(item.extra),\"comment_bytes\":len(item.comment)",
+      "new": "\"extra_bytes\":len(item.extra),\"extra_field_ids\":extra_fields,\"comment_bytes\":len(item.comment)"
+    },
+    {
+      "old": "gst_uspto_archive_central_directory_inventory_v1",
+      "new": "gst_uspto_archive_central_directory_inventory_v2"
+    }
+  ],
+  "predecessor_inventory_AST_sha256": "aee1e746e0dc1c0bb2f3ea68222ab6478d13d24998a2df73ebca269c5520de22",
+  "scope": "same opaque archive/caps/order and JSON-only central-directory stage, no member payload/native parser/model"
+}
