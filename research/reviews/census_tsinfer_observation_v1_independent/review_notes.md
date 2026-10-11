@@ -1,0 +1,13 @@
+Independent source and handmade CPU review: PASS.
+
+The shipped source/config and author receipt match the root-supplied hashes. All sealed author artifacts and frozen scientific dependencies were rechecked. Four-parent ARGformer/tsinfer tree, roster, grid, completion, namespace and prepared metadata joined through 14 genuine JSON records; no native arrays were read.
+
+The original pack_observed_tile AST is exact. The new bridge uses pure source proxy classes only at R leaves, Q120 query markers with context64 zero, Q184 dynamics, R96 references, original physical2Mb normalization and right-boundary lookup. Native sample IDs remain joins and direct native float64 times drive census geometry. It regenerates x48 on the same native tree, requires full native/serialized parity, then retains the unchanged F47 columns and original unary policy. Changing encoded features or any GraphSequence geometry rejects certification.
+
+The author suite replay passed34 cases. The independent review passed113 checks. Its separate handmade two-tree-per-tile, noncontiguous-ID280-sample tree completed all32 inspect cells and64 materializations without a model. The census350 equality/just-above case changed direct native cut geometry while x48 stayed identical. Exact admission, closure, runtime identity and phase gates were exercised with explicit scalar metadata/readers and budget doubles, never active authority. Numerical replay rejected missing control/dtype qualification, failed/incomplete/source-changed freezes, certificate changes and materialization-closure drift. Failure products were retained; freeze rejections before ownership created no output.
+
+The first independent fixture shared an observed-map dictionary in memory between fault cases. Its files were preserved. The final fixture isolates each case with deepcopy and verifies each intended rejection message. This was a test-fixture correction; the shipped source/config were never changed.
+
+The readonly budgetv4 adapter binds the new20GB reservation namespace, original source/config/runtime consumer references and exact own reservation, first ledger pins and required write headroom. The author replay verifies readonly950GB/1TB response semantics with fake resources. No live ledger, device, GPU or runtime capture was queried.
+
+PASS authorizes root to proceed through the existing inspect admission checks. Genuine all280-leaf/connected native tree adequacy, feature/collision suitability,32-cell inspection, independent64-artifact/32-certificate freeze, actual32-cell numerical qualification, resource profile and any same-tsinfer predictive fit consumer remain separate root gates. No fit, target, numerical success or predictive claim follows from this source review.

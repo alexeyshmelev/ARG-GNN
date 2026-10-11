@@ -1,0 +1,236 @@
+def parse_runtime_inventory(c,value,runtime):
+    keys={'kind','status','prefix','python','distributions','scientific_modules','import_file_sha256','additive_helpers','directory_symlinks','absent_executable_symlinks'}
+    contract=c['runtime_inventory_contract'];prefix=confined(c['runtime']['prefix'])
+    if not isinstance(value,dict) or set(value)!=keys:raise ValueError('complete strict native scientific inventory schema required')
+    require_fields(value,{'kind':contract['kind'],'status':contract['status'],'prefix':str(prefix),
+      'additive_helpers':runtime.get('additive_helpers',[])},'exact inventory kind/prefix/helper binding required')
+    directories,absent=native_alias_contract(c)
+    if not exact(value['directory_symlinks'],directories) or not exact(value['absent_executable_symlinks'],absent):
+        raise ValueError('exact separate native alias-layout inventory required')
+    py=value['python']
+    if not isinstance(py,dict) or set(py)!={'version','executable','resolved_executable','sha256'}:
+        raise ValueError('exact native Python inventory required')
+    require_fields(py,{'version':c['runtime']['python_version'],'executable':str(ROOT/c['runtime']['interpreter']),
+      'sha256':runtime['python_executable_sha256']},'exact Python version/executable bytes required')
+    resolved=Path(py['resolved_executable'])
+    if resolved.parent!=prefix/'bin' or not re.fullmatch('[0-9a-f]{64}',str(py['sha256'])):
+        raise ValueError('same native bin target and valid executable SHA required')
+    d=value['distributions']
+    if not isinstance(d,dict) or not d or any(distribution_name(k)!=k or not isinstance(v,str) or not v for k,v in d.items()):
+        raise ValueError('complete canonical distribution map required')
+    for name,expected in contract['expected_scientific_distributions'].items():
+        if d.get(distribution_name(name),'').split('+')[0]!=expected:raise ValueError('pinned scientific distribution differs: '+name)
+    modules=value['scientific_modules']
+    if not isinstance(modules,dict) or set(modules)!=set(contract['scientific_modules']):raise ValueError('all exact native scientific import records required')
+    files=value['import_file_sha256']
+    if not isinstance(files,dict) or len(files)<len(modules):raise ValueError('nonempty complete native executable import byte inventory required')
+    for relative,record in files.items():
+        p=Path(relative)
+        if relative in absent or any(Path(alias)==p or Path(alias) in p.parents for alias in directories):
+            raise ValueError('alias layout cannot invent absent bytes or duplicate directory import subtrees')
+        if p.is_absolute() or '..' in p.parts or not import_executable_name(p.name):raise ValueError('canonical supported native executable import path required')
+        if not isinstance(record,dict) or set(record)!={'resolved_path','sha256'} or not re.fullmatch('[0-9a-f]{64}',str(record['sha256'])):
+            raise ValueError('exact native import target and byte SHA required')
+        target=Path(record['resolved_path'])
+        if target.is_absolute() or '..' in target.parts:raise ValueError('confined native import target required')
+    for name,distribution in contract['scientific_modules'].items():
+        r=modules[name]
+        if not isinstance(r,dict) or set(r)!={'distribution','distribution_version','module_version','origin','sha256','loader'}:
+            raise ValueError('strict actual scientific module identity record required')
+        if r['distribution']!=distribution_name(distribution) or r['distribution_version']!=d[r['distribution']]:raise ValueError('module/distribution version binding differs')
+        if r['module_version'] is not None and not isinstance(r['module_version'],str):raise ValueError('typed actual scientific module version required')
+        origin=Path(r['origin'])
+        if prefix not in origin.parents or not isinstance(r['loader'],str) or not r['loader']:raise ValueError('native-prefix module origin/loader required')
+        relative=str(origin.relative_to(prefix))
+        if relative not in files or files[relative]['sha256']!=r['sha256']:raise ValueError('scientific import origin is not bound in complete native byte inventory')
+    return value
+
+
+def native_alias_records(records,directory):
+    """Strict metadata-only aliases; absent targets have no invented byte digest."""
+    if not isinstance(records,list):raise ValueError('exact native alias record list required')
+    result={}
+    for record in records:
+        keys={'path','target','resolved_path','lstat_mode','lstat_size','lstat_device','lstat_inode'}
+        keys.add('target_is_directory' if directory else 'target_absent')
+        if not isinstance(record,dict) or set(record)!=keys:raise ValueError('strict native alias metadata required')
+        for field in ('path','resolved_path'):
+            value=record[field];p=Path(value) if isinstance(value,str) else None
+            if p is None or not value or p.is_absolute() or '..' in p.parts or str(p)!=value or value=='.':
+                raise ValueError('canonical internal native alias path required')
+        if record['path'] in result:raise ValueError('duplicate native alias path')
+        target=record['target']
+        if not isinstance(target,str) or not target or Path(target).is_absolute() or '\0' in target:
+            raise ValueError('exact relative native alias target required')
+        for field in ('lstat_mode','lstat_size','lstat_device','lstat_inode'):
+            if type(record[field]) is not int or record[field]<0:raise ValueError('typed native alias lstat identity required')
+        if not stat.S_ISLNK(record['lstat_mode']) or record['lstat_size']!=len(os.fsencode(target)):
+            raise ValueError('native alias symlink mode/target size differs')
+        if record['target_is_directory' if directory else 'target_absent'] is not True:
+            raise ValueError('exact native directory or absent-target state required')
+        if not directory and not import_executable_name(Path(record['path']).name):
+            raise ValueError('only supported executable absent aliases admitted')
+        result[record['path']]=copy.deepcopy(record)
+    return dict(sorted(result.items()))
+
+
+def native_alias_contract(c):
+    """Bind genuine root metadata receipts separately from complete import bytes."""
+    contract=c['runtime_inventory_contract'];prefix=confined(c['runtime']['prefix']);layouts=[]
+    for field,directory in (('directory_alias_layout',True),('absent_executable_alias_layout',False)):
+        layout=contract[field]
+        if not isinstance(layout,dict) or set(layout)!={'provenance','kind','records_key','aliases'}:
+            raise ValueError('exact native alias contract required')
+        expected=native_alias_records(layout['aliases'],directory)
+        if layout['provenance'] is not None:
+            evidence=read_json(layout['provenance'])
+            require_fields(evidence,{'kind':layout['kind'],'prefix':str(prefix),'count':len(expected),
+              layout['records_key']:layout['aliases'],'prefix_modified':False},'exact genuine root native alias metadata required')
+            if directory:
+                require_fields(evidence,{'scientific_modules_imported':False,'model_created':False,'GPU_used':False},
+                  'metadata-only directory provenance required')
+            else:
+                require_fields(evidence,{'file_bytes_invented':False,'scientific_imports_or_models_or_GPU_accessed':False},
+                  'metadata-only absent alias provenance required')
+        layouts.append(expected)
+    if set(layouts[0])&set(layouts[1]):raise ValueError('disjoint directory and absent executable aliases required')
+    return tuple(layouts)
+
+
+def native_alias_cycles(directory_symlinks):
+    # An alias to an ancestor, or aliases containing one another's destinations,
+    # would recurse if followed. Canonical traversal never follows aliases.
+    edges={name:[other for other in directory_symlinks
+      if Path(record['resolved_path'])==Path(other) or Path(record['resolved_path']) in Path(other).parents]
+      for name,record in directory_symlinks.items()}
+    active=set();done=set()
+    def visit(name):
+        if name in active:raise ValueError('native directory alias traversal cycle')
+        if name in done:return
+        active.add(name)
+        for other in edges[name]:visit(other)
+        active.remove(name);done.add(name)
+    for name in edges:visit(name)
+
+
+def native_import_bytes(prefix,*,directory_symlinks=None,absent_symlinks=None,return_layout=False):
+    """Complete canonical executable bytes plus separately bound alias layout."""
+    prefix=Path(prefix);records={};actual_dirs={};actual_absent={}
+    expected_dirs=native_alias_records([] if directory_symlinks is None else directory_symlinks,True)
+    expected_absent=native_alias_records([] if absent_symlinks is None else absent_symlinks,False)
+    if prefix.resolve()!=prefix or not prefix.is_dir():raise ValueError('canonical native inventory prefix required')
+    if set(expected_dirs)&set(expected_absent):raise ValueError('native alias layouts overlap')
+    native_alias_cycles(expected_dirs)
+    def onerror(error):raise error
+    for parent,dirs,files in os.walk(prefix,followlinks=False,onerror=onerror):
+        for name in sorted(dirs+files):
+            p=Path(parent)/name;relative=str(p.relative_to(prefix))
+            try:resolved=p.resolve()
+            except (RuntimeError,OSError) as error:raise ValueError('native alias resolution cycle or failure') from error
+            if prefix not in resolved.parents:raise ValueError('native entry escapes pinned prefix')
+            if p.is_symlink():
+                st=p.lstat();target=os.readlink(p)
+                record={'path':relative,'target':target,'resolved_path':str(resolved.relative_to(prefix)),
+                  'lstat_mode':st.st_mode,'lstat_size':st.st_size,'lstat_device':st.st_dev,'lstat_inode':st.st_ino}
+                if resolved.is_dir():
+                    record['target_is_directory']=True
+                    if relative not in expected_dirs or not exact(record,expected_dirs[relative]):
+                        raise ValueError('native directory alias layout changed or unbound')
+                    actual_dirs[relative]=record
+                    continue
+                if relative in expected_absent:
+                    lexical=Path(os.path.normpath(str(p.parent/target)))
+                    record['target_absent']=not os.path.lexists(lexical) and not os.path.lexists(resolved)
+                    if lexical!=resolved or not exact(record,expected_absent[relative]):
+                        raise ValueError('native absent executable alias target or layout changed')
+                    actual_absent[relative]=record
+                    continue
+                if not resolved.is_file():raise ValueError('unbound dangling native alias')
+            elif relative in expected_dirs or relative in expected_absent:
+                raise ValueError('native alias replaced with regular entry')
+            if not import_executable_name(name) or name in dirs:continue
+            if not resolved.is_file():raise ValueError('native executable import target is not a file')
+            records[relative]={'resolved_path':str(resolved.relative_to(prefix)),'sha256':sha(resolved)}
+    actual_dirs=dict(sorted(actual_dirs.items()));actual_absent=dict(sorted(actual_absent.items()))
+    if not exact(actual_dirs,expected_dirs) or not exact(actual_absent,expected_absent):
+        raise ValueError('complete native alias layout differs')
+    native_alias_cycles(actual_dirs)
+    result=dict(sorted(records.items()))
+    return (result,actual_dirs,actual_absent) if return_layout else result
+
+
+def native_inventory_scan(c,prefix):
+    directories,absent=native_alias_contract(c)
+    return native_import_bytes(prefix,directory_symlinks=list(directories.values()),
+      absent_symlinks=list(absent.values()),return_layout=True)
+
+def native_distributions(prefix):
+    import importlib.metadata
+    site=Path(prefix)/'lib/python3.11/site-packages';records={}
+    for d in importlib.metadata.distributions(path=[str(site)]):
+        name=distribution_name(d.metadata['Name'])
+        if name in records:raise ValueError('ambiguous duplicate native distribution metadata')
+        records[name]=d.version
+    return dict(sorted(records.items()))
+
+
+def actual_scientific_modules(c,distributions):
+    records={};prefix=confined(c['runtime']['prefix'])
+    for name,distribution in c['runtime_inventory_contract']['scientific_modules'].items():
+        module=importlib.import_module(name);origin=Path(module.__file__).resolve()
+        if prefix not in origin.parents or not origin.is_file():raise ValueError('shadowed scientific module outside native prefix: '+name)
+        loader=module.__spec__.loader
+        d=distribution_name(distribution)
+        records[name]={'distribution':d,'distribution_version':distributions[d],
+          'module_version':getattr(module,'__version__',None),'origin':str(origin),'sha256':sha(origin),
+          'loader':type(loader).__module__+'.'+type(loader).__qualname__}
+    return records
+
+
+def capture_runtime_inventory(c,runtime):
+    """Root-only specification callable: actual readonly native packages, no model."""
+    if (Path(sys.prefix).resolve()!=confined(c['runtime']['prefix']) or list(sys.version_info[:3])!=c['runtime']['python_version']
+      or os.environ.get('CUDA_VISIBLE_DEVICES')!='' or not sys.dont_write_bytecode or os.environ.get('PYTHONPATH','')):
+        raise ValueError('root capture requires exact native Python, CUDA hidden, no generic helper path and no bytecode writes')
+    executable=native_executable(c);prefix=confined(c['runtime']['prefix'])
+    if Path(sys.executable).resolve()!=executable.resolve():raise ValueError('root capture actual interpreter target differs')
+    if sha(executable)!=runtime['python_executable_sha256']:raise ValueError('root capture executable binding differs')
+    before=native_inventory_scan(c,prefix);distributions=native_distributions(prefix)
+    helpers=load_exact_helpers(c,runtime);modules=actual_scientific_modules(c,distributions)
+    after=native_inventory_scan(c,prefix)
+    if not exact(before,after):raise ValueError('native prefix import bytes changed during readonly capture')
+    import torch
+    if torch.cuda.is_initialized():raise ValueError('runtime capture must never create CUDA context')
+    value={'kind':c['runtime_inventory_contract']['kind'],'status':c['runtime_inventory_contract']['status'],
+      'prefix':str(prefix),'python':{'version':list(sys.version_info[:3]),'executable':str(executable),
+        'resolved_executable':str(executable.resolve()),'sha256':sha(executable)},'distributions':distributions,
+      'scientific_modules':modules,'import_file_sha256':after[0],'additive_helpers':helpers,
+      'directory_symlinks':after[1],'absent_executable_symlinks':after[2]}
+    return parse_runtime_inventory(c,value,runtime)
+
+
+def runtime_preflight(c,runtime,CPU_only):
+    executable=native_executable(c);prefix=confined(c['runtime']['prefix'])
+    if (Path(sys.prefix).resolve()!=prefix or Path(sys.executable).resolve()!=executable.resolve()
+      or list(sys.version_info[:3])!=c['runtime']['python_version'] or sha(executable)!=runtime['python_executable_sha256']):
+        raise ValueError('exact isolated native interpreter required')
+    if CPU_only and os.environ.get('CUDA_VISIBLE_DEVICES')!='':raise ValueError('CPU retrieval must explicitly hide CUDA')
+    if os.environ.get('PYTHONPATH','') or not sys.dont_write_bytecode:raise ValueError('empty scientific PYTHONPATH and disabled bytecode writes required')
+    inventory=parse_runtime_inventory(c,read_json(runtime['environment_inventory_receipt']),runtime)
+    if inventory['python']['resolved_executable']!=str(executable.resolve()):raise ValueError('actual native executable target differs')
+    actual=native_inventory_scan(c,prefix);actual_files=actual[0]
+    if not exact(actual,(inventory['import_file_sha256'],inventory['directory_symlinks'],inventory['absent_executable_symlinks'])):
+        raise ValueError('actual native executable bytes or alias layout differ')
+    distributions=native_distributions(prefix)
+    if not exact(distributions,inventory['distributions']):raise ValueError('actual complete native distribution versions differ')
+    load_exact_helpers(c,runtime)
+    modules=actual_scientific_modules(c,distributions)
+    if not exact(modules,inventory['scientific_modules']):raise ValueError('actual child scientific module origin/version/import bytes differ')
+    if not exact(native_inventory_scan(c,prefix),actual):raise ValueError('native prefix bytes or layout changed during child scientific imports')
+    return {'interpreter':str(executable),'executable_sha256':sha(executable),'CPU_only':CPU_only,
+      'inventory':runtime['environment_inventory_receipt'],'scientific_module_count':len(modules),
+      'import_file_count':len(actual_files),'distribution_count':len(distributions),
+      'directory_symlink_count':len(actual[1]),'absent_executable_symlink_count':len(actual[2]),
+      'inventory_matches_actual_child_scientific_runtime':True,'helper_import_mode':'exact_bound_source_no_PYTHONPATH'}
+
+

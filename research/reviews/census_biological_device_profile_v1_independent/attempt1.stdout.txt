@@ -1,0 +1,66 @@
+F........................                                                [100%]
+=================================== FAILURES ===================================
+___________________ test_mock_admission_baseline_all_checks ____________________
+
+gate = ({'handmade/admission.json': {'schema': 'census_biological_device_profile_admission_v1', 'status': 'active', 'root_aut...s/census_biological_device_profile_v1.json': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'}}, ...)
+
+    def test_mock_admission_baseline_all_checks(gate):
+        objects, admission, *rest = gate
+>       accepted = profile.admit_profile(ref("admission"))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+research/reviews/census_biological_device_profile_v1_independent/test_review_v1.py:106: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+record = {'path': 'handmade/admission.json', 'sha256': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'}
+
+    def admit_profile(record):
+        from .census_native_qualification_runner_v1 import VerifiedReaderV1
+        from .census_biological_fit_v1 import require_terminal_numerical_v1
+        from . import project_budget_v4 as budget
+        reader = VerifiedReaderV1()
+        admission = reader.decode_json(record)
+        fields = {"schema", "status", "root_authorizer", "job_id", "created_at_utc", "expires_at_utc",
+                  "device", "output_directory", "refs", "source_sha256", "selected_cells"}
+        if (set(admission) != fields or admission["schema"] != "census_biological_device_profile_admission_v1"
+            or admission["status"] != "active" or admission["root_authorizer"] != "root_agent"
+            or admission["device"] != "cuda" or set(admission["refs"]) != REFS
+            or not isinstance(admission["job_id"], str) or not admission["job_id"]):
+            raise ValueError("Exact root target-free CUDA profile admission required")
+        active(admission)
+        cfg = reader.decode_json(admission["refs"]["config"])
+        if cfg != json.loads(CONFIG.read_text()) or cfg["kind"] != "census_biological_device_profile_v1":
+            raise ValueError("Frozen device profile configuration required")
+        sources = dict(cfg["source_sha256"])
+        sources[str(SOURCE.relative_to(ROOT))] = sha(SOURCE)
+        if admission["source_sha256"] != sources: raise ValueError("Complete exact profile source closure required")
+        for path, digest in sources.items(): reader.read({"path": path, "sha256": digest})
+        review = reader.decode_json(admission["refs"]["review"])
+        if (not str(review.get("status", "")).startswith("qualified") or review.get("actual_admission") is not False
+            or review.get("fixture_mode") is True
+            or review.get("artifact_sha256", {}).get(str(SOURCE.relative_to(ROOT))) != sources[str(SOURCE.relative_to(ROOT))]
+            or review.get("artifact_sha256", {}).get(str(CONFIG.relative_to(ROOT))) != admission["refs"]["config"]["sha256"]):
+            raise ValueError("Independent exact profile source/config review required")
+        gate = {key: reader.decode_json(admission["refs"][key]) for key in
+                ("numerical_evidence", "numerical_admission", "inspection_evidence", "inspection_freeze", "numerical_terminal")}
+        native = require_terminal_numerical_v1(gate["numerical_evidence"], gate["numerical_admission"],
+            gate["inspection_evidence"], gate["inspection_freeze"], gate["numerical_terminal"], admission["refs"])
+        qcfg = reader.decode_json(native["refs"]["runner_config"])
+        if qcfg != json.loads((ROOT / "configs/census_native_qualification_runner_v1.json").read_text()):
+            raise ValueError("Original qualified numerical configuration required")
+        if cfg["model"] != qcfg["model"] or cfg["tolerances"] != qcfg["tolerances"]["float32"]:
+            raise ValueError("Original full-tree model and fixed float32 tolerances required")
+        for path, digest in native["source_sha256"].items(): reader.read({"path": path, "sha256": digest})
+        runtime = reader.decode_json(admission["refs"]["runtime"])
+        numerical_runtime = reader.decode_json(native["refs"]["runtime"])
+        if (runtime.get("schema") != "census_biological_device_profile_runtime_v1"
+            or runtime.get("python") != str(ROOT / ".runtime/env/bin/python")
+            or runtime.get("numerical_identity") != numerical_runtime["identity"]
+            or runtime.get("runtime_file_sha256") != numerical_runtime["runtime_file_sha256"]):
+>           raise ValueError("Exact numerically qualified project runtime required")
+E           ValueError: Exact numerically qualified project runtime required
+
+src/arggnn/census_biological_device_profile_v1.py:200: ValueError
+=========================== short test summary info ============================
+FAILED research/reviews/census_biological_device_profile_v1_independent/test_review_v1.py::test_mock_admission_baseline_all_checks
+1 failed, 24 passed in 7.20s

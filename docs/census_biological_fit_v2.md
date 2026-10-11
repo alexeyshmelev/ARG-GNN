@@ -1,0 +1,39 @@
+# Census biological fitting protocol v2
+
+H021 implementation correction, 2026-10-11. This inactive successor repairs the conditional checkpoint mismatch documented in the preserved [v1 independent REJECT receipt](../research/reviews/census_biological_fit_v1_independent/review_receipt.json). Its author checks are source/scalar fixtures. They supply no independent reviewer verdict, fitting result, runtime qualification, reservation, launcher or execution authority. Root owns independent review, registration, all actual data access, storage policy, profiling, scheduling and Git.
+
+## Exact authorized change
+
+The only scientific code change is the checkpoint condition in the inherited `run_fit_v1` function:
+
+```python
+if state['best_epoch'] is None or nll < state['best']:
+```
+
+The first completed epoch always supplies the initial checkpoint. Later epochs replace it only on strict improvement. Thirty equal infinite raw VAL NLLs therefore select epoch 1. An initial infinity followed by a finite NLL selects the first best finite epoch. Equal finite NLLs preserve the earliest epoch. Infinite NLL remains infinite, with nullable exported NLL and its explicit infinity indicator. No probability floor, changed score, early stopping, shorter budget, finite-only selection or new all-infinite abort is introduced. The observed frequency of this case in biological fitting is unknown. No biological fitting was performed during this correction.
+
+All other source changes are fit-owned artifact/config path and admission/runtime/storage/launcher/profile/evidence schema version literals, from v1 to v2. Internal function/class names retain their inherited v1 names. The new entry point is `arggnn.census_biological_fit_v2`; it loads `configs/census_biological_fit_v2.json`. The config changes only `kind` and `gpu_runtime.launcher_module`. The author's complete unified source/config diffs and inverse-delta whole-module AST proof are in `research/reviews/census_biological_fit_v2_author/`. Applying only the inverse version substitutions and inverse checkpoint predicate produces the exact v1 AST, including every training, data, numerical, scoring, postprocessing, control, budget and capability predicate. All 35 dependency pins remain identical. The v1 source, config, author artifacts, independent rejection and validator remain sealed.
+
+## Inherited scientific protocol
+
+The full [v1 protocol](census_biological_fit_v1.md) remains the inherited specification except for the checkpoint repair and fit-owned version bindings above. The current condition is observed post-five-size-iteration **Relate**, with the same two TRAIN and two previously exposed development VAL parents, eight original tiles per parent and no TEST. The full 280-sample whole-tree 32/8/two-layer/three-branch architecture, native dates, F47 columns, certified census/donor geometry and five matched controls remain unchanged. All controls keep the same initial weights, shuffled TRAIN tile order, AdamW scales, seeds 101/202/303, 30 epochs and 480 updates per control and seed. The 480-step guard applies to the completed training trajectory. A selected checkpoint retains the model and optimizer state from its selected epoch, which may be epoch 1, exactly as in the inherited source.
+
+Actual query120 exact class-span TRAIN mass is the sole supervised loss. Targets never enter forward. Every epoch seals all five controls' predictions for both VAL parents before any VAL target read. Minimum equal-parent present64 exact-span raw-probability VAL NLL remains the selection rule, with earliest ties. The same raw-probability helper, retained original 100 bp centers, clipped outer support, 2 Mb normalization, full denominator, age strata and equal-parent aggregation remain unchanged. There is no purity filtering, posthoc renormalization, target-driven geometry or probability ensemble.
+
+Existing development exposure, lack of independent confirmation, inactive future sensitivity/confirmation plans, native baseline budget distinctions and unresolved exact-original-paper reproduction claims remain unchanged. The unchanged wrapper's forest rebuilding, certificate/native replay and level-wise autograd costs still require actual whole-tree profile evidence. The inherited config retains its 450 GB effective ceiling and 40 GB per-seed output guard. The user's separate 1 TB authorization does not itself change this version's executable guard. A separate reviewed policy transition is required before any larger admission.
+
+## Fresh v2 capabilities remain required
+
+The fit-owned schema literals now required by this consumer are `census_biological_fit_admission_v2`, `census_biological_fit_runtime_v2`, `census_biological_fit_storage_v2`, `census_biological_fit_launcher_v2`, `census_biological_fit_profile_gate_v2` and output `census_biological_fit_evidence_v2`. Their field shapes and every substantive gate are unchanged. The numerical terminal, native qualification, inspection and external-target binding schemas remain v1 because those contracts are unchanged. Numerical and profile evidence must retain the original architecture, exact inputs and output/VJP tolerances. An old source/config review or old v1 root fit capability does not admit this v2 consumer. Root must supply a fresh independent exact-v2 source/config review and correctly bound v2 capability receipts. A source seal cannot turn target-free numerical/profile evidence into predictive fit evidence.
+
+The same-tsinfer Census observation bridge is a separate, still unqualified scientific consumer condition. This v2 does not substitute tsinfer/tsdate observations for Relate, create or admit a same-tsinfer fit consumer, or qualify a comparison to the native ARGformer tsinfer branch. That work needs its own reviewed observation/geometry consumer, numerical/profile qualification and fixed fitting/evaluation contract.
+
+The present `budgeted_shared_pool_v2` finite module allowlist and additional-worker contracts contain the rejected `arggnn.census_biological_fit_v1` pin and **do not contain `arggnn.census_biological_fit_v2`**. Pool v2 therefore cannot launch this successor. The pool source/config were read and hash-recorded but not changed. Eligibility needs a separately reviewed pool successor after this source seal. Pool eligibility alone never supplies a valid scientific review, GPU profile, launcher, watchdog, storage reservation or fit admission.
+
+## Bounded fixture evidence and limits
+
+The author checks passed 319 checks in the first attempt. Seven fixtures execute the exact source AST scoring/history/checkpoint loop for all five controls across 30 scalar epochs. V2 covers all-infinite NLLs, infinity followed by first finite NLL and finite ties, equal finite ties, and a later infinity after a finite NLL. Preserved v1 fixtures reproduce its conditional all-infinite failure and confirm unchanged finite selection. The exact original completion guard still rejects a synthetic 479-step state.
+
+The scoring/seal/resource/output adapters and model/optimizer state dictionaries are explicit in-memory stand-ins. The fixture's synthetic step counters exercise the fixed-budget guard and represent **zero actual optimizer steps**. No scientific model or optimizer was instantiated, no target/scientific array was read, and no fit wrapper, actual checkpoint serialization, GPU/device query, CUDA context, live ledger/lock, installation, root reservation or Git operation was performed. The checkpoint body, history rows and scalar terminal guard are executed directly from the new source rather than reimplemented. The all-infinite result proves repaired protocol behavior under that allowed scalar case, not its occurrence or predictive effect in biological training.
+
+The prior reviewer authored this corrective successor at root's explicit assignment. The author receipt is not an independent review. Root will review the exact sealed v2 artifacts independently.

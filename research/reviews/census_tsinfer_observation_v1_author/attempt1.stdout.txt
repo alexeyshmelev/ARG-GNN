@@ -1,0 +1,98 @@
+............F.....FF.F........                                           [100%]
+=================================== FAILURES ===================================
+_________________ test_every_full_native_tree_and_source_dtype _________________
+
+    def test_every_full_native_tree_and_source_dtype():
+        c = certificate(full=True).native_certificate
+        assert c.provenance["original_tree_ids"] == [0, 1]
+        assert [len(t.parent) for t in c.native_trees] == [281, 281]
+        assert c.stored_sequence.x.dtype == torch.float32
+        assert c.stored_sequence.intervals.dtype == torch.float64
+>       assert all(t.time.dtype == torch.float64 for t in c.native_trees)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+research/reviews/census_tsinfer_observation_v1_author/test_census_tsinfer_observation_v1.py:188: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = <tuple_iterator object at 0x78491861b430>
+
+>   assert all(t.time.dtype == torch.float64 for t in c.native_trees)
+               ^^^^^^
+E   AttributeError: 'ObservedDatedTreeV1' object has no attribute 'time'
+
+research/reviews/census_tsinfer_observation_v1_author/test_census_tsinfer_observation_v1.py:188: AttributeError
+___ test_CPU32_64_roundtrip_and_unchanged_integer_geometry_contract[dtype0] ____
+
+dtype = torch.float32
+
+    @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
+    def test_CPU32_64_roundtrip_and_unchanged_integer_geometry_contract(dtype):
+        c = certificate()
+        bridge.validate_tsinfer_certificate_v1(c, c.certificate_sha256, CFG)
+        ts, roles, *_ = handmade()
+        fresh = bridge.extract_native_tsinfer_tile_v1(ts, roles, positions(), [0., 6400.], 0, CFG, fixture=True)[0]
+        restored = torch.load(io.BytesIO(bridge.raw_sequence_bytes_v1(fresh, CFG)), map_location="cpu", weights_only=True)
+        assert all(torch.equal(fresh["sequence"][k], restored["sequence"][k]) if isinstance(fresh["sequence"][k], torch.Tensor)
+                   else fresh["sequence"][k] is restored["sequence"][k] for k in fresh["sequence"])
+        bank, forest = c.native_certificate.bank.to("cpu", dtype), c.native_certificate.forest.to("cpu", dtype)
+        assert bank.donor_weights.dtype == dtype and forest.node.dtype == dtype
+        assert torch.equal(bank.query_ids, c.native_certificate.bank.query_ids)
+        assert torch.equal(bank.target_graph, c.native_certificate.bank.target_graph)
+>       assert bank.layout.bounds.dtype == torch.float64
+               ^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'CompactAnchorLayoutV1' object has no attribute 'bounds'
+
+research/reviews/census_tsinfer_observation_v1_author/test_census_tsinfer_observation_v1.py:250: AttributeError
+___ test_CPU32_64_roundtrip_and_unchanged_integer_geometry_contract[dtype1] ____
+
+dtype = torch.float64
+
+    @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
+    def test_CPU32_64_roundtrip_and_unchanged_integer_geometry_contract(dtype):
+        c = certificate()
+        bridge.validate_tsinfer_certificate_v1(c, c.certificate_sha256, CFG)
+        ts, roles, *_ = handmade()
+        fresh = bridge.extract_native_tsinfer_tile_v1(ts, roles, positions(), [0., 6400.], 0, CFG, fixture=True)[0]
+        restored = torch.load(io.BytesIO(bridge.raw_sequence_bytes_v1(fresh, CFG)), map_location="cpu", weights_only=True)
+        assert all(torch.equal(fresh["sequence"][k], restored["sequence"][k]) if isinstance(fresh["sequence"][k], torch.Tensor)
+                   else fresh["sequence"][k] is restored["sequence"][k] for k in fresh["sequence"])
+        bank, forest = c.native_certificate.bank.to("cpu", dtype), c.native_certificate.forest.to("cpu", dtype)
+        assert bank.donor_weights.dtype == dtype and forest.node.dtype == dtype
+        assert torch.equal(bank.query_ids, c.native_certificate.bank.query_ids)
+        assert torch.equal(bank.target_graph, c.native_certificate.bank.target_graph)
+>       assert bank.layout.bounds.dtype == torch.float64
+               ^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'CompactAnchorLayoutV1' object has no attribute 'bounds'
+
+research/reviews/census_tsinfer_observation_v1_author/test_census_tsinfer_observation_v1.py:250: AttributeError
+______________ test_source_and_cache_contamination_rejected[mask] ______________
+
+fault = 'mask'
+
+    @pytest.mark.parametrize("fault", ["feature", "mask", "labels", "extra_field", "edge", "position"])
+    def test_source_and_cache_contamination_rejected(fault):
+        ts, roles, *_ = handmade()
+        raw = bridge.extract_native_tsinfer_tile_v1(ts, roles, positions(), [0., 6400.], 0, CFG, fixture=True)[0]
+        changed = deepcopy(raw)
+        if fault == "feature":
+            changed["sequence"]["x"][0, 8] += 0.01
+        elif fault == "mask":
+            changed["sequence"]["x"][0, 0] = 1.
+        elif fault == "labels":
+            changed["labels_in_input"] = True
+        elif fault == "extra_field":
+            changed["sequence"]["query_population"] = torch.zeros(4)
+        elif fault == "edge":
+            changed["sequence"]["edge_index"] = changed["sequence"]["edge_index"][:, 2:].clone()
+        elif fault == "position":
+            changed["sequence"]["positions"][0] += 1e-8
+>       with pytest.raises(ValueError):
+E       Failed: DID NOT RAISE ValueError
+
+research/reviews/census_tsinfer_observation_v1_author/test_census_tsinfer_observation_v1.py:270: Failed
+=========================== short test summary info ============================
+FAILED research/reviews/census_tsinfer_observation_v1_author/test_census_tsinfer_observation_v1.py::test_every_full_native_tree_and_source_dtype
+FAILED research/reviews/census_tsinfer_observation_v1_author/test_census_tsinfer_observation_v1.py::test_CPU32_64_roundtrip_and_unchanged_integer_geometry_contract[dtype0]
+FAILED research/reviews/census_tsinfer_observation_v1_author/test_census_tsinfer_observation_v1.py::test_CPU32_64_roundtrip_and_unchanged_integer_geometry_contract[dtype1]
+FAILED research/reviews/census_tsinfer_observation_v1_author/test_census_tsinfer_observation_v1.py::test_source_and_cache_contamination_rejected[mask]
+4 failed, 26 passed in 8.94s
