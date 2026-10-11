@@ -1,0 +1,88 @@
+{
+  "actual_admission": false,
+  "actual_queue_or_native_stage_executed": false,
+  "binding_counterexamples": [
+    {
+      "accepted": true,
+      "changed_sha256": "653ed71bdcefd48366759812db2adad733d6f76da44abbc33992cec3401e5d39",
+      "contract": "exact_barrier_pin",
+      "expected_sha256": "08c0b9427d7c4ca9b3a25b23232e84dfed361da49790cf3c6601c25e7b469009"
+    },
+    {
+      "accepted": true,
+      "activated_ref": {
+        "path": "research/reviews/native_argformer_tsinfer_fit_v7_execution_root/budget_receipt.json",
+        "sha256": "21e5ea4359b37364045e7138db212f9c9ada441375e75da57923c0155e2e9cee"
+      },
+      "contract": "exact_budget_receipt_pin",
+      "expected_ref": {
+        "path": "research/reviews/native_argformer_tsinfer_fit_v7_execution_root/budget_receipt.json",
+        "sha256": "610fb2ed8420046d7a0528e0a4795c61208251ead2311970c1bdfe67be74cd66"
+      }
+    },
+    {
+      "accepted": true,
+      "active_record_ref": {
+        "path": "research/reviews/native_argformer_tsinfer_fit_v7_execution_root/bio_paths_pilot_train_000_probe-memory_handmade_changed_proposal_r001_admission_active.json",
+        "sha256": "c3a9b9e003231e3fc26fe924a8f420cf56dceabb9b468390b6d59f65a2798812"
+      },
+      "changed_sha256": "4c061f1970905f0542ea82a3995626d0e5ce83c3f864d3859b36891ee8478e3f",
+      "contract": "exact_stage_proposal_pin",
+      "expected_ref": {
+        "path": "research/reviews/native_argformer_tsinfer_fit_v7_execution_root/bio_paths_pilot_train_000_probe-memory_admission_proposal.json",
+        "sha256": "47cc7480eb492546bd90f254378b9b98d74b73c62f08cc561706b64de8fbc86b"
+      },
+      "limit": "Existing native admission should reject fallback; this demonstrates missing root plan pin, not bypass of science guards.",
+      "native_core_executed": false
+    }
+  ],
+  "created_utc": "2026-10-11T05:43:56.280781+00:00",
+  "execution_plan": {
+    "path": "research/reviews/native_argformer_tsinfer_fit_v7_execution_root/execution_plan.json",
+    "sha256": "e88acb38da78337131632fe10484f57e923eafa4ce1581f4bf8c9c017ab4cb19"
+  },
+  "existing_native_science_review_reused_without_reopening": true,
+  "findings": [
+    {
+      "body": "The runner verifies plan/review hashes but reads release_barrier.json directly and checks only root_authorizer/active. A fake-root replacement with an empty waiter list passes these guards despite a different SHA from the reviewed barrier. It can skip the intended natural-release wait. The unchanged original launcher still enforces a free exclusive lease, so this is not a demonstrated bypass of device occupancy guards.",
+      "file": "research/reviews/native_argformer_tsinfer_fit_v7_execution_root/run_four_parent_queue.py",
+      "fix": "Resolve plan.release_barrier, require the exact expected path/ref and SHA, then validate/use that bound object before any wait receipt or stage start. Rebind a fresh current natural-release barrier for V2; root reported new live GPU2 workers after this V1 barrier was prepared.",
+      "id": "F1",
+      "line": 42,
+      "priority": "P1",
+      "title": "Release barrier is read without the plan-pinned hash"
+    },
+    {
+      "body": "admission() selects proposals by filename and checks only source/config digests. A changed proposal is activated despite a hash different from the12 plan refs. Likewise the activation-selected budget receipt is hash-checked against activation but never compared with plan.budget_receipt; a different receipt passes the prefix. Existing native admission should reject invalid scientific fields, as in the fallback fixture, but the root runner can activate unreviewed metadata.",
+      "file": "research/reviews/native_argformer_tsinfer_fit_v7_execution_root/run_four_parent_queue.py",
+      "fix": "Require activation.budget_receipt == plan.budget_receipt. Build a unique exact12 (parent,stage) map; resolve and hash each pinned proposal and registration before activation, require their mutual registration reference and parent/stage, and retain original science/runtime/storage/launcher gates.",
+      "id": "F2",
+      "line": 59,
+      "priority": "P1",
+      "title": "Stage proposals and activated budget receipt are not tied to the reviewed plan"
+    }
+  ],
+  "kind": "native_argformer_tsinfer_fit_v7_root_execution_independent_review",
+  "live_proc_or_ledger_reads": false,
+  "metadata_checks_passed": 114,
+  "mock_runner_checks_passed": 25,
+  "notes": [
+    {
+      "body": "The delta artifact still advertises c97f1a388f75928e6a5e82b41445c5f9e75944298d2609c833cc1367c2e7a431 while reviewed runner is cc67a0a159dd25426d1825faa3033b52dba28d36bc95e597bff9b8b4fadbde99. Refresh it truthfully for the immutable V2 successor.",
+      "file": "research/reviews/native_argformer_tsinfer_fit_v7_execution_root/source_delta.json",
+      "id": "N1"
+    }
+  ],
+  "prior_related_work_disclosure": "Reviewer authored native V7 scientific source earlier; this review is of the separately root-authored queue/plan metadata only. Existing native source independent PASS is unchanged and is not re-reviewed here.",
+  "queue_source": {
+    "path": "research/reviews/native_argformer_tsinfer_fit_v7_execution_root/run_four_parent_queue.py",
+    "sha256": "cc67a0a159dd25426d1825faa3033b52dba28d36bc95e597bff9b8b4fadbde99"
+  },
+  "release_barrier": {
+    "path": "research/reviews/native_argformer_tsinfer_fit_v7_execution_root/release_barrier.json",
+    "sha256": "08c0b9427d7c4ca9b3a25b23232e84dfed361da49790cf3c6601c25e7b469009"
+  },
+  "review_role": "independent_reviewer",
+  "runtime_data_model_GPU_budget_scheduling_Git_operations": false,
+  "verdict": "REJECT"
+}
