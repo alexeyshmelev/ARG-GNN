@@ -1,0 +1,135 @@
+.............................................FF                          [100%]
+=================================== FAILURES ===================================
+___ test_full_handmade_core_reproduces_v2_missing_json_without_source_patch ____
+
+tmp_path = PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/official_argformer_tsinfer_parent_v3_author/tmp/pytest/test_full_handmade_core_reprod0')
+
+    def test_full_handmade_core_reproduces_v2_missing_json_without_source_patch(tmp_path):
+        smoke=smoke_helper()
+        with pytest.raises(NameError,match="json"):
+>           smoke.run_handmade_case(tmp_path/"v2_missing_json",smoke.load_dispatcher(2))
+
+tests/test_official_argformer_tsinfer_parent_v3.py:372: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+case_dir = PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/official_argformer_tsinfer_parent_v3_author/tmp/pytest/test_full_handmade_core_reprod0/v2_missing_json')
+dispatcher = <module '_handmade_parent_v2' from '/workspace-SR003.nfs2/ARG-GNN/scripts/prepare_official_argformer_tsinfer_parent_v2.py'>
+
+    def run_handmade_case(case_dir,dispatcher=None):
+        case=Path(case_dir)
+        if case.is_symlink() or case.resolve()!=case or ALLOWED not in case.parents or case.exists():
+            raise ValueError("Fresh owned audit temp case required")
+        case.mkdir(parents=True)
+        h=dispatcher or load_dispatcher()
+        c=h.policy();h.verify_source(c);bridge,bc=h.load_bridge(c)
+        import numpy as np
+        import tskit
+        table=tskit.TableCollection(sequence_length=400)
+        rows=[]
+        for sample in range(280):
+            age=float(sample%7)
+            node=table.nodes.add_row(flags=tskit.NODE_IS_SAMPLE,time=age)
+            role="pure_source_reference" if sample<96 else ("mixed_reference_only" if sample<160 else "query")
+            rows.append(dict(sample_index=sample,inferred_tree_node_id=node,observed_node_id=node,
+                             role=role,observed_reference_class=sample//24 if sample<96 else None,age_generations=age))
+        roots=[table.nodes.add_row(time=20),table.nodes.add_row(time=30)]
+        for sample in range(280):
+            table.edges.add_row(0,200,roots[0],sample)
+            table.edges.add_row(200,400,roots[1],sample)
+        table.sort()
+        tree=table.tree_sequence()
+        assert tree.num_samples==280 and tree.num_trees==2 and tree.num_populations==0
+        inputs=case/"handmade_inputs";inputs.mkdir()
+        tree_path=inputs/"handmade_observed.trees";tree.dump(tree_path)
+        def metadata_file(name,value):
+            path=inputs/name
+            with path.open("x") as stream: stream.write(json.dumps(value,sort_keys=True)+"\n")
+            return path
+        roster=metadata_file("inferred_roster.json",rows)
+        original=metadata_file("source_roster.json",{"handmade_only":True})
+        provenance=metadata_file("completion.json",{"handmade_only":True,"condition":"observed_only"})
+        grid=inputs/"fixed_grid.npz"
+        np.savez_compressed(grid,positions_bp=np.arange(50,2000000,100,dtype=np.float64))
+        def ref(path):return dict(path=str(path),sha256=h.sha(path))
+        coordinate=dict(original_parent_interval_bp0=[0,2000000],normalization_length_bp=2000000,
+                        fixed_grid={**ref(grid),"total":20000,"center_formula_bp0":"50 + 100*grid_index"},
+                        retained_fixed100bp_indexes=[10,11,12,13],local_to_original_offset_bp=1000,
+                        coverage_original_bp0=[1000,1400])
+        parent=c["default_parent"]
+        entry=dict(parent_id=parent,split="train",status="inferred_both_conditions",
+>                  inferred_tree={**ref(tree_path),"condition":bc["inferred_condition"]},
+                                                               ^^^^^^^^^^^^^^^^^^^^^^^^
+                   observed_sample_manifest={**ref(roster),"rows":280,"source_manifest":ref(original)},
+                   completion_provenance=ref(provenance),coordinate_contract=coordinate,
+                   sample_index_to_inferred_tree_node_id=[dict(sample_index=i,inferred_tree_node_id=i) for i in range(280)])
+E       KeyError: 'inferred_condition'
+
+research/reviews/official_argformer_tsinfer_parent_v3_author/handmade_preparation_smoke.py:63: KeyError
+__ test_full_handmade_v3_compiled_core_prepares_and_qualifies_all280_samples ___
+
+tmp_path = PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/official_argformer_tsinfer_parent_v3_author/tmp/pytest/test_full_handmade_v3_compiled0')
+
+    def test_full_handmade_v3_compiled_core_prepares_and_qualifies_all280_samples(tmp_path):
+>       receipt=smoke_helper().run_handmade_case(tmp_path/"v3_full_core",h)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_official_argformer_tsinfer_parent_v3.py:375: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+case_dir = PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/official_argformer_tsinfer_parent_v3_author/tmp/pytest/test_full_handmade_v3_compiled0/v3_full_core')
+dispatcher = <module 'parent_cpu_dispatcher_v3' from '/workspace-SR003.nfs2/ARG-GNN/scripts/prepare_official_argformer_tsinfer_parent_v3.py'>
+
+    def run_handmade_case(case_dir,dispatcher=None):
+        case=Path(case_dir)
+        if case.is_symlink() or case.resolve()!=case or ALLOWED not in case.parents or case.exists():
+            raise ValueError("Fresh owned audit temp case required")
+        case.mkdir(parents=True)
+        h=dispatcher or load_dispatcher()
+        c=h.policy();h.verify_source(c);bridge,bc=h.load_bridge(c)
+        import numpy as np
+        import tskit
+        table=tskit.TableCollection(sequence_length=400)
+        rows=[]
+        for sample in range(280):
+            age=float(sample%7)
+            node=table.nodes.add_row(flags=tskit.NODE_IS_SAMPLE,time=age)
+            role="pure_source_reference" if sample<96 else ("mixed_reference_only" if sample<160 else "query")
+            rows.append(dict(sample_index=sample,inferred_tree_node_id=node,observed_node_id=node,
+                             role=role,observed_reference_class=sample//24 if sample<96 else None,age_generations=age))
+        roots=[table.nodes.add_row(time=20),table.nodes.add_row(time=30)]
+        for sample in range(280):
+            table.edges.add_row(0,200,roots[0],sample)
+            table.edges.add_row(200,400,roots[1],sample)
+        table.sort()
+        tree=table.tree_sequence()
+        assert tree.num_samples==280 and tree.num_trees==2 and tree.num_populations==0
+        inputs=case/"handmade_inputs";inputs.mkdir()
+        tree_path=inputs/"handmade_observed.trees";tree.dump(tree_path)
+        def metadata_file(name,value):
+            path=inputs/name
+            with path.open("x") as stream: stream.write(json.dumps(value,sort_keys=True)+"\n")
+            return path
+        roster=metadata_file("inferred_roster.json",rows)
+        original=metadata_file("source_roster.json",{"handmade_only":True})
+        provenance=metadata_file("completion.json",{"handmade_only":True,"condition":"observed_only"})
+        grid=inputs/"fixed_grid.npz"
+        np.savez_compressed(grid,positions_bp=np.arange(50,2000000,100,dtype=np.float64))
+        def ref(path):return dict(path=str(path),sha256=h.sha(path))
+        coordinate=dict(original_parent_interval_bp0=[0,2000000],normalization_length_bp=2000000,
+                        fixed_grid={**ref(grid),"total":20000,"center_formula_bp0":"50 + 100*grid_index"},
+                        retained_fixed100bp_indexes=[10,11,12,13],local_to_original_offset_bp=1000,
+                        coverage_original_bp0=[1000,1400])
+        parent=c["default_parent"]
+        entry=dict(parent_id=parent,split="train",status="inferred_both_conditions",
+>                  inferred_tree={**ref(tree_path),"condition":bc["inferred_condition"]},
+                                                               ^^^^^^^^^^^^^^^^^^^^^^^^
+                   observed_sample_manifest={**ref(roster),"rows":280,"source_manifest":ref(original)},
+                   completion_provenance=ref(provenance),coordinate_contract=coordinate,
+                   sample_index_to_inferred_tree_node_id=[dict(sample_index=i,inferred_tree_node_id=i) for i in range(280)])
+E       KeyError: 'inferred_condition'
+
+research/reviews/official_argformer_tsinfer_parent_v3_author/handmade_preparation_smoke.py:63: KeyError
+=========================== short test summary info ============================
+FAILED tests/test_official_argformer_tsinfer_parent_v3.py::test_full_handmade_core_reproduces_v2_missing_json_without_source_patch
+FAILED tests/test_official_argformer_tsinfer_parent_v3.py::test_full_handmade_v3_compiled_core_prepares_and_qualifies_all280_samples
+2 failed, 45 passed in 8.76s

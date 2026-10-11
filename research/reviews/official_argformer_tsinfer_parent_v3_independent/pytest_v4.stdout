@@ -1,0 +1,1147 @@
+FF............FFFFFFFFFFFFFFFFF........FFF..FFF                          [100%]
+=================================== FAILURES ===================================
+_____ test_default_source_mode_cannot_import_native_or_read_actual_arrays ______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7599ed634ed0>
+
+    def test_default_source_mode_cannot_import_native_or_read_actual_arrays(monkeypatch):
+        original_import=builtins.__import__;original_open=Path.open
+        def imports(name,*args,**kwargs):
+            if name.split(".")[0] in {"numpy","torch","tskit","tsinfer","tsdate","composer","transformers","omegaconf"}:
+                raise AssertionError("native import during source-only")
+            return original_import(name,*args,**kwargs)
+        def opens(p,*args,**kwargs):
+            if p.suffix in {".trees",".npz",".vcf",".pkl",".pt",".npy"}:
+                raise AssertionError("actual array read during source-only")
+            return original_open(p,*args,**kwargs)
+        monkeypatch.setattr(builtins,"__import__",imports);monkeypatch.setattr(Path,"open",opens)
+>       c=h.policy();h.verify_source(c);bridge,bc=h.load_bridge(c)
+                                                  ^^^^^^^^^^^^^^^^
+
+tests/test_official_argformer_tsinfer_parent_v3.py:43: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/prepare_official_argformer_tsinfer_parent_v3.py:92: in load_bridge
+    module.verify_source(bc)
+src/arggnn/official_argformer_tsinfer_biological_v2.py:101: in verify_source
+    if p.is_symlink() or digest(p)!=expected:
+                         ^^^^^^^^^
+src/arggnn/official_argformer_tsinfer_biological_v2.py:38: in digest
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+                          ^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/pathlib.py:1050: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+tests/test_official_argformer_tsinfer_parent_v3.py:41: in opens
+    return original_open(p,*args,**kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/pathlib.py:1044: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:33: in audit
+    check_path(args[0],writing); counts['open_write' if writing else 'open_read']+=1
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:26: in check_path
+    if not owned and any(p==q or q in p.parents for q in BLOCKED_READS):deny('actual or live metadata access',p)
+                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+why = 'actual or live metadata access'
+p = PosixPath('/workspace-SR003.nfs2/ARG-GNN/data/literature/argformer_btag438_source_check_v1/body.txt')
+
+    def deny(why,p):
+        denied.append({'reason':why,'path':str(p)})
+>       raise AssertionError(why+': '+str(p))
+E       AssertionError: actual or live metadata access: /workspace-SR003.nfs2/ARG-GNN/data/literature/argformer_btag438_source_check_v1/body.txt
+
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:20: AssertionError
+_______ test_execute_without_optin_stops_before_runtime_ledger_or_arrays _______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7599ecf59790>
+
+    def test_execute_without_optin_stops_before_runtime_ledger_or_arrays(monkeypatch):
+>       c=h.policy();bridge,bc=h.load_bridge(c)
+                               ^^^^^^^^^^^^^^^^
+
+tests/test_official_argformer_tsinfer_parent_v3.py:50: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/prepare_official_argformer_tsinfer_parent_v3.py:92: in load_bridge
+    module.verify_source(bc)
+src/arggnn/official_argformer_tsinfer_biological_v2.py:101: in verify_source
+    if p.is_symlink() or digest(p)!=expected:
+                         ^^^^^^^^^
+src/arggnn/official_argformer_tsinfer_biological_v2.py:38: in digest
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+                          ^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/pathlib.py:1050: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/pathlib.py:1044: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:33: in audit
+    check_path(args[0],writing); counts['open_write' if writing else 'open_read']+=1
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:26: in check_path
+    if not owned and any(p==q or q in p.parents for q in BLOCKED_READS):deny('actual or live metadata access',p)
+                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+why = 'actual or live metadata access'
+p = PosixPath('/workspace-SR003.nfs2/ARG-GNN/data/literature/argformer_btag438_source_check_v1/body.txt')
+
+    def deny(why,p):
+        denied.append({'reason':why,'path':str(p)})
+>       raise AssertionError(why+': '+str(p))
+E       AssertionError: actual or live metadata access: /workspace-SR003.nfs2/ARG-GNN/data/literature/argformer_btag438_source_check_v1/body.txt
+
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:20: AssertionError
+___ test_budget_crosschecks_source_counts_and_reports_exact_full4096_updates ___
+
+    def test_budget_crosschecks_source_counts_and_reports_exact_full4096_updates():
+>       c=h.policy();bridge,bc=h.load_bridge(c);roles=role_counts()
+                               ^^^^^^^^^^^^^^^^
+
+tests/test_official_argformer_tsinfer_parent_v3.py:104: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/prepare_official_argformer_tsinfer_parent_v3.py:92: in load_bridge
+    module.verify_source(bc)
+src/arggnn/official_argformer_tsinfer_biological_v2.py:101: in verify_source
+    if p.is_symlink() or digest(p)!=expected:
+                         ^^^^^^^^^
+src/arggnn/official_argformer_tsinfer_biological_v2.py:38: in digest
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+                          ^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/pathlib.py:1050: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/pathlib.py:1044: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:33: in audit
+    check_path(args[0],writing); counts['open_write' if writing else 'open_read']+=1
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:26: in check_path
+    if not owned and any(p==q or q in p.parents for q in BLOCKED_READS):deny('actual or live metadata access',p)
+                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+why = 'actual or live metadata access'
+p = PosixPath('/workspace-SR003.nfs2/ARG-GNN/data/literature/argformer_btag438_source_check_v1/body.txt')
+
+    def deny(why,p):
+        denied.append({'reason':why,'path':str(p)})
+>       raise AssertionError(why+': '+str(p))
+E       AssertionError: actual or live metadata access: /workspace-SR003.nfs2/ARG-GNN/data/literature/argformer_btag438_source_check_v1/body.txt
+
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:20: AssertionError
+_________ test_budget_rejects_inconsistent_real_count_claims[negative] _________
+
+change = 'negative'
+
+    @pytest.mark.parametrize("change",["negative","bool","query_exceeds","reference_record","MLM_record","unique_record"])
+    def test_budget_rejects_inconsistent_real_count_claims(change):
+>       c=h.policy();bridge,bc=h.load_bridge(c);roles=role_counts();q=3000;decl={"mlm":{"train":10000,"val":1000},"contrastive":{"train":5000,"val":500}};total=11000
+                               ^^^^^^^^^^^^^^^^
+
+tests/test_official_argformer_tsinfer_parent_v3.py:112: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/prepare_official_argformer_tsinfer_parent_v3.py:92: in load_bridge
+    module.verify_source(bc)
+src/arggnn/official_argformer_tsinfer_biological_v2.py:101: in verify_source
+    if p.is_symlink() or digest(p)!=expected:
+                         ^^^^^^^^^
+src/arggnn/official_argformer_tsinfer_biological_v2.py:38: in digest
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+                          ^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/pathlib.py:1050: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/pathlib.py:1044: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:33: in audit
+    check_path(args[0],writing); counts['open_write' if writing else 'open_read']+=1
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:26: in check_path
+    if not owned and any(p==q or q in p.parents for q in BLOCKED_READS):deny('actual or live metadata access',p)
+                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+why = 'actual or live metadata access'
+p = PosixPath('/workspace-SR003.nfs2/ARG-GNN/data/literature/argformer_btag438_source_check_v1/body.txt')
+
+    def deny(why,p):
+        denied.append({'reason':why,'path':str(p)})
+>       raise AssertionError(why+': '+str(p))
+E       AssertionError: actual or live metadata access: /workspace-SR003.nfs2/ARG-GNN/data/literature/argformer_btag438_source_check_v1/body.txt
+
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:20: AssertionError
+___________ test_budget_rejects_inconsistent_real_count_claims[bool] ___________
+
+change = 'bool'
+
+    @pytest.mark.parametrize("change",["negative","bool","query_exceeds","reference_record","MLM_record","unique_record"])
+    def test_budget_rejects_inconsistent_real_count_claims(change):
+>       c=h.policy();bridge,bc=h.load_bridge(c);roles=role_counts();q=3000;decl={"mlm":{"train":10000,"val":1000},"contrastive":{"train":5000,"val":500}};total=11000
+                               ^^^^^^^^^^^^^^^^
+
+tests/test_official_argformer_tsinfer_parent_v3.py:112: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/prepare_official_argformer_tsinfer_parent_v3.py:92: in load_bridge
+    module.verify_source(bc)
+src/arggnn/official_argformer_tsinfer_biological_v2.py:101: in verify_source
+    if p.is_symlink() or digest(p)!=expected:
+                         ^^^^^^^^^
+src/arggnn/official_argformer_tsinfer_biological_v2.py:38: in digest
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+                          ^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/pathlib.py:1050: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/pathlib.py:1044: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:33: in audit
+    check_path(args[0],writing); counts['open_write' if writing else 'open_read']+=1
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:26: in check_path
+    if not owned and any(p==q or q in p.parents for q in BLOCKED_READS):deny('actual or live metadata access',p)
+                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+why = 'actual or live metadata access'
+p = PosixPath('/workspace-SR003.nfs2/ARG-GNN/data/literature/argformer_btag438_source_check_v1/body.txt')
+
+    def deny(why,p):
+        denied.append({'reason':why,'path':str(p)})
+>       raise AssertionError(why+': '+str(p))
+E       AssertionError: actual or live metadata access: /workspace-SR003.nfs2/ARG-GNN/data/literature/argformer_btag438_source_check_v1/body.txt
+
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:20: AssertionError
+______ test_budget_rejects_inconsistent_real_count_claims[query_exceeds] _______
+
+change = 'query_exceeds'
+
+    @pytest.mark.parametrize("change",["negative","bool","query_exceeds","reference_record","MLM_record","unique_record"])
+    def test_budget_rejects_inconsistent_real_count_claims(change):
+>       c=h.policy();bridge,bc=h.load_bridge(c);roles=role_counts();q=3000;decl={"mlm":{"train":10000,"val":1000},"contrastive":{"train":5000,"val":500}};total=11000
+                               ^^^^^^^^^^^^^^^^
+
+tests/test_official_argformer_tsinfer_parent_v3.py:112: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/prepare_official_argformer_tsinfer_parent_v3.py:92: in load_bridge
+    module.verify_source(bc)
+src/arggnn/official_argformer_tsinfer_biological_v2.py:101: in verify_source
+    if p.is_symlink() or digest(p)!=expected:
+                         ^^^^^^^^^
+src/arggnn/official_argformer_tsinfer_biological_v2.py:38: in digest
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+                          ^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/pathlib.py:1050: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/pathlib.py:1044: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:33: in audit
+    check_path(args[0],writing); counts['open_write' if writing else 'open_read']+=1
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:26: in check_path
+    if not owned and any(p==q or q in p.parents for q in BLOCKED_READS):deny('actual or live metadata access',p)
+                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+why = 'actual or live metadata access'
+p = PosixPath('/workspace-SR003.nfs2/ARG-GNN/data/literature/argformer_btag438_source_check_v1/body.txt')
+
+    def deny(why,p):
+        denied.append({'reason':why,'path':str(p)})
+>       raise AssertionError(why+': '+str(p))
+E       AssertionError: actual or live metadata access: /workspace-SR003.nfs2/ARG-GNN/data/literature/argformer_btag438_source_check_v1/body.txt
+
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:20: AssertionError
+_____ test_budget_rejects_inconsistent_real_count_claims[reference_record] _____
+
+change = 'reference_record'
+
+    @pytest.mark.parametrize("change",["negative","bool","query_exceeds","reference_record","MLM_record","unique_record"])
+    def test_budget_rejects_inconsistent_real_count_claims(change):
+>       c=h.policy();bridge,bc=h.load_bridge(c);roles=role_counts();q=3000;decl={"mlm":{"train":10000,"val":1000},"contrastive":{"train":5000,"val":500}};total=11000
+                               ^^^^^^^^^^^^^^^^
+
+tests/test_official_argformer_tsinfer_parent_v3.py:112: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/prepare_official_argformer_tsinfer_parent_v3.py:92: in load_bridge
+    module.verify_source(bc)
+src/arggnn/official_argformer_tsinfer_biological_v2.py:101: in verify_source
+    if p.is_symlink() or digest(p)!=expected:
+                         ^^^^^^^^^
+src/arggnn/official_argformer_tsinfer_biological_v2.py:38: in digest
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+                          ^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/pathlib.py:1050: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/pathlib.py:1044: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:33: in audit
+    check_path(args[0],writing); counts['open_write' if writing else 'open_read']+=1
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:26: in check_path
+    if not owned and any(p==q or q in p.parents for q in BLOCKED_READS):deny('actual or live metadata access',p)
+                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+why = 'actual or live metadata access'
+p = PosixPath('/workspace-SR003.nfs2/ARG-GNN/data/literature/argformer_btag438_source_check_v1/body.txt')
+
+    def deny(why,p):
+        denied.append({'reason':why,'path':str(p)})
+>       raise AssertionError(why+': '+str(p))
+E       AssertionError: actual or live metadata access: /workspace-SR003.nfs2/ARG-GNN/data/literature/argformer_btag438_source_check_v1/body.txt
+
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:20: AssertionError
+________ test_budget_rejects_inconsistent_real_count_claims[MLM_record] ________
+
+change = 'MLM_record'
+
+    @pytest.mark.parametrize("change",["negative","bool","query_exceeds","reference_record","MLM_record","unique_record"])
+    def test_budget_rejects_inconsistent_real_count_claims(change):
+>       c=h.policy();bridge,bc=h.load_bridge(c);roles=role_counts();q=3000;decl={"mlm":{"train":10000,"val":1000},"contrastive":{"train":5000,"val":500}};total=11000
+                               ^^^^^^^^^^^^^^^^
+
+tests/test_official_argformer_tsinfer_parent_v3.py:112: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/prepare_official_argformer_tsinfer_parent_v3.py:92: in load_bridge
+    module.verify_source(bc)
+src/arggnn/official_argformer_tsinfer_biological_v2.py:101: in verify_source
+    if p.is_symlink() or digest(p)!=expected:
+                         ^^^^^^^^^
+src/arggnn/official_argformer_tsinfer_biological_v2.py:38: in digest
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+                          ^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/pathlib.py:1050: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/pathlib.py:1044: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:33: in audit
+    check_path(args[0],writing); counts['open_write' if writing else 'open_read']+=1
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:26: in check_path
+    if not owned and any(p==q or q in p.parents for q in BLOCKED_READS):deny('actual or live metadata access',p)
+                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+why = 'actual or live metadata access'
+p = PosixPath('/workspace-SR003.nfs2/ARG-GNN/data/literature/argformer_btag438_source_check_v1/body.txt')
+
+    def deny(why,p):
+        denied.append({'reason':why,'path':str(p)})
+>       raise AssertionError(why+': '+str(p))
+E       AssertionError: actual or live metadata access: /workspace-SR003.nfs2/ARG-GNN/data/literature/argformer_btag438_source_check_v1/body.txt
+
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:20: AssertionError
+______ test_budget_rejects_inconsistent_real_count_claims[unique_record] _______
+
+change = 'unique_record'
+
+    @pytest.mark.parametrize("change",["negative","bool","query_exceeds","reference_record","MLM_record","unique_record"])
+    def test_budget_rejects_inconsistent_real_count_claims(change):
+>       c=h.policy();bridge,bc=h.load_bridge(c);roles=role_counts();q=3000;decl={"mlm":{"train":10000,"val":1000},"contrastive":{"train":5000,"val":500}};total=11000
+                               ^^^^^^^^^^^^^^^^
+
+tests/test_official_argformer_tsinfer_parent_v3.py:112: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/prepare_official_argformer_tsinfer_parent_v3.py:92: in load_bridge
+    module.verify_source(bc)
+src/arggnn/official_argformer_tsinfer_biological_v2.py:101: in verify_source
+    if p.is_symlink() or digest(p)!=expected:
+                         ^^^^^^^^^
+src/arggnn/official_argformer_tsinfer_biological_v2.py:38: in digest
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+                          ^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/pathlib.py:1050: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/pathlib.py:1044: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:33: in audit
+    check_path(args[0],writing); counts['open_write' if writing else 'open_read']+=1
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:26: in check_path
+    if not owned and any(p==q or q in p.parents for q in BLOCKED_READS):deny('actual or live metadata access',p)
+                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+why = 'actual or live metadata access'
+p = PosixPath('/workspace-SR003.nfs2/ARG-GNN/data/literature/argformer_btag438_source_check_v1/body.txt')
+
+    def deny(why,p):
+        denied.append({'reason':why,'path':str(p)})
+>       raise AssertionError(why+': '+str(p))
+E       AssertionError: actual or live metadata access: /workspace-SR003.nfs2/ARG-GNN/data/literature/argformer_btag438_source_check_v1/body.txt
+
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:20: AssertionError
+_______ test_infeasible_source4096_is_preserved_as_negative_no_fallback ________
+
+    def test_infeasible_source4096_is_preserved_as_negative_no_fallback():
+>       c=h.policy();bridge,bc=h.load_bridge(c);roles=role_counts();roles["train"]["pure_source_reference"]=4095
+                               ^^^^^^^^^^^^^^^^
+
+tests/test_official_argformer_tsinfer_parent_v3.py:122: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/prepare_official_argformer_tsinfer_parent_v3.py:92: in load_bridge
+    module.verify_source(bc)
+src/arggnn/official_argformer_tsinfer_biological_v2.py:101: in verify_source
+    if p.is_symlink() or digest(p)!=expected:
+                         ^^^^^^^^^
+src/arggnn/official_argformer_tsinfer_biological_v2.py:38: in digest
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+                          ^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/pathlib.py:1050: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/pathlib.py:1044: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:33: in audit
+    check_path(args[0],writing); counts['open_write' if writing else 'open_read']+=1
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:26: in check_path
+    if not owned and any(p==q or q in p.parents for q in BLOCKED_READS):deny('actual or live metadata access',p)
+                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+why = 'actual or live metadata access'
+p = PosixPath('/workspace-SR003.nfs2/ARG-GNN/data/literature/argformer_btag438_source_check_v1/body.txt')
+
+    def deny(why,p):
+        denied.append({'reason':why,'path':str(p)})
+>       raise AssertionError(why+': '+str(p))
+E       AssertionError: actual or live metadata access: /workspace-SR003.nfs2/ARG-GNN/data/literature/argformer_btag438_source_check_v1/body.txt
+
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:20: AssertionError
+________ test_280_leaf_handmade_corpus_retains_duplicate_tokenizations _________
+
+tmp_path = PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/official_argformer_tsinfer_parent_v3_independent/tmp/pytest_v4/test_280_leaf_handmade_corpus_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7599ed2d7d50>
+
+    def test_280_leaf_handmade_corpus_retains_duplicate_tokenizations(tmp_path,monkeypatch):
+>       c,bridge,bc,a,p,np,directory,*_=corpus_fixture(tmp_path,monkeypatch)
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_official_argformer_tsinfer_parent_v3.py:177: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_official_argformer_tsinfer_parent_v3.py:133: in corpus_fixture
+    c=h.policy();bridge,bc=h.load_bridge(c);methods,method_hashes=fixture_methods()
+                           ^^^^^^^^^^^^^^^^
+scripts/prepare_official_argformer_tsinfer_parent_v3.py:92: in load_bridge
+    module.verify_source(bc)
+src/arggnn/official_argformer_tsinfer_biological_v2.py:101: in verify_source
+    if p.is_symlink() or digest(p)!=expected:
+                         ^^^^^^^^^
+src/arggnn/official_argformer_tsinfer_biological_v2.py:38: in digest
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+                          ^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/pathlib.py:1050: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/pathlib.py:1044: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:33: in audit
+    check_path(args[0],writing); counts['open_write' if writing else 'open_read']+=1
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:26: in check_path
+    if not owned and any(p==q or q in p.parents for q in BLOCKED_READS):deny('actual or live metadata access',p)
+                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+why = 'actual or live metadata access'
+p = PosixPath('/workspace-SR003.nfs2/ARG-GNN/data/literature/argformer_btag438_source_check_v1/body.txt')
+
+    def deny(why,p):
+        denied.append({'reason':why,'path':str(p)})
+>       raise AssertionError(why+': '+str(p))
+E       AssertionError: actual or live metadata access: /workspace-SR003.nfs2/ARG-GNN/data/literature/argformer_btag438_source_check_v1/body.txt
+
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:20: AssertionError
+_ test_handmade_corpus_corruption_cannot_shrink_or_relabel_baseline[full_path_duplicate] _
+
+tmp_path = PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/official_argformer_tsinfer_parent_v3_independent/tmp/pytest_v4/test_handmade_corpus_corruptio0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7599ecf9e490>
+change = 'full_path_duplicate'
+
+    @pytest.mark.parametrize("change",["full_path_duplicate","vocab","post_truncate_dedup","query_into_contrastive","contrastive_label","support_gap","wrong_readout","namespace"])
+    def test_handmade_corpus_corruption_cannot_shrink_or_relabel_baseline(tmp_path,monkeypatch,change):
+>       c,bridge,bc,a,p,np,directory,corpus,vocab,joins=corpus_fixture(tmp_path,monkeypatch)
+                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_official_argformer_tsinfer_parent_v3.py:188: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_official_argformer_tsinfer_parent_v3.py:133: in corpus_fixture
+    c=h.policy();bridge,bc=h.load_bridge(c);methods,method_hashes=fixture_methods()
+                           ^^^^^^^^^^^^^^^^
+scripts/prepare_official_argformer_tsinfer_parent_v3.py:92: in load_bridge
+    module.verify_source(bc)
+src/arggnn/official_argformer_tsinfer_biological_v2.py:101: in verify_source
+    if p.is_symlink() or digest(p)!=expected:
+                         ^^^^^^^^^
+src/arggnn/official_argformer_tsinfer_biological_v2.py:38: in digest
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+                          ^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/pathlib.py:1050: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/pathlib.py:1044: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:33: in audit
+    check_path(args[0],writing); counts['open_write' if writing else 'open_read']+=1
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:26: in check_path
+    if not owned and any(p==q or q in p.parents for q in BLOCKED_READS):deny('actual or live metadata access',p)
+                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+why = 'actual or live metadata access'
+p = PosixPath('/workspace-SR003.nfs2/ARG-GNN/data/literature/argformer_btag438_source_check_v1/body.txt')
+
+    def deny(why,p):
+        denied.append({'reason':why,'path':str(p)})
+>       raise AssertionError(why+': '+str(p))
+E       AssertionError: actual or live metadata access: /workspace-SR003.nfs2/ARG-GNN/data/literature/argformer_btag438_source_check_v1/body.txt
+
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:20: AssertionError
+___ test_handmade_corpus_corruption_cannot_shrink_or_relabel_baseline[vocab] ___
+
+tmp_path = PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/official_argformer_tsinfer_parent_v3_independent/tmp/pytest_v4/test_handmade_corpus_corruptio1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7599ed0f65d0>
+change = 'vocab'
+
+    @pytest.mark.parametrize("change",["full_path_duplicate","vocab","post_truncate_dedup","query_into_contrastive","contrastive_label","support_gap","wrong_readout","namespace"])
+    def test_handmade_corpus_corruption_cannot_shrink_or_relabel_baseline(tmp_path,monkeypatch,change):
+>       c,bridge,bc,a,p,np,directory,corpus,vocab,joins=corpus_fixture(tmp_path,monkeypatch)
+                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_official_argformer_tsinfer_parent_v3.py:188: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_official_argformer_tsinfer_parent_v3.py:133: in corpus_fixture
+    c=h.policy();bridge,bc=h.load_bridge(c);methods,method_hashes=fixture_methods()
+                           ^^^^^^^^^^^^^^^^
+scripts/prepare_official_argformer_tsinfer_parent_v3.py:92: in load_bridge
+    module.verify_source(bc)
+src/arggnn/official_argformer_tsinfer_biological_v2.py:101: in verify_source
+    if p.is_symlink() or digest(p)!=expected:
+                         ^^^^^^^^^
+src/arggnn/official_argformer_tsinfer_biological_v2.py:38: in digest
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+                          ^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/pathlib.py:1050: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/pathlib.py:1044: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:33: in audit
+    check_path(args[0],writing); counts['open_write' if writing else 'open_read']+=1
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:26: in check_path
+    if not owned and any(p==q or q in p.parents for q in BLOCKED_READS):deny('actual or live metadata access',p)
+                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+why = 'actual or live metadata access'
+p = PosixPath('/workspace-SR003.nfs2/ARG-GNN/data/literature/argformer_btag438_source_check_v1/body.txt')
+
+    def deny(why,p):
+        denied.append({'reason':why,'path':str(p)})
+>       raise AssertionError(why+': '+str(p))
+E       AssertionError: actual or live metadata access: /workspace-SR003.nfs2/ARG-GNN/data/literature/argformer_btag438_source_check_v1/body.txt
+
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:20: AssertionError
+_ test_handmade_corpus_corruption_cannot_shrink_or_relabel_baseline[post_truncate_dedup] _
+
+tmp_path = PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/official_argformer_tsinfer_parent_v3_independent/tmp/pytest_v4/test_handmade_corpus_corruptio2')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7599ea7b8b90>
+change = 'post_truncate_dedup'
+
+    @pytest.mark.parametrize("change",["full_path_duplicate","vocab","post_truncate_dedup","query_into_contrastive","contrastive_label","support_gap","wrong_readout","namespace"])
+    def test_handmade_corpus_corruption_cannot_shrink_or_relabel_baseline(tmp_path,monkeypatch,change):
+>       c,bridge,bc,a,p,np,directory,corpus,vocab,joins=corpus_fixture(tmp_path,monkeypatch)
+                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_official_argformer_tsinfer_parent_v3.py:188: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_official_argformer_tsinfer_parent_v3.py:133: in corpus_fixture
+    c=h.policy();bridge,bc=h.load_bridge(c);methods,method_hashes=fixture_methods()
+                           ^^^^^^^^^^^^^^^^
+scripts/prepare_official_argformer_tsinfer_parent_v3.py:92: in load_bridge
+    module.verify_source(bc)
+src/arggnn/official_argformer_tsinfer_biological_v2.py:101: in verify_source
+    if p.is_symlink() or digest(p)!=expected:
+                         ^^^^^^^^^
+src/arggnn/official_argformer_tsinfer_biological_v2.py:38: in digest
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+                          ^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/pathlib.py:1050: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/pathlib.py:1044: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:33: in audit
+    check_path(args[0],writing); counts['open_write' if writing else 'open_read']+=1
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:26: in check_path
+    if not owned and any(p==q or q in p.parents for q in BLOCKED_READS):deny('actual or live metadata access',p)
+                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+why = 'actual or live metadata access'
+p = PosixPath('/workspace-SR003.nfs2/ARG-GNN/data/literature/argformer_btag438_source_check_v1/body.txt')
+
+    def deny(why,p):
+        denied.append({'reason':why,'path':str(p)})
+>       raise AssertionError(why+': '+str(p))
+E       AssertionError: actual or live metadata access: /workspace-SR003.nfs2/ARG-GNN/data/literature/argformer_btag438_source_check_v1/body.txt
+
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:20: AssertionError
+_ test_handmade_corpus_corruption_cannot_shrink_or_relabel_baseline[query_into_contrastive] _
+
+tmp_path = PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/official_argformer_tsinfer_parent_v3_independent/tmp/pytest_v4/test_handmade_corpus_corruptio3')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7599ecd3ec10>
+change = 'query_into_contrastive'
+
+    @pytest.mark.parametrize("change",["full_path_duplicate","vocab","post_truncate_dedup","query_into_contrastive","contrastive_label","support_gap","wrong_readout","namespace"])
+    def test_handmade_corpus_corruption_cannot_shrink_or_relabel_baseline(tmp_path,monkeypatch,change):
+>       c,bridge,bc,a,p,np,directory,corpus,vocab,joins=corpus_fixture(tmp_path,monkeypatch)
+                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_official_argformer_tsinfer_parent_v3.py:188: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_official_argformer_tsinfer_parent_v3.py:133: in corpus_fixture
+    c=h.policy();bridge,bc=h.load_bridge(c);methods,method_hashes=fixture_methods()
+                           ^^^^^^^^^^^^^^^^
+scripts/prepare_official_argformer_tsinfer_parent_v3.py:92: in load_bridge
+    module.verify_source(bc)
+src/arggnn/official_argformer_tsinfer_biological_v2.py:101: in verify_source
+    if p.is_symlink() or digest(p)!=expected:
+                         ^^^^^^^^^
+src/arggnn/official_argformer_tsinfer_biological_v2.py:38: in digest
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+                          ^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/pathlib.py:1050: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/pathlib.py:1044: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:33: in audit
+    check_path(args[0],writing); counts['open_write' if writing else 'open_read']+=1
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:26: in check_path
+    if not owned and any(p==q or q in p.parents for q in BLOCKED_READS):deny('actual or live metadata access',p)
+                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+why = 'actual or live metadata access'
+p = PosixPath('/workspace-SR003.nfs2/ARG-GNN/data/literature/argformer_btag438_source_check_v1/body.txt')
+
+    def deny(why,p):
+        denied.append({'reason':why,'path':str(p)})
+>       raise AssertionError(why+': '+str(p))
+E       AssertionError: actual or live metadata access: /workspace-SR003.nfs2/ARG-GNN/data/literature/argformer_btag438_source_check_v1/body.txt
+
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:20: AssertionError
+_ test_handmade_corpus_corruption_cannot_shrink_or_relabel_baseline[contrastive_label] _
+
+tmp_path = PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/official_argformer_tsinfer_parent_v3_independent/tmp/pytest_v4/test_handmade_corpus_corruptio4')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7599ed37f510>
+change = 'contrastive_label'
+
+    @pytest.mark.parametrize("change",["full_path_duplicate","vocab","post_truncate_dedup","query_into_contrastive","contrastive_label","support_gap","wrong_readout","namespace"])
+    def test_handmade_corpus_corruption_cannot_shrink_or_relabel_baseline(tmp_path,monkeypatch,change):
+>       c,bridge,bc,a,p,np,directory,corpus,vocab,joins=corpus_fixture(tmp_path,monkeypatch)
+                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_official_argformer_tsinfer_parent_v3.py:188: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_official_argformer_tsinfer_parent_v3.py:133: in corpus_fixture
+    c=h.policy();bridge,bc=h.load_bridge(c);methods,method_hashes=fixture_methods()
+                           ^^^^^^^^^^^^^^^^
+scripts/prepare_official_argformer_tsinfer_parent_v3.py:92: in load_bridge
+    module.verify_source(bc)
+src/arggnn/official_argformer_tsinfer_biological_v2.py:101: in verify_source
+    if p.is_symlink() or digest(p)!=expected:
+                         ^^^^^^^^^
+src/arggnn/official_argformer_tsinfer_biological_v2.py:38: in digest
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+                          ^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/pathlib.py:1050: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/pathlib.py:1044: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:33: in audit
+    check_path(args[0],writing); counts['open_write' if writing else 'open_read']+=1
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:26: in check_path
+    if not owned and any(p==q or q in p.parents for q in BLOCKED_READS):deny('actual or live metadata access',p)
+                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+why = 'actual or live metadata access'
+p = PosixPath('/workspace-SR003.nfs2/ARG-GNN/data/literature/argformer_btag438_source_check_v1/body.txt')
+
+    def deny(why,p):
+        denied.append({'reason':why,'path':str(p)})
+>       raise AssertionError(why+': '+str(p))
+E       AssertionError: actual or live metadata access: /workspace-SR003.nfs2/ARG-GNN/data/literature/argformer_btag438_source_check_v1/body.txt
+
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:20: AssertionError
+_ test_handmade_corpus_corruption_cannot_shrink_or_relabel_baseline[support_gap] _
+
+tmp_path = PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/official_argformer_tsinfer_parent_v3_independent/tmp/pytest_v4/test_handmade_corpus_corruptio5')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7599ecd5a210>
+change = 'support_gap'
+
+    @pytest.mark.parametrize("change",["full_path_duplicate","vocab","post_truncate_dedup","query_into_contrastive","contrastive_label","support_gap","wrong_readout","namespace"])
+    def test_handmade_corpus_corruption_cannot_shrink_or_relabel_baseline(tmp_path,monkeypatch,change):
+>       c,bridge,bc,a,p,np,directory,corpus,vocab,joins=corpus_fixture(tmp_path,monkeypatch)
+                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_official_argformer_tsinfer_parent_v3.py:188: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_official_argformer_tsinfer_parent_v3.py:133: in corpus_fixture
+    c=h.policy();bridge,bc=h.load_bridge(c);methods,method_hashes=fixture_methods()
+                           ^^^^^^^^^^^^^^^^
+scripts/prepare_official_argformer_tsinfer_parent_v3.py:92: in load_bridge
+    module.verify_source(bc)
+src/arggnn/official_argformer_tsinfer_biological_v2.py:101: in verify_source
+    if p.is_symlink() or digest(p)!=expected:
+                         ^^^^^^^^^
+src/arggnn/official_argformer_tsinfer_biological_v2.py:38: in digest
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+                          ^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/pathlib.py:1050: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/pathlib.py:1044: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:33: in audit
+    check_path(args[0],writing); counts['open_write' if writing else 'open_read']+=1
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:26: in check_path
+    if not owned and any(p==q or q in p.parents for q in BLOCKED_READS):deny('actual or live metadata access',p)
+                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+why = 'actual or live metadata access'
+p = PosixPath('/workspace-SR003.nfs2/ARG-GNN/data/literature/argformer_btag438_source_check_v1/body.txt')
+
+    def deny(why,p):
+        denied.append({'reason':why,'path':str(p)})
+>       raise AssertionError(why+': '+str(p))
+E       AssertionError: actual or live metadata access: /workspace-SR003.nfs2/ARG-GNN/data/literature/argformer_btag438_source_check_v1/body.txt
+
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:20: AssertionError
+_ test_handmade_corpus_corruption_cannot_shrink_or_relabel_baseline[wrong_readout] _
+
+tmp_path = PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/official_argformer_tsinfer_parent_v3_independent/tmp/pytest_v4/test_handmade_corpus_corruptio6')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7599ed37d210>
+change = 'wrong_readout'
+
+    @pytest.mark.parametrize("change",["full_path_duplicate","vocab","post_truncate_dedup","query_into_contrastive","contrastive_label","support_gap","wrong_readout","namespace"])
+    def test_handmade_corpus_corruption_cannot_shrink_or_relabel_baseline(tmp_path,monkeypatch,change):
+>       c,bridge,bc,a,p,np,directory,corpus,vocab,joins=corpus_fixture(tmp_path,monkeypatch)
+                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_official_argformer_tsinfer_parent_v3.py:188: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_official_argformer_tsinfer_parent_v3.py:133: in corpus_fixture
+    c=h.policy();bridge,bc=h.load_bridge(c);methods,method_hashes=fixture_methods()
+                           ^^^^^^^^^^^^^^^^
+scripts/prepare_official_argformer_tsinfer_parent_v3.py:92: in load_bridge
+    module.verify_source(bc)
+src/arggnn/official_argformer_tsinfer_biological_v2.py:101: in verify_source
+    if p.is_symlink() or digest(p)!=expected:
+                         ^^^^^^^^^
+src/arggnn/official_argformer_tsinfer_biological_v2.py:38: in digest
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+                          ^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/pathlib.py:1050: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/pathlib.py:1044: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:33: in audit
+    check_path(args[0],writing); counts['open_write' if writing else 'open_read']+=1
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:26: in check_path
+    if not owned and any(p==q or q in p.parents for q in BLOCKED_READS):deny('actual or live metadata access',p)
+                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+why = 'actual or live metadata access'
+p = PosixPath('/workspace-SR003.nfs2/ARG-GNN/data/literature/argformer_btag438_source_check_v1/body.txt')
+
+    def deny(why,p):
+        denied.append({'reason':why,'path':str(p)})
+>       raise AssertionError(why+': '+str(p))
+E       AssertionError: actual or live metadata access: /workspace-SR003.nfs2/ARG-GNN/data/literature/argformer_btag438_source_check_v1/body.txt
+
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:20: AssertionError
+_ test_handmade_corpus_corruption_cannot_shrink_or_relabel_baseline[namespace] _
+
+tmp_path = PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/official_argformer_tsinfer_parent_v3_independent/tmp/pytest_v4/test_handmade_corpus_corruptio7')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7599ecdf48d0>
+change = 'namespace'
+
+    @pytest.mark.parametrize("change",["full_path_duplicate","vocab","post_truncate_dedup","query_into_contrastive","contrastive_label","support_gap","wrong_readout","namespace"])
+    def test_handmade_corpus_corruption_cannot_shrink_or_relabel_baseline(tmp_path,monkeypatch,change):
+>       c,bridge,bc,a,p,np,directory,corpus,vocab,joins=corpus_fixture(tmp_path,monkeypatch)
+                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_official_argformer_tsinfer_parent_v3.py:188: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_official_argformer_tsinfer_parent_v3.py:133: in corpus_fixture
+    c=h.policy();bridge,bc=h.load_bridge(c);methods,method_hashes=fixture_methods()
+                           ^^^^^^^^^^^^^^^^
+scripts/prepare_official_argformer_tsinfer_parent_v3.py:92: in load_bridge
+    module.verify_source(bc)
+src/arggnn/official_argformer_tsinfer_biological_v2.py:101: in verify_source
+    if p.is_symlink() or digest(p)!=expected:
+                         ^^^^^^^^^
+src/arggnn/official_argformer_tsinfer_biological_v2.py:38: in digest
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+                          ^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/pathlib.py:1050: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/pathlib.py:1044: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:33: in audit
+    check_path(args[0],writing); counts['open_write' if writing else 'open_read']+=1
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:26: in check_path
+    if not owned and any(p==q or q in p.parents for q in BLOCKED_READS):deny('actual or live metadata access',p)
+                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+why = 'actual or live metadata access'
+p = PosixPath('/workspace-SR003.nfs2/ARG-GNN/data/literature/argformer_btag438_source_check_v1/body.txt')
+
+    def deny(why,p):
+        denied.append({'reason':why,'path':str(p)})
+>       raise AssertionError(why+': '+str(p))
+E       AssertionError: actual or live metadata access: /workspace-SR003.nfs2/ARG-GNN/data/literature/argformer_btag438_source_check_v1/body.txt
+
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:20: AssertionError
+__ test_admitted_private_stage_reaches_core_without_changing_inactive_bridge ___
+
+tmp_path = PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/official_argformer_tsinfer_parent_v3_independent/tmp/pytest_v4/test_admitted_private_stage_re0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7599ecd73990>
+
+    def test_admitted_private_stage_reaches_core_without_changing_inactive_bridge(tmp_path,monkeypatch):
+>       c=h.policy();bridge,bc=h.load_bridge(c);before=copy.deepcopy(bc)
+                               ^^^^^^^^^^^^^^^^
+
+tests/test_official_argformer_tsinfer_parent_v3.py:282: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/prepare_official_argformer_tsinfer_parent_v3.py:92: in load_bridge
+    module.verify_source(bc)
+src/arggnn/official_argformer_tsinfer_biological_v2.py:101: in verify_source
+    if p.is_symlink() or digest(p)!=expected:
+                         ^^^^^^^^^
+src/arggnn/official_argformer_tsinfer_biological_v2.py:38: in digest
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+                          ^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/pathlib.py:1050: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/pathlib.py:1044: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:33: in audit
+    check_path(args[0],writing); counts['open_write' if writing else 'open_read']+=1
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:26: in check_path
+    if not owned and any(p==q or q in p.parents for q in BLOCKED_READS):deny('actual or live metadata access',p)
+                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+why = 'actual or live metadata access'
+p = PosixPath('/workspace-SR003.nfs2/ARG-GNN/data/literature/argformer_btag438_source_check_v1/body.txt')
+
+    def deny(why,p):
+        denied.append({'reason':why,'path':str(p)})
+>       raise AssertionError(why+': '+str(p))
+E       AssertionError: actual or live metadata access: /workspace-SR003.nfs2/ARG-GNN/data/literature/argformer_btag438_source_check_v1/body.txt
+
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:20: AssertionError
+_ test_full_corpus_pair_guard_applies_even_when_source4096_infeasible[2400000-True] _
+
+query_needed = 2400000, over_limit = True
+
+    @pytest.mark.parametrize("query_needed,over_limit",[(2400000,True),(9765625,False)])
+    def test_full_corpus_pair_guard_applies_even_when_source4096_infeasible(query_needed,over_limit):
+>       c=h.policy();bridge,bc=h.load_bridge(c)
+                               ^^^^^^^^^^^^^^^^
+
+tests/test_official_argformer_tsinfer_parent_v3.py:299: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/prepare_official_argformer_tsinfer_parent_v3.py:92: in load_bridge
+    module.verify_source(bc)
+src/arggnn/official_argformer_tsinfer_biological_v2.py:101: in verify_source
+    if p.is_symlink() or digest(p)!=expected:
+                         ^^^^^^^^^
+src/arggnn/official_argformer_tsinfer_biological_v2.py:38: in digest
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+                          ^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/pathlib.py:1050: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/pathlib.py:1044: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:33: in audit
+    check_path(args[0],writing); counts['open_write' if writing else 'open_read']+=1
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:26: in check_path
+    if not owned and any(p==q or q in p.parents for q in BLOCKED_READS):deny('actual or live metadata access',p)
+                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+why = 'actual or live metadata access'
+p = PosixPath('/workspace-SR003.nfs2/ARG-GNN/data/literature/argformer_btag438_source_check_v1/body.txt')
+
+    def deny(why,p):
+        denied.append({'reason':why,'path':str(p)})
+>       raise AssertionError(why+': '+str(p))
+E       AssertionError: actual or live metadata access: /workspace-SR003.nfs2/ARG-GNN/data/literature/argformer_btag438_source_check_v1/body.txt
+
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:20: AssertionError
+_ test_full_corpus_pair_guard_applies_even_when_source4096_infeasible[9765625-False] _
+
+query_needed = 9765625, over_limit = False
+
+    @pytest.mark.parametrize("query_needed,over_limit",[(2400000,True),(9765625,False)])
+    def test_full_corpus_pair_guard_applies_even_when_source4096_infeasible(query_needed,over_limit):
+>       c=h.policy();bridge,bc=h.load_bridge(c)
+                               ^^^^^^^^^^^^^^^^
+
+tests/test_official_argformer_tsinfer_parent_v3.py:299: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/prepare_official_argformer_tsinfer_parent_v3.py:92: in load_bridge
+    module.verify_source(bc)
+src/arggnn/official_argformer_tsinfer_biological_v2.py:101: in verify_source
+    if p.is_symlink() or digest(p)!=expected:
+                         ^^^^^^^^^
+src/arggnn/official_argformer_tsinfer_biological_v2.py:38: in digest
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+                          ^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/pathlib.py:1050: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/pathlib.py:1044: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:33: in audit
+    check_path(args[0],writing); counts['open_write' if writing else 'open_read']+=1
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:26: in check_path
+    if not owned and any(p==q or q in p.parents for q in BLOCKED_READS):deny('actual or live metadata access',p)
+                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+why = 'actual or live metadata access'
+p = PosixPath('/workspace-SR003.nfs2/ARG-GNN/data/literature/argformer_btag438_source_check_v1/body.txt')
+
+    def deny(why,p):
+        denied.append({'reason':why,'path':str(p)})
+>       raise AssertionError(why+': '+str(p))
+E       AssertionError: actual or live metadata access: /workspace-SR003.nfs2/ARG-GNN/data/literature/argformer_btag438_source_check_v1/body.txt
+
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:20: AssertionError
+_______ test_v3_only_callable_ast_delta_is_stdlib_json_namespace_binding _______
+
+    def test_v3_only_callable_ast_delta_is_stdlib_json_namespace_binding():
+        old_tree=ast.parse((ROOT/"scripts/prepare_official_argformer_tsinfer_parent_v2.py").read_text())
+        new_tree=ast.parse(Path(h.__file__).read_text())
+        def definitions(tree):
+            return {n.name:n for n in tree.body if isinstance(n,(ast.FunctionDef,ast.ClassDef))}
+        old,new=definitions(old_tree),definitions(new_tree)
+        assert set(old)==set(new)
+        for name in old:
+            if name!="preparation_callable":
+                assert ast.dump(old[name],include_attributes=False)==ast.dump(new[name],include_attributes=False)
+        fn=copy.deepcopy(new["preparation_callable"])
+        ns=next(n.value for n in ast.walk(fn) if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=="ns" for t in n.targets))
+        indexes=[i for i,key in enumerate(ns.keys) if isinstance(key,ast.Constant) and key.value=="json"]
+        assert len(indexes)==1 and ast.unparse(ns.values[indexes[0]])=="json"
+        del ns.keys[indexes[0]];del ns.values[indexes[0]]
+        assert ast.dump(fn,include_attributes=False)==ast.dump(old["preparation_callable"],include_attributes=False)
+        current_ns=next(n.value for n in ast.walk(new["preparation_callable"]) if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=="ns" for t in n.targets))
+        values={key.value:ast.unparse(value) for key,value in zip(current_ns.keys,current_ns.values)}
+        assert values["json_new"]=="authority.json_new"
+>       c=h.policy();bridge,bc=h.load_bridge(c)
+                               ^^^^^^^^^^^^^^^^
+
+tests/test_official_argformer_tsinfer_parent_v3.py:364: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/prepare_official_argformer_tsinfer_parent_v3.py:92: in load_bridge
+    module.verify_source(bc)
+src/arggnn/official_argformer_tsinfer_biological_v2.py:101: in verify_source
+    if p.is_symlink() or digest(p)!=expected:
+                         ^^^^^^^^^
+src/arggnn/official_argformer_tsinfer_biological_v2.py:38: in digest
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+                          ^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/pathlib.py:1050: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/pathlib.py:1044: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:33: in audit
+    check_path(args[0],writing); counts['open_write' if writing else 'open_read']+=1
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:26: in check_path
+    if not owned and any(p==q or q in p.parents for q in BLOCKED_READS):deny('actual or live metadata access',p)
+                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+why = 'actual or live metadata access'
+p = PosixPath('/workspace-SR003.nfs2/ARG-GNN/data/literature/argformer_btag438_source_check_v1/body.txt')
+
+    def deny(why,p):
+        denied.append({'reason':why,'path':str(p)})
+>       raise AssertionError(why+': '+str(p))
+E       AssertionError: actual or live metadata access: /workspace-SR003.nfs2/ARG-GNN/data/literature/argformer_btag438_source_check_v1/body.txt
+
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:20: AssertionError
+___ test_full_handmade_core_reproduces_v2_missing_json_without_source_patch ____
+
+tmp_path = PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/official_argformer_tsinfer_parent_v3_independent/tmp/pytest_v4/test_full_handmade_core_reprod0')
+
+    def test_full_handmade_core_reproduces_v2_missing_json_without_source_patch(tmp_path):
+        smoke=smoke_helper()
+        with pytest.raises(NameError,match="json"):
+>           smoke.run_handmade_case(tmp_path/"v2_missing_json",smoke.load_dispatcher(2))
+
+tests/test_official_argformer_tsinfer_parent_v3.py:372: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+research/reviews/official_argformer_tsinfer_parent_v3_author/handmade_preparation_smoke.py:27: in run_handmade_case
+    c=h.policy();h.verify_source(c);bridge,bc=h.load_bridge(c)
+                                              ^^^^^^^^^^^^^^^^
+scripts/prepare_official_argformer_tsinfer_parent_v2.py:92: in load_bridge
+    module.verify_source(bc)
+src/arggnn/official_argformer_tsinfer_biological_v2.py:101: in verify_source
+    if p.is_symlink() or digest(p)!=expected:
+                         ^^^^^^^^^
+src/arggnn/official_argformer_tsinfer_biological_v2.py:38: in digest
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+                          ^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/pathlib.py:1050: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/pathlib.py:1044: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:33: in audit
+    check_path(args[0],writing); counts['open_write' if writing else 'open_read']+=1
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:26: in check_path
+    if not owned and any(p==q or q in p.parents for q in BLOCKED_READS):deny('actual or live metadata access',p)
+                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+why = 'actual or live metadata access'
+p = PosixPath('/workspace-SR003.nfs2/ARG-GNN/data/literature/argformer_btag438_source_check_v1/body.txt')
+
+    def deny(why,p):
+        denied.append({'reason':why,'path':str(p)})
+>       raise AssertionError(why+': '+str(p))
+E       AssertionError: actual or live metadata access: /workspace-SR003.nfs2/ARG-GNN/data/literature/argformer_btag438_source_check_v1/body.txt
+
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:20: AssertionError
+__ test_full_handmade_v3_compiled_core_prepares_and_qualifies_all280_samples ___
+
+tmp_path = PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/official_argformer_tsinfer_parent_v3_independent/tmp/pytest_v4/test_full_handmade_v3_compiled0')
+
+    def test_full_handmade_v3_compiled_core_prepares_and_qualifies_all280_samples(tmp_path):
+>       receipt=smoke_helper().run_handmade_case(tmp_path/"v3_full_core",h)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_official_argformer_tsinfer_parent_v3.py:375: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+research/reviews/official_argformer_tsinfer_parent_v3_author/handmade_preparation_smoke.py:27: in run_handmade_case
+    c=h.policy();h.verify_source(c);bridge,bc=h.load_bridge(c)
+                                              ^^^^^^^^^^^^^^^^
+scripts/prepare_official_argformer_tsinfer_parent_v3.py:92: in load_bridge
+    module.verify_source(bc)
+src/arggnn/official_argformer_tsinfer_biological_v2.py:101: in verify_source
+    if p.is_symlink() or digest(p)!=expected:
+                         ^^^^^^^^^
+src/arggnn/official_argformer_tsinfer_biological_v2.py:38: in digest
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+                          ^^^^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/pathlib.py:1050: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+.runtime/env/lib/python3.11/pathlib.py:1044: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:33: in audit
+    check_path(args[0],writing); counts['open_write' if writing else 'open_read']+=1
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:26: in check_path
+    if not owned and any(p==q or q in p.parents for q in BLOCKED_READS):deny('actual or live metadata access',p)
+                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+why = 'actual or live metadata access'
+p = PosixPath('/workspace-SR003.nfs2/ARG-GNN/data/literature/argformer_btag438_source_check_v1/body.txt')
+
+    def deny(why,p):
+        denied.append({'reason':why,'path':str(p)})
+>       raise AssertionError(why+': '+str(p))
+E       AssertionError: actual or live metadata access: /workspace-SR003.nfs2/ARG-GNN/data/literature/argformer_btag438_source_check_v1/body.txt
+
+research/reviews/official_argformer_tsinfer_parent_v3_independent/guarded_pytest_v4.py:20: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_official_argformer_tsinfer_parent_v3.py::test_default_source_mode_cannot_import_native_or_read_actual_arrays
+FAILED tests/test_official_argformer_tsinfer_parent_v3.py::test_execute_without_optin_stops_before_runtime_ledger_or_arrays
+FAILED tests/test_official_argformer_tsinfer_parent_v3.py::test_budget_crosschecks_source_counts_and_reports_exact_full4096_updates
+FAILED tests/test_official_argformer_tsinfer_parent_v3.py::test_budget_rejects_inconsistent_real_count_claims[negative]
+FAILED tests/test_official_argformer_tsinfer_parent_v3.py::test_budget_rejects_inconsistent_real_count_claims[bool]
+FAILED tests/test_official_argformer_tsinfer_parent_v3.py::test_budget_rejects_inconsistent_real_count_claims[query_exceeds]
+FAILED tests/test_official_argformer_tsinfer_parent_v3.py::test_budget_rejects_inconsistent_real_count_claims[reference_record]
+FAILED tests/test_official_argformer_tsinfer_parent_v3.py::test_budget_rejects_inconsistent_real_count_claims[MLM_record]
+FAILED tests/test_official_argformer_tsinfer_parent_v3.py::test_budget_rejects_inconsistent_real_count_claims[unique_record]
+FAILED tests/test_official_argformer_tsinfer_parent_v3.py::test_infeasible_source4096_is_preserved_as_negative_no_fallback
+FAILED tests/test_official_argformer_tsinfer_parent_v3.py::test_280_leaf_handmade_corpus_retains_duplicate_tokenizations
+FAILED tests/test_official_argformer_tsinfer_parent_v3.py::test_handmade_corpus_corruption_cannot_shrink_or_relabel_baseline[full_path_duplicate]
+FAILED tests/test_official_argformer_tsinfer_parent_v3.py::test_handmade_corpus_corruption_cannot_shrink_or_relabel_baseline[vocab]
+FAILED tests/test_official_argformer_tsinfer_parent_v3.py::test_handmade_corpus_corruption_cannot_shrink_or_relabel_baseline[post_truncate_dedup]
+FAILED tests/test_official_argformer_tsinfer_parent_v3.py::test_handmade_corpus_corruption_cannot_shrink_or_relabel_baseline[query_into_contrastive]
+FAILED tests/test_official_argformer_tsinfer_parent_v3.py::test_handmade_corpus_corruption_cannot_shrink_or_relabel_baseline[contrastive_label]
+FAILED tests/test_official_argformer_tsinfer_parent_v3.py::test_handmade_corpus_corruption_cannot_shrink_or_relabel_baseline[support_gap]
+FAILED tests/test_official_argformer_tsinfer_parent_v3.py::test_handmade_corpus_corruption_cannot_shrink_or_relabel_baseline[wrong_readout]
+FAILED tests/test_official_argformer_tsinfer_parent_v3.py::test_handmade_corpus_corruption_cannot_shrink_or_relabel_baseline[namespace]
+FAILED tests/test_official_argformer_tsinfer_parent_v3.py::test_admitted_private_stage_reaches_core_without_changing_inactive_bridge
+FAILED tests/test_official_argformer_tsinfer_parent_v3.py::test_full_corpus_pair_guard_applies_even_when_source4096_infeasible[2400000-True]
+FAILED tests/test_official_argformer_tsinfer_parent_v3.py::test_full_corpus_pair_guard_applies_even_when_source4096_infeasible[9765625-False]
+FAILED tests/test_official_argformer_tsinfer_parent_v3.py::test_v3_only_callable_ast_delta_is_stdlib_json_namespace_binding
+FAILED tests/test_official_argformer_tsinfer_parent_v3.py::test_full_handmade_core_reproduces_v2_missing_json_without_source_patch
+FAILED tests/test_official_argformer_tsinfer_parent_v3.py::test_full_handmade_v3_compiled_core_prepares_and_qualifies_all280_samples
+25 failed, 22 passed in 3.22s
