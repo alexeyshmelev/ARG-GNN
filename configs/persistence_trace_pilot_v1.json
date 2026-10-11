@@ -1,0 +1,98 @@
+{
+  "TRAIN_emitter_predictions": "in_sample_not_out_of_fold",
+  "TRAIN_tiles_per_epoch": 16,
+  "arms": [
+    "genomic_smoothing",
+    "sample_only",
+    "genuine_ancestor",
+    "sham_ancestor"
+  ],
+  "base_fit_config": {
+    "path": "configs/census_tsinfer_fit_v1.json",
+    "sha256": "7c2436d5479e68beb1a8f3edb04ca0ee729a23be35ca2d7893827c0db68e3b00"
+  },
+  "channels": 8,
+  "condition": "frozen_native_ARGMix_Relate_emitter_plus_independent_observed_tsinfer_persistence_hybrid",
+  "direct_skip": "unchanged frozen native averaged probabilities on all supported original100bp readouts",
+  "dtype": "float32",
+  "emitter_condition": "native_ARGMix_Relate_frozen_emitter",
+  "geometry": {
+    "age_scale_generations": 10000,
+    "genomic_scale_bp": 2000000,
+    "sham_age_bin_width_generations": 500,
+    "sham_log_duration_bin_width": 0.6931471805599453
+  },
+  "gradient_clip_norm": 1,
+  "helper_refs": {
+    "exact_span_loss": {
+      "path": "src/arggnn/biological_gst_control_v1.py",
+      "sha256": "66788b41cabcb852c739505200a641bdc93fea3c9fbb642c291d52cefc77350f"
+    },
+    "kernel": {
+      "path": "src/arggnn/persistence_trace_kernel_v1.py",
+      "sha256": "25bfc4719ae03621289856e09ed4b2040090568aaedee4d05a1e47b218398507"
+    },
+    "metrics": {
+      "path": "scripts/train_ancestralpaths_biological_v1.py",
+      "sha256": "826a1e8c3053cf63b8374361f793903970dd75d44cbcd536755e9aaa3b985056"
+    },
+    "targets_scores": {
+      "path": "src/arggnn/census_tsinfer_fit_v1.py",
+      "sha256": "fd55aaa6b8f88983514ff6888ad2efbadca4ee8b2e3acabd09fbd4a361b5acf3"
+    }
+  },
+  "hypothesis_id": "H025",
+  "identities": "tsinfer original child+parent IDs in parent_id:tsinfer_tree_sha256 namespace; no Relate internal-node joins",
+  "kind": "persistence_trace_pilot_v1",
+  "learning_rate": 0.001,
+  "max_epochs": 10,
+  "memory_scope": "original independent250kb physical tiles; full observed trees retained within each tile",
+  "metrics": {
+    "aggregation": "unweighted_parent_mean_one_seed_no_probability_ensemble",
+    "boundary_tolerance_bp": 1000.0,
+    "calibration_bins": 15,
+    "normalization_length_bp": 2000000,
+    "posthoc_renormalization": false,
+    "primary": "present_day64",
+    "probability_floor": false,
+    "purity_filter": false,
+    "secondary": [
+      "all120",
+      "ancient56",
+      "Bronze_Age16_age135",
+      "BAA8_age155",
+      "Neo16_age200",
+      "Yam16_age170"
+    ],
+    "short_tract_cutoff_bp": 10000.0,
+    "support": "same_ARGMix_original100bp_center_bins_clipped_to_coverage_no_missing_bins_no_tail_extrapolation"
+  },
+  "optimizer": "AdamW; raw rates and smoother mixture have zero decay",
+  "optimizer_steps_per_arm": 160,
+  "output_cap_bytes": 20000000000,
+  "reported_plain_emitter": "plain_ARGMix",
+  "retention": "exclusive compact metrics every epoch; plain/current/best sealed predictions and current/best checkpoints only",
+  "seeds": [
+    101
+  ],
+  "selection": "minimum_equal_parent_development_VAL_present64_exact_span_raw_probability_NLL_earliest_tie",
+  "smoother": "learned channel mixtures of normalized original100bp-grid box windows, shared initial source projection/zero residual head",
+  "smoother_window_bp": [
+    1000,
+    10000,
+    30000
+  ],
+  "solver": {
+    "autocast": false,
+    "dtype": "float32",
+    "max_iterations": 128,
+    "true_equation_rtol": 0.0001
+  },
+  "source_samples": "Q120_only; no invented context64 or reference96 unaries",
+  "source_sampling": "native_refined_HDF5/refined_probs at exact tsinfer hold centers, start<=x_local<end; query identity joined by observed (sample_id,haplotype)",
+  "supervision": "TRAIN_actual_query120_exact_class_span_mass_only",
+  "tile_bp": 250000,
+  "trace_condition": "independently_inferred_observation_only_tsinfer_tsdate",
+  "unaries": "canonical_log_of_native_averaged_refined_C4_probabilities; not_original_per_chunk_raw_logits",
+  "weight_decay": 0.0001
+}

@@ -4,15 +4,27 @@ Graph neural networks for ordered collections of whole genealogical trees, with 
 
 ## Current experiments
 
-Updated 2026-10-11.
+Updated 2026-10-11 11:14 UTC.
 
-**Development priority: improve ancestry accuracy. New architecture pilots use FP32 or suitable mixed precision and one optimizer seed.** Broad FP64 equivalence checks and further seed repeats are deferred. The strongest completed common-task comparator remains current-release ARGMix at 85.55%, versus our age-D2 candidate at 84.78%.
+**FP32 development pilot: all four controls have completed epoch 10 of 10, with one seed and 160 updates per trained arm.** The inputs combine frozen native ARGMix predictions from Relate trees with independently inferred tsinfer graphs. TRAIN emissions are in-sample. Scores use the same two development VAL parents and exact physical coverage as the main biological comparison.
 
-- **Native ARGformer:** the first tsinfer-parent fit and retrieval completed. It trained for five MLM epochs and one native contrastive epoch. The second parent is training on GPU 2. An ancestry comparison awaits retrieval and scoring on both VAL parents.
-- **Whole-tree development controls:** five Census controls and the previously launched mechanism repeat remain live on GPU 3. Final selected-checkpoint outcomes are pending. No further optimizer-seed repeats are planned during initial architecture discovery.
-- **New architecture:** an FP32 persistence-trace layer is implemented, and its pilot driver is being prepared. It links complete observed trees through shared ancestral branches and adds a learned residual to a strong frozen emitter. The pilot will compare ordinary genomic smoothing, sample-only continuity, genuine ancestral connections and shuffled connections. It has no predictive result yet.
-- **Original GST executed:** all four native USPTO models completed a bounded TRAIN/VALID pilot. Their selected validation AP is reported separately below.
-- **Full-parent numerical matrix deferred:** its first CPU cell checked implementation consistency and produced no ancestry accuracy result. Remaining cells will not displace model development.
+| Completed FP32 pilot, NLL-selected epoch 10 | Present-day accuracy ↑ | NLL ↓ |
+| --- | ---: | ---: |
+| Frozen native ARGMix | 85.55% | 0.4353 |
+| ARGMix plus ordinary smoothing | 85.94% | 0.3891 |
+| ARGMix plus sample continuity | 85.94% | 0.3891 |
+| ARGMix plus genuine ancestral traces | 85.94% | 0.3891 |
+| ARGMix plus shuffled ancestral traces | 85.94% | 0.3893 |
+
+**The refinement improves the frozen emitter, but ancestral connections have no demonstrated advantage over the simpler controls.** These are completed development observations on two repeatedly used validation parents. They do not establish a novel graph contribution, independent biological superiority or original-paper numerical reproduction. [Completed compact receipt](experiments/results/persistence_trace_pilot_v1_summary_root/summary.json).
+
+- **GPU 3:** the FP32 persistence pilot completed. Its genuine-graph arm gains 0.39 accuracy percentage points over frozen ARGMix, but trails ordinary smoothing by about 0.001 points. The next experiment must demonstrate useful graph information beyond this stronger baseline.
+- **GPU 2:** native ARGformer VAL001 fit r003 is running. Both TRAIN fits and retrievals completed, and the queue advanced past VAL000. Completed VAL retrieval products will be verified before the common ancestry comparison is reported. Native models, objectives, batches and post-processing are unchanged.
+- **Stopped at saved checkpoints:** the extra mechanism-seed repeat and weaker Census pilot were interrupted to redirect compute. Census has 22 complete metric epochs. These partial runs are retained and are not final 30-epoch results.
+- **Original GST:** all four native USPTO models completed the bounded TRAIN/VALID pilot reported below.
+- **Numerical matrix:** remaining full-parent equivalence cells remain deferred.
+
+New launches can use the existing v4 storage reservations rather than repeating a recursive repository scan. The faster launcher preserves the original GPU locking, assignment and signal handling. Current live workers finish through their existing launchers.
 
 At most physical GPUs 2 and 3 are assigned to the project. GPU workers are titled 'AI Auto Research Pipeline Test'. Current storage authorization is 1 TB. See [development priorities](docs/development_priorities_20261011.md).
 
@@ -30,7 +42,7 @@ Method features:
 
 - **Whole-tree geometry.** The evaluated candidate derives interactions from complete connected marginal trees, including internal ancestors and all 280 sampled haplotypes. Its learned node features currently come from the sampled leaves. All 3,718 original inferred trees are represented.
 - **Ordered genomic context.** It exchanges information across trees using genomic order and physical interval lengths, and tracks the same sampled haplotypes across neighboring trees. Reference evidence uses all 96 pure-source references, with 184 query/context states and 120 scored outputs.
-- **Biological constraints under development.** A separate census-cut prototype adds a neural upward/downward whole-tree encoder and retention based on changing sample-clade membership. Older references remain ancestry proxies. Its observation-only joins and numerical checks completed. A five-control predictive fit is running, with final results pending. It is separate from the candidate reported below.
+- **Biological constraints under development.** A separate census-cut prototype adds a neural upward/downward whole-tree encoder and retention based on changing sample-clade membership. Older references remain ancestry proxies. Its observation-only joins and numerical checks completed. Its five-control predictive fit was interrupted after 22 complete metric epochs. Partial observations did not justify further unchanged training. It is separate from the candidate reported below.
 
 ## Comparison with existing methods
 
@@ -74,7 +86,7 @@ Same two development VAL parents and 64 present-day queries as the main biologic
 | Age D1 | 84.70% | 84.87% | 0.4258 | 0.4211 |
 | Age D1 plus pointwise | 84.74% | 84.28% | 0.4246 | 0.4327 |
 
-Age D1 has the lowest two-seed mean NLL, 0.4235. The pointwise addition has no consistent benefit, and the gain-matched control is weaker in both seeds. Cross-query feedback and age-conditioning advantages are not established. Seed 303 is still running. [Seed 101 metrics](experiments/results/biological_mechanism_seed101_summary_v1_root/summary.json) and [seed 202 metrics](experiments/results/biological_mechanism_seed202_summary_v1_root/summary.json).
+Age D1 has the lowest two-seed mean NLL, 0.4235. The pointwise addition has no consistent benefit, and the gain-matched control is weaker in both seeds. Cross-query feedback and age-conditioning advantages are not established. The seed 303 mechanism repeat was interrupted during the user-directed shift to one-seed architecture discovery. Its partial artifacts are retained. [Seed 101 metrics](experiments/results/biological_mechanism_seed101_summary_v1_root/summary.json) and [seed 202 metrics](experiments/results/biological_mechanism_seed202_summary_v1_root/summary.json).
 
 ### Original Graph Set Transformer on USPTO
 
@@ -93,7 +105,7 @@ These are reaction-center scores on the original dataset's development split, se
 
 The common task is four-source ancestry, ANA/CHG/WHG/EHG, at census 350 generations. Data comprise four independent 2 Mb simulation parents, split into two TRAIN and two VAL parents before extraction. Each parent has 96 pure references, 64 unlabeled mixed-context haplotypes and 120 queries, including 64 present-day and 56 ancient queries. All methods are scored on identical observed physical coverage and query identities. Accuracy, NLL and Brier weight exact class-span intersections within 100 bp bins, then average the two parent scores equally.
 
-These are validation results used during model development and checkpoint selection. **No final TEST results or statistical superiority claim are reported.** All three planned candidate/GRU optimizer seeds, 101/202/303, are completed and included. Optimizer seeds are not independent biological replicates. Mechanism controls are completed for seeds 101 and 202. Seed 303 continues on GPU 3 alongside the five-control whole-tree Census experiment. Seed means summarize separate fits, without ensembling probabilities. All optimizer repeats reuse the same two validation parents.
+These are validation results used during model development and checkpoint selection. **No final TEST results or statistical superiority claim are reported.** All three planned candidate/GRU optimizer seeds, 101/202/303, are completed and included. Optimizer seeds are not independent biological replicates. Mechanism controls are completed for seeds 101 and 202. The seed 303 mechanism repeat and the Census experiment were interrupted at saved checkpoints to prioritize the new architecture pilot. Neither interrupted run is a final 30-epoch result. Seed means summarize separate fits, without ensembling probabilities. All optimizer repeats reuse the same two validation parents.
 
 Baseline fidelity:
 
