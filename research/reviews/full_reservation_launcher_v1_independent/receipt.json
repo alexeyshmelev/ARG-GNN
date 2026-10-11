@@ -1,0 +1,70 @@
+{
+  "schema": "full_reservation_launcher_v1_independent_receipt",
+  "created_utc": "2026-10-11T17:18:16.685917+00:00",
+  "verdict": "PASS",
+  "review_role": "independent_reviewer",
+  "scope": "exact launcher diff; unchanged GPU lease/allocation plumbing; actual launcher binding; full reservation charge; own scope; no process inspection/nested mutex",
+  "launcher": {
+    "path": "scripts/launch_reserved_gpu_full_storage_v1.py",
+    "sha256": "d7e5b2bcb464b9d3863b4f644e69aaa1c73c18aaa2550e44ecd021e2199f6dff"
+  },
+  "sources": [
+    {
+      "path": "scripts/launch_reserved_gpu_v6.py",
+      "sha256": "a8049bc103afb1cbbbce6f8fc3707a21de9613b23034599641b688994fc5caa3",
+      "inspection": "frozen exact launcher diff / helper call paths"
+    },
+    {
+      "path": "scripts/launch_reserved_gpu_full_storage_v1.py",
+      "sha256": "d7e5b2bcb464b9d3863b4f644e69aaa1c73c18aaa2550e44ecd021e2199f6dff",
+      "inspection": "frozen exact launcher diff / helper call paths"
+    },
+    {
+      "path": "scripts/project_budget_v9.py",
+      "sha256": "483d78bf2ef3c917d65ecf1dde5a7809bfadc21194c9f9a90394ce5c532fdd5e",
+      "inspection": "frozen exact launcher diff / helper call paths"
+    },
+    {
+      "path": "src/arggnn/project_budget_v4.py",
+      "sha256": "a093c7d86f57fee569cb99f4712250e9505a1119f3950fa44282c7ba8c57df47",
+      "inspection": "measure_scopes stat-only function; no calls"
+    }
+  ],
+  "checks": {
+    "main_AST_matches_base_except_accounting_label": true,
+    "original_and_new_mutex_sites": 2,
+    "new_nested_mutex": false,
+    "actual_launcher_exact_consumer_binding": true,
+    "full_original_charge_no_closed_credit_subtraction": true,
+    "strict_full_charge_limit_bytes": 1000000000000,
+    "own_scope_and_planned_growth_cap": true,
+    "global_process_inspection_requested": false,
+    "distinct_exit_evidence": true
+  },
+  "execution": {
+    "actual_launcher_or_helper_calls": false,
+    "admission_calls": false,
+    "GPU_use": false,
+    "model_or_scientific_tests": false,
+    "data_arrays_or_runtime_ledger_payloads_read": false,
+    "source_AST_parsing_only": true
+  },
+  "artifacts": [
+    {
+      "path": "research/reviews/full_reservation_launcher_v1_independent/source_comparison.json",
+      "sha256": "c83b0f5e9b2419daa11d08e8f8588edccc999ce00285574d57c81120b44040ba",
+      "bytes": 699
+    },
+    {
+      "path": "research/reviews/full_reservation_launcher_v1_independent/exact_diff.patch",
+      "sha256": "5c474b239742ea2868f86a89cd08e080d97797280da792be34f5b401e9d39187",
+      "bytes": 5984
+    },
+    {
+      "path": "research/reviews/full_reservation_launcher_v1_independent/review.md",
+      "sha256": "a058b70bf79640cdab73640f4a30da753e9a7159650a402db5e43a035ed23997",
+      "bytes": 2497
+    }
+  ],
+  "bootstrap_review_unchanged": true
+}
