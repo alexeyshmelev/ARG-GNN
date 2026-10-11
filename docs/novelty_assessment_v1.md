@@ -1,0 +1,21 @@
+# Novelty assessment during discovery
+
+Updated 2026-10-11. Accuracy and originality are separate questions. A useful established technique can expose missing biological information and motivate a stronger design. It is not automatically a new architecture.
+
+| Hypothesis | Established ingredients | Candidate contribution | Present evidence and next discriminating comparison |
+| --- | --- | --- | --- |
+| H025, whole-tree persistence refinement | Sparse screened graph propagation, residual prediction correction, genomic smoothing | Useful persistent inferred-ancestor coupling | Smoothing improves the frozen emitter. Genuine, sample and sham controls are indistinguishable. No distinct graph mechanism established. |
+| H026, census/reference context | Weighted TMRCA reference kernels, normalized class affinity, linear residual correction | Census-conditioned reference information | NLL improves. Census does not beat age-free affinity or improve accuracy. Close to released ARGMix kernel alternatives. No new GNN claim. |
+| H027, reference-only persistence | Same H025 operator, reference-label propagation and normalization | Separating proxy reference information from query-emitter propagation | Genuine and sample controls have essentially identical accuracy. Sham accuracy is higher. Positive masses alone do not certify relative precision in weak local fields. No new operator claim. |
+| H028, observed allele evidence | Class-conditional allele frequencies, declared pseudocount regularization, composite linked-SNP evidence and fixed fusion | Recovering signal lost by genealogy inference | Prospective. Match input fields, supervision, correction capacity and physical scoring support. A gain would support an information route, not architectural originality. |
+| H029, learned carrier/cavity model | Tree message passing, cavity/rerooting states, TGN carrier memory, Gated DeltaNet matrix update | A narrow reference-cavity/carrier-history coupling for ordered whole genealogies | Prospective. Match a carrier-GRU before pooling with identical cavity/edit information, and compare static and history-sham controls. Predictive benefit and historical priority remain unresolved. |
+
+The [fresh independent design critique](../research/reviews/edge_innovation_novelty_fresh_v1/critique.md) compares primary TGN, GraphSSM, DeltaNet, Gated DeltaNet, Tree-LSTM and the supplied methods. Its [source receipt](../research/reviews/edge_innovation_novelty_fresh_v1/receipt.json) records inspected material and hashes. This focused search is not an exhaustive proof of priority.
+
+For every proposed contribution, record the closest mechanism, the exact change, why it might matter for the ancestry estimand, and a control that could invalidate that explanation. Complete pre/post cavity differences represent observed contextual change, rather than causal attribution of one recombination event. Coherent inferred IDs do not certify true ancestor continuity.
+
+Only a gain over appropriately informed and trained controls can support predictive usefulness. A new information source, changed topology producer, alternative postprocessing, or greater model capacity must be disclosed and tested separately. One-seed discovery on reused validation parents cannot establish independent biological generality, original-paper numerical reproduction or final-test superiority.
+
+A future manuscript claim must identify a supported operator or biological insight, acknowledge its established ingredients and cite the closest prior work. Novelty assessment continues when the architecture, data route or claim changes. The target is a useful contribution supported by measurements, rather than an acceptance verdict.
+
+A targeted title/abstract search also retrieved SIA (doi:10.1101/2021.06.22.449427), which already applies an LSTM to ARG information for selection inference. This is [abstract-level evidence](../research/reviews/edge_innovation_priority_search_v1_root/sia_abstract_search.json), not a full operator comparison. Genomic recurrence alone is not a novelty claim. One Crossref metadata request was rate-limited, and the search is explicitly incomplete.

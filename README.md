@@ -4,7 +4,7 @@ Graph neural networks for ordered collections of whole genealogical trees, with 
 
 ## Current experiments
 
-Updated 2026-10-11 12:40 UTC.
+Updated 2026-10-11 13:11 UTC.
 
 **The latest FP32 discovery experiments completed with one seed and 160 updates per arm.** All rows below use the same two repeatedly reused development VAL parents, present-day query identities and exact physical scoring support. Each trained arm uses its prespecified minimum-NLL checkpoint.
 
@@ -22,15 +22,15 @@ Updated 2026-10-11 12:40 UTC.
 
 [H026 selected results and parent/class/boundary diagnostics](experiments/results/reference_census_innovation_v1_summary_root/summary.json) and [H027 selected results and diagnostics](experiments/results/reference_trace_residual_v1_summary_root/summary.json). H026 native, age-free and census arms select epoch10. Its sham selects epoch6. H027 arms select epoch10. H027's positive normalization-mass check passed, but very small reference masses need care in interpreting local normalized fields.
 
-- **Next input hypothesis, H028:** observed pure-reference allele evidence with genotype-only, graph-only and fusion controls. This tests additional biological information, and does not itself establish architectural novelty. Implementation is underway.
-- **Next learned architecture, H029:** whole-tree reference/cavity encoding with carrier memory before query pooling. A matched carrier-GRU and ancestral-history sham will test the structured update against close temporal-GNN alternatives. Implementation is underway, with no measured gain yet.
+- **GPU3, H028 running:** observed pure-reference allele evidence with genotype-context, graph-context and fixed-mean fusion controls over the same frozen smoother. The independent source audit passed. All three heads allocate32 parameters, of which28 receive input signal because the older ANA reference channel is zero. This tests additional biological information and does not itself establish architectural novelty. [Protocol](docs/observed_variant_residual_v1.md) and [independent audit](research/reviews/observed_variant_residual_v1_independent/critique.md).
+- **GPU2, H029 launched:** learned whole-tree reference/cavity encoding with carrier memory before query pooling. Static, carrier-GRU, carrier-matrix and ancestral-history sham controls share initialization and information. GRU and matrix use16 state scalars per carrier and direction, with different active parameter counts disclosed. The source audit and CPU hand-derived checks passed. The actual first TRAIN tile will record GPU forward/backward time and peak memory as part of its160 updates. No measured accuracy gain yet. [Implemented architecture](docs/edge_innovation_gnn_v1_proposal.md) and [independent source audit](research/reviews/edge_innovation_gnn_v1_independent/critique.md).
 - **Native ARGformer:** genuine author training and retrieval completed on all four adapted EuropeanC4/tsinfer parents. Present-day top1 accuracy is75.68%, fixed top5 is75.14%, and unmodified raw-vote NLL is infinite. The main comparison below explains the differing genealogy and training objective.
 - **Original GST:** all four native USPTO models completed the bounded TRAIN/VALID pilot below.
 - **Previous partial runs:** interrupted mechanism-seed and Census fits remain preserved. They are not final30epoch results. Large FP64 equivalence sweeps remain deferred.
 
 Frozen ARGMix predictions derive from Relate trees. The new graph context comes from independently inferred tsinfer/tsdate trees. TRAIN emitter predictions are in-sample and the frozen smoother was development-selected. No TEST parent has been evaluated.
 
-Novelty is assessed throughout development. The latest independent [design critique](research/reviews/edge_innovation_novelty_fresh_v1/critique.md) identifies TGN and Gated DeltaNet precedents. Whole-tree cavity construction plus carrier-conditioned memory remains a hypothesis about useful biological coupling, with priority and predictive benefit unresolved. Existing kernels, recurrence and message passing are discovery tools.
+Novelty is assessed throughout development in the [claim-by-claim novelty log](docs/novelty_assessment_v1.md). The latest independent [design critique](research/reviews/edge_innovation_novelty_fresh_v1/critique.md) identifies TGN and Gated DeltaNet precedents. Whole-tree cavity construction plus carrier-conditioned memory remains a hypothesis about useful biological coupling, with priority and predictive benefit unresolved. Existing kernels, recurrence and message passing are discovery tools.
 
 At most physical GPUs2 and3 are assigned to the project. GPU workers are titled 'AI Auto Research Pipeline Test'. Current storage authorization is1TB. See [development priorities](docs/development_priorities_20261011.md).
 
@@ -152,7 +152,7 @@ A smaller simulation, current code release or changed ancestry endpoint is repor
 
 The project runs on anogena in `/workspace-SR003.nfs2/ARG-GNN`. Read [AGENTS.md](AGENTS.md) before contributing. Source `scripts/project_env.sh` before installing packages or running Python. The main environment is `.runtime/env`. Runtime state, datasets and checkpoints stay on the server and are excluded from Git.
 
-The user increased the project storage allowance to **1 TB on2026-10-11**, with a950GB scheduling ceiling. The latest completed whole-project measurement was about289.7GB. Historical conservative reservations project947.53GB, an accounting projection rather than physical usage. A scoped, append-only accounting successor is being prepared to close completed reservations without rescanning the whole repository or rewriting old admissions. See the [resource authorization](research/resource_authorizations/project_storage_1TB_20261011.json).
+The user increased the project storage allowance to **1 TB on2026-10-11**, with a950GB scheduling ceiling. The latest completed whole-project measurement was about289.7GB. Historical conservative reservations project949.53GB, an accounting projection rather than physical usage. A scoped, append-only accounting successor has source and handmade checks ready for review. It has not been activated and no historical charge has been released. It is intended to close completed reservations without rescanning the whole repository or rewriting old admissions. See the [resource authorization](research/resource_authorizations/project_storage_1TB_20261011.json).
 
 Native ARGformer v7 completed genuine fitting and retrieval in the original captured author environment. Both VAL predictions were sealed before unchanged external scoring. The same-tsinfer Census observation and CPU numerical checks completed, but this separate interrupted model has no final superiority result. [Native capture evidence](experiments/results/native_argformer_tsinfer_fit_v7_root/compact_runtime_inventory.json) and [completed ancestry comparison](experiments/results/native_argformer_tsinfer_fit_v7_summary_v2/summary.json).
 

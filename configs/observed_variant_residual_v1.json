@@ -1,0 +1,111 @@
+{
+  "TRAIN_tiles_per_epoch": 16,
+  "arms": [
+    "genotype_only",
+    "graph_only",
+    "genotype_graph_fusion"
+  ],
+  "base_fit_config": {
+    "path": "configs/census_tsinfer_fit_v1.json",
+    "sha256": "7c2436d5479e68beb1a8f3edb04ca0ee729a23be35ca2d7893827c0db68e3b00"
+  },
+  "biological_confounds": [
+    "temporally_sampled_pure_donors_are_proxies",
+    "only_two_reused_development_VAL_parents",
+    "in_sample_TRAIN_emitter_and_teacher_outputs",
+    "fixed_density_weights_are_not_exact_LD_correction",
+    "genotype_frequencies_compress_observations_differently_than_graph_inference",
+    "graph_inference_used_all280_observed_haplotypes_including_unlabeled_mixed64",
+    "fixed_mean_fusion_does_not_test_all_possible_fusions"
+  ],
+  "centering": "full_actual_Q_same_exact_observed_age;genotype_empty_cohort_query_rows_stay_zero",
+  "channels": 8,
+  "condition": "frozen_H025_smoother_plus_observed_SNP_reference_composite_native_graph_or_fixed_mean_fusion",
+  "context": {
+    "census": 350,
+    "older_scale_generations": 1400,
+    "younger_scale_generations": 350
+  },
+  "dtype": "float32",
+  "emitter_condition": "native_ARGMix_Relate_frozen_emitter",
+  "epochs": 10,
+  "frozen_baseline": "immutable_selected_H025_genomic_smoothing_epoch10; exact_original_per250kb_tile_computation",
+  "fusion": "fixed_arithmetic_mean_of_commensurate_centered8channel_per_cohort_C4_fields;not_learned_modality_gate",
+  "genotype": {
+    "alpha": 0.5,
+    "census": 350.0,
+    "ld_block_bp": 1000,
+    "window_bp": 10000
+  },
+  "gradient_clip_norm": 1,
+  "graph_field": "native_reference_from_fixed_H026_metric_tree_context",
+  "head": "same_zero_init_bias_free8to4_32param_context_head_all_arms;baseline_output_skip_only",
+  "helper_refs": {
+    "context_module": {
+      "path": "src/arggnn/reference_census_innovation_v1.py",
+      "sha256": "2c6d67702ce16efedbd324e2e4fcc703f8be0b386e4c3828cbbeb4f1114161c8"
+    },
+    "metrics": {
+      "path": "scripts/train_ancestralpaths_biological_v1.py",
+      "sha256": "826a1e8c3053cf63b8374361f793903970dd75d44cbcd536755e9aaa3b985056"
+    },
+    "span_loss": {
+      "path": "src/arggnn/biological_gst_control_v1.py",
+      "sha256": "66788b41cabcb852c739505200a641bdc93fea3c9fbb642c291d52cefc77350f"
+    },
+    "targets_scores": {
+      "path": "src/arggnn/census_tsinfer_fit_v1.py",
+      "sha256": "fd55aaa6b8f88983514ff6888ad2efbadca4ee8b2e3acabd09fbd4a361b5acf3"
+    },
+    "whole_tree_geometry": {
+      "path": "src/arggnn/persistence_trace_kernel_v1.py",
+      "sha256": "25bfc4719ae03621289856e09ed4b2040090568aaedee4d05a1e47b218398507"
+    }
+  },
+  "hypothesis_id": "H028",
+  "information_route_hypothesis": true,
+  "kind": "observed_variant_residual_v1",
+  "learning_rate": 0.001,
+  "metrics": {
+    "aggregation": "unweighted_parent_mean_one_seed_no_probability_ensemble",
+    "boundary_tolerance_bp": 1000.0,
+    "calibration_bins": 15,
+    "normalization_length_bp": 2000000,
+    "posthoc_renormalization": false,
+    "primary": "present_day64",
+    "probability_floor": false,
+    "purity_filter": false,
+    "secondary": [
+      "all120",
+      "ancient56",
+      "Bronze_Age16_age135",
+      "BAA8_age155",
+      "Neo16_age200",
+      "Yam16_age170"
+    ],
+    "short_tract_cutoff_bp": 10000.0,
+    "support": "same_ARGMix_original100bp_center_bins_clipped_to_coverage_no_missing_bins_no_tail_extrapolation"
+  },
+  "novel_GNN_claim": false,
+  "novelty_claim": false,
+  "observation_preparation": "guarded_observation_only_reader;feature_prep_seal_before_any_TRAIN_target_array_open",
+  "older_reference_policy": "ANA_absent_donor_class_stays_exact_zero_and_is_excluded_from_genotype_and_graph_cohort_normalization",
+  "optimizer": "AdamW",
+  "optimizer_steps_per_arm": 160,
+  "ordered_cross_tree_mechanism_tested": false,
+  "output_cap_bytes": 1000000000,
+  "parameters_per_arm": 32,
+  "readout": "containing_original_native_tree;no_cross_tree_context_interpolation",
+  "reference_input": "pureR96_only84_younger12_older;observed_proxy_classes;no_query_or_mixed_source_label",
+  "retention": "compact_epoch_metrics;baseline_and_current_plus_selected_VAL_predictions_and_checkpoints_only;fixed_fields_RAM_only",
+  "scope": "accuracy_and_input_information_discovery;not_new_GNN_or_isolated_topology_novelty",
+  "seeds": [
+    101
+  ],
+  "selection": "earliest_minimum_equal_parent_development_VAL_present64_exact_span_raw_probability_NLL",
+  "source_freeze": "new_module_and_runner_unpinned_until_author_receipt_then_root_input_freeze",
+  "supervision": "TRAIN_actual_query120_exact_class_span_mass_only",
+  "tile_bp": 250000,
+  "weight_decay": 0.0001,
+  "whole_trees": "complete_sample_ancestor_unions_preserved;cutpoints_marked_analytically_without_deleting_or_contracting_vertices"
+}

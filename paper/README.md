@@ -3,7 +3,7 @@
 Three explicitly incomplete methods/protocol drafts preserve the current candidate
 architectures. Neither is the final empirical paper.
 
-- anchor_kernel_working.tex describes repeated fixed-anchor kernel message passing, integrated age geometry, reference-inclusive bounded normalization and factorial controls. It is a methods draft while comparative evidence is pending. The current source includes the biological development panel, census350 estimand, observation-only interfaces and native-baseline task-transfer definitions.
+- anchor_kernel_working.tex describes repeated fixed-anchor kernel message passing, integrated age geometry, reference-inclusive bounded normalization and factorial controls. It is a methods draft. The development comparison table was updated2026-10-11 to completed three-seed standalone fits, native ARGformer and one-seed reference refinements. A six-page PDF compiled with the existing remote project runtime, with no overfull table warning. Independent biological superiority and distinct GNN novelty remain unresolved. The current source includes the biological development panel, census350 estimand, observation-only interfaces and native-baseline task-transfer definitions.
 - boundary_kernel_working.tex describes the coupled persistent-sample boundary
   kernel, its conditional covariance interpretation, dual subdivision contract
   and same-input attribution controls. Predictive benefit and distinct novelty
