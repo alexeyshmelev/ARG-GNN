@@ -14,11 +14,17 @@ Our latest standalone model uses PyTorch Geometric whole-tree message passing, o
 
 These scores use two reused validation simulations and 64 present-day query haplotypes. Our standalone model uses tsinfer/tsdate trees and raw SNPs, while ARGMix uses Relate trees. Training budgets also differ. They are descriptive pilot results, with no top-1 or novel-mechanism claim.
 
-The next stage uses **32 independent training simulations, eight validation simulations and eight reserved evaluation simulations**, with the full 952-haplotype author panel. Eight simulations in the first 16-parent batch are running Relate inference. New model runs use PyTorch and PyTorch Geometric. Competitors retain their authors' code and algorithms, with any dataset or pipeline adaptation disclosed.
+The next stage uses **32 independent training simulations, eight validation simulations and eight reserved evaluation simulations**, with the full 952-haplotype author panel. All 16 TRAIN simulations in the first batch have completed simulation and Relate inference. The remaining development parents and full-panel fits are pending. New model runs use PyTorch and PyTorch Geometric. Competitors retain their authors' code and algorithms, with any dataset or pipeline adaptation disclosed.
 
 Training will evaluate checkpoints every 160 whole-parent updates, with a maximum of 960 updates and prospective early stopping. Final selected predictions receive the full biological diagnostics. Preprocessing, training, validation, memory and accuracy will be reported separately.
 
 [Expanded protocol](research/reviews/expanded_full_panel_v1_root/registration.json) · [Verified PyG pilot results](experiments/results/mutation_routed_pyg_total400_summary_root/summary.json)
+
+**Success criteria:** top-1 accuracy must be demonstrated on faithful shared-data comparisons and the original-paper benchmarks where assets allow. Architectural novelty is assessed separately. GST's graph-set tasks are evaluated separately from biological ancestry. Any additional benchmark needs a documented scientific purpose and a prospectively disclosed protocol.
+
+**Efficiency:** H038 training now aggregates exact scored spans by native tree interval instead of repeating training logits across the 100 bp grid. It retains every whole tree, query and genomic GRU state. Model arithmetic is FP32, and validation keeps the original grid. A small loss/gradient check passed. Full-panel GPU time and memory have not yet been measured. Preparation, training, validation and inference costs will accompany accuracy.
+
+[Research success criteria](docs/research_success_criteria_v1.md)
 
 ## Current experiments
 
