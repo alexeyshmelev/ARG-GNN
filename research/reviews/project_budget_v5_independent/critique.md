@@ -1,0 +1,41 @@
+# Independent v5 source audit — FAIL
+
+The accounting formula is sound for its stated cooperative write-authority contract, but the terminal evidence gate has reproducible source gaps. Do not activate these exact bytes until the blockers below are resolved and re-reviewed. This is a source-only verdict; it does not validate any actual closure, root observation, or scientific result.
+
+Reviewed implementation SHA256: f91debfed5af55e57e2d0f3e86204de2db6d2b195b4532c7619ec46d1e7e02da
+
+Reviewed launcher SHA256: 03ff891318390a7173b4b6795bd6208c35d87a9792bb9ceb3e24835626f1e810
+
+Reviewed documentation SHA256: 53de4befe13affdbd66f0fb5e6c468829638f8d1914e74f100efb9d5668143bd
+
+## Actionable source blockers
+
+1. **P1: supervisor evidence can contradict known exit status** — scripts/project_budget_v5.py:104-107 requires only integer returncode=0. A terminal receipt with evidence_method=supervisor_wait, status=driver_completed_launcher_exit_unknown, and exit_status_known=false passes. That receipt simultaneously claims an actual successful wait and an unknown exit. Require a consistent exact supervisor schema, including exit_status_known=true and a compatible status, and bind actual supervisor-wait evidence to the reservation and recorded worker/launcher identities. Preserve the existing exact unknown-exit branch, which correctly rejected a fabricated zero in my fixture.
+
+2. **P1: recorded worker and launcher identities may be missing** — scripts/project_budget_v5.py:116-119 silently omits null IDs from the required terminal PID set. A completed receipt retaining lease identity but omitting runtime.pid and lease.launcher_metadata.launcher_pid passes with an unrelated terminal pids=[99]. Require exact positive recorded worker and launcher PIDs, or separately bound original launch evidence supplying the missing identities, before asserting recorded PID absence. Do not convert an evidence gap into arbitrary terminal identities.
+
+3. **P2: recorded zombie is accepted as absent** — scripts/project_budget_v5.py:187-190 accepts a recorded PID whose /proc stat state is Z or X. The return says terminal_pids_live=false while the required root receipt claims recorded_pids_absent=true. A tiny fake /proc with recorded PID11 in state Z reproduces this. Under the requested strict absence contract, reject every recorded PID present in the inventory, including zombies and reused IDs. Alternatively, a distinct explicitly reviewed non-live-zombie evidence contract would be needed; do not label presence as absence.
+
+4. **P2: original lease path identity is not rechecked after acquisition** — scripts/project_budget_v5.py:148-153 compares fstat only with the pre-open lstat, then yields after flock without verifying that the canonical lease path still names that inode. A fixture renamed the original after os.open and created a replacement at the original path; terminal_lease yielded while holding the retained original inode and the live path named a different inode. Recheck the canonical path type/link count/device/inode after flock and before releasing the lease, failing closed on replacement. The fixture retained the original bytes and did not touch a live lock.
+
+## Integration and activation evidence still required
+
+No actual consumer call site importing or calling the v5 guard was found in bounded src/arggnn/*.py and scripts/*.py source searches. Only the successor script and launcher mention v5. The launcher checks a root boolean consumer_uses_v5_guard and an exact module reference; it does not prove that the consumer invokes the guard or respects its full write scope. Before any new v5 model admission, bind and independently review the concrete consumer source with preparation and stage/epoch write boundaries using check_reservation, planned growth, all output and auxiliary paths, and the original scientific/runtime guards. A source-ready accounting API alone does not give working 1GB/2GB model capacity.
+
+The historical admission freeze and closed-scope future write/relaunch revocation are cooperative root duties. Original v4/legacy entry points remain callable and cannot see v5 credit. Root must document the first-event freeze, ensure no new legacy/v4 reservations, and revoke all cooperative jobs rights to the closed output and auxiliary scopes. Existing admitted jobs may finish. V5 prevents a new successor scope/key from overlapping any historical or successor scope, including closed scopes, and rejects relaunch of a closed successor reservation; it cannot itself disable an old v4 launcher. New scheduling must use GPUs2/3 and the project two-device constraint under the current root authorization.
+
+Before applying any real closure, root must supply exact current historical ledger hashes and journal tail; exact completed.json and its identity; recorded worker and launcher identities; hashed process observations proving recorded PID absence; the original lease path/device/inode and an exclusive acquire/release observation; a hashed GPU observation proving no recorded context; cooperative future scope-write/relaunch revocation; every original scope, including absent auxiliaries; and a stable conservative scoped stat measurement pinned in the admission. External NFS clients and uninspected other-user processes must stay explicitly outside observation. Obtain these observations anew at activation. Author handmade tests prove none of them.
+
+The documentation historical projection/fallback describes947527367424 bytes and pre-admission headroom. Root supplied a later949527367424-byte projection after two1GB reservations. Treat those prose numbers as an earlier snapshot and use fresh exact ledger pins for any action.
+
+## Checks that passed source review
+
+The exact 1TB human authorization supersedes AGENTS.md stale500GB storage text. The immutable baseline167336640512, external reserve130000000000, legacy charges, v4 policy/source/config and original stored reservation guards remain in the v4 view. Reconciliation adds all successor allowances and subtracts each unique closed supplemental allowance minus its retained conservative charge once. My handmade calculation started at949527367424, replaced a10GB allowance with8192 retained bytes, and added1GB plus2GB allowances, yielding942527375616 bytes. Oversize retained charges, unknown closed keys and duplicate historical/successor keys are rejected by the reviewed code.
+
+Scope checks inherit v4 canonical no-symlink namespaces, pairwise ancestor/descendant exclusion, regular singly linked metadata/product checks and conservative max(apparent,allocated) charge. A closure includes the entire original output and auxiliary scope list and binds a stat manifest. Closed-scope modification causes boundary/admission checks to fail. No baseline, legacy, environment or whole-project physical diagnostic is subtracted.
+
+Journal events exclusively create read-only numbered files, hash-chain predecessors, bind root authority and reviewed bytes, cap event count/total bytes, and fsync event plus directory. A partial final event or unknown entry fails closed. The first event pins historical ledger bytes; later checks require those bytes and all original v4 guards. Under the cooperative mutex/write-authority contract, I found no duplicate-credit arithmetic or ordinary append-overwrite path. These checks do not confer filesystem immutability against an owner or external writer.
+
+## Independent executed probes and limits
+
+Seven focused handmade probes were executed under research/reviews/project_budget_v5_independent/focused_fixtures: truthful unknown exit accepted; absence plus fabricated zero rejected; contradictory supervisor status accepted (blocker); missing recorded IDs accepted (blocker); replacement arithmetic matched942527375616; recorded zombie accepted (blocker); original lease path replaced after open accepted (blocker). Only tiny fixture files and these owned review artifacts were written. No actual product tree was stat-measured, no real /proc or GPU inventory was read, no live lock was acquired, no admission/reservation/closure was applied, no recursive project scan, deletion, install, Git operation or scientific fit was performed. Reading the author34-case report was not a rerun or independent certification of real closure.
