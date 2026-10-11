@@ -2,6 +2,24 @@
 
 Graph neural networks for ordered collections of whole genealogical trees, with local ancestry inference from ancestral recombination graphs as the main application. The manuscript uses the AAAI template.
 
+## Latest status
+
+Our latest standalone model uses PyTorch Geometric whole-tree message passing, observed SNP features and a bidirectional GRU across genomic trees. It has 29,764 parameters and uses no ARGMix predictions.
+
+| Completed pilot pipeline | Present-day accuracy | NLL |
+| --- | ---: | ---: |
+| Our standalone PyG model, 400 total updates | 83.90% | 0.4915 |
+| ARGMix, current author release | 85.55% | 0.4353 |
+| ARGMix plus ordinary smoothing | 85.94% | 0.3891 |
+
+These scores use two reused validation simulations and 64 present-day query haplotypes. Our standalone model uses tsinfer/tsdate trees and raw SNPs, while ARGMix uses Relate trees. Training budgets also differ. They are descriptive pilot results, with no top-1 or novel-mechanism claim.
+
+The next stage uses **32 independent training simulations, eight validation simulations and eight reserved evaluation simulations**, with the full 952-haplotype author panel. Eight simulations in the first 16-parent batch are running Relate inference. New model runs use PyTorch and PyTorch Geometric. Competitors retain their authors' code and algorithms, with any dataset or pipeline adaptation disclosed.
+
+Training will evaluate checkpoints every 160 whole-parent updates, with a maximum of 960 updates and prospective early stopping. Final selected predictions receive the full biological diagnostics. Preprocessing, training, validation, memory and accuracy will be reported separately.
+
+[Expanded protocol](research/reviews/expanded_full_panel_v1_root/registration.json) · [Verified PyG pilot results](experiments/results/mutation_routed_pyg_total400_summary_root/summary.json)
+
 ## Current experiments
 
 Updated 2026-10-11 21:40 UTC.
@@ -49,8 +67,8 @@ Updated 2026-10-11 21:40 UTC.
 - **H035 completed:** both arms finished160 FP32 updates. Selected signed difference scores85.9335%/NLL0.374666 at epoch10. Path sum scores85.9438%/0.374558 at its selected epoch7. Signed difference does not beat its matched control or smoothing accuracy. Observed roles are correspondences, not verified ancestral identities. [Verified selected results](experiments/results/observed_role_mixed_path_gnn_v1_summary_root/summary.json).
 - **H034 full-panel data:** two fresh2Mb parents completed simulation and Relate inference with the full952-haplotype author panel,686 queries and266 pure references. Two more parents completed, giving four prepared parents in total. The second outer parent remains registered and ungenerated. The frozen downstream split uses TRAIN000/001 for training, nominalTRAIN002 for internal validation and two independent outer discovery parents. These use the author demographic/sample panel, shorter segments and new streams. No method scores or original-paper numerical reproduction are claimed. [Protocol](docs/ancestralpaths_full_panel_discovery_v1.md), [native baseline plan](research/reviews/full_panel_native_baseline_plan_v2/plan.md).
 - **H036 direct classifier completed:** both aligned and shuffled arms finished160 full-parent FP32 updates. Minimum-NLL selection gives aligned74.8564% accuracy/NLL0.600348 at epoch80 and shuffled73.7807%/0.620340 at epoch76. This direct model uses original SNPs plus complete tsinfer/tsdate trees, with no ARGMix teacher. It remains below historical ARGMix and smoothing accuracy. The original placement-mechanism gate remains inconclusive. [Verified paired results](experiments/results/mutation_routed_whole_tree_gnn_total160_summary_root/summary.json).
-- **PyG bridge completed:** the standalone model reached83.8969% accuracy/NLL0.491455 at selectedepoch170, versus83.7871%/0.465909 forshuffledsupport at130. Bothcompleted400totalupdates. These remain two-parentpilots, belowARGMix85.554%. Actual training epochs withtwofull-parentupdates takeabout1.47s, versusabout4.3s in the olderpipeline. This is an overallpipelinephasecomparison, not an isolatedPyGspeedclaim. Trainingstilltookonly35–36%of each600srun, motivating cachedbookkeeping and fewer validationchecks. [Verifiedresults](experiments/results/mutation_routed_pyg_total400_summary_root/summary.json).
-- **Broader H038 corpus registered:**32 independentTRAIN+8VAL+8reservedevaluationparents,full952authorpanel/686queries/182present-dayqueries. The first16TRAINparents are being prepared with eightparallelCPUjobs. NewPyGfits will useupto30passes/960whole-parentupdates,validationevery5passes,accuracy-basedselectionandearlystopping. Nativeauthorbaselines will receive thesameobservations/querysupport,withpipelinetransfersdisclosed. These2Mb/freshstreamsimulationsare not originalpapernumericalreproduction. [Frozenprotocol](research/reviews/expanded_full_panel_v1_root/registration.json).
+- **PyG bridge completed:** the standalone model reached 83.8969% accuracy and NLL 0.491455 at selected epoch 170, versus 83.7871% and 0.465909 for shuffled support at epoch 130. Both completed 400 total updates. These two-parent pilots remain below ARGMix at 85.554%. The median training epoch with two full-parent updates took about 1.47 seconds, versus about 4.3 seconds in the earlier pipeline. This measures the overall training phase, rather than PyG in isolation. Training occupied only 35–36% of each 600-second run. The broader stage reduces checkpoint frequency and caches repeated authorization checks. [Verified results](experiments/results/mutation_routed_pyg_total400_summary_root/summary.json).
+- **H038 broader corpus registered:** 32 independent TRAIN, eight VAL and eight reserved evaluation parents, with the full 952-haplotype author panel, 686 queries and 182 present-day queries. The first 16 TRAIN parents are being prepared with eight concurrent CPU jobs. New PyG fits allow up to 30 passes and 960 whole-parent updates, with validation every five passes, accuracy-based selection and early stopping. Native author baselines use common observations, query support and scoring rules. These 2 Mb segments and fresh simulation streams do not reproduce the original papers' numerical experiments. [Frozen protocol](research/reviews/expanded_full_panel_v1_root/registration.json).
 - **Native ARGformer:** genuine author training and retrieval completed on all four adapted EuropeanC4/tsinfer parents. Present-day top1 accuracy is75.68%, fixed top5 is75.14%, and unmodified raw-vote NLL is infinite. The main comparison below explains the differing genealogy and training objective.
 - **Original GST:** all four native USPTO models completed the bounded TRAIN/VALID pilot below.
 - **Previous partial runs:** interrupted mechanism-seed and Census fits remain preserved. They are not final30epoch results. Large FP64 equivalence sweeps remain deferred.
