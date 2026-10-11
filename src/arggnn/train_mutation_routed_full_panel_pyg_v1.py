@@ -15,7 +15,7 @@ import numpy as np
 import torch
 from . import census_tsinfer_fit_v1 as fit
 from . import train_mutation_routed_whole_tree_gnn_v1 as original
-from .project_storage_closed_scopes_v1 import PilotOutputV9,budget_check_v9,validate_storage_v9
+from .project_storage_terminal_success_scopes_v1 import PilotOutputV9,budget_check_v9,validate_storage_v9
 from .mutation_routed_full_panel_observations_v1 import validate_registry_v1
 from .mutation_routed_full_panel_cache_v1 import (
     FullPanelParentDatasetV1,make_parent_dataloader_v1,shutdown_parent_dataloader_v1,read_full_cache_index_v1)
@@ -37,14 +37,16 @@ IMPLEMENTATION_SOURCES=frozenset(NEW_SOURCES)|frozenset({
     "src/arggnn/mutation_routed_pyg_dataset_v1.py","src/arggnn/mutation_routed_fast_primary_v1.py",
     "src/arggnn/observed_variant_residual_v1.py","src/arggnn/full_panel_native_baseline_contracts_v1.py",
     "src/arggnn/census_tsinfer_observation_v1.py",original.SOURCE,
-    "src/arggnn/prepare_expanded_full_panel_v1.py","src/arggnn/prepare_expanded_pyg_observations_v1.py",
-    "src/arggnn/project_storage_closed_scopes_v1.py"})
+    "src/arggnn/prepare_expanded_full_panel_v1.py","src/arggnn/prepare_expanded_pyg_observations_v4.py",
+    "src/arggnn/project_storage_closed_scopes_v1.py",
+    "src/arggnn/project_storage_cpu_closed_scopes_v1.py","src/arggnn/project_storage_terminal_scopes_v1.py",
+    "src/arggnn/project_storage_terminal_success_scopes_v1.py"})
 HELPER_SOURCE_PATHS={
     "H025_score_helpers":"src/arggnn/train_persistence_trace_pilot_v1.py",
-    "actual_full_storage_launcher":"scripts/launch_reserved_gpu_full_storage_v1.py",
+    "actual_full_storage_launcher":"scripts/launch_reserved_gpu_terminal_scopes_v1.py",
     "configure_fit":"src/arggnn/biological_candidate.py",
     "exact_observation_efficiency":"src/arggnn/mutation_routed_observation_efficiency_v1.py",
-    "full_reservation_adapter":"src/arggnn/project_storage_closed_scopes_v1.py",
+    "full_reservation_adapter":"src/arggnn/project_storage_terminal_success_scopes_v1.py",
     "immutable_base_launcher":"scripts/launch_reserved_gpu_v6.py",
     "immutable_budget_core":"scripts/project_budget_v9.py",
     "lease_title":"src/arggnn/native_argformer_exec.py",
@@ -56,6 +58,8 @@ HELPER_SOURCE_PATHS={
     "original_full_reservation_adapter":"src/arggnn/project_storage_full_reservation_v1.py",
 }
 ALLOWED_SOURCE_PATHS=IMPLEMENTATION_SOURCES|frozenset(HELPER_SOURCE_PATHS.values())
+OBSERVATION_CACHE_SOURCE_PATHS=frozenset(('src/arggnn/census_tsinfer_fit_v1.py', 'src/arggnn/census_tsinfer_observation_v1.py', 'src/arggnn/full_panel_native_baseline_contracts_v1.py', 'src/arggnn/mutation_routed_full_panel_cache_v1.py', 'src/arggnn/mutation_routed_full_panel_observations_v1.py', 'src/arggnn/mutation_routed_observation_cache_v1.py', 'src/arggnn/mutation_routed_parent_loader_v1.py', 'src/arggnn/mutation_routed_pyg_dataset_v1.py', 'src/arggnn/mutation_routed_tree_observations_v1.py', 'src/arggnn/mutation_routed_whole_tree_gnn_v1.py', 'src/arggnn/observed_variant_residual_v1.py', 'src/arggnn/prepare_expanded_pyg_observations_v4.py'))
+
 
 
 def validated_source_records_v1(spec,cfg):
@@ -82,8 +86,9 @@ def validated_source_records_v1(spec,cfg):
             or any(r!={"path":r.get("path"),"sha256":sources.get(r.get("path"))} for r in own)):
         raise ValueError("Config must bind exactly the five new implementation sources")
     cache=spec.get("observation_cache_source_refs")
-    if not isinstance(cache,dict) or not cache:
-        raise ValueError("Reviewed observed cache source refs required")
+    if (not isinstance(cache,dict) or set(cache)!=OBSERVATION_CACHE_SOURCE_PATHS
+            or cfg.get("observation_cache_source_refs")!=cache):
+        raise ValueError("Exact reviewed v4 observed-cache source closure required")
     for ref in cache.values():
         if (not isinstance(ref,dict) or set(ref)!={"path","sha256"}
                 or ref.get("path") not in ALLOWED_SOURCE_PATHS
@@ -128,12 +133,13 @@ def validated_input_refs_v1(spec):
 
 
 def resources_v1(spec,storage,lease):
+    """Lightweight runtime check; actual output writers own storage boundaries."""
     original.lightweight_resources_v1(spec,lease)
-    return budget_check_v9(storage,boundary=True)
 
 
 def validate_protocol_v1(cfg):
     if (cfg.get("hypothesis_id")!="H038" or cfg.get("execution_guard_ready") is not True
+            or cfg.get("budget_guard")!="journal_terminal_success_scopes_credit_v1"
             or cfg.get("arms")!=list(ARMS) or cfg.get("seed")!=101 or cfg.get("dtype")!="float32"
             or cfg.get("passes")!=30 or cfg.get("updates_per_pass")!=32 or cfg.get("total_updates")!=960
             or cfg.get("evaluation_passes")!=[5,10,15,20,25,30]
