@@ -1,0 +1,55 @@
+--- prior_b168b8e1_closed_scopes_adapter
++++ 974bcf34_closed_scopes_adapter
+@@ -27,6 +27,40 @@
+         raise ValueError("Budget component source differs from root pin")
+     return ref
+ 
++
++
++_CHECKED_RESERVATIONS_V1 = {}
++
++def _reservation_fingerprint_v1(storage):
++    """Cheap coherence checks for immutable journal plus owned consumer pins."""
++    paths = [budget.v4.LEGACY, budget.v4.SUPPLEMENTAL, budget.JOURNAL_REL,
++             budget.SOURCE_REL, budget.LAUNCHER_REL,
++             "configs/project_budget_v4.json"]
++    paths.extend(ref["path"] for ref in storage["reservation"]["consumer_bindings"])
++    rows = []
++    for relative in dict.fromkeys(paths):
++        path = budget.v4.canonical(ROOT, relative)
++        st = path.lstat()
++        rows.append((str(path), st.st_dev, st.st_ino, st.st_mode, st.st_nlink,
++                     st.st_size, st.st_mtime_ns, st.st_ctime_ns))
++    return tuple(rows)
++
++def _checked_reservation_v1(storage, implementation, launcher):
++    """Replay unchanged immutable history once, then recheck on metadata change."""
++    key = budget.digest(storage["reservation"])
++    before = _reservation_fingerprint_v1(storage)
++    cached = _CHECKED_RESERVATIONS_V1.get(key)
++    if cached is not None and cached[0] == before:
++        return dict(cached[1], cached_journal_validation=True)
++    value = budget.check_reservation_locked(ROOT, storage["reservation"],
++        expected_source_sha256=implementation["sha256"],
++        expected_launcher_sha256=launcher["sha256"],
++        boundary=False, required_write_bytes=0)
++    after = _reservation_fingerprint_v1(storage)
++    if before != after:
++        raise ValueError("Authorization namespace changed during journal validation")
++    _CHECKED_RESERVATIONS_V1[key] = (after, dict(value))
++    return dict(value, cached_journal_validation=False)
+ 
+ def budget_check_v9(storage, *, first=False, boundary=False, required_write_bytes=0):
+     """Use the V9 journal's existing completed-scope credit. Measure only this admitted job."""
+@@ -55,10 +89,7 @@
+     with budget.v4.mutex(ROOT):
+         # Existing certified closures are credited by the unchanged journal core.
+         # Only the active owned write scope is measured at boundaries.
+-        result = budget.check_reservation_locked(ROOT, own,
+-            expected_source_sha256=implementation["sha256"],
+-            expected_launcher_sha256=launcher["sha256"],
+-            boundary=False, required_write_bytes=0)
++        result = _checked_reservation_v1(storage, implementation, launcher)
+         full_charge = budget.v4.integer(result["projected_bytes"], "certified journal project charge")
+         human_limit = budget.v4.integer(result["hard_limit_bytes"], "human storage limit", 1)
+         if human_limit != 1000000000000 or full_charge >= human_limit:

@@ -1,0 +1,70 @@
+--- src/arggnn/project_storage_full_reservation_v1.py
++++ src/arggnn/project_storage_closed_scopes_v1.py
+@@ -1,7 +1,8 @@
+-"""Reviewed-budget consumer boundary for new discovery jobs.
++"""H038 storage adapter for existing certified V9 completed-scope credits.
+ 
+-This is storage/output plumbing only. It changes no scientific loss, prediction
+-or scoring. Historical v4 consumers and completed outputs remain unchanged.
++Preserves the original journal, reservations and source guards. Closed job
++allowances become their recorded retained-byte charge. No global disk or
++process-descriptor scan occurs here. Scientific computation is unchanged.
+ """
+ from __future__ import annotations
+ 
+@@ -16,7 +17,7 @@
+ from scripts import project_budget_v9 as budget
+ 
+ ROOT = Path("/workspace-SR003.nfs2/ARG-GNN")
+-SOURCE = "src/arggnn/project_storage_full_reservation_v1.py"
++SOURCE = "src/arggnn/project_storage_closed_scopes_v1.py"
+ 
+ 
+ def _source_ref(ref, expected_path):
+@@ -28,11 +29,11 @@
+ 
+ 
+ def budget_check_v9(storage, *, first=False, boundary=False, required_write_bytes=0):
+-    """Charge every original allowance in full. Measure only this admitted job."""
++    """Use the V9 journal's existing completed-scope credit. Measure only this admitted job."""
+     if (storage.get("kind") != "project_budget_v9_storage_record"
+             or storage.get("active") is not True
+             or storage.get("consumer_uses_v9_guard") is not True
+-            or storage.get("accounting_mode") != "full_reserved_no_closed_scope_credit"):
++            or storage.get("accounting_mode") != "journal_closed_scopes_credit_v1"):
+         raise ValueError("Active root full-reservation storage authority required")
+     if storage.get("expires_at_utc"):
+         expiry = datetime.fromisoformat(storage["expires_at_utc"].replace("Z", "+00:00"))
+@@ -52,17 +53,16 @@
+     if required_write_bytes and not boundary:
+         raise ValueError("Planned writes require own-scope boundary measurement")
+     with budget.v4.mutex(ROOT):
+-        # No closure is credited for this consumer. Complete immutable journal,
+-        # source and active-reservation checks remain in the original core.
++        # Existing certified closures are credited by the unchanged journal core.
++        # Only the active owned write scope is measured at boundaries.
+         result = budget.check_reservation_locked(ROOT, own,
+             expected_source_sha256=implementation["sha256"],
+             expected_launcher_sha256=launcher["sha256"],
+             boundary=False, required_write_bytes=0)
+-        full_charge = (budget.v4.integer(result["v4_projected_bytes"], "v4 full charge")
+-                       + budget.v4.integer(result["v9_reserved_bytes"], "v9 full charge"))
++        full_charge = budget.v4.integer(result["projected_bytes"], "certified journal project charge")
+         human_limit = budget.v4.integer(result["hard_limit_bytes"], "human storage limit", 1)
+         if human_limit != 1000000000000 or full_charge >= human_limit:
+-            raise ValueError("Full original reservation charge reaches human 1TB limit")
++            raise ValueError("Certified project charge reaches human 1TB limit")
+         measurement = None
+         if boundary:
+             paths = budget.successor_paths(ROOT, own, True)
+@@ -76,8 +76,8 @@
+                 raise ValueError("Initial exact historical/successor ledger pins changed")
+         return dict(result, credited_v9_projection_bytes=result["projected_bytes"],
+             projected_bytes=full_charge, limit_bytes=human_limit,
+-            closed_allowance_credit_applied_to_consumer_bytes=0,
+-            accounting_mode="full_reserved_no_closed_scope_credit",
++            closed_allowance_credit_applied_to_consumer_bytes=result["closed_allowance_credit_bytes"],
++            accounting_mode="journal_closed_scopes_credit_v1",
+             global_process_inspection_performed=False,
+             scope_measurement=measurement,
+             remaining_scope_bytes=own["reserved_bytes"] - measurement["conservative_scope_bytes"] if measurement else None,

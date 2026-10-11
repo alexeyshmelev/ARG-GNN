@@ -33,3 +33,8 @@ The [ordered-collection prior-art matrix](../research/reviews/next_architecture_
 ### H036 and the PyG optimization continuation
 
 The direct SNP/whole-tree classifier reaches74.8564% development accuracy after160updates, versus73.7807% for shuffled support. The registered half-supported-field displacement gate remains inconclusive, so this gap does not establish mutation-placement causality. The model remains below the historical ARGMix pipeline. PyG MessagePassing, cavity sweeps and GRU recurrence are established components. Converting execution to PyG is an engineering change, with no novelty or speed claim before measured runs. The next linked optimization condition preserves weights, optimizer, targets and scientific endpoint, adding240updates prospectively.
+
+
+### H037 outcome and the H038 independent corpus
+
+The genuine PyG bridge reaches83.8969% selected development accuracy, versus83.7871% for shuffledsupport. Both remain belownativeARGMix85.554%. This does not establish the routingmechanism, priority ortop1. H038 prospectively replaces the two-parentpilot with32independentfull-authorTRAINparents and8VALparents. The zero-concordancefeatureablation preserves all other inputs and zerosonlythree observedconcordance fields. The maincomponents remain established MessagePassing, cavitysweeps andGRU recurrence. Any contribution requires measured benefit underfair baseline conditions and a literature-based priority assessment.

@@ -1,0 +1,70 @@
+{
+  "schema": "closed_scopes_cache_fake_metadata_fixture_v1",
+  "source_sha256": "974bcf342965abb7e7e062547c68123de9bb9414bf9b1f97fd962d1488d3fdd7",
+  "all_checks_passed": true,
+  "fixture_values_not_actual_project_accounting": true,
+  "observations": [
+    {
+      "case": "unchanged_metadata_cache_hit",
+      "core_replays": 1,
+      "own_scope_measurements": 2,
+      "charge": 900000000000
+    },
+    {
+      "case": "consumer_metadata_change_miss",
+      "core_replays": 2
+    },
+    {
+      "case": "journal_directory_change_miss_refreshes_charge",
+      "core_replays": 3,
+      "charge": 910000000000
+    },
+    {
+      "case": "fixed_ledger_metadata_change_miss",
+      "core_replays": 4
+    }
+  ],
+  "rejections": {
+    "own_cap_on_cache_hit": "Consumer output exceeds original allowance",
+    "component_binding_on_warm_cache": "Root job/output/cap/component bindings differ",
+    "source_pin_on_warm_cache": "Budget component source differs from root pin",
+    "core_rejection_on_cache_miss": "Exact active successor reservation required; closed scopes cannot relaunch",
+    "metadata_changes_during_replay": "Authorization namespace changed during journal validation"
+  },
+  "fake_counts": {
+    "core": 6,
+    "scope": 6,
+    "mutex_entries": 8,
+    "source_pin": 30
+  },
+  "fingerprinted_fake_paths": [
+    ".runtime/gpup/storage_reservations.json",
+    ".runtime/storage/project_budget_v4.json",
+    ".runtime/storage/project_budget_v9",
+    "scripts/project_budget_v9.py",
+    "scripts/launch_reserved_gpu_v6.py",
+    "configs/project_budget_v4.json",
+    "src/arggnn/project_storage_closed_scopes_v1.py",
+    "fixture/source.py",
+    "fixture/config.json",
+    "fixture/runtime.json"
+  ],
+  "stat_fingerprints_only_under_fake_mutex": true,
+  "source_pins_and_component_guards_checked_before_each_cache_lookup": true,
+  "active_scope_measurement_still_per_write": true,
+  "storage_metadata_unmodified": true,
+  "original_API_writer_guard_AST_preserved": {
+    "_source_ref": true,
+    "validate_storage_v9": true,
+    "PilotOutputV9": true,
+    "source_report_v9": true
+  },
+  "real_journal_read_or_mutation": false,
+  "real_scope_global_disk_FD_or_process_scan": false,
+  "real_scheduler_mutex": false,
+  "GPU_or_actual_data": false,
+  "qualifications": [
+    "append-only journal and authority/dependency immutability",
+    "metadata fingerprint does not hash journal event contents"
+  ]
+}
