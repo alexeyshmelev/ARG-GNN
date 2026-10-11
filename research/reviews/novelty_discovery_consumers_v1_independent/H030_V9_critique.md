@@ -1,0 +1,5 @@
+# H030 V9 version-only consumer delta — PASS
+
+PASS for driver e9af6c4d3bad0aeb91ee3cb9efb963b9fc299163dfc5452db02a7151cf85eb1a, config f1190fe6b61dee7a3744962f83222ae649af90fa46a3424a8b474f152ae2f1e5, protocol b7b5de1c43fe7b5e488f259a7352adfc22271a2eaa090b121e36e13e279387d8, and adapter 82060c0733a4dc94dc7162616b44f47e4328e381438fbc6a77cce9be5b213dda. Restoring successor names reconstructs the exact reviewed V8 driver; H030 configuration changes only successor names/adapter hash. Actual scientific helper hashes match and model/scientific logic is unchanged. The new actual calls resolve the reviewed V9 storage API; preparation/output/pruning guards, H030 transient/CUDA allowances and H031 seal-before-payload ordering inherit the preserved prior reviews. No new numerical, resource or scientific-result claim is made.
+
+Root must use these exact source/config/helper and V9 component refs with matching active input/runtime/storage/registration, fresh exclusive output, first pins, expiry and resource caps. This source-delta receipt performs no activation, payload read, live process/GPU/output inspection or tests. Prior V8 reviews remain unchanged.

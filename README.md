@@ -4,7 +4,7 @@ Graph neural networks for ordered collections of whole genealogical trees, with 
 
 ## Current experiments
 
-Updated 2026-10-11 14:06 UTC.
+Updated 2026-10-11 15:19 UTC.
 
 **The latest FP32 discovery experiments completed with one seed and 160 updates per arm.** All rows below use the same two repeatedly reused development VAL parents, present-day query identities and exact physical scoring support. Each trained arm uses its prespecified minimum-NLL checkpoint.
 
@@ -19,15 +19,20 @@ Updated 2026-10-11 14:06 UTC.
 | Smoothing plus sham ancestral-reference propagation, H027 | 86.04% | 0.3837 |
 | Smoothing plus fixed observed-genotype context, H028 | 85.92% | 0.3888 |
 | Smoothing plus fixed genotype/graph mean fusion, H028 | 85.90% | 0.3852 |
+| Smoothing plus learned static whole-tree GNN, H029 | 85.956% | 0.38318 |
+| Smoothing plus carrier-GRU whole-tree GNN, H029 | 85.939% | 0.38795 |
+| Smoothing plus carrier-matrix whole-tree GNN, H029 | 85.956% | 0.38316 |
+| Smoothing plus shuffled-history GNN control, H029 | 85.958% | 0.38315 |
 
 **Observed reference context improves likelihood, but genuine ancestral continuity and census conditioning have no demonstrated accuracy advantage.** The sham row is a control, not the proposed method. Its higher accuracy cannot support a genuine ancestry mechanism claim. We have not established a novel GNN contribution or final-test superiority.
 
 [H026 selected results and parent/class/boundary diagnostics](experiments/results/reference_census_innovation_v1_summary_root/summary.json) and [H027 selected results and diagnostics](experiments/results/reference_trace_residual_v1_summary_root/summary.json). H026 native, age-free and census arms select epoch10. Its sham selects epoch6. H027 arms select epoch10. H027's positive normalization-mass check passed, but very small reference masses need care in interpreting local normalized fields.
 
-- **H028 completed:** all three fixed genotype/graph/fusion heads finished10FP32epochs and160updates, seed101. The genotype-only and fixed-fusion routes do not improve smoothing accuracy. Graph-only exactly matches H026 native-reference selected metrics and is an explicitly disclosed matched-control repeat. Each head allocates32parameters,28with input signal because the older ANA channel is absent. This does not establish that raw SNPs lack signal. [Selected comparison and diagnostics](experiments/results/observed_variant_residual_v1_summary_root/summary.json).
-- **GPU2, H029 running:** learned whole-tree reference/cavity encoding with carrier memory before query pooling. Static, carrier-GRU, carrier-matrix and ancestral-history sham controls share initialization and information. All four have completed epoch7/10. Current accuracy remains near85.94%, with no demonstrated gain. GRU and matrix use16state scalars per carrier/direction, with different active parameter counts disclosed. The actual first TRAIN tile passed finite FP32 loss/gradient checks for359,640augmented vertices and550marginal holds. Cumulative allocator peak was2.69GB and those steps count toward160. [Actual first-tile receipt](experiments/results/edge_innovation_gnn_v1_seed101_GPU2/first_training_tile.json). [Architecture](docs/edge_innovation_gnn_v1_proposal.md).
-- **H030 registered, execution pending:** unit-scale reference/cavity fields with a learned monotone age kernel, retaining whole-tree static, carrier-GRU, carrier-matrix and history-sham controls. A36parameter kernel-only control will separate kernel learning from the larger learned encoder. Log-space rerooting, normalization and temporal memory are established methods. Kernel subdivision invariance concerns the field only, not the nonlinear GNN. [Protocol](docs/reference_logcavity_gnn_v1.md).
-- **H031 registered, execution pending:** a fixed CPU diagnostic of direct H028 genotype information and errors missed by the residual readout. No new fit or window tuning. All four observation-only predictions must be sealed before truth access. [Protocol](docs/observed_variant_signal_diagnostic_v1.md).
+- **H028 completed:** all three fixed genotype/graph/fusion heads finished 10 FP32 epochs and 160 updates, seed 101. The genotype-only and fixed-fusion routes do not improve smoothing accuracy. Graph-only exactly matches H026 native-reference selected metrics and is an explicitly disclosed matched-control repeat. Each head allocates 32 parameters, 28 with input signal because the older ANA channel is absent. This does not establish that raw SNPs lack signal. [Selected comparison and diagnostics](experiments/results/observed_variant_residual_v1_summary_root/summary.json).
+- **H029 completed:** all four whole-tree models finished 10 FP32 epochs and 160 updates per arm, seed 101. Static/matrix accuracy exceeds smoothing by about 0.016 percentage points. Matrix does not beat static or shuffled-history controls, and H026 native reference context has lower NLL. The GRU selects epoch 7, the other arms epoch 10 by minimum VAL NLL. GRU and matrix use 16 state scalars per carrier/direction, with unequal active parameter counts. [Selected comparison, retained-file verification and diagnostics](experiments/results/edge_innovation_gnn_v1_summary_root/summary.json). The first real TRAIN tile passed finite FP32 loss/gradient checks for 359,640 augmented vertices and 550 marginal holds, with a cumulative allocator peak of 2.69 GB.
+- **GPU3, H030 running:** unit-scale reference/cavity fields and a learned monotone age kernel, with whole-tree static, carrier-GRU, carrier-matrix and history-sham controls. A 36 parameter kernel-only arm separates kernel learning from the larger GNN. Required process name and native CUDA assignment were verified in NVTOP. All five arms passed their first real FP32 TRAIN update, with finite loss and gradients on 359,640 augmented vertices. Cumulative CUDA reservation peak was 2.94 GiB. Epoch 1 completed, with no established accuracy gain. [First-tile receipt](experiments/results/reference_logcavity_gnn_v1_seed101_GPU3/first_training_tile.json). Final comparisons remain pending. Log-space rerooting, normalization and temporal memory are established methods. [Protocol](docs/reference_logcavity_gnn_v1.md).
+- **H031 completed:** direct fixed SNP evidence scores 42.34% on development VAL. On baseline-error spans it scores 26.84%/29.16%, below the unfitted observed-donor-prior ANA prediction at 28.05%/31.91%. This evidence does not justify a strong complementary-signal claim. Its oracle union is only a diagnostic bound. [Results and source-prior context](experiments/results/observed_variant_signal_diagnostic_v1_summary_root/summary.json).
+- **H032 source proposal:** a donor-support Gram will test whether reference dependence matters beyond first moments and generic quadratic features. Existing tree covariance and second-order pooling precedents are explicit. It is untested and does not yet establish a new ordered graph-set architecture. [Fresh critique](research/reviews/next_architecture_novelty_fresh_v1/critique.md).
 - **Native ARGformer:** genuine author training and retrieval completed on all four adapted EuropeanC4/tsinfer parents. Present-day top1 accuracy is75.68%, fixed top5 is75.14%, and unmodified raw-vote NLL is infinite. The main comparison below explains the differing genealogy and training objective.
 - **Original GST:** all four native USPTO models completed the bounded TRAIN/VALID pilot below.
 - **Previous partial runs:** interrupted mechanism-seed and Census fits remain preserved. They are not final30epoch results. Large FP64 equivalence sweeps remain deferred.
@@ -40,7 +45,7 @@ At most physical GPUs2 and3 are assigned to the project. GPU workers are titled 
 
 ## Main advantages and current evidence
 
-**The strongest supported accuracy refinement remains ordinary smoothing at85.94%, versus85.55% for frozen ARGMix.** Native-age reference context reduces NLL further to0.3824, while accuracy is85.91%. Neither new reference-conditioning nor ancestral-continuity controls establish the requested graph mechanism. The higher86.04% sham accuracy is reported transparently as a control result. The earlier standalone age-D2 candidate averages84.78% over optimizer seeds101/202/303. A distinct, stronger GNN contribution remains a research objective.
+**The new static whole-tree GNN scores 85.956%, versus 85.940% for ordinary smoothing and 85.554% for frozen ARGMix.** The added GNN gain is about 0.016 percentage points on reused development data. Matrix memory does not improve over static or shuffled history, so it does not establish the requested ancestry mechanism. H026 native-age reference context has the lower NLL, 0.3824, with 85.91% accuracy. The higher86.04% sham accuracy is reported transparently as a control result. The earlier standalone age-D2 candidate averages84.78% over optimizer seeds101/202/303. A distinct, stronger GNN contribution remains a research objective.
 
 Measured advantages of the earlier standalone candidate:
 
@@ -60,6 +65,8 @@ Completed development results, including the 2026-10-11 FP32 refinement pilot. *
 
 | Method | Accuracy ↑ | NLL ↓ | Brier ↓ | ECE ↓ | Optimizer seeds |
 | --- | ---: | ---: | ---: | ---: | --- |
+| Smoothing plus static whole-tree GNN, H029 | 85.956% | 0.38318 | 0.1980 | 0.0206 | 101, emitter 50 |
+| Smoothing plus carrier-matrix GNN, H029 | 85.956% | 0.38316 | 0.1980 | 0.0206 | 101, emitter 50 |
 | Smoothing plus native-age reference context, H026 | 85.91% | 0.3824 | 0.1977 | 0.0250 | 101, emitter 50 |
 | Smoothing plus genuine ancestral-reference context, H027 | 85.93% | 0.3826 | 0.1978 | 0.0237 | 101, emitter 50 |
 | ARGMix plus ordinary smoothing, development refinement | 85.94% | 0.3891 | 0.2004 | 0.0260 | 101, emitter 50 |

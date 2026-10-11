@@ -1,0 +1,9 @@
+# H031 V7 successor-name integration delta — PASS
+
+PASS for driver ea08a55f930a903d653dd2dfd08732a378c8372e4814f272aad9adcefe3f41a4, protocol119d2c6a89c4c4007db0f75699744f2a68d77dccf06c21bc05ac86519196c6f4, and version-only adapter496cbaef484b2ff3cfc583a5e9320661d1d2d2518ef9bd21d50218f96e78aafa. This narrow source-delta verdict preserves the original H031/V6 receipts and does not qualify the new V7 core/credential exception or any activation.
+
+Reversing the four H031 import/function/class successor names reconstructs exact prior reviewed driver SHA879473b24a13fe507f59b13bbf7fe343f843f40bedc76a7df867cfbcce9b0192. All scientific logic, ordering, fixed allele/density definitions and exact-span baseline complementarity are therefore byte-identical to the prior independently reviewed source after those names are restored. The actual call sites now resolve validate_storage_v7, budget_check_v7 and PilotOutputV7.
+
+Reversing the adapter successor/API/kind/source/launcher names reconstructs exact prior adapter SHA65b8810ccac9ce3fd0bc5f4dfc9d4965b49bb8a772b43dc1f04b1e55c8b5973f and equals that preserved file byte-for-byte. Typed guard forwarding, first pins, component/output/cap checks, planned writes and original-file pruning behavior inherit the previous16 focused independent probes. Repeating them for a pure rename would add no new evidence. No infrastructure test was rerun.
+
+Before execution, root must bind the independently reviewed final V7 core/launcher, this adapter, this exact new driver and protocol, the original H028 metadata/config, matching CPU runtime/H031 registration, <=300MB exclusive V7 storage, first ledger/journal pins and intended expiry. This delta review proves no real closure or scientific result. It opens no payload, observes no live PID/GPU/output scope and applies no admission.
