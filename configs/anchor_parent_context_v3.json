@@ -1,0 +1,120 @@
+{
+  "kind": "anchor_parent_context_v3",
+  "status": "inactive_source_and_handmade_CPU_only",
+  "execution_enabled": false,
+  "hypothesis_id": "H024",
+  "source_pins": {
+    "src/arggnn/anchor_kernel.py": "2b8cc1c1726f746f961c0d63a4870e806a1a9d3d6e1fa6724dc0bda39967b083",
+    "src/arggnn/biological_candidate.py": "6b3a25d0e59026cab7189032eb41221feb7d1bdf69e15f6c737a672dfb711dd3"
+  },
+  "production_contract": {
+    "tiles": 8,
+    "anchors_per_tile": 32,
+    "Q": 184,
+    "R": 96,
+    "kernel_layers": 2,
+    "scales": 3,
+    "hidden": 32,
+    "latent": 8,
+    "normalization_bp": 2000000
+  },
+  "qualification": {
+    "float64": {
+      "output_atol": 1e-12,
+      "output_rtol": 1e-10,
+      "vjp_atol": 1e-10,
+      "vjp_rtol": 1e-08
+    },
+    "float32": {
+      "output_atol": 2e-05,
+      "output_rtol": 0.0002,
+      "vjp_atol": 1e-05,
+      "vjp_rtol": 0.001
+    },
+    "directional_epsilon": 1e-05
+  },
+  "streaming": {
+    "event_block_size": 64,
+    "non_reentrant_checkpoint": true,
+    "detached_carry": false,
+    "mass_floor": false,
+    "prediction_smoothing": false
+  },
+  "training_design": {
+    "arms": [
+      "age_reset",
+      "age_carry",
+      "plain_reset",
+      "plain_carry"
+    ],
+    "seeds": [
+      101,
+      202,
+      303
+    ],
+    "maximum_epochs": 30,
+    "patience": 8,
+    "maximum_parent_updates": 60,
+    "historical_maximum_tile_updates": 480
+  },
+  "actual_arrays_models_fits_GPU_budget_or_installation_authorized": false,
+  "novelty_claim": false,
+  "predecessor": {
+    "v1_implementation": {
+      "path": "src/arggnn/anchor_parent_context_v1.py",
+      "sha256": "3934a7b0e2afb105b42384ec562d509374cd336f9764a429d52ad40a8e4dbe05"
+    },
+    "v1_config": {
+      "path": "configs/anchor_parent_context_v1.json",
+      "sha256": "4a365c3bd9c05f85e70192f3c39b97b08fd709ce77de5c19b2c3630effa75fdb"
+    },
+    "v1_author_receipt": {
+      "path": "research/reviews/anchor_parent_context_v1_author/author_receipt.json",
+      "sha256": "76c54ba05e80e913f49ea15a660e0bbd3ceafe8e9b0344e660c2d3f5eb021843"
+    },
+    "v1_independent_REJECT": {
+      "path": "research/reviews/anchor_parent_context_v1_independent/receipt.json",
+      "sha256": "2f77aba99fb2c9c82b7ec7d05528eb09bc380bf70675032abab55d9db97d6f2c"
+    },
+    "v2_implementation": {
+      "path": "src/arggnn/anchor_parent_context_v2.py",
+      "sha256": "e93fe2a6cc064ccfc69379ee89de8512ebec8d6dc59231027c734474b8a551ad"
+    },
+    "v2_config": {
+      "path": "configs/anchor_parent_context_v2.json",
+      "sha256": "62a1b8a87f47eed0db5ce7dd2013cbf7d45a42090198de0be9f92be69709ffdc"
+    },
+    "v2_author_receipt": {
+      "path": "research/reviews/anchor_parent_context_v2_author/author_receipt.json",
+      "sha256": "b597514dc6fd826474f3d5508f34ec5e28be86bb78e996a7a183a95d789153a8"
+    },
+    "v2_independent_REJECT": {
+      "path": "research/reviews/anchor_parent_context_v2_independent/receipt.json",
+      "sha256": "21615e29078f04bb122f03f0cecd7a06e96546ba9c5e6f8af71d3b28eebfd55e"
+    }
+  },
+  "initial_encoder_source_policy": {
+    "production": "validate exact repeated original input rows; encode each unique original tree once per call and reuse its initial Q/R output rows",
+    "sample_join": "explicit unique CPU integer leaf IDs joined to parent Q/R IDs",
+    "duplicate_initial_encoded_rows": "exact tensor value identity, same dtype/device; no tolerance or projection",
+    "encoded_tensor_entry": "handmade fixture only; explicit fixture=True",
+    "evolved_anchor_rows": "may legitimately differ; never compared or deduplicated",
+    "fixed_cache_occurrences": "all retained"
+  },
+  "computed_decay_domain": {
+    "expression": "eigenvalue*lambda+damping",
+    "finite": true,
+    "strictly_positive": true,
+    "check": "each fixed graph hold before exponentiation; same original guard"
+  },
+  "optimizer_connection_policy": {
+    "exact_unique_complete_optimizer_binding": true,
+    "every_loss_cell_reaches_optimizer_active_parameters": true,
+    "single_aggregate_backward": true,
+    "active_parameters_require_connected_finite_actual_gradients": true,
+    "inactive_parameters": "explicit unique subset; disconnected individually unused/frozen parameters permitted only when declared",
+    "zero_connected_gradient_tensor": "permitted",
+    "no_nonzero_update_requirement": true,
+    "callback_gradient_policy": "Callbacks are forward-loss producers and must leave every intended optimizer parameter p.grad None after each cell and immediately before aggregate backward. Callback backward or manual/preloaded grad assignment is forbidden. Reject without silently clearing callback grads. Legitimate connected zero grads from the aggregate backward remain permitted."
+  }
+}

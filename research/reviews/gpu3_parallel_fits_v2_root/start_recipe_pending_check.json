@@ -1,0 +1,33 @@
+{
+  "candidate": [
+    "/workspace-SR003.nfs2/ARG-GNN/.runtime/env/bin/python",
+    "/workspace-SR003.nfs2/ARG-GNN/scripts/gpu_pool_research_v3.py",
+    "start",
+    "--pool",
+    "gpu3_fits_v2",
+    "--gpu",
+    "3",
+    "--headroom-mib",
+    "8192",
+    "--storage-snapshot",
+    "/workspace-SR003.nfs2/ARG-GNN/experiments/results/biological_shared_pool_storage_admission_v1/snapshot.json",
+    "--storage-snapshot-sha256",
+    "0826fcedefa40dd261999c4916b85ae11f28628e5cee9046b2e4f6bf868fa10d",
+    "--external-storage-reserve-bytes",
+    "130000000000",
+    "--controller-storage-reserve-bytes",
+    "100000000",
+    "--storage-limit-bytes",
+    "450000000000"
+  ],
+  "pinned_definition": [
+    "        recipe = [",
+    "            pool[\"python\"], \"-m\", \"arggnn.budgeted_shared_pool_v3\", \"--start\",",
+    "            \"--admission\", self.authority_ref[\"path\"],",
+    "            \"--expected-admission-sha256\", \"<ROOT_ADMISSION_SHA256>\",",
+    "            \"--expected-source-sha256\", self.implementation[\"sha256\"],",
+    "            \"--expected-config-sha256\", self.config[\"sha256\"],",
+    "        ]",
+    "        exact(pool[\"start_recipe_sha256\"], digest(recipe), \"future start command recipe\")"
+  ]
+}

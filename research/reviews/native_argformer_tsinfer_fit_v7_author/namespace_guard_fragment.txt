@@ -1,0 +1,100 @@
+
+class NativeOwnedScopeError(ValueError):
+    """Captured stat-only offender metadata remains in the existing terminal error."""
+    def __init__(self,reason,path,metadata):
+        self.namespace_metadata={'kind':'native_argformer_v7_owned_scope_rejection',
+          'reason':reason,'path':str(path),'object':metadata}
+        super().__init__(json.dumps(self.namespace_metadata,sort_keys=True,separators=(',',':')))
+
+def native_owned_scope_measurement(parent_scope,short_tmp):
+    """Strict native-owned stat boundary; only the fixed AF_UNIX inode case differs."""
+    worker_uid=os.getuid();records={};absent=[];total=0;count=0;sockets=0
+    def metadata(value):
+        if value is None:return {'present':False}
+        kind=('directory' if stat.S_ISDIR(value.st_mode) else 'regular' if stat.S_ISREG(value.st_mode)
+          else 'AF_UNIX_socket_inode' if stat.S_ISSOCK(value.st_mode) else 'symlink' if stat.S_ISLNK(value.st_mode)
+          else 'FIFO' if stat.S_ISFIFO(value.st_mode) else 'other_special')
+        return {'present':True,'type':kind,'dev':value.st_dev,'inode':value.st_ino,
+          'mode':value.st_mode,'uid':value.st_uid,'gid':value.st_gid,'nlink':value.st_nlink,
+          'size':value.st_size,'blocks':value.st_blocks,'mtime_ns':value.st_mtime_ns,'ctime_ns':value.st_ctime_ns}
+    def failed(reason,path,value=None):
+        missing=False
+        if value is None:
+            try:value=Path(path).lstat()
+            except OSError:
+                missing=True;value=records.get(str(path))
+        record=metadata(value)
+        if missing:record.update(currently_present=False,last_successful_lstat_retained=value is not None)
+        raise NativeOwnedScopeError(reason,path,record)
+    def identity(value):
+        return (value.st_dev,value.st_ino,value.st_mode,value.st_uid,value.st_gid,
+          value.st_nlink,value.st_size,value.st_blocks,value.st_mtime_ns,value.st_ctime_ns)
+    def canonical_path(value):
+        p=Path(value);p=p if p.is_absolute() else ROOT/p
+        if p==ROOT or ROOT not in p.parents or '..' in p.parts:
+            failed('canonical own project namespace required',p)
+        try:resolved=p.resolve()
+        except (OSError,RuntimeError) as error:failed('namespace resolution failed: '+str(error),p)
+        if resolved!=p:failed('symlink or noncanonical ancestor forbidden',p)
+        return p
+    parent_scope=canonical_path(parent_scope);short_tmp=canonical_path(short_tmp)
+    if parent_scope==short_tmp or parent_scope in short_tmp.parents or short_tmp in parent_scope.parents:
+        failed('exact two disjoint owned scopes required',parent_scope)
+    def add(path,value,socket=False):
+        nonlocal total,count,sockets
+        charge=max(value.st_size,value.st_blocks*512,4096 if socket else 0)
+        records[str(path)]=value;total+=charge;count+=1;sockets+=int(socket)
+        if count>1000000:failed('native owned stat inventory exceeds entry bound',path,value)
+    def socket_allowed(path,value):
+        try:parts=path.relative_to(short_tmp).parts
+        except ValueError:failed('socket forbidden outside exact short tmp scope',path,value)
+        if len(parts)!=2 or not re.fullmatch(r'pymp-[a-z0-9_]{8}',parts[0]) or not re.fullmatch(r'listener-[a-z0-9_]{8}',parts[1]):
+            failed('socket path is not exact native multiprocessing listener',path,value)
+        if value.st_uid!=worker_uid or value.st_nlink!=1:
+            failed('socket requires current worker UID and singly linked inode',path,value)
+        if len(os.fsencode(path))>107:
+            failed('absolute native socket pathname exceeds107bytes',path,value)
+        parent=canonical_path(path.parent)
+        try:owned=parent.lstat()
+        except OSError as error:failed('socket parent unavailable: '+str(error),parent)
+        if not stat.S_ISDIR(owned.st_mode) or owned.st_uid!=worker_uid or stat.S_IMODE(owned.st_mode)!=0o700:
+            failed('socket parent requires owned0700directory',parent,owned)
+    def scan(path):
+        path=canonical_path(path)
+        try:before=path.lstat()
+        except OSError as error:failed('owned scope directory unavailable: '+str(error),path)
+        if not stat.S_ISDIR(before.st_mode):failed('owned scope root/directory changed type',path,before)
+        add(path,before)
+        try:
+            with os.scandir(path) as entries:names=sorted(entry.name for entry in entries)
+        except OSError as error:failed('owned directory listing failed: '+str(error),path,before)
+        for name in names:
+            child=canonical_path(path/name)
+            try:value=child.lstat()
+            except OSError as error:failed('owned entry disappeared/changed before stat: '+str(error),child)
+            if stat.S_ISDIR(value.st_mode):scan(child)
+            elif stat.S_ISREG(value.st_mode) and value.st_nlink==1:add(child,value)
+            elif stat.S_ISSOCK(value.st_mode):socket_allowed(child,value);add(child,value,socket=True)
+            else:failed('unsafe native owned namespace/type/hardlink',child,value)
+        try:after=path.lstat()
+        except OSError as error:failed('owned directory disappeared during boundary: '+str(error),path)
+        if identity(after)!=identity(before):failed('owned directory identity/membership changed during boundary',path,after)
+    for scope in (parent_scope,short_tmp):
+        try:value=scope.lstat()
+        except FileNotFoundError:absent.append(scope);continue
+        except OSError as error:failed('owned scope stat failed: '+str(error),scope)
+        if not stat.S_ISDIR(value.st_mode):failed('owned scope must remain directory',scope,value)
+        scan(scope)
+    for path,before in records.items():
+        p=canonical_path(path)
+        try:after=p.lstat()
+        except OSError as error:failed('owned entry disappeared during final boundary: '+str(error),p)
+        if identity(after)!=identity(before):failed('owned entry identity/membership changed during final boundary',p,after)
+    for p in absent:
+        canonical_path(p)
+        if os.path.lexists(p):failed('absent owned scope appeared during boundary',p)
+    return {'kind':'native_argformer_v7_owned_scope_stat_measurement',
+      'conservative_scope_bytes':total,'entries':count,'scope_paths':[str(parent_scope),str(short_tmp)],
+      'accepted_AF_UNIX_socket_inodes':sockets,'socket_metadata_minimum_charged_bytes':4096,
+      'worker_uid':worker_uid,'stat_only':True,'payload_or_socket_contents_opened':False}
+

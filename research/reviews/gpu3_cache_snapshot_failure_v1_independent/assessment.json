@@ -1,0 +1,156 @@
+{
+  "kind": "gpu3_cache_snapshot_failure_v1_source_only_independent_assessment",
+  "review_role": "independent_reviewer",
+  "status": "COMPLETE_NARROW_SOURCE_ASSESSMENT",
+  "created_utc": "2026-10-11T04:17:33.494312+00:00",
+  "snapshot": {
+    "existing": {
+      "path": "research/reviews/gpu3_parallel_fits_v1_root/worker_storage_snapshot.json",
+      "sha256": "62e5a62be63b057480504009f3f352e7c6d12397ed9d0a4630aa3ccbe464d245"
+    },
+    "missing_required_fields": [
+      "command"
+    ],
+    "invalid_present_required_fields": [],
+    "required_missing_value": {
+      "command": [
+        "du",
+        "-s",
+        "-B1",
+        "/workspace-SR003.nfs2/ARG-GNN"
+      ]
+    },
+    "other_required_fields_passed_source_only": {
+      "schema": true,
+      "status": true,
+      "returncode": true,
+      "project_root": true,
+      "used_bytes_exact_nonnegative_int": true,
+      "completed_utc_timezone_aware_not_future": true
+    },
+    "not_required_by_this_guard": [
+      "started_utc",
+      "finished_utc",
+      "maximum_bytes",
+      "warning_threshold_bytes",
+      "root_attested_complete_original_du",
+      "measurement_evidence_ref"
+    ],
+    "used_bytes": 232123879424,
+    "original_worker_projected_bytes": 334444928000,
+    "original_worker_limit_bytes": 450000000000,
+    "original_worker_concurrent_reserve_bytes": 50000000000,
+    "source_evidence": [
+      {
+        "path": "src/arggnn/biological_candidate.py",
+        "start": 295,
+        "end": 307,
+        "finding": "admit requires the exact complete successful project-root du command and a valid completed_utc; root attestation extras do not replace command."
+      },
+      {
+        "path": "src/arggnn/biological_candidate.py",
+        "start": 309,
+        "end": 320,
+        "finding": "The unchanged own worker arithmetic uses measured used_bytes, required new writes and its original concurrent reserve; filesystem free-space is checked only at actual admission, not in this review."
+      }
+    ],
+    "correction": "Create a distinct snapshot with the actual already-completed du command explicitly recorded, retaining the truthful measured bytes/timestamp and measurement lineage. Do not change the sealed old snapshot; new frozen argv must bind the new snapshot hash.",
+    "review_miss_disclosure": "Prior finite plan review checked the recorded measured bytes/schema and storage separation but missed the unchanged worker's required command proof field."
+  },
+  "existing_v3_controller_admission": {
+    "ordinary_append_supported": false,
+    "ordinary_submit_of_an_unsubmitted_already_planned_exact_job_supported": true,
+    "resubmit_same_failed_logical_job_supported": false,
+    "new_client_plan_transferred_to_existing_server": false,
+    "new_distinct_job_and_reservation_and_monitor_successor_sufficient": false,
+    "reason": "The controller retains its initial authority_ref hash and complete ReviewedPlan/jobs table. Every submission revalidates that authority and requires the same registered plan and exact registered spec. The submit wire request carries only a spec, with no authority/plan transition. A client with a new appended plan still reaches the old server registry and is rejected. The old failed logical name is additionally rejected by the unchanged duplicate-job check.",
+    "source_evidence": [
+      {
+        "path": "src/arggnn/budgeted_shared_pool_v3.py",
+        "start": 166,
+        "end": 173,
+        "finding": "Controller ReviewedPlan retains a deep copy of its initial authority_ref and validates it at construction."
+      },
+      {
+        "path": "src/arggnn/budgeted_shared_pool_v3.py",
+        "start": 175,
+        "end": 204,
+        "finding": "Revalidation hashes the same authority_ref and requires future_pools_only and no_live_pool_or_worker_patch."
+      },
+      {
+        "path": "src/arggnn/budgeted_shared_pool_v3.py",
+        "start": 354,
+        "end": 356,
+        "finding": "An initialized object requires exact unchanged registered plan; registry is copied only after that check."
+      },
+      {
+        "path": "src/arggnn/budgeted_shared_pool_v3.py",
+        "start": 413,
+        "end": 420,
+        "finding": "SupplementalStorage.job revalidates and requires an existing exact planned job before checking its reservation."
+      },
+      {
+        "path": "src/arggnn/budgeted_shared_pool_v3.py",
+        "start": 459,
+        "end": 465,
+        "finding": "Server rejects unregistered logical jobs or changed root job/output/args."
+      },
+      {
+        "path": "src/arggnn/budgeted_shared_pool_v3.py",
+        "start": 533,
+        "end": 538,
+        "finding": "--submit-job sends only v/op/spec; no appended admission is sent or adopted."
+      },
+      {
+        "path": "src/arggnn/gpu_pool_v1.py",
+        "start": 597,
+        "end": 600,
+        "finding": "Original controller rejects a duplicate logical job, including terminal failed jobs."
+      }
+    ],
+    "future_pools_only_interpretation": "The flag is a mandatory root-authority declaration for creating a fresh reviewed companion pool and excludes retrofit/adoption. It does not forbid later ordinary submissions of jobs already frozen in that pool's original plan. It also does not authorize newly appended jobs: the actual fixed-plan and authority-hash checks prohibit those on both legacy and already-v3 controllers.",
+    "documentation_evidence": [
+      {
+        "path": "docs/budgeted_shared_pool_v3.md",
+        "start": 5,
+        "finding": "No live pool, worker, lease, controller, reservation or ledger is adopted or modified; changed original guards stay pinned."
+      },
+      {
+        "path": "docs/budgeted_shared_pool_v3.md",
+        "start": 11,
+        "finding": "Documented fixtures reject changed plan/argv/memory/output."
+      },
+      {
+        "path": "docs/budgeted_shared_pool_v3.md",
+        "start": 13,
+        "finding": "Root must freeze the complete concrete plan before fresh acquisition, then start/submit using those exact bindings."
+      }
+    ],
+    "monitor_successor_effect": "A root monitor successor can preserve the existing controller and Census identities/caps as a separate scheduling action, but it cannot alter the existing server's immutable job registry or admit the new cache job.",
+    "practical_unchanged_route": "Preserve the live Census/controller and old failed packet. Prepare distinct corrected cache snapshot/admission/output/reservation for a fresh exact-reviewed v3 pool; start it only after a genuine eligible lease is free and cap2 checks pass. This source assessment authorizes no launch or termination."
+  },
+  "source_refs": [
+    {
+      "path": "src/arggnn/biological_candidate.py",
+      "sha256": "6b3a25d0e59026cab7189032eb41221feb7d1bdf69e15f6c737a672dfb711dd3"
+    },
+    {
+      "path": "src/arggnn/budgeted_shared_pool_v3.py",
+      "sha256": "2dd01da79462e0c469a1671bd509f0f0ce0b7ac700e63dcd4922db9fc9e9ad13"
+    },
+    {
+      "path": "src/arggnn/gpu_pool_v1.py",
+      "sha256": "ae1e0494ab672cfa3017759460eb06a4b4789eaef54928496c3c80314adcc0e1"
+    },
+    {
+      "path": "docs/budgeted_shared_pool_v3.md",
+      "sha256": "e9a161f884d6044a7e980111fe14337716f4f08c21913275302792bb1afac97d"
+    },
+    {
+      "path": "configs/biological_mechanism_controls_v1.json",
+      "sha256": "67d7aba454d3cc57b11faa32151dd6af397210fa89d9b56b5fcd0014f662f1b4"
+    }
+  ],
+  "actual_arrays_targets_models_GPU_inventory_live_budget_ledger_lease_controller_or_process_access_or_mutation": false,
+  "source_or_sealed_packet_mutated": false
+}
