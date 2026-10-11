@@ -1,0 +1,3050 @@
+EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE                                [100%]
+==================================== ERRORS ====================================
+_ ERROR at setup of test_default_source_only_and_missing_optin_do_not_read_live_paths _
+
+path = '/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'
+ignore_errors = False
+onerror = functools.partial(<function on_rm_rf_error at 0x7ff54e840220>, start_path=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'))
+dir_fd = None
+
+    def rmtree(path, ignore_errors=False, onerror=None, *, dir_fd=None):
+        """Recursively delete a directory tree.
+    
+        If dir_fd is not None, it should be a file descriptor open to a directory;
+        path will then be relative to that directory.
+        dir_fd may not be implemented on your platform.
+        If it is unavailable, using it will raise a NotImplementedError.
+    
+        If ignore_errors is set, errors are ignored; otherwise, if onerror
+        is set, it is called to handle the error with arguments (func,
+        path, exc_info) where func is platform and implementation dependent;
+        path is the argument to that function that caused it to fail; and
+        exc_info is a tuple returned by sys.exc_info().  If ignore_errors
+        is false and onerror is None, an exception is raised.
+    
+        """
+        sys.audit("shutil.rmtree", path, dir_fd)
+        if ignore_errors:
+            def onerror(*args):
+                pass
+        elif onerror is None:
+            def onerror(*args):
+                raise
+        if _use_fd_functions:
+            # While the unsafe rmtree works fine on bytes, the fd based does not.
+            if isinstance(path, bytes):
+                path = os.fsdecode(path)
+            # Note: To guard against symlink races, we use the standard
+            # lstat()/open()/fstat() trick.
+            try:
+                orig_st = os.lstat(path, dir_fd=dir_fd)
+            except Exception:
+                onerror(os.lstat, path, sys.exc_info())
+                return
+            try:
+                fd = os.open(path, os.O_RDONLY | os.O_NONBLOCK, dir_fd=dir_fd)
+                fd_closed = False
+            except Exception:
+                onerror(os.open, path, sys.exc_info())
+                return
+            try:
+                if os.path.samestat(orig_st, os.fstat(fd)):
+>                   _rmtree_safe_fd(fd, path, onerror)
+
+.runtime/env/lib/python3.11/shutil.py:752: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:701: in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+research/reviews/project_budget_v2_author/guarded_tests.py:29: in audit
+    if p is not None and not own(p):denied("mutation outside independent scope "+str(p))
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+reason = 'mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py'
+
+    def denied(reason):
+>       blocked.append(reason);raise RuntimeError("BUDGET AUTHOR GUARD: "+reason)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       RuntimeError: BUDGET AUTHOR GUARD: mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py
+
+research/reviews/project_budget_v2_author/guarded_tests.py:8: RuntimeError
+_ ERROR at setup of test_four20GB_scopes_add_only_supplemental_and_retain_legacy_bytes _
+
+path = '/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'
+ignore_errors = False
+onerror = functools.partial(<function on_rm_rf_error at 0x7ff54e840220>, start_path=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'))
+dir_fd = None
+
+    def rmtree(path, ignore_errors=False, onerror=None, *, dir_fd=None):
+        """Recursively delete a directory tree.
+    
+        If dir_fd is not None, it should be a file descriptor open to a directory;
+        path will then be relative to that directory.
+        dir_fd may not be implemented on your platform.
+        If it is unavailable, using it will raise a NotImplementedError.
+    
+        If ignore_errors is set, errors are ignored; otherwise, if onerror
+        is set, it is called to handle the error with arguments (func,
+        path, exc_info) where func is platform and implementation dependent;
+        path is the argument to that function that caused it to fail; and
+        exc_info is a tuple returned by sys.exc_info().  If ignore_errors
+        is false and onerror is None, an exception is raised.
+    
+        """
+        sys.audit("shutil.rmtree", path, dir_fd)
+        if ignore_errors:
+            def onerror(*args):
+                pass
+        elif onerror is None:
+            def onerror(*args):
+                raise
+        if _use_fd_functions:
+            # While the unsafe rmtree works fine on bytes, the fd based does not.
+            if isinstance(path, bytes):
+                path = os.fsdecode(path)
+            # Note: To guard against symlink races, we use the standard
+            # lstat()/open()/fstat() trick.
+            try:
+                orig_st = os.lstat(path, dir_fd=dir_fd)
+            except Exception:
+                onerror(os.lstat, path, sys.exc_info())
+                return
+            try:
+                fd = os.open(path, os.O_RDONLY | os.O_NONBLOCK, dir_fd=dir_fd)
+                fd_closed = False
+            except Exception:
+                onerror(os.open, path, sys.exc_info())
+                return
+            try:
+                if os.path.samestat(orig_st, os.fstat(fd)):
+>                   _rmtree_safe_fd(fd, path, onerror)
+
+.runtime/env/lib/python3.11/shutil.py:752: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:701: in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+research/reviews/project_budget_v2_author/guarded_tests.py:29: in audit
+    if p is not None and not own(p):denied("mutation outside independent scope "+str(p))
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+reason = 'mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py'
+
+    def denied(reason):
+>       blocked.append(reason);raise RuntimeError("BUDGET AUTHOR GUARD: "+reason)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       RuntimeError: BUDGET AUTHOR GUARD: mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py
+
+research/reviews/project_budget_v2_author/guarded_tests.py:8: RuntimeError
+_ ERROR at setup of test_first_hashes_exact_later_unrelated_legacy_mutation_permitted _
+
+path = '/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'
+ignore_errors = False
+onerror = functools.partial(<function on_rm_rf_error at 0x7ff54e840220>, start_path=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'))
+dir_fd = None
+
+    def rmtree(path, ignore_errors=False, onerror=None, *, dir_fd=None):
+        """Recursively delete a directory tree.
+    
+        If dir_fd is not None, it should be a file descriptor open to a directory;
+        path will then be relative to that directory.
+        dir_fd may not be implemented on your platform.
+        If it is unavailable, using it will raise a NotImplementedError.
+    
+        If ignore_errors is set, errors are ignored; otherwise, if onerror
+        is set, it is called to handle the error with arguments (func,
+        path, exc_info) where func is platform and implementation dependent;
+        path is the argument to that function that caused it to fail; and
+        exc_info is a tuple returned by sys.exc_info().  If ignore_errors
+        is false and onerror is None, an exception is raised.
+    
+        """
+        sys.audit("shutil.rmtree", path, dir_fd)
+        if ignore_errors:
+            def onerror(*args):
+                pass
+        elif onerror is None:
+            def onerror(*args):
+                raise
+        if _use_fd_functions:
+            # While the unsafe rmtree works fine on bytes, the fd based does not.
+            if isinstance(path, bytes):
+                path = os.fsdecode(path)
+            # Note: To guard against symlink races, we use the standard
+            # lstat()/open()/fstat() trick.
+            try:
+                orig_st = os.lstat(path, dir_fd=dir_fd)
+            except Exception:
+                onerror(os.lstat, path, sys.exc_info())
+                return
+            try:
+                fd = os.open(path, os.O_RDONLY | os.O_NONBLOCK, dir_fd=dir_fd)
+                fd_closed = False
+            except Exception:
+                onerror(os.open, path, sys.exc_info())
+                return
+            try:
+                if os.path.samestat(orig_st, os.fstat(fd)):
+>                   _rmtree_safe_fd(fd, path, onerror)
+
+.runtime/env/lib/python3.11/shutil.py:752: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:701: in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+research/reviews/project_budget_v2_author/guarded_tests.py:29: in audit
+    if p is not None and not own(p):denied("mutation outside independent scope "+str(p))
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+reason = 'mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py'
+
+    def denied(reason):
+>       blocked.append(reason);raise RuntimeError("BUDGET AUTHOR GUARD: "+reason)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       RuntimeError: BUDGET AUTHOR GUARD: mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py
+
+research/reviews/project_budget_v2_author/guarded_tests.py:8: RuntimeError
+___ ERROR at setup of test_later_legitimate_supplemental_addition_permitted ____
+
+path = '/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'
+ignore_errors = False
+onerror = functools.partial(<function on_rm_rf_error at 0x7ff54e840220>, start_path=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'))
+dir_fd = None
+
+    def rmtree(path, ignore_errors=False, onerror=None, *, dir_fd=None):
+        """Recursively delete a directory tree.
+    
+        If dir_fd is not None, it should be a file descriptor open to a directory;
+        path will then be relative to that directory.
+        dir_fd may not be implemented on your platform.
+        If it is unavailable, using it will raise a NotImplementedError.
+    
+        If ignore_errors is set, errors are ignored; otherwise, if onerror
+        is set, it is called to handle the error with arguments (func,
+        path, exc_info) where func is platform and implementation dependent;
+        path is the argument to that function that caused it to fail; and
+        exc_info is a tuple returned by sys.exc_info().  If ignore_errors
+        is false and onerror is None, an exception is raised.
+    
+        """
+        sys.audit("shutil.rmtree", path, dir_fd)
+        if ignore_errors:
+            def onerror(*args):
+                pass
+        elif onerror is None:
+            def onerror(*args):
+                raise
+        if _use_fd_functions:
+            # While the unsafe rmtree works fine on bytes, the fd based does not.
+            if isinstance(path, bytes):
+                path = os.fsdecode(path)
+            # Note: To guard against symlink races, we use the standard
+            # lstat()/open()/fstat() trick.
+            try:
+                orig_st = os.lstat(path, dir_fd=dir_fd)
+            except Exception:
+                onerror(os.lstat, path, sys.exc_info())
+                return
+            try:
+                fd = os.open(path, os.O_RDONLY | os.O_NONBLOCK, dir_fd=dir_fd)
+                fd_closed = False
+            except Exception:
+                onerror(os.open, path, sys.exc_info())
+                return
+            try:
+                if os.path.samestat(orig_st, os.fstat(fd)):
+>                   _rmtree_safe_fd(fd, path, onerror)
+
+.runtime/env/lib/python3.11/shutil.py:752: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:701: in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+research/reviews/project_budget_v2_author/guarded_tests.py:29: in audit
+    if p is not None and not own(p):denied("mutation outside independent scope "+str(p))
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+reason = 'mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py'
+
+    def denied(reason):
+>       blocked.append(reason);raise RuntimeError("BUDGET AUTHOR GUARD: "+reason)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       RuntimeError: BUDGET AUTHOR GUARD: mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py
+
+research/reviews/project_budget_v2_author/guarded_tests.py:8: RuntimeError
+_ ERROR at setup of test_legacy_invariant_or_charge_drift_rejected_without_new_ledger[baseline] _
+
+path = '/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'
+ignore_errors = False
+onerror = functools.partial(<function on_rm_rf_error at 0x7ff54e840220>, start_path=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'))
+dir_fd = None
+
+    def rmtree(path, ignore_errors=False, onerror=None, *, dir_fd=None):
+        """Recursively delete a directory tree.
+    
+        If dir_fd is not None, it should be a file descriptor open to a directory;
+        path will then be relative to that directory.
+        dir_fd may not be implemented on your platform.
+        If it is unavailable, using it will raise a NotImplementedError.
+    
+        If ignore_errors is set, errors are ignored; otherwise, if onerror
+        is set, it is called to handle the error with arguments (func,
+        path, exc_info) where func is platform and implementation dependent;
+        path is the argument to that function that caused it to fail; and
+        exc_info is a tuple returned by sys.exc_info().  If ignore_errors
+        is false and onerror is None, an exception is raised.
+    
+        """
+        sys.audit("shutil.rmtree", path, dir_fd)
+        if ignore_errors:
+            def onerror(*args):
+                pass
+        elif onerror is None:
+            def onerror(*args):
+                raise
+        if _use_fd_functions:
+            # While the unsafe rmtree works fine on bytes, the fd based does not.
+            if isinstance(path, bytes):
+                path = os.fsdecode(path)
+            # Note: To guard against symlink races, we use the standard
+            # lstat()/open()/fstat() trick.
+            try:
+                orig_st = os.lstat(path, dir_fd=dir_fd)
+            except Exception:
+                onerror(os.lstat, path, sys.exc_info())
+                return
+            try:
+                fd = os.open(path, os.O_RDONLY | os.O_NONBLOCK, dir_fd=dir_fd)
+                fd_closed = False
+            except Exception:
+                onerror(os.open, path, sys.exc_info())
+                return
+            try:
+                if os.path.samestat(orig_st, os.fstat(fd)):
+>                   _rmtree_safe_fd(fd, path, onerror)
+
+.runtime/env/lib/python3.11/shutil.py:752: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:701: in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+research/reviews/project_budget_v2_author/guarded_tests.py:29: in audit
+    if p is not None and not own(p):denied("mutation outside independent scope "+str(p))
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+reason = 'mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py'
+
+    def denied(reason):
+>       blocked.append(reason);raise RuntimeError("BUDGET AUTHOR GUARD: "+reason)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       RuntimeError: BUDGET AUTHOR GUARD: mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py
+
+research/reviews/project_budget_v2_author/guarded_tests.py:8: RuntimeError
+_ ERROR at setup of test_legacy_invariant_or_charge_drift_rejected_without_new_ledger[external] _
+
+path = '/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'
+ignore_errors = False
+onerror = functools.partial(<function on_rm_rf_error at 0x7ff54e840220>, start_path=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'))
+dir_fd = None
+
+    def rmtree(path, ignore_errors=False, onerror=None, *, dir_fd=None):
+        """Recursively delete a directory tree.
+    
+        If dir_fd is not None, it should be a file descriptor open to a directory;
+        path will then be relative to that directory.
+        dir_fd may not be implemented on your platform.
+        If it is unavailable, using it will raise a NotImplementedError.
+    
+        If ignore_errors is set, errors are ignored; otherwise, if onerror
+        is set, it is called to handle the error with arguments (func,
+        path, exc_info) where func is platform and implementation dependent;
+        path is the argument to that function that caused it to fail; and
+        exc_info is a tuple returned by sys.exc_info().  If ignore_errors
+        is false and onerror is None, an exception is raised.
+    
+        """
+        sys.audit("shutil.rmtree", path, dir_fd)
+        if ignore_errors:
+            def onerror(*args):
+                pass
+        elif onerror is None:
+            def onerror(*args):
+                raise
+        if _use_fd_functions:
+            # While the unsafe rmtree works fine on bytes, the fd based does not.
+            if isinstance(path, bytes):
+                path = os.fsdecode(path)
+            # Note: To guard against symlink races, we use the standard
+            # lstat()/open()/fstat() trick.
+            try:
+                orig_st = os.lstat(path, dir_fd=dir_fd)
+            except Exception:
+                onerror(os.lstat, path, sys.exc_info())
+                return
+            try:
+                fd = os.open(path, os.O_RDONLY | os.O_NONBLOCK, dir_fd=dir_fd)
+                fd_closed = False
+            except Exception:
+                onerror(os.open, path, sys.exc_info())
+                return
+            try:
+                if os.path.samestat(orig_st, os.fstat(fd)):
+>                   _rmtree_safe_fd(fd, path, onerror)
+
+.runtime/env/lib/python3.11/shutil.py:752: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:701: in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+research/reviews/project_budget_v2_author/guarded_tests.py:29: in audit
+    if p is not None and not own(p):denied("mutation outside independent scope "+str(p))
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+reason = 'mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py'
+
+    def denied(reason):
+>       blocked.append(reason);raise RuntimeError("BUDGET AUTHOR GUARD: "+reason)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       RuntimeError: BUDGET AUTHOR GUARD: mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py
+
+research/reviews/project_budget_v2_author/guarded_tests.py:8: RuntimeError
+_ ERROR at setup of test_legacy_invariant_or_charge_drift_rejected_without_new_ledger[snapshot] _
+
+path = '/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'
+ignore_errors = False
+onerror = functools.partial(<function on_rm_rf_error at 0x7ff54e840220>, start_path=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'))
+dir_fd = None
+
+    def rmtree(path, ignore_errors=False, onerror=None, *, dir_fd=None):
+        """Recursively delete a directory tree.
+    
+        If dir_fd is not None, it should be a file descriptor open to a directory;
+        path will then be relative to that directory.
+        dir_fd may not be implemented on your platform.
+        If it is unavailable, using it will raise a NotImplementedError.
+    
+        If ignore_errors is set, errors are ignored; otherwise, if onerror
+        is set, it is called to handle the error with arguments (func,
+        path, exc_info) where func is platform and implementation dependent;
+        path is the argument to that function that caused it to fail; and
+        exc_info is a tuple returned by sys.exc_info().  If ignore_errors
+        is false and onerror is None, an exception is raised.
+    
+        """
+        sys.audit("shutil.rmtree", path, dir_fd)
+        if ignore_errors:
+            def onerror(*args):
+                pass
+        elif onerror is None:
+            def onerror(*args):
+                raise
+        if _use_fd_functions:
+            # While the unsafe rmtree works fine on bytes, the fd based does not.
+            if isinstance(path, bytes):
+                path = os.fsdecode(path)
+            # Note: To guard against symlink races, we use the standard
+            # lstat()/open()/fstat() trick.
+            try:
+                orig_st = os.lstat(path, dir_fd=dir_fd)
+            except Exception:
+                onerror(os.lstat, path, sys.exc_info())
+                return
+            try:
+                fd = os.open(path, os.O_RDONLY | os.O_NONBLOCK, dir_fd=dir_fd)
+                fd_closed = False
+            except Exception:
+                onerror(os.open, path, sys.exc_info())
+                return
+            try:
+                if os.path.samestat(orig_st, os.fstat(fd)):
+>                   _rmtree_safe_fd(fd, path, onerror)
+
+.runtime/env/lib/python3.11/shutil.py:752: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:701: in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+research/reviews/project_budget_v2_author/guarded_tests.py:29: in audit
+    if p is not None and not own(p):denied("mutation outside independent scope "+str(p))
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+reason = 'mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py'
+
+    def denied(reason):
+>       blocked.append(reason);raise RuntimeError("BUDGET AUTHOR GUARD: "+reason)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       RuntimeError: BUDGET AUTHOR GUARD: mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py
+
+research/reviews/project_budget_v2_author/guarded_tests.py:8: RuntimeError
+_ ERROR at setup of test_legacy_invariant_or_charge_drift_rejected_without_new_ledger[limit] _
+
+path = '/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'
+ignore_errors = False
+onerror = functools.partial(<function on_rm_rf_error at 0x7ff54e840220>, start_path=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'))
+dir_fd = None
+
+    def rmtree(path, ignore_errors=False, onerror=None, *, dir_fd=None):
+        """Recursively delete a directory tree.
+    
+        If dir_fd is not None, it should be a file descriptor open to a directory;
+        path will then be relative to that directory.
+        dir_fd may not be implemented on your platform.
+        If it is unavailable, using it will raise a NotImplementedError.
+    
+        If ignore_errors is set, errors are ignored; otherwise, if onerror
+        is set, it is called to handle the error with arguments (func,
+        path, exc_info) where func is platform and implementation dependent;
+        path is the argument to that function that caused it to fail; and
+        exc_info is a tuple returned by sys.exc_info().  If ignore_errors
+        is false and onerror is None, an exception is raised.
+    
+        """
+        sys.audit("shutil.rmtree", path, dir_fd)
+        if ignore_errors:
+            def onerror(*args):
+                pass
+        elif onerror is None:
+            def onerror(*args):
+                raise
+        if _use_fd_functions:
+            # While the unsafe rmtree works fine on bytes, the fd based does not.
+            if isinstance(path, bytes):
+                path = os.fsdecode(path)
+            # Note: To guard against symlink races, we use the standard
+            # lstat()/open()/fstat() trick.
+            try:
+                orig_st = os.lstat(path, dir_fd=dir_fd)
+            except Exception:
+                onerror(os.lstat, path, sys.exc_info())
+                return
+            try:
+                fd = os.open(path, os.O_RDONLY | os.O_NONBLOCK, dir_fd=dir_fd)
+                fd_closed = False
+            except Exception:
+                onerror(os.open, path, sys.exc_info())
+                return
+            try:
+                if os.path.samestat(orig_st, os.fstat(fd)):
+>                   _rmtree_safe_fd(fd, path, onerror)
+
+.runtime/env/lib/python3.11/shutil.py:752: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:701: in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+research/reviews/project_budget_v2_author/guarded_tests.py:29: in audit
+    if p is not None and not own(p):denied("mutation outside independent scope "+str(p))
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+reason = 'mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py'
+
+    def denied(reason):
+>       blocked.append(reason);raise RuntimeError("BUDGET AUTHOR GUARD: "+reason)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       RuntimeError: BUDGET AUTHOR GUARD: mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py
+
+research/reviews/project_budget_v2_author/guarded_tests.py:8: RuntimeError
+_ ERROR at setup of test_legacy_invariant_or_charge_drift_rejected_without_new_ledger[root] _
+
+path = '/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'
+ignore_errors = False
+onerror = functools.partial(<function on_rm_rf_error at 0x7ff54e840220>, start_path=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'))
+dir_fd = None
+
+    def rmtree(path, ignore_errors=False, onerror=None, *, dir_fd=None):
+        """Recursively delete a directory tree.
+    
+        If dir_fd is not None, it should be a file descriptor open to a directory;
+        path will then be relative to that directory.
+        dir_fd may not be implemented on your platform.
+        If it is unavailable, using it will raise a NotImplementedError.
+    
+        If ignore_errors is set, errors are ignored; otherwise, if onerror
+        is set, it is called to handle the error with arguments (func,
+        path, exc_info) where func is platform and implementation dependent;
+        path is the argument to that function that caused it to fail; and
+        exc_info is a tuple returned by sys.exc_info().  If ignore_errors
+        is false and onerror is None, an exception is raised.
+    
+        """
+        sys.audit("shutil.rmtree", path, dir_fd)
+        if ignore_errors:
+            def onerror(*args):
+                pass
+        elif onerror is None:
+            def onerror(*args):
+                raise
+        if _use_fd_functions:
+            # While the unsafe rmtree works fine on bytes, the fd based does not.
+            if isinstance(path, bytes):
+                path = os.fsdecode(path)
+            # Note: To guard against symlink races, we use the standard
+            # lstat()/open()/fstat() trick.
+            try:
+                orig_st = os.lstat(path, dir_fd=dir_fd)
+            except Exception:
+                onerror(os.lstat, path, sys.exc_info())
+                return
+            try:
+                fd = os.open(path, os.O_RDONLY | os.O_NONBLOCK, dir_fd=dir_fd)
+                fd_closed = False
+            except Exception:
+                onerror(os.open, path, sys.exc_info())
+                return
+            try:
+                if os.path.samestat(orig_st, os.fstat(fd)):
+>                   _rmtree_safe_fd(fd, path, onerror)
+
+.runtime/env/lib/python3.11/shutil.py:752: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:701: in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+research/reviews/project_budget_v2_author/guarded_tests.py:29: in audit
+    if p is not None and not own(p):denied("mutation outside independent scope "+str(p))
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+reason = 'mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py'
+
+    def denied(reason):
+>       blocked.append(reason);raise RuntimeError("BUDGET AUTHOR GUARD: "+reason)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       RuntimeError: BUDGET AUTHOR GUARD: mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py
+
+research/reviews/project_budget_v2_author/guarded_tests.py:8: RuntimeError
+_ ERROR at setup of test_legacy_invariant_or_charge_drift_rejected_without_new_ledger[schema] _
+
+path = '/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'
+ignore_errors = False
+onerror = functools.partial(<function on_rm_rf_error at 0x7ff54e840220>, start_path=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'))
+dir_fd = None
+
+    def rmtree(path, ignore_errors=False, onerror=None, *, dir_fd=None):
+        """Recursively delete a directory tree.
+    
+        If dir_fd is not None, it should be a file descriptor open to a directory;
+        path will then be relative to that directory.
+        dir_fd may not be implemented on your platform.
+        If it is unavailable, using it will raise a NotImplementedError.
+    
+        If ignore_errors is set, errors are ignored; otherwise, if onerror
+        is set, it is called to handle the error with arguments (func,
+        path, exc_info) where func is platform and implementation dependent;
+        path is the argument to that function that caused it to fail; and
+        exc_info is a tuple returned by sys.exc_info().  If ignore_errors
+        is false and onerror is None, an exception is raised.
+    
+        """
+        sys.audit("shutil.rmtree", path, dir_fd)
+        if ignore_errors:
+            def onerror(*args):
+                pass
+        elif onerror is None:
+            def onerror(*args):
+                raise
+        if _use_fd_functions:
+            # While the unsafe rmtree works fine on bytes, the fd based does not.
+            if isinstance(path, bytes):
+                path = os.fsdecode(path)
+            # Note: To guard against symlink races, we use the standard
+            # lstat()/open()/fstat() trick.
+            try:
+                orig_st = os.lstat(path, dir_fd=dir_fd)
+            except Exception:
+                onerror(os.lstat, path, sys.exc_info())
+                return
+            try:
+                fd = os.open(path, os.O_RDONLY | os.O_NONBLOCK, dir_fd=dir_fd)
+                fd_closed = False
+            except Exception:
+                onerror(os.open, path, sys.exc_info())
+                return
+            try:
+                if os.path.samestat(orig_st, os.fstat(fd)):
+>                   _rmtree_safe_fd(fd, path, onerror)
+
+.runtime/env/lib/python3.11/shutil.py:752: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:701: in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+research/reviews/project_budget_v2_author/guarded_tests.py:29: in audit
+    if p is not None and not own(p):denied("mutation outside independent scope "+str(p))
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+reason = 'mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py'
+
+    def denied(reason):
+>       blocked.append(reason);raise RuntimeError("BUDGET AUTHOR GUARD: "+reason)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       RuntimeError: BUDGET AUTHOR GUARD: mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py
+
+research/reviews/project_budget_v2_author/guarded_tests.py:8: RuntimeError
+_ ERROR at setup of test_legacy_invariant_or_charge_drift_rejected_without_new_ledger[float_charge] _
+
+path = '/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'
+ignore_errors = False
+onerror = functools.partial(<function on_rm_rf_error at 0x7ff54e840220>, start_path=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'))
+dir_fd = None
+
+    def rmtree(path, ignore_errors=False, onerror=None, *, dir_fd=None):
+        """Recursively delete a directory tree.
+    
+        If dir_fd is not None, it should be a file descriptor open to a directory;
+        path will then be relative to that directory.
+        dir_fd may not be implemented on your platform.
+        If it is unavailable, using it will raise a NotImplementedError.
+    
+        If ignore_errors is set, errors are ignored; otherwise, if onerror
+        is set, it is called to handle the error with arguments (func,
+        path, exc_info) where func is platform and implementation dependent;
+        path is the argument to that function that caused it to fail; and
+        exc_info is a tuple returned by sys.exc_info().  If ignore_errors
+        is false and onerror is None, an exception is raised.
+    
+        """
+        sys.audit("shutil.rmtree", path, dir_fd)
+        if ignore_errors:
+            def onerror(*args):
+                pass
+        elif onerror is None:
+            def onerror(*args):
+                raise
+        if _use_fd_functions:
+            # While the unsafe rmtree works fine on bytes, the fd based does not.
+            if isinstance(path, bytes):
+                path = os.fsdecode(path)
+            # Note: To guard against symlink races, we use the standard
+            # lstat()/open()/fstat() trick.
+            try:
+                orig_st = os.lstat(path, dir_fd=dir_fd)
+            except Exception:
+                onerror(os.lstat, path, sys.exc_info())
+                return
+            try:
+                fd = os.open(path, os.O_RDONLY | os.O_NONBLOCK, dir_fd=dir_fd)
+                fd_closed = False
+            except Exception:
+                onerror(os.open, path, sys.exc_info())
+                return
+            try:
+                if os.path.samestat(orig_st, os.fstat(fd)):
+>                   _rmtree_safe_fd(fd, path, onerror)
+
+.runtime/env/lib/python3.11/shutil.py:752: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:701: in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+research/reviews/project_budget_v2_author/guarded_tests.py:29: in audit
+    if p is not None and not own(p):denied("mutation outside independent scope "+str(p))
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+reason = 'mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py'
+
+    def denied(reason):
+>       blocked.append(reason);raise RuntimeError("BUDGET AUTHOR GUARD: "+reason)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       RuntimeError: BUDGET AUTHOR GUARD: mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py
+
+research/reviews/project_budget_v2_author/guarded_tests.py:8: RuntimeError
+_ ERROR at setup of test_legacy_invariant_or_charge_drift_rejected_without_new_ledger[negative_charge] _
+
+path = '/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'
+ignore_errors = False
+onerror = functools.partial(<function on_rm_rf_error at 0x7ff54e840220>, start_path=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'))
+dir_fd = None
+
+    def rmtree(path, ignore_errors=False, onerror=None, *, dir_fd=None):
+        """Recursively delete a directory tree.
+    
+        If dir_fd is not None, it should be a file descriptor open to a directory;
+        path will then be relative to that directory.
+        dir_fd may not be implemented on your platform.
+        If it is unavailable, using it will raise a NotImplementedError.
+    
+        If ignore_errors is set, errors are ignored; otherwise, if onerror
+        is set, it is called to handle the error with arguments (func,
+        path, exc_info) where func is platform and implementation dependent;
+        path is the argument to that function that caused it to fail; and
+        exc_info is a tuple returned by sys.exc_info().  If ignore_errors
+        is false and onerror is None, an exception is raised.
+    
+        """
+        sys.audit("shutil.rmtree", path, dir_fd)
+        if ignore_errors:
+            def onerror(*args):
+                pass
+        elif onerror is None:
+            def onerror(*args):
+                raise
+        if _use_fd_functions:
+            # While the unsafe rmtree works fine on bytes, the fd based does not.
+            if isinstance(path, bytes):
+                path = os.fsdecode(path)
+            # Note: To guard against symlink races, we use the standard
+            # lstat()/open()/fstat() trick.
+            try:
+                orig_st = os.lstat(path, dir_fd=dir_fd)
+            except Exception:
+                onerror(os.lstat, path, sys.exc_info())
+                return
+            try:
+                fd = os.open(path, os.O_RDONLY | os.O_NONBLOCK, dir_fd=dir_fd)
+                fd_closed = False
+            except Exception:
+                onerror(os.open, path, sys.exc_info())
+                return
+            try:
+                if os.path.samestat(orig_st, os.fstat(fd)):
+>                   _rmtree_safe_fd(fd, path, onerror)
+
+.runtime/env/lib/python3.11/shutil.py:752: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:701: in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+research/reviews/project_budget_v2_author/guarded_tests.py:29: in audit
+    if p is not None and not own(p):denied("mutation outside independent scope "+str(p))
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+reason = 'mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py'
+
+    def denied(reason):
+>       blocked.append(reason);raise RuntimeError("BUDGET AUTHOR GUARD: "+reason)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       RuntimeError: BUDGET AUTHOR GUARD: mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py
+
+research/reviews/project_budget_v2_author/guarded_tests.py:8: RuntimeError
+_ ERROR at setup of test_exact_root_authority_review_and_first_hash_gates[inactive] _
+
+path = '/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'
+ignore_errors = False
+onerror = functools.partial(<function on_rm_rf_error at 0x7ff54e840220>, start_path=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'))
+dir_fd = None
+
+    def rmtree(path, ignore_errors=False, onerror=None, *, dir_fd=None):
+        """Recursively delete a directory tree.
+    
+        If dir_fd is not None, it should be a file descriptor open to a directory;
+        path will then be relative to that directory.
+        dir_fd may not be implemented on your platform.
+        If it is unavailable, using it will raise a NotImplementedError.
+    
+        If ignore_errors is set, errors are ignored; otherwise, if onerror
+        is set, it is called to handle the error with arguments (func,
+        path, exc_info) where func is platform and implementation dependent;
+        path is the argument to that function that caused it to fail; and
+        exc_info is a tuple returned by sys.exc_info().  If ignore_errors
+        is false and onerror is None, an exception is raised.
+    
+        """
+        sys.audit("shutil.rmtree", path, dir_fd)
+        if ignore_errors:
+            def onerror(*args):
+                pass
+        elif onerror is None:
+            def onerror(*args):
+                raise
+        if _use_fd_functions:
+            # While the unsafe rmtree works fine on bytes, the fd based does not.
+            if isinstance(path, bytes):
+                path = os.fsdecode(path)
+            # Note: To guard against symlink races, we use the standard
+            # lstat()/open()/fstat() trick.
+            try:
+                orig_st = os.lstat(path, dir_fd=dir_fd)
+            except Exception:
+                onerror(os.lstat, path, sys.exc_info())
+                return
+            try:
+                fd = os.open(path, os.O_RDONLY | os.O_NONBLOCK, dir_fd=dir_fd)
+                fd_closed = False
+            except Exception:
+                onerror(os.open, path, sys.exc_info())
+                return
+            try:
+                if os.path.samestat(orig_st, os.fstat(fd)):
+>                   _rmtree_safe_fd(fd, path, onerror)
+
+.runtime/env/lib/python3.11/shutil.py:752: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:701: in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+research/reviews/project_budget_v2_author/guarded_tests.py:29: in audit
+    if p is not None and not own(p):denied("mutation outside independent scope "+str(p))
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+reason = 'mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py'
+
+    def denied(reason):
+>       blocked.append(reason);raise RuntimeError("BUDGET AUTHOR GUARD: "+reason)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       RuntimeError: BUDGET AUTHOR GUARD: mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py
+
+research/reviews/project_budget_v2_author/guarded_tests.py:8: RuntimeError
+_ ERROR at setup of test_exact_root_authority_review_and_first_hash_gates[source] _
+
+path = '/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'
+ignore_errors = False
+onerror = functools.partial(<function on_rm_rf_error at 0x7ff54e840220>, start_path=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'))
+dir_fd = None
+
+    def rmtree(path, ignore_errors=False, onerror=None, *, dir_fd=None):
+        """Recursively delete a directory tree.
+    
+        If dir_fd is not None, it should be a file descriptor open to a directory;
+        path will then be relative to that directory.
+        dir_fd may not be implemented on your platform.
+        If it is unavailable, using it will raise a NotImplementedError.
+    
+        If ignore_errors is set, errors are ignored; otherwise, if onerror
+        is set, it is called to handle the error with arguments (func,
+        path, exc_info) where func is platform and implementation dependent;
+        path is the argument to that function that caused it to fail; and
+        exc_info is a tuple returned by sys.exc_info().  If ignore_errors
+        is false and onerror is None, an exception is raised.
+    
+        """
+        sys.audit("shutil.rmtree", path, dir_fd)
+        if ignore_errors:
+            def onerror(*args):
+                pass
+        elif onerror is None:
+            def onerror(*args):
+                raise
+        if _use_fd_functions:
+            # While the unsafe rmtree works fine on bytes, the fd based does not.
+            if isinstance(path, bytes):
+                path = os.fsdecode(path)
+            # Note: To guard against symlink races, we use the standard
+            # lstat()/open()/fstat() trick.
+            try:
+                orig_st = os.lstat(path, dir_fd=dir_fd)
+            except Exception:
+                onerror(os.lstat, path, sys.exc_info())
+                return
+            try:
+                fd = os.open(path, os.O_RDONLY | os.O_NONBLOCK, dir_fd=dir_fd)
+                fd_closed = False
+            except Exception:
+                onerror(os.open, path, sys.exc_info())
+                return
+            try:
+                if os.path.samestat(orig_st, os.fstat(fd)):
+>                   _rmtree_safe_fd(fd, path, onerror)
+
+.runtime/env/lib/python3.11/shutil.py:752: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:701: in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+research/reviews/project_budget_v2_author/guarded_tests.py:29: in audit
+    if p is not None and not own(p):denied("mutation outside independent scope "+str(p))
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+reason = 'mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py'
+
+    def denied(reason):
+>       blocked.append(reason);raise RuntimeError("BUDGET AUTHOR GUARD: "+reason)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       RuntimeError: BUDGET AUTHOR GUARD: mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py
+
+research/reviews/project_budget_v2_author/guarded_tests.py:8: RuntimeError
+_ ERROR at setup of test_exact_root_authority_review_and_first_hash_gates[config] _
+
+path = '/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'
+ignore_errors = False
+onerror = functools.partial(<function on_rm_rf_error at 0x7ff54e840220>, start_path=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'))
+dir_fd = None
+
+    def rmtree(path, ignore_errors=False, onerror=None, *, dir_fd=None):
+        """Recursively delete a directory tree.
+    
+        If dir_fd is not None, it should be a file descriptor open to a directory;
+        path will then be relative to that directory.
+        dir_fd may not be implemented on your platform.
+        If it is unavailable, using it will raise a NotImplementedError.
+    
+        If ignore_errors is set, errors are ignored; otherwise, if onerror
+        is set, it is called to handle the error with arguments (func,
+        path, exc_info) where func is platform and implementation dependent;
+        path is the argument to that function that caused it to fail; and
+        exc_info is a tuple returned by sys.exc_info().  If ignore_errors
+        is false and onerror is None, an exception is raised.
+    
+        """
+        sys.audit("shutil.rmtree", path, dir_fd)
+        if ignore_errors:
+            def onerror(*args):
+                pass
+        elif onerror is None:
+            def onerror(*args):
+                raise
+        if _use_fd_functions:
+            # While the unsafe rmtree works fine on bytes, the fd based does not.
+            if isinstance(path, bytes):
+                path = os.fsdecode(path)
+            # Note: To guard against symlink races, we use the standard
+            # lstat()/open()/fstat() trick.
+            try:
+                orig_st = os.lstat(path, dir_fd=dir_fd)
+            except Exception:
+                onerror(os.lstat, path, sys.exc_info())
+                return
+            try:
+                fd = os.open(path, os.O_RDONLY | os.O_NONBLOCK, dir_fd=dir_fd)
+                fd_closed = False
+            except Exception:
+                onerror(os.open, path, sys.exc_info())
+                return
+            try:
+                if os.path.samestat(orig_st, os.fstat(fd)):
+>                   _rmtree_safe_fd(fd, path, onerror)
+
+.runtime/env/lib/python3.11/shutil.py:752: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:701: in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+research/reviews/project_budget_v2_author/guarded_tests.py:29: in audit
+    if p is not None and not own(p):denied("mutation outside independent scope "+str(p))
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+reason = 'mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py'
+
+    def denied(reason):
+>       blocked.append(reason);raise RuntimeError("BUDGET AUTHOR GUARD: "+reason)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       RuntimeError: BUDGET AUTHOR GUARD: mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py
+
+research/reviews/project_budget_v2_author/guarded_tests.py:8: RuntimeError
+_ ERROR at setup of test_exact_root_authority_review_and_first_hash_gates[human] _
+
+path = '/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'
+ignore_errors = False
+onerror = functools.partial(<function on_rm_rf_error at 0x7ff54e840220>, start_path=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'))
+dir_fd = None
+
+    def rmtree(path, ignore_errors=False, onerror=None, *, dir_fd=None):
+        """Recursively delete a directory tree.
+    
+        If dir_fd is not None, it should be a file descriptor open to a directory;
+        path will then be relative to that directory.
+        dir_fd may not be implemented on your platform.
+        If it is unavailable, using it will raise a NotImplementedError.
+    
+        If ignore_errors is set, errors are ignored; otherwise, if onerror
+        is set, it is called to handle the error with arguments (func,
+        path, exc_info) where func is platform and implementation dependent;
+        path is the argument to that function that caused it to fail; and
+        exc_info is a tuple returned by sys.exc_info().  If ignore_errors
+        is false and onerror is None, an exception is raised.
+    
+        """
+        sys.audit("shutil.rmtree", path, dir_fd)
+        if ignore_errors:
+            def onerror(*args):
+                pass
+        elif onerror is None:
+            def onerror(*args):
+                raise
+        if _use_fd_functions:
+            # While the unsafe rmtree works fine on bytes, the fd based does not.
+            if isinstance(path, bytes):
+                path = os.fsdecode(path)
+            # Note: To guard against symlink races, we use the standard
+            # lstat()/open()/fstat() trick.
+            try:
+                orig_st = os.lstat(path, dir_fd=dir_fd)
+            except Exception:
+                onerror(os.lstat, path, sys.exc_info())
+                return
+            try:
+                fd = os.open(path, os.O_RDONLY | os.O_NONBLOCK, dir_fd=dir_fd)
+                fd_closed = False
+            except Exception:
+                onerror(os.open, path, sys.exc_info())
+                return
+            try:
+                if os.path.samestat(orig_st, os.fstat(fd)):
+>                   _rmtree_safe_fd(fd, path, onerror)
+
+.runtime/env/lib/python3.11/shutil.py:752: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:701: in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+research/reviews/project_budget_v2_author/guarded_tests.py:29: in audit
+    if p is not None and not own(p):denied("mutation outside independent scope "+str(p))
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+reason = 'mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py'
+
+    def denied(reason):
+>       blocked.append(reason);raise RuntimeError("BUDGET AUTHOR GUARD: "+reason)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       RuntimeError: BUDGET AUTHOR GUARD: mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py
+
+research/reviews/project_budget_v2_author/guarded_tests.py:8: RuntimeError
+_ ERROR at setup of test_exact_root_authority_review_and_first_hash_gates[review_verdict] _
+
+path = '/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'
+ignore_errors = False
+onerror = functools.partial(<function on_rm_rf_error at 0x7ff54e840220>, start_path=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'))
+dir_fd = None
+
+    def rmtree(path, ignore_errors=False, onerror=None, *, dir_fd=None):
+        """Recursively delete a directory tree.
+    
+        If dir_fd is not None, it should be a file descriptor open to a directory;
+        path will then be relative to that directory.
+        dir_fd may not be implemented on your platform.
+        If it is unavailable, using it will raise a NotImplementedError.
+    
+        If ignore_errors is set, errors are ignored; otherwise, if onerror
+        is set, it is called to handle the error with arguments (func,
+        path, exc_info) where func is platform and implementation dependent;
+        path is the argument to that function that caused it to fail; and
+        exc_info is a tuple returned by sys.exc_info().  If ignore_errors
+        is false and onerror is None, an exception is raised.
+    
+        """
+        sys.audit("shutil.rmtree", path, dir_fd)
+        if ignore_errors:
+            def onerror(*args):
+                pass
+        elif onerror is None:
+            def onerror(*args):
+                raise
+        if _use_fd_functions:
+            # While the unsafe rmtree works fine on bytes, the fd based does not.
+            if isinstance(path, bytes):
+                path = os.fsdecode(path)
+            # Note: To guard against symlink races, we use the standard
+            # lstat()/open()/fstat() trick.
+            try:
+                orig_st = os.lstat(path, dir_fd=dir_fd)
+            except Exception:
+                onerror(os.lstat, path, sys.exc_info())
+                return
+            try:
+                fd = os.open(path, os.O_RDONLY | os.O_NONBLOCK, dir_fd=dir_fd)
+                fd_closed = False
+            except Exception:
+                onerror(os.open, path, sys.exc_info())
+                return
+            try:
+                if os.path.samestat(orig_st, os.fstat(fd)):
+>                   _rmtree_safe_fd(fd, path, onerror)
+
+.runtime/env/lib/python3.11/shutil.py:752: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:701: in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+research/reviews/project_budget_v2_author/guarded_tests.py:29: in audit
+    if p is not None and not own(p):denied("mutation outside independent scope "+str(p))
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+reason = 'mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py'
+
+    def denied(reason):
+>       blocked.append(reason);raise RuntimeError("BUDGET AUTHOR GUARD: "+reason)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       RuntimeError: BUDGET AUTHOR GUARD: mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py
+
+research/reviews/project_budget_v2_author/guarded_tests.py:8: RuntimeError
+_ ERROR at setup of test_exact_root_authority_review_and_first_hash_gates[review_role] _
+
+path = '/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'
+ignore_errors = False
+onerror = functools.partial(<function on_rm_rf_error at 0x7ff54e840220>, start_path=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'))
+dir_fd = None
+
+    def rmtree(path, ignore_errors=False, onerror=None, *, dir_fd=None):
+        """Recursively delete a directory tree.
+    
+        If dir_fd is not None, it should be a file descriptor open to a directory;
+        path will then be relative to that directory.
+        dir_fd may not be implemented on your platform.
+        If it is unavailable, using it will raise a NotImplementedError.
+    
+        If ignore_errors is set, errors are ignored; otherwise, if onerror
+        is set, it is called to handle the error with arguments (func,
+        path, exc_info) where func is platform and implementation dependent;
+        path is the argument to that function that caused it to fail; and
+        exc_info is a tuple returned by sys.exc_info().  If ignore_errors
+        is false and onerror is None, an exception is raised.
+    
+        """
+        sys.audit("shutil.rmtree", path, dir_fd)
+        if ignore_errors:
+            def onerror(*args):
+                pass
+        elif onerror is None:
+            def onerror(*args):
+                raise
+        if _use_fd_functions:
+            # While the unsafe rmtree works fine on bytes, the fd based does not.
+            if isinstance(path, bytes):
+                path = os.fsdecode(path)
+            # Note: To guard against symlink races, we use the standard
+            # lstat()/open()/fstat() trick.
+            try:
+                orig_st = os.lstat(path, dir_fd=dir_fd)
+            except Exception:
+                onerror(os.lstat, path, sys.exc_info())
+                return
+            try:
+                fd = os.open(path, os.O_RDONLY | os.O_NONBLOCK, dir_fd=dir_fd)
+                fd_closed = False
+            except Exception:
+                onerror(os.open, path, sys.exc_info())
+                return
+            try:
+                if os.path.samestat(orig_st, os.fstat(fd)):
+>                   _rmtree_safe_fd(fd, path, onerror)
+
+.runtime/env/lib/python3.11/shutil.py:752: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:701: in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+research/reviews/project_budget_v2_author/guarded_tests.py:29: in audit
+    if p is not None and not own(p):denied("mutation outside independent scope "+str(p))
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+reason = 'mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py'
+
+    def denied(reason):
+>       blocked.append(reason);raise RuntimeError("BUDGET AUTHOR GUARD: "+reason)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       RuntimeError: BUDGET AUTHOR GUARD: mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py
+
+research/reviews/project_budget_v2_author/guarded_tests.py:8: RuntimeError
+_ ERROR at setup of test_exact_root_authority_review_and_first_hash_gates[oldhash] _
+
+path = '/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'
+ignore_errors = False
+onerror = functools.partial(<function on_rm_rf_error at 0x7ff54e840220>, start_path=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'))
+dir_fd = None
+
+    def rmtree(path, ignore_errors=False, onerror=None, *, dir_fd=None):
+        """Recursively delete a directory tree.
+    
+        If dir_fd is not None, it should be a file descriptor open to a directory;
+        path will then be relative to that directory.
+        dir_fd may not be implemented on your platform.
+        If it is unavailable, using it will raise a NotImplementedError.
+    
+        If ignore_errors is set, errors are ignored; otherwise, if onerror
+        is set, it is called to handle the error with arguments (func,
+        path, exc_info) where func is platform and implementation dependent;
+        path is the argument to that function that caused it to fail; and
+        exc_info is a tuple returned by sys.exc_info().  If ignore_errors
+        is false and onerror is None, an exception is raised.
+    
+        """
+        sys.audit("shutil.rmtree", path, dir_fd)
+        if ignore_errors:
+            def onerror(*args):
+                pass
+        elif onerror is None:
+            def onerror(*args):
+                raise
+        if _use_fd_functions:
+            # While the unsafe rmtree works fine on bytes, the fd based does not.
+            if isinstance(path, bytes):
+                path = os.fsdecode(path)
+            # Note: To guard against symlink races, we use the standard
+            # lstat()/open()/fstat() trick.
+            try:
+                orig_st = os.lstat(path, dir_fd=dir_fd)
+            except Exception:
+                onerror(os.lstat, path, sys.exc_info())
+                return
+            try:
+                fd = os.open(path, os.O_RDONLY | os.O_NONBLOCK, dir_fd=dir_fd)
+                fd_closed = False
+            except Exception:
+                onerror(os.open, path, sys.exc_info())
+                return
+            try:
+                if os.path.samestat(orig_st, os.fstat(fd)):
+>                   _rmtree_safe_fd(fd, path, onerror)
+
+.runtime/env/lib/python3.11/shutil.py:752: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:701: in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+research/reviews/project_budget_v2_author/guarded_tests.py:29: in audit
+    if p is not None and not own(p):denied("mutation outside independent scope "+str(p))
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+reason = 'mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py'
+
+    def denied(reason):
+>       blocked.append(reason);raise RuntimeError("BUDGET AUTHOR GUARD: "+reason)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       RuntimeError: BUDGET AUTHOR GUARD: mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py
+
+research/reviews/project_budget_v2_author/guarded_tests.py:8: RuntimeError
+_ ERROR at setup of test_double_count_or_occupied_scope_rejected[same_legacy_output] _
+
+path = '/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'
+ignore_errors = False
+onerror = functools.partial(<function on_rm_rf_error at 0x7ff54e840220>, start_path=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'))
+dir_fd = None
+
+    def rmtree(path, ignore_errors=False, onerror=None, *, dir_fd=None):
+        """Recursively delete a directory tree.
+    
+        If dir_fd is not None, it should be a file descriptor open to a directory;
+        path will then be relative to that directory.
+        dir_fd may not be implemented on your platform.
+        If it is unavailable, using it will raise a NotImplementedError.
+    
+        If ignore_errors is set, errors are ignored; otherwise, if onerror
+        is set, it is called to handle the error with arguments (func,
+        path, exc_info) where func is platform and implementation dependent;
+        path is the argument to that function that caused it to fail; and
+        exc_info is a tuple returned by sys.exc_info().  If ignore_errors
+        is false and onerror is None, an exception is raised.
+    
+        """
+        sys.audit("shutil.rmtree", path, dir_fd)
+        if ignore_errors:
+            def onerror(*args):
+                pass
+        elif onerror is None:
+            def onerror(*args):
+                raise
+        if _use_fd_functions:
+            # While the unsafe rmtree works fine on bytes, the fd based does not.
+            if isinstance(path, bytes):
+                path = os.fsdecode(path)
+            # Note: To guard against symlink races, we use the standard
+            # lstat()/open()/fstat() trick.
+            try:
+                orig_st = os.lstat(path, dir_fd=dir_fd)
+            except Exception:
+                onerror(os.lstat, path, sys.exc_info())
+                return
+            try:
+                fd = os.open(path, os.O_RDONLY | os.O_NONBLOCK, dir_fd=dir_fd)
+                fd_closed = False
+            except Exception:
+                onerror(os.open, path, sys.exc_info())
+                return
+            try:
+                if os.path.samestat(orig_st, os.fstat(fd)):
+>                   _rmtree_safe_fd(fd, path, onerror)
+
+.runtime/env/lib/python3.11/shutil.py:752: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:701: in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+research/reviews/project_budget_v2_author/guarded_tests.py:29: in audit
+    if p is not None and not own(p):denied("mutation outside independent scope "+str(p))
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+reason = 'mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py'
+
+    def denied(reason):
+>       blocked.append(reason);raise RuntimeError("BUDGET AUTHOR GUARD: "+reason)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       RuntimeError: BUDGET AUTHOR GUARD: mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py
+
+research/reviews/project_budget_v2_author/guarded_tests.py:8: RuntimeError
+_ ERROR at setup of test_double_count_or_occupied_scope_rejected[nested_legacy_output] _
+
+path = '/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'
+ignore_errors = False
+onerror = functools.partial(<function on_rm_rf_error at 0x7ff54e840220>, start_path=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'))
+dir_fd = None
+
+    def rmtree(path, ignore_errors=False, onerror=None, *, dir_fd=None):
+        """Recursively delete a directory tree.
+    
+        If dir_fd is not None, it should be a file descriptor open to a directory;
+        path will then be relative to that directory.
+        dir_fd may not be implemented on your platform.
+        If it is unavailable, using it will raise a NotImplementedError.
+    
+        If ignore_errors is set, errors are ignored; otherwise, if onerror
+        is set, it is called to handle the error with arguments (func,
+        path, exc_info) where func is platform and implementation dependent;
+        path is the argument to that function that caused it to fail; and
+        exc_info is a tuple returned by sys.exc_info().  If ignore_errors
+        is false and onerror is None, an exception is raised.
+    
+        """
+        sys.audit("shutil.rmtree", path, dir_fd)
+        if ignore_errors:
+            def onerror(*args):
+                pass
+        elif onerror is None:
+            def onerror(*args):
+                raise
+        if _use_fd_functions:
+            # While the unsafe rmtree works fine on bytes, the fd based does not.
+            if isinstance(path, bytes):
+                path = os.fsdecode(path)
+            # Note: To guard against symlink races, we use the standard
+            # lstat()/open()/fstat() trick.
+            try:
+                orig_st = os.lstat(path, dir_fd=dir_fd)
+            except Exception:
+                onerror(os.lstat, path, sys.exc_info())
+                return
+            try:
+                fd = os.open(path, os.O_RDONLY | os.O_NONBLOCK, dir_fd=dir_fd)
+                fd_closed = False
+            except Exception:
+                onerror(os.open, path, sys.exc_info())
+                return
+            try:
+                if os.path.samestat(orig_st, os.fstat(fd)):
+>                   _rmtree_safe_fd(fd, path, onerror)
+
+.runtime/env/lib/python3.11/shutil.py:752: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:701: in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+research/reviews/project_budget_v2_author/guarded_tests.py:29: in audit
+    if p is not None and not own(p):denied("mutation outside independent scope "+str(p))
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+reason = 'mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py'
+
+    def denied(reason):
+>       blocked.append(reason);raise RuntimeError("BUDGET AUTHOR GUARD: "+reason)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       RuntimeError: BUDGET AUTHOR GUARD: mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py
+
+research/reviews/project_budget_v2_author/guarded_tests.py:8: RuntimeError
+___ ERROR at setup of test_double_count_or_occupied_scope_rejected[same_key] ___
+
+path = '/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'
+ignore_errors = False
+onerror = functools.partial(<function on_rm_rf_error at 0x7ff54e840220>, start_path=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'))
+dir_fd = None
+
+    def rmtree(path, ignore_errors=False, onerror=None, *, dir_fd=None):
+        """Recursively delete a directory tree.
+    
+        If dir_fd is not None, it should be a file descriptor open to a directory;
+        path will then be relative to that directory.
+        dir_fd may not be implemented on your platform.
+        If it is unavailable, using it will raise a NotImplementedError.
+    
+        If ignore_errors is set, errors are ignored; otherwise, if onerror
+        is set, it is called to handle the error with arguments (func,
+        path, exc_info) where func is platform and implementation dependent;
+        path is the argument to that function that caused it to fail; and
+        exc_info is a tuple returned by sys.exc_info().  If ignore_errors
+        is false and onerror is None, an exception is raised.
+    
+        """
+        sys.audit("shutil.rmtree", path, dir_fd)
+        if ignore_errors:
+            def onerror(*args):
+                pass
+        elif onerror is None:
+            def onerror(*args):
+                raise
+        if _use_fd_functions:
+            # While the unsafe rmtree works fine on bytes, the fd based does not.
+            if isinstance(path, bytes):
+                path = os.fsdecode(path)
+            # Note: To guard against symlink races, we use the standard
+            # lstat()/open()/fstat() trick.
+            try:
+                orig_st = os.lstat(path, dir_fd=dir_fd)
+            except Exception:
+                onerror(os.lstat, path, sys.exc_info())
+                return
+            try:
+                fd = os.open(path, os.O_RDONLY | os.O_NONBLOCK, dir_fd=dir_fd)
+                fd_closed = False
+            except Exception:
+                onerror(os.open, path, sys.exc_info())
+                return
+            try:
+                if os.path.samestat(orig_st, os.fstat(fd)):
+>                   _rmtree_safe_fd(fd, path, onerror)
+
+.runtime/env/lib/python3.11/shutil.py:752: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:701: in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+research/reviews/project_budget_v2_author/guarded_tests.py:29: in audit
+    if p is not None and not own(p):denied("mutation outside independent scope "+str(p))
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+reason = 'mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py'
+
+    def denied(reason):
+>       blocked.append(reason);raise RuntimeError("BUDGET AUTHOR GUARD: "+reason)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       RuntimeError: BUDGET AUTHOR GUARD: mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py
+
+research/reviews/project_budget_v2_author/guarded_tests.py:8: RuntimeError
+_ ERROR at setup of test_double_count_or_occupied_scope_rejected[overlap_aux] __
+
+path = '/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'
+ignore_errors = False
+onerror = functools.partial(<function on_rm_rf_error at 0x7ff54e840220>, start_path=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'))
+dir_fd = None
+
+    def rmtree(path, ignore_errors=False, onerror=None, *, dir_fd=None):
+        """Recursively delete a directory tree.
+    
+        If dir_fd is not None, it should be a file descriptor open to a directory;
+        path will then be relative to that directory.
+        dir_fd may not be implemented on your platform.
+        If it is unavailable, using it will raise a NotImplementedError.
+    
+        If ignore_errors is set, errors are ignored; otherwise, if onerror
+        is set, it is called to handle the error with arguments (func,
+        path, exc_info) where func is platform and implementation dependent;
+        path is the argument to that function that caused it to fail; and
+        exc_info is a tuple returned by sys.exc_info().  If ignore_errors
+        is false and onerror is None, an exception is raised.
+    
+        """
+        sys.audit("shutil.rmtree", path, dir_fd)
+        if ignore_errors:
+            def onerror(*args):
+                pass
+        elif onerror is None:
+            def onerror(*args):
+                raise
+        if _use_fd_functions:
+            # While the unsafe rmtree works fine on bytes, the fd based does not.
+            if isinstance(path, bytes):
+                path = os.fsdecode(path)
+            # Note: To guard against symlink races, we use the standard
+            # lstat()/open()/fstat() trick.
+            try:
+                orig_st = os.lstat(path, dir_fd=dir_fd)
+            except Exception:
+                onerror(os.lstat, path, sys.exc_info())
+                return
+            try:
+                fd = os.open(path, os.O_RDONLY | os.O_NONBLOCK, dir_fd=dir_fd)
+                fd_closed = False
+            except Exception:
+                onerror(os.open, path, sys.exc_info())
+                return
+            try:
+                if os.path.samestat(orig_st, os.fstat(fd)):
+>                   _rmtree_safe_fd(fd, path, onerror)
+
+.runtime/env/lib/python3.11/shutil.py:752: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:701: in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+research/reviews/project_budget_v2_author/guarded_tests.py:29: in audit
+    if p is not None and not own(p):denied("mutation outside independent scope "+str(p))
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+reason = 'mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py'
+
+    def denied(reason):
+>       blocked.append(reason);raise RuntimeError("BUDGET AUTHOR GUARD: "+reason)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       RuntimeError: BUDGET AUTHOR GUARD: mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py
+
+research/reviews/project_budget_v2_author/guarded_tests.py:8: RuntimeError
+_ ERROR at setup of test_double_count_or_occupied_scope_rejected[existing_output] _
+
+path = '/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'
+ignore_errors = False
+onerror = functools.partial(<function on_rm_rf_error at 0x7ff54e840220>, start_path=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'))
+dir_fd = None
+
+    def rmtree(path, ignore_errors=False, onerror=None, *, dir_fd=None):
+        """Recursively delete a directory tree.
+    
+        If dir_fd is not None, it should be a file descriptor open to a directory;
+        path will then be relative to that directory.
+        dir_fd may not be implemented on your platform.
+        If it is unavailable, using it will raise a NotImplementedError.
+    
+        If ignore_errors is set, errors are ignored; otherwise, if onerror
+        is set, it is called to handle the error with arguments (func,
+        path, exc_info) where func is platform and implementation dependent;
+        path is the argument to that function that caused it to fail; and
+        exc_info is a tuple returned by sys.exc_info().  If ignore_errors
+        is false and onerror is None, an exception is raised.
+    
+        """
+        sys.audit("shutil.rmtree", path, dir_fd)
+        if ignore_errors:
+            def onerror(*args):
+                pass
+        elif onerror is None:
+            def onerror(*args):
+                raise
+        if _use_fd_functions:
+            # While the unsafe rmtree works fine on bytes, the fd based does not.
+            if isinstance(path, bytes):
+                path = os.fsdecode(path)
+            # Note: To guard against symlink races, we use the standard
+            # lstat()/open()/fstat() trick.
+            try:
+                orig_st = os.lstat(path, dir_fd=dir_fd)
+            except Exception:
+                onerror(os.lstat, path, sys.exc_info())
+                return
+            try:
+                fd = os.open(path, os.O_RDONLY | os.O_NONBLOCK, dir_fd=dir_fd)
+                fd_closed = False
+            except Exception:
+                onerror(os.open, path, sys.exc_info())
+                return
+            try:
+                if os.path.samestat(orig_st, os.fstat(fd)):
+>                   _rmtree_safe_fd(fd, path, onerror)
+
+.runtime/env/lib/python3.11/shutil.py:752: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:701: in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+research/reviews/project_budget_v2_author/guarded_tests.py:29: in audit
+    if p is not None and not own(p):denied("mutation outside independent scope "+str(p))
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+reason = 'mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py'
+
+    def denied(reason):
+>       blocked.append(reason);raise RuntimeError("BUDGET AUTHOR GUARD: "+reason)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       RuntimeError: BUDGET AUTHOR GUARD: mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py
+
+research/reviews/project_budget_v2_author/guarded_tests.py:8: RuntimeError
+_ ERROR at setup of test_double_count_or_occupied_scope_rejected[accounting_scope] _
+
+path = '/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'
+ignore_errors = False
+onerror = functools.partial(<function on_rm_rf_error at 0x7ff54e840220>, start_path=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'))
+dir_fd = None
+
+    def rmtree(path, ignore_errors=False, onerror=None, *, dir_fd=None):
+        """Recursively delete a directory tree.
+    
+        If dir_fd is not None, it should be a file descriptor open to a directory;
+        path will then be relative to that directory.
+        dir_fd may not be implemented on your platform.
+        If it is unavailable, using it will raise a NotImplementedError.
+    
+        If ignore_errors is set, errors are ignored; otherwise, if onerror
+        is set, it is called to handle the error with arguments (func,
+        path, exc_info) where func is platform and implementation dependent;
+        path is the argument to that function that caused it to fail; and
+        exc_info is a tuple returned by sys.exc_info().  If ignore_errors
+        is false and onerror is None, an exception is raised.
+    
+        """
+        sys.audit("shutil.rmtree", path, dir_fd)
+        if ignore_errors:
+            def onerror(*args):
+                pass
+        elif onerror is None:
+            def onerror(*args):
+                raise
+        if _use_fd_functions:
+            # While the unsafe rmtree works fine on bytes, the fd based does not.
+            if isinstance(path, bytes):
+                path = os.fsdecode(path)
+            # Note: To guard against symlink races, we use the standard
+            # lstat()/open()/fstat() trick.
+            try:
+                orig_st = os.lstat(path, dir_fd=dir_fd)
+            except Exception:
+                onerror(os.lstat, path, sys.exc_info())
+                return
+            try:
+                fd = os.open(path, os.O_RDONLY | os.O_NONBLOCK, dir_fd=dir_fd)
+                fd_closed = False
+            except Exception:
+                onerror(os.open, path, sys.exc_info())
+                return
+            try:
+                if os.path.samestat(orig_st, os.fstat(fd)):
+>                   _rmtree_safe_fd(fd, path, onerror)
+
+.runtime/env/lib/python3.11/shutil.py:752: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:701: in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+research/reviews/project_budget_v2_author/guarded_tests.py:29: in audit
+    if p is not None and not own(p):denied("mutation outside independent scope "+str(p))
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+reason = 'mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py'
+
+    def denied(reason):
+>       blocked.append(reason);raise RuntimeError("BUDGET AUTHOR GUARD: "+reason)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       RuntimeError: BUDGET AUTHOR GUARD: mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py
+
+research/reviews/project_budget_v2_author/guarded_tests.py:8: RuntimeError
+_ ERROR at setup of test_double_count_or_occupied_scope_rejected[same_batch_output] _
+
+path = '/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'
+ignore_errors = False
+onerror = functools.partial(<function on_rm_rf_error at 0x7ff54e840220>, start_path=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'))
+dir_fd = None
+
+    def rmtree(path, ignore_errors=False, onerror=None, *, dir_fd=None):
+        """Recursively delete a directory tree.
+    
+        If dir_fd is not None, it should be a file descriptor open to a directory;
+        path will then be relative to that directory.
+        dir_fd may not be implemented on your platform.
+        If it is unavailable, using it will raise a NotImplementedError.
+    
+        If ignore_errors is set, errors are ignored; otherwise, if onerror
+        is set, it is called to handle the error with arguments (func,
+        path, exc_info) where func is platform and implementation dependent;
+        path is the argument to that function that caused it to fail; and
+        exc_info is a tuple returned by sys.exc_info().  If ignore_errors
+        is false and onerror is None, an exception is raised.
+    
+        """
+        sys.audit("shutil.rmtree", path, dir_fd)
+        if ignore_errors:
+            def onerror(*args):
+                pass
+        elif onerror is None:
+            def onerror(*args):
+                raise
+        if _use_fd_functions:
+            # While the unsafe rmtree works fine on bytes, the fd based does not.
+            if isinstance(path, bytes):
+                path = os.fsdecode(path)
+            # Note: To guard against symlink races, we use the standard
+            # lstat()/open()/fstat() trick.
+            try:
+                orig_st = os.lstat(path, dir_fd=dir_fd)
+            except Exception:
+                onerror(os.lstat, path, sys.exc_info())
+                return
+            try:
+                fd = os.open(path, os.O_RDONLY | os.O_NONBLOCK, dir_fd=dir_fd)
+                fd_closed = False
+            except Exception:
+                onerror(os.open, path, sys.exc_info())
+                return
+            try:
+                if os.path.samestat(orig_st, os.fstat(fd)):
+>                   _rmtree_safe_fd(fd, path, onerror)
+
+.runtime/env/lib/python3.11/shutil.py:752: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:701: in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+research/reviews/project_budget_v2_author/guarded_tests.py:29: in audit
+    if p is not None and not own(p):denied("mutation outside independent scope "+str(p))
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+reason = 'mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py'
+
+    def denied(reason):
+>       blocked.append(reason);raise RuntimeError("BUDGET AUTHOR GUARD: "+reason)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       RuntimeError: BUDGET AUTHOR GUARD: mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py
+
+research/reviews/project_budget_v2_author/guarded_tests.py:8: RuntimeError
+_____ ERROR at setup of test_combined_strict950GB_scheduling_boundary[-1] ______
+
+path = '/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'
+ignore_errors = False
+onerror = functools.partial(<function on_rm_rf_error at 0x7ff54e840220>, start_path=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'))
+dir_fd = None
+
+    def rmtree(path, ignore_errors=False, onerror=None, *, dir_fd=None):
+        """Recursively delete a directory tree.
+    
+        If dir_fd is not None, it should be a file descriptor open to a directory;
+        path will then be relative to that directory.
+        dir_fd may not be implemented on your platform.
+        If it is unavailable, using it will raise a NotImplementedError.
+    
+        If ignore_errors is set, errors are ignored; otherwise, if onerror
+        is set, it is called to handle the error with arguments (func,
+        path, exc_info) where func is platform and implementation dependent;
+        path is the argument to that function that caused it to fail; and
+        exc_info is a tuple returned by sys.exc_info().  If ignore_errors
+        is false and onerror is None, an exception is raised.
+    
+        """
+        sys.audit("shutil.rmtree", path, dir_fd)
+        if ignore_errors:
+            def onerror(*args):
+                pass
+        elif onerror is None:
+            def onerror(*args):
+                raise
+        if _use_fd_functions:
+            # While the unsafe rmtree works fine on bytes, the fd based does not.
+            if isinstance(path, bytes):
+                path = os.fsdecode(path)
+            # Note: To guard against symlink races, we use the standard
+            # lstat()/open()/fstat() trick.
+            try:
+                orig_st = os.lstat(path, dir_fd=dir_fd)
+            except Exception:
+                onerror(os.lstat, path, sys.exc_info())
+                return
+            try:
+                fd = os.open(path, os.O_RDONLY | os.O_NONBLOCK, dir_fd=dir_fd)
+                fd_closed = False
+            except Exception:
+                onerror(os.open, path, sys.exc_info())
+                return
+            try:
+                if os.path.samestat(orig_st, os.fstat(fd)):
+>                   _rmtree_safe_fd(fd, path, onerror)
+
+.runtime/env/lib/python3.11/shutil.py:752: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:701: in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+research/reviews/project_budget_v2_author/guarded_tests.py:29: in audit
+    if p is not None and not own(p):denied("mutation outside independent scope "+str(p))
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+reason = 'mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py'
+
+    def denied(reason):
+>       blocked.append(reason);raise RuntimeError("BUDGET AUTHOR GUARD: "+reason)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       RuntimeError: BUDGET AUTHOR GUARD: mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py
+
+research/reviews/project_budget_v2_author/guarded_tests.py:8: RuntimeError
+______ ERROR at setup of test_combined_strict950GB_scheduling_boundary[0] ______
+
+path = '/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'
+ignore_errors = False
+onerror = functools.partial(<function on_rm_rf_error at 0x7ff54e840220>, start_path=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'))
+dir_fd = None
+
+    def rmtree(path, ignore_errors=False, onerror=None, *, dir_fd=None):
+        """Recursively delete a directory tree.
+    
+        If dir_fd is not None, it should be a file descriptor open to a directory;
+        path will then be relative to that directory.
+        dir_fd may not be implemented on your platform.
+        If it is unavailable, using it will raise a NotImplementedError.
+    
+        If ignore_errors is set, errors are ignored; otherwise, if onerror
+        is set, it is called to handle the error with arguments (func,
+        path, exc_info) where func is platform and implementation dependent;
+        path is the argument to that function that caused it to fail; and
+        exc_info is a tuple returned by sys.exc_info().  If ignore_errors
+        is false and onerror is None, an exception is raised.
+    
+        """
+        sys.audit("shutil.rmtree", path, dir_fd)
+        if ignore_errors:
+            def onerror(*args):
+                pass
+        elif onerror is None:
+            def onerror(*args):
+                raise
+        if _use_fd_functions:
+            # While the unsafe rmtree works fine on bytes, the fd based does not.
+            if isinstance(path, bytes):
+                path = os.fsdecode(path)
+            # Note: To guard against symlink races, we use the standard
+            # lstat()/open()/fstat() trick.
+            try:
+                orig_st = os.lstat(path, dir_fd=dir_fd)
+            except Exception:
+                onerror(os.lstat, path, sys.exc_info())
+                return
+            try:
+                fd = os.open(path, os.O_RDONLY | os.O_NONBLOCK, dir_fd=dir_fd)
+                fd_closed = False
+            except Exception:
+                onerror(os.open, path, sys.exc_info())
+                return
+            try:
+                if os.path.samestat(orig_st, os.fstat(fd)):
+>                   _rmtree_safe_fd(fd, path, onerror)
+
+.runtime/env/lib/python3.11/shutil.py:752: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:701: in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+research/reviews/project_budget_v2_author/guarded_tests.py:29: in audit
+    if p is not None and not own(p):denied("mutation outside independent scope "+str(p))
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+reason = 'mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py'
+
+    def denied(reason):
+>       blocked.append(reason);raise RuntimeError("BUDGET AUTHOR GUARD: "+reason)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       RuntimeError: BUDGET AUTHOR GUARD: mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py
+
+research/reviews/project_budget_v2_author/guarded_tests.py:8: RuntimeError
+______ ERROR at setup of test_combined_strict950GB_scheduling_boundary[1] ______
+
+path = '/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'
+ignore_errors = False
+onerror = functools.partial(<function on_rm_rf_error at 0x7ff54e840220>, start_path=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'))
+dir_fd = None
+
+    def rmtree(path, ignore_errors=False, onerror=None, *, dir_fd=None):
+        """Recursively delete a directory tree.
+    
+        If dir_fd is not None, it should be a file descriptor open to a directory;
+        path will then be relative to that directory.
+        dir_fd may not be implemented on your platform.
+        If it is unavailable, using it will raise a NotImplementedError.
+    
+        If ignore_errors is set, errors are ignored; otherwise, if onerror
+        is set, it is called to handle the error with arguments (func,
+        path, exc_info) where func is platform and implementation dependent;
+        path is the argument to that function that caused it to fail; and
+        exc_info is a tuple returned by sys.exc_info().  If ignore_errors
+        is false and onerror is None, an exception is raised.
+    
+        """
+        sys.audit("shutil.rmtree", path, dir_fd)
+        if ignore_errors:
+            def onerror(*args):
+                pass
+        elif onerror is None:
+            def onerror(*args):
+                raise
+        if _use_fd_functions:
+            # While the unsafe rmtree works fine on bytes, the fd based does not.
+            if isinstance(path, bytes):
+                path = os.fsdecode(path)
+            # Note: To guard against symlink races, we use the standard
+            # lstat()/open()/fstat() trick.
+            try:
+                orig_st = os.lstat(path, dir_fd=dir_fd)
+            except Exception:
+                onerror(os.lstat, path, sys.exc_info())
+                return
+            try:
+                fd = os.open(path, os.O_RDONLY | os.O_NONBLOCK, dir_fd=dir_fd)
+                fd_closed = False
+            except Exception:
+                onerror(os.open, path, sys.exc_info())
+                return
+            try:
+                if os.path.samestat(orig_st, os.fstat(fd)):
+>                   _rmtree_safe_fd(fd, path, onerror)
+
+.runtime/env/lib/python3.11/shutil.py:752: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:701: in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+research/reviews/project_budget_v2_author/guarded_tests.py:29: in audit
+    if p is not None and not own(p):denied("mutation outside independent scope "+str(p))
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+reason = 'mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py'
+
+    def denied(reason):
+>       blocked.append(reason);raise RuntimeError("BUDGET AUTHOR GUARD: "+reason)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       RuntimeError: BUDGET AUTHOR GUARD: mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py
+
+research/reviews/project_budget_v2_author/guarded_tests.py:8: RuntimeError
+_ ERROR at setup of test_actual_output_plus_short_tmp_boundary_and_planned_write _
+
+path = '/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'
+ignore_errors = False
+onerror = functools.partial(<function on_rm_rf_error at 0x7ff54e840220>, start_path=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'))
+dir_fd = None
+
+    def rmtree(path, ignore_errors=False, onerror=None, *, dir_fd=None):
+        """Recursively delete a directory tree.
+    
+        If dir_fd is not None, it should be a file descriptor open to a directory;
+        path will then be relative to that directory.
+        dir_fd may not be implemented on your platform.
+        If it is unavailable, using it will raise a NotImplementedError.
+    
+        If ignore_errors is set, errors are ignored; otherwise, if onerror
+        is set, it is called to handle the error with arguments (func,
+        path, exc_info) where func is platform and implementation dependent;
+        path is the argument to that function that caused it to fail; and
+        exc_info is a tuple returned by sys.exc_info().  If ignore_errors
+        is false and onerror is None, an exception is raised.
+    
+        """
+        sys.audit("shutil.rmtree", path, dir_fd)
+        if ignore_errors:
+            def onerror(*args):
+                pass
+        elif onerror is None:
+            def onerror(*args):
+                raise
+        if _use_fd_functions:
+            # While the unsafe rmtree works fine on bytes, the fd based does not.
+            if isinstance(path, bytes):
+                path = os.fsdecode(path)
+            # Note: To guard against symlink races, we use the standard
+            # lstat()/open()/fstat() trick.
+            try:
+                orig_st = os.lstat(path, dir_fd=dir_fd)
+            except Exception:
+                onerror(os.lstat, path, sys.exc_info())
+                return
+            try:
+                fd = os.open(path, os.O_RDONLY | os.O_NONBLOCK, dir_fd=dir_fd)
+                fd_closed = False
+            except Exception:
+                onerror(os.open, path, sys.exc_info())
+                return
+            try:
+                if os.path.samestat(orig_st, os.fstat(fd)):
+>                   _rmtree_safe_fd(fd, path, onerror)
+
+.runtime/env/lib/python3.11/shutil.py:752: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:701: in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+research/reviews/project_budget_v2_author/guarded_tests.py:29: in audit
+    if p is not None and not own(p):denied("mutation outside independent scope "+str(p))
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+reason = 'mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py'
+
+    def denied(reason):
+>       blocked.append(reason);raise RuntimeError("BUDGET AUTHOR GUARD: "+reason)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       RuntimeError: BUDGET AUTHOR GUARD: mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py
+
+research/reviews/project_budget_v2_author/guarded_tests.py:8: RuntimeError
+______ ERROR at setup of test_boundary_unsafe_namespace_rejected[symlink] ______
+
+path = '/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'
+ignore_errors = False
+onerror = functools.partial(<function on_rm_rf_error at 0x7ff54e840220>, start_path=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'))
+dir_fd = None
+
+    def rmtree(path, ignore_errors=False, onerror=None, *, dir_fd=None):
+        """Recursively delete a directory tree.
+    
+        If dir_fd is not None, it should be a file descriptor open to a directory;
+        path will then be relative to that directory.
+        dir_fd may not be implemented on your platform.
+        If it is unavailable, using it will raise a NotImplementedError.
+    
+        If ignore_errors is set, errors are ignored; otherwise, if onerror
+        is set, it is called to handle the error with arguments (func,
+        path, exc_info) where func is platform and implementation dependent;
+        path is the argument to that function that caused it to fail; and
+        exc_info is a tuple returned by sys.exc_info().  If ignore_errors
+        is false and onerror is None, an exception is raised.
+    
+        """
+        sys.audit("shutil.rmtree", path, dir_fd)
+        if ignore_errors:
+            def onerror(*args):
+                pass
+        elif onerror is None:
+            def onerror(*args):
+                raise
+        if _use_fd_functions:
+            # While the unsafe rmtree works fine on bytes, the fd based does not.
+            if isinstance(path, bytes):
+                path = os.fsdecode(path)
+            # Note: To guard against symlink races, we use the standard
+            # lstat()/open()/fstat() trick.
+            try:
+                orig_st = os.lstat(path, dir_fd=dir_fd)
+            except Exception:
+                onerror(os.lstat, path, sys.exc_info())
+                return
+            try:
+                fd = os.open(path, os.O_RDONLY | os.O_NONBLOCK, dir_fd=dir_fd)
+                fd_closed = False
+            except Exception:
+                onerror(os.open, path, sys.exc_info())
+                return
+            try:
+                if os.path.samestat(orig_st, os.fstat(fd)):
+>                   _rmtree_safe_fd(fd, path, onerror)
+
+.runtime/env/lib/python3.11/shutil.py:752: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:701: in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+research/reviews/project_budget_v2_author/guarded_tests.py:29: in audit
+    if p is not None and not own(p):denied("mutation outside independent scope "+str(p))
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+reason = 'mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py'
+
+    def denied(reason):
+>       blocked.append(reason);raise RuntimeError("BUDGET AUTHOR GUARD: "+reason)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       RuntimeError: BUDGET AUTHOR GUARD: mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py
+
+research/reviews/project_budget_v2_author/guarded_tests.py:8: RuntimeError
+_____ ERROR at setup of test_boundary_unsafe_namespace_rejected[hardlink] ______
+
+path = '/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'
+ignore_errors = False
+onerror = functools.partial(<function on_rm_rf_error at 0x7ff54e840220>, start_path=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'))
+dir_fd = None
+
+    def rmtree(path, ignore_errors=False, onerror=None, *, dir_fd=None):
+        """Recursively delete a directory tree.
+    
+        If dir_fd is not None, it should be a file descriptor open to a directory;
+        path will then be relative to that directory.
+        dir_fd may not be implemented on your platform.
+        If it is unavailable, using it will raise a NotImplementedError.
+    
+        If ignore_errors is set, errors are ignored; otherwise, if onerror
+        is set, it is called to handle the error with arguments (func,
+        path, exc_info) where func is platform and implementation dependent;
+        path is the argument to that function that caused it to fail; and
+        exc_info is a tuple returned by sys.exc_info().  If ignore_errors
+        is false and onerror is None, an exception is raised.
+    
+        """
+        sys.audit("shutil.rmtree", path, dir_fd)
+        if ignore_errors:
+            def onerror(*args):
+                pass
+        elif onerror is None:
+            def onerror(*args):
+                raise
+        if _use_fd_functions:
+            # While the unsafe rmtree works fine on bytes, the fd based does not.
+            if isinstance(path, bytes):
+                path = os.fsdecode(path)
+            # Note: To guard against symlink races, we use the standard
+            # lstat()/open()/fstat() trick.
+            try:
+                orig_st = os.lstat(path, dir_fd=dir_fd)
+            except Exception:
+                onerror(os.lstat, path, sys.exc_info())
+                return
+            try:
+                fd = os.open(path, os.O_RDONLY | os.O_NONBLOCK, dir_fd=dir_fd)
+                fd_closed = False
+            except Exception:
+                onerror(os.open, path, sys.exc_info())
+                return
+            try:
+                if os.path.samestat(orig_st, os.fstat(fd)):
+>                   _rmtree_safe_fd(fd, path, onerror)
+
+.runtime/env/lib/python3.11/shutil.py:752: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:701: in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+research/reviews/project_budget_v2_author/guarded_tests.py:29: in audit
+    if p is not None and not own(p):denied("mutation outside independent scope "+str(p))
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+reason = 'mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py'
+
+    def denied(reason):
+>       blocked.append(reason);raise RuntimeError("BUDGET AUTHOR GUARD: "+reason)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       RuntimeError: BUDGET AUTHOR GUARD: mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py
+
+research/reviews/project_budget_v2_author/guarded_tests.py:8: RuntimeError
+_______ ERROR at setup of test_boundary_unsafe_namespace_rejected[fifo] ________
+
+path = '/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'
+ignore_errors = False
+onerror = functools.partial(<function on_rm_rf_error at 0x7ff54e840220>, start_path=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'))
+dir_fd = None
+
+    def rmtree(path, ignore_errors=False, onerror=None, *, dir_fd=None):
+        """Recursively delete a directory tree.
+    
+        If dir_fd is not None, it should be a file descriptor open to a directory;
+        path will then be relative to that directory.
+        dir_fd may not be implemented on your platform.
+        If it is unavailable, using it will raise a NotImplementedError.
+    
+        If ignore_errors is set, errors are ignored; otherwise, if onerror
+        is set, it is called to handle the error with arguments (func,
+        path, exc_info) where func is platform and implementation dependent;
+        path is the argument to that function that caused it to fail; and
+        exc_info is a tuple returned by sys.exc_info().  If ignore_errors
+        is false and onerror is None, an exception is raised.
+    
+        """
+        sys.audit("shutil.rmtree", path, dir_fd)
+        if ignore_errors:
+            def onerror(*args):
+                pass
+        elif onerror is None:
+            def onerror(*args):
+                raise
+        if _use_fd_functions:
+            # While the unsafe rmtree works fine on bytes, the fd based does not.
+            if isinstance(path, bytes):
+                path = os.fsdecode(path)
+            # Note: To guard against symlink races, we use the standard
+            # lstat()/open()/fstat() trick.
+            try:
+                orig_st = os.lstat(path, dir_fd=dir_fd)
+            except Exception:
+                onerror(os.lstat, path, sys.exc_info())
+                return
+            try:
+                fd = os.open(path, os.O_RDONLY | os.O_NONBLOCK, dir_fd=dir_fd)
+                fd_closed = False
+            except Exception:
+                onerror(os.open, path, sys.exc_info())
+                return
+            try:
+                if os.path.samestat(orig_st, os.fstat(fd)):
+>                   _rmtree_safe_fd(fd, path, onerror)
+
+.runtime/env/lib/python3.11/shutil.py:752: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:701: in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+research/reviews/project_budget_v2_author/guarded_tests.py:29: in audit
+    if p is not None and not own(p):denied("mutation outside independent scope "+str(p))
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+reason = 'mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py'
+
+    def denied(reason):
+>       blocked.append(reason);raise RuntimeError("BUDGET AUTHOR GUARD: "+reason)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       RuntimeError: BUDGET AUTHOR GUARD: mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py
+
+research/reviews/project_budget_v2_author/guarded_tests.py:8: RuntimeError
+_____ ERROR at setup of test_boundary_unsafe_namespace_rejected[traversal] _____
+
+path = '/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'
+ignore_errors = False
+onerror = functools.partial(<function on_rm_rf_error at 0x7ff54e840220>, start_path=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'))
+dir_fd = None
+
+    def rmtree(path, ignore_errors=False, onerror=None, *, dir_fd=None):
+        """Recursively delete a directory tree.
+    
+        If dir_fd is not None, it should be a file descriptor open to a directory;
+        path will then be relative to that directory.
+        dir_fd may not be implemented on your platform.
+        If it is unavailable, using it will raise a NotImplementedError.
+    
+        If ignore_errors is set, errors are ignored; otherwise, if onerror
+        is set, it is called to handle the error with arguments (func,
+        path, exc_info) where func is platform and implementation dependent;
+        path is the argument to that function that caused it to fail; and
+        exc_info is a tuple returned by sys.exc_info().  If ignore_errors
+        is false and onerror is None, an exception is raised.
+    
+        """
+        sys.audit("shutil.rmtree", path, dir_fd)
+        if ignore_errors:
+            def onerror(*args):
+                pass
+        elif onerror is None:
+            def onerror(*args):
+                raise
+        if _use_fd_functions:
+            # While the unsafe rmtree works fine on bytes, the fd based does not.
+            if isinstance(path, bytes):
+                path = os.fsdecode(path)
+            # Note: To guard against symlink races, we use the standard
+            # lstat()/open()/fstat() trick.
+            try:
+                orig_st = os.lstat(path, dir_fd=dir_fd)
+            except Exception:
+                onerror(os.lstat, path, sys.exc_info())
+                return
+            try:
+                fd = os.open(path, os.O_RDONLY | os.O_NONBLOCK, dir_fd=dir_fd)
+                fd_closed = False
+            except Exception:
+                onerror(os.open, path, sys.exc_info())
+                return
+            try:
+                if os.path.samestat(orig_st, os.fstat(fd)):
+>                   _rmtree_safe_fd(fd, path, onerror)
+
+.runtime/env/lib/python3.11/shutil.py:752: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:701: in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+research/reviews/project_budget_v2_author/guarded_tests.py:29: in audit
+    if p is not None and not own(p):denied("mutation outside independent scope "+str(p))
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+reason = 'mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py'
+
+    def denied(reason):
+>       blocked.append(reason);raise RuntimeError("BUDGET AUTHOR GUARD: "+reason)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       RuntimeError: BUDGET AUTHOR GUARD: mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py
+
+research/reviews/project_budget_v2_author/guarded_tests.py:8: RuntimeError
+__ ERROR at setup of test_own_reservation_or_consumer_authority_drift_blocks ___
+
+path = '/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'
+ignore_errors = False
+onerror = functools.partial(<function on_rm_rf_error at 0x7ff54e840220>, start_path=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'))
+dir_fd = None
+
+    def rmtree(path, ignore_errors=False, onerror=None, *, dir_fd=None):
+        """Recursively delete a directory tree.
+    
+        If dir_fd is not None, it should be a file descriptor open to a directory;
+        path will then be relative to that directory.
+        dir_fd may not be implemented on your platform.
+        If it is unavailable, using it will raise a NotImplementedError.
+    
+        If ignore_errors is set, errors are ignored; otherwise, if onerror
+        is set, it is called to handle the error with arguments (func,
+        path, exc_info) where func is platform and implementation dependent;
+        path is the argument to that function that caused it to fail; and
+        exc_info is a tuple returned by sys.exc_info().  If ignore_errors
+        is false and onerror is None, an exception is raised.
+    
+        """
+        sys.audit("shutil.rmtree", path, dir_fd)
+        if ignore_errors:
+            def onerror(*args):
+                pass
+        elif onerror is None:
+            def onerror(*args):
+                raise
+        if _use_fd_functions:
+            # While the unsafe rmtree works fine on bytes, the fd based does not.
+            if isinstance(path, bytes):
+                path = os.fsdecode(path)
+            # Note: To guard against symlink races, we use the standard
+            # lstat()/open()/fstat() trick.
+            try:
+                orig_st = os.lstat(path, dir_fd=dir_fd)
+            except Exception:
+                onerror(os.lstat, path, sys.exc_info())
+                return
+            try:
+                fd = os.open(path, os.O_RDONLY | os.O_NONBLOCK, dir_fd=dir_fd)
+                fd_closed = False
+            except Exception:
+                onerror(os.open, path, sys.exc_info())
+                return
+            try:
+                if os.path.samestat(orig_st, os.fstat(fd)):
+>                   _rmtree_safe_fd(fd, path, onerror)
+
+.runtime/env/lib/python3.11/shutil.py:752: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:701: in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+research/reviews/project_budget_v2_author/guarded_tests.py:29: in audit
+    if p is not None and not own(p):denied("mutation outside independent scope "+str(p))
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+reason = 'mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py'
+
+    def denied(reason):
+>       blocked.append(reason);raise RuntimeError("BUDGET AUTHOR GUARD: "+reason)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       RuntimeError: BUDGET AUTHOR GUARD: mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py
+
+research/reviews/project_budget_v2_author/guarded_tests.py:8: RuntimeError
+___ ERROR at setup of test_mutex_exclusive_existing_only_and_bytes_preserved ___
+
+path = '/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'
+ignore_errors = False
+onerror = functools.partial(<function on_rm_rf_error at 0x7ff54e840220>, start_path=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'))
+dir_fd = None
+
+    def rmtree(path, ignore_errors=False, onerror=None, *, dir_fd=None):
+        """Recursively delete a directory tree.
+    
+        If dir_fd is not None, it should be a file descriptor open to a directory;
+        path will then be relative to that directory.
+        dir_fd may not be implemented on your platform.
+        If it is unavailable, using it will raise a NotImplementedError.
+    
+        If ignore_errors is set, errors are ignored; otherwise, if onerror
+        is set, it is called to handle the error with arguments (func,
+        path, exc_info) where func is platform and implementation dependent;
+        path is the argument to that function that caused it to fail; and
+        exc_info is a tuple returned by sys.exc_info().  If ignore_errors
+        is false and onerror is None, an exception is raised.
+    
+        """
+        sys.audit("shutil.rmtree", path, dir_fd)
+        if ignore_errors:
+            def onerror(*args):
+                pass
+        elif onerror is None:
+            def onerror(*args):
+                raise
+        if _use_fd_functions:
+            # While the unsafe rmtree works fine on bytes, the fd based does not.
+            if isinstance(path, bytes):
+                path = os.fsdecode(path)
+            # Note: To guard against symlink races, we use the standard
+            # lstat()/open()/fstat() trick.
+            try:
+                orig_st = os.lstat(path, dir_fd=dir_fd)
+            except Exception:
+                onerror(os.lstat, path, sys.exc_info())
+                return
+            try:
+                fd = os.open(path, os.O_RDONLY | os.O_NONBLOCK, dir_fd=dir_fd)
+                fd_closed = False
+            except Exception:
+                onerror(os.open, path, sys.exc_info())
+                return
+            try:
+                if os.path.samestat(orig_st, os.fstat(fd)):
+>                   _rmtree_safe_fd(fd, path, onerror)
+
+.runtime/env/lib/python3.11/shutil.py:752: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:701: in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+research/reviews/project_budget_v2_author/guarded_tests.py:29: in audit
+    if p is not None and not own(p):denied("mutation outside independent scope "+str(p))
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+reason = 'mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py'
+
+    def denied(reason):
+>       blocked.append(reason);raise RuntimeError("BUDGET AUTHOR GUARD: "+reason)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       RuntimeError: BUDGET AUTHOR GUARD: mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py
+
+research/reviews/project_budget_v2_author/guarded_tests.py:8: RuntimeError
+______________ ERROR at setup of test_scandir_errors_fail_closed _______________
+
+path = '/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'
+ignore_errors = False
+onerror = functools.partial(<function on_rm_rf_error at 0x7ff54e840220>, start_path=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'))
+dir_fd = None
+
+    def rmtree(path, ignore_errors=False, onerror=None, *, dir_fd=None):
+        """Recursively delete a directory tree.
+    
+        If dir_fd is not None, it should be a file descriptor open to a directory;
+        path will then be relative to that directory.
+        dir_fd may not be implemented on your platform.
+        If it is unavailable, using it will raise a NotImplementedError.
+    
+        If ignore_errors is set, errors are ignored; otherwise, if onerror
+        is set, it is called to handle the error with arguments (func,
+        path, exc_info) where func is platform and implementation dependent;
+        path is the argument to that function that caused it to fail; and
+        exc_info is a tuple returned by sys.exc_info().  If ignore_errors
+        is false and onerror is None, an exception is raised.
+    
+        """
+        sys.audit("shutil.rmtree", path, dir_fd)
+        if ignore_errors:
+            def onerror(*args):
+                pass
+        elif onerror is None:
+            def onerror(*args):
+                raise
+        if _use_fd_functions:
+            # While the unsafe rmtree works fine on bytes, the fd based does not.
+            if isinstance(path, bytes):
+                path = os.fsdecode(path)
+            # Note: To guard against symlink races, we use the standard
+            # lstat()/open()/fstat() trick.
+            try:
+                orig_st = os.lstat(path, dir_fd=dir_fd)
+            except Exception:
+                onerror(os.lstat, path, sys.exc_info())
+                return
+            try:
+                fd = os.open(path, os.O_RDONLY | os.O_NONBLOCK, dir_fd=dir_fd)
+                fd_closed = False
+            except Exception:
+                onerror(os.open, path, sys.exc_info())
+                return
+            try:
+                if os.path.samestat(orig_st, os.fstat(fd)):
+>                   _rmtree_safe_fd(fd, path, onerror)
+
+.runtime/env/lib/python3.11/shutil.py:752: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:701: in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+research/reviews/project_budget_v2_author/guarded_tests.py:29: in audit
+    if p is not None and not own(p):denied("mutation outside independent scope "+str(p))
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+reason = 'mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py'
+
+    def denied(reason):
+>       blocked.append(reason);raise RuntimeError("BUDGET AUTHOR GUARD: "+reason)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       RuntimeError: BUDGET AUTHOR GUARD: mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py
+
+research/reviews/project_budget_v2_author/guarded_tests.py:8: RuntimeError
+_ ERROR at setup of test_directory_membership_drift_after_listing_is_rejected __
+
+path = '/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'
+ignore_errors = False
+onerror = functools.partial(<function on_rm_rf_error at 0x7ff54e840220>, start_path=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'))
+dir_fd = None
+
+    def rmtree(path, ignore_errors=False, onerror=None, *, dir_fd=None):
+        """Recursively delete a directory tree.
+    
+        If dir_fd is not None, it should be a file descriptor open to a directory;
+        path will then be relative to that directory.
+        dir_fd may not be implemented on your platform.
+        If it is unavailable, using it will raise a NotImplementedError.
+    
+        If ignore_errors is set, errors are ignored; otherwise, if onerror
+        is set, it is called to handle the error with arguments (func,
+        path, exc_info) where func is platform and implementation dependent;
+        path is the argument to that function that caused it to fail; and
+        exc_info is a tuple returned by sys.exc_info().  If ignore_errors
+        is false and onerror is None, an exception is raised.
+    
+        """
+        sys.audit("shutil.rmtree", path, dir_fd)
+        if ignore_errors:
+            def onerror(*args):
+                pass
+        elif onerror is None:
+            def onerror(*args):
+                raise
+        if _use_fd_functions:
+            # While the unsafe rmtree works fine on bytes, the fd based does not.
+            if isinstance(path, bytes):
+                path = os.fsdecode(path)
+            # Note: To guard against symlink races, we use the standard
+            # lstat()/open()/fstat() trick.
+            try:
+                orig_st = os.lstat(path, dir_fd=dir_fd)
+            except Exception:
+                onerror(os.lstat, path, sys.exc_info())
+                return
+            try:
+                fd = os.open(path, os.O_RDONLY | os.O_NONBLOCK, dir_fd=dir_fd)
+                fd_closed = False
+            except Exception:
+                onerror(os.open, path, sys.exc_info())
+                return
+            try:
+                if os.path.samestat(orig_st, os.fstat(fd)):
+>                   _rmtree_safe_fd(fd, path, onerror)
+
+.runtime/env/lib/python3.11/shutil.py:752: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:701: in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+research/reviews/project_budget_v2_author/guarded_tests.py:29: in audit
+    if p is not None and not own(p):denied("mutation outside independent scope "+str(p))
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+reason = 'mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py'
+
+    def denied(reason):
+>       blocked.append(reason);raise RuntimeError("BUDGET AUTHOR GUARD: "+reason)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       RuntimeError: BUDGET AUTHOR GUARD: mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py
+
+research/reviews/project_budget_v2_author/guarded_tests.py:8: RuntimeError
+_ ERROR at setup of test_atomic_write_failure_keeps_legacy_and_no_automatic_rollback _
+
+path = '/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'
+ignore_errors = False
+onerror = functools.partial(<function on_rm_rf_error at 0x7ff54e840220>, start_path=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'))
+dir_fd = None
+
+    def rmtree(path, ignore_errors=False, onerror=None, *, dir_fd=None):
+        """Recursively delete a directory tree.
+    
+        If dir_fd is not None, it should be a file descriptor open to a directory;
+        path will then be relative to that directory.
+        dir_fd may not be implemented on your platform.
+        If it is unavailable, using it will raise a NotImplementedError.
+    
+        If ignore_errors is set, errors are ignored; otherwise, if onerror
+        is set, it is called to handle the error with arguments (func,
+        path, exc_info) where func is platform and implementation dependent;
+        path is the argument to that function that caused it to fail; and
+        exc_info is a tuple returned by sys.exc_info().  If ignore_errors
+        is false and onerror is None, an exception is raised.
+    
+        """
+        sys.audit("shutil.rmtree", path, dir_fd)
+        if ignore_errors:
+            def onerror(*args):
+                pass
+        elif onerror is None:
+            def onerror(*args):
+                raise
+        if _use_fd_functions:
+            # While the unsafe rmtree works fine on bytes, the fd based does not.
+            if isinstance(path, bytes):
+                path = os.fsdecode(path)
+            # Note: To guard against symlink races, we use the standard
+            # lstat()/open()/fstat() trick.
+            try:
+                orig_st = os.lstat(path, dir_fd=dir_fd)
+            except Exception:
+                onerror(os.lstat, path, sys.exc_info())
+                return
+            try:
+                fd = os.open(path, os.O_RDONLY | os.O_NONBLOCK, dir_fd=dir_fd)
+                fd_closed = False
+            except Exception:
+                onerror(os.open, path, sys.exc_info())
+                return
+            try:
+                if os.path.samestat(orig_st, os.fstat(fd)):
+>                   _rmtree_safe_fd(fd, path, onerror)
+
+.runtime/env/lib/python3.11/shutil.py:752: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:701: in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+research/reviews/project_budget_v2_author/guarded_tests.py:29: in audit
+    if p is not None and not own(p):denied("mutation outside independent scope "+str(p))
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+reason = 'mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py'
+
+    def denied(reason):
+>       blocked.append(reason);raise RuntimeError("BUDGET AUTHOR GUARD: "+reason)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       RuntimeError: BUDGET AUTHOR GUARD: mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py
+
+research/reviews/project_budget_v2_author/guarded_tests.py:8: RuntimeError
+_ ERROR at setup of test_own_stored_root_authority_rewrite_and_header_tamper_fail _
+
+path = '/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'
+ignore_errors = False
+onerror = functools.partial(<function on_rm_rf_error at 0x7ff54e840220>, start_path=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'))
+dir_fd = None
+
+    def rmtree(path, ignore_errors=False, onerror=None, *, dir_fd=None):
+        """Recursively delete a directory tree.
+    
+        If dir_fd is not None, it should be a file descriptor open to a directory;
+        path will then be relative to that directory.
+        dir_fd may not be implemented on your platform.
+        If it is unavailable, using it will raise a NotImplementedError.
+    
+        If ignore_errors is set, errors are ignored; otherwise, if onerror
+        is set, it is called to handle the error with arguments (func,
+        path, exc_info) where func is platform and implementation dependent;
+        path is the argument to that function that caused it to fail; and
+        exc_info is a tuple returned by sys.exc_info().  If ignore_errors
+        is false and onerror is None, an exception is raised.
+    
+        """
+        sys.audit("shutil.rmtree", path, dir_fd)
+        if ignore_errors:
+            def onerror(*args):
+                pass
+        elif onerror is None:
+            def onerror(*args):
+                raise
+        if _use_fd_functions:
+            # While the unsafe rmtree works fine on bytes, the fd based does not.
+            if isinstance(path, bytes):
+                path = os.fsdecode(path)
+            # Note: To guard against symlink races, we use the standard
+            # lstat()/open()/fstat() trick.
+            try:
+                orig_st = os.lstat(path, dir_fd=dir_fd)
+            except Exception:
+                onerror(os.lstat, path, sys.exc_info())
+                return
+            try:
+                fd = os.open(path, os.O_RDONLY | os.O_NONBLOCK, dir_fd=dir_fd)
+                fd_closed = False
+            except Exception:
+                onerror(os.open, path, sys.exc_info())
+                return
+            try:
+                if os.path.samestat(orig_st, os.fstat(fd)):
+>                   _rmtree_safe_fd(fd, path, onerror)
+
+.runtime/env/lib/python3.11/shutil.py:752: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:701: in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+research/reviews/project_budget_v2_author/guarded_tests.py:29: in audit
+    if p is not None and not own(p):denied("mutation outside independent scope "+str(p))
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+reason = 'mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py'
+
+    def denied(reason):
+>       blocked.append(reason);raise RuntimeError("BUDGET AUTHOR GUARD: "+reason)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       RuntimeError: BUDGET AUTHOR GUARD: mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py
+
+research/reviews/project_budget_v2_author/guarded_tests.py:8: RuntimeError
+_____ ERROR at setup of test_metadata_hardlink_and_duplicate_JSON_rejected _____
+
+path = '/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'
+ignore_errors = False
+onerror = functools.partial(<function on_rm_rf_error at 0x7ff54e840220>, start_path=PosixPath('/workspace-SR003.nfs2/ARG-GNN/research/reviews/project_budget_v2_author/tmp/pytest'))
+dir_fd = None
+
+    def rmtree(path, ignore_errors=False, onerror=None, *, dir_fd=None):
+        """Recursively delete a directory tree.
+    
+        If dir_fd is not None, it should be a file descriptor open to a directory;
+        path will then be relative to that directory.
+        dir_fd may not be implemented on your platform.
+        If it is unavailable, using it will raise a NotImplementedError.
+    
+        If ignore_errors is set, errors are ignored; otherwise, if onerror
+        is set, it is called to handle the error with arguments (func,
+        path, exc_info) where func is platform and implementation dependent;
+        path is the argument to that function that caused it to fail; and
+        exc_info is a tuple returned by sys.exc_info().  If ignore_errors
+        is false and onerror is None, an exception is raised.
+    
+        """
+        sys.audit("shutil.rmtree", path, dir_fd)
+        if ignore_errors:
+            def onerror(*args):
+                pass
+        elif onerror is None:
+            def onerror(*args):
+                raise
+        if _use_fd_functions:
+            # While the unsafe rmtree works fine on bytes, the fd based does not.
+            if isinstance(path, bytes):
+                path = os.fsdecode(path)
+            # Note: To guard against symlink races, we use the standard
+            # lstat()/open()/fstat() trick.
+            try:
+                orig_st = os.lstat(path, dir_fd=dir_fd)
+            except Exception:
+                onerror(os.lstat, path, sys.exc_info())
+                return
+            try:
+                fd = os.open(path, os.O_RDONLY | os.O_NONBLOCK, dir_fd=dir_fd)
+                fd_closed = False
+            except Exception:
+                onerror(os.open, path, sys.exc_info())
+                return
+            try:
+                if os.path.samestat(orig_st, os.fstat(fd)):
+>                   _rmtree_safe_fd(fd, path, onerror)
+
+.runtime/env/lib/python3.11/shutil.py:752: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:672: in _rmtree_safe_fd
+    _rmtree_safe_fd(dirfd, fullname, onerror)
+.runtime/env/lib/python3.11/shutil.py:701: in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+research/reviews/project_budget_v2_author/guarded_tests.py:29: in audit
+    if p is not None and not own(p):denied("mutation outside independent scope "+str(p))
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+reason = 'mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py'
+
+    def denied(reason):
+>       blocked.append(reason);raise RuntimeError("BUDGET AUTHOR GUARD: "+reason)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       RuntimeError: BUDGET AUTHOR GUARD: mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py
+
+research/reviews/project_budget_v2_author/guarded_tests.py:8: RuntimeError
+=========================== short test summary info ============================
+ERROR research/reviews/project_budget_v2_author/test_budget.py::test_default_source_only_and_missing_optin_do_not_read_live_paths
+ERROR research/reviews/project_budget_v2_author/test_budget.py::test_four20GB_scopes_add_only_supplemental_and_retain_legacy_bytes
+ERROR research/reviews/project_budget_v2_author/test_budget.py::test_first_hashes_exact_later_unrelated_legacy_mutation_permitted
+ERROR research/reviews/project_budget_v2_author/test_budget.py::test_later_legitimate_supplemental_addition_permitted
+ERROR research/reviews/project_budget_v2_author/test_budget.py::test_legacy_invariant_or_charge_drift_rejected_without_new_ledger[baseline]
+ERROR research/reviews/project_budget_v2_author/test_budget.py::test_legacy_invariant_or_charge_drift_rejected_without_new_ledger[external]
+ERROR research/reviews/project_budget_v2_author/test_budget.py::test_legacy_invariant_or_charge_drift_rejected_without_new_ledger[snapshot]
+ERROR research/reviews/project_budget_v2_author/test_budget.py::test_legacy_invariant_or_charge_drift_rejected_without_new_ledger[limit]
+ERROR research/reviews/project_budget_v2_author/test_budget.py::test_legacy_invariant_or_charge_drift_rejected_without_new_ledger[root]
+ERROR research/reviews/project_budget_v2_author/test_budget.py::test_legacy_invariant_or_charge_drift_rejected_without_new_ledger[schema]
+ERROR research/reviews/project_budget_v2_author/test_budget.py::test_legacy_invariant_or_charge_drift_rejected_without_new_ledger[float_charge]
+ERROR research/reviews/project_budget_v2_author/test_budget.py::test_legacy_invariant_or_charge_drift_rejected_without_new_ledger[negative_charge]
+ERROR research/reviews/project_budget_v2_author/test_budget.py::test_exact_root_authority_review_and_first_hash_gates[inactive]
+ERROR research/reviews/project_budget_v2_author/test_budget.py::test_exact_root_authority_review_and_first_hash_gates[source]
+ERROR research/reviews/project_budget_v2_author/test_budget.py::test_exact_root_authority_review_and_first_hash_gates[config]
+ERROR research/reviews/project_budget_v2_author/test_budget.py::test_exact_root_authority_review_and_first_hash_gates[human]
+ERROR research/reviews/project_budget_v2_author/test_budget.py::test_exact_root_authority_review_and_first_hash_gates[review_verdict]
+ERROR research/reviews/project_budget_v2_author/test_budget.py::test_exact_root_authority_review_and_first_hash_gates[review_role]
+ERROR research/reviews/project_budget_v2_author/test_budget.py::test_exact_root_authority_review_and_first_hash_gates[oldhash]
+ERROR research/reviews/project_budget_v2_author/test_budget.py::test_double_count_or_occupied_scope_rejected[same_legacy_output]
+ERROR research/reviews/project_budget_v2_author/test_budget.py::test_double_count_or_occupied_scope_rejected[nested_legacy_output]
+ERROR research/reviews/project_budget_v2_author/test_budget.py::test_double_count_or_occupied_scope_rejected[same_key]
+ERROR research/reviews/project_budget_v2_author/test_budget.py::test_double_count_or_occupied_scope_rejected[overlap_aux]
+ERROR research/reviews/project_budget_v2_author/test_budget.py::test_double_count_or_occupied_scope_rejected[existing_output]
+ERROR research/reviews/project_budget_v2_author/test_budget.py::test_double_count_or_occupied_scope_rejected[accounting_scope]
+ERROR research/reviews/project_budget_v2_author/test_budget.py::test_double_count_or_occupied_scope_rejected[same_batch_output]
+ERROR research/reviews/project_budget_v2_author/test_budget.py::test_combined_strict950GB_scheduling_boundary[-1]
+ERROR research/reviews/project_budget_v2_author/test_budget.py::test_combined_strict950GB_scheduling_boundary[0]
+ERROR research/reviews/project_budget_v2_author/test_budget.py::test_combined_strict950GB_scheduling_boundary[1]
+ERROR research/reviews/project_budget_v2_author/test_budget.py::test_actual_output_plus_short_tmp_boundary_and_planned_write
+ERROR research/reviews/project_budget_v2_author/test_budget.py::test_boundary_unsafe_namespace_rejected[symlink]
+ERROR research/reviews/project_budget_v2_author/test_budget.py::test_boundary_unsafe_namespace_rejected[hardlink]
+ERROR research/reviews/project_budget_v2_author/test_budget.py::test_boundary_unsafe_namespace_rejected[fifo]
+ERROR research/reviews/project_budget_v2_author/test_budget.py::test_boundary_unsafe_namespace_rejected[traversal]
+ERROR research/reviews/project_budget_v2_author/test_budget.py::test_own_reservation_or_consumer_authority_drift_blocks
+ERROR research/reviews/project_budget_v2_author/test_budget.py::test_mutex_exclusive_existing_only_and_bytes_preserved
+ERROR research/reviews/project_budget_v2_author/test_budget.py::test_scandir_errors_fail_closed
+ERROR research/reviews/project_budget_v2_author/test_budget.py::test_directory_membership_drift_after_listing_is_rejected
+ERROR research/reviews/project_budget_v2_author/test_budget.py::test_atomic_write_failure_keeps_legacy_and_no_automatic_rollback
+ERROR research/reviews/project_budget_v2_author/test_budget.py::test_own_stored_root_authority_rewrite_and_header_tamper_fail
+ERROR research/reviews/project_budget_v2_author/test_budget.py::test_metadata_hardlink_and_duplicate_JSON_rejected
+41 errors in 1.78s
+{
+  "started_utc": "2026-10-11T00:14:08.024056+00:00",
+  "completed_utc": "2026-10-11T00:14:10.203032+00:00",
+  "returncode": 1,
+  "blocked_events": [
+    "mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py",
+    "mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py",
+    "mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py",
+    "mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py",
+    "mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py",
+    "mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py",
+    "mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py",
+    "mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py",
+    "mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py",
+    "mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py",
+    "mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py",
+    "mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py",
+    "mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py",
+    "mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py",
+    "mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py",
+    "mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py",
+    "mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py",
+    "mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py",
+    "mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py",
+    "mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py",
+    "mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py",
+    "mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py",
+    "mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py",
+    "mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py",
+    "mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py",
+    "mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py",
+    "mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py",
+    "mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py",
+    "mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py",
+    "mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py",
+    "mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py",
+    "mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py",
+    "mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py",
+    "mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py",
+    "mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py",
+    "mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py",
+    "mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py",
+    "mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py",
+    "mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py",
+    "mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py",
+    "mutation outside independent scope /workspace-SR003.nfs2/ARG-GNN/budget.py"
+  ],
+  "source_and_handmade_fixtures_only": true,
+  "actual_live_inventory_inspect_apply": false,
+  "actual_registry_PID_ledger_product_read_or_mutation": false,
+  "scientific_array_decoders_GPU_install_Git": false,
+  "only_owned_project_fixture_writes": true
+}

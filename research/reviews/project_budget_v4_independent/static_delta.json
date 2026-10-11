@@ -1,0 +1,64 @@
+{
+  "changed_functions": [
+    "reserve"
+  ],
+  "added_functions": [],
+  "removed_functions": [],
+  "normalized_config_identical": true,
+  "normalized_entire_source_diff": [
+    "--- normalized_v3",
+    "+++ normalized_v4",
+    "@@ -321,6 +321,8 @@",
+    "             raise ValueError(\"root reserve initial ledger hashes changed\")",
+    "         incoming = authority[\"reservations\"]",
+    "         if not isinstance(incoming, list) or not 1 <= len(incoming) <= 64: raise ValueError(\"bounded new reservation batch required\")",
+    "+        if len(supplemental[\"reservations\"]) + len(incoming) > 4096:",
+    "+            raise ValueError(\"combined supplemental reservation map cap exceeded\")",
+    "         proposed = copy.deepcopy(supplemental); occupied = [canonical(root,x[\"output\"]) for x in legacy[\"jobs\"].values()]",
+    "         for value in proposed[\"reservations\"].values(): occupied += scope_spec(root,value,True)",
+    "         for request in incoming:"
+  ],
+  "exact_two_line_only_source_addition_verified": true,
+  "unchanged_prior_source_policy_and_verdict_refs": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "ade3524279fc686ddb961790252ea4aa5513ec2a12013f082a023b949702d652"
+    },
+    {
+      "path": "src/arggnn/gpu_pool_v1.py",
+      "sha256": "ae1e0494ab672cfa3017759460eb06a4b4789eaef54928496c3c80314adcc0e1"
+    },
+    {
+      "path": "research/resource_authorizations/project_storage_1TB_20261011.json",
+      "sha256": "f3fb4e4da30dae4ca4604e4e6ae3ff7d62799b01158fc6f86a7ea0239d2f43cd"
+    },
+    {
+      "path": "src/arggnn/project_budget_v2.py",
+      "sha256": "c6d7bc9cb6693a5882a4342d28e66b82a7c9c790841f89fb73b88d3e005a90ef"
+    },
+    {
+      "path": "configs/project_budget_v2.json",
+      "sha256": "2c7dccbd526c9953cccd7f1a647b31618cce2361292b7d21b8c3f50364b82c67"
+    },
+    {
+      "path": "src/arggnn/project_budget_v3.py",
+      "sha256": "80bf620cbc6fc8b9de5e61a5d285ce039e3fbb0751bc012c48ea7d4faa6b4567"
+    },
+    {
+      "path": "configs/project_budget_v3.json",
+      "sha256": "bf2c150e40aba17ab1a024bfdb45ed4865564ffd6e3cb999714d24f8b7d3cba9"
+    },
+    {
+      "path": "research/reviews/project_budget_v2_independent/review_receipt.json",
+      "sha256": "eecc1bef12bbbcd20a6396054ccc9f7cfbec5c29bc58814ad4c0a499420531ef"
+    },
+    {
+      "path": "research/reviews/project_budget_v3_independent/review_receipt.json",
+      "sha256": "8109965e6cb80280e4f7e8dd41a47062b6ea561cc4c1c3f92fbc70943eb113c8"
+    },
+    {
+      "path": "research/reviews/gst_uspto_archive_inventory_v1_independent/review_receipt.json",
+      "sha256": "00008c2471e25f84a57da5e4a035360f203f2982e8187d73089b684ae279edbc"
+    }
+  ]
+}

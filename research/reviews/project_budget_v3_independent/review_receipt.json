@@ -1,0 +1,146 @@
+{
+  "kind": "project_budget_v3_independent_review",
+  "review_role": "independent_reviewer",
+  "reviewer": "/root/budget_and_gst_inventory_independent_v1",
+  "verdict": "FAIL",
+  "created_utc": "2026-10-11T00:34:42.588212+00:00",
+  "implementation": {
+    "path": "src/arggnn/project_budget_v3.py",
+    "sha256": "80bf620cbc6fc8b9de5e61a5d285ce039e3fbb0751bc012c48ea7d4faa6b4567"
+  },
+  "config": {
+    "path": "configs/project_budget_v3.json",
+    "sha256": "bf2c150e40aba17ab1a024bfdb45ed4865564ffd6e3cb999714d24f8b7d3cba9"
+  },
+  "human_authorization": {
+    "path": "research/resource_authorizations/project_storage_1TB_20261011.json",
+    "sha256": "f3fb4e4da30dae4ca4604e4e6ae3ff7d62799b01158fc6f86a7ea0239d2f43cd"
+  },
+  "author_receipt": {
+    "path": "research/reviews/project_budget_v3_author/review_receipt.json",
+    "sha256": "8e1363047d5f31793bbe75323bf5834867ea206b694019f37b76870889868e35"
+  },
+  "actual_apply_performed": false,
+  "tests": {
+    "tests": 32,
+    "failures": 2,
+    "errors": 0,
+    "skipped": 0,
+    "main_suite": {
+      "started_utc": "2026-10-11T00:28:46.767809+00:00",
+      "completed_utc": "2026-10-11T00:28:49.689723+00:00",
+      "tests": 31,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0,
+      "blocked_events": [],
+      "handmade_fixtures_only": true,
+      "actual_live_ledger_access": false,
+      "actual_apply_performed": false,
+      "failure_cases": [
+        "__main__.Review.test_append_after_supplemental_map_full_should_reject_before_write"
+      ]
+    },
+    "strengthened_cardinality_suite": {
+      "started_utc": "2026-10-11T00:31:46.270954+00:00",
+      "completed_utc": "2026-10-11T00:33:46.169317+00:00",
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "blocked_events": [],
+      "all4096_stored_scopes_authorities_and_consumer_bindings_validated_by_original_current": true,
+      "optimization": "Only paths_overlap accelerated for known flat old_scopes sibling pairs with an equivalent predicate; no current/scope_spec/bound/reserve/schema/read/write validation stubbed",
+      "actual_live_ledger_access": false,
+      "handmade_fixtures_only": true
+    }
+  },
+  "findings": [
+    {
+      "id": "V3-CAP1",
+      "priority": 2,
+      "location": "src/arggnn/project_budget_v3.py:reserve",
+      "problem": "current rejects a supplemental reservation map with more than4096 entries, but reserve bounds only the incoming batch and not the resulting permanent map. A qualifying4096-entry ledger accepts one fresh request, writes4097 entries atomically and returns success, after which every current/check_reservation fails closed.",
+      "reproductions": [
+        "test_append_after_supplemental_map_full_should_reject_before_write",
+        "test_full_qualifying_map_plus_one_must_reject_before_write"
+      ],
+      "required_change": "Reject len(current reservations)+len(incoming)>4096 before proposal construction or any mutation. Retain atomic rejection and verify4095+1 and4096+1 edges."
+    }
+  ],
+  "v2_findings_resolved": true,
+  "prior_v2_FAIL_preserved": {
+    "path": "research/reviews/project_budget_v2_independent/review_receipt.json",
+    "sha256": "eecc1bef12bbbcd20a6396054ccc9f7cfbec5c29bc58814ad4c0a499420531ef"
+  },
+  "prior_GST_FAIL_preserved": {
+    "path": "research/reviews/gst_uspto_archive_inventory_v1_independent/review_receipt.json",
+    "sha256": "00008c2471e25f84a57da5e4a035360f203f2982e8187d73089b684ae279edbc"
+  },
+  "tested_scope": [
+    "Own AST comparison confirms version-normalized delta only current/scope_spec plus accounting_paths/legacy_key/legacy_state; other v2 kernels unchanged",
+    "Guarded source-only default CLI using real source/config references, with no live ledger or scope read",
+    "All22 original own handmade cases repeated, including rejection of four original legacy field/namespace/ancestry counterexamples",
+    "Additional typed controllerPID, unknown controller output, relative/noncanonical/symlink legacy output and every storage sibling exclusions",
+    "Dynamic unrelated controller/job accounting additions and completed charge decreases, exact first hash/own reservation/root/source authority, later separate supplemental admission acceptance",
+    "Strict950GB edges, fresh/exclusive new scope and output/aux overlap, metadata hardlinks, scope symlink and sparse/planned-growth boundary checks",
+    "Supplemental cardinality flaw isolated with genuine new-request/authority/atomic write/post-write validation and original current map cap",
+    "Strengthened4096-entry fixture:64 active handmade prior admissions each containing64 requests, actual bound review/consumer/source metadata, all original current/schema/authority/scope validators run. Only flat old_scopes sibling overlap pairs use a semantically equivalent plain function to reduce redundant ancestry traversal. Reserve writes4097, and original current rejects it"
+  ],
+  "execution_caveats": [
+    "No production ledger, actual authority, data, arrays, archive members, training output, registry, PID inventory or GPU state accessed or mutated.",
+    "Handmade reserve applies only within review-owned fixture roots; actual_apply_performed refers to production and is false.",
+    "Initial strengthened harness used unittest.mock around millions of overlap calls and was interrupted due call-history overhead. Its source/interruption evidence is preserved. Corrected plain-function runner uses1GB memory and90 CPU-second caps and completed with a source failure, not a harness error.",
+    "The32 total includes the isolated cap test and a strengthened reproduction of the same issue. They are not two independent implementation defects.",
+    "This FAIL activates no root authority and authorizes no production reserve/GPU/scientific execution."
+  ],
+  "artifact_refs": [
+    {
+      "path": "research/reviews/project_budget_v3_independent/test_budget_independent.py",
+      "sha256": "25cecd5ae008c5a7df8858b50a9dc8be8f77a263711b13f5f61b56b3193d977f"
+    },
+    {
+      "path": "research/reviews/project_budget_v3_independent/test_execution.log",
+      "sha256": "c8266fc7424c7d8ba8dbbef9c98759f9bb8c4d64709090a35c67a582f9929a82"
+    },
+    {
+      "path": "research/reviews/project_budget_v3_independent/test_execution.json",
+      "sha256": "9e5d6c6aa3edf39ebc2ad6ceab5dc671a320131eb7caf272f37568f06417d44f"
+    },
+    {
+      "path": "research/reviews/project_budget_v3_independent/test_cardinality_full.py",
+      "sha256": "dfbac166ef95f6f11c3301855bfafc436acc379c3449abd88d27f9b27b94c30a"
+    },
+    {
+      "path": "research/reviews/project_budget_v3_independent/cardinality_full_harness_interruption.json",
+      "sha256": "dd46fe5ea8b5abaccdc8da0af637cf854e90e43523c5555d56ddc1f46f293363"
+    },
+    {
+      "path": "research/reviews/project_budget_v3_independent/test_cardinality_full_v2.py",
+      "sha256": "404a25795c3cacbc41abb535aa7c37e6c13a107bba0c807d35d1f2f9a7c4e626"
+    },
+    {
+      "path": "research/reviews/project_budget_v3_independent/cardinality_full_execution_v2.log",
+      "sha256": "2049f03a495c5f8aad9303c86da7443e01dc8fdd7913553e16f0a6f00a4c9215"
+    },
+    {
+      "path": "research/reviews/project_budget_v3_independent/cardinality_full_execution_v2.json",
+      "sha256": "ff6edb25e7e6688df36939f441c6cc44c5ff4e8a0e6a25d222f6e2d983043f6e"
+    },
+    {
+      "path": "research/reviews/project_budget_v3_independent/cardinality_full_v2_own_process.json",
+      "sha256": "9b8d34f1d9973dc7f87019edd1738117fa333a212f2cc6967fe66a97124afdb9"
+    },
+    {
+      "path": "research/reviews/project_budget_v3_independent/source_only_cli.json",
+      "sha256": "4c8eb7adbff060809e72b896d3c5099c9369438dea5fd5029d4963c90d6a9856"
+    },
+    {
+      "path": "research/reviews/project_budget_v3_independent/static_delta.json",
+      "sha256": "8ef00e03ea852915a2c6d69e8ca141894679988cc15d596fa27ab31ea5dbd78d"
+    },
+    {
+      "path": "docs/project_budget_v3.md",
+      "sha256": "2de055c39f349f27da68e1b048ca81c32027c3d440dff5be726e04b581f89938"
+    }
+  ]
+}

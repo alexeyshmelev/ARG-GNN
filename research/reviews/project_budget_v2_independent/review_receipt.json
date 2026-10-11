@@ -1,0 +1,112 @@
+{
+  "kind": "project_budget_v2_independent_review",
+  "review_role": "independent_reviewer",
+  "reviewer": "/root/budget_and_gst_inventory_independent_v1",
+  "verdict": "FAIL",
+  "created_utc": "2026-10-11T00:20:15.691668+00:00",
+  "implementation": {
+    "path": "src/arggnn/project_budget_v2.py",
+    "sha256": "c6d7bc9cb6693a5882a4342d28e66b82a7c9c790841f89fb73b88d3e005a90ef"
+  },
+  "config": {
+    "path": "configs/project_budget_v2.json",
+    "sha256": "2c7dccbd526c9953cccd7f1a647b31618cce2361292b7d21b8c3f50364b82c67"
+  },
+  "human_authorization": {
+    "path": "research/resource_authorizations/project_storage_1TB_20261011.json",
+    "sha256": "f3fb4e4da30dae4ca4604e4e6ae3ff7d62799b01158fc6f86a7ea0239d2f43cd"
+  },
+  "author_receipt": {
+    "path": "research/reviews/project_budget_v2_author/review_receipt.json",
+    "sha256": "5e584ef0b73a8a41d9a06b9d8c55fd09ecb47e463580f0373245d7ef58521500"
+  },
+  "actual_apply_performed": false,
+  "tests": {
+    "started_utc": "2026-10-11T00:19:40.282513+00:00",
+    "completed_utc": "2026-10-11T00:19:42.057808+00:00",
+    "tests": 22,
+    "failures": 4,
+    "errors": 0,
+    "skipped": 0,
+    "blocked_events": [],
+    "handmade_fixtures_only": true,
+    "actual_live_ledger_access": false,
+    "actual_apply_performed": false,
+    "failure_cases": [
+      "__main__.Review.test_legacy_accounting_namespace_should_reject",
+      "__main__.Review.test_legacy_ancestor_descendant_should_reject",
+      "__main__.Review.test_unknown_legacy_job_scope_should_reject",
+      "__main__.Review.test_unknown_legacy_top_level_should_reject"
+    ]
+  },
+  "findings": [
+    {
+      "id": "B1",
+      "priority": 1,
+      "location": "src/arggnn/project_budget_v2.py:current",
+      "problem": "Legacy jobs are checked only for exact duplicate output paths. An ancestor and descendant pair of legacy output scopes is accepted by reserve and current, despite required exclusive scopes across and between ledgers.",
+      "handmade_reproduction": "test_legacy_ancestor_descendant_should_reject",
+      "required_change": "Check every legacy output pair with paths_overlap before qualifying latest state."
+    },
+    {
+      "id": "B2",
+      "priority": 1,
+      "location": "src/arggnn/project_budget_v2.py:current",
+      "problem": "Known-schema legacy ledger and entry field sets are not validated. An unrecognized top-level collection with 700GB reserved_bytes is ignored, and an extra job auxiliary_scopes overlapping the proposed supplemental output is ignored. Unknown accounting evolution therefore qualifies instead of failing closed.",
+      "handmade_reproduction": [
+        "test_unknown_legacy_top_level_should_reject",
+        "test_unknown_legacy_job_scope_should_reject"
+      ],
+      "required_change": "Require exact known legacy top-level and per-entry schemas, bounded keys and typed fields; reject unsupported accounting/scope fields instead of ignoring them."
+    },
+    {
+      "id": "B3",
+      "priority": 2,
+      "location": "src/arggnn/project_budget_v2.py:current",
+      "problem": "A legacy output equal to .runtime/storage is accepted even though it contains the supplemental ledger namespace. The incoming scope check protects supplemental scopes only.",
+      "handmade_reproduction": "test_legacy_accounting_namespace_should_reject",
+      "required_change": "Apply canonical absolute-path and accounting/mutex namespace exclusions to legacy outputs as well."
+    }
+  ],
+  "tested_scope": [
+    "Default source-only CLI with guard prohibiting live ledger or product access",
+    "Handcrafted policy, human authority, source/runtime bindings, independent review and root admission files inside review-owned fixture roots",
+    "Handmade reserve creates/appends supplemental fixture ledger under existing fixture scheduler mutex, combined baseline+external+controller+job+four supplemental charges",
+    "First exact ledger hash binding and later unrelated controller addition without read API writes",
+    "Own reservation and root/source authority drift rejection",
+    "Exact integer/header checks, strict950GB edges, cross-ledger and cross-incoming output/aux overlap, metadata hardlink and scope symlink rejection",
+    "Sparse opaque handmade scope byte measurement and conservative planned growth",
+    "Negative reproductions for legacy pairwise ancestry, unknown top-level/entry fields, and legacy accounting namespace"
+  ],
+  "limitations": [
+    "No actual legacy/supplemental ledger, output scopes, arrays, archive bytes/members, registries, GPU, installed scientific environment or real training outputs were accessed.",
+    "Only fixture monkeypatches change module constants. Production source/config/authorization/AGENTS and prior reviews are unchanged.",
+    "This FAIL qualifies no active root admission or production reservation. A corrected source requires a separate reviewed revision."
+  ],
+  "artifact_refs": [
+    {
+      "path": "research/reviews/project_budget_v2_independent/test_budget_independent.py",
+      "sha256": "c6ca4fa60e8412bc099007c6735fc290750a037b4c5beee43368722f90d16d9f"
+    },
+    {
+      "path": "research/reviews/project_budget_v2_independent/test_execution.log",
+      "sha256": "5e30285b719f9b193d074ed60e6c601ec95367a9d11e29942e385f4ff03e7c12"
+    },
+    {
+      "path": "research/reviews/project_budget_v2_independent/test_execution.json",
+      "sha256": "2fab9c20927e566ffc13bc4d23be21e91c9d505525abf8420b82c5377aaa127f"
+    },
+    {
+      "path": "docs/project_budget_v2.md",
+      "sha256": "a3f1689f39f1936aecbb903e22878e7965a7ab1849487f53b728092c1d94c3ad"
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "ade3524279fc686ddb961790252ea4aa5513ec2a12013f082a023b949702d652"
+    },
+    {
+      "path": "src/arggnn/gpu_pool_v1.py",
+      "sha256": "ae1e0494ab672cfa3017759460eb06a4b4789eaef54928496c3c80314adcc0e1"
+    }
+  ]
+}
