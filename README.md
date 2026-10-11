@@ -4,16 +4,17 @@ Graph neural networks for ordered collections of whole genealogical trees, with 
 
 ## Current experiments
 
-Updated 2026-10-11 at 08:37 UTC.
+Updated 2026-10-11.
 
-- **Completed:** all seven mechanism controls for seed 202. The one-layer age variant scores 84.87% present-day ancestry accuracy and 0.4211 NLL on the two development VAL parents. The extra pointwise layer scores 84.28% and 0.4327. It does not show a consistent benefit across seeds 101 and 202.
-- **Training on GPU 3:** seven controls for seed 303 and five whole-tree Census controls for seed 101. Both workers are active concurrently. The Census controls have completed validation through epoch 16. Their final selected-checkpoint scores are pending.
-- **Native ARGformer on GPU 2:** the first queued attempt stopped before model training because the launch packet used a prefixed GPU UUID where the native guard expects a bare UUID. The corrected r002 queue is now launched on GPU 2. Each parent's full-batch probe precedes its own fit and retrieval. The native model, data, objectives and full batch sizes are unchanged. [Launch and continuation](research/reviews/native_argformer_tsinfer_fit_v7_execution_root_v4/launch.json).
-- **Engineering check deferred:** one full-parent CPU cell compared two implementations of the same optimizer step and passed. It used about 52 GB peak CPU RAM and produced no ancestry accuracy result. The remaining numerical matrix is deferred so it does not displace predictive experiments.
+**Development priority: improve ancestry accuracy. New architecture pilots use FP32 or suitable mixed precision and one optimizer seed.** Broad FP64 equivalence checks and further seed repeats are deferred. The strongest completed common-task comparator remains current-release ARGMix at 85.55%, versus our age-D2 candidate at 84.78%.
 
-At most physical GPUs 2 and 3 are assigned to the project. Every GPU worker is titled 'AI Auto Research Pipeline Test'. Utilization varies across loading, neural computation and validation. The latest GPU 3 snapshot was 100%, which is an instantaneous reading rather than a sustained throughput result.
+- **Native ARGformer:** the first tsinfer-parent fit and retrieval completed. It trained for five MLM epochs and one native contrastive epoch. The second parent is training on GPU 2. An ancestry comparison awaits retrieval and scoring on both VAL parents.
+- **Whole-tree development controls:** five Census controls and the previously launched mechanism repeat remain live on GPU 3. Final selected-checkpoint outcomes are pending. No further optimizer-seed repeats are planned during initial architecture discovery.
+- **New architecture:** an FP32 persistence-trace layer is being prepared. It links complete observed trees through shared ancestral branches and adds a learned residual to a strong frozen emitter. The pilot will compare ordinary genomic smoothing, sample-only continuity, genuine ancestral connections and shuffled connections. It has no predictive result yet.
+- **Original GST executed:** all four native USPTO models completed a bounded TRAIN/VALID pilot. Their selected validation AP is reported separately below.
+- **Full-parent numerical matrix deferred:** its first CPU cell checked implementation consistency and produced no ancestry accuracy result. Remaining cells will not displace model development.
 
-The research priorities are the native ARGformer comparison, completion of the whole-tree model experiments, and experiments that test whether observed clade changes and genomic continuity improve ancestry inference. Numerical equivalence is recorded as engineering evidence and is not an accuracy or novelty claim.
+At most physical GPUs 2 and 3 are assigned to the project. GPU workers are titled 'AI Auto Research Pipeline Test'. Current storage authorization is 1 TB. See [development priorities](docs/development_priorities_20261011.md).
 
 ## Main advantages and current evidence
 
@@ -29,7 +30,7 @@ Method features:
 
 - **Whole-tree geometry.** The evaluated candidate derives interactions from complete connected marginal trees, including internal ancestors and all 280 sampled haplotypes. Its learned node features currently come from the sampled leaves. All 3,718 original inferred trees are represented.
 - **Ordered genomic context.** It exchanges information across trees using genomic order and physical interval lengths, and tracks the same sampled haplotypes across neighboring trees. Reference evidence uses all 96 pure-source references, with 184 query/context states and 120 scored outputs.
-- **Biological constraints under development.** A separate census-cut prototype adds a neural upward/downward whole-tree encoder and retention based on changing sample-clade membership. Older references remain ancestry proxies. Its observation-only native joins and all 32 development-tile CPU numerical checks completed, including 320 control/dtype checks with no failed cells. These checks validate implementation arithmetic, with no ancestry targets or predictive training. Predictive benefit remains untested. It is separate from the candidate reported below.
+- **Biological constraints under development.** A separate census-cut prototype adds a neural upward/downward whole-tree encoder and retention based on changing sample-clade membership. Older references remain ancestry proxies. Its observation-only joins and numerical checks completed. A five-control predictive fit is running, with final results pending. It is separate from the candidate reported below.
 
 ## Comparison with existing methods
 
@@ -44,7 +45,7 @@ Completed development results as of 2026-10-10. **Higher accuracy is better. Low
 | AncestralPaths, released Dense | 82.06% | 0.8191† | 0.2857† | 0.0940† | 101, 202, 303 |
 | GST-style reconstruction, width 32 | 80.03% | 0.5689 | 0.2920 | 0.0236 | 101 |
 | GST-style reconstruction, width 64 | 79.86% | 0.5690 | 0.2928 | 0.0310 | 101 |
-| ARGformer, author implementation | Pending qualified comparison | — | — | — | Four native corpora prepared, fits pending |
+| ARGformer, author implementation | Pending VAL ancestry comparison | — | — | — | First native tsinfer fit and retrieval completed, remaining parents in progress |
 
 † AncestralPaths NLL, Brier and ECE use a disclosed auxiliary stable-logit evaluation with unchanged trained weights and identical class predictions. Its original raw probability underflow and infinite NLL are preserved in the experiment records. No probability floor is applied.
 
@@ -75,6 +76,19 @@ Same two development VAL parents and 64 present-day queries as the main biologic
 
 Age D1 has the lowest two-seed mean NLL, 0.4235. The pointwise addition has no consistent benefit, and the gain-matched control is weaker in both seeds. Cross-query feedback and age-conditioning advantages are not established. Seed 303 is still running. [Seed 101 metrics](experiments/results/biological_mechanism_seed101_summary_v1_root/summary.json) and [seed 202 metrics](experiments/results/biological_mechanism_seed202_summary_v1_root/summary.json).
 
+### Original Graph Set Transformer on USPTO
+
+Executed the authors' unchanged parser, models and training function at commit '6469d56', using the first 1,000 retained TRAIN reactions and all 1,495 retained VALID reactions, 20 epochs and native seed 0. Runtime was ported to Python 3.14.3 and CPU Torch 2.10. The validation set was supplied in both native evaluation slots to keep TEST unopened.
+
+| Native model | Selected VALID atom AP ↑ |
+| --- | ---: |
+| GSC-CA | 0.6379 |
+| GSC-BC | 0.6538 |
+| GCN-DS | 0.6395 |
+| GCN-ST | 0.6382 |
+
+These are reaction-center scores on the original dataset's development split, separate from the GST-style ancestry controls above. Our approach has not run on this task yet. This bounded validation pilot is not a numerical reproduction of the paper or a final-test comparison. [Native results and disclosed changes](experiments/results/gst_uspto_native_TRAIN_VALID_seed0_v1/summary.json).
+
 ### What these comparisons mean
 
 The common task is four-source ancestry, ANA/CHG/WHG/EHG, at census 350 generations. Data comprise four independent 2 Mb simulation parents, split into two TRAIN and two VAL parents before extraction. Each parent has 96 pure references, 64 unlabeled mixed-context haplotypes and 120 queries, including 64 present-day and 56 ancient queries. All methods are scored on identical observed physical coverage and query identities. Accuracy, NLL and Brier weight exact class-span intersections within 100 bp bins, then average the two parent scores equally.
@@ -86,7 +100,7 @@ Baseline fidelity:
 - **ARGMix:** current author implementation at commit `c2481248`, with its native model, objective, checkpoint selection, refinement and overlap averaging retained. This is a common-task transfer. The available release differs from the April preprint, so this table is not its numerical reproduction.
 - **AncestralPaths:** released TensorFlow Dense model, preserving its native features and six path outputs, followed by a disclosed six-path-to-four-source probability mapping. The paper's unspecified CNN is not reproduced by this released Dense baseline.
 - **GST:** independently reconstructed Graph Set Transformer style controls adapted to per-query ancestry outputs. These rows are architectural controls, not executions of the authors' implementation.
-- **ARGformer:** native training and retrieval ran on Relate trees. That export does not preserve shared internal ancestor IDs across trees, which ARGformer requires. Its ranking is withheld and a separate current tsinfer/tsdate inference condition has now completed for all four development parents, preserving genotypes, sampling ages and connected shared internal IDs. The native tskit 0.6.4 reader loaded the exact new tree written with tskit 1.0.3, preserving all 280 sample IDs without conversion. Full native path/corpus preparation now passed on all four development parents, including the author tokenizer, genuine shared internal IDs, both path splits and full pure-reference corpus. MLM uses paths from all 280 observed samples. Pure-reference filtering to 96 samples applies to contrastive training and retrieval. The original 512-sample MLM and 4,096-sample contrastive batches are feasible in every corpus. Native fits and retrieval on this new condition are pending. Shared ancestry IDs will not be fabricated from local numbering or matching clades.
+- **ARGformer:** native training and retrieval ran on Relate trees. That export does not preserve shared internal ancestor IDs across trees, which ARGformer requires. Its ranking is withheld and a separate current tsinfer/tsdate inference condition has now completed for all four development parents, preserving genotypes, sampling ages and connected shared internal IDs. The native tskit 0.6.4 reader loaded the exact new tree written with tskit 1.0.3, preserving all 280 sample IDs without conversion. Full native path/corpus preparation now passed on all four development parents, including the author tokenizer, genuine shared internal IDs, both path splits and full pure-reference corpus. MLM uses paths from all 280 observed samples. Pure-reference filtering to 96 samples applies to contrastive training and retrieval. The original 512-sample MLM and 4,096-sample contrastive batches are feasible in every corpus. The first native fit and retrieval on this new condition completed. Remaining parents are in progress, and the VAL ancestry comparison is pending. Shared ancestry IDs will not be fabricated from local numbering or matching clades.
 
 Input features, supervision, native selection rules and post-processing differ between methods and are disclosed in the [baseline fidelity policy](docs/biological_baseline_fidelity_v1.md). Matched scoring support provides a common endpoint, rather than an exact reproduction of each paper's original dataset and pipeline.
 
@@ -94,7 +108,7 @@ Input features, supervision, native selection rules and post-processing differ b
 
 Final evaluation must use each supplied paper's data and task, with exact data, split, preprocessing, native method, checkpoint selection, postprocessing and scoring identities. Every change is recorded. The current development table does not fulfill this milestone. The effective requirements passed an independent source audit, which establishes documentary fidelity only. Original-paper empirical comparisons remain pending. See the [paper-dataset evaluation contract](docs/paper_dataset_evaluation_contract_v3.md) for concrete acquisition routes and unresolved original data/model details.
 
-All 39 ancient-inclusive Wohns genealogy files cited by ARGformer and both pinned GST raw snapshots have now been acquired and checksum-verified, totaling 2.73 GB. Their original processed subsets and splits are still to be qualified. Acquisition alone does not establish a completed comparison. The GST USPTO archive has also been extracted without changing member names, order or bytes. Root independently verified CRC and SHA for all four files, totaling 12,710,870 bytes. Native parsing, graph features, split fidelity and model execution remain pending. [Exact payload receipt](research/reviews/gst_uspto_payload_copy_v2_root/root_acceptance.json).
+All 39 ancient-inclusive Wohns genealogy files cited by ARGformer and both pinned GST raw snapshots have now been acquired and checksum-verified, totaling 2.73 GB. Their original processed subsets and splits are still to be qualified. Acquisition alone does not establish a completed comparison. The GST USPTO archive has also been extracted without changing member names, order or bytes. Root independently verified CRC and SHA for all four files, totaling 12,710,870 bytes. Native parsing and all four native models have now run on a bounded TRAIN/VALID pilot, described below. Our approach and final TEST remain unevaluated on this task. [Exact payload receipt](research/reviews/gst_uspto_payload_copy_v2_root/root_acceptance.json).
 
 A smaller simulation, current code release or changed ancestry endpoint is reported under its own label. None can silently stand in for the original experiment. Each comparison will publish raw-data hashes, reference/query identities, splits and an adaptation record covering inputs, model, training, postprocessing and metrics. Missing original assets remain explicit. The candidate and genuine comparator must share the same scoring queries and coverage for each paired endpoint.
 
