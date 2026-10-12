@@ -14,6 +14,7 @@ The full-panel development experiment uses **32 independent training simulations
 | --- | ---: | ---: | ---: |
 | Our aligned whole-tree PyG GNN | **95.4891%** | **0.133497** | 30 |
 | Matched zero-concordance control | 94.9252% | 0.147232 | 25 |
+| Native ARGMix, current author release | 94.4461% | 0.219695 | Native smoothed VAL-loss selection |
 | Native AncestralPaths, derived C4 endpoint | 93.7830% | ∞* | Fixed author epoch 5 |
 
 The selected difference is **0.5639 percentage points** on development validation. Both completed the same total training budget, but their selected checkpoints have different update counts. These results use the author demographic and full panel recipe with fresh 2 Mb simulation streams. They are not original-paper numerical reproduction, and cannot be compared with the older pilot table. The larger early learning gap did not persist.
@@ -22,7 +23,9 @@ The selected difference is **0.5639 percentage points** on development validatio
 
 *AP's strict raw FP32 NLL is infinite because one parent assigns zero probability to a true class over 800 query-base pairs. Scores use no probability floor or recalibration.*
 
-**Native ARGMix completed 11 author epochs and all eight validation inferences, with actual launcher exit 0.** Its native early-stopping rule ended training. Common-support scores are pending, so its internal validation accuracy is not compared with the table above. The next structured layer failed before completing a training pass. Corrected code is ready for three matched continuations of 320 updates per model, with pass 5/10 checkpoints and later evaluation. No accuracy result is claimed for that layer. Currently other projects occupy permitted GPUs 2–5. New GPU training awaits a free device or authorization to share.
+**Native ARGMix completed 11 author epochs and all eight validation inferences, with actual launcher exit 0.** Its native early-stopping rule ended training. Its common-support CPU score is **94.4461%** with NLL **0.219695**, giving our model a **1.0430 percentage-point accuracy gain** on the same eight development simulations and Present182 physical support. The score uses sealed native overlap-averaged probabilities without recalibration or a probability floor. Our pipeline uses tsinfer/tsdate trees and raw SNPs, while ARGMix and AncestralPaths retain their native Relate inputs. The table compares complete pipelines, and does not isolate the effect of the GNN architecture. It is a current-author-release comparison, with disclosed input metadata adaptations, rather than original-paper numerical reproduction. ARGformer and independent outer evaluation remain pending. **The corrected structured-layer experiment is now training on GPU 2:** plain continuation, generic smoothing and directed clade exchange, with 320 full-parent updates scheduled for each model. Actual finite-loss updates have been verified. Pass 5/10 checkpoints are evaluated later. No accuracy result is claimed for this new layer. Other projects currently occupy permitted GPUs 2–5. GPU sharing is now explicitly authorized. The new run caps our Torch allocator at 50 GB on GPU 2 and preserves the external jobs.
+
+[Native ARGMix same-support CPU result and transcript](research/reviews/expanded_native_argmix_H038_score_root_v1/readonly_CPU_result_v1.json)
 
 [Native AncestralPaths comparison and receipts](experiments/results/full_panel_H038_AP_comparison_root/summary.json)
 
@@ -103,7 +106,7 @@ At most physical GPUs2 and3 are assigned to the project. GPU workers are titled 
 
 ## Main advantages and current evidence
 
-**Latest full-panel evidence:** our standalone whole-tree PyG model scores 95.4891% accuracy with 29,764 parameters, versus 94.9252% for the matched zero-concordance control and 93.7830% for native AncestralPaths on the same development C4 endpoint. It learns directly from observed SNPs and complete inferred trees, without ARGMix predictions. A32-parent training pass takes 43.6 seconds. The 0.5639 pp validation advantage supports further development, with architectural novelty, original-benchmark confirmation and superiority over ARGMix/ARGformer still unproven.
+**Latest full-panel evidence:** our standalone whole-tree PyG model scores 95.4891% accuracy with 29,764 parameters, versus 94.9252% for the matched zero-concordance control and 93.7830% for native AncestralPaths on the same development C4 endpoint. It learns directly from observed SNPs and complete inferred trees, without ARGMix predictions. A32-parent training pass takes 43.6 seconds. The 0.5639 pp validation advantage supports further development, with architectural novelty, original-benchmark confirmation and superiority over full-panel ARGformer and untouched outer simulations still unproven.
 
 **Earlier reused-panel evidence:** the strongest genuine residual pipeline scored85.9697%, versus85.9397% for ordinary smoothing and85.554% for frozen ARGMix. Those historical pilot values are separate from the full-panel experiment above.
 

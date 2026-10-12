@@ -1,0 +1,17 @@
+# H039 missing v9 marker reader repair
+
+Source-only ready. Helper marker_repair_v1.py SHA e4185dc51b285d8ad4eba224b8e1e15f3e1479f57c73b4ec53fff2b238d0ef2f.
+
+The failed TRAIN v1 reservation lacks the concrete v9 consumer marker. The frozen CPU scope parser therefore incorrectly routes its stored single-overlay root admission to the v4 schema. This helper recognizes only reservation digest e824b52b0bb9ff26e1b7d81b48cfe03c85ee58d5aab0120601b52f43f9c5acee and original root authority/receipt pins. It appends the actual SHA-pinned marker only to temporary parser input. Historical journal bytes, sources, authority, bindings, output, key and15MB allowance remain unchanged. The malformed key is revoked for execution, and no accounting credit is applied.
+
+Root alone creates a genuine terminal barrier for the complete known root-owned old-guard consumer/supervisor PID roster. Required JSON fields: kind:H039_missing_marker_old_guard_terminal_barrier_v1; root_authorizer:root_agent; known_root_owned_guard_pids:list; matching observations:list; roster_complete:true; all_old_guard_consumers_and_supervisors_terminal:true; all_old_guard_future_writes_and_relaunch_revoked:true. Each observation uses the existing four-field targeted ESRCH schema. This author neither scans for nor observes PIDs.
+
+Root copies repair_authority.draft.json to a NEW repair_authority.json, supplies the exact barrier ref and future timezone-aware expires_at_utc, and sets active:true. Every other draft field must remain exact. Root controls admission; there is no repair journal mutation/apply operation.
+
+Load the helper by importlib, then call configure_repair_v1(exact_root_repair_authority_ref). It exposes the existing API: inspect_v1, apply_reserve_v1, check_storage_locked_v1, budget_check_v9, validate_storage_v9 and PilotOutputV9. budget, ROOT, SOURCE, MODE and _pins are available. MODE remains journal_terminal_retired_scopes_credit_v1 and state/authority journal bindings retain all six original fields.
+
+Every NEW consumer/launcher reservation must include the actual helper ref, configured repair authority ref, exact MARKER_REF and all ordinary producer/config/runtime/budget sources. storage.budget_components.consumer_adapter must be the actual helper ref. Reuse the original six-field reserve authority bindings and existing reserve API. New workers and launchers must import/configure this reader; frozen old readers still reject the malformed historical event. Frozen AP/ARGMix scorer sources also require new narrowly adapted successor drivers/admissions before future runs. Their probability/metric algorithms stay unchanged.
+
+The helper clones pinned reader function namespaces, preserving every original replay/chain/authority/collision/pin/ceiling check except this exact temporary scope-parser marker. No original module globals are modified. The compact writer preserves the original serialization/ownership/pruning logic with this guard before each write. Actual scope boundary inventories remain the existing execution-time behavior; none ran in authoring.
+
+Focused in-memory replay: mock_check.json PASS. It verifies exact original proof, unchanged reservation, original six bindings, unchanged full15,000,000-byte allowance and existing65,536-byte event metadata, zero credit, revoked malformed execution and digest-drift rejection. The900GB base and resulting projection are explicitly synthetic. No live state inspection, PID checks, scope inventories, journal operations, admission, execution, deletions, commits or pushes occurred.

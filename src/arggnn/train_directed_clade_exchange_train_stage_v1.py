@@ -180,6 +180,9 @@ def run_v1(record):
  budget_check_v9(storage,boundary=True,required_write_bytes=cfg["qualification_allowance_bytes"])
  base=reader.decode_json(cfg["base_fit_config"])
  device,runtime,lease=configure_fit("cuda",base,output.path)
+ # Enforce the admitted allocator ceiling before model or data residency.
+ torch.cuda.set_per_process_memory_fraction(min(1.,spec["max_cuda_reserved_bytes"]/torch.cuda.get_device_properties(device).total_memory),device)
+ runtime["allocator_cap_bytes"]=spec["max_cuda_reserved_bytes"]
  output.used=sum(max(p.stat().st_size,p.stat().st_blocks*512)+8192
   for p in output.path.rglob("*") if p.is_file())
  if output.used>cfg["qualification_allowance_bytes"]:

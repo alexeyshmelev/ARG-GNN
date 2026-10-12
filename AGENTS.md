@@ -16,7 +16,8 @@ At most two distinct physical GPUs may be used by this project at once.
 The user explicitly allows multiple model worker processes to share those devices.
 Use an audited shared-lease pool with memory reservations, separate logical job records and prescribed GPU process titles for concurrent workers.
 Preserve existing pinned model/runtime guards while introducing scheduling changes.
-Only physical GPUs 2, 3, 4 and 5 are eligible, and only after verifying they are free.
+New resource admissions use research/reviews/H039_missing_marker_repair_v1/marker_repair_v1.py configured with the root repair_authority.json. Original guards cannot replay the one preserved malformed reservation. All old-guard future launches are revoked. Fresh reservations must include the actual project_budget_v9_consumer.py marker, repair helper and repair authority. Root owns this transition.
+Only physical GPUs 2, 3, 4 and 5 are eligible. The user authorized sharing with other projects on 2026-10-12. Verify available memory and preserve all external processes. The current project scheduler uses physical GPUs 2 and 3, with at most two project GPUs at once.
 GPU 0, GPU 1 and GPU 6 are excluded.
 GPU jobs must set the process title AI Auto Research Pipeline Test before creating CUDA contexts.
 Use the project GPU launcher, record physical GPU assignment and verify the process name in NVTOP.
