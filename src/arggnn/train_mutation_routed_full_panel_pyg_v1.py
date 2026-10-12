@@ -15,10 +15,10 @@ import numpy as np
 import torch
 from . import census_tsinfer_fit_v1 as fit
 from . import train_mutation_routed_whole_tree_gnn_v1 as original
-from .project_storage_terminal_success_scopes_v1 import PilotOutputV9,budget_check_v9,validate_storage_v9
+from .project_storage_terminal_retired_scopes_v1 import PilotOutputV9,budget_check_v9,validate_storage_v9
 from .mutation_routed_full_panel_observations_v1 import validate_registry_v1
-from .mutation_routed_full_panel_cache_v1 import (
-    FullPanelParentDatasetV1,make_parent_dataloader_v1,shutdown_parent_dataloader_v1,read_full_cache_index_v1)
+from .mutation_routed_full_panel_cache_v1 import make_parent_dataloader_v1,shutdown_parent_dataloader_v1
+from .mutation_routed_full_panel_fast_reader_v1 import FullPanelParentDatasetV1,read_full_cache_index_v1
 from .mutation_routed_full_panel_primary_v1 import FullPanelExternalTargetV1,FullPanelPrimaryValidationV1,PRIMARY
 from .mutation_routed_full_panel_pyg_model_v1 import MutationRoutedFullPanelPyGGNNV1,prepare_control_bank_v1,ARMS
 SOURCE="src/arggnn/train_mutation_routed_full_panel_pyg_v1.py"
@@ -26,7 +26,7 @@ CONFIG="configs/mutation_routed_full_panel_pyg_v1.json"
 NEW_SOURCES=tuple("src/arggnn/"+name for name in (
     "mutation_routed_full_panel_observations_v1.py","mutation_routed_full_panel_cache_v1.py",
     "mutation_routed_full_panel_primary_v1.py","mutation_routed_full_panel_pyg_model_v1.py",
-    "train_mutation_routed_full_panel_pyg_v1.py"))
+    "train_mutation_routed_full_panel_pyg_v1.py","mutation_routed_full_panel_fast_reader_v1.py"))
 ROOT=Path(__file__).resolve().parents[2]
 
 
@@ -38,15 +38,17 @@ IMPLEMENTATION_SOURCES=frozenset(NEW_SOURCES)|frozenset({
     "src/arggnn/observed_variant_residual_v1.py","src/arggnn/full_panel_native_baseline_contracts_v1.py",
     "src/arggnn/census_tsinfer_observation_v1.py",original.SOURCE,
     "src/arggnn/prepare_expanded_full_panel_v1.py","src/arggnn/prepare_expanded_pyg_observations_v4.py",
+    "src/arggnn/prepare_expanded_pyg_observations_v5.py",
     "src/arggnn/project_storage_closed_scopes_v1.py",
     "src/arggnn/project_storage_cpu_closed_scopes_v1.py","src/arggnn/project_storage_terminal_scopes_v1.py",
-    "src/arggnn/project_storage_terminal_success_scopes_v1.py"})
+    "src/arggnn/project_storage_terminal_success_scopes_v1.py",
+    "src/arggnn/project_storage_terminal_retired_scopes_v1.py"})
 HELPER_SOURCE_PATHS={
     "H025_score_helpers":"src/arggnn/train_persistence_trace_pilot_v1.py",
-    "actual_full_storage_launcher":"scripts/launch_reserved_gpu_terminal_scopes_v1.py",
+    "actual_full_storage_launcher":"scripts/launch_reserved_gpu_terminal_retired_scopes_v1.py",
     "configure_fit":"src/arggnn/biological_candidate.py",
     "exact_observation_efficiency":"src/arggnn/mutation_routed_observation_efficiency_v1.py",
-    "full_reservation_adapter":"src/arggnn/project_storage_terminal_success_scopes_v1.py",
+    "full_reservation_adapter":"src/arggnn/project_storage_terminal_retired_scopes_v1.py",
     "immutable_base_launcher":"scripts/launch_reserved_gpu_v6.py",
     "immutable_budget_core":"scripts/project_budget_v9.py",
     "lease_title":"src/arggnn/native_argformer_exec.py",
@@ -84,7 +86,7 @@ def validated_source_records_v1(spec,cfg):
     if (not isinstance(own,list) or len(own)!=len(NEW_SOURCES)
             or {r.get("path") for r in own if isinstance(r,dict)}!=set(NEW_SOURCES)
             or any(r!={"path":r.get("path"),"sha256":sources.get(r.get("path"))} for r in own)):
-        raise ValueError("Config must bind exactly the five new implementation sources")
+        raise ValueError("Config must bind exactly the new implementation sources")
     cache=spec.get("observation_cache_source_refs")
     if (not isinstance(cache,dict) or set(cache)!=OBSERVATION_CACHE_SOURCE_PATHS
             or cfg.get("observation_cache_source_refs")!=cache):
@@ -139,7 +141,7 @@ def resources_v1(spec,storage,lease):
 
 def validate_protocol_v1(cfg):
     if (cfg.get("hypothesis_id")!="H038" or cfg.get("execution_guard_ready") is not True
-            or cfg.get("budget_guard")!="journal_terminal_success_scopes_credit_v1"
+            or cfg.get("budget_guard")!="journal_terminal_retired_scopes_credit_v1"
             or cfg.get("arms")!=list(ARMS) or cfg.get("seed")!=101 or cfg.get("dtype")!="float32"
             or cfg.get("passes")!=30 or cfg.get("updates_per_pass")!=32 or cfg.get("total_updates")!=960
             or cfg.get("evaluation_passes")!=[5,10,15,20,25,30]
@@ -456,6 +458,9 @@ def run_v1(record):
                         elapsed_seconds=time.monotonic()-update_start,counts_in_frozen_training_budget=True,
                         max_cuda_allocated_bytes=int(torch.cuda.max_memory_allocated(device)),
                         max_cuda_reserved_bytes=int(torch.cuda.max_memory_reserved(device))))
+                    print(json.dumps(dict(stage="first_actual_complete_parent_update",arm=arm,steps=steps,**{k:v for k,v in phase_samples[-1].items() if k!="stage"})),flush=True)
+                if (at+1)%8==0:
+                    print(json.dumps(dict(stage="training_progress",arm=arm,pass_index=pass_index,completed_parents_in_pass=at+1,total_updates=steps,pass_elapsed_seconds=time.monotonic()-pass_start,mean_loss=float(np.mean(losses)))),flush=True)
                 original.lightweight_resources_v1(spec,lease)
             elapsed=time.monotonic()-pass_start;train_seconds+=elapsed
             pending_rows.append(dict(pass_index=pass_index,optimizer_steps=steps,distinct_TRAIN_parents=32,
