@@ -22,7 +22,7 @@ The selected difference is **0.5639 percentage points** on development validatio
 
 *AP's strict raw FP32 NLL is infinite because one parent assigns zero probability to a true class over 800 query-base pairs. Scores use no probability floor or recalibration.*
 
-**Native ARGMix continues training on GPU 3 and has completed nine author epochs.** Its common-support scores are pending. The next structured layer hit checkpoint-loading and CUDA tensor-write bugs before completing a training pass. Fixes are source-tested, and a train-only stage is being prepared to save the same pass 5/10 checkpoints while evaluation runs separately. No completed accuracy result is claimed for that layer.
+**Native ARGMix completed 11 author epochs and all eight validation inferences, with actual launcher exit 0.** Its native early-stopping rule ended training. Common-support scores are pending, so its internal validation accuracy is not compared with the table above. The next structured layer failed before completing a training pass. Corrected code is ready for three matched continuations of 320 updates per model, with pass 5/10 checkpoints and later evaluation. No accuracy result is claimed for that layer. Currently other projects occupy permitted GPUs 2–5. New GPU training awaits a free device or authorization to share.
 
 [Native AncestralPaths comparison and receipts](experiments/results/full_panel_H038_AP_comparison_root/summary.json)
 
