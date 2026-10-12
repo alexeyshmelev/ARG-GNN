@@ -22,10 +22,17 @@ The full-panel development experiment uses **32 independent training simulations
 | --- | ---: | ---: | ---: |
 | Our aligned whole-tree PyG GNN | **95.4891%** | **0.133497** | 30 |
 | Matched zero-concordance control | 94.9252% | 0.147232 | 25 |
+| Native AncestralPaths, derived C4 endpoint | 93.7830% | ∞* | Fixed author epoch 5 |
 
 The selected difference is **0.5639 percentage points** on development validation. Both completed the same total training budget, but their selected checkpoints have different update counts. These results use the author demographic and full panel recipe with fresh 2 Mb simulation streams. They are not original-paper numerical reproduction, and cannot be compared with the older pilot table. The larger early learning gap did not persist.
 
-**Native ARGMix is actively training on GPU 3.** Its author training log has reached epoch 3. Native AncestralPaths completed the author five-epoch fit on 5,190,874 sampled training rows and sealed predictions for all eight VAL parents. Its exact-span common-data scores are pending. ARGformer full-panel input preparation resumes from its successful 952-sample inference, preserving the full native path corpus. The next controlled architecture continuation is being prepared for GPU 2.
+**Same-data comparison with native AncestralPaths completed:** our selected model gains **1.7062 percentage points** on the same eight validation parents, 182 present-day queries and exact physical-span C4 scoring support. AncestralPaths retains the author Dense512 model and five-epoch fit on5,190,874 sampled rows. Its six-path probabilities are collapsed to four source classes before argmax, with native six-path SNP-focal scores reported separately. Our checkpoint uses validation selection, while AP uses its fixed final fifth epoch. This is a development comparison using the full author panel and fresh2Mb simulations, not the original paper's numerical benchmark.
+
+*AP's strict raw FP32 NLL is infinite because one parent assigns zero probability to a true class over800query-bp. Scores use no probability floor or recalibration.*
+
+**Native ARGMix continues training on GPU3 and has completed nine author epochs.** Its common-support scores are pending. The next structured layer hit checkpoint-loading and CUDA tensor-write bugs before completing a training pass. Fixes are source-tested, and a train-only stage is being prepared to save the same pass5/10 checkpoints while evaluation runs separately. No completed accuracy result is claimed for that layer.
+
+[Native AncestralPaths comparison and receipts](experiments/results/full_panel_H038_AP_comparison_root/summary.json)
 
 [Final PyG results and efficiency](experiments/results/mutation_routed_full_panel_pyg_v1_summary_root/summary.json) · [Expanded protocol](research/reviews/expanded_full_panel_v1_root/registration.json)
 
@@ -96,7 +103,7 @@ At most physical GPUs2 and3 are assigned to the project. GPU workers are titled 
 
 ## Main advantages and current evidence
 
-**Latest full-panel evidence:** our standalone whole-tree PyG model scores95.4891% accuracy with29,764 parameters, versus94.9252% for the matched zero-concordance control. It learns directly from observed SNPs and complete inferred trees, without ARGMix predictions. A32-parent training pass takes43.6seconds. The0.5639pp validation advantage supports further development, with architectural novelty and superiority over native competitors still unproven.
+**Latest full-panel evidence:** our standalone whole-tree PyG model scores95.4891% accuracy with29,764 parameters, versus94.9252% for the matched zero-concordance control and93.7830% for native AncestralPaths on the same development C4 endpoint. It learns directly from observed SNPs and complete inferred trees, without ARGMix predictions. A32-parent training pass takes43.6seconds. The0.5639pp validation advantage supports further development, with architectural novelty, original-benchmark confirmation and superiority over ARGMix/ARGformer still unproven.
 
 **Earlier reused-panel evidence:** the strongest genuine residual pipeline scored85.9697%, versus85.9397% for ordinary smoothing and85.554% for frozen ARGMix. Those historical pilot values are separate from the full-panel experiment above.
 
