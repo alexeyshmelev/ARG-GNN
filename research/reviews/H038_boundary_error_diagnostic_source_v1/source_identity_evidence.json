@@ -1,0 +1,30 @@
+[
+  {
+    "path": "src/arggnn/mutation_routed_whole_tree_gnn_v1.py",
+    "sha256": "254f5155e31f81ae675e2bd08d38c97c9bf130d47e98efa2deea4c7344d9e073",
+    "excerpts": [
+      {
+        "line": 391,
+        "text": "    def forward_holds(self, bank: MutationRoutedWholeTreeInputsV1, *, control=\"aligned\"):\n        \"\"\"Return [T,H,4] logits, decoding once per original tree/sample hold.\"\"\"\n        if control not in CONTROL_NAMES:\n            raise ValueError(f\"Control must be one of {CONTROL_NAMES}\")\n        parameter = next(self.parameters())\n        if parameter.dtype != torch.float32:\n            raise ValueError(\"This discovery prototype requires FP32 parameters\")"
+      },
+      {
+        "line": 422,
+        "text": "    def forward(self, bank: MutationRoutedWholeTreeInputsV1, *, control=\"aligned\"):\n        \"\"\"Return direct raw logits [R,Q,4], with no target/teacher argument.\"\"\"\n        holds = self.forward_holds(bank, control=control)\n        return holds[bank.readout_hold[:, None], bank.query_column[None, :]]"
+      }
+    ]
+  },
+  {
+    "path": "src/arggnn/mutation_routed_full_panel_pyg_model_v1.py",
+    "sha256": "786864bbf47dadbd9668abf96119ac7a0d227d91b10a7831374b18a6e63cdefa",
+    "excerpts": [
+      {
+        "line": 17,
+        "text": "    def forward(self,bank,*,control=\"aligned\"):\n        if control not in ARMS:raise ValueError(\"Registered full-panel arm required\")\n        return super().forward(bank,control=\"aligned\" if control==\"aligned\" else \"shuffled\")\n\n\n    def forward_train_holds(self,bank,*,control=\"aligned\"):\n        \"\"\"Complete tree/GRU computation with one query readout per native hold.\"\"\""
+      },
+      {
+        "line": 22,
+        "text": "    def forward_train_holds(self,bank,*,control=\"aligned\"):\n        \"\"\"Complete tree/GRU computation with one query readout per native hold.\"\"\"\n        if control not in ARMS:raise ValueError(\"Registered full-panel arm required\")\n        holds=super().forward_holds(bank,control=\"aligned\" if control==\"aligned\" else \"shuffled\")\n        return holds.index_select(1,bank.query_column)"
+      }
+    ]
+  }
+]
