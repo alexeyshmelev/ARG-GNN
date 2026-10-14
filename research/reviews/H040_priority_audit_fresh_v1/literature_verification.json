@@ -1,0 +1,138 @@
+{
+  "scope": "Independent source/related-work audit only. No project data, targets, checkpoints, empirical results, journal changes, installs, Git or model execution.",
+  "sources": [
+    {
+      "path": "src/arggnn/anonymous_clade_witness_v1.py",
+      "sha256": "0cdb438132e11c86fb61306a02244af0471f468c2ff2a57324644cafb97b6310"
+    },
+    {
+      "path": "src/arggnn/anonymous_clade_gnn_v1.py",
+      "sha256": "2f878e6334079cff083f67b6da8eda129dd30e7beebc62ae2a93d51796c3f137"
+    },
+    {
+      "path": "research/reviews/H040_latent_clade_execution_source_v1/README.md",
+      "sha256": "2bcf26d4130ce10253a1fab2dfb094ba4aa740bfcc913d133c32b4fa9b27c59d"
+    }
+  ],
+  "searches": [
+    {
+      "provider": "Crossref",
+      "queries": [
+        "rooted phylogenetic tree triples distance Critchlow Pearl Qian",
+        "graph neural networks ancestral recombination graphs genealogical trees local ancestry",
+        "dynamic graph neural networks changing node sets EvolveGCN",
+        "phylogenetic tree sequence neural network adjacent marginal trees correspondence"
+      ],
+      "limitation": "Final query returned HTTP 429, other broad queries were noisy."
+    },
+    {
+      "provider": "Europe PMC",
+      "queries": [
+        "\"ancestral recombination\" AND (neural OR learning)",
+        "\"genealogical trees\" AND \"neural\"",
+        "\"triplet distance\""
+      ],
+      "result": "Identified ARGMix, ARGformer and the open primary triplet-distance paper. Reviewed primary abstracts/methods for relevance, not H040 empirical results."
+    }
+  ],
+  "references": [
+    {
+      "id": 1,
+      "title": "Graph transformer for ancient ancestry inference",
+      "authors": "Shanks et al.",
+      "year": 2026,
+      "doi": "10.64898/2026.04.05.714076",
+      "verified_url": "https://api.biorxiv.org/details/biorxiv/10.64898/2026.04.05.714076",
+      "status": 200,
+      "verified_material": "Primary metadata and abstract",
+      "evidence": "ARGMix, a graph transformer that infers local ancestry using the coalescent trees of the inferred ARG. Our approach employs ancient samples as references in the marginal trees to predict local ancestry.",
+      "earlier_access_limitation": "bioRxiv full HTML, PDF and JATS returned HTTP 403. Exact cross-tree architecture not verified.",
+      "followup_full_methods": {
+        "title": "Graph transformer for ancient ancestry inference",
+        "doi": "10.64898/2026.04.05.714076",
+        "pmcid": "PMC13082007",
+        "cached_primary_xml": "research/reviews/ARGMix_published_benchmark_audit_20261015_v1/pmc_fulltext.xml",
+        "cached_primary_xml_sha256": "383bf243185583820dbb35cb8bbf8b680be7f06197d1e26d01e29db1488c63fe",
+        "primary_fulltext_url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC13082007/fullTextXML",
+        "methods_sections": {
+          "4.1 Graph transformer using TMRCA relative positional encoding": "4.1 Graph transformer using TMRCA relative positional encoding For each sample i in a tree, we select the nearest reference haplotypes by time-to-most-recent-common-ancestor (TMRCA), excluding post-Neolithic and present-day European samples and the three immediate ancestral haplotypes. Population labels are tokenized for transformer inputs. This model is based on the graph relative positional encoding introduced by Park et al. 2022 with minor modifications in which we drop encodings related to edges [ 19 ]. For self-attention, the linear projections are given by (1) q i = W query x i , k i = W key x i , v i = W value x i . We then define the clamped, asymmetric relative TMRCA (2) ψ ( i , j ) = min ( τ MRCA ( i , j ) − τ i , 1000 ) . We define an encoding for query, key, and value to represent the relationship between haplotypes by TMRCA, P query , P key , P value ∈ ℝ L × d z . Then an attention map is defined by relative TMRCA that incorporates haplotype features or population labels, (3) a i j TMRCA = q i ⋅ P ψ ( i , j ) query + k j ⋅ P ψ ( i , j ) key . Then the attention map is added to the scaled dot product, (4) a i j = q i ⋅ k j + a i j TMRCA d z , (5) a ^ i j = exp ( a i j ) ∑ k = 1 N exp ( a i k ) . We retain the graph-encoded values and similarly drop any edge information: (6) z i = ∑ j = 1 N a ^ i j ( v j + P ψ ( i , j ) value ) . Then z i is passed to the feedforward neural network. The remainder of the model uses multi-head self-attention.",
+          "4.3 Training and evaluating AncestralPaths and ARGMix": "4.3 Training and evaluating AncestralPaths and ARGMix We reimplemented AncestralPaths in PyTorch [ 48 ], using the proportion of genealogical nearest neighbors (GNN) combined with average sample time [ 11 ]. We trained both ARGMix and AncestralPaths on the same 500,000 examples over five replicates. To mitigate the redundancy from local correlation between trees we skipped every ten trees. For validation, we used a separate replicate, skipping every 100 trees and using 100,000 examples. For AncestralPaths, we used the default parameterization that aggregates the GNNs up to five nodes from the extant leaf. For ARGMix, we used 25 of the nearest references by TMRCA plus three inferred ancestral nodes, yielding a 29-node subgraph including the extant leaf being classified. For both models we took the best model by validation loss over all the epochs for further evaluation. To initially evaluate the accuracy, we tested on three additional replicates extracting 100,000 samples from each. We then evaluated five misspecified replicates, also with 100,000 samples and no skipped trees."
+        },
+        "claims_checked": "Methods4.1 TMRCA self-attention; Methods4.3 25reference+3ancestor+query29-node subgraph. No neighboring-tree change-incidence or genomic recurrence is described in these methods.",
+        "not_reviewed": "No empirical results or benchmark outcomes were assessed.",
+        "verified_at_utc": "2026-10-14T23:36:28.540683+00:00"
+      }
+    },
+    {
+      "id": 2,
+      "title": "ARGformer: learning on ancestral recombination graphs with transformers",
+      "authors": "Bonet et al.",
+      "year": 2026,
+      "doi": "10.1093/bioinformatics/btag438",
+      "verified_url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC13501305/fullTextXML",
+      "status": 200,
+      "verified_material": "Primary full-text methods",
+      "evidence": "Rather than encoding an entire ARG or full marginal coalescent trees, we encode the coalescent events along leaf-to-root paths. Each node in the inferred genealogy has a unique identifier. Masked-node pretraining and supervised reference-population contrastive finetuning are documented."
+    },
+    {
+      "id": 3,
+      "title": "Complex Embeddings for Simple Link Prediction",
+      "authors": "Trouillon et al.",
+      "year": 2016,
+      "verified_url": "https://proceedings.mlr.press/v48/trouillon16.pdf",
+      "landing_url": "https://proceedings.mlr.press/v48/trouillon16.html",
+      "status": 200,
+      "verified_material": "Primary PDF extracted in memory with pdftotext, equation 11",
+      "evidence": "Equation 11 antisymmetric terms: +<Im(w_r),Re(e_s),Im(e_o)> -<Im(w_r),Im(e_s),Re(e_o)>. H040 matches these componentwise with a data-conditioned relation vector."
+    },
+    {
+      "id": 4,
+      "title": "EvolveGCN: Evolving Graph Convolutional Networks for Dynamic Graphs",
+      "authors": "Pareja et al.",
+      "year": 2020,
+      "verified_url": "https://arxiv.org/abs/1902.10191",
+      "status": 200,
+      "verified_material": "Primary abstract",
+      "evidence": "Node sets may completely differ between steps. RNN evolves GCN parameters without persistent node embeddings."
+    },
+    {
+      "id": 5,
+      "title": "Temporal Graph Networks for Deep Learning on Dynamic Graphs",
+      "authors": "Rossi et al.",
+      "year": 2020,
+      "verified_url": "https://arxiv.org/abs/2006.10637",
+      "status": 200,
+      "verified_material": "Primary abstract",
+      "evidence": "Dynamic graphs represented as sequences of timed events using memory modules and graph-based operators."
+    },
+    {
+      "id": 6,
+      "title": "Neural Message Passing for Quantum Chemistry",
+      "authors": "Gilmer et al.",
+      "year": 2017,
+      "verified_url": "https://arxiv.org/abs/1704.01212",
+      "status": 200,
+      "verified_material": "Primary abstract",
+      "evidence": "Unifies learned message passing and aggregation in the MPNN framework."
+    },
+    {
+      "id": 7,
+      "title": "A practical O(n log2 n) time algorithm for computing the triplet distance on binary trees",
+      "authors": "Sand et al.",
+      "year": 2013,
+      "doi": "10.1186/1471-2105-14-S2-S18",
+      "verified_url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC3549851/fullTextXML",
+      "status": 200,
+      "verified_material": "Primary full text, introduction and triplet definitions",
+      "evidence": "Leaf-matched rooted trees induce three possible resolved closest pairs or one unresolved topology. Triplet distance counts differing triples. Introduction discusses classical edge/bipartition tree comparisons."
+    }
+  ],
+  "limitations": [
+    "Focused primary-literature search is not exhaustive and cannot establish novelty.",
+    "Source-only deductions and proposed tests have not been empirically validated.",
+    "Project execution-source README was read as requested, but its timing and storage observations were not assessed as empirical scientific evidence.",
+    "The subsequent ARGMix methods follow-up reused root's cached primary XML; initial fresh literature-search independence is disclosed separately from this follow-up."
+  ],
+  "written_at_utc": "2026-10-14T23:31:01.343239+00:00",
+  "updated_at_utc": "2026-10-14T23:36:28.548135+00:00"
+}

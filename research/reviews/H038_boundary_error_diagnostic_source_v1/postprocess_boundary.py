@@ -124,7 +124,14 @@ lines+=['',
  'Pooled event counts/histograms are labeled separately from equal-parent mean±SD. '
  'These H038 diagnostics do not assign boundary performance to H039 or H040 primary-only results.','',
  'Source/pins, handmade checks, all-seal preflight, per-parent compact JSON, CSV and the transition/tract plots are preserved beside this report.']
-text='\n'.join(lines)+'\n';assert used()+len(text.encode())<10_000_000;(D/'biological_conclusions.md').write_text(text)
+text='\n'.join(lines)+'\n'
+for a,b in [('changes,1,094(', 'changes, 1,094 ('), ('misses,2,195(', 'misses, 2,195 ('),
+ ('within1 kb','within 1 kb'), ('islands≤','islands ≤'), ('At≤','At ≤'), ('tracts≤','tracts ≤'),
+ ('changes(1.68','changes (1.68'), ('matches,85','matches, 85'), ('false≤','false ≤'),
+ ('includes100bp','includes 100 bp'), ('10.12kb','10.12 kb'), ('15.43kb','15.43 kb')]:
+ text=text.replace(a,b)
+assert used()+len(text.encode())<10_000_000
+(D/'biological_conclusions.md').write_text(text)
 save('postprocess_completed.json',dict(summary_ref=ref(D/'summary.json'),report_ref=ref(D/'biological_conclusions.md'),
  plots=[ref(D/n) for n in ['boundary_rates_and_geometric_ceiling.png','interior_tract_length_distributions.png',
  'class_transition_matrices.png','matched_transition_correspondence.png']],output_bytes=used(),
