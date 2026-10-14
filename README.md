@@ -31,7 +31,23 @@ The selected difference is **0.5639 percentage points** on development validatio
 
 **Published benchmark requirements:** [ARGMix original setup and Tables1/2](docs/argmix_published_benchmark_audit_v1.md), [ARGformer American-admixture Table1](docs/argformer_published_benchmark_audit_v1.md), and [real-data/PCA analysis contracts](docs/real_data_validation_plan_v1.md) now have primary-source audits. ARGMix uses a different panel, reference tokens and error conditions. ARGformer reports EUR/EAS/AFR precision and recall, a distinct task from our European four-source development panel. Original-simulation reconstruction, faithful native training, paired population metrics and real-data model application remain to be completed. Verified public real-data assets are available, but acquisition/audit alone is not validation.
 
-**Cohort reporting:** [accuracy, macro F1, boundary F1, mean ± sample SD, and confusion matrices](research/reviews/cohort_reporting_20261015_v1/README.md) are now available for every original development cohort. SD is across eight simulation parents, with one optimizer seed. Boundary F1 remains weak even where per-base accuracy is high. Native-method cohort comparisons and training-seed variability are pending.
+**Population-level results on the same development simulations:** mean ± sample SD across eight VAL simulations, with one fit per method. These are H038 selected checkpoints. The H039 layer result above has primary Present182 evaluation only.
+
+| Cohort | Native AP accuracy (%) | Current native ARGMix (%) | H038 aligned (%) | H038 zero concordance (%) |
+|---|---:|---:|---:|---:|
+| Present (182) | 93.78±0.84 | 94.45±1.15 | 95.49±0.83 | 94.93±0.79 |
+| Bronze Age (162) | 94.76±1.18 | 97.71±0.75 | 98.17±0.80 | 98.41±0.54 |
+| BAA (14) | 96.94±1.32 | 98.44±1.02 | 98.90±0.89 | 98.61±0.95 |
+| Neo (302) | 97.57±0.27 | 99.30±0.26 | 99.41±0.13 | 99.17±0.27 |
+| Yam (26) | 95.43±1.41 | 99.22±0.90 | 98.96±1.31 | 99.42±0.81 |
+| Ancient (504) | 96.54±0.32 | 98.76±0.31 | 98.98±0.32 | 98.92±0.28 |
+| All (686) | 95.81±0.45 | 97.61±0.50 | 98.05±0.43 | 97.86±0.37 |
+
+Our aligned model does not win every cohort: current native ARGMix is better on Yam, while the zero-concordance control is better on Bronze Age and Yam. Bronze_Age is an approximate correspondence to the paper's Post-Neolithic category, not a verified identical panel. These rows must not be compared numerically with the paper's Tables1/2 as though they came from the same experiment.
+
+Present182 boundary F1 at1kb tolerance is **13.42 ± 1.47%** for our aligned model, **11.74 ± 1.73%** for current native ARGMix and **7.03 ± 0.78%** for native AncestralPaths. Boundary inference remains weak. [Matched class precision/recall/F1, pooled confusion matrices, calibration and paired differences](research/reviews/native_common_cohort_diagnostics_20261015_v1/diagnostic_report.md).
+
+![Development population accuracy and tract boundaries](research/reviews/native_common_cohort_diagnostics_20261015_v1/accuracy_and_boundary_mean_SD.png)
 
 [Native ARGMix same-support CPU result and transcript](research/reviews/expanded_native_argmix_H038_score_root_v1/readonly_CPU_result_v1.json)
 
@@ -114,7 +130,7 @@ At most two physical GPUs from indices2–5 are assigned to the project. GPU wor
 
 ## Main advantages and current evidence
 
-**Latest full-panel evidence:** our standalone whole-tree PyG model scores 95.4891% accuracy with 29,764 parameters, versus 94.9252% for the matched zero-concordance control and 93.7830% for native AncestralPaths on the same development C4 endpoint. It learns directly from observed SNPs and complete inferred trees, without ARGMix predictions. A32-parent training pass takes 43.6 seconds. The 0.5639 pp validation advantage supports further development, with architectural novelty, original-benchmark confirmation and superiority over full-panel ARGformer and untouched outer simulations still unproven.
+**Latest full-panel evidence:** the H039 directed extension scores95.7119% Present182 development accuracy. Its equal-budget plain continuation scores95.5635% and generic smoothing scores95.4964%. The earlier H038 aligned model scores95.4891% with29,764 parameters, versus94.9252% for zero concordance,94.4461% for current native ARGMix and93.7830% for native AncestralPaths on the same development C4 endpoint. It learns directly from observed SNPs and complete inferred trees, without ARGMix predictions. A32-parent training pass takes 43.6 seconds. The 0.5639 pp validation advantage supports further development, with architectural novelty, original-benchmark confirmation and superiority over full-panel ARGformer and untouched outer simulations still unproven.
 
 **Earlier reused-panel evidence:** the strongest genuine residual pipeline scored85.9697%, versus85.9397% for ordinary smoothing and85.554% for frozen ARGMix. Those historical pilot values are separate from the full-panel experiment above.
 
