@@ -1,0 +1,297 @@
+[
+  {
+    "excerpts": [
+      {
+        "end_line": 30,
+        "start_line": 1,
+        "text": "1: # ARGMix\n2: \n3: ARGMix is a local ancestry inference tool trained on forward-in-time simulations. ARGMix uses features from the inferred ARG.\n4: \n5: ## Install\n6: \n7: Requirements: **linux-64** and **CUDA 12**. On a machine without CUDA installed (for example a login node), set `CONDA_OVERRIDE_CUDA=12.0` before `pixi install`.\n8: \n9: First install [Pixi](https://pixi.sh), then:\n10: \n11: ```bash\n12: pixi install\n13: pixi run compile   # Python extension + Rust build_training binary\n14: ```\n15: \n16: ```bash\n17: pixi run argmix --help\n18: ```\n19: \n20: ## Where to run commands\n21: \n22: Pixi must find this repository's `pixi.toml` before ARGMix can process\n23: `--project`. For projects created inside the clone, run from the repository\n24: root and pass the relative project path:\n25: \n26: ```bash\n27: pixi run argmix validate --project my_project\n28: ```\n29: \n30: For a project elsewhere, name both the Pixi manifest and the absolute project path:"
+      }
+    ],
+    "public_url": "https://github.com/AI-sandbox/argmix/blob/c2481248eb0de5fda659d68f59c51e0e27becd20/README.md",
+    "sha256": "0fb9fccdc7331cd1a8df298217d3e9b910a36605f10f6b7bfec5585e851283e9",
+    "source": ".runtime/author_sources/argmix_c2481248eb0d/README.md"
+  },
+  {
+    "excerpts": [
+      {
+        "end_line": 89,
+        "start_line": 1,
+        "text": "1: project:\n2:   name: forward_project\n3:   output_root: outputs\n4: \n5: source:\n6:   type: forward\n7:   forward:\n8:     sim_config: \"forward_config.yaml\"\n9:     reference_panel_tsv: \"reference_panel.tsv\"\n10:     n_replicates: 2\n11:     config_overrides: {}\n12: \n13: ancestry:\n14:   reference_pops: [\"AFR\", \"EUR\", \"EAS\"]\n15:   class_labels:\n16:     0: AFR\n17:     1: EUR\n18:     2: EAS\n19: \n20: splits:\n21:   train_replicates: [0]\n22:   val_replicates: [1]\n23:   test_replicates: []                     # [2] adds a third founder pool and one more Relate run\n24: \n25: relate:\n26:   bin: ${ARGMIX_RELATE_BIN}\n27:   parallel: ${ARGMIX_RELATE_PARALLEL}\n28:   recomb_map: ${ARGMIX_RECOMB_MAP}\n29:   # Required by build-data:\n30:   ancestor_fasta: ${ARGMIX_RELATE_ANCESTOR_FASTA}\n31:   prepare_input: ${ARGMIX_RELATE_PREPARE_INPUT}\n32:   min_mac: 5\n33:   mutation_rate: 1.25e-08\n34:   effective_pop_size: 30000\n35:   run_pca: true\n36:   threads: 8\n37:   memory_gb: 8\n38:   mask_fasta: null\n39:   use_dist: true\n40:   transversion: false\n41:   seed: null\n42:   coal: null\n43:   consistency: null\n44: \n45: model:\n46:   num_refs: 15\n47:   hidden_size: 128\n48:   gt_output_dim: 16\n49:   dim_feedforward_mult: 4\n50:   num_heads: 4\n51:   num_layers: 4\n52:   dropout_prob: 0.25\n53:   attn_dropout_prob: 0.1\n54:   max_rel_distance: 14\n55: \n56: joint_model:\n57:   chunk_rows: 1024\n58:   chunk_stride: 512\n59:   gru:\n60:     hidden_size: 128\n61:     num_layers: 1\n62:     bidirectional: true\n63:     dropout: 0.1\n64:   train:\n65:     batch_size: 16\n66:     num_epochs: 20\n67:     learning_rate: 2.0e-4\n68:     weight_decay: 1.0e-4\n69:     label_smoothing: 0.1\n70:     early_stop_patience: 2\n71:     loss_weighting:\n72:       mode: none\n73:     sample_seed: 0\n74:     reference_selection_augmentation:\n75:       train:\n76:         enabled: true\n77:         drop_top_m_nearest: 1  # take top k+m refs, drop nearest m, keep next k (train only)\n78:       val:\n79:         enabled: false\n80:         drop_top_m_nearest: 0\n81: \n82: processing:\n83:   exclude_edge_trees: true\n84:   subgraph_merge:\n85:     enabled: false\n86:     signature_mode: ids_only\n87: \n88: runtime:\n89:   base_checkpoint: null"
+      }
+    ],
+    "public_url": "https://github.com/AI-sandbox/argmix/blob/c2481248eb0de5fda659d68f59c51e0e27becd20/templates/forward_blank/argmix.yaml",
+    "sha256": "ad0445a13ef2fe49c29f33477869b1707b3e7f74dea8491fa45a5c7f2a20937c",
+    "source": ".runtime/author_sources/argmix_c2481248eb0d/templates/forward_blank/argmix.yaml"
+  },
+  {
+    "excerpts": [
+      {
+        "end_line": 45,
+        "start_line": 35,
+        "text": "35:     return config.get(\"populations\", {}).get(\"predict\", [])\n36: \n37: \n38: def get_model_config(config: Dict[str, Any]) -> Dict[str, Any]:\n39:     model = dict(config.get(\"model\", {}) or {})\n40:     if \"num_ancs\" in model:\n41:         raise ValueError(\"model.num_ancs is no longer supported (ancestor features were removed)\")\n42:     return model\n43: \n44: \n45: def get_gt_output_dim(model_cfg: Dict[str, Any]) -> int:"
+      },
+      {
+        "end_line": 410,
+        "start_line": 398,
+        "text": "398: \n399:     # Validate model section\n400:     required_model_params = [\"num_classes\", \"num_refs\", \"max_rel_distance\"]\n401:     for param in required_model_params:\n402:         if param not in config[\"model\"]:\n403:             raise ValueError(f\"Missing required model parameter: {param}\")\n404:     num_ancs = config[\"model\"].get(\"num_ancs\")\n405:     if num_ancs is not None:\n406:         raise ValueError(\"model.num_ancs is no longer supported (ancestor features were removed)\")\n407: \n408:     num_classes = int(config[\"model\"][\"num_classes\"])\n409:     class_labels = get_class_labels(config)\n410:     if not class_labels:"
+      }
+    ],
+    "public_url": "https://github.com/AI-sandbox/argmix/blob/c2481248eb0de5fda659d68f59c51e0e27becd20/src/config_loader.py",
+    "sha256": "639ce92d2be505f996ce350f09fbf3dea899d16f35b2640a681f823ad112531e",
+    "source": ".runtime/author_sources/argmix_c2481248eb0d/src/config_loader.py"
+  },
+  {
+    "excerpts": [
+      {
+        "end_line": 310,
+        "start_line": 298,
+        "text": "298:     subgraph_merge_enabled = get_subgraph_merge_enabled(config)\n299:     subgraph_merge_signature_mode = get_subgraph_merge_signature_mode(config)\n300:     if subgraph_merge_enabled:\n301:         logger.info(\n302:             \"Subgraph merge: enabled (signature_mode=%s)\",\n303:             subgraph_merge_signature_mode,\n304:         )\n305:     seed_everything(50)\n306:     paths_cfg = get_paths_config(config)\n307:     train_pairs = paths_cfg.get(\"train_pairs\")\n308:     val_pairs = paths_cfg.get(\"val_pairs\")\n309:     save_dir = paths_cfg.get(\"save_dir\")\n310:     if not train_pairs or not val_pairs or not save_dir:"
+      },
+      {
+        "end_line": 548,
+        "start_line": 525,
+        "text": "525:                     loss = _masked_joint_loss(\n526:                         refined_logits,\n527:                         labels,\n528:                         row_mask,\n529:                         cm_features,\n530:                         label_smoothing=label_smoothing,\n531:                         loss_weighting=loss_weighting,\n532:                     )\n533:                     correct, total = compute_masked_row_accuracy(refined_logits, labels, row_mask)\n534:                     val_loss_sum += float(loss.item())\n535:                     val_batches += 1\n536:                     val_correct += correct\n537:                     val_total += total\n538: \n539:             train_loss = train_loss_sum / max(1, train_batches)\n540:             val_loss = val_loss_sum / max(1, val_batches)\n541:             train_acc = (float(train_correct) / float(train_total)) if train_total else float(\"nan\")\n542:             val_acc = (float(val_correct) / float(val_total)) if val_total else float(\"nan\")\n543:             improved = val_loss < best_val\n544:             if improved:\n545:                 best_val = val_loss\n546:                 best_epoch = epoch\n547:                 best_val_acc = val_acc\n548:                 best_state = copy.deepcopy(model.state_dict())"
+      }
+    ],
+    "public_url": "https://github.com/AI-sandbox/argmix/blob/c2481248eb0de5fda659d68f59c51e0e27becd20/src/train_joint_model.py",
+    "sha256": "07f2afa904fa0063d2658ce072c9ded640d31e6ddaac4713e60becf0eafcba10",
+    "source": ".runtime/author_sources/argmix_c2481248eb0d/src/train_joint_model.py"
+  },
+  {
+    "excerpts": [
+      {
+        "end_line": 95,
+        "start_line": 65,
+        "text": "65:     def __init__(\n66:         self,\n67:         truth_npz_file: str,\n68:         relate_sample_file: str,\n69:         truth_dataset: Optional[str] = None,\n70:         expected_ancestry_names: Optional[list[str]] = None,\n71:         truth_ancestry_rename: Optional[Mapping[str, str]] = None,\n72:         *,\n73:         label_mode: str = \"first_snp\",\n74:         collect_diagnostics: bool = False,\n75:         min_label_purity: Optional[float] = None,\n76:         observed_positions_file: Optional[str] = None,\n77:     ):\n78:         npz_path = Path(truth_npz_file)\n79:         sample_path = Path(relate_sample_file)\n80:         if not npz_path.exists():\n81:             raise FileNotFoundError(f\"truth_npz file not found: {truth_npz_file}\")\n82:         if not sample_path.exists():\n83:             raise FileNotFoundError(f\"relate_sample file not found: {relate_sample_file}\")\n84: \n85:         mode_s = str(label_mode).strip().lower()\n86:         if mode_s not in {\"first_snp\", \"majority\"}:\n87:             raise ValueError('label_mode must be \"first_snp\" or \"majority\"')\n88:         self.label_mode = mode_s\n89:         self.collect_diagnostics = bool(collect_diagnostics)\n90:         self.min_label_purity = float(min_label_purity) if min_label_purity is not None else None\n91:         self.diagnostics = TruthIntervalDiagnostics()\n92:         self.observed_position_filter_stats: Optional[Dict[str, Any]] = None\n93: \n94:         data = np.load(npz_path, allow_pickle=True)\n95:         prefix = infer_prefix(list(data.files), truth_dataset)"
+      },
+      {
+        "end_line": 246,
+        "start_line": 232,
+        "text": "232:             self.diagnostics.snps_per_interval.append(int(labels.size))\n233:             self.diagnostics.purity_values.append(purity)\n234: \n235:         if self.min_label_purity is not None and purity < self.min_label_purity:\n236:             if self.collect_diagnostics:\n237:                 self.diagnostics.n_low_purity += 1\n238:             return None\n239: \n240:         out = first if self.label_mode == \"first_snp\" else majority\n241:         if self.collect_diagnostics:\n242:             self.diagnostics.n_returned += 1\n243:         return int(out)\n244: \n245:     def get_col_for_node(self, node_id: int) -> Optional[int]:\n246:         return self.col_by_node.get(int(node_id))"
+      }
+    ],
+    "public_url": "https://github.com/AI-sandbox/argmix/blob/c2481248eb0de5fda659d68f59c51e0e27becd20/src/truth_labels.py",
+    "sha256": "91148a4e894ffd3dae98902f652770f033368ade1a879d28ad804690df411eea",
+    "source": ".runtime/author_sources/argmix_c2481248eb0d/src/truth_labels.py"
+  },
+  {
+    "excerpts": [
+      {
+        "end_line": 300,
+        "start_line": 260,
+        "text": "260:             arr = arr.view(np.float16)\n261:         logits = np.asarray(arr, dtype=np.float32)\n262:         logits -= np.max(logits, axis=1, keepdims=True)\n263:         np.exp(logits, out=logits)\n264:         logits /= np.clip(np.sum(logits, axis=1, keepdims=True), 1e-12, None)\n265:         return logits\n266:     raise ValueError(\"Held-out inference H5 must contain 'probs' or 'logits'\")\n267: \n268: \n269: def _r2_from_sums(\n270:     count: float,\n271:     sum_x: float,\n272:     sum_y: float,\n273:     sum_x2: float,\n274:     sum_y2: float,\n275:     sum_xy: float,\n276: ) -> float:\n277:     if count <= 1.0:\n278:         return float(\"nan\")\n279:     num = (count * sum_xy) - (sum_x * sum_y)\n280:     den_x = (count * sum_x2) - (sum_x * sum_x)\n281:     den_y = (count * sum_y2) - (sum_y * sum_y)\n282:     if den_x <= 0.0 or den_y <= 0.0:\n283:         return float(\"nan\")\n284:     corr = num / np.sqrt(den_x * den_y)\n285:     return float(corr * corr)\n286: \n287: \n288: def _write_confusion_tsv(path: Path, cm: np.ndarray, class_labels: List[str]) -> None:\n289:     with path.open(\"w\", encoding=\"utf-8\") as f:\n290:         f.write(\"true_label\\t\" + \"\\t\".join(class_labels) + \"\\n\")\n291:         for i, label in enumerate(class_labels):\n292:             row = \"\\t\".join(str(int(x)) for x in cm[i, :].tolist())\n293:             f.write(f\"{label}\\t{row}\\n\")\n294: \n295: \n296: def _normalize_confusion_rows(cm: np.ndarray) -> np.ndarray:\n297:     arr = np.asarray(cm, dtype=np.float64)\n298:     row_sums = arr.sum(axis=1, keepdims=True)\n299:     out = np.zeros_like(arr, dtype=np.float64)\n300:     valid = row_sums[:, 0] > 0"
+      },
+      {
+        "end_line": 780,
+        "start_line": 750,
+        "text": "750:                 truth0 = np.asarray(hap_labels[left:right, int(col0)], dtype=np.int64)\n751:                 truth1 = np.asarray(hap_labels[left:right, int(col1)], dtype=np.int64)\n752:                 truth0 = truth_to_pred[truth0]\n753:                 truth1 = truth_to_pred[truth1]\n754:                 n_snps = int(right - left)\n755: \n756:                 counts0 = np.bincount(truth0, minlength=num_classes)[:num_classes]\n757:                 counts1 = np.bincount(truth1, minlength=num_classes)[:num_classes]\n758:                 cm[:, int(pred0[i])] += counts0\n759:                 cm[:, int(pred1[j])] += counts1\n760:                 class_truth += counts0 + counts1\n761:                 class_correct[int(pred0[i])] += int(counts0[int(pred0[i])])\n762:                 class_correct[int(pred1[j])] += int(counts1[int(pred1[j])])\n763:                 pop_metric[\"correct\"] += int(counts0[int(pred0[i])] + counts1[int(pred1[j])])\n764:                 pop_metric[\"total\"] += int((counts0.sum() + counts1.sum()))\n765:                 hap0_metric[\"correct\"] += int(counts0[int(pred0[i])])\n766:                 hap0_metric[\"total\"] += int(counts0.sum())\n767:                 hap1_metric[\"correct\"] += int(counts1[int(pred1[j])])\n768:                 hap1_metric[\"total\"] += int(counts1.sum())\n769: \n770:                 same_mask = truth0 == truth1\n771:                 joint_diag = np.bincount(truth0[same_mask], minlength=num_classes)[:num_classes]\n772:                 y_sum_vec = (counts0 + counts1).astype(np.float64)\n773:                 y_sq_sum_vec = y_sum_vec + 2.0 * joint_diag\n774:                 x_soft_vec = prob0[i].astype(np.float64) + prob1[j].astype(np.float64)\n775:                 point_counts += n_snps\n776:                 sum_x_soft += x_soft_vec * n_snps\n777:                 sum_x2_soft += x_soft_vec ** 2 * n_snps\n778:                 sum_y_soft += y_sum_vec\n779:                 sum_y2_soft += y_sq_sum_vec\n780:                 sum_xy_soft += x_soft_vec * y_sum_vec"
+      }
+    ],
+    "public_url": "https://github.com/AI-sandbox/argmix/blob/c2481248eb0de5fda659d68f59c51e0e27becd20/src/final_test_metrics.py",
+    "sha256": "b78d619f25a6e3cf1c89ab96cf2a77091404bfe2f6bafe4e7cd587df4431f5f0",
+    "source": ".runtime/author_sources/argmix_c2481248eb0d/src/final_test_metrics.py"
+  },
+  {
+    "excerpts": [
+      {
+        "end_line": 15,
+        "start_line": 1,
+        "text": "1: from __future__ import annotations\n2: \n3: import csv\n4: import dataclasses\n5: import json\n6: import logging\n7: import random\n8: import time\n9: from pathlib import Path\n10: \n11: from tqdm import tqdm\n12: \n13: from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple\n14: \n15: import numpy as np"
+      }
+    ],
+    "public_url": "https://github.com/AI-sandbox/argmix/blob/c2481248eb0de5fda659d68f59c51e0e27becd20/src/joint_interval_model.py",
+    "sha256": "8e30a7ece3cf52366a25114093ae69a67a5ca1d15ecaacfd2abf5baa0705e8eb",
+    "source": ".runtime/author_sources/argmix_c2481248eb0d/src/joint_interval_model.py"
+  },
+  {
+    "excerpts": [
+      {
+        "end_line": 48,
+        "start_line": 35,
+        "text": "35:     )\n36:     p.add_argument(\n37:         \"--label-aliases-json\",\n38:         default=\"{}\",\n39:         help=\"JSON object mapping population label -> list of equivalent labels\",\n40:     )\n41:     p.add_argument(\"--seed\", type=int, required=True)\n42:     p.add_argument(\"--rep\", type=int, required=True)\n43:     p.add_argument(\n44:         \"--founder-split\",\n45:         default=\"all\",\n46:         choices=[\"all\", \"train\", \"val\", \"test\"],\n47:         help=\"Optional founder pool to restrict simulation-source founders\",\n48:     )"
+      },
+      {
+        "end_line": 365,
+        "start_line": 350,
+        "text": "350:     n_haps = n_samples * 2\n351:     out_haps = np.zeros((n_haps, n_variants), dtype=np.int8)\n352:     out_labels = np.zeros((n_haps, n_variants), dtype=np.int16)\n353: \n354:     chrom_length_morgan = float(max(morgan_pos[-1] - morgan_pos[0], 0.0))\n355:     probs = np.array(proportions, dtype=np.float64)\n356: \n357:     for h in range(n_haps):\n358:         n_breaks = 0\n359:         if chrom_length_morgan > 0 and generations > 0:\n360:             expected_breaks = float(generations) * chrom_length_morgan\n361:             n_breaks = int(rng.poisson(expected_breaks))\n362: \n363:         if n_breaks > 0:\n364:             # Breakpoints are sampled uniformly in Morgan space, not SNP index space.\n365:             break_m = np.sort(rng.uniform(morgan_pos[0], morgan_pos[-1], size=n_breaks))"
+      },
+      {
+        "end_line": 433,
+        "start_line": 420,
+        "text": "420:             ]\n421:             f.write(\"\\t\".join(row + gts) + \"\\n\")\n422: \n423: \n424: def main() -> None:\n425:     args = parse_args()\n426: \n427:     rng = np.random.default_rng(args.seed + args.rep)\n428:     events = load_events(Path(args.events))\n429: \n430:     intermediate_counts = json.loads(args.intermediate_counts_json)\n431:     if not isinstance(intermediate_counts, dict):\n432:         raise ValueError(\"intermediate_counts_json must decode to a JSON object\")\n433:     label_aliases_cfg = json.loads(args.label_aliases_json)"
+      },
+      {
+        "end_line": 557,
+        "start_line": 540,
+        "text": "540:                 UserWarning,\n541:                 stacklevel=1,\n542:             )\n543:         labels = np.full(haps.shape, truth_code_by_event_pop[pop], dtype=np.int16)\n544:         pools[pop] = {\"haps\": haps, \"labels\": labels}\n545: \n546:     simulated: Dict[str, Dict[str, object]] = {}\n547: \n548:     # Simulate derived populations in chronological order (oldest -> most recent).\n549:     for event in events:\n550:         derived = str(event[\"derived\"])\n551:         sources = [str(x) for x in event[\"sources\"]]\n552:         proportions = [float(x) for x in event[\"proportions\"]]\n553:         generations = float(event[\"time_gens\"])\n554: \n555:         for src in sources:\n556:             if src not in pools:\n557:                 raise ValueError("
+      }
+    ],
+    "public_url": "https://github.com/AI-sandbox/argmix/blob/c2481248eb0de5fda659d68f59c51e0e27becd20/sim/scripts/forward_sim_multievent.py",
+    "sha256": "52b587b3563f5a81d1d62977ca8ef225d193950d8550742b83f5fbae6be87396",
+    "source": ".runtime/author_sources/argmix_c2481248eb0d/sim/scripts/forward_sim_multievent.py"
+  },
+  {
+    "matching_excerpts": [
+      {
+        "line": 175,
+        "text": "\n\ndef compute_masked_row_accuracy(\n    logits: torch.Tensor,\n    labels: torch.Tensor,"
+      },
+      {
+        "line": 513,
+        "text": "    class_labels = {\n        int(k): str(v)\n        for k, v in ((config.get(\"populations\", {}) or {}).get(\"class_labels\", {}) or {}).items()\n    }\n    label_to_class = {label: idx for idx, label in class_labels.items()}"
+      },
+      {
+        "line": 520,
+        "text": "        pop_str = str(pop)\n        if pop_str not in label_to_class:\n            raise ValueError(f\"reference population '{pop_str}' is missing from populations.class_labels\")\n        if pop_str not in token_to_id:\n            raise ValueError(f\"reference population '{pop_str}' is missing from token vocabulary\")"
+      },
+      {
+        "line": 522,
+        "text": "            raise ValueError(f\"reference population '{pop_str}' is missing from populations.class_labels\")\n        if pop_str not in token_to_id:\n            raise ValueError(f\"reference population '{pop_str}' is missing from token vocabulary\")\n        token_to_class[int(token_to_id[pop_str])] = int(label_to_class[pop_str])\n    return token_to_class"
+      },
+      {
+        "line": 614,
+        "text": "    class_labels = normalize_class_labels_map(\n        get_class_labels(config),\n        source=\"config.populations.class_labels\",\n    )\n    if int(model.num_classes) != len(class_labels):"
+      },
+      {
+        "line": 624,
+        "text": "    checkpoint_config[\"model\"][\"gt_output_dim\"] = int(model.final_layer_dim)\n    checkpoint_config[\"model\"][\"num_classes\"] = len(class_labels)\n    pops = dict(checkpoint_config.get(\"populations\", {}) or {})\n    pops[\"class_labels\"] = {int(k): str(v) for k, v in class_labels.items()}\n    checkpoint_config[\"populations\"] = pops"
+      },
+      {
+        "line": 626,
+        "text": "    pops = dict(checkpoint_config.get(\"populations\", {}) or {})\n    pops[\"class_labels\"] = {int(k): str(v) for k, v in class_labels.items()}\n    checkpoint_config[\"populations\"] = pops\n    payload = {\n        \"format\": \"joint_interval_gru_v1\","
+      },
+      {
+        "line": 786,
+        "text": "            str(v)\n            for _, v in sorted(\n                dict((config.get(\"populations\", {}) or {}).get(\"class_labels\", {}) or {}).items(),\n                key=lambda kv: int(kv[0]),\n            )"
+      },
+      {
+        "line": 1506,
+        "text": "        cm_features_dev = cm_features.to(torch_device)\n        logits = model.refine_feature_chunks(features_dev, row_mask_dev, cm_features_dev)\n        probs = torch.softmax(logits, dim=-1).cpu().numpy()\n        hidden = None\n        if sum_hidden is not None:"
+      },
+      {
+        "line": 1789,
+        "text": "                chunks[\"cm_features\"][start:end].to(torch_device),\n            )\n            all_probs.append(torch.softmax(batch_logits, dim=-1).cpu().numpy())\n    probs = np.concatenate(all_probs, axis=0)\n    agg_probs = aggregate_chunk_probabilities("
+      }
+    ],
+    "sha256": "8e30a7ece3cf52366a25114093ae69a67a5ca1d15ecaacfd2abf5baa0705e8eb",
+    "source": ".runtime/author_sources/argmix_c2481248eb0d/src/joint_interval_model.py"
+  },
+  {
+    "matching_excerpts": [
+      {
+        "line": 365,
+        "text": ") -> None:\n    with path.open(\"w\", encoding=\"utf-8\") as f:\n        f.write(\"haplotype_id\\tcohort\\tn_scored\\tn_correct\\taccuracy\\n\")\n        for hap_id in sorted(hap_counts):\n            vals = hap_counts[hap_id]"
+      },
+      {
+        "line": 383,
+        "text": ") -> None:\n    with path.open(\"w\", encoding=\"utf-8\") as f:\n        f.write(\"class\\ttruth_hap_snp_calls\\tcorrect_hap_snp_calls\\taccuracy\\n\")\n        for i, label in enumerate(class_labels):\n            acc = accuracies[i]"
+      },
+      {
+        "line": 729,
+        "text": "                end0_i = float(end0[i])\n                end1_j = float(end1[j])\n                overlap_start = max(float(start0[i]), float(start1[j]))\n                overlap_end = min(end0_i, end1_j)\n                if overlap_end <= overlap_start:"
+      },
+      {
+        "line": 730,
+        "text": "                end1_j = float(end1[j])\n                overlap_start = max(float(start0[i]), float(start1[j]))\n                overlap_end = min(end0_i, end1_j)\n                if overlap_end <= overlap_start:\n                    if end0_i <= float(start1[j]):"
+      },
+      {
+        "line": 731,
+        "text": "                overlap_start = max(float(start0[i]), float(start1[j]))\n                overlap_end = min(end0_i, end1_j)\n                if overlap_end <= overlap_start:\n                    if end0_i <= float(start1[j]):\n                        i += 1"
+      },
+      {
+        "line": 741,
+        "text": "                    continue\n\n                left = int(np.searchsorted(variant_pos, overlap_start, side=\"left\"))\n                right = int(np.searchsorted(variant_pos, overlap_end, side=\"left\"))\n                if right <= left:"
+      },
+      {
+        "line": 742,
+        "text": "\n                left = int(np.searchsorted(variant_pos, overlap_start, side=\"left\"))\n                right = int(np.searchsorted(variant_pos, overlap_end, side=\"left\"))\n                if right <= left:\n                    if end0_i <= end1_j:"
+      },
+      {
+        "line": 800,
+        "text": "                    j += 1\n\n    class_accuracy = np.divide(\n        class_correct.astype(np.float64),\n        class_truth.astype(np.float64),"
+      },
+      {
+        "line": 820,
+        "text": "        dtype=np.float64,\n    )\n    pop_accuracy = {\n        pop: (float(vals[\"correct\"]) / float(vals[\"total\"]) if vals[\"total\"] else float(\"nan\"))\n        for pop, vals in pop_counts.items()"
+      },
+      {
+        "line": 828,
+        "text": "    admix_hap_ids = sorted(k for k in hap_counts if hap_cohort.get(k) == \"ADMIX\")\n    jackknife_units = admix_hap_ids if admix_hap_ids else sorted(hap_counts)\n    jackknife_haplotype_snp_accuracy = jackknife_ratio_ci_from_counts(\n        hap_counts,\n        unit_ids=jackknife_units,"
+      },
+      {
+        "line": 837,
+        "text": "        \"class_truth\": class_truth,\n        \"class_correct\": class_correct,\n        \"class_accuracy\": class_accuracy,\n        \"soft_r2\": soft_r2,\n        \"point_counts\": point_counts,"
+      },
+      {
+        "line": 840,
+        "text": "        \"soft_r2\": soft_r2,\n        \"point_counts\": point_counts,\n        \"pop_accuracy\": pop_accuracy,\n        \"hap_counts\": hap_counts,\n        \"hap_cohort\": hap_cohort,"
+      },
+      {
+        "line": 843,
+        "text": "        \"hap_counts\": hap_counts,\n        \"hap_cohort\": hap_cohort,\n        \"jackknife_haplotype_snp_accuracy\": jackknife_haplotype_snp_accuracy,\n        \"total_calls\": total_calls,\n        \"total_correct\": total_correct,"
+      },
+      {
+        "line": 846,
+        "text": "        \"total_calls\": total_calls,\n        \"total_correct\": total_correct,\n        \"snp_accuracy\": (float(total_correct) / float(total_calls)) if total_calls else float(\"nan\"),\n        \"soft_r2_macro\": float(np.nanmean(soft_r2)),\n        \"num_variants_total\": int(n_variants_total),"
+      },
+      {
+        "line": 943,
+        "text": "        metrics[\"class_truth\"],\n        metrics[\"class_correct\"],\n        metrics[\"class_accuracy\"],\n    )\n    hap_counts = metrics.get(\"hap_counts\")"
+      },
+      {
+        "line": 966,
+        "text": "        genomic_window_rows = _genomic_window_table(window_bp, window_total, window_correct)\n        _write_genomic_error_windows_tsv(genomic_windows_path, genomic_window_rows)\n        genome_wide_error_rate = 1.0 - float(metrics[\"snp_accuracy\"])\n        plot_title = None\n        if extra_summary:"
+      },
+      {
+        "line": 984,
+        "text": "        \"dose_r2_definition\": \"Pearson's r2 on soft (probability) local-ancestry dose vs true dose.\",\n        \"class_labels\": metrics[\"class_labels\"],\n        \"snp_accuracy\": metrics[\"snp_accuracy\"],\n        \"soft_r2_macro\": metrics[\"soft_r2_macro\"],\n        \"num_hap_snp_calls\": metrics[\"total_calls\"],"
+      },
+      {
+        "line": 995,
+        "text": "        \"num_diploid_samples_total\": metrics[\"num_diploid_samples_total\"],\n        \"num_shards\": metrics[\"num_shards\"],\n        \"population_accuracy\": metrics[\"pop_accuracy\"],\n        \"jackknife_haplotype_snp_accuracy\": metrics.get(\"jackknife_haplotype_snp_accuracy\"),\n        \"per_class_accuracy\": {"
+      },
+      {
+        "line": 996,
+        "text": "        \"num_shards\": metrics[\"num_shards\"],\n        \"population_accuracy\": metrics[\"pop_accuracy\"],\n        \"jackknife_haplotype_snp_accuracy\": metrics.get(\"jackknife_haplotype_snp_accuracy\"),\n        \"per_class_accuracy\": {\n            label: (None if np.isnan(val) else float(val))"
+      },
+      {
+        "line": 997,
+        "text": "        \"population_accuracy\": metrics[\"pop_accuracy\"],\n        \"jackknife_haplotype_snp_accuracy\": metrics.get(\"jackknife_haplotype_snp_accuracy\"),\n        \"per_class_accuracy\": {\n            label: (None if np.isnan(val) else float(val))\n            for label, val in zip(metrics[\"class_labels\"], metrics[\"class_accuracy\"])"
+      },
+      {
+        "line": 999,
+        "text": "        \"per_class_accuracy\": {\n            label: (None if np.isnan(val) else float(val))\n            for label, val in zip(metrics[\"class_labels\"], metrics[\"class_accuracy\"])\n        },\n        \"soft_r2\": {"
+      },
+      {
+        "line": 1393,
+        "text": "            heldout_max_variants=heldout_max_variants,\n        )\n        jk = metrics.get(\"jackknife_haplotype_snp_accuracy\") or {}\n        logger.info(\n            \"Rescored held-out SNP-level accuracy %.2f%% [%.2f%%, %.2f%%] (jackknife n=%s)\","
+      },
+      {
+        "line": 1395,
+        "text": "        jk = metrics.get(\"jackknife_haplotype_snp_accuracy\") or {}\n        logger.info(\n            \"Rescored held-out SNP-level accuracy %.2f%% [%.2f%%, %.2f%%] (jackknife n=%s)\",\n            metrics[\"snp_accuracy\"] * 100.0,\n            float(jk.get(\"ci_low\", float(\"nan\"))) * 100.0,"
+      },
+      {
+        "line": 1396,
+        "text": "        logger.info(\n            \"Rescored held-out SNP-level accuracy %.2f%% [%.2f%%, %.2f%%] (jackknife n=%s)\",\n            metrics[\"snp_accuracy\"] * 100.0,\n            float(jk.get(\"ci_low\", float(\"nan\"))) * 100.0,\n            float(jk.get(\"ci_high\", float(\"nan\"))) * 100.0,"
+      },
+      {
+        "line": 1428,
+        "text": "        )\n        logger.info(\n            \"Held-out joint SNP-level accuracy %.2f%% | coverage %.4f | soft Pearson r2 on local-ancestry dose %.4f\",\n            metrics[\"snp_accuracy\"] * 100.0,\n            metrics[\"coverage_hap_snp\"],"
+      },
+      {
+        "line": 1429,
+        "text": "        logger.info(\n            \"Held-out joint SNP-level accuracy %.2f%% | coverage %.4f | soft Pearson r2 on local-ancestry dose %.4f\",\n            metrics[\"snp_accuracy\"] * 100.0,\n            metrics[\"coverage_hap_snp\"],\n            metrics[\"soft_r2_macro\"],"
+      },
+      {
+        "line": 1450,
+        "text": "        )\n        logger.info(\n            \"Held-out base SNP-level accuracy %.2f%% | coverage %.4f | soft Pearson r2 on local-ancestry dose %.4f\",\n            metrics[\"snp_accuracy\"] * 100.0,\n            metrics[\"coverage_hap_snp\"],"
+      },
+      {
+        "line": 1451,
+        "text": "        logger.info(\n            \"Held-out base SNP-level accuracy %.2f%% | coverage %.4f | soft Pearson r2 on local-ancestry dose %.4f\",\n            metrics[\"snp_accuracy\"] * 100.0,\n            metrics[\"coverage_hap_snp\"],\n            metrics[\"soft_r2_macro\"],"
+      }
+    ],
+    "sha256": "b78d619f25a6e3cf1c89ab96cf2a77091404bfe2f6bafe4e7cd587df4431f5f0",
+    "source": ".runtime/author_sources/argmix_c2481248eb0d/src/final_test_metrics.py"
+  }
+]

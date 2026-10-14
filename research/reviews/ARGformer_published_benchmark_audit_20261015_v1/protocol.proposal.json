@@ -1,0 +1,179 @@
+{
+  "schema": "ARGformer_published_American_benchmark_proposal_v1",
+  "status": "source_only_inactive",
+  "execution_enabled": false,
+  "published_task": {
+    "doi": "10.1093/bioinformatics/btag438",
+    "model": "HomSap/AmericanAdmixture_4B18",
+    "sequence_length_bp": 30000000,
+    "recombination_rate_per_bp_generation": 1e-08,
+    "mutation_rate_per_bp_generation": 1.25e-08,
+    "paper_samples": {
+      "ADMIX": 1000,
+      "EUR": 200,
+      "AFR": 200,
+      "East_Asian": 200
+    },
+    "sample_unit_not_explicit_in_paper": "confirm_haploid_vs_diploid_before_exact_reproduction",
+    "inference": "tsinfer+tsdate; no phasing/genotype error",
+    "primary_evaluation_size_unique_admixed_paths": 10000,
+    "paper_classes": [
+      "EUR",
+      "EAS",
+      "AFR"
+    ],
+    "genome_or_physical_span_weighting": "not specified; Table1 is unique-path benchmark"
+  },
+  "explicit_reconstruction_sample_contract": {
+    "unit": "haploid genomes",
+    "sample_ploidy": 1,
+    "counts": {
+      "AFR": 200,
+      "EUR": 200,
+      "ASIA": 200,
+      "ADMIX": 1000
+    },
+    "total_haplotypes": 1600,
+    "not_claimed_confirmed_paper_sample_unit": true,
+    "warning": "stdpopsim0.3 dictionary/newCLI counts diploid individuals; do not pass the published numbers unchanged to that API"
+  },
+  "ontology": {
+    "class_order": [
+      "EUR",
+      "EAS",
+      "AFR"
+    ],
+    "catalog_to_class": {
+      "EUR": 0,
+      "ASIA": 1,
+      "AFR": 2
+    },
+    "ADMIX_is_query_only": true,
+    "admixture_generation": 12,
+    "source_fractions": {
+      "AFR": 0.16666666666666666,
+      "EUR": 0.3333333333333333,
+      "EAS": 0.5
+    },
+    "catalog_mutation_rate_2_36e_8_must_be_overridden": true
+  },
+  "native_release": {
+    "commit": "f7545be7bca0200fb39aeb7f94a8e5f0b6bf5596",
+    "tag": "v1.0.0",
+    "pretraining_epochs": 5,
+    "pretraining_seed": 17,
+    "pretraining_logical_batch": 512,
+    "pretraining_mask_probability": 0.3,
+    "pretraining_eval_mask_probability": 0.15,
+    "contrastive_epochs": 1,
+    "contrastive_seed": 36,
+    "contrastive_logical_batch": 4096,
+    "released_contrastive_temperature": 0.3,
+    "paper_text_default_temperature": 0.05,
+    "temperature_in_actual_Table1_training": "not released",
+    "num_classes": 3,
+    "sequence_length": 128,
+    "skip_extant_tokens": true,
+    "path_split": {
+      "deduplication": "full raw leaf-to-root tuple across all marginal trees",
+      "train_fraction": 0.9,
+      "seed": 42
+    },
+    "no_cross_ARG_vocabulary_or_checkpoint_transfer": true,
+    "reference_only_contrastive_labels": true,
+    "query_ancestry_truth_used_for_training": false,
+    "predeclared_current_release_retrieval_k": 1,
+    "published_simulated_LAI_k": "not specified",
+    "checkpoint": "released latest checkpoint after actual zero-exit phase; record actual epoch/step/SHA, no external ancestry selection"
+  },
+  "reconstruction_evaluation": {
+    "unit": "unique full admixed path",
+    "count": 10000,
+    "path_eligibility": "observed only, never based on ancestry purity/correctness",
+    "sample_seed_base": 51000,
+    "path_call_coordinate": "proposed first-occurrence half-open interval midpoint, chosen before truth",
+    "not_claimed_confirmed_paper_coordinate_or_truth_rule": true,
+    "all_methods_use_same_query_records_and_class_order": true,
+    "prediction_seal_before_external_truth": true,
+    "primary": [
+      "precision_per_class",
+      "recall_per_class",
+      "F1_per_class",
+      "macro_F1"
+    ],
+    "secondary": "bp-weighted full-tract score is distinct, not equated with Table1",
+    "F1_from_confusion_counts_not_harmonic_mean_of_averaged_P_R": true
+  },
+  "prospective_splits": {
+    "GNN_development_train_simulation_seeds": [
+      21001,
+      21002,
+      21003,
+      21004,
+      21005,
+      21006,
+      21007,
+      21008,
+      21009,
+      21010,
+      21011,
+      21012,
+      21013,
+      21014,
+      21015,
+      21016,
+      21017,
+      21018,
+      21019,
+      21020
+    ],
+    "GNN_development_validation_simulation_seeds": [
+      31001,
+      31002,
+      31003,
+      31004,
+      31005
+    ],
+    "paired_outer_test_simulation_seeds": [
+      41001,
+      41002,
+      41003,
+      41004,
+      41005,
+      41006,
+      41007,
+      41008,
+      41009,
+      41010
+    ],
+    "simulation_replicates_and_diploid_subjects_split_before_windows": true,
+    "mutations_seed": "coalescent_seed+1000000",
+    "evaluation_path_seed": "simulation_seed+51000",
+    "ARGformer_test_ARG_representation_fit": "within_ARG transductive MLM on observed unlabeled paths; reference-only contrastive fit",
+    "native_PATH90_10_is_not_independent_ARG_or_subject_generalization": true,
+    "GNN_checkpoint_selection": "freeze on development validation macro_F1 only; outer data unused"
+  },
+  "uncertainty_plan": {
+    "primary_independent_unit": "simulation replicate",
+    "paired_test_n": 10,
+    "report": "per-replicate per-class P/R/F1, mean, sample SD(ddof1), paired differences and replicate bootstrap95%CI",
+    "training_variance_sensitivity": "3 fixed test ARGs x 5 fresh initialization seeds, reported separately; not n50 independent ARGs",
+    "single_canary_cannot_supply_SD": true,
+    "paper_SD_or_replicate_count_available": false
+  },
+  "our_GNN_adaptation": {
+    "new_task": "C3 American demography; fresh training/checkpoints",
+    "generic_existing_classes": [
+      "arggnn.models.build_model(...,num_classes=3)",
+      "arggnn.anchor_kernel.AnchorKernelModel(...,num_classes=3)",
+      "arggnn.reference_encoder.ReferenceFeatureAdapter(reference_columns=(0,1,2),...)"
+    ],
+    "H038_PyG_and_H039_CRF_are_frozen_C4_Q686": "new typed C3 versions required, not merely a config rename",
+    "no_ANA_CHG_WHG_EHG_merge_to_three_continental_classes": true,
+    "minimal_parameterization": "three reference one-hot channels, three emission outputs,3x3 transitions and6 ordered off-diagonal entries",
+    "preserve_message_passing_mutation_support_aggregation_and_objective_equations": true,
+    "report_new_parameter_counts_and_class_input_layout": true
+  },
+  "no_GNN_paper_benchmark_driver_exists_yet": true,
+  "no_resources_or_runs_authorized_by_this_file": true
+}

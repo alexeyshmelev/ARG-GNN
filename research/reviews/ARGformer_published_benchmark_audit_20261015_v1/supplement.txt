@@ -1,0 +1,268 @@
+ARGformer                                                                                                                                              S1
+
+
+Supplementary Material                                                        throughput of 189,500 tokens/sec and converged in 58 minutes on
+                                                                              1 NVIDIA A100 GPU with 80 GB of VRAM.
+S1. Dataset statistics
+The real inferred ARG from (Wohns et al., 2022) includes samples
+                                                                                      7                                                   1.000
+from the 1000 Genomes Project (1KGP) (Auton et al., 2015),
+Simons Genome Diversity Project (SGDP) (Mallick et al., 2016),                        6                                                   0.857
+
+Human Genome Diversity Project (HGDP) (Bergström et al.,
+                                                                                      5                                                   0.714
+
+
+
+
+                                                                                                                                                  Masked accuracy
+2020), three Neanderthal genomes (Chagyrskaya, Altai, and
+Vindija) (Mafessoni et al., 2020; Prüfer et al., 2014, 2017), and a                  4                                                   0.571
+
+
+
+
+                                                                               Loss
+Denisovan genome. We created two separate datasets for distinct
+                                                                                      3                                                   0.429
+analyses:
+   Archaic Introgression Analysis. This dataset includes                              2                                                   0.286
+
+archaic reference genomes (Altai, Chagyrskaya, and Vindija
+                                                                                      1                                                   0.143
+Neanderthals, and Denisovan), an African baseline (Yoruba), and
+held-out populations for validation (Utah Residents (CEPH) with                       0                                                   0.000
+                                                                                          0   10    20         30         40   50    60
+Northern and Western European ancestry, Chinese Dai, Papuan
+                                                                                                         Time (minutes)
+Highlands, and Mandinka).
+   Oceania-like Ancestry in the Americas. This dataset
+consists of three reference groups and one test group: (1) East               Fig. S1: Training dynamics during self-supervised pretraining of
+Asian populations (Han Chinese, Japanese), (2) Indigenous                     ARGformer on the inferred ARG dataset. Validation loss decreases
+American baseline populations (Pima, Maya, Mixe), (3)                         steadily while masked-token accuracy increases over time, showing
+Oceanian populations (Aboriginal Australian, Bougainville,                    stable convergence within a single 58 minute training run on one
+Papuan populations), and a held-out test group of Indigenous                  NVIDIA A100 GPU.
+American populations (Karitiana, Suruı́, Chane, Piapoco,
+Quechua, Zapotec). Reference groups were balanced to the
+minimum group size to prevent biasing the model toward
+overrepresented populations.
+                                                                              S3. Visualization of Oceanian-like ancestry in South
+   We performed a 90%/10% train/validation split on the subset
+of unique marginal paths shown in Table S1.
+                                                                                  America
+                                                                              A complementary view comes from a UMAP projection of
+                                                                              the haplotype-path embedding space (Figure S2). Reference
+Table S1. Dataset statistics for ARGformer pretraining on the real inferred
+                                                                              population groups form their own separated clusters with most of
+ARG from (Wohns et al., 2022).
+                                                                              the query points spread across the American embedding manifold,
+   Dataset           Statistic            Training       Validation           meanwhile the Oceanian cluster contains a small set of Suruı́ and
+                                                                              Karitiana embeddings. A small set of Suruı́ and Piapoco points
+                     Sample nodes                   688
+                                                                              are also displaced toward the Oceania side of the embedding space,
+      Archaic        Vocabulary size              184,963
+   Introgression                                                              consistent with the retrieval asymmetry observed above.
+                     Unique paths         7,660,071      851,119
+                     Total tokens        120,297,364 13,369,481
+                     Sample nodes                    665                      S4. Analysis of learned representations
+   Oceania-like      Vocabulary size              119,067                     S4.1. Additional probing analyses of genealogical structure in
+   in Americas       Unique paths         3,473,898       385,989                   self-supervised embeddings
+                     Total tokens         57,777,684     6,421,781
+                                                                              In the manuscript we showed that a simple ridge probe trained
+                                                                              on frozen self-supervised embeddings predicts the number of
+                                                                              coalescent events along each path in both the American simulation
+                                                                              and the archaic-modern inferred ARG, while collapsing under a
+                                                                              permutation control. Here we provide an additional probe analysis
+S2. Model training and efficiency                                             for the Oceania-America inferred ARG, together with a brief
+We adopted the ModernBERT-base architecture and optimization                  summary of the probe setup.
+settings (Warner et al., 2025), using a 12-layer, 12-head                         For each dataset, we extracted frozen path embeddings from
+transformer (Vaswani et al., 2017) with rotary position                       the self-supervised model and trained a ridge regressor to predict
+embeddings (RoPE) (Su et al., 2024), and Flash Attention 2                    the number of coalescent events along the corresponding leaf-
+(Dao, 2024). We assessed the model’s ability to learn genealogical            to-root path. Evaluation was performed on held-out paths not
+representations through self-supervised training. To measure                  used to fit the probe. As a null control, we repeated the same
+generalization to unseen haplotypes, we monitored validation loss             procedure after randomly permuting the training labels, which
+and masked token accuracy on a held-out set comprising 10% of                 preserves the embedding distribution, probe class, and label
+ancestral paths excluded from training (Figure S1). On this held-             marginal while breaking the correspondence between embeddings
+out set from the inferred ARG dataset, ARGformer achieved a                   and their genealogical targets.
+top-1 accuracy of 95.96%, confirming it effectively reconstructs                  Figure S3 shows the same analysis in the Oceania-America
+ancestral paths from context for previously unseen sequences.                 inferred ARG. As in the main-text settings, predictions from
+Training was also highly efficient. Pretraining sustained an average          the probe track the observed coalescent-event counts substantially
+S2                                                                                                                                                                                         ARGformer
+
+
+                                                                                                  35                                                                35
+
+
+
+
+                                                                    Predicted coalescent events
+
+
+
+
+                                                                                                                                      Predicted coalescent events
+                                                                                                  30                                                                30
+
+
+                                                                                                  25                                                                25
+
+
+                                                                                                  20                                                                20
+
+
+                                                                                                  15                                                                15
+
+
+                                                                                                  10                                                                10
+                                                                                                                     Probe held-out                                                Permutation control
+                                                                                                                        R 2 = 0.827                                                       R 2 = -0.006
+                                                                                                   5                                                                 5
+                                                                                                                  Spearman = 0.905                                                  Spearman = 0.001
+
+                                                                                                           10       20        30                                             10       20        30
+                                                                                                       Observed coalescent events                                        Observed coalescent events
+
+
+
+                                                                  Fig. S3: Additional probe analysis for the Oceania-America
+                                                                  inferred ARG. The left plot shows held-out prediction of the
+                                                                  number of coalescent events along each path from frozen self-
+                                                                  supervised embeddings using a ridge probe, and the right plot
+                                                                  shows the corresponding permutation control obtained by shuffling
+                                                                  the training labels before fitting. As in the main-text analyses,
+                                                                  the probe substantially outperforms the permutation control,
+                                                                  indicating that the self-supervised embedding space encodes
+                                                                  genealogical depth information beyond chance.
+
+
+
+                                                                  S4.2. Attention patterns reflect structured genealogical
+                                                                        relations
+ UMAP
+
+
+
+
+                                                                  To examine what self-supervised pretraining learns beyond global
+                                                                  embedding geometry, we analyzed node-to-node attention patterns
+                                                                  on held-out paths from the American simulation. Figure S4 shows
+        Australian         Maya      Han Chinese     Piapoco      that different heads preferentially capture distinct genealogical
+        Bougainville       Mayan     Japanese        Quechua      relations along the leaf-to-root path. Representative examples
+        Papuan             Mixe      Chane           Surui
+                                                                  include heads that attend to the immediate ancestor, heads that
+        Papuan Highlands   Pima      Karitiana       Zapotec
+        Papuan Sepik
+                                                                  allocate attention toward the rootward end of the path, and heads
+                                                                  that focus on deeper ancestors farther up the path.
+                                                                      These patterns are not uniformly distributed across the
+Fig. S2: UMAP projection of haplotype-path embeddings for         network. For each layer, we quantified each motif as the maximum
+populations spanning Oceania (e.g., Australian, Bougainville,     fraction of node-to-node attention assigned to that pattern by
+Papuan groups), East Asia (Han Chinese, Japanese), and the        any single head. The three behaviors peak in different layers,
+Americas (e.g., Chane, Karitiana, Piapoco, Quechua, Suruı́,       indicating that self-supervised pretraining does not simply produce
+Zapotec).                                                         a generic local-attention mechanism, but instead yields heads
+                                                                  with partially specialized genealogical roles. Immediate-ancestor
+                                                                  attention is strongest early and in the last layers, while deep-
+better than the permutation control. Together with the American   ancestor attention is most sustained in the middle layers and drops
+simulation and archaic-modern results shown in the main text,     sharply at the end. That fits with a mid-layer role of integrating
+this supports the conclusion that self-supervised ARGformer       higher-level genealogical context before the final layers refocus on
+embeddings encode genealogically meaningful information across    local prediction.
+simulated and real inferred genealogies, and across both
+continental-structure and archaic-introgression settings.
+ARGformer                                                                                                                                                                                                                                                                                                        S3
+
+
+                                                                       Immediate ancestor                                                                                   Rootward attention                                                                               Deep-ancestor attention
+                                                                        Layer 10, Head 7                                                                                     Layer 2, Head 10                                                                                   Layer 5, Head 11
+                                    Attending path position   18                                                                                                   18                                                                                                   18
+
+
+
+
+                                                                                                                                         Attending path position
+
+
+
+
+                                                                                                                                                                                                                                              Attending path position
+                                                                                                                                                                                                                    0.6
+                                                                                                               0.8
+                                                                                                                                                                                                                    0.5                                                                                         0.6
+
+                                                                                                               0.6                                                                                                  0.4
+                                                                                                                                                                                                                                                                                                                0.4
+                                                                                                                                                                                                                    0.3
+                                                                                                               0.4
+                                                                                                                                                                                                                    0.2
+                                                                                                                                                                                                                                                                                                                0.2
+                                                                                                               0.2
+                                                                                                                                                                                                                    0.1
+
+
+                                                               0                                                                                                    0                                                                                                    0
+                                                                   0                             18                                                                     0                             18                                                                     0                             18
+                                                                       Attended path position                                                                               Attended path position                                                                               Attended path position
+
+                                       Immediate ancestor across layers                                                                          Rootward attention across layers                                                        Deep-ancestor attention across layers
+                              1.0                                                                                                  1.0                                                                                                  1.0
+ Maximum attention fraction
+
+
+
+
+                                                                                                      Maximum attention fraction
+
+
+
+
+                                                                                                                                                                                                           Maximum attention fraction
+                              0.8                                                                                                  0.8                                                                                                  0.8
+
+
+                              0.6                                                                                                  0.6                                                                                                  0.6
+
+
+                              0.4                                                                                                  0.4                                                                                                  0.4
+
+
+                              0.2                                                                                                  0.2                                                                                                  0.2
+
+
+                              0.0                                                                                                  0.0                                                                                                  0.0
+                                           0                       2      4      6     8        10                                              0                       2      4      6     8        10                                              0                       2      4      6     8        10
+                                                                              Layer                                                                                                Layer                                                                                                Layer
+
+
+Fig. S4: Attention interpretability analysis for held-out American simulation samples. Top row: representative attention maps for heads
+that preferentially attend to immediate ancestor (layer 10, head 7), rootward attention (layer 2, head 10), and deep-ancestor attention
+(layer 5, head 11). Bottom row: layer-wise progression of each pattern, quantified as the maximum fraction of node-to-node attention
+assigned to that pattern by any single head in each layer. These panels show that different heads preferentially capture distinct genealogical
+patterns rather than all collapsing onto the same local signal.
+
+
+
+References
+A. Auton et al. A global reference for human genetic variation.
+   Nature, 2015.
+A. Bergström et al. Insights into human genetic variation and
+   population history from 929 diverse genomes. Science, 2020.
+T. Dao. Flashattention-2: Faster attention with better parallelism
+   and work partitioning. In ICLR, 2024.
+F. Mafessoni et al. A high-coverage Neandertal genome from
+   Chagyrskaya Cave. Proceedings of the National Academy of
+   Sciences, 2020.
+S. Mallick et al. The Simons Genome Diversity Project: 300
+   genomes from 142 diverse populations. Nature, 2016.
+K. Prüfer et al. The complete genome sequence of a Neanderthal
+   from the Altai Mountains. Nature, 2014.
+K. Prüfer et al. A high-coverage Neandertal genome from Vindija
+   Cave in Croatia. Science, 2017.
+J. Su et al. Roformer: Enhanced transformer with rotary position
+   embedding. Neurocomputing, 2024.
+A. Vaswani et al. Attention is all you need. NeurIPS, 2017.
+B. Warner et al. Smarter, better, faster, longer: A modern
+   bidirectional encoder for fast, memory efficient, and long context
+   finetuning and inference. In Proceedings of the 63rd Annual
+   Meeting of the Association for Computational Linguistics, 2025.
+A. W. Wohns et al. A unified genealogy of modern and ancient
+   genomes. Science, 2022.
+
