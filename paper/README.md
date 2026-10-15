@@ -1,7 +1,14 @@
 # Manuscript sources
 
-Three explicitly incomplete methods/protocol drafts preserve the current candidate
-architectures. Neither is the final empirical paper.
+Three explicitly incomplete methods/protocol drafts preserve earlier candidate
+architectures. None is the final empirical paper.
+
+The current full-panel whole-tree PyG models and the H038–H043 experiments are
+documented in the [main README](../README.md) and linked experiment records.
+Their 476-diploid, 32-TRAIN/eight-VAL results belong to a different architecture
+and dataset from the 140-diploid anchor-kernel pilot described below. The final
+AAAI manuscript must be rewritten around the selected method and its matched
+evidence. The current drafts remain historical methods records.
 
 - anchor_kernel_working.tex describes repeated fixed-anchor kernel message passing, integrated age geometry, reference-inclusive bounded normalization and factorial controls. It is a methods draft. The development comparison table was updated2026-10-11 to completed three-seed standalone fits, native ARGformer and one-seed reference refinements. A six-page PDF compiled with the existing remote project runtime, with no overfull table warning. Independent biological superiority and distinct GNN novelty remain unresolved. The current source includes the biological development panel, census350 estimand, observation-only interfaces and native-baseline task-transfer definitions.
 - boundary_kernel_working.tex describes the coupled persistent-sample boundary

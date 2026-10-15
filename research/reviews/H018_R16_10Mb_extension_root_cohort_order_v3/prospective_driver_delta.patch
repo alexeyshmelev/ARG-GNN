@@ -1,0 +1,191 @@
+--- research/reviews/H018_R16_10Mb_extension_root_memo_v2/root_extension_driver.py
++++ research/reviews/H018_R16_10Mb_extension_root_cohort_order_v3/root_extension_driver.py
+@@ -3,11 +3,11 @@
+ from datetime import datetime,timezone,timedelta
+ import argparse,hashlib,importlib.util,json,os,selectors,signal,subprocess,sys,time
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-REL="research/reviews/H018_R16_10Mb_extension_root_memo_v2"
++REL="research/reviews/H018_R16_10Mb_extension_root_cohort_order_v3"
+ HERE=ROOT/REL
+ SOURCE=REL+"/root_extension_driver.py"
+ PLAN="research/reviews/H018_R16_10Mb_extension_source_v1"
+-WORKER="src/arggnn/prepare_h018_r16_10mb_extension_v1.py"
++WORKER="src/arggnn/prepare_h018_r16_10mb_extension_v2.py"
+ POLICY={"path":"research/reviews/completed_scope_credits_root_activation_20261015_v1/activation_policy.json","sha256":"a0885b5209172dd79a835d442e0ad3495f5c1a0eac61a1c5c08154ec877ecf85"}
+ GUARD={"path":"research/reviews/concurrent_completed_scope_credits_v3/completed_scope_credits_v3.py","sha256":"ea14c12c41b9385a86182aa9c24058f7b1276107fc5706c70e47828e8b2c31ef"}
+ REPAIR={"path":"research/reviews/H039_missing_marker_repair_v1/repair_authority_20261015.json","sha256":"f6f2d628199e8be73db8b5d90d428570d8afdefeab9dc5cd94bb5eafb39247db"}
+@@ -17,11 +17,16 @@
+ BASE="a8049bc103afb1cbbbce6f8fc3707a21de9613b23034599641b688994fc5caa3"
+ OLD_REL="research/reviews/H018_R16_10Mb_extension_root_v1"
+ OLD_OUTPUT="data/H018_R16_20_30Mb_extension_v1"
+-OUTPUT="data/H018_R16_20_30Mb_extension_memo_v2"
++OUTPUT="data/H018_R16_20_30Mb_extension_cohort_order_v3"
+ OLD_DRIVER_REF={'path': 'research/reviews/H018_R16_10Mb_extension_root_v1/root_extension_driver.py', 'sha256': '5f3721ba37115d5cf966c5420d49c9404232523af010ff6ce1862120c56ff2a8'}
+-WORKER_REF={'path': 'src/arggnn/prepare_h018_r16_10mb_extension_v1.py', 'sha256': '4c97c6297b12c8e3bed5a3bb44bcdd912f6ee4bd00d8b88fb962c99f11330f49'}
++OLD_WORKER_REF={'path': 'src/arggnn/prepare_h018_r16_10mb_extension_v1.py', 'sha256': '4c97c6297b12c8e3bed5a3bb44bcdd912f6ee4bd00d8b88fb962c99f11330f49'}
++WORKER_REF={'path': 'src/arggnn/prepare_h018_r16_10mb_extension_v2.py', 'sha256': 'e152bd3cdd4c50ac31ca40f90286d21b50744d2ddc803245d497f4ce9255193d'}
+ MEMO_REF={'path': 'research/reviews/resource_guard_hotpath_source_audit_v1/transaction_memo_adapter_v2.py', 'sha256': 'c972e9a779d424ceafdb258848614bf40994d1004e2c73fc5cd225ae99621364'}
+ V4_REF={'path': 'src/arggnn/project_budget_v4.py', 'sha256': 'a093c7d86f57fee569cb99f4712250e9505a1119f3950fa44282c7ba8c57df47'}
++FAILED_REL='research/reviews/H018_R16_10Mb_extension_root_memo_v2'
++FAILED_OUTPUT="data/H018_R16_20_30Mb_extension_memo_v2"
++FAILED_EVIDENCE={'driver_ref': {'path': 'research/reviews/H018_R16_10Mb_extension_root_memo_v2/root_extension_driver.py', 'sha256': '13a9c22b6f801fcb7e2d6550bc860c45d4a4ee531304f38d9802502979d91ee3'}, 'source_ref': {'path': 'src/arggnn/prepare_h018_r16_10mb_extension_v1.py', 'sha256': '4c97c6297b12c8e3bed5a3bb44bcdd912f6ee4bd00d8b88fb962c99f11330f49'}, 'admitted_ref': {'path': 'research/reviews/H018_R16_10Mb_extension_root_memo_v2/admitted.json', 'sha256': 'f3921b29436818c1e3141eea30d9c797aa79fc78a255d7cc75ec3e50ea27e2d3'}, 'admission_ref': {'path': 'research/reviews/H018_R16_10Mb_extension_root_memo_v2/admission.json', 'sha256': '2891ebc829d8482de07c1a2a79a922026b8fb2ba15a57f15386365463a9cb8a3'}, 'launch_ref': {'path': 'research/reviews/H018_R16_10Mb_extension_root_memo_v2/launch.json', 'sha256': 'db89f35457fb9a7d2e4857f05a4927c21ea9d579ae81b0e56887625d51669d15'}, 'actual_wait_ref': {'path': 'research/reviews/H018_R16_10Mb_extension_root_memo_v2/actual_wait.json', 'sha256': '722cec476267cedda0e9ccbfc31ea9e1d1629fa19948a0825d68f0a0023aec10'}, 'log_ref': {'path': 'research/reviews/H018_R16_10Mb_extension_root_memo_v2/worker_aux/launch.log', 'sha256': 'be295b54ca31d08fd23f19bdeb7f69a5049ac417f83c154da37ed4c18ab8f357'}, 'storage_ref': {'path': 'research/reviews/H018_R16_10Mb_extension_root_memo_v2/storage.json', 'sha256': '047e1d8e5d17950a2579e5e3bb9b41aece3f2e0296231ee74e2ff2d807d6fbe3'}, 'registration_ref': {'path': 'research/reviews/H018_R16_10Mb_extension_root_memo_v2/registration.json', 'sha256': '731f296491bfe736373981a2ae84369d63f6001a8c7593f9b082650e5653e5c0'}, 'original_unused_revocation_ref': {'path': 'research/reviews/H018_R16_10Mb_extension_root_memo_v2/old_never_launched_revocation_root.json', 'sha256': '60177d1ecddbb9255f9312b1d1c40fd2eda87cb89f51c9151baa97272e84aea4'}}
++CORRECTION_REF={'path': 'research/reviews/H018_10Mb_cohort_order_correction_source_v1/source_handoff.json', 'sha256': '120066d9f4dbc5280e535731c801b72f0943cfc93d0ef34b270467149afe238f'}
+ CAP=200000000
+ LOG_CAP=16777216
+ sys.path[:0]=[str(ROOT),str(ROOT/"src")]
+@@ -53,34 +58,92 @@
+         m._memo_handle=memo.install(m.budget.v4,expected_source_path=ROOT/V4_REF["path"],expected_source_sha256=V4_REF["sha256"])
+     m.configure_v2(REPAIR,policy_ref=POLICY);return m
+ 
+-def old_never_launched_v2(certificate_ref):
+-    """Root future metadata-only barrier; old allocation remains fully charged."""
++def failed_predecessor_v3(certificate_ref):
++    """Root-only future barrier; both prior allocations retain their full charge."""
+     certificate=read(certificate_ref)
+-    require(certificate.get("schema")=="H018_R16_extension_never_launched_revocation_v1"
++    require(certificate.get("schema")=="H018_R16_failed_memo_v2_root_replacement_certificate_v1"
+         and certificate.get("root_authorizer")=="root_agent" and certificate.get("active") is True
+-        and certificate.get("old_driver_ref")==OLD_DRIVER_REF
++        and certificate.get("failed_evidence")==FAILED_EVIDENCE
++        and certificate.get("corrected_worker_ref")==WORKER_REF
++        and certificate.get("correction_source_handoff_ref")==CORRECTION_REF
++        and certificate.get("successor_output_directory")==OUTPUT
++        and certificate.get("successor_job_id")=="H018_R16_20_30Mb_extension_root_cohort_order_v3"
+         and certificate.get("condition_id")=="H018_R16_20_30Mb_extension_v1"
+-        and certificate.get("old_launch_json_absent") is True
+-        and certificate.get("old_output_directory_absent") is True
+-        and certificate.get("all_old_launch_resume_write_capabilities_revoked") is True
+-        and certificate.get("old_reservation_remains_fully_charged") is True
++        and certificate.get("complete_owned_pid_and_group_roster") is True
++        and certificate.get("root_targeted_pid_and_group_absence_checked") is True
++        and certificate.get("all_prior_launch_resume_write_capabilities_revoked") is True
++        and certificate.get("failed_memo_v2_capabilities_revoked") is True
++        and certificate.get("original_unused_capabilities_revoked") is True
++        and certificate.get("failed_memo_v2_reservation_remains_fully_charged") is True
++        and certificate.get("original_unused_reservation_remains_fully_charged") is True
++        and certificate.get("all_prior_artifacts_preserved") is True
+         and certificate.get("credit_or_release_applied") is False
++        and certificate.get("deletion_applied") is False
+         and certificate.get("same_scientific_condition") is True,
+-        "Explicit root old-never-launched/revocation certificate required; no old credit/release")
+-    require(certificate["old_admitted_ref"]["path"]==OLD_REL+"/admitted.json"
+-        and certificate["old_admission_ref"]["path"]==OLD_REL+"/admission.json",
+-        "Exact old operational packet metadata required")
+-    old=read(certificate["old_admitted_ref"]);old_ad=read(certificate["old_admission_ref"])
+-    require(old["driver_ref"]==OLD_DRIVER_REF and old["admission_ref"]==certificate["old_admission_ref"]
+-        and old_ad["source_ref"]==WORKER_REF and old_ad["output_directory"]==OLD_OUTPUT
+-        and old_ad["storage_ref"]==certificate["old_storage_ref"],
+-        "Root certificate must bind exact old driver/admission/storage and original scientific worker")
+-    require(not os.path.lexists(ROOT/OLD_REL/"launch.json") and not os.path.lexists(ROOT/OLD_OUTPUT),
+-        "Old launch.json and old data folder must both remain absent")
++        "Root complete-roster/revocation certificate required; both prior allocations stay fully charged")
++    recorded=datetime.fromisoformat(certificate["recorded_utc"].replace("Z","+00:00"))
++    require(recorded.tzinfo is not None and recorded<=datetime.now(timezone.utc),"Dated root replacement certificate")
++    for r in (FAILED_EVIDENCE["driver_ref"],OLD_WORKER_REF,FAILED_EVIDENCE["log_ref"],CORRECTION_REF):
++        require(ref(r["path"])==r,"Preserved exact failed-attempt source/log and correction evidence")
++    failed=read(FAILED_EVIDENCE["admitted_ref"]);ad=read(FAILED_EVIDENCE["admission_ref"])
++    launched=read(FAILED_EVIDENCE["launch_ref"]);wait=read(FAILED_EVIDENCE["actual_wait_ref"])
++    require(failed["driver_ref"]==FAILED_EVIDENCE["driver_ref"]
++        and failed["admission_ref"]==FAILED_EVIDENCE["admission_ref"]
++        and ad["source_ref"]==OLD_WORKER_REF and ad["output_directory"]==FAILED_OUTPUT
++        and ad["storage_ref"]==FAILED_EVIDENCE["storage_ref"]
++        and ad["registration_ref"]==FAILED_EVIDENCE["registration_ref"]
++        and ad["operational_predecessor_revocation_ref"]==FAILED_EVIDENCE["original_unused_revocation_ref"]
++        and ad["memo_helper_ref"]==MEMO_REF and ad["condition_id"]=="H018_R16_20_30Mb_extension_v1"
++        and ad["output_cap_bytes"]==CAP and ad["outer_process_group_timeout_seconds"]==2400,
++        "Exact launched failed memo_v2 admission/storage/registration lineage required")
++    require(launched["admission_ref"]==FAILED_EVIDENCE["admission_ref"]
++        and launched["worker_pid"]==launched["worker_process_group"]==2563001
++        and launched["supervisor_pid"]==2562979 and launched["group_deadline_seconds"]==2400
++        and launched["memo_helper_ref"]==MEMO_REF
++        and launched["command"]==[str(ROOT/".runtime/env/bin/python"),"-B",str(ROOT/FAILED_EVIDENCE["driver_ref"]["path"]),"--worker"]
++        and wait["actual_direct_worker_wait"] is True
++        and wait["worker_pid"]==wait["process_group"]==launched["worker_pid"]
++        and wait["returncode"]==1 and wait["owned_worker_group_ESRCH"] is True
++        and wait["completed_ref"] is None and wait["log_ref"]==FAILED_EVIDENCE["log_ref"]
++        and wait["operational_failure"] is None and wait["post_wait_error"] is None
++        and wait["cleanup_errors"]==[] and wait["memo_helper_ref"]==MEMO_REF,
++        "Genuine failed memo_v2 direct wait-1/log required; historical drain is not fresh absence")
++    unused=read(FAILED_EVIDENCE["original_unused_revocation_ref"])
++    require(unused["schema"]=="H018_R16_extension_never_launched_revocation_v1"
++        and unused["active"] is True and unused["root_authorizer"]=="root_agent"
++        and unused["old_driver_ref"]==OLD_DRIVER_REF
++        and unused["old_launch_json_absent"] is True and unused["old_output_directory_absent"] is True
++        and unused["all_old_launch_resume_write_capabilities_revoked"] is True
++        and unused["old_reservation_remains_fully_charged"] is True
++        and unused["credit_or_release_applied"] is False,
++        "Original unused allocation remains distinct, revoked and fully charged")
++    original=read(unused["old_admitted_ref"]);original_ad=read(unused["old_admission_ref"])
++    require(unused["old_admitted_ref"]["path"]==OLD_REL+"/admitted.json"
++        and unused["old_admission_ref"]["path"]==OLD_REL+"/admission.json"
++        and original["driver_ref"]==OLD_DRIVER_REF and original["admission_ref"]==unused["old_admission_ref"]
++        and original_ad["source_ref"]==OLD_WORKER_REF and original_ad["output_directory"]==OLD_OUTPUT
++        and original_ad["storage_ref"]==unused["old_storage_ref"],
++        "Original unused admission/storage lineage must remain preserved")
++    require(not os.path.lexists(ROOT/OLD_REL/"launch.json") and not os.path.lexists(ROOT/OLD_OUTPUT)
++        and not os.path.lexists(ROOT/FAILED_OUTPUT/"completed.json"),"Prior unused scope and failed completion stay absent")
++    pids=certificate["owned_pids"];groups=certificate["owned_process_groups"]
++    require(type(pids) is list and type(groups) is list
++        and all(type(x) is int and x>1 for x in pids+groups)
++        and len(pids)==len(set(pids)) and len(groups)==len(set(groups))
++        and {2562979,2563001}.issubset(pids) and 2563001 in groups,
++        "Root must supply the complete owned roster including the known supervisor, worker and worker group")
++    for pid in pids:
++        try:os.kill(pid,0)
++        except ProcessLookupError:continue
++        raise ValueError("Prior owned PID is still present")
++    for pgid in groups:
++        try:os.killpg(pgid,0)
++        except ProcessLookupError:continue
++        raise ValueError("Prior owned process group is still present")
+     return certificate
+ 
+ def validate_operational_v2(ad):
+-    old_never_launched_v2(ad["operational_predecessor_revocation_ref"])
++    failed_predecessor_v3(ad["operational_predecessor_revocation_ref"])
+     require(ref(WORKER)==WORKER_REF and ad["source_ref"]==WORKER_REF
+         and ad["memo_helper_ref"]==MEMO_REF and ad["original_v4_ref"]==V4_REF
+         and ad["output_directory"]==OUTPUT and ad["condition_id"]=="H018_R16_20_30Mb_extension_v1"
+@@ -93,22 +156,22 @@
+ 
+ def admit(certificate_ref):
+     require(not (HERE/"admitted.json").exists(),"Fresh root admission")
+-    old_never_launched_v2(certificate_ref)
++    failed_predecessor_v3(certificate_ref)
+     spec=read(ref(PLAN+"/admission.draft.json"))
+-    require(spec["source_ref"]==WORKER_REF and ref(WORKER)==WORKER_REF,"Unchanged frozen acquisition worker required")
+-    spec.update(output_directory=OUTPUT,job_id="H018_R16_20_30Mb_extension_root_memo_v2")
++    require(spec["source_ref"]==OLD_WORKER_REF and ref(WORKER)==WORKER_REF,"Original draft and exact corrected frozen acquisition worker required")
++    spec.update(output_directory=OUTPUT,job_id="H018_R16_20_30Mb_extension_root_cohort_order_v3",source_ref=WORKER_REF)
+     require(not local(spec["output_directory"]).exists(),"Fresh operational extension scope")
+     reg=read(ref(PLAN+"/registration.draft.json"))
+-    reg.update(experiment_decisions_ref=ref(HERE/"experiment_decisions_snapshot.json"),registered_at_utc=datetime.now(timezone.utc).isoformat(),registered_before_execution=True)
++    reg.update(experiment_decisions_ref=ref(HERE/"experiment_decisions_snapshot.json"),registered_at_utc=datetime.now(timezone.utc).isoformat(),registered_before_execution=True,implementation_correction_source_handoff_ref=CORRECTION_REF,corrected_worker_ref=WORKER_REF)
+     registration_ref=save("registration.json",reg)
+-    manifest=read(ref(PLAN+"/consumer_manifest.draft.json"));manifest.update(registration_ref=registration_ref,status="root_registered_frozen_extension",memo_helper_ref=MEMO_REF,original_v4_ref=V4_REF,operational_predecessor_revocation_ref=certificate_ref,operational_driver_ref=ref(SOURCE))
++    manifest=read(ref(PLAN+"/consumer_manifest.draft.json"));manifest.update(source_ref=WORKER_REF,implementation_correction_source_handoff_ref=CORRECTION_REF,registration_ref=registration_ref,status="root_registered_frozen_extension",memo_helper_ref=MEMO_REF,original_v4_ref=V4_REF,operational_predecessor_revocation_ref=certificate_ref,operational_driver_ref=ref(SOURCE))
+     manifest_ref=save("consumer_manifest.json",manifest)
+     m=guard();view=m.inspect_v1(expected_source_sha256=CORE,expected_launcher_sha256=BASE)
+     consumers=[spec["source_ref"],spec["config_ref"],spec["runtime_ref"],manifest_ref,registration_ref,ref(SOURCE),ref(WAIT_HELPER),POLICY,GUARD,REPAIR,MEMO_REF,V4_REF,certificate_ref,*view["bindings"].values()]
+     consumers=list({r["path"]:r for r in consumers}.values())
+     require(len(consumers)<=64,"Unchanged64-source consumer binding limit")
+     expiry=(datetime.now(timezone.utc)+timedelta(hours=4)).isoformat()
+-    request=dict(key="H018/real_20_30Mb_extension_root_memo_v2",output=str(local(spec["output_directory"])),auxiliary_scopes=[str(HERE/"worker_aux")],reserved_bytes=CAP+LOG_CAP+65536,consumer_bindings=consumers)
++    request=dict(key="H018/real_20_30Mb_extension_root_cohort_order_v3",output=str(local(spec["output_directory"])),auxiliary_scopes=[str(HERE/"worker_aux")],reserved_bytes=CAP+LOG_CAP+65536,consumer_bindings=consumers)
+     authority=m.operation_draft_v1("reserve",request,expected_before=m._pins(view),bindings=view["bindings"]);authority.update(active=True,expires_at_utc=expiry)
+     receipt=m.apply_reserve_v1(save("reserve_authority.json",authority),expected_source_sha256=CORE,expected_launcher_sha256=BASE)
+     save("reserve_receipt.json",receipt)
+@@ -168,10 +231,10 @@
+     print(json.dumps(dict(actual_wait=wait)),flush=True);save("actual_wait.json",wait)
+     return 0 if rc==0 and drained and failure is None and post_error is None and not errors and wait["completed_ref"] else 1
+ def main():
+-    p=argparse.ArgumentParser();g=p.add_mutually_exclusive_group();g.add_argument("--admit",action="store_true");g.add_argument("--launch",action="store_true");g.add_argument("--worker",action="store_true");p.add_argument("--old-neverlaunched-ref");p.add_argument("--old-neverlaunched-sha256");a=p.parse_args()
++    p=argparse.ArgumentParser();g=p.add_mutually_exclusive_group();g.add_argument("--admit",action="store_true");g.add_argument("--launch",action="store_true");g.add_argument("--worker",action="store_true");p.add_argument("--failed-predecessor-ref");p.add_argument("--failed-predecessor-sha256");a=p.parse_args()
+     if a.admit:
+-        require(a.old_neverlaunched_ref and a.old_neverlaunched_sha256,"Explicit root old-never-launched certificate path/SHA required")
+-        admit(dict(path=a.old_neverlaunched_ref,sha256=a.old_neverlaunched_sha256));return 0
++        require(a.failed_predecessor_ref and a.failed_predecessor_sha256,"Explicit root failed-predecessor replacement certificate path/SHA required")
++        admit(dict(path=a.failed_predecessor_ref,sha256=a.failed_predecessor_sha256));return 0
+     if a.launch:return launch()
+     if a.worker:worker();return 0
+     print(json.dumps(dict(source_only=True,GPU_used=False,condition="H018_R16_20_30Mb_extension_v1",output_cap_bytes=CAP,outer_deadline_seconds=2400)));return 0
