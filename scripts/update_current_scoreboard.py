@@ -218,7 +218,10 @@ def main():
     elif v12_launch:
         native_status="V12 full-corpus attempt launched; actual optimizer counters/completion pending. Prior v11 root exit1 and unknown updates preserved."
     elif (ROOT/"research/reviews/American_C3_native_MLM_amendment_v12/source_handoff.json").exists():
-        native_status="V11 failed with actual root exit1; native optimizer updates unknown. V12 operational source reviewed; root preparation/activation pending, no actual v12 launch receipt."
+        cleanup=maybe_read("research/reviews/American_C3_native_MLM_amendment_v10/root_execution_admin_v2/worker_metadata/v12_namespace_attempt1/cleanup_receipt.json")
+        prepared=bool(cleanup and cleanup.get("active") is True and cleanup.get("cleanup_failure") is None and len(cleanup.get("per_node_events",[]))==16)
+        native_status=("V11 failed with actual root exit1; native optimizer updates unknown. V12 operational source reviewed; "
+            +("exact namespace cleanup completed, GPU binding/activation and launch pending." if prepared else "root preparation/activation pending, no actual v12 launch receipt."))
     empirical_output=ROOT/"experiments/results/H018_H045_empirical_application_root_v1"
     empirical_aux=ROOT/"research/reviews/H018_H045_empirical_CPU_root_v1/worker_aux"
     empirical_products=all((empirical_output/n).exists() for n in ["probabilities_all355_holds.npz","query_bpweighted_proportions_and_PCA.tsv","query_genotype_PCA.svg"])

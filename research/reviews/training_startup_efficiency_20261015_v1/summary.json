@@ -1,0 +1,23 @@
+{
+  "schema": "training_startup_efficiency_summary_v1",
+  "at_utc": "2026-10-15T15:43:20.149725+00:00",
+  "first_interval": {
+    "wall_seconds": 10.002417242154479,
+    "CPU_seconds": 0.01,
+    "rchar_bytes": 0,
+    "read_syscalls": 0,
+    "same_PID_start_identity": true
+  },
+  "second_interval": {
+    "wall_seconds": 10.051536888815463,
+    "CPU_seconds": 13.38,
+    "rchar_bytes": 394783,
+    "read_syscalls": 35,
+    "same_PID_start_identity": true
+  },
+  "source_patch_justified": false,
+  "reason": "Observed advisory-lock stall ended before second sample; existing memo2 and lightweight per-update resource guards are already used. No safe newly missing cache was demonstrated.",
+  "actionable_future_run_recommendation": "Finish the already-required close/reserve accounting burst before launching the next GPU job when startup writes would otherwise immediately compete for the same scheduler mutex. Preserve every mandatory launch/check/write boundary. Do not alter the current workers.",
+  "no_guard_or_accounting_mutations": true,
+  "model_payload_or_GPU_execution": false
+}
