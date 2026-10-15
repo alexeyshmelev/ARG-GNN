@@ -1,0 +1,189 @@
+{
+  "RAM_adapter_source": "research/reviews/C3_native_post_MLM_root_handoff_20261015_v1/ram_downstream_v1.py",
+  "RAM_adapter_synthetic_verification": "pass_CPU_IO_parity_only_not_native_fit_or_accuracy",
+  "RAM_retrieval": {
+    "RAM_adapter_implemented": true,
+    "author_APIs": [
+      "retrieve.labels_from_metadata",
+      "retrieve.ensure_l2_normalized",
+      "retrieve.topk_indices_streaming"
+    ],
+    "e_chunk": 100000,
+    "native_tensor_shape_dtype_retained": true,
+    "normalization": "author F.normalize(p=2,dim=1) on full queries/corpus",
+    "q_batch": 1024,
+    "score": "normalized dot product",
+    "topk": 1
+  },
+  "actual_execution": false,
+  "author_commit": "f7545be7bca0200fb39aeb7f94a8e5f0b6bf5596",
+  "class_order": [
+    "EUR",
+    "EAS",
+    "AFR"
+  ],
+  "contrastive": {
+    "author_API": "sequence_contrastive.train(cfg)",
+    "autoresume": false,
+    "balanced_sampling": false,
+    "checkpoint_selection": "actual regular final epoch1/exact batch budget, never latest alias or best validation metric",
+    "device_eval_microbatch_size": 4096,
+    "device_train_microbatch_size": 4096,
+    "epochs": 1,
+    "eval_drop_last": false,
+    "eval_interval": "20ba",
+    "eval_shuffle": false,
+    "eval_subset_num_batches": 200,
+    "exact_optimizer_updates": null,
+    "exact_train_rows": null,
+    "generic_completion_evidence": "final Composer timestamp plus nonempty model+optimizer state, without independently observed live Adam counters",
+    "global_eval_batch_size": 4096,
+    "global_train_batch_size": 4096,
+    "hidden_size": 768,
+    "load_path": null,
+    "max_seq_len": 128,
+    "normalize": true,
+    "num_attention_heads": 12,
+    "num_hidden_layers": 12,
+    "num_workers": 4,
+    "objective": "same-class non-self positives; denominator all non-self batch rows; mean positive log-probability then valid anchors",
+    "optimizer": {
+      "betas": [
+        0.9,
+        0.999
+      ],
+      "eps": 1e-06,
+      "lr": 2e-05,
+      "name": "DecoupledAdamW",
+      "weight_decay": 1e-06
+    },
+    "optimizer_update_rule": "actual contrastive/train rows // 4096",
+    "precision": "fp32",
+    "proposed_IO_only_save_num_checkpoints_to_keep": 1,
+    "proposed_regular_checkpoint_files_peak": 2,
+    "proposed_regular_checkpoint_files_steady": 1,
+    "release_save_num_checkpoints_to_keep": -1,
+    "sampler": "DistributedSamplerPCG64DXSM",
+    "sampler_default_seed": 9176,
+    "save_interval": "20ba",
+    "save_overwrite": true,
+    "scheduler": {
+      "alpha_f": 0.02,
+      "name": "linear_decay_with_warmup",
+      "t_warmup": "0.1dur"
+    },
+    "seed": 36,
+    "similarity": "dot",
+    "skip_extant_tokens": true,
+    "temperature": 0.3,
+    "train_drop_last": true,
+    "train_shuffle": true,
+    "training_config_plumbing_correction": false,
+    "uniform_class_weight_fallback_preserved": true,
+    "unused_YAML_fields": [
+      "train_loader.num_hard_negatives=2",
+      "train_loader.negative_sampling_temperature=1.0",
+      "model.contrastive.symmetric=true"
+    ],
+    "world_size": 1
+  },
+  "current_root_sources": {
+    "guard": "research/reviews/prospective_980GB_capacity_source_v1/prospective_980gb_v1.py",
+    "launcher": "scripts/launch_reserved_gpu_authorized_GPU45_980_v1.py",
+    "policy": "research/reviews/prospective_980GB_capacity_source_v1/activation_policy.root_active_v1.json"
+  },
+  "embeddings": {
+    "author_load_API": "embeddings.load_checkpoint_model(config_path, contrastive_checkpoint)",
+    "batch_size": 256,
+    "calls": [
+      [
+        "query_paths",
+        "train"
+      ],
+      [
+        "query_paths",
+        "val"
+      ],
+      [
+        "contrastive",
+        "train"
+      ],
+      [
+        "contrastive",
+        "val"
+      ]
+    ],
+    "concat_changes_tensor_values": false,
+    "dimension": 768,
+    "drop_last": false,
+    "layer_index": null,
+    "max_samples": 0,
+    "native_batch_API": "embeddings.get_embeddings(model,batch,layer_index=None,pooling_strategy='head_norm')",
+    "native_loader_API": "embeddings._build_arg_split_dataloader(local,split,max_seq_len=128,batch_size=256,num_workers=0,return_metadata=True,use_dataset_labels=(view=='contrastive'),skip_extant_tokens=True)",
+    "num_workers": 0,
+    "pooling_strategy": "head_norm",
+    "shuffle": false,
+    "split_concat_order": [
+      "train",
+      "val"
+    ],
+    "whole_dataset_API_limitation": "embed_arg_dataset returns vectors only and always torch.save's full output; avoiding disk requires narrow in-memory loop adapter"
+  },
+  "focals": {
+    "coordinate": "first-occurrence tree-interval midpoint, disclosed reconstruction assumption",
+    "count": 10000,
+    "native_split_seed": 42,
+    "native_train_fraction": 0.9,
+    "path_ID": "deduplicated full raw tuple in native sample/tree first-observation order",
+    "path_seed": 92001,
+    "postprocess": "reference_classes_0based[top1_index], restore focal order, np.eye(3,float32)[calls]",
+    "prediction_join": "full-path record_id plus sample_node/original sample_index checks",
+    "raw_top1_indices_scores_preserved": true,
+    "selection": "unique complete observed admixed paths, label-blind, without replacement",
+    "truth_opened_only_by_later_external_evaluator": true
+  },
+  "future_actual_refs": {
+    "MLM_checkpoint": null,
+    "MLM_published_completion": null,
+    "MLM_root_actual_wait": null,
+    "RAM_postprocess_completion": null,
+    "contrastive_completion": null,
+    "contrastive_root_active_input": null,
+    "contrastive_root_actual_wait": null,
+    "counts_completion": null,
+    "counts_root_actual_wait": null,
+    "fit_completion": null,
+    "fresh_current980_storage_records": null,
+    "root_post_MLM_entrypoint": null,
+    "sealed_prediction": null
+  },
+  "genuine_MLM_success_observed_by_this_task": false,
+  "parent_id": "american_c3_train_000",
+  "parent_role": "engineering_TRAIN_not_heldout",
+  "preparation_ref": {
+    "path": "experiments/results/American_C3_native_paths_train000_full30mb_seed92001_v3/completed.json",
+    "sha256": "3cc49fbf55bd4b4b3859a93ce1123e9218f407f7c7299ad5029be81f59c7c6fa"
+  },
+  "ready_to_launch": false,
+  "root_launch_command_argv": null,
+  "root_reported_v12_state": {
+    "physical_GPU": 5,
+    "root_PID": 2943908,
+    "session": 48073,
+    "state": "launched_optimizer_steps_not_verified"
+  },
+  "schema": "C3_native_post_MLM_source_route_v1",
+  "source_storage_estimate": {
+    "RAM_route_compact_prediction_top1_numeric_array_bytes": 640000,
+    "four_split_tensor_payload_bytes": 49274585872,
+    "includes_serialization_checkpoint_cache_tmp_overhead": false,
+    "new_capacity_guaranteed": false,
+    "preferred_RAM_route_embedding_disk_bytes": 0,
+    "query_rows_total": 10000,
+    "query_tensor_bytes_per_row": 5128,
+    "reference_rows_total": 9583977,
+    "reference_tensor_bytes_per_row": 5136,
+    "retained_split_plus_concat_tensor_payload_bytes": 98549171744
+  },
+  "status": "source_prepared_root_integration_required"
+}

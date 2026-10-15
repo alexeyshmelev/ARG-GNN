@@ -1,0 +1,246 @@
+"""Narrow native downstream RAM I/O adapter, without launch/admission authority.
+
+Torch and author modules are injected after root title/lease/runtime validation.
+Full arrays retain native order/dtype/values and the original native math calls.
+Only the final project prediction seal writes, through the caller's compact writer.
+No file-system/torch monkeypatch, corpus sampling, numerical downcast or model
+change is present. Root owns one admitted supervised child for the RAM lifetime.
+"""
+from __future__ import annotations
+import hashlib,json,random
+CLASSES=("EUR","EAS","AFR")
+SOURCE="research/reviews/C3_native_post_MLM_root_handoff_20261015_v1/ram_downstream_v1.py"
+
+def require(ok,message):
+    if not ok:raise ValueError(message)
+
+def _get(cfg,name,default=None):
+    return cfg.get(name,default)
+
+def embed_single_split_ram_v1(*,torch,embeddings_module,model,cfg,view,split,expected_rows,fast_guard):
+    """Author's explicit single-split embedding loop, retaining output in RAM.
+
+    The loader/get_embeddings functions themselves are the pinned author APIs.
+    With one iterator, retain even the original random.randrange(1) calls.
+    No native whole-dataset save API is called because it always writes to disk.
+    """
+    require(view in ("query_paths","contrastive") and split in ("train","val")
+        and type(expected_rows) is int and expected_rows>0 and callable(fast_guard),
+        "One complete counted native view/split and root fast guard")
+    train_cfg=cfg["train_loader"];data_cfg=train_cfg.get("dataset",train_cfg)
+    data_local=data_cfg.get("local",cfg.get("data_local"))
+    max_len=data_cfg.get("max_seq_len") or cfg.get("max_seq_len") or cfg["model"]["model_config"].get("max_seq_len")
+    require(data_local is not None and max_len==128 and data_cfg.get("skip_extant_tokens",True) is True,
+        "Exact native length128/skip-extant configuration")
+    model.eval();fast_guard("before_native_RAM_split_loader")
+    loader=embeddings_module._build_arg_split_dataloader(local=data_local,split=split,
+        max_seq_len=max_len,batch_size=256,num_workers=0,return_metadata=True,
+        use_dataset_labels=(view=="contrastive"),skip_extant_tokens=True)
+    all_embeddings=[];all_input_ids=[];all_attention_masks=[];all_labels=[];all_extant_node_ids=[]
+    iterators=[iter(loader)];samples_processed=0
+    with torch.no_grad():
+        while iterators:
+            random_idx=random.randrange(len(iterators));chosen_iter=iterators[random_idx]
+            try:batch=next(chosen_iter)
+            except StopIteration:
+                iterators.pop(random_idx);continue
+            fast_guard("native_RAM_embedding_batch")
+            vectors=embeddings_module.get_embeddings(model=model,batch=batch,
+                layer_index=None,pooling_strategy="head_norm")
+            all_embeddings.append(vectors.cpu())
+            if "input_ids" in batch:all_input_ids.append(batch["input_ids"].cpu())
+            if "attention_mask" in batch:all_attention_masks.append(batch["attention_mask"].cpu())
+            extant=batch.get("extant_node_id_raw")
+            if isinstance(extant,torch.Tensor):all_extant_node_ids.append(extant.detach().cpu())
+            if "labels" in batch:all_labels.append(batch["labels"].detach().cpu())
+            samples_processed+=batch["input_ids"].size(0)
+    require(all_embeddings and samples_processed==expected_rows,"Every counted native row, including final partial batch")
+    output={"embeddings":torch.cat(all_embeddings,dim=0)}
+    if all_input_ids:output["input_ids"]=torch.cat(all_input_ids,dim=0)
+    if all_attention_masks:output["attention_masks"]=torch.cat(all_attention_masks,dim=0)
+    if all_labels:output["labels"]=torch.cat(all_labels,dim=0)
+    if all_extant_node_ids:output["extant_node_ids"]=torch.cat(all_extant_node_ids,dim=0)
+    output["metadata"]=dict(embedding_dim=output["embeddings"].shape[-1],num_samples=samples_processed,
+        pooling_strategy="head_norm",layer_index=None,splits=[split])
+    require(("labels" in output)==(view=="contrastive"),"Known reference labels only, no query labels")
+    return output
+
+def row_order_arrays_v1(out,*,parent_id,reference):
+    """Same sidecar schema checks as existing row_order, with no file load."""
+    import numpy as np
+    keys={"record_ids","sample_nodes","sample_indices","parent_id","class_order"}
+    if reference:keys.add("reference_classes_0based")
+    n=len(out["record_ids"])
+    require(set(out)==keys and n>0 and all(out[k].dtype==np.int64 and out[k].shape==(n,)
+        for k in keys-{"parent_id","class_order"}) and len(set(out["record_ids"].tolist()))==n
+        and out["parent_id"].shape==() and out["parent_id"].item()==parent_id
+        and out["class_order"].tolist()==list(CLASSES),"Exact raw-full-path row sidecar schema/identity")
+    if reference:require(bool(((out["reference_classes_0based"]>=0)&(out["reference_classes_0based"]<3)).all()),
+        "Known reference C3 classes only")
+    return out
+
+def concatenate_embeddings_ram_v1(*,torch,view,parts,orders,counts,parent_id,fast_guard):
+    """Existing tensor/sidecar validation and train-then-val cat, with RAM return."""
+    import numpy as np
+    require(view in ("query_paths","contrastive") and set(parts)==set(orders)=={"train","val"},
+        "Exact native two-split view")
+    prepared=[];checked=[]
+    for split in ("train","val"):
+        fast_guard("CPU_native_RAM_embedding_read")
+        value=parts[split];meta=value["metadata"];n=counts["datasets"][view+"/"+split]["rows"]
+        require(meta["splits"]==[split] and meta["num_samples"]==n and meta["embedding_dim"]==768
+            and meta["pooling_strategy"]=="head_norm" and meta["layer_index"] is None,
+            "Exact complete single-split row count and native pooling/layer/dimension")
+        order=row_order_arrays_v1(orders[split],parent_id=parent_id,reference=view=="contrastive")
+        expected={"embeddings","input_ids","attention_masks","extant_node_ids","metadata"}
+        if view=="contrastive":expected.add("labels")
+        require(set(value)==expected and all(torch.is_tensor(t) and t.device.type=="cpu" and t.ndim>=1
+            and t.shape[0]==n for k,t in value.items() if k!="metadata"),"Complete compatible native CPU row tensors")
+        require(value["embeddings"].dtype==torch.float32 and value["embeddings"].shape==(n,768)
+            and bool(torch.isfinite(value["embeddings"]).all())
+            and value["input_ids"].dtype==value["attention_masks"].dtype==torch.long
+            and value["input_ids"].shape==value["attention_masks"].shape==(n,128)
+            and value["extant_node_ids"].dtype==torch.long
+            and np.array_equal(value["extant_node_ids"].numpy().reshape(-1),order["sample_nodes"]),
+            "Preserved native tensor dtypes/axes and exact sidecar extant IDs")
+        if view=="contrastive":
+            require(value["labels"].dtype==torch.long
+                and np.array_equal(value["labels"].numpy().reshape(-1),order["reference_classes_0based"]),
+                "Original known reference labels only")
+        prepared.append(value);checked.append(order)
+    require(set(prepared[0])==set(prepared[1])
+        and {k:v for k,v in prepared[0]["metadata"].items() if k not in ("splits","num_samples")}==
+            {k:v for k,v in prepared[1]["metadata"].items() if k not in ("splits","num_samples")},
+        "Compatible native metadata/mappings across train and val")
+    out={}
+    for name in prepared[0]:
+        if name=="metadata":continue
+        a,b=prepared[0][name],prepared[1][name]
+        require(a.dtype==b.dtype and a.shape[1:]==b.shape[1:],"Same exact tensor key/dtype/trailing shape")
+        out[name]=torch.cat((a,b),dim=0)
+    out["metadata"]=dict(prepared[0]["metadata"],splits=["train","val"],
+        num_samples=sum(p["metadata"]["num_samples"] for p in prepared))
+    full_order={k:np.concatenate([o[k] for o in checked]) for k in checked[0] if k not in ("parent_id","class_order")}
+    full_order.update(parent_id=checked[0]["parent_id"],class_order=checked[0]["class_order"])
+    require(len(set(full_order["record_ids"].tolist()))==len(full_order["record_ids"]),
+        "No duplicate full raw-path IDs across splits")
+    return out,full_order
+
+def retrieve_ram_v1(*,retrieve_module,query,corpus,device,fast_guard):
+    """Unchanged native normalization/streaming top1/label APIs, RAM inputs."""
+    require("labels" not in query and "labels" in corpus,"No query ancestry; original reference labels required")
+    fast_guard("before_native_RAM_retrieval")
+    query_labels=retrieve_module.labels_from_metadata(query)
+    corpus_labels=retrieve_module.labels_from_metadata(corpus)
+    E=retrieve_module.ensure_l2_normalized(corpus["embeddings"])
+    Q=retrieve_module.ensure_l2_normalized(query["embeddings"])
+    scores,indices=retrieve_module.topk_indices_streaming(Q,E,device=device,k=1,q_batch=1024,e_chunk=100000)
+    result=dict(topk_indices=indices,topk_scores=scores,top1_indices=indices,top1_scores=scores,k=1)
+    if query_labels is not None:result["query_labels"]=query_labels
+    if corpus_labels is not None:result["corpus_labels"]=corpus_labels
+    fast_guard("after_native_RAM_retrieval")
+    return result
+
+def tensor_manifest_v1(*,torch,values,fast_guard):
+    """Optional source/shape/dtype and raw CPU tensor byte evidence, without copies.
+
+    These are raw C-order tensor byte hashes, explicitly not torch.save file SHAs.
+    Native labels/metadata are validated by the seal; no huge label list is copied.
+    """
+    output={}
+    for bundle_name,bundle in values.items():
+        tensors={}
+        for name,value in bundle.items():
+            if not torch.is_tensor(value):continue
+            require(value.device.type=="cpu" and value.is_contiguous(),"Contiguous CPU native tensor for zero-copy hash")
+            raw=memoryview(value.detach().numpy()).cast("B");sha=hashlib.sha256()
+            for start in range(0,len(raw),8388608):
+                fast_guard("native_RAM_tensor_hash");sha.update(raw[start:start+8388608])
+            tensors[name]=dict(dtype=str(value.dtype),shape=list(value.shape),raw_C_bytes=len(raw),
+                raw_C_sha256=sha.hexdigest())
+        output[bundle_name]=dict(tensors=tensors,metadata=bundle.get("metadata"))
+    return dict(schema="native_ARGformer_RAM_tensor_manifest_v1",hash_format="raw_contiguous_CPU_C_order_tensor_bytes",
+        file_artifact_hashes=False,source=SOURCE,bundles=output)
+
+def verify_prediction(p,r):
+    import numpy as np
+    identity=('record_ids','sample_nodes','sample_indices','positions_bp0','parent_id','class_order')
+    require(set(p)==set(identity)|{'probabilities'} and all(np.array_equal(p[k],r[k]) for k in identity),
+        'All prespecified identities/coordinates/parent/classes must be sealed before truth; no eligibility revision')
+    prob=p['probabilities'];n=len(r['record_ids'])
+    require(prob.shape==(n,3) and prob.dtype==np.float32 and np.isfinite(prob).all() and (prob>=0).all()
+        and np.allclose(prob.sum(-1),1,atol=1e-6,rtol=1e-5),'Complete raw C3 probabilities or native one-hot; no floor/renormalization')
+    return prob.argmax(-1)
+
+def native_top1_seal_ram_v1(cfg,w,r,*,prep,orders,query_arrays,corpus_arrays,native,torch):
+    """Same native seal checks/math with caller-owned RAM inputs instead of file loads."""
+    import numpy as np
+    require(cfg['external_truth_ref'] is None and cfg['prediction_ref'] is None,'Native seal accepts no private truth/prediction input')
+    require(cfg['native_query_embeddings_ref'] is None and cfg['native_corpus_embeddings_ref'] is None
+        and cfg['native_retrieval_ref'] is None, 'RAM products are not on-disk file references')
+    require(prep['parent_id']==r['parent_id'].item() and prep['class_order']==list(CLASSES)
+        and prep['focals_ref']==cfg['focal_registry_ref'] and prep['query_embedding_view_prespecified_focals_only'] is True
+        and prep['contrastive_labels_reference_only'] is True and prep['query_ancestry_truth_opened'] is False,
+        'Exact preparation/focal/observation-only contract required')
+    def ordered(view):
+        pieces=[orders[f'{view}/{sp}'] for sp in cfg['expected_splits']]
+        require(all(x['parent_id'].item()==r['parent_id'].item() and x['class_order'].tolist()==list(CLASSES) for x in pieces),
+            'Exact native row-order parent/class identity required')
+        names=['record_ids','sample_nodes','sample_indices']+(['reference_classes_0based'] if view=='contrastive' else [])
+        out={k:np.concatenate([x[k] for x in pieces]) for k in names}
+        n=len(out['record_ids'])
+        require(n>0 and all(a.dtype==np.int64 and a.shape==(n,) for a in out.values())
+            and len(set(out['record_ids'].tolist()))==n,'Unique complete native full-path row-order metadata required')
+        return out
+    q=ordered('query_paths');c=ordered('contrastive')
+    require(cfg['expected_splits']==['train','val'] and cfg['expected_pooling']=='head_norm',
+        'Registered native embedding split/pooling reconstruction contract required')
+    require(set(q['record_ids'].tolist())==set(r['record_ids'].tolist()),'Embed every and only prespecified query focal')
+    def tensor_array(value):
+        require(torch.is_tensor(value) and value.device.type=='cpu','Native CPU tensor output required')
+        return value.detach().numpy()
+    def embedding(out,order,labelled):
+        meta=out['metadata'];vectors=out['embeddings'];n=len(order['record_ids'])
+        require(meta['num_samples']==n and meta['splits']==cfg['expected_splits']
+            and meta['pooling_strategy']==cfg['expected_pooling'] and vectors.ndim==2
+            and vectors.shape[0]==n and vectors.shape[1]==meta['embedding_dim'],'Native complete unmodified embedding row count/order settings required')
+        require('extant_node_ids' in out and np.array_equal(tensor_array(out['extant_node_ids']).reshape(-1),order['sample_nodes']),
+            'Native extant-node output must confirm sidecar sample row order')
+        if labelled:
+            labels=tensor_array(out['labels']).reshape(-1)
+            require(np.array_equal(labels,order['reference_classes_0based']) and (labels>=0).all() and (labels<3).all(),
+                'Native corpus labels must equal known prepared reference labels')
+        else:require('labels' not in out,'No query ancestry labels in embeddings')
+        return out
+    query=embedding(query_arrays,q,False)
+    corpus=embedding(corpus_arrays,c,True)
+    require(query['embeddings'].shape[1]==corpus['embeddings'].shape[1],'Equal native embedding dimension')
+    require(native['k']==1 and 'query_labels' not in native,'Registered native top1 retrieval; no query truth labels')
+    ix=tensor_array(native['topk_indices']);scores=tensor_array(native['topk_scores'])
+    top=tensor_array(native['top1_indices']).reshape(-1);top_scores=tensor_array(native['top1_scores']).reshape(-1)
+    require(ix.dtype==np.int64 and ix.shape==(len(q['record_ids']),1) and scores.shape==ix.shape
+        and np.array_equal(ix[:,0],top) and np.array_equal(scores[:,0],top_scores)
+        and np.isfinite(scores).all() and (top>=0).all() and (top<len(c['record_ids'])).all(),'Exact unmodified native top1 index/score products required')
+    names=corpus.get('metadata',{}).get('int_to_label')
+    if isinstance(names,dict):
+        mapping={int(k):str(v) for k,v in names.items()}
+        expected=[mapping.get(int(v),str(int(v))) for v in c['reference_classes_0based']]
+    else:expected=[str(int(v)) for v in c['reference_classes_0based']]
+    require(native.get('corpus_labels')==expected,'Native retrieve corpus label mapping must equal prepared reference row order')
+    lookup={int(k):i for i,k in enumerate(q['record_ids'])};join=np.asarray([lookup[int(k)] for k in r['record_ids']])
+    require(all(np.array_equal(q[k][join],r[k]) for k in ('record_ids','sample_nodes','sample_indices')),
+        'Full raw-path identity join must precede sealing; truncated input/embedding values cannot identify paths')
+    calls=c['reference_classes_0based'][top][join]
+    prediction={k:r[k] for k in ('record_ids','sample_nodes','sample_indices','positions_bp0','parent_id','class_order')}
+    prediction['probabilities']=np.eye(3,dtype=np.float32)[calls];verify_prediction(prediction,r)
+    prediction_ref=w.npz('predictions.npz',**prediction)
+    native_ref=w.npz('native_top1_preserved.npz',record_ids=q['record_ids'],top1_indices=top,top1_scores=top_scores,
+        parent_id=r['parent_id'],class_order=r['class_order'])
+    return w.json('completed.json',dict(status='sealed_native_C3_top1_RAM_IO_v1',prediction_ref=prediction_ref,
+        native_top1_preserved_ref=native_ref,focal_registry_ref=cfg['focal_registry_ref'],
+        native_retrieval_ref=cfg['native_retrieval_ref'],preparation_ref=cfg['preparation_ref'],
+        native_query_embeddings_ref=cfg['native_query_embeddings_ref'],native_corpus_embeddings_ref=cfg['native_corpus_embeddings_ref'],
+        parent_id=r['parent_id'].item(),class_order=list(CLASSES),records=len(calls),
+        scores_and_retrieval_indices_modified=False,query_ancestry_truth_opened=False,author_Table1_exact_reproduction=False,
+        native_representation='full_native_arrays_in_CPU_RAM_v1',embedding_file_artifacts_written=False,
+        native_RAM_tensor_manifest_ref=cfg.get('native_RAM_tensor_manifest_ref')))

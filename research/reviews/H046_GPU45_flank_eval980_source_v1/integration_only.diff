@@ -1,0 +1,358 @@
+--- research/reviews/H046_GPU45_flank_root_source_v2/root_common_v1.py
++++ research/reviews/H046_GPU45_flank_eval980_source_v1/root_common_v1.py
+@@ -2,18 +2,32 @@
+ from pathlib import Path
+ import hashlib,importlib.util,json,os
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-HERE="research/reviews/H046_GPU45_flank_root_source_v2"
++HERE="research/reviews/H046_GPU45_flank_eval980_source_v1"
+ PREVIOUS="research/reviews/H042_GPU45_clade_flags_root_source_v1/root_driver.py"
+ PREVIOUS_SHA="5b87957f3667187b97172b00871f3cc5c85981810179554578e9779bcca9d0b0"
+ if hashlib.sha256((ROOT/PREVIOUS).read_bytes()).hexdigest()!=PREVIOUS_SHA:
+     raise ValueError("Frozen H042 root utility source changed")
+ _spec=importlib.util.spec_from_file_location("_H046_frozen_root_patterns",ROOT/PREVIOUS)
+ previous=importlib.util.module_from_spec(_spec);_spec.loader.exec_module(previous)
+-require,ref,read,save,unique,policy_env=(
+-    previous.require,previous.ref,previous.read,previous.save,previous.unique,previous.policy_env)
+-GUARD_REF,POLICY_REF,LAUNCHER_REF,REPAIR_REF,AUTH_REF,TEMPLATE_REF,CORE,BASE=(
+-    previous.GUARD_REF,previous.POLICY_REF,previous.LAUNCHER_REF,previous.REPAIR_REF,
+-    previous.AUTH_REF,previous.TEMPLATE_REF,previous.CORE,previous.BASE)
++require,ref,read,save,unique=(
++    previous.require,previous.ref,previous.read,previous.save,previous.unique)
++REPAIR_REF,AUTH_REF,TEMPLATE_REF,CORE,BASE=(
++    previous.REPAIR_REF,previous.AUTH_REF,previous.TEMPLATE_REF,previous.CORE,previous.BASE)
++GUARD_REF={'path': 'research/reviews/prospective_980GB_capacity_source_v1/prospective_980gb_v1.py', 'sha256': 'fc71030865e0a3d5da31120d4daa2caa0b2d39ec7dd212b8c46c476b5a866d56'}
++POLICY_REF={'path': 'research/reviews/prospective_980GB_capacity_source_v1/activation_policy.root_active_v1.json', 'sha256': 'eb3408004a508136aa434c0a2e02a9d14a5598a96b8483c264c93026f9326018'}
++LAUNCHER_REF={'path': 'scripts/launch_reserved_gpu_authorized_GPU45_980_v1.py', 'sha256': '0ca3c59e49f5fd55f5a798c99a4a8a6613e71a90bcb3f89a04eb66e7555046ca'}
++TRAIN_INPUT_REF={'path': 'research/reviews/H046_GPU45_flank_root_source_v2/admitted_train/launch_input.json', 'sha256': '938bc89b753d08db66a4b1141cdc551f192e4d3a7952f215d5b866ee2bd3f752'}
++TRAIN_CONFIG_REF={'path': 'research/reviews/H046_GPU45_flank_root_source_v2/config_inactive.json', 'sha256': '13d1b2fa0503a452c3bee7ba3b47bf3d702ade18a796c0f4c6e562e6f129f5a8'}
++TRAIN_LAUNCH_REF={'path': 'research/reviews/H046_GPU45_flank_root_source_v2/admitted_train/launch.json', 'sha256': 'a899af3d485339b26e1873eb13d7db0b514c4886b668a5e81127c29e8d20cd0e'}
++TRAIN_RUNTIME_REF={'path': 'research/reviews/H046_GPU45_flank_root_source_v2/admitted_train/runtime.json', 'sha256': '2a3071f159b1193a29e7e0335754e8f049a9a720a2f6692f7b93af8c2934d007'}
++TRAIN_OUTPUT='experiments/results/H046_GPU5_flank_train_seed101_v2'
++
++def policy_env():
++    env=os.environ.copy()
++    env["ARGGNN_COMPLETED_CREDITS_POLICY_REF"]=json.dumps(POLICY_REF,separators=(",",":"))
++    env["PYTHONPATH"]=os.pathsep.join([str(ROOT),str(ROOT/"scripts"),str(ROOT/"src"),env.get("PYTHONPATH","")])
++    return env
++
+ MEMO_REF=dict(path="research/reviews/resource_guard_hotpath_source_audit_v1/transaction_memo_adapter_v2.py",
+               sha256="c972e9a779d424ceafdb258848614bf40994d1004e2c73fc5cd225ae99621364")
+ V4_REF=dict(path="src/arggnn/project_budget_v4.py",
+@@ -26,7 +40,12 @@
+ def load_guard_v1(*,consumer=False):
+     """Fresh processes: mutations use original v4; consumer checks may use memo2."""
+     require(ref(MEMO_REF["path"])==MEMO_REF and ref(V4_REF["path"])==V4_REF,"Pinned memo2/originalv4 required")
+-    guard=previous.load_guard()
++    for r in (GUARD_REF,POLICY_REF,LAUNCHER_REF,REPAIR_REF,AUTH_REF):
++        require(ref(r["path"])==r,"Exact active980 IO authority")
++    ms=importlib.util.spec_from_file_location("_H046_eval980_guard",ROOT/GUARD_REF["path"])
++    guard=importlib.util.module_from_spec(ms);ms.loader.exec_module(guard)
++    guard.configure_v2(REPAIR_REF,policy_ref=POLICY_REF)
++    require(guard.MODE=="prospective_980gb_v1","Actual980 storage mode")
+     if not consumer:
+         require(all(getattr(guard.budget.v4,name).__module__==guard.budget.v4.__name__
+                     for name in ("canonical","file_bytes","mutex")),
+@@ -133,3 +152,32 @@
+         and launch["phase"]=="train" and wait["phase"]=="train"
+         and launch["physical_gpu"]==wait["physical_gpu"] and launch["physical_gpu"] in (4,5),
+         "Exact successful same-launcher actual TRAIN wait/lineage required")
++
++
++def validate_eval_train_io_v1(reader,spec):
++    """Validate immutable original TRAIN JSON and checkpoint references without payload reads."""
++    require(spec["phase"]=="evaluate","This successor admits evaluation only")
++    validate_train_lineage_v1(reader,spec)
++    require(spec["train_completion_ref"]["path"]==TRAIN_OUTPUT+"/completed.json"
++        and spec["train_launch_ref"]==TRAIN_LAUNCH_REF
++        and spec["train_actual_wait_ref"]["path"]==
++            "research/reviews/H046_GPU45_flank_root_source_v2/admitted_train/actual_wait.json",
++        "Actual original GPU5 TRAIN terminal lineage only")
++    train=reader.decode_json(spec["train_completion_ref"])
++    old=reader.decode_json(TRAIN_INPUT_REF)
++    require(train["input_ref"]==TRAIN_INPUT_REF and train["config_ref"]==TRAIN_CONFIG_REF
++        and old["phase"]=="train" and old["physical_gpu"]==5
++        and old["output_directory"]==TRAIN_OUTPUT and old["refs"]["runtime"]==TRAIN_RUNTIME_REF
++        and train["preparation_completion_ref"]==old["preparation_completion_ref"],
++        "Unchanged original TRAIN input/config/runtime/preparation")
++    groups=train["checkpoint_groups"]
++    require(set(groups)=={"5","10","15","20","25","30"},"Original six TRAIN checkpoint groups")
++    for at,arms in groups.items():
++        require(set(arms)=={"foreign_flank","own_state"},"Original paired checkpoint arms")
++        for arm,r in arms.items():
++            require(set(r)=={"path","sha256"}
++                and r["path"]==TRAIN_OUTPUT+"/"+arm+".pass_%02d.pt"%int(at)
++                and len(r["sha256"])==64 and all(c in "0123456789abcdef" for c in r["sha256"]),
++                "Exact original checkpoint references, verified by unchanged scientific reader at execution")
++    return dict(train_input_ref=TRAIN_INPUT_REF,train_config_ref=TRAIN_CONFIG_REF,
++        train_runtime_ref=TRAIN_RUNTIME_REF,train_checkpoint_groups=groups)
+--- research/reviews/H046_GPU45_flank_root_source_v2/context_factory_v1.py
++++ research/reviews/H046_GPU45_flank_eval980_source_v1/context_factory_v1.py
+@@ -1,28 +1,28 @@
+ """H046 future root context. No import-time guard, data or CUDA execution."""
+ from pathlib import Path
+ import json,os
+-from research.reviews.H046_GPU45_flank_root_source_v2.root_common_v1 import (
++from research.reviews.H046_GPU45_flank_eval980_source_v1.root_common_v1 import (
+     ROOT,HERE,require,ref,GUARD_REF,POLICY_REF,LAUNCHER_REF,REPAIR_REF,AUTH_REF,MEMO_REF,V4_REF,
+-    RSS_CAP,CUDA_CAP,count_plan_v1,preparation_check_v1,validate_train_lineage_v1,load_guard_v1)
++    RSS_CAP,CUDA_CAP,count_plan_v1,preparation_check_v1,validate_train_lineage_v1,load_guard_v1,validate_eval_train_io_v1,TRAIN_CONFIG_REF)
+ SOURCE=HERE+"/context_factory_v1.py"
+ 
+ def validate_closure_v1(reader,spec,cfg,storage):
+     manifest=reader.decode_json(spec["consumer_manifest_ref"])
+     require(manifest["schema"]=="H046_exact_transitive_consumer_closure_v1"
+         and manifest["hypothesis_id"]=="H046" and manifest["phase"]==spec["phase"]
+-        and manifest["source_manifest_ref"]==cfg["source_manifest_ref"]
++        and manifest["source_manifest_ref"]==spec["io_source_manifest_ref"]
+         and manifest["source_sha256"]==spec["source_sha256"]
+         and manifest["refs"]=={k:v for k,v in spec["refs"].items() if k!="storage"}
+         and manifest["observation_entry_refs"]==spec["observation_entry_refs"]
+         and manifest["observation_cache_source_refs"]==spec["observation_cache_source_refs"],
+         "Exact H046 transitive source/original-observation metadata closure required")
+-    sources=reader.decode_json(cfg["source_manifest_ref"])
++    sources=reader.decode_json(spec["io_source_manifest_ref"])
+     require(sources["schema"]=="H046_flank_frozen_source_manifest_v1"
+         and sources["source_sha256"]==spec["source_sha256"],"Exact frozen source manifest required")
+     for path,digest in sources["source_sha256"].items():reader.read(dict(path=path,sha256=digest))
+     for r in sources["metadata_refs"].values():reader.read(r)
+     required=[spec["main_source_ref"],spec["worker_cli_ref"],spec["root_context_module_ref"],
+-        spec["root_driver_ref"],cfg["source_manifest_ref"],spec["consumer_manifest_ref"],
++        spec["root_driver_ref"],cfg["source_manifest_ref"],spec["io_source_manifest_ref"],spec["consumer_manifest_ref"],
+         cfg["count_manifest_ref"],spec["preparation_completion_ref"],spec["preparation_actual_wait_ref"],LAUNCHER_REF,GUARD_REF,POLICY_REF,AUTH_REF,REPAIR_REF,MEMO_REF,V4_REF]
+     require(all(r in storage["reservation"]["consumer_bindings"] for r in required),
+             "Actual producer/CLI/context/driver/counts/memo/authorities must be reserved")
+@@ -32,7 +32,9 @@
+     if spec["phase"]=="evaluate":
+         for name in ("train_completion_ref","train_launch_ref","train_actual_wait_ref"):
+             require(manifest[name]==spec[name],"Exact TRAIN completion and wait closure")
+-        validate_train_lineage_v1(reader,spec)
++        lineage=validate_eval_train_io_v1(reader,spec)
++        require(manifest["train_io_lineage"]==spec["train_io_lineage"]==lineage,
++                "Exact original TRAIN checkpoint/input/config/runtime references")
+ 
+ def completed_preparation_v1(reader,spec,cfg):
+     from arggnn.prepare_marker_resolution_observations_v1 import PARENTS,COORDINATE_KEYS
+@@ -62,10 +64,10 @@
+     from arggnn import census_tsinfer_fit_v1 as fit
+     from arggnn import train_mutation_routed_whole_tree_gnn_v1 as original
+     require(spec["schema"]=="H046_paired_flank_root_input_v1" and spec["hypothesis_id"]=="H046"
+-        and spec["arm"]=="joint_pair" and spec["phase"] in ("train","evaluate")
++        and spec["arm"]=="joint_pair" and spec["phase"]=="evaluate"
+         and spec["root_authorizer"]=="root_agent" and spec["status"]=="active","Active root paired H046 input")
+     require(spec["root_context_module_ref"]==ref(SOURCE),"Actual root context changed")
+-    require(json.loads(os.environ["ARGGNN_COMPLETED_CREDITS_POLICY_REF"])==POLICY_REF,"Exact credit-v3 policy env")
++    require(json.loads(os.environ["ARGGNN_COMPLETED_CREDITS_POLICY_REF"])==POLICY_REF,"Exact actual980 policy env")
+     reader=fit.ConsumerReaderV1();fit._check_active_v1(spec);fit.require_logical_job_v1(lease,spec)
+     refs=spec["refs"];cfg=reader.decode_json(refs["config"]);worker.validate_protocol(cfg)
+     require(cfg["base_fit_config"]["path"]=="configs/census_tsinfer_fit_v1.json"
+@@ -74,11 +76,12 @@
+     runtime_metadata=reader.decode_json(refs["runtime"])
+     require(runtime_metadata["job_id"]==spec["job_id"] and runtime_metadata["physical_gpu"]==gpu
+         and runtime_metadata["process_title"]=="AI Auto Research Pipeline Test","Runtime/lease/title identity")
+-    require(cfg["helper_refs"]["full_reservation_adapter"]==GUARD_REF
+-        and cfg["helper_refs"]["actual_full_storage_launcher"]==LAUNCHER_REF
+-        and cfg["completed_overlay_policy_ref"]==POLICY_REF and cfg["marker_repair_authority_ref"]==REPAIR_REF
+-        and cfg["transaction_memo_adapter_ref"]==MEMO_REF and cfg["original_v4_ref"]==V4_REF,
+-        "Current unchanged guard/launcher/policy plus finalized memo2/originalv4 required")
++    require(cfg==reader.decode_json(TRAIN_CONFIG_REF),
++        "Scientific config stays byte-identical in value to immutable TRAIN for original checkpoint validation")
++    require(spec["storage_adapter_ref"]==GUARD_REF and spec["storage_launcher_ref"]==LAUNCHER_REF
++        and spec["completed_overlay_policy_ref"]==POLICY_REF
++        and spec["marker_repair_authority_ref"]==REPAIR_REF,
++        "Separately bound actual980 IO envelope")
+     for r in (GUARD_REF,POLICY_REF,LAUNCHER_REF,REPAIR_REF,AUTH_REF,MEMO_REF,V4_REF):reader.read(r)
+     storage=reader.decode_json(refs["storage"])
+     require(storage["completed_overlay_policy_ref"]==POLICY_REF,"One exact storage/launcher/worker policy")
+--- research/reviews/H046_GPU45_flank_root_source_v2/root_driver.py
++++ research/reviews/H046_GPU45_flank_eval980_source_v1/root_driver.py
+@@ -4,27 +4,29 @@
+ import argparse,json,os,subprocess,sys
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+ sys.path[:0]=[str(ROOT),str(ROOT/"src")]
+-from research.reviews.H046_GPU45_flank_root_source_v2.root_common_v1 import (
++from research.reviews.H046_GPU45_flank_eval980_source_v1.root_common_v1 import (
+     HERE as HERE_REL,require,ref,read,save,unique,policy_env,load_guard_v1,count_plan_v1,
+     validate_train_lineage_v1,GUARD_REF,POLICY_REF,LAUNCHER_REF,REPAIR_REF,AUTH_REF,TEMPLATE_REF,
+-    MEMO_REF,V4_REF,CORE,BASE,OUTPUT_CAP,LOG_CAP)
++    MEMO_REF,V4_REF,CORE,BASE,OUTPUT_CAP,LOG_CAP,validate_eval_train_io_v1,TRAIN_CONFIG_REF)
+ HERE=ROOT/HERE_REL
+ SOURCE=HERE_REL+"/root_driver.py"
+ CONTEXT=HERE_REL+"/context_factory_v1.py"
+-CLI_MODULE="arggnn.H046_GPU45_flank_worker_v2"
++CLI_MODULE="arggnn.H046_GPU45_flank_eval980_v1"
+ CLI="src/"+CLI_MODULE.replace(".","/")+".py"
+ MAIN="src/arggnn/train_continuous_clade_flank_v1.py"
+ CAP=OUTPUT_CAP
+ def admit(phase,gpu,train_completion_ref=None,train_launch_ref=None,train_actual_wait_ref=None):
+     from arggnn import train_continuous_clade_flank_v1 as worker
+-    require(phase in ("train","evaluate"),"Single paired phase")
++    require(phase=="evaluate","Single paired phase")
+     require(gpu in (4,5),"Root must explicitly choose one eligible GPU4/5")
+     packet=HERE/("admitted_"+phase);require(not packet.exists(),"No admission replay")
+-    output="experiments/results/H046_GPU%d_flank_%s_seed101_v2"%(gpu,phase)
++    output="experiments/results/H046_GPU%d_flank_%s_seed101_eval980_v1"%(gpu,phase)
+     auxiliary=str(packet.relative_to(ROOT)/"worker_aux")
+     require(not (ROOT/output).exists() and not (ROOT/auxiliary).exists(),"Fresh exclusive output and auxiliary")
+     old=read(TEMPLATE_REF);cfg=read(ref(HERE/"config_inactive.json"));worker.validate_protocol(cfg)
+-    sources=read(cfg["source_manifest_ref"])["source_sha256"]
++    require(cfg==read(TRAIN_CONFIG_REF),"Scientific config exactly preserves original TRAIN values")
++    io_source_manifest_ref=ref(HERE/"source_manifest.json")
++    sources=read(io_source_manifest_ref)["source_sha256"]
+     for path,digest in sources.items():require(ref(path)["sha256"]==digest,"Frozen source closure changed")
+     require(cfg["hypothesis_id"]=="H046" and cfg["base_fit_config"]["path"]=="configs/census_tsinfer_fit_v1.json","H046/runtime identity")
+     require(cfg.get("status")=="root_frozen_protocol_before_admission"
+@@ -46,7 +48,7 @@
+     if phase=="evaluate":
+         require(all(lineage[k] is not None for k in ("train_completion_ref","train_launch_ref","train_actual_wait_ref")),
+                 "Actual paired H046 TRAIN and direct launcher wait refs required")
+-        validate_train_lineage_v1(type("MetadataReader",(),{"decode_json":staticmethod(read)})(),lineage)
++        train_io_lineage=validate_eval_train_io_v1(type("MetadataReader",(),{"decode_json":staticmethod(read)})(),lineage)
+     else:
+         require(all(lineage[k] is None for k in ("train_completion_ref","train_launch_ref","train_actual_wait_ref")),
+                 "TRAIN cannot consume previous completions")
+@@ -56,7 +58,7 @@
+         TRAIN_included=phase=="train",VAL_included=phase=="evaluate",outer_included=False)
+     packet.mkdir()
+     now=datetime.now(timezone.utc);expiry=(now+timedelta(hours=24)).isoformat()
+-    job="H046-flank-%s-seed101-v2-GPU%d"%(phase,gpu)
++    job="H046-flank-%s-seed101-eval980-v1-GPU%d"%(phase,gpu)
+     config_ref=ref(HERE/"config_inactive.json")
+     runtime_ref=save(packet,"runtime.json",dict(status="active",device="cuda",job_id=job,output_directory=output,
+         physical_gpu=gpu,process_title="AI Auto Research Pipeline Test",created_at_utc=now.isoformat(),expires_at_utc=expiry,
+@@ -65,7 +67,7 @@
+     refs={k:old["refs"][k] for k in ("registration","generation_config","observation_cache")}
+     refs.update(config=config_ref,runtime=runtime_ref,target_bindings=binding_ref)
+     manifest=dict(schema="H046_exact_transitive_consumer_closure_v1",hypothesis_id="H046",phase=phase,
+-        source_manifest_ref=cfg["source_manifest_ref"],source_sha256=sources,refs=refs,
++        source_manifest_ref=io_source_manifest_ref,scientific_source_manifest_ref=cfg["source_manifest_ref"],source_sha256=sources,refs=refs,train_io_lineage=train_io_lineage,
+         observation_entry_refs=old["observation_entry_refs"],observation_cache_source_refs=old["observation_cache_source_refs"],
+         
+         preparation_completion_ref=cfg["preparation_completion_ref"],preparation_actual_wait_ref=cfg["preparation_actual_wait_ref"],
+@@ -75,7 +77,7 @@
+     with m.budget.v4.mutex(ROOT):state=m._state_locked(CORE,BASE,fresh=True)
+     view,budget_bindings=state[2],state[3]
+     mandatory=[ref(MAIN),config_ref,runtime_ref,ref(CONTEXT),ref(SOURCE),ref(CLI),cfg["source_manifest_ref"],manifest_ref,
+-        cfg["count_manifest_ref"],cfg["preparation_completion_ref"],cfg["preparation_actual_wait_ref"],MEMO_REF,V4_REF,
++        io_source_manifest_ref,ref(HERE/"root_common_v1.py"),cfg["count_manifest_ref"],cfg["preparation_completion_ref"],cfg["preparation_actual_wait_ref"],MEMO_REF,V4_REF,
+         LAUNCHER_REF,GUARD_REF,POLICY_REF,AUTH_REF,REPAIR_REF,
+         ref("scripts/launch_reserved_gpu_terminal_retired_scopes_v1.py"),
+         ref("research/reviews/H039_missing_marker_repair_v1/marker_repair_v1.py"),
+@@ -83,7 +85,7 @@
+         ref("src/arggnn/project_budget_v9_consumer.py"),
+         ref("research/reviews/H039_failed_scope_capacity_v2/failed_scope_capacity_v2.py"),cfg["base_fit_config"]]
+     consumers=unique(mandatory+list(budget_bindings.values())
+-        +([train_completion_ref,train_launch_ref,train_actual_wait_ref] if phase=="evaluate" else []))
++        +([train_completion_ref,train_launch_ref,train_actual_wait_ref,*[v for k,v in train_io_lineage.items() if k!="train_checkpoint_groups"]] if phase=="evaluate" else []))
+     require(len(consumers)<=64,"Use exact transitive JSON closure below64 direct refs")
+     request=dict(key="H046/"+job,output=str(ROOT/output),auxiliary_scopes=[str(ROOT/auxiliary)],
+         reserved_bytes=CAP,consumer_bindings=consumers)
+@@ -107,6 +109,8 @@
+         observation_cache_source_refs=old["observation_cache_source_refs"],GPU45_authorization_ref=AUTH_REF,
+         
+         completed_overlay_policy_ref=POLICY_REF,physical_gpu=gpu,worker_auxiliary_scope=auxiliary,
++        io_source_manifest_ref=io_source_manifest_ref,storage_adapter_ref=GUARD_REF,storage_launcher_ref=LAUNCHER_REF,
++        marker_repair_authority_ref=REPAIR_REF,train_io_lineage=train_io_lineage,
+         preparation_completion_ref=cfg["preparation_completion_ref"],preparation_actual_wait_ref=cfg["preparation_actual_wait_ref"])
+     if phase=="evaluate":spec.update(train_completion_ref=train_completion_ref,train_launch_ref=train_launch_ref,train_actual_wait_ref=train_actual_wait_ref)
+     input_ref=save(packet,"input.json",spec)
+@@ -115,7 +119,7 @@
+         phase=phase,physical_gpu=gpu,passes=30,updates=960,reserved_bytes=CAP,output_forecast=plan,scientific_execution_started=False))
+     print(json.dumps(dict(admitted=phase,input_ref=input_ref,consumers=len(consumers))),flush=True)
+ def launch(phase):
+-    require(phase in ("train","evaluate"),"Single paired phase")
++    require(phase=="evaluate","Single paired phase")
+     packet=HERE/("admitted_"+phase);admitted=read(ref(packet/"admitted.json"))
+     require(admitted["driver_ref"]==ref(SOURCE) and admitted["launcher_ref"]==LAUNCHER_REF,"Actual driver/launcher changed")
+     spec=read(admitted["input_ref"]);require(not (ROOT/spec["output_directory"]).exists(),"No execution replay")
+@@ -165,7 +169,7 @@
+ def main(argv=None):
+     parser=argparse.ArgumentParser(description=__doc__)
+     group=parser.add_mutually_exclusive_group()
+-    group.add_argument("--admit",choices=("train","evaluate"));group.add_argument("--launch",choices=("train","evaluate"))
++    group.add_argument("--admit",choices=("evaluate",));group.add_argument("--launch",choices=("evaluate",))
+     parser.add_argument("--gpu",type=int,choices=(4,5))
+     for name in ("train-completion","train-launch","train-actual-wait"):
+         parser.add_argument("--"+name);parser.add_argument("--expected-"+name+"-sha256")
+--- src/arggnn/H046_GPU45_flank_worker_v2.py
++++ src/arggnn/H046_GPU45_flank_eval980_v1.py
+@@ -3,8 +3,8 @@
+ import argparse,hashlib,importlib.util,json,sys
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+ sys.path[:0]=[str(ROOT),str(ROOT/"src")]
+-from research.reviews.H046_GPU45_flank_root_source_v2 import root_common_v1 as common
+-SOURCE="src/arggnn/H046_GPU45_flank_worker_v2.py"
++from research.reviews.H046_GPU45_flank_eval980_source_v1 import root_common_v1 as common
++SOURCE="src/arggnn/H046_GPU45_flank_eval980_v1.py"
+ def main(argv=None):
+     parser=argparse.ArgumentParser(description=__doc__)
+     parser.add_argument("--execute",action="store_true");parser.add_argument("--input")
+@@ -18,7 +18,7 @@
+     common.require(spec.get("schema")=="H046_paired_flank_root_input_v1"
+         and spec.get("status")=="active" and spec.get("root_authorizer")=="root_agent"
+         and spec.get("hypothesis_id")=="H046" and spec.get("arm")=="joint_pair"
+-        and spec.get("physical_gpu") in (4,5),"Active root H046 paired capability required")
++        and spec.get("physical_gpu") in (4,5) and spec.get("phase")=="evaluate","Active root H046 paired capability required")
+     for path,digest in spec["source_sha256"].items():
+         common.require(common.ref(path)["sha256"]==digest,"Actual source closure changed")
+     common.require(spec["worker_cli_ref"]==common.ref(SOURCE),"Actual CLI must be bound")
+--- scripts/launch_reserved_gpu_authorized_GPU45_completed_v1.py
++++ scripts/launch_reserved_gpu_authorized_GPU45_980_v1.py
+@@ -1,20 +1,22 @@
+ #!/usr/bin/env python3
+ """Explicit human-authorized sharing, preserving frozen storage, leases and waits."""
+ from pathlib import Path
+-import hashlib,json
++import hashlib,json,os
+ import importlib.util
+ from arggnn import project_storage_terminal_retired_scopes_v1 as previous
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-SOURCE="scripts/launch_reserved_gpu_authorized_GPU45_completed_v1.py"
++SOURCE="scripts/launch_reserved_gpu_authorized_GPU45_980_v1.py"
+ ORIGINAL=ROOT/"scripts/launch_reserved_gpu_full_storage_v1.py"
+ ORIGINAL_SHA256="d7e5b2bcb464b9d3863b4f644e69aaa1c73c18aaa2550e44ecd021e2199f6dff"
+ TERMINAL_SHA256="bbbdf26206e4e1725c79d2558b4426af848df4cbbd5ac2d0f2bc7051c0606bab"
+ AUTH_PATH="research/reviews/H040_GPU45_migration_root_20261015_v1/GPU45_authorization.json"
+ AUTH_SHA256="0231ae8edb05f8dd34ce127a0de0b97c1dd64fa461ad081e7a83bb92c558d26c"
+ 
+-HELPER_PATH='research/reviews/concurrent_completed_scope_credits_v3/completed_scope_credits_v3.py'
+-HELPER_SHA256="ea14c12c41b9385a86182aa9c24058f7b1276107fc5706c70e47828e8b2c31ef"
++HELPER_PATH='research/reviews/prospective_980GB_capacity_source_v1/prospective_980gb_v1.py'
++HELPER_SHA256="fc71030865e0a3d5da31120d4daa2caa0b2d39ec7dd212b8c46c476b5a866d56"
+ REPAIR_REF={"path":'research/reviews/H039_missing_marker_repair_v1/repair_authority_20261015.json',"sha256":"f6f2d628199e8be73db8b5d90d428570d8afdefeab9dc5cd94bb5eafb39247db"}
++
++POLICY_REF={'path': 'research/reviews/prospective_980GB_capacity_source_v1/activation_policy.root_active_v1.json', 'sha256': 'eb3408004a508136aa434c0a2e02a9d14a5598a96b8483c264c93026f9326018'}
+ 
+ def main():
+  global storage
+@@ -22,7 +24,11 @@
+   raise ValueError("Actual narrow repair helper changed")
+  spec=importlib.util.spec_from_file_location("root_shared_marker_storage",ROOT/HELPER_PATH)
+  storage=importlib.util.module_from_spec(spec);spec.loader.exec_module(storage)
+- storage.configure_v2(REPAIR_REF)
++ if hashlib.sha256((ROOT/POLICY_REF["path"]).read_bytes()).hexdigest()!=POLICY_REF["sha256"]:
++  raise ValueError("Exact actual980 policy source")
++ if json.loads(os.environ["ARGGNN_COMPLETED_CREDITS_POLICY_REF"])!=POLICY_REF:
++  raise ValueError("Exact actual980 policy environment")
++ storage.configure_v2(REPAIR_REF,policy_ref=POLICY_REF)
+  if hashlib.sha256((ROOT/previous.SOURCE).read_bytes()).hexdigest()!=TERMINAL_SHA256:
+   raise ValueError("Frozen storage helper changed")
+  if hashlib.sha256(ORIGINAL.read_bytes()).hexdigest()!=ORIGINAL_SHA256:
+@@ -37,7 +43,7 @@
+   or auth.get("max_project_cuda_reserved_bytes")!=50000000000
+   or auth.get("minimum_additional_free_bytes")!=4000000000):
+   raise ValueError("Explicit bounded human GPU-sharing authority required")
+- text=ORIGINAL.read_text().replace('"full_reserved_no_closed_scope_credit"','"concurrent_completed_scope_credits_v3"')
++ text=ORIGINAL.read_text().replace('"full_reserved_no_closed_scope_credit"','"prospective_980gb_v1"')
+  namespace={"__name__":"_arggnn_authorized_shared_lease_launcher","__file__":str(ORIGINAL)}
+  exec(compile(text,str(ORIGINAL),"exec"),namespace)
+  def credited_check(record,source_sha,launcher_sha,*,required_write_bytes=0):
+@@ -45,7 +51,7 @@
+    or record["budget_components"]["launcher"]["sha256"]!=launcher_sha):
+    raise ValueError("Frozen core and lease pins differ")
+   bindings=record["reservation"]["consumer_bindings"]
+-  for path in (SOURCE,"scripts/launch_reserved_gpu_terminal_retired_scopes_v1.py",AUTH_PATH,HELPER_PATH,REPAIR_REF["path"],"research/reviews/H039_missing_marker_repair_v1/marker_repair_v1.py","research/reviews/H039_failed_scope_capacity_v1/failed_scope_capacity_v1.py","src/arggnn/project_budget_v9_consumer.py"):
++  for path in (SOURCE,"scripts/launch_reserved_gpu_terminal_retired_scopes_v1.py",AUTH_PATH,HELPER_PATH,POLICY_REF["path"],REPAIR_REF["path"],"research/reviews/H039_missing_marker_repair_v1/marker_repair_v1.py","research/reviews/H039_failed_scope_capacity_v1/failed_scope_capacity_v1.py","src/arggnn/project_budget_v9_consumer.py"):
+    actual=namespace["budget"].v4.reference(ROOT,path)
+    if actual not in bindings:raise ValueError("Sharing wrapper, original wrapper and authorization must be reserved")
+   account=storage.check_storage_locked_v1(record,boundary=True,required_write_bytes=required_write_bytes)

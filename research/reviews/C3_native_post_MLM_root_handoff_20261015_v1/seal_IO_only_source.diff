@@ -1,0 +1,59 @@
+--- src/arggnn/american_c3_evaluate_v1.py::native_top1_seal
++++ research/reviews/C3_native_post_MLM_root_handoff_20261015_v1/ram_downstream_v1.py::native_top1_seal_ram_v1
+@@ -1,14 +1,15 @@
+-def native_top1_seal(cfg,w,r):
+-    """Join native released row order to full raw path IDs without opening truth."""
+-    import numpy as np,torch
++def native_top1_seal_ram_v1(cfg,w,r,*,prep,orders,query_arrays,corpus_arrays,native,torch):
++    """Same native seal checks/math with caller-owned RAM inputs instead of file loads."""
++    import numpy as np
+     require(cfg['external_truth_ref'] is None and cfg['prediction_ref'] is None,'Native seal accepts no private truth/prediction input')
+-    prep=read(cfg['preparation_ref'])
++    require(cfg['native_query_embeddings_ref'] is None and cfg['native_corpus_embeddings_ref'] is None
++        and cfg['native_retrieval_ref'] is None, 'RAM products are not on-disk file references')
+     require(prep['parent_id']==r['parent_id'].item() and prep['class_order']==list(CLASSES)
+         and prep['focals_ref']==cfg['focal_registry_ref'] and prep['query_embedding_view_prespecified_focals_only'] is True
+         and prep['contrastive_labels_reference_only'] is True and prep['query_ancestry_truth_opened'] is False,
+         'Exact preparation/focal/observation-only contract required')
+     def ordered(view):
+-        pieces=[load_npz(prep['full_path_id_order_refs'][f'{view}/{sp}']) for sp in cfg['expected_splits']]
++        pieces=[orders[f'{view}/{sp}'] for sp in cfg['expected_splits']]
+         require(all(x['parent_id'].item()==r['parent_id'].item() and x['class_order'].tolist()==list(CLASSES) for x in pieces),
+             'Exact native row-order parent/class identity required')
+         names=['record_ids','sample_nodes','sample_indices']+(['reference_classes_0based'] if view=='contrastive' else [])
+@@ -24,8 +25,7 @@
+     def tensor_array(value):
+         require(torch.is_tensor(value) and value.device.type=='cpu','Native CPU tensor output required')
+         return value.detach().numpy()
+-    def embedding(record,order,labelled):
+-        out=torch.load(bound(record),map_location='cpu',weights_only=True,mmap=True)
++    def embedding(out,order,labelled):
+         meta=out['metadata'];vectors=out['embeddings'];n=len(order['record_ids'])
+         require(meta['num_samples']==n and meta['splits']==cfg['expected_splits']
+             and meta['pooling_strategy']==cfg['expected_pooling'] and vectors.ndim==2
+@@ -38,10 +38,9 @@
+                 'Native corpus labels must equal known prepared reference labels')
+         else:require('labels' not in out,'No query ancestry labels in embeddings')
+         return out
+-    query=embedding(cfg['native_query_embeddings_ref'],q,False)
+-    corpus=embedding(cfg['native_corpus_embeddings_ref'],c,True)
++    query=embedding(query_arrays,q,False)
++    corpus=embedding(corpus_arrays,c,True)
+     require(query['embeddings'].shape[1]==corpus['embeddings'].shape[1],'Equal native embedding dimension')
+-    native=torch.load(bound(cfg['native_retrieval_ref']),map_location='cpu',weights_only=True,mmap=True)
+     require(native['k']==1 and 'query_labels' not in native,'Registered native top1 retrieval; no query truth labels')
+     ix=tensor_array(native['topk_indices']);scores=tensor_array(native['topk_scores'])
+     top=tensor_array(native['top1_indices']).reshape(-1);top_scores=tensor_array(native['top1_scores']).reshape(-1)
+@@ -63,9 +62,11 @@
+     prediction_ref=w.npz('predictions.npz',**prediction)
+     native_ref=w.npz('native_top1_preserved.npz',record_ids=q['record_ids'],top1_indices=top,top1_scores=top_scores,
+         parent_id=r['parent_id'],class_order=r['class_order'])
+-    return w.json('completed.json',dict(status='sealed_native_C3_top1',prediction_ref=prediction_ref,
++    return w.json('completed.json',dict(status='sealed_native_C3_top1_RAM_IO_v1',prediction_ref=prediction_ref,
+         native_top1_preserved_ref=native_ref,focal_registry_ref=cfg['focal_registry_ref'],
+         native_retrieval_ref=cfg['native_retrieval_ref'],preparation_ref=cfg['preparation_ref'],
+         native_query_embeddings_ref=cfg['native_query_embeddings_ref'],native_corpus_embeddings_ref=cfg['native_corpus_embeddings_ref'],
+         parent_id=r['parent_id'].item(),class_order=list(CLASSES),records=len(calls),
+-        scores_and_retrieval_indices_modified=False,query_ancestry_truth_opened=False,author_Table1_exact_reproduction=False))+        scores_and_retrieval_indices_modified=False,query_ancestry_truth_opened=False,author_Table1_exact_reproduction=False,
++        native_representation='full_native_arrays_in_CPU_RAM_v1',embedding_file_artifacts_written=False,
++        native_RAM_tensor_manifest_ref=cfg.get('native_RAM_tensor_manifest_ref')))
