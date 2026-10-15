@@ -250,6 +250,16 @@ def main():
     for r in pilot_rows:
         pilot_lines.append("| "+r["name"]+" | "+" | ".join(fmt(r["cohorts"][c]["accuracy"],True) for c in pilot_cohorts)+" |")
     pilot_lines+=["","[Actual summary with all metrics]("+("../" if False else "")+pilot_source+")."]
+    focal_packet="research/reviews/C3_next_plan_root_handoff_20261015_v1/admitted_american_c3_short_train_000"
+    focal_output="experiments/results/C3_short_TRAIN_focal_plans_v1/american_c3_short_train_000"
+    focal_launch=maybe_read(focal_packet+"/root_actual_launch.json")
+    focal_wait=maybe_read(focal_packet+"/root_actual_wait.json")
+    focal_done=maybe_read(focal_output+"/completed.json")
+    focal_status=("completed with actual wait0" if focal_done and focal_wait and focal_wait.get("returncode")==0
+        and focal_wait.get("actual_direct_worker_wait") is True and focal_wait.get("owned_process_group_ESRCH") is True else
+        "terminal; actual receipt review required" if focal_wait else
+        "running on CPU" if focal_launch and (Path("/proc")/str(focal_launch["pid"])).exists() else
+        "admitted; launch pending" if (ROOT/focal_packet/"admission.json").exists() else "not admitted")
     h048=next((r for r in read("research/experiment_decisions.json")["decisions"] if r["id"]=="H048"),None)
     h048_job=next(j for j in jobs if j["hypothesis"]=="H048")
     h048_status=("GPU4 "+h048_job["runtime_status"]+". "+str(h048_job["passes_completed"])+"/30 completed passes; "
@@ -333,7 +343,7 @@ def main():
         "| Method | Current ancestry scores | Status |","|---|---|---|",
         "| Native ARGformer | unavailable | "+native_status+" |",
         "| Native FLARE | unavailable | "+flare_status+" |",
-        "| Our C3 GNN | unavailable | Shared 30 Mb VAL000 inference completed. Remaining TRAIN parents, checkpoint and full prespecified VAL gate pending |",
+        "| Our C3 GNN | unavailable | TRAIN000 exact native focal/plan preparation: "+focal_status+". Shared 30 Mb VAL000 inference completed. Remaining TRAIN parents, checkpoint and full prespecified VAL gate pending |",
         "","The TRAIN000 conversion is development evidence. Independent VAL000 inference now has its own actual completion/wait receipts; its method predictions and common-truth scoring remain pending. "+val_status+" Original-paper simulation assumptions and source versions remain explicitly documented.","",
         "## GST molecular graph-set pilot","",
         gst_status+" AP is pooled per-atom average precision. One seed supplies no training-seed SD.","",
@@ -368,7 +378,7 @@ def main():
         table.append(f"| {j['hypothesis']} | GPU{j['GPU']} | {j['passes_completed']}/30 completed passes; {updates}; {j['runtime_status']} | {j['validation_score']} |")
     table+=["| C3 remaining TRAIN014–019 | CPU | "+wave_text+" | no ancestry score |","| Original American VAL000 | CPU | "+val_status+" | no ancestry score |","| Native ARGformer | GPU4/5 pending | "+native_status+" | pending |",
         "| Native FLARE | CPU | "+flare_status+" | pending |",
-        "| Our C3 GNN | source ready | VAL000 inference completed; remaining TRAIN parents, checkpoint and full prespecified VAL gate pending | pending |",
+        "| Our C3 GNN | CPU preparation | TRAIN000 exact native focal/plans: "+focal_status+". VAL000 inference completed; remaining TRAIN parents, checkpoint and full prespecified VAL gate pending | pending |",
         "| Empirical data | CPU | "+real_status+" | completion "+("verified" if empirical_verified else "pending")+" |","",
         "**Current measured development scores:** H045 foreign-episode **96.8270 ± 0.5870%** Present182 span accuracy, matched own-state **96.8175 ± 0.6142%**. SD is across eight VAL simulations, one optimizer seed. H047 original-risk **96.7777 ± 0.5970%**, balanced-risk **96.7576 ± 0.5287%**. H046/H048 accuracy is pending. [All 15 measured setups, all seven cohorts, NLL/F1/boundaries/Brier/ECE and training budgets](research/current_scoreboard.md#detailed-cohort-metrics).","",
         "[Fresh independent H048 novelty/cross-domain assessment]("+novelty_path+"). "+novelty_status,"",

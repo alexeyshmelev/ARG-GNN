@@ -1,59 +1,54 @@
-# C3 next step: exact native focal registry plus PyG block plan
+# C3 root handoff: exact native focal registry and PyG plan
 
-**Ready for root CPU admission.** The missing implementation is focal-only preparation for each independent2MbTRAIN parent. Existing native wrappers either write the full MLM corpus or bind the original30MbTRAIN000. This single new source produces the exact shared native focal registry and immediately calls the unchanged PyG block planner. It does not wait for ARGformer training, prepare MLM corpus files, open query truth or launch a GPU.
+**Source ready; root admission and actual preparation remain pending.** The sole new producer is `focal_plan_bridge_v1.py`, SHA256 `b2e7fcfa1d301b01cda62a99408986e89cd75fe14509dc4188bd04d0cf84317e`. Existing producers are unchanged. `source_manifest.json` pins 18 source/authority refs, including the 11-file preparation closure.
 
-Source: focal_plan_bridge_v1.py, SHAb2e7fcfa1d301b01cda62a99408986e89cd75fe14509dc4188bd04d0cf84317e.
-source_manifest.json binds18static source/authority refs including the existing11-file transitive preparation closure and original author source. No existing producer was edited.
+The bridge prepares each independent 2 Mb TRAIN parent's exact native focal registry, then calls unchanged `american_c3_gnn_dataset_v1.build_plan` and `american_c3_gnn_stream_train_v1.validate_plan_v1`. It supplies no native MLM corpus or optimizer completion and has no ARGformer-training dependency.
 
-## Root route, one completed parent at a time
+## Root commands
 
-On anogena from /workspace-SR003.nfs2/ARG-GNN:
+On anogena, from `/workspace-SR003.nfs2/ARG-GNN`:
 
-    source scripts/project_env.sh
-    CUDA_VISIBLE_DEVICES='' .runtime/env/bin/python -B research/reviews/C3_next_plan_root_handoff_20261015_v1/focal_plan_bridge_v1.py --admit american_c3_short_train_000
+```sh
+source scripts/project_env.sh
+CUDA_VISIBLE_DEVICES='' .runtime/env/bin/python -B research/reviews/C3_next_plan_root_handoff_20261015_v1/focal_plan_bridge_v1.py --admit american_c3_short_train_000
+```
 
-Use the exact admission path/SHA returned by that command:
+Use the actual admission path and SHA printed by that command:
 
-    CUDA_VISIBLE_DEVICES='' .runtime/env/bin/python -B research/reviews/C3_next_plan_root_handoff_20261015_v1/focal_plan_bridge_v1.py --execute --admission ACTUAL_ADMISSION_PATH --expected-admission-sha256 ACTUAL_ADMISSION_SHA256
+```sh
+CUDA_VISIBLE_DEVICES='' .runtime/env/bin/python -B research/reviews/C3_next_plan_root_handoff_20261015_v1/focal_plan_bridge_v1.py --execute --admission ACTUAL_ADMISSION_PATH --expected-admission-sha256 ACTUAL_ADMISSION_SHA256
+```
 
-The second command executes in its foreground process. Root must retain and record the genuine direct command wait; the producer completion does not manufacture supervisor-wait or drain evidence. No child process, DataLoader worker, GPU, native model or native-training dependency is introduced. Existing root supervision may wrap this command with its unchanged guard/lifecycle policy. No separate launcher framework is supplied.
+Execution is one foreground CPU process. Root retains and records its genuine direct command wait/drain using existing supervision; producer completion does not manufacture that evidence. Each parent requires a fresh admission/output. No replay, overwrite, partial continuation or automatic scope close is supplied.
 
-The explicit --admit mode alone configures the existing active prospective980 guard, uses original unmemoized v4 mutations, binds actual current source/config/runtime/metadata, checks the current64-reference limit and reserves32MiB for that parent. Consumer mode installs the original memo2 adapter and uses the existing common.Writer with the correctly configured current980 adapter. It does not invoke common.cli's older admission path. The fixed parent CPU deadline is7200s and current-process RSS cap512GB; checkpoints/models are irrelevant to this stage. No admission or guard call was performed by this source worker.
+After all 20 parents genuinely complete:
 
-The output for parent000 is experiments/results/C3_short_TRAIN_focal_plans_v1/american_c3_short_train_000. Each parent has its own fresh admission/output; no replay, overwrite, partial continuation or automatic close is implemented. Root can close completed scopes using genuine direct terminal evidence under its existing current policy, retaining all products.
+```sh
+CUDA_VISIBLE_DEVICES='' .runtime/env/bin/python -B research/reviews/C3_next_plan_root_handoff_20261015_v1/focal_plan_bridge_v1.py --collect-plans
+```
 
-## Exact native data equivalence
+This metadata-only collector emits the exact all-20 `parent_plan_refs` mapping. It does not authorize training.
 
-The frozen author get_path_key appends the starting sampled node before its ancestors. The original producer enumerates samples outermost and trees innermost, appending a newly encountered full tuple to seqs and assigning len(seqs). Thus path keys from distinct sampled nodes are disjoint, even when ancestors overlap. The new source deduplicates one sample at a time using a membership-only set, assigns its IDs by first occurrence, and offsets by prior samples' unique counts. It never iterates that set. Python hash/set order cannot change the assigned IDs.
+## Exact native equivalence
 
-The author vocabulary builder reads seqs without mutating it and sorts its own node-token set. split_unique_sequences shuffles a COPY with Python random seed42. Neither changes the original seqs order or the fresh NumPy Generator used for focal choice. Therefore omitting those unused corpus products does not change focal selection.
+The frozen author `get_path_key` places the sampled node first, making different samples' full path keys disjoint. The bridge preserves the original sample-outer/tree-inner first-occurrence order, using membership-only sets that are never iterated and offsets from prior samples' unique counts. Therefore global record IDs are identical.
 
-The last1000sample columns are queries, so their native global record IDs are the explicit ordered int64 interval [number_of_reference_unique_paths,total_unique_paths). The bridge uses that same explicit array and the unchanged np.random.default_rng(seed).choice(array,size=10000,replace=False), then sorts chosen IDs exactly as the original. It does not substitute an integer-choice call, reservoir sampling, hash ordering or a distribution-only equivalent. Seed92201+i comes from the frozen short-parent registry.
+It selects from the same explicit ordered int64 query-ID array using the same freshly seeded `np.random.default_rng(seed).choice(array, size=10000, replace=False)`, then sorts. A second complete enumeration recovers each selected path's identical first interval and original `(left+right)/2` midpoint. Vocabulary construction does not mutate original sequence order; native splitting shuffles a copy. No distribution-only substitute, truncation or sampling fallback is used.
 
-A second complete enumeration of each selected sample visits the same full paths in the same tree order. Its first occurrence supplies the identical left/right native-tree interval; the midpoint uses the original (left+right)/2 expression. Duplicate occurrences do not move the coordinate. Record IDs, query sample axes, positions, first intervals, parent/class order and all10000unweighted focal records are unchanged by construction.
+One completed synthetic fixture compared the original global-dictionary algorithm with the bridge on 1,600 samples, duplicates and 10,000 selected query records: record IDs, sample axes, first intervals and positions matched exactly. `source_check_receipt_v1.json` records the check. The later metadata collector did not change enumeration; AST/default CLI checks passed. No further tests are required for this handoff.
 
-One tiny synthetic fixture executed the unchanged author get_path_key AST on1600samples×14tree occurrences, with12unique paths/sample, explicit repeated first occurrences and10000selected query records. The bridge arrays equal the original global-dictionary algorithm exactly for every field. This was one enumeration/ordering check, with no actual tree, genotype, checkpoint, model, truth, Torch or guard. source_check_receipt_v1.json records it. A metadata-only all20 collector was added afterward without changing enumeration; AST/default CLI checks passed.
+## Products and guards
 
-## Honest preparation receipt and unchanged plan
+Per-parent outputs reside under `experiments/results/C3_short_TRAIN_focal_plans_v1/american_c3_short_train_###/`: `focals.npz`, `native_full_path_order_counts.json`, `focal_completed.json`, `block_index.json`, and `completed.json`.
 
-focal_completed.json explicitly says completed_C3_exact_native_focal_registry_only_v1 and full_native_MLM_corpus_prepared=false. It binds the actual inferred observation, exact focal NPZ, author/rule/bridge sources and native-order count receipt. It is not relabelled as a completed full native corpus.
+The honest focal receipt declares `completed_C3_exact_native_focal_registry_only_v1` and `full_native_MLM_corpus_prepared=false`. It binds actual observation/focal/preparation sources. The existing planner consumes those fields without unused MLM products. All 1,600 samples, 10,000 unweighted focals, full trees/sites and original parent carry remain. Existing blocks are 32 trees / 250,000 nodes / 4,096 sites; EUR/EAS/AFR class order is unchanged.
 
-The existing planner needs this observation/focal/preparation binding and accepts those exact fields; it does not require unused MLM/vocabulary products. Its config.native_preparation_ref points to the honest focal-only receipt. Later native corpus preparation can independently reproduce/verify the same native focal IDs and coordinates.
+Only root's explicit admission/execution invokes the active prospective 980 GB guard. Admission uses original unmemoized v4 mutations and the current 64-reference check; execution uses original memo2 and existing `common.Writer` with the current adapter. Each parent reserves 32 MiB, with a 7,200 s CPU deadline, 512 GB current-process RSS, 100,000-tree and 1,024-raw-path-node caps. Bound failures remain failures.
 
-The unchanged american_c3_gnn_dataset_v1.build_plan loads and validates the actual full inferred observations, all1600samples, EUR/EAS/AFR output order,200references/class and unknown query labels. It retains all trees/sites/samples,10,000focals and original full-parent carry. Blocks retain original defaults32trees/250000nodes/4096sites with no reference mask. The existing validate_plan_v1 checks exact complete2MbTRAIN support. Outputs are focals.npz, native_full_path_order_counts.json, focal_completed.json, block_index.json and completed.json.
+## Readiness and remaining integration
 
-Prospective bounds are100000trees and1024rawpath nodes, with no truncation/subsampling fallback. These bound enumeration/state planning rather than certify actual runtime fit. At most100000block records imply a compact plan within the existing20MB plan budget; the NPZ and1600count rows plus metadata fit the32MiB parent reservation. Guarded actual writes remain authoritative. An exceeded count/time/memory bound preserves failure and requires root review.
+The saved metadata snapshot verifies actual inference completion and successful direct waits for parents 000–013. Parents 014–019 become eligible individually after their actual inference completions and waits; simulation completion alone is insufficient. Actual bindings use wave_v2. Root's requested 000 admission is not claimed successful here.
 
-## Readiness and TRAIN connection
+The prior `American_C3_PyG_execution_source_20261015_v1/` packet remains the training handoff: root integrates its target-factory patch as appropriate and supplies all-20 simulation bindings, TRAIN truth resolver, writer/device/current guards and GPU admission. Training remains 20 × 2 Mb, 30 epochs, 600 complete-parent FP32 updates; five original 30 Mb VAL parents and the all-30-seal scoring barrier remain downstream.
 
-public_readiness_inventory_v1.json currently verifies14genuine inferred completions with their original successful direct waits/drains. Parent015simulation also exists, but no inference readiness is inferred from simulation alone. Parents014–019 become eligible individually only after their actual current980 inference completions and successful waits. The source binds wave_v2 paths, never the registry's inactive wave_v1 paths.
-
-Once all20preparation commands genuinely complete:
-
-    CUDA_VISIBLE_DEVICES='' .runtime/env/bin/python -B research/reviews/C3_next_plan_root_handoff_20261015_v1/focal_plan_bridge_v1.py --collect-plans
-
-This reads completion metadata only and emits the exact all20parent_plan_refs mapping for the existing C3 TRAIN hook. It neither opens focal payloads nor authorizes training.
-
-The prior American_C3_PyG_execution_source_20261015_v1 packet remains the TRAIN/VAL phase handoff. Root still reviews/integrates its unapplied minimal_train_target_factory.patch and supplies actual all20simulation bindings, TRAIN-only truth resolver, writer/device/current guards and GPU admission. Its existing run_train_stage_v1 consumes these block refs for20×2Mb/30epochs/600complete-parentFP32updates. The five original30MbVAL preparations and all30seal scoring barrier remain independent downstream work. No native MLM checkpoint or completion is a dependency.
-
-Only this new handoff folder was written during this task. No scientific payload, private truth, checkpoint, model, GPU, actual guard/accounting operation, admission, installation, Git operation or existing-source edit occurred.
+This worker performed no actual payload/truth/checkpoint/model/GPU read, guard/accounting/admission action, installation, Git operation or existing-producer edit. Packet source is stable; root owns execution and lifecycle evidence.
