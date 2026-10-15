@@ -1,0 +1,67 @@
+--- research/reviews/C3_GNN_current980_executable_root_20261015_v1/worker_entry_v1.py
++++ research/reviews/C3_GNN_prefetch_current980_root_20261015_v1/worker_entry_v1.py
+@@ -2,11 +2,11 @@
+ from pathlib import Path
+ import argparse,hashlib,importlib.util,json,os,resource,sys,time
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-REL="research/reviews/C3_GNN_current980_executable_root_20261015_v1"
++REL="research/reviews/C3_GNN_prefetch_current980_root_20261015_v1"
+ sys.path[:0]=[str(ROOT),str(ROOT/"src"),str(ROOT/"scripts"),str(ROOT/REL)]
+ import root_contract_v1 as c
+ def execute(record):
+- spec=c.read(record,cap=33554432);req,caps,_=c.validate_request(spec["root_stage_request_ref"]);stage=req["phase"];c.active(spec)
++ spec=c.read(record,cap=33554432);c.active(spec);req=c.read(spec["root_stage_request_ref"],cap=33554432);stage=req["phase"]
+  c.require(spec["root_driver_ref"]==c.ref(c.DRIVER) and spec["job_id"] and spec["phase"]==stage,"Exact current input/driver")
+  for path,sha in spec["source_sha256"].items():c.require(c.ref(path)["sha256"]==sha,"Actual admitted scientific/runtime source closure")
+  GPU=stage in c.GPU_PHASES;lease=None
+@@ -15,6 +15,9 @@
+   lease=validate_lease();apply_and_validate_title()
+   c.require(lease["physical_gpu"]==req["physical_gpu"] and lease["visible_gpu_uuid"]==req["GPU_UUID"],"Actual root-selected UUID/lease/title before Torch")
+  else:c.require(os.environ.get("CUDA_VISIBLE_DEVICES")=="","Explicit CPU stage visibility")
++ from research.reviews.C3_GNN_prefetch_provider_20261015_v1.worker_entry_integration_api_v1 import bootstrap_before_torch_v1
++ ipc_receipt=bootstrap_before_torch_v1()
++ req,caps,_=c.validate_request(spec["root_stage_request_ref"])
+  from arggnn.american_c3_common_v1 import runtime_report
+  expected=dict(c.read(c.RUNTIME_REF),CUDA_VISIBLE_DEVICES=os.environ.get("CUDA_VISIBLE_DEVICES"))
+  c.require(runtime_report()==expected,"Exact existing qualified shared runtime metadata")
+@@ -47,7 +50,7 @@
+  start=time.monotonic()
+  def fast(event="C3_GNN_runtime_boundary"):
+   c.active(spec);c.require(time.monotonic()-start<caps["operational_deadline_seconds"],"Full fixed-condition deadline; no shortcut")
+-  c.require(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss*1024<=caps["max_cpu_rss_bytes"],"Current-process RSS cap; workers remain0")
++  c.require(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss*1024<=caps["max_cpu_rss_bytes"],"Main-process peak RSS cap; provider and outer supervisor separately cover owned workers")
+   if GPU:
+    check_fit_lease(qualified);fit.require_logical_job_v1(qualified,spec)
+    c.require(torch.cuda.max_memory_reserved()<=caps["max_cuda_reserved_bytes"],"Actual Torch CUDA reserved cap")
+@@ -59,15 +62,27 @@
+   def json(self,name,value):return self.save(name,value)
+   def npz(self,name,**arrays):return self.save(name,arrays,kind="npz")
+  w=Writer();h=c.hooks();b=req["bindings"]
+- fast();w.save("started.json",dict(status="started_C3_GNN_current980",stage=stage,input_ref=record,
+-  runtime=runtime,native_MLM_dependency=False,TEST_deferred=True,root_driver_ref=c.ref(c.DRIVER)))
++ fast();w.save("started.json",dict(status="started_C3_GNN_prefetch_current980",stage=stage,input_ref=record,
++  runtime=runtime,IPC_bootstrap=ipc_receipt,native_MLM_dependency=False,TEST_deferred=True,root_driver_ref=c.ref(c.DRIVER)))
+  if stage=="train":
+   config=c.read(cfg["scientific_training_config_ref"]);config["execution_enabled"]=True
+   meta=h.actual_train_metadata_v1(b["actual_train_bindings"])
+   def train_truth(parent):
+    c.require(parent in c.TRAIN,"Only all20 short TRAIN truth");return meta[parent]["private_truth_ref"]
+-  result=h.run_train_stage_v1(config,parent_plan_refs=b["parent_plan_refs"],actual_train_bindings=b["actual_train_bindings"],
+-   writer=w,device=device,worker_tmp_directory=cfg["short_tmp_directory"],resolve_train_truth=train_truth,runtime_guard=fast,resume_ref=None)
++  from research.reviews.C3_GNN_prefetch_current980_root_20261015_v1.tracking_factory_v1 import TrackingObservationProviderFactoryV1
++  factory=TrackingObservationProviderFactoryV1(operational_caps=cfg["observation_prefetch"],resource_check=fast)
++  training_failure=None
++  try:
++   result=h.run_train_stage_v1(config,parent_plan_refs=b["parent_plan_refs"],actual_train_bindings=b["actual_train_bindings"],
++    writer=w,device=device,worker_tmp_directory=cfg["short_tmp_directory"],resolve_train_truth=train_truth,
++    runtime_guard=fast,resume_ref=None,observation_provider_factory=factory)
++  except BaseException as error:
++   training_failure=error;raise
++  finally:
++   try:w.save("observation_prefetch_all_worker_drains.json",factory.finalize(training_failed=training_failure is not None))
++   except BaseException as drain_error:
++    if training_failure is None:raise
++    if hasattr(training_failure,"add_note"):training_failure.add_note("Prefetch drain manifest failure: "+str(drain_error)[:1000])
+  elif stage.startswith("plan_val_"):
+   result=h.build_plan_stage_v1(b["plan_config"],parent_id=b["parent_id"],writer=w,runtime_guard=fast)
+  elif stage.startswith("predict_val_"):

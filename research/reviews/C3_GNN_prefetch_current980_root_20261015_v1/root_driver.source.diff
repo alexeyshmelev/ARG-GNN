@@ -1,0 +1,116 @@
+--- research/reviews/C3_GNN_current980_executable_root_20261015_v1/root_driver_v1.py
++++ research/reviews/C3_GNN_prefetch_current980_root_20261015_v1/root_driver_v1.py
+@@ -3,7 +3,7 @@
+ from datetime import datetime,timezone,timedelta
+ import argparse,collections,hashlib,importlib.util,json,os,selectors,signal,subprocess,sys,time
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-REL="research/reviews/C3_GNN_current980_executable_root_20261015_v1"
++REL="research/reviews/C3_GNN_prefetch_current980_root_20261015_v1"
+ sys.path[:0]=[str(ROOT),str(ROOT/"src"),str(ROOT/"scripts"),str(ROOT/REL),str(ROOT/"research/reviews/American_C3_native_MLM_full_source_v5"),str(ROOT/"research/reviews/American_C3_native_MLM_amendment_v12")]
+ import root_contract_v1 as c
+ SOURCE=c.DRIVER
+@@ -26,7 +26,7 @@
+     c.require(not tmp.exists(),"Fresh separately reserved TMP")
+     sources={p:c.ref(p)["sha256"] for p in c.source_paths()}
+     packet.mkdir();config_ref=c.save(packet,"config.json",config)
+-    closure_ref=c.save(packet,"source_and_input_closure.json",dict(schema="C3_GNN_current980_transitive_closure_v1",
++    closure_ref=c.save(packet,"source_and_input_closure.json",dict(schema="C3_GNN_prefetch_current980_transitive_closure_v1",
+         source_sha256=sources,root_stage_request_ref=request_ref,bindings=req["bindings"],
+         scientific_train_source_ref=c.TRAIN_SOURCE_REF,hook_ref=c.HOOK_REF,native_MLM_dependency=False))
+     guard=c.original_guard()
+@@ -41,9 +41,10 @@
+         c.ref("research/reviews/H039_failed_scope_capacity_v1/failed_scope_capacity_v1.py"),
+         c.ref("research/reviews/H039_failed_scope_capacity_v2/failed_scope_capacity_v2.py"),
+         c.ref("src/arggnn/project_budget_v9_consumer.py")]
++    if phase=="train":mandatory.append(req["scientific_training_config_ref"])
+     consumers=unique([*bindings.values(),*mandatory])
+     now=datetime.now(timezone.utc);expiry=now+timedelta(seconds=caps["operational_deadline_seconds"])
+-    job="American-C3-GNN-current980-"+phase+"-v1";aux=packet/"worker_aux"
++    job="American-C3-GNN-prefetch-current980-"+phase+"-v1";aux=packet/"worker_aux"
+     reserve_request=dict(key="H041/"+job,output=str(ROOT/output),auxiliary_scopes=[str(aux),str(tmp)],
+         reserved_bytes=caps["reservation_cap_bytes"],consumer_bindings=consumers)
+     authority=guard.operation_draft_v1("reserve",reserve_request,expected_before=guard._pins(view),bindings=bindings)
+@@ -56,7 +57,7 @@
+         initial_ledger_pins=reserved["initial_ledger_pins"],expires_at_utc=expiry.isoformat(),completed_overlay_policy_ref=c.POLICY_REF,
+         budget_components=dict(implementation=c.ref(guard.budget.SOURCE_REL),launcher=c.ref(guard.budget.LAUNCHER_REL),consumer_adapter=c.GUARD_REF))
+     refs=dict(config=config_ref,runtime=c.RUNTIME_REF,storage=c.save(packet,"storage.json",storage))
+-    spec=dict(schema="C3_GNN_current980_active_input_v1",status="active",root_authorizer="root_agent",
++    spec=dict(schema="C3_GNN_prefetch_current980_active_input_v1",status="active",root_authorizer="root_agent",
+         execution_authorized=True,GPU_authorized=(phase in c.GPU_PHASES),parent_id=c.PARENT,phase=phase,job_id=job,
+         output_directory=output,root_stage_request_ref=request_ref,caps_ref=req["caps_ref"],root_driver_ref=c.ref(SOURCE),
+         main_source_ref=main,actual_launcher_ref=c.LAUNCHER_REF if phase in c.GPU_PHASES else None,
+@@ -112,8 +113,17 @@
+     except ProcessLookupError:return True
+ 
+ def _harvest_owned_roster(phase,output,completion,known,groups):
+-    # GNN loaders use num_workers0; the outer root subreaper owns the launcher tree.
+-    return sorted(known),sorted(groups),[]
++    pids=set(known);proofs=[]
++    path=ROOT/output/"observation_prefetch_all_worker_drains.json"
++    if phase=="train" and path.is_file():
++        record=c.ref(path);value=c.read(record,cap=33554432);proofs.append(record)
++        c.require(value["schema"]=="C3_GNN_prefetch_all_worker_drains_v1" and value["all_workers_joined"] is True,"Actual exact owned pool drains")
++        if completion is not None:
++            c.require(value["training_failed"] is False and value["all_workers_zero_exit"] is True and value["drain_count"]==1 and value["parent_release_count"]==620,"Completed full fit has620 checked parent releases and one normal persistent pool drain")
++        pids.update(value["worker_pids"])
++    elif phase=="train" and completion is not None:raise ValueError("No completed TRAIN without full owned-worker drain manifest")
++    c.require(len(pids)<=256,"Explicit bounded persistent-pool owned PID roster")
++    return sorted(pids),sorted(groups),proofs
+ 
+ def launch(phase):
+     c.require(os.getpgrp()==os.getpid() and os.getsid(0)==os.getpid(),
+@@ -158,7 +168,7 @@
+     self_probe_v1()  # Actual root only, before Popen; source preparation never calls it.
+     c.require(not _children(),"Root supervisor has no unrelated children")
+     _subreaper();logs=_RAMLog(caps["outer_log_cap_bytes"]);known={};observed_groups=set();proc=None;failure=None;peak=0;interrupted=None
+-    selector=selectors.DefaultSelector();started=time.monotonic();stop_at=None;original_handlers={};reaped=[]
++    selector=selectors.DefaultSelector();started=time.monotonic();stop_at=None;original_handlers={};reaped=[];post_wait_deadline=None
+     def stop(signum,_frame):
+         nonlocal interrupted
+         interrupted=signum
+@@ -168,7 +178,7 @@
+             bufsize=0,start_new_session=True)
+         known[proc.pid]=_stat(proc.pid);os.set_blocking(proc.stdout.fileno(),False)
+         selector.register(proc.stdout,selectors.EVENT_READ)
+-        while proc.poll() is None or selector.get_map():
++        while proc.poll() is None or selector.get_map() or _children():
+             try:peak=max(peak,_tree(known,observed_groups))
+             except BaseException as error:failure=failure or str(error)
+             now=time.monotonic()
+@@ -189,7 +199,9 @@
+                     except ChildProcessError:break
+                     if pid==0:break
+                     if len(reaped)<256:reaped.append(dict(pid=pid,status=status))
+-                if _children():failure=failure or "Direct launcher exited with adopted descendants"
++                if _children():
++                    if post_wait_deadline is None:post_wait_deadline=time.monotonic()+(caps["observation_prefetch"]["drain_timeout_seconds"] if phase=="train" else 10.)
++                    if time.monotonic()>post_wait_deadline:failure=failure or "Owned helper descendants exceeded post-wait drain deadline"
+     except BaseException as error:
+         failure=failure or type(error).__name__+": "+str(error)[:1000]
+     finally:
+@@ -205,7 +217,7 @@
+                     actual_direct_launcher_wait=True,phase=phase,parent_id=c.PARENT,
+                     input_ref=admitted["input_ref"],driver_ref=c.ref(SOURCE),
+                     drain_state="not_yet_certified",finished_utc=datetime.now(timezone.utc).isoformat()))
+-                print(json.dumps(dict(event="genuine_C3_GNN_current980_direct_wait",pid=proc.pid,returncode=rc,
++                print(json.dumps(dict(event="genuine_C3_GNN_prefetch_current980_direct_wait",pid=proc.pid,returncode=rc,
+                     actual_wait_minimal_ref=minimal_ref)),flush=True)
+             except BaseException as error:
+                 failure=failure or "Genuine wait capture: "+type(error).__name__+": "+str(error)[:1000]
+@@ -256,7 +268,7 @@
+     packet,_=c.phase_paths(phase);admitted=c.read(c.ref(packet/"admitted.json"));spec=c.read(admitted["input_ref"])
+     launch_ref=c.ref(packet/"launch.json");wait_ref=c.ref(packet/"actual_wait.json")
+     launch=c.read(launch_ref);wait=c.read(wait_ref);approval=c.read(approval_ref)
+-    c.require(approval.get("schema")=="C3_GNN_current980_root_close_approval_v1"
++    c.require(approval.get("schema")=="C3_GNN_prefetch_current980_root_close_approval_v1"
+         and approval.get("root_authorizer")=="root_agent" and approval.get("active") is True
+         and approval.get("driver_ref")==c.ref(SOURCE) and approval.get("input_ref")==admitted["input_ref"]
+         and approval.get("actual_wait_ref")==wait_ref and approval.get("root_actually_consumed_supervisor_terminal_wait0") is True
+@@ -323,6 +335,6 @@
+  if a.close:
+   c.require(a.root_approval and a.expected_root_approval_sha256,"Actual root terminal/revocation certificate")
+   close(a.close,dict(path=a.root_approval,sha256=a.expected_root_approval_sha256));return 0
+- print(json.dumps(dict(status="source_only_C3_GNN_current980",phases=list(c.PHASES),
++ print(json.dumps(dict(status="source_only_C3_GNN_prefetch_current980",phases=list(c.PHASES),
+   actual_execution=False,actual_admission=False,native_MLM_dependency=False)));return 0
+ if __name__=="__main__":raise SystemExit(main())

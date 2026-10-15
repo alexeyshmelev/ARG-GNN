@@ -546,10 +546,16 @@ def main():
     table1_fidelity="Original ARGformer Table1 specifies reference-fitted PCA with10components, but the exact clustering/label-mapping rule was not recovered from published text and public author history. Current native release top1 retrieval remains a separate disclosed comparison. PCA10/KMeans3 is only an inactive reconstruction proposal."
     stamp=datetime.now(timezone.utc).isoformat()
     h049=next((r for r in read("research/experiment_decisions.json")["decisions"] if r["id"]=="H049"),None)
+    h049_base="research/reviews/H049_order2_cut_memory_root_source_20261015_v1"
+    h049_done=maybe_read("experiments/results/H049_CPU_order2_cut_memory_prepare_v1/completed.json")
+    h049_wait=maybe_read(h049_base+"/admitted_prepare/actual_wait.json")
+    h049_launch=maybe_read(h049_base+"/admitted_prepare/launch.json") or {}
+    h049_prepare_verified=bool(h049_done and h049_wait and h049_wait.get("actual_direct_launcher_wait") is True and h049_wait.get("returncode")==0 and h049_wait.get("owned_group_drained") is True and h049_wait.get("error") is None and h049_wait.get("completed_ref")==ref("experiments/results/H049_CPU_order2_cut_memory_prepare_v1/completed.json"))
+    h049_prepare_status=("CPU compact preparation completed with actual wait0 and drain" if h049_prepare_verified else "preparation failed or terminal evidence requires review" if h049_wait else "CPU preparation launched" if h049_launch else "CPU preparation admitted; launch pending" if maybe_read(h049_base+"/admitted_prepare/admitted.json") else "root preparation caps approved; admission pending" if maybe_read(h049_base+"/root_prepare_resource_review_actual_v1.json") else "source ready; root preparation-cap review pending")
     result=dict(schema="ARG_GNN_current_scientific_scoreboard_v1",updated_utc=stamp,
         H049_registered_candidate=dict(status=h049["status"],parameters_per_arm=32446,
             arms=h049["execution_budget"]["arms"],training_budget="30passes/960updates per arm",
-            actual_optimizer_updates=0,accuracy=None,registered_criteria=h049["prospective_utility_criteria"]) if h049 else None,
+            actual_optimizer_updates=0,accuracy=None,preparation_status=h049_prepare_status,preparation_completion_wait0_verified=h049_prepare_verified,registered_criteria=h049["prospective_utility_criteria"]) if h049 else None,
         dataset=dict(name="European C4 shared development",length_bp=2000000,haplotypes=952,queries=686,
             TRAIN_simulations=32,VAL_simulations=8,SD_unit="eight VAL simulations, one optimizer seed per model",
             original_paper_reproduction=False,untouched_outer_test_completed=False),
@@ -672,13 +678,14 @@ def main():
         "| Native ARGformer | "+native_device+" | "+native_brief+" | pending |",
         "| Native FLARE | CPU | Author build, TRAIN000 full-site inference and prediction seal completed. Held-out VAL000 conversion: "+flare_val_conversion["status"]+". | held-out score pending |",
         "| Our American C3 GNN | CPU preparation | "+str(focal_ready)+"/20 exact TRAIN plans completed. Executable 30-epoch / 600-update route integrated. Original VAL000 full-length GNN block plan: "+gnn_VAL000_plan["status"]+". | pending |",
-        "| H049 cut-memory candidate | source ready | Three matched 32,446-parameter arms registered. Full 30 passes / 960 updates per arm planned. Executable and compact codec complete, root preparation-cap review pending. | no fit or accuracy yet |",
+        "| H049 cut-memory candidate | CPU preparation | "+h049_prepare_status+". Three matched 32,446-parameter arms. Full 30 passes / 960 updates per arm planned. | no fit or accuracy yet |",
         "| Empirical data | CPU | H045 probabilities, ancestry proportions and genotype PCA completed for 24 query haplotypes / 12 subjects. Descriptive only, without known ancestry truth. | completed |","",
         "**Current measured development scores:** H045 foreign-episode **96.8270 ± 0.5870%** Present182 span accuracy, matched own-state **96.8175 ± 0.6142%**. H046: "+h046_scores+". "+h046_outcome+" H047 original-risk **96.7777 ± 0.5970%**, balanced-risk **96.7576 ± 0.5287%**. SD is across eight VAL simulations, one optimizer seed. H048 accuracy remains pending. [All "+str(len(models))+" measured setups, all seven cohorts, NLL/F1/boundaries/Brier/ECE and training budgets](research/current_scoreboard.md#detailed-cohort-metrics).","",
         "[Fresh independent H048 novelty/cross-domain assessment]("+novelty_path+"). "+novelty_status,"",
         "**ARGformer paper fidelity:** "+table1_fidelity+" [Audit]("+table1_audit_path+").","",
+        "**Comparison contract:** Use the same observed genomes, reference/query identities, truth and scored support. Each method keeps its native representation, such as VCFs, ancestral paths or PyG tensors. Extra inputs, training changes and reconstruction differences are disclosed. Native-format differences do not postpone a shared-data comparison.","",
         "**GST and cross-domain status:** "+gst_status,"",
-        "Parallel ownership: worker1 integrates persistent multiworker C3 GNN loading, worker2 assesses reference-donor biological utility and novelty, worker3 prepares the executable H049 memory-layer experiment. Root owns live experiments, integration, scores and Git. Independent work continues in parallel.","","<!-- CURRENT_SCOREBOARD_END -->"]
+        "Parallel ownership: worker1 integrates persistent multiworker C3 GNN loading, worker2 prepares native benchmark execution and scoring, worker3 prepares the executable H049 memory-layer experiment. Root owns live experiments, integration, scores and Git. Independent work continues in parallel.","","<!-- CURRENT_SCOREBOARD_END -->"]
     p=ROOT/"README.md"
     text=p.read_text()
     a="<!-- CURRENT_SCOREBOARD_START -->"
@@ -721,8 +728,8 @@ def main():
             "**Completed H046:** "+h046_outcome+" [Results](research/reviews/H046_completed_comparison_root_20261015_v1/REPORT.md).","",
             "**Completed H047:** original-risk96.7777±0.5970%, balanced-risk96.7576±0.5287%. Both30passes/960updates. Registered accuracy benefit not met. [Results](research/reviews/H047_completed_comparison_root_20261015_v1/REPORT.md).","",
             "**American GNN preparation:** "+fanout_status+". "+wave_text,"",
-            "**Architecture work:** H049 sample-witness order-2 cut memory is implemented and registered with matched null/leaf-memory controls. The fresh full-budget executable and compact lossless codec are complete. Root preparation resource review and actual preparation remain pending. Predictive utility and a distinct new contribution remain unproved. [Design and prior-art limits](research/reviews/ordered_graph_operator_research_20261015_v1/REPORT.md).","",
-            "Root orchestrates execution and publishing. Three workers handle C3 GNN multiworker integration, reference-donor biological/novelty analysis and H049 preparation in parallel. Only physical GPUs4–5 are eligible, with process title AI Auto Research Pipeline Test.","",""]
+            "**Architecture work:** H049 sample-witness order-2 cut memory is implemented and registered with matched null/leaf-memory controls. "+h049_prepare_status+". Predictive utility and a distinct new contribution remain unproved. [Design and prior-art limits](research/reviews/ordered_graph_operator_research_20261015_v1/REPORT.md).","",
+            "Root orchestrates execution and publishing. Three workers handle C3 GNN multiworker integration, native benchmark execution and scoring and H049 preparation in parallel. Only physical GPUs4–5 are eligible, with process title AI Auto Research Pipeline Test.","",""]
         text=text[:text.index(section_start)]+"\n".join(running)+text[text.index(section_end):]
     pilot_start="<!-- ADAPTED_ARGFORMER_PILOT_START -->"
     pilot_end="<!-- ADAPTED_ARGFORMER_PILOT_END -->"

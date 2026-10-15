@@ -1,0 +1,47 @@
+--- research/reviews/American_C3_PyG_execution_source_20261015_v1/execution_hooks_v1.py
++++ research/reviews/C3_GNN_prefetch_current980_root_20261015_v1/execution_hooks_prefetch_v1.py
+@@ -9,7 +9,7 @@
+ import argparse,copy,dataclasses,inspect,json,sys
+ from arggnn.american_c3_common_v1 import CLASSES,require,read,ref
+ 
+-SOURCE="research/reviews/American_C3_PyG_execution_source_20261015_v1/execution_hooks_v1.py"
++SOURCE="research/reviews/C3_GNN_prefetch_current980_root_20261015_v1/execution_hooks_prefetch_v1.py"
+ TRAIN=tuple("american_c3_short_train_%03d"%i for i in range(20))
+ VAL=tuple("american_c3_val_%03d"%i for i in range(5))
+ BINDING_SCHEMA="C3_actual_TRAIN_simulation_binding_operational_v1"
+@@ -28,7 +28,7 @@
+ 
+ def actual_train_metadata_v1(bindings):
+     """Only JSON metadata reads. Never bind/hash/open a private/scientific payload."""
+-    from arggnn.american_c3_gnn_targets_v1 import authoritative_registry_v1,REGISTRY_REF
++    from research.reviews.C3_GNN_prefetch_current980_root_20261015_v1.metadata_contract_v1 import authoritative_registry_v1,REGISTRY_REF
+     rows=authoritative_registry_v1()
+     require(isinstance(bindings,dict) and set(bindings)==set(TRAIN),"All20 original short TRAIN identities")
+     result={}
+@@ -104,17 +104,23 @@
+ 
+ 
+ def run_train_stage_v1(cfg,*,parent_plan_refs,actual_train_bindings,writer,device,
+-        worker_tmp_directory,resolve_train_truth,runtime_guard,resume_ref=None):
++        worker_tmp_directory,resolve_train_truth,runtime_guard,resume_ref=None,
++        observation_provider_factory=None):
+     """Canonical20x2Mb/600-update training; requires the supplied narrow patch."""
+     require(callable(runtime_guard),"Root-owned current runtime boundary")
+     runtime_guard("before_C3_TRAIN_scientific_import")
+-    from arggnn import american_c3_gnn_train_v1 as train
++    from research.reviews.C3_GNN_prefetch_current980_root_20261015_v1 import trainer_prefetch_v1 as train
+     require("train_target_joiner_factory" in inspect.signature(train.run_train_v1).parameters,
+         "Root must first review/integrate minimal_train_target_factory.patch; no monkeypatch or old-path fallback")
++    if observation_provider_factory is not None:
++        require("observation_provider_factory" in inspect.signature(train.run_train_v1).parameters,
++            "Root must review optional provider-factory successor; no monkeypatch")
+     factory=make_actual_target_joiner_factory_v1(actual_train_bindings)
+     return train.run_train_v1(cfg,parent_plan_refs=parent_plan_refs,writer=writer,device=device,
+         worker_tmp_directory=worker_tmp_directory,resolve_train_truth=resolve_train_truth,
+-        runtime_guard=runtime_guard,resume_ref=resume_ref,train_target_joiner_factory=factory)
++        runtime_guard=runtime_guard,resume_ref=resume_ref,train_target_joiner_factory=factory,
++        **({"observation_provider_factory":observation_provider_factory}
++            if observation_provider_factory is not None else {}))
+ 
+ 
+ def build_plan_stage_v1(cfg,*,parent_id,writer,runtime_guard):

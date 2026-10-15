@@ -1,6 +1,6 @@
 # Current scientific scoreboard
 
-Updated UTC: 2026-10-15T18:21:17.878255+00:00
+Updated UTC: 2026-10-15T18:32:18.231609+00:00
 
 [All measured cohort details](#detailed-cohort-metrics) · [Complete historical receipt inventory](all_recorded_metric_receipts.md) · [Fresh H048 novelty/cross-domain audit](../research/reviews/H048_novelty_crossdomain_fresh_20261015_v1/report.md)
 
@@ -311,7 +311,7 @@ H046 foreign-flank minus own-state Present182 accuracy gain +0.011573 ± 0.06912
 |---|---:|---|---:|---|---:|---|
 | H046 | 5 | False | 30/30 | {'foreign_flank': 960, 'own_state': 960} | 960 | 96.7892 ± 0.6042% foreign_flank; 96.7776 ± 0.6351% own_state |
 | H047 | 4 | False | 30/30 | {'balanced_risk': 960, 'original_risk': 960} | 960 | 96.7777% original-risk, 96.7576% balanced-risk |
-| H048 | 4 | True | 25/30 | {'graph_to_own_confidence_fixed_distance_chain': 800, 'graph_to_transition': 800} | 960 | pending |
+| H048 | 4 | True | 27/30 | {'graph_to_own_confidence_fixed_distance_chain': 864, 'graph_to_transition': 864} | 960 | pending |
 
 Update counts below are verified receipt lower bounds, not live optimizer counters.
 
@@ -321,7 +321,7 @@ Update counts below are verified receipt lower bounds, not live optimizer counte
 
 ## Registered next architecture experiment
 
-GPU4 training; completed-pass update counts are a lower bound. 25/30 completed passes; {'graph_to_own_confidence_fixed_distance_chain': 800, 'graph_to_transition': 800} verified update lower bounds. No validation accuracy yet.
+GPU4 training; completed-pass update counts are a lower bound. 27/30 completed passes; {'graph_to_own_confidence_fixed_distance_chain': 864, 'graph_to_transition': 864} verified update lower bounds. No validation accuracy yet.
 
 [Fresh independent novelty/cross-domain report](../research/reviews/H048_novelty_crossdomain_fresh_20261015_v1/report.md). Fresh independent H048 audit: reset transitions have RFMix precedent; a distinct graph-collection operator is unestablished. GST reaction-center sets have no native chain order, so whole-H048 transfer is not justified. PKU-MMD is only a possible future decoder study after native label-overlap semantics are resolved; no transfer result exists.
 
@@ -334,7 +334,7 @@ H048 retains 31,933 parameters per arm and a fixed 30-pass/960-update schedule. 
 | Native ARGformer | unavailable | Native author MLM training on GPU5. Checkpoint metadata observed at 2026-10-15T17:39:17.298203+00:00: ep0-ba41000-rank0.pt. Full five-epoch/224775-update budget and final saved-Adam verification remain pending. No native ancestry score. Actual unchanged author console entered epoch2/5, batch45. |
 | Native ARGformer dataset counts | not an accuracy run | completed; actual count producer wait0 and drain verified |
 | Native FLARE | unavailable | Author build and TRAIN000 full-site conversion completed with actual wait0. Native inference: completed; actual wait0 and owned-group drain verified; sealing: completed; actual wait0 and owned-group drain verified. Native completed allowance closed; 8977226240 unused bytes credited with all files preserved. Accuracy pending; TRAIN000 is development, not held-out. |
-| Our C3 GNN | unavailable | TRAIN000 exact native focal/plan preparation: completed with actual wait0; explicit retry after missing-parent directory repair, original failure preserved; 10000 focals, 4897 trees, 14937 sites, 154 blocks. remaining TRAIN001–013 fanout 5/13 completed with actual wait0; terminal failed_or_stopped_partial_preserved; root requested cooperative stop of new additions to relieve GPU training mutex contention, current scientific children drain unchanged. Fresh controlled TRAIN006–015 continuation 10/10 completed with genuine wait0; max2CPU producers; terminal completed_selected_remaining_exact_focal_plan_preparations. run016_017_v1: 0/2 genuine completed waits; active. Shared 30 Mb VAL000 inference completed. Remaining TRAIN parents, checkpoint and full prespecified VAL gate pending |
+| Our C3 GNN | unavailable | TRAIN000 exact native focal/plan preparation: completed with actual wait0; explicit retry after missing-parent directory repair, original failure preserved; 10000 focals, 4897 trees, 14937 sites, 154 blocks. remaining TRAIN001–013 fanout 5/13 completed with actual wait0; terminal failed_or_stopped_partial_preserved; root requested cooperative stop of new additions to relieve GPU training mutex contention, current scientific children drain unchanged. Fresh controlled TRAIN006–015 continuation 10/10 completed with genuine wait0; max2CPU producers; terminal completed_selected_remaining_exact_focal_plan_preparations. run016_017_v1: 1/2 genuine completed waits; active. Shared 30 Mb VAL000 inference completed. Remaining TRAIN parents, checkpoint and full prespecified VAL gate pending |
 
 The TRAIN000 conversion is development evidence. Independent VAL000 inference now has its own actual completion/wait receipts; its method predictions and common-truth scoring remain pending. Original 30 Mb VAL000 simulation: completed; actual wait0 and owned-group drain verified; inferred observation: completed; actual wait0 and owned-group drain verified; shared native-path/10k-focal preparation: completed; actual wait0 and owned-group drain verified. R600/Q1000 identities stay common. No VAL ancestry score. Original full30Mb VAL000 native preparations are ready; method predictions and common-truth scores remain pending. Native FLARE VAL000 target bound: 228477 sites, common R600/Q1000. Fresh memo2 conversion: completed; actual wait0 and owned-group drain verified; predictions/scoring pending. Earlier conversion deliberately stopped to repair scheduler contention, with all artifacts retained. Original-paper simulation assumptions and source versions remain explicitly documented.
 
