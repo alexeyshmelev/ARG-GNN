@@ -1,0 +1,58 @@
+# Source-only completed-scope closure adapters
+
+Status: inactive. No closure, PID/group observation, guard import, accounting call, retained-file inventory, payload read, GPU work, deletion or historical mutation was performed to prepare this package. All 78 qualification checks are source/metadata checks or pure in-memory synthetic checks. They do not certify a real full roster or any capacity.
+
+The only accounting implementation is the unchanged `completed_scope_credits_v3.py`, pinned with the existing root policy and marker-repair authority in `candidate_audit.json`. The helper imports/configures it only behind an explicit ROOT prepare/apply entry. Default CLI execution returns integer zero with source-only status. ROOT/src/scripts import paths are set before that deferred import. No function cloning or alternate retained-byte math is used.
+
+## Evidence and priority
+
+| Candidate | Original cap (bytes) | Known historical PIDs | Source-backed groups |
+| --- | ---: | --- | --- |
+| native_argmix | 7,000,000,000 | 389848, 389891 | 389848, 389891 |
+| h038_aligned | 5,000,000,000 | 382074, 382460, 383019, 383455, 383567, 383568 | 382074, 382460, 383019, 383455 |
+| h038_zero | 5,000,000,000 | 382075, 382461, 383020, 383091, 383178, 383179 | 382075, 382461, 383020, 383091 |
+| pyg_cache | 4,000,000,000 | 379173, 379316, 379319, 379320, 379321, 379322, 379323, 379324, 379325 | 379173 |
+
+Start with native_argmix. Its actual root helper calls owned `child.wait()` and writes the explicit original `actual_direct_launcher_wait:true` certificate. The inner full-storage launcher certificate binds launcher 389848/worker 389891/actual wait 0/original reservation digest. Canonical native worker `execve` preserves PID/group; stock training uses DataLoader num_workers=0. Author script mains execute through runpy in the same leased native worker. The inference argument num_data_workers=1 becomes Rust iterator num_threads; it is not evidence of another Python process.
+
+The two compact H038 successful wait files are semantically genuine direct child-status evidence. `relaunch_full_panel_fits_v6.py` creates each owned Popen child with start_new_session=True, calls that Popen object's poll(), skips None, and writes its PID and returned child status. Normal CPython Popen.poll() observes/reaps that direct child with waitpid(WNOHANG). The source does not install another child reaper or supply guessed success. The successful inner launcher wait certificates independently bind model 383455/model 383091 and wait 0. Completion metadata records each model's two drained DataLoader workers and exitcodes [0,0]. Preserve the original failed initial and v5 wait 1 records and all artifacts; their PIDs remain in the known roster/revocation scope.
+
+The compact PyG `launcher_exit.json` comes from `launch_fast_cache_v5.py` lines31–35: owned Popen(start_new_session=True), child.wait(), then exact PID/returncode/completed_ref. Completion metadata records eight distinct preparation/load worker PIDs and owned_workers_drained. This is historical producer metadata, not a fresh retained-byte measurement.
+
+No missing direct-wait flag was invented or added to any historical file. Source-line locators, actual original references, exact original reservation objects/digests/initial pins, worker wait refs, failed launch refs and candidate-specific revocation targets are bound in the audit JSON. Direct evidence references use JSON/source files; logs and binary payloads are not authority refs.
+
+## What ROOT must resolve before preparing a close
+
+The known historical roster is not automatically a complete current writer roster. The primitive is a cooperative current-writeability proof, not a requirement to reconstruct every extinct historical process number. Historical root helper and Python spawn support/resource-tracker PIDs are unrecorded in the compact metadata; preserve that limitation explicitly. Never invent a PID or assert that an unknown historical identity was recovered.
+
+ROOT can resolve current writeability without inventing that history only if the evidence establishes no omitted live scope writer. Bind each exact original direct-wait writer source: native helper lines130–142, H038 v6 lines23–32, cache lines34–40 have no relaunch or completed-scope writes after the bound child exit is recorded. All admitted child launches create the bound separate sessions/groups; source-backed worker descendants inherit those groups, and native execve preserves identity/group. Retain every known historical PID in the targeted ESRCH roster and require ESRCH for every known/recovered owned group. ROOT may add a bounded current /proc command/cwd/group inspection for exact scope, job and source-entrypoint matches among cooperative root-owned processes, without payload reads or a project-wide FD inventory. Record the exact targeting rules and matched PID/group results in its bound resolution JSON. Include every surviving/recovered relevant identity; any present writer rejects closure. Combined with actual revocation of all original entrypoints/input/resume capabilities, these facts can establish a complete CURRENT cooperative writer roster even though irrelevant extinct helper identities remain unknown. The resolution record must distinguish that assertion from historical reconstruction. If root cannot rule out an omitted live writer or escaped group, leave the candidate inactive.
+
+ROOT must revoke all original/resume/write capabilities for the exact completed output and auxiliary scopes. This includes the original admitted input/storage capabilities, the historical root launch/resume entrypoints, the earlier failed H038 attempts, and any additional recovered capability. Preserve every file, original reservation and original initial pin. The native auxiliary scope is exactly `.runtime/tmp/naf_54e1408bcfeb` in addition to its original output. The other three have no auxiliary scopes. Never re-reserve/rebase/rewrite the original reservations to obtain a credit.
+
+Create a fresh root-owned roster resolution JSON under this repository. The adapter requires root_authorizer=root_agent, the exact candidate key, roster_reconstruction_complete=true and unresolved_roster_items=[]. Record known/recovered PID/group identities, the unresolved historical-identity limitation, exact post-wait source reasoning, actual bounded current evidence refs and specific revocation evidence in that JSON. Bind it in the observation's roster_resolution_refs (1–16 bounded JSON refs). This record is evidence, not a new accounting authority.
+
+Copy the chosen `*.observation.inactive.json` to a fresh root observation file; retain the inactive template. Complete pids/process_group_ids with the resolved full current writer roster plus all known historical PIDs and list the exact candidate audit revocation_target_refs in revoked_original_entrypoint_refs. Set active=true and the four direct-wait/full-roster/reconstruction/revocation assertions true only after ROOT actually verifies them. Set unresolved_roster_items=[]. Preserve exact original launch/wait/completion refs, audit ref and adapter ref.
+
+Immediately obtain targeted ESRCH for each listed PID with os.kill(pid,0), and for each source-backed/recovered group with os.killpg(pgid,0). Presence, zombies, PID/group reuse, permission failure or uncertainty reject closure; do not signal/kill processes. Fill observations in PID order with exactly {pid,absent:true,method:"targeted os.kill(pid,0) ESRCH",checked_utc:<actual UTC>}. Fill process_group_observations in group order with exactly {pgid,absent:true,method:"targeted os.killpg(pgid,0) ESRCH",checked_utc:<actual UTC>}. The adapter requires observations no older than 120 seconds and nonfuture. The unchanged primitive repeats PID ESRCH before and after its retained inventory. The adapter also repeats targeted group signal-0 absence checks before prepare/apply, and records a diagnostic group check after a successful append.
+
+## ROOT invocation
+
+Only ROOT runs the following, from `/workspace-SR003.nfs2/ARG-GNN`. Replace example filenames and SHA placeholders with the actual fresh root evidence; do not run the inactive templates. Use the existing project Python with -B. All output paths must be fresh JSON files directly within this owned package. No experiment, guard, process observation or accounting operation was run by this source author.
+
+```sh
+.runtime/env/bin/python -B research/reviews/native_MLM_capacity_close_source_v1/root_close_adapter.py --prepare-root --candidate native_argmix --observation research/reviews/native_MLM_capacity_close_source_v1/native_argmix.observation.root.json --expected-observation-sha256 ACTUAL_ROOT_OBSERVATION_SHA --output research/reviews/native_MLM_capacity_close_source_v1/native_argmix.operation.inactive.json
+```
+
+This validates source/metadata/root roster evidence, repeats targeted group absence, then calls only configure_v2, inspect_v1 and operation_draft_v1 on the unchanged primitive. It writes an inactive exact operation draft with the current original-mutex view and exact overlay prefix. ROOT reviews that concrete draft and writes a fresh activated operation JSON with active=true and an unexpired expires_at_utc, preserving all other fields exactly. A concurrent admission or closure makes the prefix stale and apply refuses it. Reprepare from a fresh view and fresh observations rather than editing pins manually.
+
+```sh
+.runtime/env/bin/python -B research/reviews/native_MLM_capacity_close_source_v1/root_close_adapter.py --apply-root --candidate native_argmix --observation research/reviews/native_MLM_capacity_close_source_v1/native_argmix.observation.root.json --expected-observation-sha256 ACTUAL_ROOT_OBSERVATION_SHA --authority research/reviews/native_MLM_capacity_close_source_v1/native_argmix.operation.root.json --expected-authority-sha256 ACTUAL_ROOT_OPERATION_SHA --output research/reviews/native_MLM_capacity_close_source_v1/native_argmix.close_receipt.json
+```
+
+Only this explicit ROOT apply invokes apply_close_completed_v1. Under the original mutex, that unchanged primitive validates the current state/prefix/authority/original proof, repeats targeted PID absence, inventories exactly the original completed output plus original auxiliaries, checks retained<=original cap, repeats PID absence, and appends one immutable close event. It calculates the credit from the actual retained inventory and charges 524,288 bytes per event. The adapter does not measure retained files or calculate credit. A post-append diagnostic or receipt-write failure must never trigger a replay: inspect the existing immutable close event first.
+
+Use the other exact candidate tags for later scopes. Every closure needs its own full roster/revocation certificate, fresh observations and fresh current-prefix operation. Old guards/journals and active-worker full charges remain intact. This package author has not invoked any of these root entrypoints.
+
+## Capacity decision
+
+The four original caps total 21,000,000,000 bytes. They are possible caps to close, not earned credits. An 18 GiB MLM reservation is 19,327,352,832 bytes. Actual retained bytes, earned credit and current admission headroom remain unknown until ROOT applies valid closures and inspects the current locked credit-v3 view. The recorded PyG compressed payload 1,672,000,826 bytes is producer metadata, not the primitive's retained stat total. Do not use the earlier approximate unlocked 1.67 GB headroom estimate as admission evidence. Any subsequent MLM admission must use the unchanged current credit-v3 policy/repair path, actual marker and complete actual runtime/producer/launcher bindings. No MLM launch is authorized by this package.
