@@ -1,0 +1,227 @@
+{
+  "actual_data_runtime_or_targets_read": false,
+  "architecture": {
+    "H042_classifier_and_complete_genomic_GRU_preserved": true,
+    "H042_parameters": 30788,
+    "added_parameters": 640,
+    "arms": [
+      "localized",
+      "tree_pooled"
+    ],
+    "forward_API": "MarkerResolutionReadoutV1(H044BoundMarkerBankV1, flags=...); bundle from exact one-time CPU bind_marker_bank_v1",
+    "head_checkpointing": "Exact nonreentrant activation checkpointing in fixed query/center chunks; no temporal truncation.",
+    "history_detached": false,
+    "matched_initialization": "make_matched_pair_v1 deep-copies the complete loaded H042+decoder state, then uses independent arms/optimizers.",
+    "new_decoder": "shared classwise Linear38to16(bias),SiLU,Linear16to1(no bias),zero final projection",
+    "total_parameters_per_arm": 31428,
+    "trees_pruned": false
+  },
+  "corrections_before_admission": [
+    "Categorical Jeffreys0.5 per supplied original allele cardinality, or explicitly all observed panel allele support; retain valid allele2/3. Binary is Bernoulli.",
+    "Separate exact ordered/hash-bound physical SNP-position sidecar; frozen original bank/source untouched.",
+    "Frozen backbone means source/architecture; both arms fine-tune every H042 weight plus same new decoder.",
+    "Original100bp target_mass for both arms; never native_hold_train_mass. Stream or bounded-LRU one complete parent mass shared by both arms.",
+    "Dense-grid all96VAL seals require21,073,920,000bytes max; proposed32,000,000,000byte prediction cap, root admission required.",
+    "Query columns are selected once before gathering scoring-center holds, preserving gradients while avoiding all952-leaf readout transients.",
+    "Evidence prefix/window arithmetic uses CPU FP64 bookkeeping; counts and emitted features remainFP32 and all learning/gradients remainFP32.",
+    "Actual original CPU bank marker identities are verified once; immutable bank/marker objects and storage/version stamps travel through typed device transfer. Shape-only forward acceptance is removed."
+  ],
+  "evidence": {
+    "absent_class": "zero evidence and zero count",
+    "boxes": "closed [center-radius,center+radius], clipped by actually observed coverage; no extrapolation/imputation",
+    "classes": 4,
+    "complexity": "Fixed-four-allele counts O(S*H*C), one-time O(P*R*logS) searchsorted, all query prefix/window/pooled work O(S*Q*C+P*Q*C*R) with R3,C4 fixed. No pairwise affinity or per-marker Python recurrence.",
+    "formula": "log((n_called_allele+.5)/(n_called_class+.5*A_site))+log(A_site)",
+    "max_alleles": 4,
+    "missing_query": "zero evidence and zero count",
+    "model_channels": "three averages and three log1p effective counts per class",
+    "no_dense_marker_affinity": true,
+    "no_per_marker_Python_recurrence": true,
+    "per_window": "average over markers with called query and at least one called class reference, countzero -> averagezero",
+    "pooled_control": "Physical-bin-width mean of exact six features over centers with the same original readout_hold; only scored holds allocated. No native tree is removed from backbone.",
+    "pseudocount": 0.5,
+    "radii_bp": [
+      1000.0,
+      5000.0,
+      20000.0
+    ]
+  },
+  "execution_authorized": false,
+  "hypothesis_id": "H044",
+  "memory": {
+    "C": 4,
+    "GPU_residency": "Separate actual cap; backbone/autograd/runtime allocator peak unmeasured.",
+    "Q": 686,
+    "all32_FP32_targets_if_unstreamed": 7024640000,
+    "all96_prediction_bytes": 21073920000,
+    "exact_neural_peak_unproven": true,
+    "feature_block_bytes": "4*P*query_block*C*6",
+    "feature_cache": "Bounded byte-accounted LRU proposed32\u201348GB, actual S/H/dtypes counted including borrowed storage; admission unresolved.",
+    "head_checkpoint_saved_input_tensor_bytes_at_max_P": 4829440000,
+    "max_P": 20000,
+    "prefix_bytes": "12*(S+1)*query_block*C for FP64 evidence prefix +FP32 count prefix",
+    "probability_bytes_per_parent_checkpoint_arm": 219520000,
+    "proposed_RAM_prediction_cap_bytes": 32000000000,
+    "readout_transients": "Named tensor bounds are not total allocator/autograd peaks; include complete original body, output concatenation, prefix/gather and pooling temporaries separately under actual admission.",
+    "retained_marker_tensors": "genotype_bytes*S*H +76*S+76*P+8*Q (including borrowed genotype, fixed window index pairs and scored-hold pool inverse)",
+    "single_parent_FP32_target_bytes": 219520000,
+    "transient_parent_FP64_target_bytes": 439040000,
+    "worst_two_prefix_bytes_at_S2M_B64_C4": 6144003072
+  },
+  "motivation": {
+    "H042_boundary_F1_percent": 18.0451,
+    "H042_span_accuracy_percent": 96.5778,
+    "prior_H038_boundary_geometry": "About27.3percent of true diagnostic boundaries have no nearby allowed hold edge; motivates testing resolution rather than asserting mechanism."
+  },
+  "novelty": "No novelty claim for categorical emissions, pseudocounts, prefix sums, box filters or residual readout. Test empirical intra-tree localization under matched source/features/parameters/budget; literature novelty requires separate assessment.",
+  "required_original_bank_fields": [
+    "genotype[S,952]",
+    "reference_class[952]",
+    "query_column[686]",
+    "site_hold[S]",
+    "readout_hold[P]",
+    "all original H042 whole-tree/PyG/GRU bank fields",
+    "original exact clade flags"
+  ],
+  "required_sidecar_fields": [
+    "positions_bp0[S]float64",
+    "centers_bp[P]float64",
+    "bin_edges_bp[P+1]float64",
+    "intervals_bp[T,2]float64",
+    "allele_cardinality[S]int64 or explicit observed-support rule",
+    "parent_id",
+    "original_observed_entry_ref",
+    "original_loader_source_ref",
+    "exact hashes/dtypes/shapes of genotype/query/reference/site_hold/readout_hold/positions/centers/bin_edges/intervals/allele_cardinality"
+  ],
+  "root_driver_added": false,
+  "schema": "H044_marker_resolution_implementation_contract_v1",
+  "status": "source_only_not_registered_or_admitted",
+  "training": {
+    "AdamW_betas": [
+      0.9,
+      0.999
+    ],
+    "AdamW_epsilon": 1e-08,
+    "TRAIN_parent_ids": [
+      "ap_expanded_train_000",
+      "ap_expanded_train_001",
+      "ap_expanded_train_002",
+      "ap_expanded_train_003",
+      "ap_expanded_train_004",
+      "ap_expanded_train_005",
+      "ap_expanded_train_006",
+      "ap_expanded_train_007",
+      "ap_expanded_train_008",
+      "ap_expanded_train_009",
+      "ap_expanded_train_010",
+      "ap_expanded_train_011",
+      "ap_expanded_train_012",
+      "ap_expanded_train_013",
+      "ap_expanded_train_014",
+      "ap_expanded_train_015",
+      "ap_expanded_train_016",
+      "ap_expanded_train_017",
+      "ap_expanded_train_018",
+      "ap_expanded_train_019",
+      "ap_expanded_train_020",
+      "ap_expanded_train_021",
+      "ap_expanded_train_022",
+      "ap_expanded_train_023",
+      "ap_expanded_train_024",
+      "ap_expanded_train_025",
+      "ap_expanded_train_026",
+      "ap_expanded_train_027",
+      "ap_expanded_train_028",
+      "ap_expanded_train_029",
+      "ap_expanded_train_030",
+      "ap_expanded_train_031"
+    ],
+    "VAL_parent_ids": [
+      "ap_expanded_val_000",
+      "ap_expanded_val_001",
+      "ap_expanded_val_002",
+      "ap_expanded_val_003",
+      "ap_expanded_val_004",
+      "ap_expanded_val_005",
+      "ap_expanded_val_006",
+      "ap_expanded_val_007"
+    ],
+    "VAL_predictions_before_truth": "All2arms x6passes x8parents dense immutable100bp probability seals before anyVAL truth.",
+    "checkpoint_passes": [
+      5,
+      10,
+      15,
+      20,
+      25,
+      30
+    ],
+    "dtype": "float32",
+    "early_stopping": false,
+    "gradient_clip_norm": 1.0,
+    "learning_rate": 0.001,
+    "metrics": {
+      "aggregation": "unweighted_parent_mean_one_seed_no_probability_ensemble",
+      "boundary_tolerance_bp": 1000.0,
+      "calibration_bins": 15,
+      "normalization_length_bp": 2000000,
+      "posthoc_renormalization": false,
+      "primary": "present_day182",
+      "probability_floor": false,
+      "purity_filter": false,
+      "secondary": [
+        "all686",
+        "ancient504",
+        "Bronze_Age162",
+        "BAA14",
+        "Neo302",
+        "Yam26"
+      ],
+      "short_tract_cutoff_bp": 10000.0,
+      "support": "same_ARGMix_original100bp_center_bins_clipped_to_coverage_no_missing_bins_no_tail_extrapolation"
+    },
+    "optimizer_reset": true,
+    "outer_unread": true,
+    "passes": 30,
+    "seed": 101,
+    "selection": "earliest_maximum_equal_parent_Present182_exact_span_accuracy_then_lower_NLL_then_earlier_pass",
+    "target": "Original exact physical per-bin class span mass[P,686,4], shared for both arms; per-parent NLL=sum(-mass*logsoftmax)/sum(mass)",
+    "updates_per_arm": 960,
+    "updates_per_pass": 32,
+    "weight_decay": 0.0001
+  },
+  "upstream_source_refs": [
+    {
+      "path": "src/arggnn/anonymous_clade_flag_control_v1.py",
+      "sha256": "d88a4639a53e63e2bff91e20d98e2af1f5cf8abc71e5fde2e02ac35e831eb8ce"
+    },
+    {
+      "path": "src/arggnn/anonymous_clade_gnn_v1.py",
+      "sha256": "2f878e6334079cff083f67b6da8eda129dd30e7beebc62ae2a93d51796c3f137"
+    },
+    {
+      "path": "src/arggnn/mutation_routed_full_panel_pyg_model_v1.py",
+      "sha256": "786864bbf47dadbd9668abf96119ac7a0d227d91b10a7831374b18a6e63cdefa"
+    },
+    {
+      "path": "src/arggnn/mutation_routed_full_panel_observations_v1.py",
+      "sha256": "a7184be9a735d95b80975f68666d51e9ed0316cc535d9f7b54baafea532a1107"
+    },
+    {
+      "path": "src/arggnn/mutation_routed_whole_tree_gnn_v1.py",
+      "sha256": "254f5155e31f81ae675e2bd08d38c97c9bf130d47e98efa2deea4c7344d9e073"
+    },
+    {
+      "path": "src/arggnn/mutation_routed_full_panel_primary_v1.py",
+      "sha256": "a94fd5af1cd10b1605f75621c36a130faa3f9d5ad71068f8b187d8e73c7e5374"
+    }
+  ],
+  "warmstart_checkpoint_ref": {
+    "path": "experiments/results/H042_GPU4_clade_flags_train_seed101_v1/exact_clade_flags.pass_30.pt",
+    "sha256": "520fcffa1d5e85603620a7f4688b7fdf46669686fea7960fc311852ff2f7e366"
+  },
+  "warmstart_completion_ref": {
+    "path": "experiments/results/H042_GPU4_clade_flags_train_seed101_v1/completed.json",
+    "sha256": "5b7d7adab0de14c18016db86bfc18ddc2b1d652ff530fadd101aaa73c90a6984"
+  }
+}

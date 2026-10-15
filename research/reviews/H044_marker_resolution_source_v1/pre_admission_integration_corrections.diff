@@ -1,0 +1,124 @@
+--- marker_resolution_readout_v1.before_integration_review.py
++++ marker_resolution_readout_v1.py
+@@ -5,7 +5,7 @@
+ All learned operations/gradients are FP32 and the complete genomic GRU remains.
+ """
+ from __future__ import annotations
+-from dataclasses import dataclass,replace
++from dataclasses import dataclass,replace,fields
+ import copy,hashlib,math,re
+ from typing import Mapping
+ import torch
+@@ -86,11 +86,13 @@
+         values=self.log_evidence.gather(2,q.clamp_min(0)[:,None,:].expand(-1,CLASSES,-1))
+         values=values.permute(0,2,1).contiguous().masked_fill(~active,0.)
+         zeros=values.new_zeros((1,b,CLASSES))
+-        sums=torch.cat((zeros,values.cumsum(0)),0)
++        # Observation-only accumulation: avoid cancelling weak late windows
++        # against large chromosome-prefix totals. Learned features stay FP32.
++        sums=torch.cat((zeros.to(torch.float64),values.to(torch.float64).cumsum(0)),0)
+         counts=torch.cat((zeros,active.to(torch.float32).cumsum(0)),0)
+         total=sums[self.window_right]-sums[self.window_left] # [P,R,B,C]
+         number=counts[self.window_right]-counts[self.window_left]
+-        average=total/number.clamp_min(1.)
++        average=(total/number.to(torch.float64).clamp_min(1.)).to(torch.float32)
+         # Counts are exactly represented FP32 integers for the physical2Mb unique-site bound.
+         feature=torch.cat((average.permute(0,2,3,1),number.log1p().permute(0,2,3,1)),-1)
+         return feature.contiguous() # [P,B,C,6], all missing/absent evidence and countszero
+@@ -207,6 +209,60 @@
+     _require(binding.get("support_rule")==data.support_rule,"Support encoding rule fixed in root sidecar")
+     return replace(data,original_binding=dict(binding))
+ 
++def _tensor_stamps_v1(value):
++    """O(number of tensors) mutation stamps; never hash GPU payloads per step."""
++    tensors=[]
++    if isinstance(value,MarkerEvidenceBankV1):
++        tensors=[getattr(value,f.name) for f in fields(value) if isinstance(getattr(value,f.name),Tensor)]
++    else:
++        for f in fields(value):
++            item=getattr(value,f.name)
++            tensors.extend(item if isinstance(item,tuple) else (item,))
++    return tuple((id(t),t.data_ptr(),t._version,tuple(t.shape),t.dtype,str(t.device))
++        for t in tensors if isinstance(t,Tensor))
++
++@dataclass(frozen=True)
++class H044BoundMarkerBankV1:
++    """Exact original CPU pairing carried unchanged through typed device transfer.
++
++    Root first verifies the source/entry/sidecar closure. CPU identities are
++    checked once in bind_marker_bank_v1. Stamps then reject accidental mutation,
++    replacement or cross-parent pairing without repeated GPU hashing.
++    """
++    bank: object
++    source_bank: object
++    markers: MarkerEvidenceBankV1
++    source_stamps: tuple
++    device_stamps: tuple
++    marker_stamps: tuple
++
++    def validate(self):
++        _require(self.source_stamps==_tensor_stamps_v1(self.source_bank)
++            and self.device_stamps==_tensor_stamps_v1(self.bank)
++            and self.marker_stamps==_tensor_stamps_v1(self.markers),
++            "Immutable original bank/marker pairing was mutated or replaced")
++        return self.bank,self.markers
++
++    def to(self,device):
++        self.validate()
++        moved=self.source_bank.to(device)
++        return H044BoundMarkerBankV1(moved,self.source_bank,self.markers,
++            self.source_stamps,_tensor_stamps_v1(moved),self.marker_stamps)
++
++def bind_marker_bank_v1(bank,markers):
++    """One-time exact original CPU bank identity verification, not shape acceptance."""
++    from .mutation_routed_whole_tree_gnn_v1 import MutationRoutedWholeTreeInputsV1
++    _require(type(bank) is MutationRoutedWholeTreeInputsV1 and markers.original_binding is not None,
++        "Verified original CPU bank and root-bound prepared marker payload required")
++    binding=markers.original_binding
++    for key in ("genotype","reference_class","query_column","site_hold","readout_hold"):
++        _require(tensor_identity_v1(getattr(bank,key))==binding["array_identities"][key],
++            "Actual original bank ordered identity differs from sidecar")
++    _require(markers.genotype is bank.genotype and markers.query_column is bank.query_column
++        and markers.readout_hold is bank.readout_hold,"Markers must borrow this actual same-parent CPU bank")
++    stamp=_tensor_stamps_v1(bank)
++    return H044BoundMarkerBankV1(bank,bank,markers,stamp,stamp,_tensor_stamps_v1(markers))
++
+ class SharedMarkerResidualV1(nn.Module):
+     """640 parameters shared across every center/query/class; no class-ID embedding."""
+     def __init__(self):
+@@ -256,10 +312,9 @@
+     def _emit(self,state,feature):
+         return self.backbone.classifier(state)+self.marker_decoder(state[...,:32],feature)
+ 
+-    def forward(self,bank,*,flags,markers:MarkerEvidenceBankV1):
+-        _require(markers.original_binding is not None and markers.genotype.shape==bank.genotype.shape
+-            and torch.equal(markers.query_column,bank.query_column.cpu())
+-            and torch.equal(markers.readout_hold,bank.readout_hold.cpu()),"Verified same-bank original marker sidecar")
++    def forward(self,bundle:H044BoundMarkerBankV1,*,flags):
++        _require(isinstance(bundle,H044BoundMarkerBankV1),"Verified immutable original bank-marker bundle required")
++        bank,markers=bundle.validate()
+         state=self.backbone_state_v1(bank,flags)
+         blocks=[];device=state.device
+         for start in range(0,686,self.query_block):
+@@ -267,10 +322,11 @@
+             feature=markers.features_for_queries(start,end)
+             if self.arm=="tree_pooled":feature=markers.pool_within_trees(feature)
+             pieces=[];query=bank.query_column[start:end]
++            query_state=state.index_select(1,query)
+             for first in range(0,len(markers.centers_bp),self.center_block):
+                 last=min(first+self.center_block,len(markers.centers_bp))
+                 holds=markers.readout_hold[first:last].to(device)
+-                selected=state.index_select(0,holds).index_select(1,query)
++                selected=query_state.index_select(0,holds)
+                 observed=feature[first:last].to(device)
+                 if self.checkpoint_readout and self.training and torch.is_grad_enabled():
+                     logits=checkpoint(self._emit,selected,observed,use_reentrant=False)
+@@ -331,7 +387,7 @@
+     b=min(q,query_block)
+     return dict(parameters_per_arm=31428,FP32_parameter_bytes=125712,
+         marker_cache_bytes=s*h*genotype_bytes+76*s+76*p+8*q,
+-        two_FP32_prefix_bytes=8*(s+1)*b*CLASSES,
++        mixed_evidence_count_prefix_bytes=12*(s+1)*b*CLASSES,
+         localized_feature_block_bytes=4*p*b*CLASSES*6,
+         full_grid_logits_or_probabilities_bytes=4*p*q*CLASSES,
+         all96_sealed_probability_bytes=96*4*p*q*CLASSES,
