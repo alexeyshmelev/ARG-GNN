@@ -57,9 +57,11 @@ def known_process(pid):
         base=Path("/proc")/str(pid)
         fields=(base/"stat").read_text().rsplit(")",1)[1].split()
         title=(base/"cmdline").read_bytes().decode(errors="replace")
+        try:wait_channel=(base/"wchan").read_text().strip()
+        except OSError:wait_channel="unavailable"
         return dict(present=True,required_title_present="AI Auto Research Pipeline Test" in title,
             start_ticks=int(fields[19]),CPU_seconds=(int(fields[11])+int(fields[12]))/os.sysconf("SC_CLK_TCK"),
-            current_RSS_bytes=int(fields[21])*os.sysconf("SC_PAGE_SIZE"))
+            current_RSS_bytes=int(fields[21])*os.sysconf("SC_PAGE_SIZE"),wait_channel=wait_channel)
     except (OSError,IndexError,ValueError):return dict(present=False,required_title_present=False)
 def training_job(hid,gpu,output,packet):
     rows=sorted((ROOT/output).glob("TRAIN_pass_*.json"))
@@ -83,6 +85,8 @@ def training_job(hid,gpu,output,packet):
         "runtime started; optimizer updates not yet verified" if process["present"] and (ROOT/output/"started.json").exists() else
         "admitted; runtime startup pending" if inp and process["present"] else
         "terminal status requires actual wait/completion review")
+    if not complete and process["present"] and updates and process.get("wait_channel") in ("locks_lock_inode_wait","nfs4_retry_setlk"):
+        status="training process live, currently waiting for an NFS/file lock; completed-pass counts remain lower bounds"
     return dict(hypothesis=hid,GPU=gpu,worker_pid=title.get("own_pid"),verified_process_present=process["present"] and process["required_title_present"],
         process_observation=process,runtime_status=status,passes_completed=last.get("pass_index",0),target_passes=30,
         updates_per_arm=updates,updates_are_verified_receipt_lower_bounds=True,target_updates_per_arm=960,
@@ -242,6 +246,19 @@ def main():
                 actual_evaluation_wait0=True,evaluation_wait_ref=h046_wait_ref,
                 validation_score=h046_scores,runtime_status="TRAIN and VAL completed")
         if hid=="H048":
+            ep="research/reviews/H048_GPU45_grid_root_source_v1/admitted_evaluate"
+            ew=maybe_read(ep+"/actual_wait.json")
+            el=maybe_read(ep+"/launch.json")
+            ea=maybe_read(ep+"/admitted.json")
+            row.update(evaluation_admission_ref=ref(ep+"/admitted.json") if ea else None,
+                evaluation_launch_ref=ref(ep+"/launch.json") if el else None,
+                evaluation_wait_ref=ref(ep+"/actual_wait.json") if ew else None)
+            if row["completed"] and row["actual_TRAIN_wait0"]:
+                row["updates_are_verified_receipt_lower_bounds"]=False
+                row["runtime_status"]=("TRAIN completed30passes/960updates per arm with actual wait0; evaluation terminal requires review" if ew else
+                    "TRAIN completed30passes/960updates per arm with actual wait0; registered evaluation launched, score pending" if el else
+                    "TRAIN completed30passes/960updates per arm with actual wait0; evaluation admitted, startup pending" if ea else
+                    "TRAIN completed30passes/960updates per arm with actual wait0; evaluation pending")
             boundary_path="research/reviews/H048_boundary_contention_root_20261015_v1/actual_scheduler_lock_observation.root_v1.json"
             boundary=maybe_read(boundary_path)
             if boundary and row["passes_completed"]==boundary["no_new_pass_receipt_count"] and row["worker_pid"]==boundary["pid"] and row["process_observation"].get("start_ticks")==boundary["start_ticks"]:
@@ -363,8 +380,8 @@ def main():
     if native_latest and v12_launch and not v12_wait:
         latest_checkpoints=[r for r in native_latest["checkpoints"] if not r["symlink"]]
         native_execution.update(latest_checkpoint_metadata_observation_ref=ref(native_latest_path),checkpoint_metadata_only=latest_checkpoints)
-        native_status=("Native author MLM training on "+native_device+". Checkpoint metadata observed at "+native_latest["observed_utc"]+": "+", ".join(r["name"] for r in latest_checkpoints)+". Full five-epoch/224775-update budget and final saved-Adam verification remain pending. No native ancestry score.")
-    epoch_path="research/reviews/native_ARGformer_epoch2_actual_console_20261015_v1.json"
+        native_status=("Engineering TRAIN000: native author MLM training on "+native_device+". Checkpoint metadata observed at "+native_latest["observed_utc"]+": "+", ".join(r["name"] for r in latest_checkpoints)+". Full five-epoch/224775-update budget and final saved-Adam verification remain pending. No native ancestry score.")
+    epoch_path=("research/reviews/native_ARGformer_epoch3_actual_console_20261015_v1.json" if (ROOT/"research/reviews/native_ARGformer_epoch3_actual_console_20261015_v1.json").is_file() else "research/reviews/native_ARGformer_epoch2_actual_console_20261015_v1.json")
     epoch_event=maybe_read(epoch_path)
     if epoch_event and v12_launch and not v12_wait:
         progress=epoch_event["actual_console_payload"]
@@ -541,6 +558,9 @@ def main():
     if any(r["status"]!="not admitted" for r in last_pair):
         wave_text+=" "+"; ".join(r["parent_id"][-3:]+"/"+r["stage"]+": "+r["status"] for r in last_pair)
     else:wave_text+=" TRAIN018/019 pending original016/017 scope closure."
+    pair1819_terminal="research/reviews/American_C3_short_train2mb_wave_980_source_v1/root_pair018_019_exec_terminal_actual_v1.json"
+    if maybe_read(pair1819_terminal):
+        wave_text+=" Actual parent supervisor session2356 returned1. TRAIN018 simulation/inference andTRAIN019 simulation completed with genuine wait0. TRAIN019 inference has partial pre-admission metadata, recovery under investigation. Original failure and completed artifacts preserved."
     wave_text+=" At most two wave parents."
     table1_audit_path="research/reviews/ARGformer_Table1_downstream_fidelity_20261015_v1/REPORT.md"
     table1_fidelity="Original ARGformer Table1 specifies reference-fitted PCA with10components, but the exact clustering/label-mapping rule was not recovered from published text and public author history. Current native release top1 retrieval remains a separate disclosed comparison. PCA10/KMeans3 is only an inactive reconstruction proposal."
@@ -551,7 +571,7 @@ def main():
     h049_wait=maybe_read(h049_base+"/admitted_prepare/actual_wait.json")
     h049_launch=maybe_read(h049_base+"/admitted_prepare/launch.json") or {}
     h049_prepare_verified=bool(h049_done and h049_wait and h049_wait.get("actual_direct_launcher_wait") is True and h049_wait.get("returncode")==0 and h049_wait.get("owned_group_drained") is True and h049_wait.get("error") is None and h049_wait.get("completed_ref")==ref("experiments/results/H049_CPU_order2_cut_memory_prepare_v1/completed.json"))
-    h049_prepare_status=("CPU compact preparation completed with actual wait0 and drain" if h049_prepare_verified else "preparation failed or terminal evidence requires review" if h049_wait else "CPU preparation launched" if h049_launch else "root supervisor launched; scientific child startup pending" if maybe_read(h049_base+"/root_prepare_exec_launch_identity_actual_v1.json") else "CPU preparation admitted; launch pending" if maybe_read(h049_base+"/admitted_prepare/admitted.json") else "root preparation caps approved; admission pending" if maybe_read(h049_base+"/root_prepare_resource_review_actual_v1.json") else "source ready; root preparation-cap review pending")
+    h049_prepare_status=("CPU compact preparation completed with actual wait0 and drain" if h049_prepare_verified else "first CPU preparation failed before any recipe, codec property-call repair pending" if h049_wait and h049_wait.get("returncode")==1 else "preparation terminal evidence requires review" if h049_wait else "CPU preparation launched" if h049_launch else "root supervisor launched; scientific child startup pending" if maybe_read(h049_base+"/root_prepare_exec_launch_identity_actual_v1.json") else "CPU preparation admitted; launch pending" if maybe_read(h049_base+"/admitted_prepare/admitted.json") else "root preparation caps approved; admission pending" if maybe_read(h049_base+"/root_prepare_resource_review_actual_v1.json") else "source ready; root preparation-cap review pending")
     result=dict(schema="ARG_GNN_current_scientific_scoreboard_v1",updated_utc=stamp,
         H049_registered_candidate=dict(status=h049["status"],parameters_per_arm=32446,
             arms=h049["execution_budget"]["arms"],training_budget="30passes/960updates per arm",
@@ -663,13 +683,13 @@ def main():
         "| Current run | Device | Progress | Validation score |","|---|---:|---|---|"]
     for j in jobs:
         if j["evaluation_completed"]:continue
-        updates=str(min(j["updates_per_arm"].values()))+"/960 verified updates per arm (receipt lower bound)" if j["updates_per_arm"] else "optimizer updates not yet verified"
+        updates=(str(min(j["updates_per_arm"].values()))+"/960 verified updates per arm"+(" (receipt lower bound)" if j["updates_are_verified_receipt_lower_bounds"] else "")) if j["updates_per_arm"] else "optimizer updates not yet verified"
         table.append(f"| {j['hypothesis']} | GPU{j['GPU']} | {j['passes_completed']}/30 completed passes; {updates}; {j['runtime_status']} | {j['validation_score']} |")
     short_ready=14+sum(r["stage"]=="infer" and r["completed_and_wait0_verified"] for r in wave_status)
     focal_ready=1+len(fanout_completed)+len(continuation_completed)
     checkpoints=native_execution.get("checkpoint_metadata_only",[])
-    native_brief=("Author full-corpus MLM training. Latest observed checkpoint: "+", ".join(r["name"] for r in checkpoints)+
-        ". Five epochs / 224,775 planned updates. Final completion pending." if checkpoints and not v12_wait and native_live else native_status)
+    native_brief=("Engineering TRAIN000 full-corpus MLM training. Latest observed checkpoint: "+", ".join(r["name"] for r in checkpoints)+
+        ". Five epochs / 224,775 planned updates. Final completion pending. This is engineering TRAIN000, with held-out per-ARG models still pending." if checkpoints and not v12_wait and native_live else native_status)
     if epoch_event and v12_launch and not v12_wait and native_live:
         native_brief+=" Actual author console entered epoch "+str(epoch_event["actual_console_payload"]["epoch_one_based"])+"/5."
     table+=["| American TRAIN preparation | CPU | "+str(short_ready)+"/20 inferred 2 Mb TRAIN parents ready. Exact 10k-focal plans: "+str(focal_ready)+"/20 completed; controlled continuation uses at most two CPU producers. | no ancestry score |",
@@ -683,9 +703,10 @@ def main():
         "**Current measured development scores:** H045 foreign-episode **96.8270 ± 0.5870%** Present182 span accuracy, matched own-state **96.8175 ± 0.6142%**. H046: "+h046_scores+". "+h046_outcome+" H047 original-risk **96.7777 ± 0.5970%**, balanced-risk **96.7576 ± 0.5287%**. SD is across eight VAL simulations, one optimizer seed. H048 accuracy remains pending. [All "+str(len(models))+" measured setups, all seven cohorts, NLL/F1/boundaries/Brier/ECE and training budgets](research/current_scoreboard.md#detailed-cohort-metrics).","",
         "[Fresh independent H048 novelty/cross-domain assessment]("+novelty_path+"). "+novelty_status,"",
         "**ARGformer paper fidelity:** "+table1_fidelity+" [Audit]("+table1_audit_path+").","",
+        "**Remaining biological error:** H045 recovers22.59% of true Present182 changes at1kb tolerance despite96.827% span accuracy. Across8VAL parents its selected predictions match905 changes, miss3103 and add5063extra calls. [Audited residual-error table and scope limits](research/reviews/residual_biological_errors_20261015_v1/REPORT.md).", "",
         "**Comparison contract:** Use the same observed genomes, reference/query identities, truth and scored support. Each method keeps its native representation, such as VCFs, ancestral paths or PyG tensors. Extra inputs, training changes and reconstruction differences are disclosed. Native-format differences do not postpone a shared-data comparison.","",
         "**GST and cross-domain status:** "+gst_status,"",
-        "Parallel ownership: worker1 integrates persistent multiworker C3 GNN loading, worker2 prepares native benchmark execution and scoring, worker3 prepares the executable H049 memory-layer experiment. Root owns live experiments, integration, scores and Git. Independent work continues in parallel.","","<!-- CURRENT_SCOREBOARD_END -->"]
+        "Parallel ownership: worker1 develops the H049 bounded-phase preparation writer, worker2 reports all measured scores and repairs the unfinished American TRAIN019 admission, worker3 completed the declarative H049 GPU route and independently reviews the preparation writer. Root owns actual execution, integration, full score reporting and Git. Independent work continues in parallel.","","<!-- CURRENT_SCOREBOARD_END -->"]
     p=ROOT/"README.md"
     text=p.read_text()
     a="<!-- CURRENT_SCOREBOARD_START -->"
@@ -750,6 +771,8 @@ def main():
         assert count==1
     text=text.replace("Fourteen independent 2 Mb TRAIN preparations are complete.",
         "TRAIN000–015 independent2Mb preparations are complete; TRAIN016/017 are running and018/019 remain pending.")
+    text=text.replace("TRAIN000–015 independent2Mb preparations are complete; TRAIN016/017 are running and018/019 remain pending.",
+        str(short_ready)+"/20 independent2Mb TRAIN inferred inputs and"+str(focal_ready)+"/20 exact focal plans are complete. Final TRAIN019 inference admission is under repair after actual parent supervisor terminal1.")
     text=text.replace("The 40-haplotype panel and pre-size/domain differences still need an explicit adapter and assessment. No ancestry or PCA result.",
         "The variable-panel adapter and H045 empirical application have completed, with ancestry probabilities, bp-weighted proportions and genotype PCA for24query haplotypes/12subjects. These are descriptive outputs without known ancestry truth. Panel/domain assessment remains necessary. [Completed application](experiments/results/H018_H045_empirical_application_root_v1/completed.json).")
     p.write_text(text)

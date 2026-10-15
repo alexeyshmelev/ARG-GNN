@@ -1,0 +1,100 @@
+--- research/reviews/FLARE_consumer_memo2_root_source_20261015_v1/root_stage_980_driver.py
++++ research/reviews/FLARE_consumer_namespace_root_20261015_v1/root_stage_980_driver.py
+@@ -9,12 +9,12 @@
+ 
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+ sys.path[:0]=[str(ROOT),str(ROOT/"src")]
+-SOURCE="research/reviews/FLARE_consumer_memo2_root_source_20261015_v1/root_stage_980_driver.py"
++SOURCE="research/reviews/FLARE_consumer_namespace_root_20261015_v1/root_stage_980_driver.py"
+ PACKET="research/reviews/FLARE_scientific_root_stage_source_v1"
+ BUILD_DRIVER_REF=dict(path="research/reviews/FLARE_existing_JDK_source_v1/root_build_driver.py",
+     sha256="d7afaf5c6c6976a5c4804fe41d320f8609fd346d3f4ed0bca29235001d7fe561")
+-CONTEXT_REF=dict(path="research/reviews/FLARE_consumer_memo2_root_source_20261015_v1/root_context_980_v1.py",
+-    sha256="a743425e5b290eec0bd53425f655ebc8f0c6180bd540376fcef830ce20c58418")
++CONTEXT_REF=dict(path="research/reviews/FLARE_consumer_namespace_root_20261015_v1/root_context_980_v1.py",
++    sha256="0230fceb637d2d8ed19c026f17f9120fbc4a8f6259856373671b5530f7305881")
+ GUARD_REF=dict(path="research/reviews/prospective_980GB_capacity_source_v1/prospective_980gb_v1.py",
+     sha256="fc71030865e0a3d5da31120d4daa2caa0b2d39ec7dd212b8c46c476b5a866d56")
+ POLICY_REF=dict(path="research/reviews/prospective_980GB_capacity_source_v1/activation_policy.root_active_v1.json",
+@@ -23,6 +23,7 @@
+     sha256="f6f2d628199e8be73db8b5d90d428570d8afdefeab9dc5cd94bb5eafb39247db")
+ MEMO_REF=dict(path="research/reviews/resource_guard_hotpath_source_audit_v1/transaction_memo_adapter_v2.py",
+     sha256="c972e9a779d424ceafdb258848614bf40994d1004e2c73fc5cd225ae99621364")
++NAMESPACE_MEMO_REF={'path': 'research/reviews/current_mutex_contention_20261015_v1/consumer_namespace_memo_v1.py', 'sha256': '17a1377320f61c3c0cc8d3816d0259f9dae3121ed91bf7206a7ee63fcab8eb7f'}
+ V4_REF=dict(path="src/arggnn/project_budget_v4.py",
+     sha256="a093c7d86f57fee569cb99f4712250e9505a1119f3950fa44282c7ba8c57df47")
+ TEMPLATES={
+@@ -54,12 +55,13 @@
+     b.need(m.MODE=="prospective_980gb_v1" and all(getattr(m.budget.v4,n).__module__==m.budget.v4.__name__
+         for n in ("canonical","file_bytes","mutex")),"Original unmemoized reserve under actual980GB guard")
+     if consumer:
+-        b.need(all(b.ref(r["path"])==r for r in (MEMO_REF,V4_REF)),
++        b.need(all(b.ref(r["path"])==r for r in (MEMO_REF,V4_REF,NAMESPACE_MEMO_REF)),
+                "Exact pinned consumer memo2/original-v4 sources")
+-        memo=importlib.import_module("research.reviews.resource_guard_hotpath_source_audit_v1.transaction_memo_adapter_v2")
+-        b.need(Path(memo.__file__).resolve()==ROOT/MEMO_REF["path"],"Exact memo2 implementation pathname")
+-        m._flare_consumer_memo2=memo.install(m.budget.v4,
+-            expected_source_path=ROOT/V4_REF["path"],expected_source_sha256=V4_REF["sha256"])
++        namespace_memo=importlib.import_module("research.reviews.current_mutex_contention_20261015_v1.consumer_namespace_memo_v1")
++        b.need(Path(namespace_memo.__file__).resolve()==ROOT/NAMESPACE_MEMO_REF["path"],"Exact consumer namespace implementation")
++        m._flare_consumer_memo2=namespace_memo.install_consumer_v1(m.budget.v4,m.budget,
++            consumer_role="read_only_consumer",expected_source_path=ROOT/V4_REF["path"],
++            expected_source_sha256=V4_REF["sha256"])
+     return m
+ 
+ def metadata(record):
+@@ -219,7 +221,7 @@
+     with m.budget.v4.mutex(ROOT):state=m._state_locked(b.CORE,b.BASE,fresh=True)
+     resource_refs=b.unique(list(state[3].values()))
+     code=dict(frozen["source_sha256"])
+-    for r in b.unique([own,BUILD_DRIVER_REF,CONTEXT_REF,GUARD_REF,MEMO_REF,V4_REF,*resource_refs]):
++    for r in b.unique([own,BUILD_DRIVER_REF,CONTEXT_REF,GUARD_REF,MEMO_REF,V4_REF,NAMESPACE_MEMO_REF,*resource_refs]):
+         if Path(r["path"]).suffix==".py":code[r["path"]]=r["sha256"]
+     code=dict(sorted(code.items()))
+     # Old TRAIN count is only a source-plan basis; the active target gets its actual count.
+@@ -230,7 +232,7 @@
+         root_stage_driver_ref=own,scientific_target_ref=target_ref,scientific_role=target["scientific_role"])
+     manifest_ref=b.put(packet/"source_manifest.json",manifest)
+     closure=[dict(path=p,sha256=h) for p,h in code.items()]
+-    helpers=b.unique([r for r in closure if any(s in r["path"] for s in ("project_budget","failed_scope_capacity","marker_repair","completed_scope_credits"))]+resource_refs+[MEMO_REF,V4_REF])
++    helpers=b.unique([r for r in closure if any(s in r["path"] for s in ("project_budget","failed_scope_capacity","marker_repair","completed_scope_credits"))]+resource_refs+[MEMO_REF,V4_REF,NAMESPACE_MEMO_REF])
+     direct=b.unique([own,BUILD_DRIVER_REF,CONTEXT_REF,b.ref(STAGE_SOURCE[args.stage]),cfg_ref,runtime_ref,manifest_ref,
+         GUARD_REF,POLICY_REF,REPAIR_REF,*helpers,*closure,*meta])
+     consumers=b.unique([*direct,*state[3].values()])
+@@ -253,7 +255,7 @@
+         auxiliary_directory=aux.relative_to(ROOT).as_posix(),expires_at_utc=args.expires_at_utc,
+         storage_adapter_ref=GUARD_REF,completed_overlay_policy_ref=POLICY_REF,
+         marker_repair_authority_ref=REPAIR_REF,mandatory_helper_refs=helpers,
+-        consumer_memo_ref=MEMO_REF,original_v4_ref=V4_REF,root_host_resource_enforcement_active=True)
++        consumer_memo_ref=MEMO_REF,original_v4_ref=V4_REF,consumer_namespace_memo_ref=NAMESPACE_MEMO_REF,root_host_resource_enforcement_active=True)
+     result=b.put(packet/"admission.json",spec);b.put(packet/"reserve_receipt.json",receipt)
+     return dict(status="admitted_"+args.stage+"_not_launched",admission_ref=result,scientific_role=target["scientific_role"],
+         reserved_bytes=CAPS[args.stage],consumer_binding_count=len(consumers),score_status="pending_no_truth_opened")
+@@ -262,7 +264,8 @@
+     record=argument_ref(args,"admission");spec=metadata(record)
+     b.need(spec["stage"] in CAPS and spec["root_authorizer"]=="root_agent" and spec["execution_authorized"] is True
+         and spec["GPU_authorized"] is False and spec["source_ref"]==CONTEXT_REF
+-        and spec["root_stage_driver_ref"]==b.ref(SOURCE) and spec["root_build_driver_ref"]==BUILD_DRIVER_REF,
++        and spec["root_stage_driver_ref"]==b.ref(SOURCE) and spec["root_build_driver_ref"]==BUILD_DRIVER_REF
++        and spec.get("consumer_namespace_memo_ref")==NAMESPACE_MEMO_REF,
+         "Exact unchanged CPU scientific-stage authority")
+     b.expiry(spec["expires_at_utc"]);cfg=metadata(spec["config_ref"]);storage=metadata(spec["storage_ref"])
+     manifest=metadata(spec["source_manifest_ref"])
+@@ -292,7 +295,7 @@
+     record,spec,_,_=load_admission(args)
+     def stop(signum,frame):raise b.WorkerStop("Outer monitor requested stage termination")
+     signal.signal(signal.SIGTERM,stop);signal.signal(signal.SIGINT,stop)
+-    m=configured_guard_v1(consumer=True);context=importlib.import_module("research.reviews.FLARE_consumer_memo2_root_source_20261015_v1.root_context_980_v1")
++    m=configured_guard_v1(consumer=True);context=importlib.import_module("research.reviews.FLARE_consumer_namespace_root_20261015_v1.root_context_980_v1")
+     result=context.execute_v1(record,adapter=m)
+     print(json.dumps(dict(stage_completion_ref=result)),flush=True);return 0
+ 
+@@ -305,7 +308,7 @@
+     env=os.environ.copy();env.update(b.ENV)
+     for name in ("JAVA_TOOL_OPTIONS","_JAVA_OPTIONS","JDK_JAVA_OPTIONS"):env.pop(name,None)
+     runtime=metadata(spec["runtime_ref"]);rfd,wfd=os.pipe()
+-    argv=[runtime["executable"],"-B","-m","research.reviews.FLARE_consumer_memo2_root_source_20261015_v1.root_stage_980_driver","--worker","--admission",record["path"],
++    argv=[runtime["executable"],"-B","-m","research.reviews.FLARE_consumer_namespace_root_20261015_v1.root_stage_980_driver","--worker","--admission",record["path"],
+         "--expected-admission-sha256",record["sha256"],"--monitor-parent-pid",str(os.getpid()),"--monitor-read-fd",str(rfd)]
+     started=b.utc();clock=time.monotonic();owned={};groups={};peak=races=discarded=0;log=bytearray();error=None
+     proc=None;selector=None;minimal_ref=None;rc=None;term_at=None;killed=False;seed_ref=None;released=False

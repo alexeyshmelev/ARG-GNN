@@ -1,0 +1,88 @@
+--- research/reviews/H049_order2_cut_memory_root_source_20261015_v1/root_driver.py
++++ research/reviews/H049_order2_cut_memory_gpu_exec_source_20261015_v1/root_driver.py
+@@ -1,4 +1,4 @@
+-"""H049 root admission/planning/launch CLI. Default and plan are source-only."""
++"""Additive H049 canonical-GPU successor. Reuses frozen science and original prepare lineage."""
+ from pathlib import Path
+ import argparse,collections,ctypes,hashlib,importlib.util,json,os,selectors,signal,subprocess,time,sys
+ from datetime import datetime,timedelta,timezone
+@@ -9,10 +9,11 @@
+     policy_env,GUARD_REF,POLICY_REF,LAUNCHER_REF,REPAIR_REF,AUTH_REF,MEMO_REF,V4_REF,CORE,BASE,
+     validate_eval_train_io_v1)
+ from research.reviews.H049_order2_cut_memory_root_source_20261015_v1 import producer_v1 as worker
+-SOURCE=HERE+"/root_driver.py"
++SOURCE='research/reviews/H049_order2_cut_memory_gpu_exec_source_20261015_v1/root_driver.py'
+ CONTEXT=HERE+"/context_factory_v1.py"
+ PREP_SOURCE=HERE+"/prepare_v1.py"
+ WORKER_SOURCE=HERE+"/producer_v1.py"
++CANONICAL_DISPATCHER_REF={'path': 'src/arggnn/H049_order2_cut_memory_exec_v1.py', 'sha256': 'fbd30932d7e0922e5914f41eb44b49609dce10a1ab62d8034448b436a4a55de7'}
+ 
+ 
+ def context():
+@@ -25,6 +26,7 @@
+ 
+ 
+ def plan_request_v1(r):
++    require(r["phase"] in ("train","evaluate"),"GPU successor phases only")
+     cfg=read(r["config_ref"])
+     counts=read(cfg["count_manifest_ref"])
+     marker=read(cfg["preparation_completion_ref"])
+@@ -35,8 +37,11 @@
+     r=read(request_ref);phase=r["phase"]
+     require(r.get("schema")=="H049_order2_root_admission_request_v1"
+         and r.get("status")=="active" and r.get("root_authorizer")=="root_agent"
+-        and phase in ("prepare","train","evaluate"),"Explicit root H049 admission request")
++        and phase in ("train","evaluate"),"Explicit root H049 admission request")
+     cfg=read(r["config_ref"]);worker.validate_protocol(cfg,phase=phase)
++    require(cfg.get("canonical_dispatcher_ref")==CANONICAL_DISPATCHER_REF
++        and cfg.get("GPU_execution_successor_driver_ref")==ref(SOURCE),
++        "Exact additive canonical dispatcher and GPU driver config pins")
+     worker.bind_registration_v1(cfg,type("MetadataReader",(),{"decode_json":staticmethod(read)})())
+     require(cfg["producer_ref"]==ref(WORKER_SOURCE)
+         and cfg["preparation_producer_ref"]==ref(PREP_SOURCE),"Actual frozen fresh producers")
+@@ -107,7 +112,7 @@
+     m,_=load_guard_v1(consumer=False)
+     with m.budget.v4.mutex(ROOT):state=m._state_locked(CORE,BASE,fresh=True)
+     view,budget_bindings=state[2],state[3]
+-    mandatory=[ref(source),r["config_ref"],runtime,ref(CONTEXT),ref(SOURCE),cfg["source_manifest_ref"],
++    mandatory=[CANONICAL_DISPATCHER_REF,ref(source),r["config_ref"],runtime,ref(CONTEXT),ref(SOURCE),cfg["source_manifest_ref"],
+         cfg["registration_ref"],cfg["count_manifest_ref"],manifest,ref(HERE+"/root_common_v1.py"),
+         GUARD_REF,POLICY_REF,REPAIR_REF,AUTH_REF,MEMO_REF,V4_REF,
+         ref("src/arggnn/project_budget_v9_consumer.py"),
+@@ -138,6 +143,7 @@
+         fit_authorized=phase!="prepare",pyg_authorized=True,job_id=job,output_directory=output,
+         worker_auxiliary_scope=auxiliary,created_at_utc=now.isoformat(),expires_at_utc=expiry,
+         refs=refs,source_sha256=sources,root_context_module_ref=ref(CONTEXT),root_driver_ref=ref(SOURCE),
++        canonical_dispatcher_ref=CANONICAL_DISPATCHER_REF,
+         producer_ref=ref(source),main_source_ref=ref(source),worker_cli_ref=ref(source),
+         consumer_manifest_ref=manifest,observation_entry_refs=old["observation_entry_refs"],
+         observation_cache_source_refs=old["observation_cache_source_refs"],
+@@ -224,6 +230,10 @@
+ 
+ def launch(admitted_ref):
+     admitted=read(admitted_ref);spec=read(admitted["input_ref"]);c=context()
++    require(spec["phase"] in ("train","evaluate"),"GPU successor cannot launch preparation")
++    require(spec.get("canonical_dispatcher_ref")==CANONICAL_DISPATCHER_REF
++        and read(spec["refs"]["config"]).get("canonical_dispatcher_ref")==CANONICAL_DISPATCHER_REF,
++        "Exact actual launched canonical dispatcher")
+     require(admitted["driver_ref"]==ref(SOURCE) and spec["root_driver_ref"]==ref(SOURCE),"Exact admitted root driver")
+     require(not (ROOT/spec["output_directory"]).exists(),"No execution replay")
+     m=load_guard(c);storage=read(spec["refs"]["storage"])
+@@ -237,7 +247,7 @@
+     # Original pinned launcher imports its scripts-local budget modules.
+     env["PYTHONPATH"]=str(ROOT/"scripts")+os.pathsep+env.get("PYTHONPATH","")
+     env["ARGGNN_COMPLETED_CREDITS_POLICY_REF"]=json.dumps(c.POLICY_REF,sort_keys=True)
+-    phase=spec["phase"];worker=c.PREP_SOURCE if phase=="prepare" else c.WORKER_SOURCE
++    phase=spec["phase"];worker=CANONICAL_DISPATCHER_REF["path"]
+     args=["--execute","--input",admitted["input_ref"]["path"],"--expected-input-sha256",admitted["input_ref"]["sha256"]]
+     if phase=="prepare":
+         env["CUDA_VISIBLE_DEVICES"]="";env["OMP_NUM_THREADS"]="1";env["MKL_NUM_THREADS"]="1"
+@@ -313,7 +323,7 @@
+     args=p.parse_args(argv)
+     if args.action=="describe":
+         print(json.dumps(dict(status="source_only_no_admission_or_execution",hypothesis_id="H049",
+-            phases=["prepare","train","evaluate"],passes=30,updates_per_arm=960,
++            phases=["train","evaluate"],canonical_module="arggnn.H049_order2_cut_memory_exec_v1",passes=30,updates_per_arm=960,
+             arms=3,checkpoints=18,VAL_seals=144,genuine_resource_caps_pending=True)));return 0
+     require(args.record and args.sha256,"Exact root metadata record")
+     record=dict(path=args.record,sha256=args.sha256)

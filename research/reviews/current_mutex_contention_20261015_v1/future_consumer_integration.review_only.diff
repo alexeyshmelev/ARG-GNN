@@ -1,0 +1,60 @@
+--- a/FUTURE_SEPARATE_PACKET/root_packet_v1.py
++++ b/FUTURE_SEPARATE_PACKET/root_packet_v1.py
+@@ -17,6 +17,7 @@
+ REGISTRY_REF=dict(path="research/reviews/ARGformer_American_C3_implementation_20261015_v1/parent_seed_registry_inactive.json",sha256="608da56508757646a0584cb653f7f6af4c910f05d560d6da1b99c0c1ea691f9a")
+ MEMO_REF=dict(path="research/reviews/resource_guard_hotpath_source_audit_v1/transaction_memo_adapter_v2.py",sha256="c972e9a779d424ceafdb258848614bf40994d1004e2c73fc5cd225ae99621364")
+ V4_REF=dict(path="src/arggnn/project_budget_v4.py",sha256="a093c7d86f57fee569cb99f4712250e9505a1119f3950fa44282c7ba8c57df47")
++NAMESPACE_MEMO_REF={'path': 'research/reviews/current_mutex_contention_20261015_v1/consumer_namespace_memo_v1.py', 'sha256': '17a1377320f61c3c0cc8d3816d0259f9dae3121ed91bf7206a7ee63fcab8eb7f'}
+ BASE_CONFIG_REFS={
+  "simulate":dict(path=BASIS+"/admitted_simulate_v1/config.json",sha256="3d83bdfc00634d83ee53efedfc9392d6fd195ff6ecc097cd71437ccba1c44e39"),
+  "infer":dict(path=BASIS+"/admitted_infer_v1/config.json",sha256="e36a23293e255c755934016b57f97145ed790541eafa23e5ac0c68c924f5d71a"),
+@@ -110,7 +111,7 @@
+         *[pins[p] for p in (OVERLAY,POLICY,REPAIR,"research/reviews/H039_missing_marker_repair_v1/marker_repair_v1.py",
+           "research/reviews/H039_failed_scope_capacity_v1/failed_scope_capacity_v1.py",
+           "research/reviews/H039_failed_scope_capacity_v2/failed_scope_capacity_v2.py","src/arggnn/project_budget_v9_consumer.py")]]
+-    consumers.extend([REGISTRY_REF,MEMO_REF,V4_REF,ref(HERE/"source_manifest.json"),*operational_refs()])
++    consumers.extend([REGISTRY_REF,MEMO_REF,V4_REF,NAMESPACE_MEMO_REF,ref(HERE/"source_manifest.json"),*operational_refs()])
+     if completion_ref is not None:consumers.extend([completion_ref,wait_ref])
+     consumers=list({(r["path"],r["sha256"]):r for r in consumers}.values())
+     require(len(consumers)<=64,"Existing64 direct source/JSON bound")
+@@ -133,7 +134,7 @@
+         driver_ref=ref(SOURCE),storage=storage,output_directory=output,created_at_utc=now.isoformat(),expires_at_utc=expiry,
+         upstream_completion_ref=completion_ref,upstream_actual_wait_ref=wait_ref,
+         query_ancestry_truth_payload_access_authorized=False,TEST_access_authorized=False,GNN_optimization_authorized=False,
+-        consumer_memo_ref=MEMO_REF,original_v4_ref=V4_REF,registry_ref=REGISTRY_REF,parent_seed_row=dict(SEED_ROW),
++        consumer_memo_ref=MEMO_REF,consumer_namespace_memo_ref=NAMESPACE_MEMO_REF,original_v4_ref=V4_REF,registry_ref=REGISTRY_REF,parent_seed_row=dict(SEED_ROW),
+         worker_bootstrap_ref=ref(HERE/"worker_bootstrap_v1.py"),IO_supervisor_ref=ref(HERE/"root_execution_v1.py"),
+         operational_source_manifest_ref=ref(HERE/"source_manifest.json"))
+     admission_ref=save(packet,"admission.json",spec)
+@@ -162,7 +163,7 @@
+ def frozen():
+     value=read(BASE_REFS_REF)["refs"]
+     require(all(ref(p)==r for p,r in value.items()),"Original frozen scientific/source/runtime pins")
+-    for r in [REGISTRY_REF,CONTRACT_REF,FORECAST_REF,MEMO_REF,V4_REF,*BASE_CONFIG_REFS.values()]:
++    for r in [REGISTRY_REF,CONTRACT_REF,FORECAST_REF,MEMO_REF,V4_REF,NAMESPACE_MEMO_REF,*BASE_CONFIG_REFS.values()]:
+         require(ref(r["path"])==r,"Exact original registry/config or pinned memo2/v4")
+     operational_refs()
+     policy_ref=ref(POLICY);policy=read(policy_ref)
+@@ -223,9 +224,10 @@
+     require(guard.MODE=="prospective_980gb_v1" and all(getattr(guard.budget.v4,n).__module__==guard.budget.v4.__name__
+         for n in ("canonical","file_bytes","mutex")),"Original unwrapped current980 functions before role split")
+     if consumer:
+-        ms=importlib.util.spec_from_file_location("_remaining_VAL_consumer_memo2",ROOT/MEMO_REF["path"])
++        ms=importlib.util.spec_from_file_location("_future_VAL_consumer_namespace_memo",ROOT/NAMESPACE_MEMO_REF["path"])
+         memo=importlib.util.module_from_spec(ms);ms.loader.exec_module(memo)
+-        guard._remaining_VAL_memo2=memo.install(guard.budget.v4,
++        guard._remaining_VAL_memo2=memo.install_consumer_v1(guard.budget.v4,guard.budget,
++            consumer_role="read_only_consumer",
+             expected_source_path=ROOT/V4_REF["path"],expected_source_sha256=V4_REF["sha256"])
+     return guard
+ 
+@@ -253,7 +255,8 @@
+         and spec["parent_id"]==PARENT and spec["stage"]==stage and spec["job_id"]==job
+         and spec["source_ref"]==pins[PRODUCERS[stage]] and spec["driver_ref"]==ref(SOURCE)
+         and spec["execution_authorized"] is True and spec["GPU_authorized"] is False
+-        and spec["consumer_memo_ref"]==MEMO_REF and spec["original_v4_ref"]==V4_REF
++        and spec["consumer_memo_ref"]==MEMO_REF and spec["consumer_namespace_memo_ref"]==NAMESPACE_MEMO_REF
++        and spec["original_v4_ref"]==V4_REF
+         and spec["worker_bootstrap_ref"]==ref(HERE/"worker_bootstrap_v1.py"),"Exact newly admitted remaining-VAL CPU stage")
+     python=ROOT/(".runtime/envs/biological_tsinfer_v1/bin/python" if stage=="infer" else ".runtime/env/bin/python")
+     original_argv=[str(python),"-B","-m","arggnn."+Path(PRODUCERS[stage]).stem,"--execute","--admission",admission_ref["path"],"--expected-admission-sha256",admission_ref["sha256"]]

@@ -1,0 +1,110 @@
+--- research/reviews/H049_order2_cut_memory_gpu_exec_source_20261015_v1/root_driver.py
++++ research/reviews/H049_order2_cut_memory_gpu_exec_source_20261015_v2/root_driver.py
+@@ -1,4 +1,4 @@
+-"""Additive H049 canonical-GPU successor. Reuses frozen science and original prepare lineage."""
++"""Additive H049 canonical GPU successor with exact root-declared preparation provenance."""
+ from pathlib import Path
+ import argparse,collections,ctypes,hashlib,importlib.util,json,os,selectors,signal,subprocess,time,sys
+ from datetime import datetime,timedelta,timezone
+@@ -9,16 +9,21 @@
+     policy_env,GUARD_REF,POLICY_REF,LAUNCHER_REF,REPAIR_REF,AUTH_REF,MEMO_REF,V4_REF,CORE,BASE,
+     validate_eval_train_io_v1)
+ from research.reviews.H049_order2_cut_memory_root_source_20261015_v1 import producer_v1 as worker
+-SOURCE='research/reviews/H049_order2_cut_memory_gpu_exec_source_20261015_v1/root_driver.py'
+-CONTEXT=HERE+"/context_factory_v1.py"
+-PREP_SOURCE=HERE+"/prepare_v1.py"
++SOURCE="research/reviews/H049_order2_cut_memory_gpu_exec_source_20261015_v2/root_driver.py"
++CONTEXT="research/reviews/H049_order2_cut_memory_gpu_exec_source_20261015_v2/context_factory_v2.py"
++PREP_SOURCE=None  # This driver cannot prepare; actual provenance comes from the active config.
+ WORKER_SOURCE=HERE+"/producer_v1.py"
+-CANONICAL_DISPATCHER_REF={'path': 'src/arggnn/H049_order2_cut_memory_exec_v1.py', 'sha256': 'fbd30932d7e0922e5914f41eb44b49609dce10a1ab62d8034448b436a4a55de7'}
++CANONICAL_DISPATCHER_REF={'path': 'src/arggnn/H049_order2_cut_memory_exec_v2.py', 'sha256': 'fed50df6fba72699a87089a3d76984dd56e5d8f9897d820871fb4734a1ae785b'}
+ 
+ 
+ def context():
+-    from research.reviews.H049_order2_cut_memory_root_source_20261015_v1 import context_factory_v1
+-    return context_factory_v1
++    from research.reviews.H049_order2_cut_memory_gpu_exec_source_20261015_v2 import context_factory_v2
++    return context_factory_v2
++
++
++def bound_source_bytes_v2(record):
++    require(ref(record["path"])==record,"Exact declared preparation source bytes")
++    return (ROOT/record["path"]).read_bytes()
+ 
+ 
+ def load_guard(c):
+@@ -39,12 +44,12 @@
+         and r.get("status")=="active" and r.get("root_authorizer")=="root_agent"
+         and phase in ("train","evaluate"),"Explicit root H049 admission request")
+     cfg=read(r["config_ref"]);worker.validate_protocol(cfg,phase=phase)
++    prep_refs=context().declared_cut_preparation_source_refs_v2(cfg)
+     require(cfg.get("canonical_dispatcher_ref")==CANONICAL_DISPATCHER_REF
+         and cfg.get("GPU_execution_successor_driver_ref")==ref(SOURCE),
+         "Exact additive canonical dispatcher and GPU driver config pins")
+     worker.bind_registration_v1(cfg,type("MetadataReader",(),{"decode_json":staticmethod(read)})())
+-    require(cfg["producer_ref"]==ref(WORKER_SOURCE)
+-        and cfg["preparation_producer_ref"]==ref(PREP_SOURCE),"Actual frozen fresh producers")
++    require(cfg["producer_ref"]==ref(WORKER_SOURCE),"Exact frozen scientific producer")
+     gpu=r.get("physical_gpu")
+     require(gpu is None if phase=="prepare" else gpu in (4,5),"CPU prepare or root-selected GPU4/5")
+     packet=ROOT/HERE/("admitted_"+phase)
+@@ -72,6 +77,9 @@
+     for path,digest in sources.items():require(ref(path)["sha256"]==digest,"Frozen source closure")
+     require(sources[SOURCE]==ref(SOURCE)["sha256"] and sources[CONTEXT]==ref(CONTEXT)["sha256"],
+         "Actual driver/context bound")
++    context().validate_declared_cut_preparation_sources_v2(
++        type("MetadataReader",(),{"read":staticmethod(bound_source_bytes_v2),
++            "decode_json":staticmethod(read)})(),cfg,sources)
+     old=read(cfg["original_H038_input_ref"])
+     require(set(old["observation_entry_refs"])==set(worker.TRAIN+worker.VAL)
+         and old["observation_cache_source_refs"]==cfg["observation_cache_source_refs"],
+@@ -79,8 +87,13 @@
+     terminal={k:cfg[k] for k in ("preparation_completion_ref","preparation_actual_wait_ref")}
+     for value in terminal.values():read(value)
+     if phase!="prepare":
+-        terminal.update({k:cfg[k] for k in ("cut_preparation_completion_ref","cut_preparation_actual_wait_ref")})
+-        for name in ("cut_preparation_completion_ref","cut_preparation_actual_wait_ref"):read(terminal[name])
++        terminal.update({k:cfg[k] for k in context().PREPARATION_METADATA_FIELDS_V2})
++        for name in context().PREPARATION_METADATA_FIELDS_V2:read(terminal[name])
++    context().completed_cut_preparation_v1(
++        type("MetadataReader",(),{"read":staticmethod(bound_source_bytes_v2),"decode_json":staticmethod(read)})(),
++        dict(source_sha256=sources,observation_entry_refs=old["observation_entry_refs"],
++            observation_cache_source_refs=old["observation_cache_source_refs"],
++            refs=dict(observation_cache=old["refs"]["observation_cache"]),**prep_refs,**terminal),cfg)
+     train_io_lineage=None
+     if phase=="evaluate":
+         terminal.update({k:r[k] for k in ("train_completion_ref","train_launch_ref","train_actual_wait_ref")})
+@@ -107,12 +120,12 @@
+         hypothesis_id="H049",phase=phase,source_sha256=sources,refs=dict(refs),
+         observation_entry_refs=old["observation_entry_refs"],
+         observation_cache_source_refs=old["observation_cache_source_refs"],
+-        train_io_lineage=train_io_lineage,**terminal))
++        train_io_lineage=train_io_lineage,**prep_refs,**terminal))
+     source=PREP_SOURCE if phase=="prepare" else WORKER_SOURCE
+     m,_=load_guard_v1(consumer=False)
+     with m.budget.v4.mutex(ROOT):state=m._state_locked(CORE,BASE,fresh=True)
+     view,budget_bindings=state[2],state[3]
+-    mandatory=[CANONICAL_DISPATCHER_REF,ref(source),r["config_ref"],runtime,ref(CONTEXT),ref(SOURCE),cfg["source_manifest_ref"],
++    mandatory=[CANONICAL_DISPATCHER_REF]+list(prep_refs.values())+[ref(source),r["config_ref"],runtime,ref(CONTEXT),ref(SOURCE),cfg["source_manifest_ref"],
+         cfg["registration_ref"],cfg["count_manifest_ref"],manifest,ref(HERE+"/root_common_v1.py"),
+         GUARD_REF,POLICY_REF,REPAIR_REF,AUTH_REF,MEMO_REF,V4_REF,
+         ref("src/arggnn/project_budget_v9_consumer.py"),
+@@ -151,7 +164,7 @@
+         GPU45_authorization_ref=AUTH_REF,completed_overlay_policy_ref=POLICY_REF,
+         storage_adapter_ref=GUARD_REF,storage_launcher_ref=LAUNCHER_REF,
+         marker_repair_authority_ref=REPAIR_REF,io_source_manifest_ref=cfg["source_manifest_ref"],
+-        train_io_lineage=train_io_lineage,**terminal)
++        train_io_lineage=train_io_lineage,**prep_refs,**terminal)
+     input_ref=save(packet,"input.json",spec)
+     admitted=dict(schema="H049_order2_root_admitted_v1",input_ref=input_ref,driver_ref=ref(SOURCE),
+         request_ref=request_ref,consumer_binding_count=len(consumers),phase=phase,physical_gpu=gpu,
+@@ -323,7 +336,7 @@
+     args=p.parse_args(argv)
+     if args.action=="describe":
+         print(json.dumps(dict(status="source_only_no_admission_or_execution",hypothesis_id="H049",
+-            phases=["train","evaluate"],canonical_module="arggnn.H049_order2_cut_memory_exec_v1",passes=30,updates_per_arm=960,
++            phases=["train","evaluate"],canonical_module="arggnn.H049_order2_cut_memory_exec_v2",passes=30,updates_per_arm=960,
+             arms=3,checkpoints=18,VAL_seals=144,genuine_resource_caps_pending=True)));return 0
+     require(args.record and args.sha256,"Exact root metadata record")
+     record=dict(path=args.record,sha256=args.sha256)

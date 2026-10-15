@@ -1,0 +1,24 @@
+--- research/reviews/H049_order2_cut_memory_root_source_20261015_v1/prepare_v1.py
++++ research/reviews/H049_order2_cut_memory_prepare_source_20261015_v2/prepare_v2.py
+@@ -3,9 +3,9 @@
+ import argparse,hashlib,importlib.util,json,time
+ from pathlib import Path
+ from research.reviews.H049_order2_cut_memory_root_source_20261015_v1 import producer_v1 as worker
+-from research.reviews.H049_order2_cut_memory_root_source_20261015_v1 import cut_recipe_codec_v1 as codec
++from research.reviews.H049_order2_cut_memory_prepare_source_20261015_v2 import cut_recipe_codec_v2 as codec
+ ROOT=worker.ROOT
+-SOURCE="research/reviews/H049_order2_cut_memory_root_source_20261015_v1/prepare_v1.py"
++SOURCE="research/reviews/H049_order2_cut_memory_prepare_source_20261015_v2/prepare_v2.py"
+ PARENTS=worker.TRAIN+worker.VAL
+ 
+ 
+@@ -72,7 +72,8 @@
+             observation_cache_ref=ctx["observation_cache_ref"],entry_refs=ctx["entry_refs"],
+             observation_source_refs=ctx["observation_source_refs"],observations_only=True,
+             targets_read=False,checkpoint_payloads_read=False,CUDA_initialized=False,
+-            format=codec.FORMAT,seconds=time.monotonic()-started)
++            format=codec.FORMAT,codec_ref=worker.bound_source_ref_v1(codec.__file__),
++            preparation_execution_version=2,seconds=time.monotonic()-started)
+         out.save("completed.json",result)
+         return result
+     except Exception as error:

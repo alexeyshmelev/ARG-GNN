@@ -1,0 +1,103 @@
+--- research/reviews/H049_order2_cut_memory_root_source_20261015_v1/root_driver.py
++++ research/reviews/H049_order2_cut_memory_prepare_source_20261015_v2/root_driver.py
+@@ -1,4 +1,4 @@
+-"""H049 root admission/planning/launch CLI. Default and plan are source-only."""
++"""Fresh H049 prep-v2 execution packet; default and plan are source-only."""
+ from pathlib import Path
+ import argparse,collections,ctypes,hashlib,importlib.util,json,os,selectors,signal,subprocess,time,sys
+ from datetime import datetime,timedelta,timezone
+@@ -9,15 +9,17 @@
+     policy_env,GUARD_REF,POLICY_REF,LAUNCHER_REF,REPAIR_REF,AUTH_REF,MEMO_REF,V4_REF,CORE,BASE,
+     validate_eval_train_io_v1)
+ from research.reviews.H049_order2_cut_memory_root_source_20261015_v1 import producer_v1 as worker
+-SOURCE=HERE+"/root_driver.py"
+-CONTEXT=HERE+"/context_factory_v1.py"
+-PREP_SOURCE=HERE+"/prepare_v1.py"
++PACKET_HERE="research/reviews/H049_order2_cut_memory_prepare_source_20261015_v2"
++SOURCE=PACKET_HERE+"/root_driver.py"
++CONTEXT=PACKET_HERE+"/context_factory_v2.py"
++PREP_SOURCE=PACKET_HERE+"/prepare_v2.py"
++CODEC_REF={'path': 'research/reviews/H049_order2_cut_memory_prepare_source_20261015_v2/cut_recipe_codec_v2.py', 'sha256': 'd9fa0e511d34420bd294b61c0a2266fd4a58a96b1ab255ab191b108c05578a45'}
+ WORKER_SOURCE=HERE+"/producer_v1.py"
+ 
+ 
+ def context():
+-    from research.reviews.H049_order2_cut_memory_root_source_20261015_v1 import context_factory_v1
+-    return context_factory_v1
++    from research.reviews.H049_order2_cut_memory_prepare_source_20261015_v2 import context_factory_v2
++    return context_factory_v2
+ 
+ 
+ def load_guard(c):
+@@ -25,6 +27,7 @@
+ 
+ 
+ def plan_request_v1(r):
++    require(r["phase"]=="prepare","Prep-v2 plan only")
+     cfg=read(r["config_ref"])
+     counts=read(cfg["count_manifest_ref"])
+     marker=read(cfg["preparation_completion_ref"])
+@@ -35,15 +38,16 @@
+     r=read(request_ref);phase=r["phase"]
+     require(r.get("schema")=="H049_order2_root_admission_request_v1"
+         and r.get("status")=="active" and r.get("root_authorizer")=="root_agent"
+-        and phase in ("prepare","train","evaluate"),"Explicit root H049 admission request")
++        and phase=="prepare","Explicit root H049 prep-v2 admission request")
+     cfg=read(r["config_ref"]);worker.validate_protocol(cfg,phase=phase)
++    require(cfg.get("cut_recipe_codec_ref")==CODEC_REF,"Exact one-bug repaired codec config pin")
+     worker.bind_registration_v1(cfg,type("MetadataReader",(),{"decode_json":staticmethod(read)})())
+     require(cfg["producer_ref"]==ref(WORKER_SOURCE)
+         and cfg["preparation_producer_ref"]==ref(PREP_SOURCE),"Actual frozen fresh producers")
+     gpu=r.get("physical_gpu")
+     require(gpu is None if phase=="prepare" else gpu in (4,5),"CPU prepare or root-selected GPU4/5")
+-    packet=ROOT/HERE/("admitted_"+phase)
+-    output=("experiments/results/H049_CPU_order2_cut_memory_prepare_v1" if phase=="prepare" else
++    packet=ROOT/PACKET_HERE/("admitted_"+phase)
++    output=("experiments/results/H049_CPU_order2_cut_memory_prepare_v2" if phase=="prepare" else
+         "experiments/results/H049_GPU%d_order2_cut_memory_%s_seed101_v1"%(gpu,phase))
+     auxiliary=str(packet.relative_to(ROOT)/"worker_aux")
+     require(not packet.exists() and not (ROOT/output).exists() and not (ROOT/auxiliary).exists(),
+@@ -86,7 +90,7 @@
+             "No previous TRAIN completion in prepare/train")
+     packet.mkdir()
+     now=datetime.now(timezone.utc);expiry=(now+timedelta(hours=24)).isoformat()
+-    job="H049-order2-%s-seed101-v1-%s"%(phase,"CPU" if phase=="prepare" else "GPU%d"%gpu)
++    job="H049-order2-%s-seed101-v2-%s"%(phase,"CPU" if phase=="prepare" else "GPU%d"%gpu)
+     runtime=save(packet,"runtime.json",dict(status="active",device="cpu" if phase=="prepare" else "cuda",
+         physical_gpu=gpu,job_id=job,output_directory=output,
+         process_title=None if phase=="prepare" else "AI Auto Research Pipeline Test",
+@@ -107,7 +111,7 @@
+     m,_=load_guard_v1(consumer=False)
+     with m.budget.v4.mutex(ROOT):state=m._state_locked(CORE,BASE,fresh=True)
+     view,budget_bindings=state[2],state[3]
+-    mandatory=[ref(source),r["config_ref"],runtime,ref(CONTEXT),ref(SOURCE),cfg["source_manifest_ref"],
++    mandatory=[CODEC_REF,ref(source),r["config_ref"],runtime,ref(CONTEXT),ref(SOURCE),cfg["source_manifest_ref"],
+         cfg["registration_ref"],cfg["count_manifest_ref"],manifest,ref(HERE+"/root_common_v1.py"),
+         GUARD_REF,POLICY_REF,REPAIR_REF,AUTH_REF,MEMO_REF,V4_REF,
+         ref("src/arggnn/project_budget_v9_consumer.py"),
+@@ -224,6 +228,8 @@
+ 
+ def launch(admitted_ref):
+     admitted=read(admitted_ref);spec=read(admitted["input_ref"]);c=context()
++    require(spec.get("phase")=="prepare" and spec.get("output_directory")=="experiments/results/H049_CPU_order2_cut_memory_prepare_v2",
++        "Prep-v2 launch cannot use any revoked old preparation scope")
+     require(admitted["driver_ref"]==ref(SOURCE) and spec["root_driver_ref"]==ref(SOURCE),"Exact admitted root driver")
+     require(not (ROOT/spec["output_directory"]).exists(),"No execution replay")
+     m=load_guard(c);storage=read(spec["refs"]["storage"])
+@@ -234,6 +240,7 @@
+     m.budget_check_v9(storage,boundary=True,required_write_bytes=6*read(spec["refs"]["config"])["log_cap_bytes"]+65536+16384)
+     auxiliary=ROOT/spec["worker_auxiliary_scope"];auxiliary.mkdir()
+     env=policy_env();env["PYTHONDONTWRITEBYTECODE"]="1"
++    for name in ("TMPDIR","TMP","TEMP"):env[name]=str(auxiliary)
+     # Original pinned launcher imports its scripts-local budget modules.
+     env["PYTHONPATH"]=str(ROOT/"scripts")+os.pathsep+env.get("PYTHONPATH","")
+     env["ARGGNN_COMPLETED_CREDITS_POLICY_REF"]=json.dumps(c.POLICY_REF,sort_keys=True)
+@@ -313,7 +320,7 @@
+     args=p.parse_args(argv)
+     if args.action=="describe":
+         print(json.dumps(dict(status="source_only_no_admission_or_execution",hypothesis_id="H049",
+-            phases=["prepare","train","evaluate"],passes=30,updates_per_arm=960,
++            phases=["prepare"],preparation_execution_version=2,passes=30,updates_per_arm=960,
+             arms=3,checkpoints=18,VAL_seals=144,genuine_resource_caps_pending=True)));return 0
+     require(args.record and args.sha256,"Exact root metadata record")
+     record=dict(path=args.record,sha256=args.sha256)

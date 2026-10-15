@@ -1,0 +1,44 @@
+--- research/reviews/FLARE_consumer_memo2_root_source_20261015_v1/root_context_980_v1.py
++++ research/reviews/FLARE_consumer_namespace_root_20261015_v1/root_context_980_v1.py
+@@ -3,7 +3,7 @@
+ import datetime,hashlib,json,os
+ from arggnn import american_c3_common_v1 as common
+ ROOT=common.ROOT
+-SOURCE="research/reviews/FLARE_consumer_memo2_root_source_20261015_v1/root_context_980_v1.py"
++SOURCE="research/reviews/FLARE_consumer_namespace_root_20261015_v1/root_context_980_v1.py"
+ GUARD_REF=dict(path="research/reviews/prospective_980GB_capacity_source_v1/prospective_980gb_v1.py",
+     sha256="fc71030865e0a3d5da31120d4daa2caa0b2d39ec7dd212b8c46c476b5a866d56")
+ POLICY_REF=dict(path="research/reviews/prospective_980GB_capacity_source_v1/activation_policy.root_active_v1.json",
+@@ -12,6 +12,7 @@
+     sha256="f6f2d628199e8be73db8b5d90d428570d8afdefeab9dc5cd94bb5eafb39247db")
+ MEMO_REF=dict(path="research/reviews/resource_guard_hotpath_source_audit_v1/transaction_memo_adapter_v2.py",
+     sha256="c972e9a779d424ceafdb258848614bf40994d1004e2c73fc5cd225ae99621364")
++NAMESPACE_MEMO_REF={'path': 'research/reviews/current_mutex_contention_20261015_v1/consumer_namespace_memo_v1.py', 'sha256': '17a1377320f61c3c0cc8d3816d0259f9dae3121ed91bf7206a7ee63fcab8eb7f'}
+ V4_REF=dict(path="src/arggnn/project_budget_v4.py",
+     sha256="a093c7d86f57fee569cb99f4712250e9505a1119f3950fa44282c7ba8c57df47")
+ require=common.require
+@@ -46,11 +47,14 @@
+         and Path(adapter.__file__).resolve()==ROOT/GUARD_REF["path"] and adapter.SOURCE==GUARD_REF["path"]
+         and spec["completed_overlay_policy_ref"]==POLICY_REF
+         and spec["marker_repair_authority_ref"]==REPAIR_REF,"Actual unchanged prospective980GB helper/policy/repair")
+-    require(spec.get("consumer_memo_ref")==MEMO_REF and spec.get("original_v4_ref")==V4_REF,
++    require(spec.get("consumer_memo_ref")==MEMO_REF and spec.get("original_v4_ref")==V4_REF
++            and spec.get("consumer_namespace_memo_ref")==NAMESPACE_MEMO_REF,
+             "Exact separately admitted consumer memo2/original-v4 binding")
+     memo=getattr(adapter,"_flare_consumer_memo2",None)
+     require(memo is not None and memo.receipt["installed"] is True
+             and memo.receipt["cross_operation_cache"] is False
++            and memo.receipt.get("namespace_extension_schema")=="resource_guard_consumer_namespace_memo_v1"
++            and memo.receipt.get("namespace_extension_ref")==NAMESPACE_MEMO_REF
+             and memo.receipt["original_source"]==dict(path=str(ROOT/V4_REF["path"]),sha256=V4_REF["sha256"]),
+             "Fresh process requires installed pinned transaction-local consumer memo2")
+     storage=common.read(spec["storage_ref"])
+@@ -59,7 +63,7 @@
+         and storage["budget_components"]["consumer_adapter"]==GUARD_REF,"Current root storage only")
+     bindings=storage["reservation"]["consumer_bindings"]
+     required=[spec["source_ref"],spec["stage_source_ref"],spec["config_ref"],spec["runtime_ref"],
+-        spec["source_manifest_ref"],GUARD_REF,POLICY_REF,REPAIR_REF,MEMO_REF,V4_REF,*spec["mandatory_helper_refs"],*spec["source_closure_refs"]]
++        spec["source_manifest_ref"],GUARD_REF,POLICY_REF,REPAIR_REF,MEMO_REF,V4_REF,NAMESPACE_MEMO_REF,*spec["mandatory_helper_refs"],*spec["source_closure_refs"]]
+     if spec["stage"]=="build":required.append(spec["installed_JDK_qualification_ref"])
+     else:required += [cfg["count_manifest_ref"],cfg["registration_ref"]]
+     if spec["stage"]=="native":required.append(cfg["binary_provenance_ref"])

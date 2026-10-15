@@ -490,7 +490,7 @@ Evidence: [research/reviews/internal_tree_transport_hypothesis_source_v1/SOURCE_
 
 **registered_source_candidate_no_scientific_execution.** Three equally parameterized Torch/PyG whole-tree models. Common H042 warm start and H048 graph_to_transition decoder. Rank8 latent history uses observation-only350-generation cut partitions and genomic-width exponential forcing. Compare triple-support pair memory, adjacent-marginal null and stable-leaf memory.
 
-**Conclusion:** Actual importable three-arm source and one bounded synthetic CPU coverage check exist. Zero optimizer updates or scientific predictions for this condition. Fresh root producer and compact lossless preparation integration are underway. No efficacy or novelty claim.
+**Conclusion:** Source candidate remains untested scientifically. First actual CPU preparation exited1 before any recipe or target read because of an integer-limit API misuse. Failure, full charge and real wait/drain preserved. A separately authenticated one-bug prep repair is in progress.
 
 **Next/repeat rule:** Do not repeat an unchanged answered condition. Record failures honestly. Broader seed/independent-test confirmation follows a practically useful full-budget result. Preserve all outer/TEST support.
 

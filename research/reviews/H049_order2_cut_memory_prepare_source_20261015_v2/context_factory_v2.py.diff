@@ -1,0 +1,32 @@
+--- research/reviews/H049_order2_cut_memory_root_source_20261015_v1/context_factory_v1.py
++++ research/reviews/H049_order2_cut_memory_prepare_source_20261015_v2/context_factory_v2.py
+@@ -6,9 +6,9 @@
+     cap_v1,count_plan_v1,preparation_check_v1,current_RSS_bytes_v1,
+     validate_eval_train_io_v1,load_guard_v1)
+ from research.reviews.H049_order2_cut_memory_root_source_20261015_v1 import producer_v1 as worker
+-from research.reviews.H049_order2_cut_memory_root_source_20261015_v1 import cut_recipe_codec_v1 as codec
+-SOURCE=HERE+"/context_factory_v1.py"
+-PREP_SOURCE=HERE+"/prepare_v1.py"
++from research.reviews.H049_order2_cut_memory_prepare_source_20261015_v2 import cut_recipe_codec_v2 as codec
++SOURCE="research/reviews/H049_order2_cut_memory_prepare_source_20261015_v2/context_factory_v2.py"
++PREP_SOURCE="research/reviews/H049_order2_cut_memory_prepare_source_20261015_v2/prepare_v2.py"
+ WORKER_SOURCE=HERE+"/producer_v1.py"
+ 
+ 
+@@ -88,6 +88,7 @@
+ 
+ 
+ def build_context_v1(record,spec):
++    require(spec.get("phase")=="prepare","Additive prep-v2 context is preparation only")
+     from arggnn import census_tsinfer_fit_v1 as fit
+     require(spec.get("schema")=="H049_marker_grid_root_input_v1"
+         and spec.get("hypothesis_id")=="H049" and spec.get("arm")=="joint_three_arm"
+@@ -100,6 +101,8 @@
+     require(json.loads(os.environ["ARGGNN_COMPLETED_CREDITS_POLICY_REF"])==POLICY_REF,"Current980 environment")
+     reader=fit.ConsumerReaderV1();fit._check_active_v1(spec)
+     cfg=reader.decode_json(spec["refs"]["config"]);worker.validate_protocol(cfg,phase=phase)
++    require(cfg.get("cut_recipe_codec_ref")==ref("research/reviews/H049_order2_cut_memory_prepare_source_20261015_v2/cut_recipe_codec_v2.py")
++        and cfg.get("preparation_producer_ref")==ref(PREP_SOURCE),"Exact repaired prep-v2 sources")
+     worker.bind_registration_v1(cfg,reader)
+     require(spec["max_cpu_rss_bytes"]==cap_v1(cfg,"max_cpu_rss_bytes"),"Reviewed same CPU cap")
+     storage=reader.decode_json(spec["refs"]["storage"]);validate_closure_v1(reader,spec,cfg,storage)

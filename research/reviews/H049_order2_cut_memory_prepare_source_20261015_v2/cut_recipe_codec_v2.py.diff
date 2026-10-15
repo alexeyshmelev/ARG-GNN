@@ -1,0 +1,11 @@
+--- research/reviews/H049_order2_cut_memory_root_source_20261015_v1/cut_recipe_codec_v1.py
++++ research/reviews/H049_order2_cut_memory_prepare_source_20261015_v2/cut_recipe_codec_v2.py
+@@ -41,7 +41,7 @@
+     for name,value in plan_arrays.items():
+         dtype=np.uint16 if name.endswith("u16") else np.uint32
+         require(value.size>0 and (value>=0).all()
+-                and int(value.max())<=np.iinfo(dtype).max(),"Lossless verified integer range")
++                and int(value.max())<=np.iinfo(dtype).max,"Lossless verified integer range")
+         arrays[name]=np.array(value,dtype=dtype,copy=True,order="C")
+     arrays["above_horizon_bits"]=np.packbits(
+         plan.above_horizon.cpu().numpy(),bitorder="little")

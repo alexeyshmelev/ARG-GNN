@@ -1,0 +1,149 @@
+--- research/reviews/H049_order2_cut_memory_root_source_20261015_v1/context_factory_v1.py
++++ research/reviews/H049_order2_cut_memory_gpu_exec_source_20261015_v2/context_factory_v2.py
+@@ -1,15 +1,118 @@
+ """H049 root consumer context. Import performs no guard, payload or CUDA work."""
+ from pathlib import Path
+-import json,os,resource
++import ast,json,os,resource
+ from research.reviews.H049_order2_cut_memory_root_source_20261015_v1.root_common_v1 import (
+     ROOT,HERE,require,ref,GUARD_REF,POLICY_REF,LAUNCHER_REF,REPAIR_REF,AUTH_REF,MEMO_REF,V4_REF,
+     cap_v1,count_plan_v1,preparation_check_v1,current_RSS_bytes_v1,
+     validate_eval_train_io_v1,load_guard_v1)
+ from research.reviews.H049_order2_cut_memory_root_source_20261015_v1 import producer_v1 as worker
+ from research.reviews.H049_order2_cut_memory_root_source_20261015_v1 import cut_recipe_codec_v1 as codec
+-SOURCE=HERE+"/context_factory_v1.py"
+-PREP_SOURCE=HERE+"/prepare_v1.py"
++SOURCE="research/reviews/H049_order2_cut_memory_gpu_exec_source_20261015_v2/context_factory_v2.py"
++PREP_SOURCE=None  # GPU-only; preparation producer is explicitly declared, never hardcoded.
+ WORKER_SOURCE=HERE+"/producer_v1.py"
++
++
++PREPARATION_METADATA_FIELDS_V2=(
++    "cut_preparation_completion_ref","cut_preparation_actual_wait_ref",
++    "cut_preparation_admission_ref","cut_preparation_input_ref",
++    "cut_preparation_config_ref","cut_preparation_runtime_ref","cut_preparation_launch_ref")
++
++
++def declared_cut_preparation_source_refs_v2(cfg):
++    refs=dict(cut_preparation_producer_ref=cfg.get("preparation_producer_ref"),
++        cut_preparation_codec_ref=cfg.get("cut_preparation_codec_ref"),
++        cut_preparation_source_manifest_ref=cfg.get("cut_preparation_source_manifest_ref"))
++    require(all(isinstance(r,dict) and set(r)=={"path","sha256"}
++        and isinstance(r["path"],str) and isinstance(r["sha256"],str)
++        and len(r["sha256"])==64 for r in refs.values()),"Root-declared exact preparation source refs")
++    return refs
++
++
++def validate_declared_cut_preparation_sources_v2(reader,cfg,gpu_sources):
++    refs=declared_cut_preparation_source_refs_v2(cfg)
++    producer=refs["cut_preparation_producer_ref"];codec_ref=refs["cut_preparation_codec_ref"]
++    manifest=reader.decode_json(refs["cut_preparation_source_manifest_ref"])
++    require(manifest.get("schema")=="H049_order2_frozen_source_manifest_v1"
++        and manifest.get("hypothesis_id")=="H049" and manifest.get("frozen_model_ref")==cfg["core_ref"]
++        and all(gpu_sources.get(p)==s for p,s in manifest["source_sha256"].items())
++        and manifest["source_sha256"].get(producer["path"])==producer["sha256"]
++        and manifest["source_sha256"].get(codec_ref["path"])==codec_ref["sha256"],
++        "Declared preparation closure is inside exact GPU closure and same frozen cut-plan core")
++    reader.read(producer)
++    repaired=reader.read(codec_ref).decode("utf-8")
++    original=reader.read(ref(HERE+"/cut_recipe_codec_v1.py")).decode("utf-8")
++    def function(s,name):
++        n=next(x for x in ast.parse(s).body if isinstance(x,ast.FunctionDef) and x.name==name)
++        return ast.get_source_segment(s,n)
++    def literal(s,name):
++        n=next(x for x in ast.parse(s).body if isinstance(x,ast.Assign)
++            and any(isinstance(t,ast.Name) and t.id==name for t in x.targets))
++        return ast.literal_eval(n.value)
++    require(function(repaired,"decode_v1")==function(original,"decode_v1")
++        and function(repaired,"compact_upper_v1")==function(original,"compact_upper_v1")
++        and literal(repaired,"FORMAT")==codec.FORMAT and literal(repaired,"MEMBERS")==codec.MEMBERS,
++        "Exactly unchanged compact decode function, bounds and format; no scientific codec substitution")
++    return refs,manifest
++
++
++def authenticate_declared_cut_preparation_lineage_v2(reader,spec,cfg,completion,wait):
++    refs,manifest=validate_declared_cut_preparation_sources_v2(reader,cfg,spec["source_sha256"])
++    require(all(spec.get(k)==cfg.get(k) for k in PREPARATION_METADATA_FIELDS_V2)
++        and all(spec.get(k)==v for k,v in refs.items()),"Exact root config/capability preparation refs")
++    admitted=reader.decode_json(cfg["cut_preparation_admission_ref"])
++    launch_input=reader.decode_json(cfg["cut_preparation_input_ref"])
++    prep_cfg=reader.decode_json(cfg["cut_preparation_config_ref"])
++    runtime=reader.decode_json(cfg["cut_preparation_runtime_ref"])
++    launch=reader.decode_json(cfg["cut_preparation_launch_ref"])
++    worker.validate_protocol(prep_cfg,phase="prepare")
++    source_manifest=refs["cut_preparation_source_manifest_ref"];producer=refs["cut_preparation_producer_ref"]
++    codec_ref=refs["cut_preparation_codec_ref"]
++    driver=launch_input["root_driver_ref"];context=launch_input["root_context_module_ref"]
++    require(completion["input_ref"]==cfg["cut_preparation_input_ref"]
++        and completion["config_ref"]==cfg["cut_preparation_config_ref"]
++        and completion["source_manifest_ref"]==prep_cfg["source_manifest_ref"]==source_manifest
++        and completion.get("codec_ref")==prep_cfg.get("cut_recipe_codec_ref")==codec_ref
++        and completion["producer_ref"]==prep_cfg["preparation_producer_ref"]==producer
++        and type(completion.get("preparation_execution_version")) is int
++        and completion["preparation_execution_version"]>=2
++        and prep_cfg["core_ref"]==cfg["core_ref"] and prep_cfg["registration_ref"]==cfg["registration_ref"]
++        and prep_cfg["original_H038_input_ref"]==cfg["original_H038_input_ref"],
++        "Actual declared preparation producer/config/codec/closure and original registered science")
++    require(launch_input.get("phase")=="prepare" and launch_input.get("device")=="cpu"
++        and launch_input.get("physical_gpu") is None and launch_input.get("fit_authorized") is False
++        and launch_input.get("root_authorizer")=="root_agent" and launch_input.get("status")=="active"
++        and "target_bindings" not in launch_input["refs"]
++        and launch_input["producer_ref"]==launch_input["main_source_ref"]==launch_input["worker_cli_ref"]==producer
++        and launch_input["refs"]["config"]==cfg["cut_preparation_config_ref"]
++        and launch_input["refs"]["runtime"]==cfg["cut_preparation_runtime_ref"]
++        and launch_input["source_sha256"]==manifest["source_sha256"]
++        and manifest["source_sha256"].get(driver["path"])==driver["sha256"]
++        and manifest["source_sha256"].get(context["path"])==context["sha256"]
++        and admitted.get("phase")=="prepare" and admitted["driver_ref"]==driver
++        and runtime["job_id"]==launch_input["job_id"] and runtime["device"]=="cpu"
++        and runtime.get("physical_gpu") is None and runtime["output_directory"]==launch_input["output_directory"],
++        "Actual observation-only preparation admission, launch input, sources and runtime")
++    require(wait["launch_ref"]==cfg["cut_preparation_launch_ref"]
++        and wait["launcher_pid"]==launch["launcher_pid"] and wait["launcher_start"]==launch["launcher_start"]
++        and launch.get("direct_child") is True and launch["input_ref"]==completion["input_ref"]
++        and launch.get("phase")==wait.get("phase")=="prepare"
++        and launch.get("physical_gpu") is None and wait.get("physical_gpu") is None
++        and cfg["cut_preparation_completion_ref"]["path"]==launch_input["output_directory"]+"/completed.json",
++        "Actual declared same-launcher successful preparation wait and completion")
++    counts=reader.decode_json(cfg["count_manifest_ref"])
++    for pid,parent in completion["parents"].items():
++        receipt=reader.decode_json(parent["receipt_ref"]);row=counts["parents"][pid]
++        require(receipt.get("schema")=="H049_compact_cut_recipe_v1" and receipt.get("format")==codec.FORMAT
++            and receipt.get("codec_ref")==codec_ref and receipt.get("input_ref")==completion["input_ref"]
++            and receipt.get("lossless_roundtrip_verified") is True and receipt.get("observations_only") is True
++            and receipt.get("targets_read") is False and receipt.get("haplotypes")==952
++            and receipt.get("original_observed_entry_ref")==spec["observation_entry_refs"][pid]
++            and receipt.get("arrays_ref")==parent["arrays_ref"]
++            and receipt.get("native_nodes")==row["native_nodes"]
++            and receipt.get("native_holds")==row["native_holds"]
++            and parent["counts"]["haplotypes"]==952,
++            "Every original parent has a lossless receipt bound to the declared encoder/input/counts")
++    return completion
+ 
+ 
+ def validate_closure_v1(reader,spec,cfg,storage):
+@@ -32,7 +135,10 @@
+         cfg["count_manifest_ref"],cfg["registration_ref"],spec["preparation_completion_ref"],
+         spec["preparation_actual_wait_ref"],GUARD_REF,POLICY_REF,AUTH_REF,REPAIR_REF,MEMO_REF,V4_REF]
+     if spec["phase"]!="prepare":
+-        required += [LAUNCHER_REF,spec["cut_preparation_completion_ref"],spec["cut_preparation_actual_wait_ref"]]
++        required += [LAUNCHER_REF]+[cfg[k] for k in PREPARATION_METADATA_FIELDS_V2]
++        prep_refs=declared_cut_preparation_source_refs_v2(cfg);required += list(prep_refs.values())
++        require(all(manifest.get(k)==spec.get(k)==v for k,v in prep_refs.items()),
++            "Declared preparation sources in capability and consumer closure")
+     require(all(r in storage["reservation"]["consumer_bindings"] for r in required)
+         and len(storage["reservation"]["consumer_bindings"])<=64,"Exact direct and transitive reserved closure")
+     for name in ("preparation_completion_ref","preparation_actual_wait_ref"):
+@@ -84,10 +190,11 @@
+         and v["checkpoint_payloads_read"] is False and v["CUDA_initialized"] is False
+         and all(p.get("lossless_roundtrip_verified") is True for p in v["parents"].values()),
+         "Complete fresh all40 compact cut preparation")
+-    return v
++    return authenticate_declared_cut_preparation_lineage_v2(reader,spec,cfg,v,w)
+ 
+ 
+ def build_context_v1(record,spec):
++    require(spec.get("phase") in ("train","evaluate"),"Declarative-preparation GPU context only")
+     from arggnn import census_tsinfer_fit_v1 as fit
+     require(spec.get("schema")=="H049_marker_grid_root_input_v1"
+         and spec.get("hypothesis_id")=="H049" and spec.get("arm")=="joint_three_arm"
