@@ -5,13 +5,16 @@ Graph neural networks for ordered collections of whole genealogical trees, with 
 ## Latest status
 
 <!-- CURRENT_SCOREBOARD_START -->
-**Scoreboard updated UTC: 2026-10-15T13:22:34.473775+00:00.** [Every current setup, all cohorts and detailed metrics](research/current_scoreboard.md) · [All recorded historical/engineering metric receipts](research/all_recorded_metric_receipts.md)
+**Scoreboard updated UTC: 2026-10-15T13:47:10.611808+00:00.** [Every current setup, all cohorts and detailed metrics](research/current_scoreboard.md) · [All recorded historical/engineering metric receipts](research/all_recorded_metric_receipts.md)
 
 | Current run | Device | Progress | Validation score |
 |---|---:|---|---|
-| H046 | GPU5 | 10/30 passes, 320/960 updates per arm, process verified live=True | pending |
-| H047 | GPU4 | 19/30 passes, 608/960 updates per arm, process verified live=True | pending |
-| Native ARGformer / FLARE / our C3 GNN | GPU4 queue / CPU / source | Three parallel worker tasks | no completed C3 comparison yet |
+| H046 | GPU5 | 14/30 passes, 448/960 updates per arm, process verified live=True | pending |
+| H047 | GPU4 | 30/30 passes, 960/960 updates per arm, process verified live=False | pending |
+| Native ARGformer | GPU4 queue | Same-charge full-fit operational repair in progress | pending |
+| Native FLARE | CPU | Native author-source build completed. Conversion and inference pending. | pending |
+| Our C3 GNN | source ready | Actual shared VAL observations and completed training checkpoint required | pending |
+| Empirical data | CPU | Observed bank prepared, 2074 sites, 355 trees, 40 haplotypes. Metadata recovered from the saved bank after original worker exit1. Model application and PCA pending. | predictions and PCA pending |
 
 <!-- CURRENT_SCOREBOARD_END -->
 

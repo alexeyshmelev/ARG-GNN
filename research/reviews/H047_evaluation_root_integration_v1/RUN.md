@@ -1,0 +1,23 @@
+H047 evaluation integration — exact existing driver, no source change
+
+Run only after genuine paired TRAIN completion, the original root driver has consumed launcher wait0, and root has genuinely consumed its own outer Popen wait0. Required completion schema/status: H047_paired_train_completion_v1 / completed_fixed30pass_paired_TRAIN, steps original_risk960 and balanced_risk960, no VAL/outer truth or H046 scores. Required admitted_train/actual_wait.json: actual_direct_launcher_wait=true, returncode0, logging_error=null, supervisor_error=null, exact completion ref, same launcher PID/input/GPU as launch.json. This packet does not infer terminal success from checkpoints or progress.
+
+Working directory: /workspace-SR003.nfs2/ARG-GNN. Compute actual SHA256 values of the completed TRAIN completed.json and actual_wait.json only after those genuine receipts exist. Keep launch SHA c895ba0e66d093d99225fa8df9b86c5fa21c9d77e96eec39b166a51537b8b963.
+
+Exact evaluation admission (root selects GPU4 after real release; GPU5 only if root separately schedules it, changing output expectation accordingly):
+
+.runtime/env/bin/python -B research/reviews/H047_GPU45_cohort_risk_root_source_v1/root_driver.py --admit evaluate --gpu 4 --train-completion experiments/results/H047_GPU4_cohort_risk_train_seed101_v1/completed.json --expected-train-completion-sha256 ACTUAL_COMPLETED_SHA --train-launch research/reviews/H047_GPU45_cohort_risk_root_source_v1/admitted_train/launch.json --expected-train-launch-sha256 c895ba0e66d093d99225fa8df9b86c5fa21c9d77e96eec39b166a51537b8b963 --train-actual-wait research/reviews/H047_GPU45_cohort_risk_root_source_v1/admitted_train/actual_wait.json --expected-train-actual-wait-sha256 ACTUAL_SUCCESSFUL_WAIT_SHA
+
+Then root retains a genuine live direct Popen/wait for:
+
+.runtime/env/bin/python -B research/reviews/H047_GPU45_cohort_risk_root_source_v1/root_driver.py --launch evaluate
+
+The driver obtains current credit-v3 capacity and exact original guards/source/runtime/consumer bindings. Evaluation adds the3TRAIN lineage refs to its direct binding list; TRAIN had29direct bindings, leaving headroom below64. Evaluation gets its own100000000byte scope and24hour expiry. Do not reuse TRAIN scope or call reserve/launch twice. Admission refuses existing admitted_evaluate; launch refuses an existing evaluation output. Preserve failures; there is no automatic retry.
+
+There is no separate scoring command. The unchanged scientific evaluate function loads both arms at all6checkpoint passes, predicts all8original VAL parents, stores all96complete FP32 original-grid products in RAM, durably seals/verifies all96 identities, then opens its VAL truth gate and invokes the original FullPanelPrimaryValidationV1 scorer. It scores every pass, applies the frozen equal-parent Present182 accuracy/lower-NLL/earlier-pass selection and computes original diagnostics/effects. The all96 barrier must exist before completed.json claims evaluation completion. Dense probability arrays remain RAM-only; the durable barrier retains hashes/geometry/virtual packet metadata.
+
+Expected GPU4 output: experiments/results/H047_GPU4_cohort_risk_evaluate_seed101_v1/. Required root receipts are admitted_evaluate/launch.json, admitted_evaluate/actual_wait.json, genuine root outer wait, all96_original_grid_VAL_RAM_sealed_before_truth.json and completed.json. Completion schema/status: H047_paired_VAL_completion_v1 / completed_original8VAL_paired_development_selection. Check all96_RAM_seals_before_any_VAL_truth=true, optimization_performed=false, outer_truth_read=false and same_VAL_is_development_evidence=true. Actual launcher wait0 must match exact evaluation launch PID/input/GPU/completion and have no logging/supervisor error. Its descendant_drain_or_no_live_writer_claim remains false; any later completed-credit close still requires root's actual process/lease/revocation evidence.
+
+invocation.inactive.json records exact current source/config/manifest/launch refs and metadata-derived caps. The frozen57-source closure was verified without importing worker/guard code. No model, checkpoint, truth, VAL tensor, GPU, admission or Git action was performed.
+
+Shared30Mb GNN note: the minimal C3 adapter has no independent-VAL leakage or native node-vocabulary transfer assumption. Its executable route still needs a genuine completed short20x2Mb600update checkpoint and actual target observation/focal/count refs;30Mb activation/RSS/runtime/accuracy remain unmeasured. Its receipts disclose2Mb-to30Mb length transfer, preserve original C3 seals/scorer and do not claim matched full30Mb training.

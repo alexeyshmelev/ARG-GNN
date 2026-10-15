@@ -1,0 +1,109 @@
+{
+  "author_explicit_statement": {
+    "lines": [
+      102,
+      105
+    ],
+    "quote": "Keep the same model architecture, node vocabulary/IDs, sequence length, and skip_extant_tokens setting used during training. Node tokens are specific to the ARG used to build that vocabulary.",
+    "ref": {
+      "path": ".runtime/author_sources/argformer_f7545be7bca0/README.md",
+      "sha256": "a58d830dbc12925532d30f5cfe7b4ca44ddf3509c38a4d2824b37310613a7e2c"
+    }
+  },
+  "author_tokenizer": {
+    "behavior": "Looks up exact node_{raw_token}; unknown node raises KeyError. Existing numeric keys in another ARG would instead alias unrelated genealogy nodes.",
+    "function": "ARGDataset._tokenize_raw_sequence_from_vocab",
+    "lines": [
+      233,
+      240
+    ],
+    "ref": {
+      "path": ".runtime/author_sources/argformer_f7545be7bca0/src/arg_data.py",
+      "sha256": "2e7df2c955ece89ced3f05c609a4450f997250df5a7cb06ff4a2ca957e49ffdf"
+    }
+  },
+  "author_vocabulary": {
+    "behavior": "Collect raw int node IDs from this ARG, sort them, create node_{id} keys with contiguous embeddings after four specials.",
+    "function": "build_vocab_from_sequences",
+    "lines": [
+      127,
+      152
+    ],
+    "ref": {
+      "path": ".runtime/author_sources/argformer_f7545be7bca0/src/data/prepare_data_pretrain.py",
+      "sha256": "e7e66a029694b21a2ba1f9c9a6c4fbc193d81b8831282580ba9639a9e224726c"
+    }
+  },
+  "author_workflow": {
+    "contrastive_yaml_ref": {
+      "path": ".runtime/author_sources/argformer_f7545be7bca0/yamls/contrastive.yaml",
+      "sha256": "3b4f87e149a2b56d8a3efa2e35bd52ec94b61d2d3c768f15df67e82376ce4847"
+    },
+    "mlm_yaml_ref": {
+      "path": ".runtime/author_sources/argformer_f7545be7bca0/yamls/mlm.yaml",
+      "sha256": "df1cbb747a1bb6740fffd1e6eee5eb0ac3a1fa43d8fbbb15ce70d6b9cc7799b6"
+    },
+    "ref": {
+      "path": ".runtime/author_sources/argformer_f7545be7bca0/README.md",
+      "sha256": "a58d830dbc12925532d30f5cfe7b4ca44ddf3509c38a4d2824b37310613a7e2c"
+    },
+    "sections": [
+      "Prepare Pretraining Data",
+      "Pretraining",
+      "Contrastive Fine-tuning",
+      "Embeddings"
+    ]
+  },
+  "conclusion": "Use a separate native vocabulary/MLM/contrastive checkpoint namespace for each independently inferred target ARG; frozen TRAIN000 weights are not a scientifically valid ready-made VAL000 model.",
+  "forbidden": [
+    "Cross-ARG numerical node-ID alignment",
+    "Copying vocab rows by rank and calling it transfer",
+    "Using query ancestry for native contrastive labels",
+    "GNN optimization on outer VAL000",
+    "TEST preparation/access",
+    "An exact Table1 or architecture-only attribution claim"
+  ],
+  "inference_limit": "Paper reports one simulated data setup and does not document a general cross-independent-ARG checkpoint transfer mechanism. Per-target retraining for additional independent replicates follows the ARG-local released representation and already registered reconstruction, not an invented mapping or proof of an unreleased exact Table1 repetition protocol.",
+  "learned_embedding": {
+    "behavior": "FlexBertSansPositionEmbeddings owns nn.Embedding(config.vocab_size, hidden_size) and directly indexes it with input token IDs.",
+    "lines": [
+      183,
+      201
+    ],
+    "ref": {
+      "path": ".runtime/author_sources/argformer_f7545be7bca0/src/bert_layers/embeddings.py",
+      "sha256": "df10bd9b87567f3389870b4ab49710a934fd2f706faf052b029950c35158c698"
+    }
+  },
+  "native_VAL_full_corpus_resource_status": "Planning only; no source review action admits/reserves this16GB stage or makes it a prerequisite for finished TRAIN000 comparison.",
+  "native_training_or_payloads_executed": false,
+  "paper_ref": {
+    "path": "research/reviews/ARGformer_published_benchmark_audit_20261015_v1/paper.fulltext.xml",
+    "sha256": "53ab26710804f0b9ca6f355095893b365413caf56cf7bb722b39907f6db0619f"
+  },
+  "paper_reference_contrastive_paragraph": "Although the resulting model after pretraining is already infused with global population structure, we finetune the pretrained encoder for downstream tasks with a supervised contrastive objective that pulls together embeddings of sequences sharing the same reference population label while pushing apart embeddings from different labels within each minibatch. Given a batch of B labeled sequences {(xi,yi)}i=1B with labels yi\u2208{1,\u2026,C}, we encode each sequence with the transformer backbone followed by a learned pooling head, and use the unit-normalized head output as the contrastive path embedding:",
+  "paper_same_ARG_retrieval_paragraph": "The second strategy treats each admixed marginal path as a query and retrieves its nearest neighbors among embeddings of reference haplotypes in embedding space, assigning ancestry labels based on the labels of the retrieved neighbors. In both cases we compare the resulting three-way local ancestry calls with those from FLARE, providing a quantitative benchmark for how well the contrastively trained ARGformer embeddings capture population structure at the level of individual genomic segments. ARGformer achieved comparable accuracy to FLARE, a state-of-the-art local ancestry inference method, and obtained higher accuracy on AFR ancestry with the nearest-neighbor retrieval (Table 1).",
+  "paper_simulation_and_within_ARG90_10_paragraph": "We first applied ARGformer to simulated data generated using msprime (Kelleher et al. 2016). We simulated 1600 samples from four populations (Admixed = 1000, European = 200, African = 200, East Asian = 200) in the three-population out-of-Africa demography (AmericanAdmixture 4B18) from the stdpopsim catalog (Adrion et al. 2020), we use the default parameters for a single 30 million base pair (bp) chromosome, using a flat recombination rate of 1\u00d710\u22128 per bp generation and a mutation rate of 1.25e-8 per bp per generation (Browning et al. 2018, Lauterbur et al. 2023). We generated a dataset for pretraining using tskit to extract coalescent events (Wong et al. 2024). To better evaluate ARGformer on inferred ARGs, we inferred the ARG using tsinfer+tsdate on the simulated genotypes, without phasing or genotype error (Kelleher et al. 2019). We split this dataset into training (90%) and validation (10%) for pretraining.",
+  "prior_registered_audit_ref": {
+    "path": "docs/argformer_published_benchmark_audit_v1.md",
+    "sha256": "65a8ccf92786cea7f0bd6ca26348d4c915509faa7915ed972d28fe8a9e3887fd"
+  },
+  "prior_registered_protocol_ref": {
+    "path": "research/reviews/ARGformer_published_benchmark_audit_20261015_v1/protocol.proposal.json",
+    "sha256": "bbc53570b1034ef8cd1f109efa556116a1847261de84a8826fdc52839253ee3b"
+  },
+  "role_distinction": {
+    "ARGformer": "Transductive fitting on the target ARG is permitted by its intended pipeline; only reference population labels enter contrastive fitting. Native internal train/val files are90/10 paths within one ARG, not outer GNN TRAIN/VAL.",
+    "FLARE": "Uses the same target observed phased genotypes and source/query identity split with its native reference/target inference; no query truth.",
+    "GNN": "Inductive supervised fitting uses registered TRAIN parents; this original outer VAL parent supplies held-out predictions/selection only, no optimizer updates."
+  },
+  "schema": "American_C3_native_per_ARG_vocabulary_protocol_audit_v1",
+  "source_only": true,
+  "supported_target_procedure": [
+    "Freeze one shared observed genotype/reference/query manifest for full VAL000 and infer tsinfer+tsdate with unchanged options.",
+    "Build the complete native full-path vocabulary and within-ARG90/10 path split for this target ARG; select10000 common query focals label blind.",
+    "Fit new target-native MLM using only observed node paths; then contrastive fine-tuning using only known reference population labels and same target vocabulary.",
+    "Embed same target references/query focal paths with the same contrastive checkpoint and unmodified native head_norm; native top1 retrieval.",
+    "Seal complete exact common-focal predictions for every pipeline before external query truth access under the separately frozen evaluation policy."
+  ]
+}

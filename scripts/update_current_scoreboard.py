@@ -106,6 +106,16 @@ def main():
         jobs.append(row)
     gstpath="research/reviews/GST_training_readiness_20261015_v1/readiness.json"
     gst=read(gstpath)["existing_observations"]["models"]
+    empirical_path="data/H018_empirical_observation_bank_root_v3/completed.json"
+    empirical=read(empirical_path) if (ROOT/empirical_path).exists() else None
+    real_status=("Observed bank prepared, 2074 sites, 355 trees, 40 haplotypes. Metadata recovered from the saved bank after original worker exit1. Model application and PCA pending."
+        if empirical else "2074-site observed bridge and355-tree graph complete. Model application and PCA pending.")
+    flare_packet=ROOT/"research/reviews/FLARE_existing_JDK_build_root_v1"
+    flare_wait=flare_packet/"worker_aux/actual_wait_minimal.json"
+    flare_done=ROOT/"data/native_FLARE_build_existing_JDK_root_v1/completed.json"
+    flare_status=("Native author-source build completed. Conversion and inference pending." if flare_done.exists()
+        else "Native author-source build running. Conversion and inference pending." if not flare_wait.exists()
+        else "Native build terminal. Inspect preserved actual wait before use.")
     stamp=datetime.now(timezone.utc).isoformat()
     result=dict(schema="ARG_GNN_current_scientific_scoreboard_v1",updated_utc=stamp,
         dataset=dict(name="European C4 shared development",length_bp=2000000,haplotypes=952,queries=686,
@@ -114,7 +124,9 @@ def main():
         models=models,live_jobs=jobs,GST_TRAIN1000_seed0_VALID_AP=gst,
         original_American_C3=dict(our_GNN_score=None,native_ARGformer_score=None,native_FLARE_score=None,
             status="Model comparisons unfinished. Native ARGformer execution repair, FLARE build/conversion and our C3 adapter proceed in parallel."),
-        real_data=dict(predictions_available=False,PCA_available=False,status="2074-site observed bridge and355-tree graph complete. Reader source complete, application unexecuted."),
+        real_data=dict(predictions_available=False,PCA_available=False,observed_bank_prepared=empirical is not None,
+            prepared_bank_completion_ref=ref(empirical_path) if empirical else None,status=real_status),
+        native_FLARE_build_status=flare_status,
         source_only_or_engineering_checks_are_not_training_results=True)
     (RESEARCH/"current_scoreboard.json").write_text(json.dumps(result,indent=2,sort_keys=True)+"\n")
     lines=["# Current scientific scoreboard","",f"Updated UTC: {stamp}","",
@@ -145,8 +157,8 @@ def main():
     lines+=["","## American C3 benchmark","",
         "| Method | Current ancestry scores | Status |","|---|---|---|",
         "| Native ARGformer | unavailable | Full corpus prepared, full fit execution repair under independent review |",
-        "| Native FLARE | unavailable | Installed Java/compiler/JAR tools qualified. Source build and inference adapter in progress |",
-        "| Our C3 GNN | unavailable | Existing PyG C3 implementation found. Shared original-data adapter in progress |",
+        "| Native FLARE | unavailable | "+flare_status+" |",
+        "| Our C3 GNN | unavailable | Shared30Mb adapter source ready. Completed training checkpoint and actual VAL observation required |",
         "","The complete 30 Mb observation currently available is a TRAIN parent. It must not be presented as a held-out performance comparison. Original-paper simulation assumptions and source versions remain explicitly documented.","",
         "## GST molecular graph-set pilot","",
         "First1,000 retained TRAIN reactions, full1,495 VALID, seed0, 20 epochs per mode. AP is pooled per-atom average precision. Our molecular adapter and final paired TEST comparison are unfinished.","",
@@ -155,7 +167,7 @@ def main():
         lines.append(f"| {k} | {v['selected_VALID_AP']:.8f} | {v['selected_epoch']} |")
     lines+=["","Full TRAIN parsing retains10,439/10,500 reactions. This is data readiness, not a new model score.","",
         "## Real data and paper","",
-        "All2074 observed sites and355 native trees are available. Reader/preparer source is implemented. No empirical ancestry accuracy or PCA exists. The AAAI draft is8pages and remains unfinished.","",
+        real_status+" No empirical ancestry accuracy exists. The AAAI draft is8pages and remains unfinished.","",
         "## Evidence and complete recorded inventory",""]
     for r in models:
         p=r["source_ref"]["path"]
@@ -178,7 +190,10 @@ def main():
         "| Current run | Device | Progress | Validation score |","|---|---:|---|---|"]
     for j in jobs:
         table.append(f"| {j['hypothesis']} | GPU{j['GPU']} | {j['passes_completed']}/30 passes, {min(j['updates_per_arm'].values()) if j['updates_per_arm'] else 0}/960 updates per arm, process verified live={j['verified_process_present']} | pending |")
-    table+=["| Native ARGformer / FLARE / our C3 GNN | GPU4 queue / CPU / source | Three parallel worker tasks | no completed C3 comparison yet |","","<!-- CURRENT_SCOREBOARD_END -->"]
+    table+=["| Native ARGformer | GPU4 queue | Same-charge full-fit operational repair in progress | pending |",
+        "| Native FLARE | CPU | "+flare_status+" | pending |",
+        "| Our C3 GNN | source ready | Actual shared VAL observations and completed training checkpoint required | pending |",
+        "| Empirical data | CPU | "+real_status+" | predictions and PCA pending |","","<!-- CURRENT_SCOREBOARD_END -->"]
     p=ROOT/"README.md"
     text=p.read_text()
     a="<!-- CURRENT_SCOREBOARD_START -->"

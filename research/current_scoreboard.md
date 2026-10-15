@@ -1,6 +1,6 @@
 # Current scientific scoreboard
 
-Updated UTC: 2026-10-15T13:22:34.473775+00:00
+Updated UTC: 2026-10-15T13:47:10.611808+00:00
 
 ## European C4 shared development
 
@@ -142,16 +142,16 @@ BronzeAge is not asserted identical to the paper's Post-Neolithic cohort. A dash
 
 | Run | GPU | Verified process present | Passes | Actual updates per arm | Planned updates per arm | Validation accuracy |
 |---|---:|---|---:|---|---:|---|
-| H046 | 5 | True | 10/30 | {'foreign_flank': 320, 'own_state': 320} | 960 | pending |
-| H047 | 4 | True | 19/30 | {'balanced_risk': 608, 'original_risk': 608} | 960 | pending |
+| H046 | 5 | True | 14/30 | {'foreign_flank': 448, 'own_state': 448} | 960 | pending |
+| H047 | 4 | False | 30/30 | {'balanced_risk': 960, 'original_risk': 960} | 960 | pending |
 
 ## American C3 benchmark
 
 | Method | Current ancestry scores | Status |
 |---|---|---|
 | Native ARGformer | unavailable | Full corpus prepared, full fit execution repair under independent review |
-| Native FLARE | unavailable | Installed Java/compiler/JAR tools qualified. Source build and inference adapter in progress |
-| Our C3 GNN | unavailable | Existing PyG C3 implementation found. Shared original-data adapter in progress |
+| Native FLARE | unavailable | Native author-source build completed. Conversion and inference pending. |
+| Our C3 GNN | unavailable | Shared30Mb adapter source ready. Completed training checkpoint and actual VAL observation required |
 
 The complete 30 Mb observation currently available is a TRAIN parent. It must not be presented as a held-out performance comparison. Original-paper simulation assumptions and source versions remain explicitly documented.
 
@@ -170,7 +170,7 @@ Full TRAIN parsing retains10,439/10,500 reactions. This is data readiness, not a
 
 ## Real data and paper
 
-All2074 observed sites and355 native trees are available. Reader/preparer source is implemented. No empirical ancestry accuracy or PCA exists. The AAAI draft is8pages and remains unfinished.
+Observed bank prepared, 2074 sites, 355 trees, 40 haplotypes. Metadata recovered from the saved bank after original worker exit1. Model application and PCA pending. No empirical ancestry accuracy exists. The AAAI draft is8pages and remains unfinished.
 
 ## Evidence and complete recorded inventory
 
