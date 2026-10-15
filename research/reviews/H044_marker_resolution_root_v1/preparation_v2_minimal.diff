@@ -1,0 +1,96 @@
+--- src/arggnn/prepare_marker_resolution_observations_v1.py
++++ src/arggnn/prepare_marker_resolution_observations_v2.py
+@@ -8,7 +8,7 @@
+ from pathlib import Path
+ 
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-SOURCE="src/arggnn/prepare_marker_resolution_observations_v1.py"
++SOURCE="src/arggnn/prepare_marker_resolution_observations_v2.py"
+ TRAIN=tuple("ap_expanded_train_%03d"%i for i in range(32))
+ VAL=tuple("ap_expanded_val_%03d"%i for i in range(8))
+ PARENTS=TRAIN+VAL
+@@ -97,13 +97,15 @@
+         and ctx.get("phase")=="prepare" and callable(ctx.get("guard")),"Admitted CPU root preparation context")
+     require(not torch.cuda.is_initialized(),"CPU preparation must not initialize CUDA")
+     require(set(ctx["entry_refs"])==set(PARENTS) and "bindings" not in ctx,"Exact40 observed parents, no target capability")
++    for name in ("CPU_coordinate_bulk_cap_bytes","CPU_binding_bulk_cap_bytes"):
++        require(type(ctx["cfg"].get(name)) is int and ctx["cfg"][name]>0,"Positive reviewed bulk CPU cap: "+name)
+     h42.science()
+     reader=ObservationReaderV1(ctx["reader"]);output=ctx["output"];guard=ctx["guard"]
+     index=read_full_cache_index_v1(ctx["observation_cache_ref"],reader,registry=ctx["registry"],
+         entry_refs=ctx["entry_refs"],source_refs=ctx["observation_source_refs"])
+-    rows={r["parent_id"]:r for r in ctx["registry"]}
+-    require(set(rows)==set(PARENTS),"Original40-parent registry")
+-    products={};started=time.monotonic()
++    rows=selected_rows_v1(ctx["registry"])
++    products,coordinates,bindings={},{},{}
++    coordinate_bytes=0;started=time.monotonic()
+     try:
+         for pid in PARENTS:
+             guard()
+@@ -114,35 +116,50 @@
+             tree_path=ROOT/entry["refs"]["native_tree"]["path"]
+             require(tree_path.stat().st_size<=ctx["cfg"]["CPU_scratch_cap_bytes"],"Original tree scratch exceeds admitted cap")
+             ctx["scratch_guard"](ctx["cfg"]["CPU_scratch_cap_bytes"])
+-            loaded=load_full_parent_v1(rows[pid],ctx["entry_refs"][pid],reader,
+-                scratch_directory=ctx["scratch_directory"])
++            loaded=load_full_parent_v1(rows[pid],ctx["entry_refs"][pid],reader,scratch_directory=ctx["scratch_directory"])
+             sidecar=coordinate_sidecar_v1(pid,loaded,bank,parent,index,ctx)
+             markers=prepare_marker_evidence_v1(bank,sidecar)
+             bind_marker_bank_v1(bank,markers).validate()
+             require(markers.tensor_bytes()<=ctx["cfg"]["marker_cache_cap_bytes"],"One prepared marker entry exceeds cap")
+-            s,h=bank.genotype.shape;t=len(bank.spans);p=len(parent["positions"])
+-            limits=logical_bounds_v1(s,t,p,genotype_bytes=bank.genotype.element_size())
+-            coordinates_ref=output.save(pid+".coordinates.npz",
+-                {k:getattr(sidecar,k).numpy() for k in COORDINATE_KEYS},"npz")
+-            binding_ref=output.save(pid+".binding.json",dict(sidecar.binding))
+-            products[pid]=dict(coordinates_ref=coordinates_ref,binding_ref=binding_ref,
++            selectors={k:pid+"__"+k for k in COORDINATE_KEYS}
++            for key,member in selectors.items():
++                value=getattr(sidecar,key).numpy()
++                coordinate_bytes+=int(value.nbytes)
++                require(coordinate_bytes<=ctx["cfg"]["CPU_coordinate_bulk_cap_bytes"],"Retained all40 coordinates exceed CPU bulk cap")
++                coordinates[member]=value
++            # Private JSON-compatible metadata snapshot, no retained native tree/bank.
++            bindings[pid]=h42.fit._jsonable_v1(dict(sidecar.binding))
++            binding_bytes=len(json.dumps(bindings,sort_keys=True,separators=(",",":"),allow_nan=False).encode())
++            require(binding_bytes<=ctx["cfg"]["CPU_binding_bulk_cap_bytes"],"All40 binding metadata exceed CPU bulk cap")
++            sites,haplotypes=bank.genotype.shape;holds=len(bank.spans);centers=len(parent["positions"])
++            products[pid]=dict(coordinates_member_selector=selectors,binding_member_selector=pid,
+                 original_observed_entry_ref=ctx["entry_refs"][pid],
+                 original_cache_array_ref=index["parents"][pid]["array_ref"],
+-                counts=dict(sites=s,haplotypes=h,queries=686,native_holds=t,scoring_centers=p,
+-                    genotype_element_bytes=bank.genotype.element_size()),
+-                marker_tensor_bytes=markers.tensor_bytes(),logical_bounds=limits)
+-            output.save(pid+".prepared.json",products[pid])
++                counts=dict(sites=sites,haplotypes=haplotypes,queries=686,native_holds=holds,
++                    scoring_centers=centers,genotype_element_bytes=bank.genotype.element_size()),
++                marker_tensor_bytes=markers.tensor_bytes(),
++                logical_bounds=logical_bounds_v1(sites,holds,centers,genotype_bytes=bank.genotype.element_size()))
+             print(json.dumps(dict(stage="H044_original_observation_prepared",parent_id=pid,counts=products[pid]["counts"])),flush=True)
+             del loaded,markers,sidecar,bank,parent,item
+             guard()
++        require(set(coordinates)=={p+"__"+k for p in PARENTS for k in COORDINATE_KEYS},"Exact all40 five-array member set")
++        coordinates_ref=output.save("all40_original_marker_coordinates.npz",coordinates,"npz")
++        binding_ref=output.save("all40_original_marker_bindings.json",dict(
++            schema="H044_all40_original_observed_marker_bindings_v2",parent_ids=list(PARENTS),parents=bindings,
++            observations_only=True,targets_read=False,source_manifest_ref=ctx["source_manifest_ref"]))
++        for pid in PARENTS:products[pid].update(coordinates_ref=coordinates_ref,binding_ref=binding_ref)
+         result=dict(schema="H044_marker_observation_preparation_v1",
+             status="completed_all40_observation_only_sidecars",hypothesis_id="H044",
++            artifact_format="H044_all40_batched_coordinate_binding_v2",
+             input_ref=input_ref,config_ref=ctx["config_ref"],source_manifest_ref=ctx["source_manifest_ref"],
+             observation_cache_ref=ctx["observation_cache_ref"],entry_refs=ctx["entry_refs"],
+             observation_source_refs=ctx["observation_source_refs"],parents=products,parent_ids=list(PARENTS),
+-            coordinate_keys=list(COORDINATE_KEYS),observations_only=True,targets_read=False,
+-            checkpoint_payloads_read=False,CUDA_initialized=False,seconds=time.monotonic()-started,
+-            direct_wait_is_separate_root_evidence=True,non_mutating_tensor_alias_and_metadata_discipline_required=True)
++            coordinate_keys=list(COORDINATE_KEYS),coordinates_ref=coordinates_ref,bindings_ref=binding_ref,
++            retained_coordinate_bytes=coordinate_bytes,retained_binding_JSON_bytes=binding_bytes,
++            observations_only=True,targets_read=False,checkpoint_payloads_read=False,CUDA_initialized=False,
++            seconds=time.monotonic()-started,direct_wait_is_separate_root_evidence=True,
++            native_parents_decoded_and_released_one_at_a_time=True,
++            non_mutating_tensor_alias_and_metadata_discipline_required=True,runner_durable_product_count=3)
+         output.save("completed.json",result)
+         return result
+     except Exception as error:

@@ -4,6 +4,8 @@ Graph neural networks for ordered collections of whole genealogical trees, with 
 
 ## Latest status
 
+[Current 8-page AAAI working PDF](paper/current_full_panel_working.pdf) · [LaTeX source](paper/current_full_panel_working.tex) · [Overleaf working bundle](paper/current_full_panel_overleaf_working.zip). Compiled and visually checked on 2026-10-15. This is a development draft with unfinished scientific validation.
+
 **Best completed development result:** H042 local-clade flags reach **96.5778 ± 0.5954% Present182 span accuracy**, versus **94.4461 ± 1.1491%** for the current native ARGMix release on the same eight validation simulations. The pipeline difference is **2.1317 percentage points**. It includes differences in SNP inputs, training budget and checkpoint selection, so it does not isolate architecture or reproduce the published ARGMix tables.
 
 Our current best model combines **whole-tree PyTorch Geometric message passing, observed SNP features, exact local topology-change flags and a bidirectional GRU across genomic trees**. It has 30,788 parameters and uses no ARGMix predictions. Whole trees, all 952 observed haplotypes and the full genomic recurrent history are retained.
@@ -15,6 +17,8 @@ The panel contains 476 diploids, 686 queries and 266 proxies over 2 Mb. All 32 i
 | Completed pipeline | Present182 accuracy, mean ± SD (%) | Mean NLL |
 | --- | ---: | ---: |
 | **H042 exact local-clade flags** | **96.5778 ± 0.5954** | **0.100656** |
+| H043 true neighboring-tree states | 96.5182 ± 0.6201 | 0.101527 |
+| H043 matched own-state control | 96.5029 ± 0.6006 | 0.101819 |
 | H040 tensor clade coupling | 96.2674 ± 0.7493 | 0.109332 |
 | H040 matched event MLP | 96.2007 ± 0.7048 | 0.110014 |
 | H038 aligned whole-tree PyG GNN | 95.4891 ± 0.83 | 0.133497 |
@@ -51,8 +55,8 @@ Present182 boundary F1 at 1 kb tolerance is **18.05 ± 1.84%** for H042, **13.42
 
 ### Running and next experiments
 
-- **H043 neighboring-tree state transfer:** paired true-partner and partner-blind arms completed 30 FP32 passes/960 updates each on physical GPU 5. Frozen evaluation is running there. Foreign-state usefulness and novelty remain unestablished.
-- **H044 SNP-resolution readout:** registered paired test preserves the complete H042 PyG/GRU body and compares localized marker evidence with the same evidence pooled within native trees. Each arm has 31,428 parameters and a fixed 30 additional-pass budget. Source integration and independent review are in progress. No H044 training or accuracy result exists yet.
+- **H043 completed:** neighboring-tree states reach 96.5182 ± 0.6201%, versus 96.5029 ± 0.6006% for the matched own-state control. The 0.0153 pp difference is below the registered practical threshold and both trail H042. This condition does not establish useful foreign-state transfer. [Completed paired comparison](research/reviews/H043_completed_comparison_root_20261015_v1/README.md).
+- **H044 SNP-resolution readout:** registered paired test preserves the complete H042 PyG/GRU body and compares localized marker evidence with the same evidence pooled within native trees. Each arm has 31,428 parameters and a fixed 30 additional-pass budget. All 40 observation sidecars completed. Both arms have verified pass-10 checkpoints, or 320 completed updates each, toward the fixed 30-pass/960-update budget. Training uses physical GPU 4, with the title and device verified in NVTOP. Two earlier launch attempts stopped before worker/model updates and are logged. No H044 accuracy result exists yet. [Launch and corrections](research/reviews/H044_marker_resolution_root_v1/train_execution_status_root_20261015_v1.json).
 - **Eligible devices:** only physical GPUs 4 and 5. Previous GPU 2/3 assignments are revoked. GPU jobs use the title AI Auto Research Pipeline Test.
 
 A fresh H043 priority audit identifies prior cross-graph message exchange in Graph Matching Networks. The nearest changed-clade leaf-sector construction has unestablished priority. A proposed hierarchy-conditioned heat operator also has an exact hierarchical-Laplacian prior, so it is not claimed as a new operator. Usefulness and architectural novelty are assessed separately. [H043 audit](research/reviews/H043_priority_fresh_v2/audit.md) · [Operator assessment](research/reviews/next_architecture_priority_after_H043_v1/assessment.md)
@@ -65,12 +69,12 @@ A fresh H043 priority audit identifies prior cross-graph message exchange in Gra
 | --- | --- | --- |
 | European common-input development panel | Native AP, current native ARGMix and our GNN on eight shared VAL simulations, population SDs and confusion/boundary diagnostics | Independent test confirmation and training-seed variation |
 | ARGMix published Tables 1 and 2 | Primary-source protocol and exact published numbers audited | Published-panel IID and demographic-misspecification experiments. Paper-era code and several recipe details are unavailable |
-| ARGformer American Table 1 | Full 30 Mb simulated and inferred TRAIN input completed. Ten independent2Mb TRAIN parents prepared. Complete native path counts now verified, with a full-corpus retry in preparation. Native ARGformer and FLARE adapters in preparation | Remaining independent data, native fits and common EUR/EAS/AFR precision, recall and F1 |
-| Empirical ancestry and PCA | Fixed region acquired. Only 434 of 13,312 variants pass all filters, below the registered 1,000-site gate | Complete the prospectively registered10Mb extension after resolving its decode throughput, then genealogy inference, model application and ancestry-masked genotype PCA |
+| ARGformer American Table 1 | Full 30 Mb simulated and inferred TRAIN input completed. Twelve independent 2 Mb TRAIN parents prepared at worker stage. Complete native path counts now verified, with a full-corpus retry in preparation. Native ARGformer and FLARE adapters in preparation | Remaining independent data, native fits and common EUR/EAS/AFR precision, recall and F1 |
+| Empirical ancestry and PCA | Original region fails its 1,000-site gate with 434 passing sites. Prospective 10 Mb extension now passes unchanged QC with 4,148 of 94,892 sites | Genetic-map and runtime qualification, genealogy inference, model application and ancestry-masked genotype PCA |
 
-The American data are a disclosed reconstruction with 1,600 explicitly haploid samples and a 12-generation pulse, not an exact ARGformer Table 1 reproduction. Ten independent 2 Mb TRAIN parents are now prepared. The complete label-blind count found 25,574,587 unique paths, 316,672,003 tokens and maximum raw path length 29, sizing a full-corpus retry without subsampling. Native model fits and C3 scores remain unfinished.
+The American data are a disclosed reconstruction with 1,600 explicitly haploid samples and a 12-generation pulse, not an exact ARGformer Table 1 reproduction. Twelve independent 2 Mb TRAIN parents are prepared at worker stage. The latest outer supervision receipt remains pending, so these preparations do not imply completed native model fits. The complete label-blind count found 25,574,587 unique paths, 316,672,003 tokens and maximum raw path length 29, sizing a full-corpus retry without subsampling. Native model fits and C3 scores remain unfinished.
 
-The original real-data region failed its fixed 1,000-site gate with 434/13,312 passing sites. The corrected 10 Mb acquisition hit its runtime cap with files retained. Its batched transport successor is running under unchanged scientific QC. No real-data ancestry accuracy or PCA result is claimed from acquisition alone.
+The original real-data region failed its fixed 1,000-site gate with 434/13,312 passing sites. The prospectively registered 10 Mb extension now passes unchanged QC with **4,148/94,892 sites**, and acquisition completed with actual wait 0. No genealogy inference, model application, real-data ancestry accuracy or PCA result is claimed from acquisition alone. Its timing records attribute 1,632 of 1,669 worker seconds to repeated storage checks, motivating batched artifacts in the next pipeline.
 
 The author-code GST TRAIN1000 pilot completed. Full CUDA runtime, full-data training and our molecular graph-collection adapter remain outstanding. [GST readiness](research/reviews/GST_training_readiness_20261015_v1/READINESS.md)
 

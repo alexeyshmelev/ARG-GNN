@@ -1,0 +1,5 @@
+The frozen marker_resolution_readout_v1 logical_bounds_v1 undercounts the exported H042 state as64 channels. Its numerical forward already concatenates32 context with64 history from the unchanged bidirectional GRU, yielding96, and the original classifier accepts96.
+
+Use marker_resolution_memory_bounds_v2.logical_bounds_v2 for every H044 forecast/admission. Exported state bytes are4*T*952*96. Saved readout selected-state/feature input bytes are4*P*686*(96+24), or6,585,600,000bytes at P20,000. This is1,756,160,000bytes above the earlier head-input estimate. It excludes original backbone/autograd, outputs, temporary/allocator peaks and is not a runtime fit claim.
+
+The root-authorized bounded CPU constructor check instantiated the original H042 class only, with no forward/data/checkpoint/guard/GPU execution. It verified GRU hidden32, bidirectional history64, classifier in_features96 and30,788 base parameters. See memory_interface_checks_receipt_v2.json. Frozen scientific source and v1 source closure remain unchanged.

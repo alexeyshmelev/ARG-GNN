@@ -1,0 +1,22 @@
+# H044 preparation-only independent source review
+
+**Verdict: no remaining source-level blocker found in this preparation successor.** Root owns actual admission, execution and resource qualification. This review does not approve the paired GPU trainer, which is being reviewed separately against its final batched SHA.
+
+Pinned reviewed sources:
+
+- Prep v2: `src/arggnn/prepare_marker_resolution_observations_v2.py`, SHA256 **722e57a96379776d213115554c75727444b7490562e80eafc6bb48b12c4f6c99**.
+- Context v2: **245f9dcdff47efeacba6a3aa40377375466f9d7abe746b6bd492d021dfa0b2fe**.
+- Driver v2: **8e97d4e605c2c1908c1d841272692f59865f861dc9f4a82ae22945fb9037d55f**.
+- Preparation manifest v2: **708eb6f259b8f8214fb350f2ae1eb4879bdbc21f4f7a4cdf949642fa5088c569**. Its three successor pins match the actual source bytes. The original v1 prep/context/driver and original preparation manifest remain unchanged; the successor manifest retains their pins and adds its own.
+
+The confirmed v1 P1 registry contradiction is fixed in the executable path: original48 rows go to the unchanged cache reader, then selected_rows_v1 chooses exactly32 TRAIN plus8 VAL rows. Original outer observations/targets are not loaded. The bounded author wiring check now calls the real original validate_registry_v1 on a synthetic48-row registry with96 unique seeds, then executes actual run_context_v1 and the coordinate join with mocked I/O/tiny arrays. It checks40 loader calls,200 exact pid-prefixed members and every ordered coordinate identity. I inspected its source and passed receipt; I did not rerun it or inspect actual corpus assets.
+
+Batching changes storage granularity, not observed content. All five original per-parent arrays are retained under pid-prefixed NPZ member names, and each parent has exact selectors and a private JSON-compatible binding snapshot. Original loader/cache joins still check genotype, reference classes, query order, sample ages, scoring centers/edges, raw query nodes/cohorts, retained indexes and site/readout hold membership. Evidence preparation and same-bank binding still execute per parent. Native loaded parents and banks are released each iteration. Retained coordinate bytes and compact binding JSON bytes have explicit prospective CPU caps. Those are named representation caps, not claims about all Python/NumPy/serialization allocator overhead; root's total RSS bound and actual qualification remain necessary.
+
+The success path performs exactly three calls to the unchanged writer: one all40 coordinate NPZ, one all40 binding manifest, and completion. Every parent points to those exact shared refs plus its own selectors/counts/ordered binding, retaining original entries/cache refs. The observation-only reader, no-target capability, no-checkpoint policy and no-CUDA check remain. Partial failure produces a failure receipt and no successful completion; no automatic replay is introduced.
+
+The scratch-growth preflight now occurs once before the loop (prep112), while every native tree file is still size-checked against CPU_scratch_cap_bytes (120) and read through the original verification path. The unchanged loader `mutation_routed_parent_loader_v1.py` SHA bd9a55d1a7b40e5e643433238f84a32c8390ac0fe4a653cb12144a7137aaee48 uses `with tempfile.NamedTemporaryFile(...)` at253–260. Default delete=True closes/unlinks that one temporary on normal return and ordinary exception; tskit.load finishes inside the context. The full loader calls it once, extracts trees in memory and deletes ts before returning. The sequential40-parent loop therefore does not accumulate scratch tree files. The author wiring check verifies one scratch preflight, with per-parent CPU guard calls preserved. This supports the root-authorized one-file scratch bound without changing any guard implementation.
+
+Context/driver successor diffs only change their own SOURCE/CONTEXT/PREP_SOURCE paths. CPU preparation still uses an empty CUDA_VISIBLE_DEVICES, the original guard/writer and current root capability checks. Driver invocation uses `python -B -m arggnn.prepare_marker_resolution_observations_v2`; source inspection establishes module-based invocation, not that any actual launch has occurred.
+
+No actual observations, targets/checkpoints, runtime/GPU/process/accounting state, project imports, scientific execution, admission or Git operations were used by this reviewer. No frozen sources were edited. Actual successful40-parent completion and original direct-wait/drain evidence remain future execution facts owned by root.

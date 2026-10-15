@@ -1,4 +1,24 @@
+Current full-panel working manuscript: [compiled PDF](current_full_panel_working.pdf), [LaTeX source](current_full_panel_working.tex), [Overleaf source bundle](current_full_panel_overleaf_working.zip). Root compiled and visually checked all8pages on2026-10-15. This is a development draft with unfinished scientific validation.
+
 # Manuscript sources
+
+## Current full-panel working draft
+
+[current_full_panel_working.tex](current_full_panel_working.tex) and
+[current_full_panel_refs.bib](current_full_panel_refs.bib) now describe the
+completed 476-diploid/952-haplotype, 32-TRAIN/eight-VAL whole-tree PyG comparison.
+The main evidence is H038/H040/H042 with current native AP and ARGMix.
+A compact completed H043 control appears only in the appendix.
+This is an incomplete development manuscript, with no H044 result.
+
+[Author status and remaining evidence gates](CURRENT_FULL_PANEL_README.md)
+and [exact evidence/source provenance](current_full_panel_provenance.json)
+record unresolved external benchmarks, independent confirmation and novelty
+assessment. Compilation, visual review and page count remain root-owned and
+unverified. The scientific goal is not complete.
+
+## Historical methods drafts
+
 
 Three explicitly incomplete methods/protocol drafts preserve earlier candidate
 architectures. None is the final empirical paper.
