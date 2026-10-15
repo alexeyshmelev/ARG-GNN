@@ -1,6 +1,6 @@
 # Current scientific scoreboard
 
-Updated UTC: 2026-10-15T16:37:41.687235+00:00
+Updated UTC: 2026-10-15T16:41:33.990270+00:00
 
 [All measured cohort details](#detailed-cohort-metrics) · [Complete historical receipt inventory](all_recorded_metric_receipts.md) · [Fresh H048 novelty/cross-domain audit](../research/reviews/H048_novelty_crossdomain_fresh_20261015_v1/report.md)
 
@@ -209,7 +209,7 @@ H048 retains 31,933 parameters per arm and a fixed 30-pass/960-update schedule. 
 |---|---|---|
 | Native ARGformer | unavailable | Native v12 author MLM training observed on GPU5; Composer epoch 1 through batch 700/44955 at about 10.2–10.55 batches/s. Recorded root process present. Checkpoint metadata: ep0-ba4500-rank0.pt (2014524806 bytes); latest symlink present. Quiet console after the first eight batch banners is expected. Five-epoch completion and saved Adam-step verification pending; no native ancestry score. Prior v11 exit1/unknown updates preserved. |
 | Native FLARE | unavailable | Author build and TRAIN000 full-site conversion completed with actual wait0. Native inference: completed; actual wait0 and owned-group drain verified; sealing: running on CPU. Native completed allowance closed; 8977226240 unused bytes credited with all files preserved. Accuracy pending; TRAIN000 is development, not held-out. |
-| Our C3 GNN | unavailable | TRAIN000 exact native focal/plan preparation: completed with actual wait0; explicit retry after missing-parent directory repair, original failure preserved; 10000 focals, 4897 trees, 14937 sites, 154 blocks. remaining TRAIN001–013 fanout 0/13 completed with actual wait0; launched, completion pending. Shared 30 Mb VAL000 inference completed. Remaining TRAIN parents, checkpoint and full prespecified VAL gate pending |
+| Our C3 GNN | unavailable | TRAIN000 exact native focal/plan preparation: completed with actual wait0; explicit retry after missing-parent directory repair, original failure preserved; 10000 focals, 4897 trees, 14937 sites, 154 blocks. remaining TRAIN001–013 fanout 1/13 completed with actual wait0; launched, completion pending. Shared 30 Mb VAL000 inference completed. Remaining TRAIN parents, checkpoint and full prespecified VAL gate pending |
 
 The TRAIN000 conversion is development evidence. Independent VAL000 inference now has its own actual completion/wait receipts; its method predictions and common-truth scoring remain pending. Original 30 Mb VAL000 simulation: completed; actual wait0 and owned-group drain verified; inferred observation: completed; actual wait0 and owned-group drain verified; shared native-path/10k-focal preparation: completed; actual wait0 and owned-group drain verified. R600/Q1000 identities stay common. No VAL ancestry score. Original full30Mb VAL000 native preparations are ready; method predictions and common-truth scores remain pending. Native FLARE VAL000 target bound: 228477 sites, common R600/Q1000; predictions and scoring pending. Original-paper simulation assumptions and source versions remain explicitly documented.
 
