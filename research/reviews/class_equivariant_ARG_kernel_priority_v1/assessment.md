@@ -1,0 +1,50 @@
+# Class-equivariant ARG kernel: priority decision
+
+2026-10-15. Source/literature only. No architecture implementation or experiment is authorized by this assessment.
+
+**The candidate is a useful portability hypothesis, but it does not presently define a novel operator.** Learned positive reference weights applied identically to class indicators are the central mechanism of Matching Networks. Learning the graph and propagating all indicator columns through one operator, followed by shared softmax, is explicitly implemented by Transductive Propagation Networks (TPN). Using whole inferred trees, ages, genotypes and ordered sampled-tip correspondences specializes that established mechanism. Class permutation equivariance, arbitrary output arity, ancestor-ID independence and combining those modules do not supply priority.
+
+## Exact reduction and the real change from H042/H044
+
+Let X contain class-free observations, let Y be the R-by-C known-reference indicator matrix, and let K_x(X,T) be a learned nonnegative query-to-reference kernel at genomic position x. Then F_x=K_xY. For a class permutation matrix P, F_x(YP)=F_x(Y)P. The same scalar readout applied to each column, optionally with symmetric cross-class statistics, followed by row softmax preserves that permutation law. This is elementary shared-channel algebra, not a new expressivity result.
+
+Matching Networks gives exactly y_hat=sum_i a(x_hat,x_i)y_i, with learned softmax attention a. TPN gives F_(t+1)=alpha*S*F_t+(1-alpha)*Y and F*=(I-alpha*S)^(-1)Y, then a row softmax, while jointly learning embeddings and graph construction. Their primary equations are recorded in citations.json. A label-linear recurrence through successive tree operators and sampled-tip maps still unrolls to a label-independent K_xY. It is learned label propagation on a space-time graph unless an additional constraint changes its mathematical content.
+
+The change from the current implementation is nevertheless concrete. The H038/H042 body has four one-hot reference-class channels in leaf inputs, eight ordered donor-class/age SNP fields in its19-channel site tuple, and a four-output classifier. H044's640-parameter residual is already shared across classes, but it consumes context from that class-dependent body and retains the fixed-C4 classifier/validators. Replacing only the final classifier would not establish whole-model class equivariance. Every class-indexed trunk input, cohort surrogate for a class ID, learned class embedding and hard-coded C/H/R interface would need the stated class-free or symmetric treatment. Feature-based ancestor anonymity is already present in H042.
+
+## Nearest verified prior
+
+| Prior | Decisive overlap and limit |
+| --- | --- |
+| Vinyals et al., Matching Networks, arXiv:1606.04080, primary equations1-2 | The same learned positive support kernel multiplies support label indicators; new classes need no fitted class-specific classifier. Image/few-shot task, not ordered ARGs. |
+| Liu et al., TPN, arXiv:1805.10002v5, primary equations3-5 | Learned graph/embedding, identical propagation operator for all class columns and final softmax. This is the closest operator prior. Its small dense task graph is not the proposed tree-efficient implementation. |
+| Garcia and Bruna, arXiv:1711.04043v3; Sung et al., Relation Network, arXiv:1711.06025 | Graph message passing with known one-hot support labels, and shared query/support relation scoring for unseen classes, respectively. Generic GNN label concatenation does not itself guarantee exact class-channel symmetry; TPN supplies the stronger direct comparison. |
+| Browning et al., FLARE, DOI10.1016/j.ajhg.2022.12.010 | Extended Li-Stephens reference-copying model and genomic dependence already underpin scalable local ancestry inference. It is not a learned whole-tree GNN. |
+| Salter-Townshend and Myers, MOSAIC, DOI10.1534/genetics.119.302139 | Nested HMM ancestry segments for an arbitrary number of admixing groups, with inferred copying probabilities linking donor groups to unseen ancestors. This directly precedes the biological distinction between proxy references and ancestry classes. |
+| Steinruecken, Paul and Song, DOI10.1016/j.tpb.2012.08.004 | Efficient sequentially Markov copying/CSD with a structured-coalescent migration/recombination interpretation. Adding coalescent terminology or an HMM to learned transport cannot establish novelty. |
+| ARGformer, DOI10.1093/bioinformatics/btag438; current ARGMix source | Genealogy embeddings with reference retrieval, and TMRCA-conditioned reference processing with genomic recurrence already exist. ARGformer uses ancestral-ID path tokens in the previously audited published method. The inspected ARGMix release uses population-token embeddings and a fixed-width `Linear(d_model,num_classes)` classifier. These are legitimate implementation distinctions, not a first genealogy/reference-learning claim. |
+| TGN, arXiv:2006.10637; EvolveGCN, arXiv:1902.10191 | Learned dynamic graph processing and persistent-node/changed-node issues are established. They do not prove equivalence to the exact ARG kernel, but ordering and sample correspondence alone cannot rescue a broad novelty claim. |
+
+The existing hierarchical-Laplacian and commutator assessments also rule out relabeling tree heat kernels or time-ordered products as the new ingredient. Exact priority of every possible clade implementation remains unsearched; absence of an identical ARG implementation is not evidence of a new computational primitive.
+
+## Biological and mathematical requirements that matter
+
+**Class renaming is weaker than changing the ancestry estimand.** The current American C3 and European C4 settings differ in populations and demographics. They are not automatically a three-class/four-class relabeling or merge. Supporting a new C in tensor shapes proves neither transfer to those populations nor calibration with fewer references.
+
+Even for a genuine class merge with grouping matrix M, a useful probability kernel obeys K(YM)=(KY)M. An arbitrary shared nonlinear readout plus softmax generally breaks this coarsening law. For example, merging two softmax probabilities differs from first adding their scores and applying a smaller softmax. Thus the candidate's exact class-permutation property does not provide taxonomy-consistent probabilities. A row-stochastic donor kernel followed by linear label aggregation has this law already, as ordinary copying/Markov kernels do. This is a useful specification, not novel algebra.
+
+Positive edge weights alone do not make K a calibrated ancestry posterior. Diffusing reference indicators with zero query rows can leave unassigned mass. Renormalizing that mass away or applying a softmax may create confidence without reference support. Different reference counts, related/duplicate donors, missing classes, inferred topology uncertainty and proxy mismatch remain substantive effects. An absent source class cannot be identified merely by offering another output column. Ancient proxy labels also are not certified states of a descendant lineage at the chosen ancestry census time.
+
+The biological target is real: Mies and Mathieson's2026 benchmark (DOI10.1093/molbev/msag236) explicitly highlights small ancient reference panels/sparse data and reports major disagreement in tract/admixture-time estimates despite correlated individual ancestry estimates. That supports studying panel/uncertainty transfer, not a prediction that this kernel will win. Neither permutation symmetry nor the current dense-panel development results establish a small-panel advantage.
+
+A defensible new operator would need a precisely specified **genealogically valid conditional process** whose coalescence ages, proxy observation model and recombination-linked transitions jointly constrain the allowed donor mass, together with a genuinely new tractable result beyond structured CSD/TPN/copying models. Arbitrary smoothing in genome position is not evolution along ancestral time. Holding a tree fixed does not certify inferred ancestor identity or recombination events. No such new process, identifiability theorem, stability result or faster exact shared-ARG algorithm is specified by the present proposal.
+
+## One surviving direction, with its proper scope
+
+**A donor-mass readout that preserves ancestry coarsening and explicit unsupported mass survives as a practical application direction.** A class-free tree/sequence trunk would determine reference-level nonnegative weights, with class labels introduced only through final linear aggregation. Retaining unsupported mass and distinguishing proxy evidence from the ancestry estimand makes the output contract clearer than an unrestricted shared class softmax. The weights may be applied implicitly by tree/sequence operations; a dense T-by-H-by-R bank is unnecessary. At T1000/H952/R<=266, materializing that donor bank would be up to1.013GB FP32, versus15.232MB for four leaf-label channels. Variable arity is feasible but does not imply constant computation or memory.
+
+This direction is an explicitly attributed learned label-propagation/copying baseline, not a surviving claim of a novel general GNN. Its eventual value would have to come from demonstrated transfer/calibration under biologically distinct reference-panel and ancestry definitions. A coalescent constraint would be meaningful only with a specified conditional model and guarantees that improve on the close priors above. No speculative success value, new fit or architecture implementation follows from this assessment.
+
+## Scope
+
+Read current whole-tree/H042/H044 sources and the named H038/H043, next-architecture, hierarchy and commutator audits. Inspected the pinned ARGMix author source as text. Bounded arXiv primary HTML/API and EuropePMC deposited metadata supplied the cited formulas/abstracts. No full text is retained here, only compact exact excerpts and URLs in citations.json. No scientific data, weights, model/guard imports, runtime/GPU/process state, admissions/accounting, packages or Git were accessed or executed. Only this owned review directory was written.

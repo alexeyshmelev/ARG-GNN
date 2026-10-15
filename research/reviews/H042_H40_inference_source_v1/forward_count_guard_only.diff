@@ -1,0 +1,13 @@
+--- frozen_H042.forward_holds
++++ panel_H042.forward_holds
+@@ -1,8 +1,8 @@
+ def forward_holds(self, bank, *, flags, control="aligned"):
+     parameter = next(self.parameters())
+     t, h = bank.sample_index.shape
+-    if (parameter.dtype != torch.float32 or h != 952
+-            or bank.query_column.numel() != 686 or not t
++    if (parameter.dtype != torch.float32 or h != self.expected_haplotypes
++            or bank.query_column.numel() != self.expected_queries or not t
+             or bank.parent.device != parameter.device
+             or flags.native_holds != t or flags.haplotypes != h):
+         raise ValueError("Complete original FP32 native bank and matching flags required")
