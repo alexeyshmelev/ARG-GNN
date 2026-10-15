@@ -1,0 +1,79 @@
+{
+  "schema": "ARGformer_PCA10_reference_KMeans3_reconstruction_spec_v1",
+  "status": "source_only_inactive_proposal_not_registered_or_executed",
+  "execution_enabled": false,
+  "method": "ARGformer_PCA10_reference_KMeans3_reconstruction_v1",
+  "exact_Table1_reproduction": false,
+  "paper_explicit": {
+    "query_unique_marginal_paths": 10000,
+    "PCA_reference_only": true,
+    "PCA_components": 10,
+    "classes": [
+      "EUR",
+      "EAS",
+      "AFR"
+    ],
+    "contrastively_trained_path_embeddings": true
+  },
+  "reconstruction_choices": {
+    "input_pooling": "head_norm",
+    "input_layer": "last",
+    "input_rows": "all same native complete reference paths;same prespecified10000query focal paths",
+    "PCA": {
+      "fit_rows": "pure references only",
+      "weighting": "equal per unique full raw path",
+      "accumulation_dtype": "float64",
+      "mean_covariance": "stable batch-merged centered moments",
+      "basis": "top10 empirical covariance eigenvectors descending",
+      "axis_sign": "largest-absolute loading positive;first feature index if equal",
+      "scale": false,
+      "whiten": false
+    },
+    "clustering": {
+      "library": "scikit-learn;actual version/root runtime/source binding required before execution",
+      "fit_rows": "reference PC10 only",
+      "n_clusters": 3,
+      "init": "k-means++",
+      "n_init": 10,
+      "random_state": 17015,
+      "max_iter": 300,
+      "tol": 0.0001,
+      "algorithm": "lloyd"
+    },
+    "cluster_to_ancestry": {
+      "fit_labels": "observed reference classes only",
+      "mapping": "all6bijections;maximize total reference count agreement",
+      "tie": "lexicographically first class-index assignment in EUR/EAS/AFR order"
+    },
+    "query_assignment": {
+      "distance": "squared Euclidean to fitted center",
+      "tie": "lower center index"
+    },
+    "score": {
+      "support": "same frozen focal_unique_path_first_occurrence_midpoint_RECONSTRUCTION",
+      "truth_access": "only later existing external evaluator after complete identity/call seal",
+      "weighting": "equal record weight",
+      "query_filtering": "none",
+      "new_truth_tuning": false
+    }
+  },
+  "integration": {
+    "native_model_changes": false,
+    "focal_resampling": false,
+    "reference_subsampling": false,
+    "haplotype_averaging": false,
+    "installed_source_edits": false,
+    "root_registration_admission_and_version_pin_required": true,
+    "separate_prediction_seal_adapter_needed": true
+  },
+  "not_paper_inferences": [
+    "KMeans",
+    "3clusters",
+    "reference-only cluster fit",
+    "seed17015",
+    "10restarts",
+    "reference count matching",
+    "no whitening/scaling",
+    "first-occurrence midpoint"
+  ]
+}

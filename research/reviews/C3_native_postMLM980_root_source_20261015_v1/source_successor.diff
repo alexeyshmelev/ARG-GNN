@@ -1,0 +1,1390 @@
+--- src/arggnn/american_c3_native_contract_v1.py
++++ research/reviews/C3_native_postMLM980_root_source_20261015_v1/consumer_contract_v1.py
+@@ -2,15 +2,17 @@
+ from __future__ import annotations
+ from pathlib import Path
+ import hashlib,importlib.util,json,os,sys
+-from .american_c3_common_v1 import ROOT,CLASSES,require,local,ref,bound
+-SOURCE="src/arggnn/american_c3_native_contract_v1.py"
++from arggnn.american_c3_common_v1 import ROOT,CLASSES,require,local,ref,bound
++REL='research/reviews/C3_native_postMLM980_root_source_20261015_v1'
++SOURCE=REL+"/consumer_contract_v1.py"
++MAIN=REL+"/entry_postMLM_v1.py"
+ AUTHOR_ROOT=".runtime/author_sources/argformer_f7545be7bca0"
+ AUTHOR_MANIFEST_REF=dict(path="research/reviews/American_C3_native_consumer_source_v1/author_source_manifest.json",
+     sha256="bed570db438f2c4981ebf606460dc4ff72a97b148ba371e3873ab0141376736a")
+ NATIVE_GUARD_REF=dict(path="src/arggnn/native_argformer_exec.py",
+     sha256="84ed405379ac56511c2f4722c130e8b884226018bbf8e2949ea2bb4dceeb99d0")
+-LAUNCHER_REF=dict(path="scripts/launch_reserved_gpu_authorized_GPU45_completed_v1.py",
+-    sha256="d4cc990e430625e9cc7d02739e7e8012f5c8b3bdc78f048f801febacea64583d")
++LAUNCHER_REF=dict(path=REL+"/launcher_postMLM980_v1.py",sha256=None)
++
+ PROJECT_SOURCES=("src/arggnn/american_c3_common_v1.py",SOURCE,
+     "src/arggnn/american_c3_native_run_v1.py","src/arggnn/american_c3_native_child_v1.py",
+     "src/arggnn/american_c3_native_concat_v1.py","src/arggnn/american_c3_paths_v1.py",
+@@ -26,8 +28,8 @@
+     sha256="c3d58a8d10d901a162f406e2e218a10e17e5f1617b3c626503d72bcbd1b4ccee")
+ VIEWS=("mlm","contrastive","query_paths")
+ SPLITS=("train","val")
+-GPU_PHASES=("fit","embeddings","retrieve")
+-CPU_PHASES=("counts","concat","prediction_seal")
++GPU_PHASES=("fit","embeddings")
++CPU_PHASES=()
+ DEFAULTS=dict(schema="american_c3_native_consumer_config_v1",execution_enabled=False,
+     parent_id=None,phase=None,author_commit="f7545be7bca0200fb39aeb7f94a8e5f0b6bf5596",
+     class_order=list(CLASSES),regime="fresh_per_ARG_transductive_MLM_then_known_reference_contrastive",
+@@ -39,6 +41,9 @@
+     child_log_ram_bytes=4194304,guard_poll_seconds=1.,termination_grace_seconds=20.,
+     phase_write_budget_bytes=None,short_tmp_directory=None,max_preparation_file_bytes=None,
+     max_checkpoint_files=None,max_checkpoint_bytes=None,max_embedding_input_bytes=None)
++PROJECT_SOURCES=tuple(dict.fromkeys((*PROJECT_SOURCES,"src/arggnn/american_c3_native_contract_v1.py",MAIN,SOURCE,REL+"/supervisor_v1.py",REL+"/native_child_v1.py",'research/reviews/C3_native_post_MLM_root_handoff_20261015_v1/post_mlm_bridge_v1.py','research/reviews/C3_native_post_MLM_root_handoff_20261015_v1/ram_downstream_v1.py')))
++DEFAULTS["checkpoint_retention_IO_override"]=1
++
+ def metadata(record,*,cap=1048576):
+     p=bound(record);require(p.stat().st_size<=cap,"Bounded SHA-bound JSON metadata")
+     return json.loads(p.read_text())
+@@ -87,7 +92,7 @@
+         and spec.get("root_authorizer")=="root_agent" and spec.get("status")=="active"
+         and spec.get("execution_authorized") is True and spec.get("GPU_authorized") is GPU
+         and spec.get("main_source_ref")==ref(source) and spec.get("author_source_manifest_ref")==AUTHOR_MANIFEST_REF
+-        and spec.get("actual_launcher_ref")== (LAUNCHER_REF if GPU else None),
++        and spec.get("actual_launcher_ref")== (ref(LAUNCHER_REF["path"]) if GPU else None),
+         "Exact active root canonical source/phase/launcher capability")
+     no_private_refs(spec)
+     require(Path.cwd().resolve()==ROOT,"Canonical repository execution directory")
+--- research/reviews/C3_native_counts980_root_handoff_20261015_v1/root_native_contract_v1.py
++++ research/reviews/C3_native_postMLM980_root_source_20261015_v1/root_native_contract_v1.py
+@@ -3,17 +3,17 @@
+ from datetime import datetime,timezone
+ import copy,hashlib,importlib.util,json,os,sys
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-REL="research/reviews/C3_native_counts980_root_handoff_20261015_v1"
++REL="research/reviews/C3_native_postMLM980_root_source_20261015_v1"
+ SOURCE=REL+"/root_native_contract_v1.py"
+ DRIVER=REL+"/root_native_driver_v1.py"
+ CONTEXT=REL+"/context_factory_v1.py"
+-RUNTIME_HELPER="research/reviews/American_C3_native_model_root_v1/native_runtime_v1.py"
++RUNTIME_HELPER=REL+"/native_runtime_v1.py"
+ PARENT="american_c3_train_000"
+-GPU_PHASES=()
+-CPU_PHASES=("counts",)
+-PHASES=("counts",)
+-GPU_MAIN="src/arggnn/american_c3_native_run_v1.py"
+-CPU_MAIN="src/arggnn/american_c3_native_concat_v1.py"
++GPU_PHASES=("fit","embeddings")
++CPU_PHASES=()
++PHASES=GPU_PHASES
++GPU_MAIN=REL+"/entry_postMLM_v1.py"
++CPU_MAIN=None
+ CORE="483d78bf2ef3c917d65ecf1dde5a7809bfadc21194c9f9a90394ce5c532fdd5e"
+ BASE="a8049bc103afb1cbbbce6f8fc3707a21de9613b23034599641b688994fc5caa3"
+ GUARD_REF={'path': 'research/reviews/prospective_980GB_capacity_source_v1/prospective_980gb_v1.py', 'sha256': 'fc71030865e0a3d5da31120d4daa2caa0b2d39ec7dd212b8c46c476b5a866d56'}
+@@ -21,7 +21,7 @@
+ REPAIR_REF=dict(path="research/reviews/H039_missing_marker_repair_v1/repair_authority_20261015.json",sha256="f6f2d628199e8be73db8b5d90d428570d8afdefeab9dc5cd94bb5eafb39247db")
+ MEMO_REF=dict(path="research/reviews/resource_guard_hotpath_source_audit_v1/transaction_memo_adapter_v2.py",sha256="c972e9a779d424ceafdb258848614bf40994d1004e2c73fc5cd225ae99621364")
+ V4_REF=dict(path="src/arggnn/project_budget_v4.py",sha256="a093c7d86f57fee569cb99f4712250e9505a1119f3950fa44282c7ba8c57df47")
+-LAUNCHER_REF={'path': 'scripts/launch_reserved_gpu_authorized_GPU45_980_v1.py', 'sha256': '0ca3c59e49f5fd55f5a798c99a4a8a6613e71a90bcb3f89a04eb66e7555046ca'}
++LAUNCHER_REF=dict(path=REL+"/launcher_postMLM980_v1.py",sha256=None)
+ GPU_AUTH_REF=dict(path="research/reviews/H040_GPU45_migration_root_20261015_v1/GPU45_authorization.json",sha256="0231ae8edb05f8dd34ce127a0de0b97c1dd64fa461ad081e7a83bb92c558d26c")
+ BASE_CONFIG_REF=dict(path="research/reviews/C3_bert_base_configuration_root_v1/config.json",sha256="7160e1553ad2ca51d8c1cb066be533db31826e12d173824c1bb0cb1a4f187d20")
+ NATIVE_CPU_QUAL_REF=dict(path="research/reviews/C3_bert_base_configuration_root_v1/native_CPU_qualification.json",sha256="56ed247a09484753a64e9ed3bee6c80eea4e5bfb156ab5acdb09c24ce828e515")
+@@ -34,6 +34,11 @@
+ PREP_CONFIG_REF={'path': 'research/reviews/American_C3_native_paths_root_v3/admitted_native_paths_train000_full30mb_v3/config.json', 'sha256': '9dfd5eb24274933816e9b5af122c1279aa132bc37afa2e7e3563aea04201e01c'}
+ PREP_CLOSE_REF={'path': 'research/reviews/American_C3_native_paths_root_v3/completed_scope_close_root_v1/close_receipt.json', 'sha256': '46d972e3ea36a41a147b81fa310b739b487efc1d2808d72594a89ec0f854b533'}
+ PREP_WAIT_REF={'path': 'research/reviews/American_C3_native_paths_root_v3/admitted_native_paths_train000_full30mb_v3/actual_wait.json', 'sha256': 'd4f8fd549a8b3610d21b9cebbf4e7690fd52dc95d24e11253aea29860520b336'}
++COUNTS_REF={'path': 'experiments/results/American_C3_native_train000_full30mb_counts980_v1/completed.json', 'sha256': 'acbb95120d554532205a7e2647861c87be9a5de063df30c1d85bd702a8b28cb9'}
++COUNTS_WAIT_REF={'path': 'research/reviews/C3_native_counts980_root_handoff_20261015_v1/admitted_counts980_v1/actual_wait.json', 'sha256': '6b2cad31b77b9351fdfeff0e21bea52051bb974d54f792cbde668df71ced3deb'}
++CONTRASTIVE_ROWS={"train":8624912,"val":959065}
++CONTRASTIVE_UPDATES=2105
++CONTRASTIVE_DROPPED_REMAINDER=2832
+ def require(ok,message):
+     if not ok:raise ValueError(message)
+ def local(value):
+@@ -79,15 +84,8 @@
+     return guard,adapter
+ def phase_paths(phase):
+     require(phase in PHASES,"Specific registered native stage")
+-    return (ROOT/REL/"admitted_counts980_v1",
+-        "experiments/results/American_C3_native_train000_full30mb_counts980_v1")
+-def source_paths():
+-    from arggnn.american_c3_native_contract_v1 import PROJECT_SOURCES
+-    extras=(SOURCE,DRIVER,CONTEXT,RUNTIME_HELPER,PROC_HELPER,
+-        "src/arggnn/census_tsinfer_fit_v1.py","src/arggnn/census_tsinfer_observation_v1.py",
+-        "src/arggnn/biological_candidate.py","src/arggnn/project_budget_v9_consumer.py",
+-        "scripts/launch_reserved_gpu_full_storage_v1.py","scripts/launch_reserved_gpu_terminal_retired_scopes_v1.py")
+-    return tuple(dict.fromkeys((*PROJECT_SOURCES,*extras)))
++    return (ROOT/REL/("admitted_"+phase+"_v1"),
++        "experiments/results/American_C3_native_train000_postMLM980_"+phase+"_v1")
+ def validate_upstream(completed_ref,wait_ref,*,preparation=False):
+     completed=read(completed_ref);wait=read(wait_ref)
+     if preparation:
+@@ -126,103 +124,123 @@
+             "Exact root actual CUDA cap and eligible device, no invented fit guarantee")
+     return caps
+ def make_config(req,caps):
+-    from arggnn.american_c3_native_contract_v1 import DEFAULTS
++    DEFAULTS=native_contract().DEFAULTS
+     cfg=copy.deepcopy(DEFAULTS);phase=req["phase"]
+     cfg.update(execution_enabled=True,parent_id=PARENT,phase=phase,
+         phase_write_budget_bytes=caps["phase_write_budget_bytes"],
+-        short_tmp_directory=".runtime/tmp/c3cnt980/v1",
++        short_tmp_directory=".runtime/tmp/c3post980/"+("f" if phase=="fit" else "r"),
+         child_log_ram_bytes=caps["child_log_ram_bytes"])
+     for key in ("max_preparation_file_bytes","max_checkpoint_files","max_checkpoint_bytes","max_embedding_input_bytes"):
+         cfg[key]=caps[key]
+     return cfg
+-def validate_request(record):
+-    from arggnn import american_c3_native_contract_v1 as native
+-    req=read(record);require(req.get("schema")=="american_c3_native_specific_stage_request_v1"
+-        and req.get("root_authorizer")=="root_agent" and req.get("execution_authorized") is True
+-        and req.get("parent_id")==PARENT and req.get("phase") in PHASES,"Explicit one-parent root stage request")
+-    native.no_private_refs(req)
+-    phase=req["phase"];refs=req["refs"]
+-    required={"counts":(),"fit":("counts",),"embeddings":("counts","fit_completion"),
+-        "concat":("counts","fit_completion","embedding_completion"),
+-        "retrieve":("counts","fit_completion","combined_completion"),
+-        "prediction_seal":("counts","fit_completion","combined_completion","retrieval_completion")}[phase]
+-    require(all(isinstance(refs.get(k),dict) for k in ("runtime","preparation","preparation_config",*required)),
+-        "Every actual required upstream reference must be filled before admission")
+-    caps=validate_caps(read(req["caps_ref"]),req)
+-    prep,_=validate_upstream(refs["preparation"],req["upstream_wait_refs"]["preparation"],preparation=True)
+-    pcfg=read(refs["preparation_config"])
+-    require(pcfg["observation_ref"]==OBS_REF and pcfg["path_sampling_seed"]==92001
+-        and pcfg["execution_enabled"] is True and prep["query_ancestry_truth_opened"] is False,
+-        "Frozen original TRAIN corpus recipe")
+-    runtime=read(refs["runtime"])
+-    require(runtime.get("schema")=="american_c3_native_counts_CPU_runtime_binding_v1" and runtime.get("root_authorizer")=="root_agent"
+-        and runtime.get("status")=="existing_CPU_metadata_bound_compare_at_execution" and runtime.get("shared_cpu_runtime_ref") is not None,
+-        "Existing shared CPU metadata binding, actual runtime comparison occurs in consumer")
+-    read(runtime["shared_cpu_runtime_ref"])
+-    if phase!="counts":
+-        counts,_=validate_upstream(refs["counts"],req["upstream_wait_refs"]["counts"])
+-        require(counts["source_ref"]==ref(CPU_MAIN) and counts["preparation_ref"]==refs["preparation"]
+-            and counts["preparation_config_ref"]==refs["preparation_config"] and counts["parent_id"]==PARENT
+-            and counts["query_ancestry_truth_opened"] is False,"Exact actual source-bound native counts")
+-        if phase in GPU_PHASES or phase=="concat":require(counts["native_training_eligible"] is True,"Complete release batches required")
+-    for key in ("fit_completion","embedding_completion","combined_completion","retrieval_completion"):
+-        if refs.get(key) is not None:validate_upstream(refs[key],req["upstream_wait_refs"][key])
+-    if phase in GPU_PHASES:
+-        require(ref(runtime["native_python_ref"]["path"])==runtime["native_python_ref"]
+-            and runtime.get("native_prefix") and runtime.get("legacy_inventory_policy_ref")
+-            and runtime.get("legacy_runtime_bindings_ref") and runtime.get("native_inventory_ref")
+-            and runtime.get("bert_base_config_ref"),"Actual executable/prefix/inventory/local base config required")
+-        read(runtime["bert_base_config_ref"]);read(runtime["legacy_inventory_policy_ref"])
+-        read(runtime["legacy_runtime_bindings_ref"]);read(runtime["native_inventory_ref"],cap=33554432)
+-        require(runtime["qualified_physical_gpu"]==req["physical_gpu"] and runtime["qualified_GPU_UUID"]
+-            and runtime["bert_base_config_ref"]==BASE_CONFIG_REF
+-            and runtime["native_CPU_qualification_ref"]==NATIVE_CPU_QUAL_REF
+-            and runtime["native_inventory_ref"]==NATIVE_INVENTORY_REF,
+-            "Exact existing native inventory and official local BERT qualification")
+-        cpu=read(NATIVE_CPU_QUAL_REF);gpu=read(runtime["native_GPU_qualification_ref"])
+-        require(cpu["bert_base_config_ref"]==BASE_CONFIG_REF
+-            and cpu["executable_sha256"]==runtime["native_python_ref"]["sha256"]
+-            and local(cpu["executable"])==local(runtime["native_python_ref"]["path"])
+-            and local(cpu["prefix"])==local(runtime["native_prefix"])
+-            and cpu["GPU_context_created"] is False and cpu["model_instantiated"] is False,
+-            "Actual CPU-only offline local BERT qualification, no fit claim")
+-        require(gpu.get("schema")=="american_c3_native_GPU_runtime_qualification_v1"
+-            and gpu.get("root_authorizer")=="root_agent" and gpu.get("status")=="qualified"
+-            and gpu.get("physical_gpu")==req["physical_gpu"]
+-            and gpu.get("GPU_UUID")==runtime["qualified_GPU_UUID"]
+-            and gpu.get("native_python_ref")==runtime["native_python_ref"]
+-            and gpu.get("native_inventory_ref")==runtime["native_inventory_ref"]
+-            and gpu.get("bert_base_config_ref")==BASE_CONFIG_REF
+-            and gpu.get("actual_native_runtime_and_GPU_context_checked") is True,
+-            "Actual separately SHA-bound same-GPU runtime/context qualification required; no invented model fit")
+-    return req,caps,runtime
+ 
+-
+-# Extra closed-input requirement is observation-only and has no MLM dependency.
+-_original_validate_request=validate_request
+-def validate_request(record):
+-    req,caps,runtime=_original_validate_request(record)
+-    require(req["phase"]=="counts" and req["refs"]["preparation"]==PREP_REF
+-        and req["refs"]["preparation_config"]==PREP_CONFIG_REF
+-        and req["refs"]["preparation_close"]==PREP_CLOSE_REF
+-        and req["upstream_wait_refs"]=={"preparation":PREP_WAIT_REF},
+-        "Only the actual closed v3 observation-only input; no MLM/weights dependency")
+-    close=read(PREP_CLOSE_REF);proof=close.get("value",{})
+-    require(close.get("kind")=="concurrent_completed_scope_close_receipt_v1"
+-        and close.get("key")=="H041/American-C3-native-paths-train000-full30mb-92001-v3"
+-        and proof.get("future_writes_and_relaunch_revoked") is True
+-        and proof.get("request",{}).get("completed_ref")==PREP_REF
+-        and proof.get("request",{}).get("direct_wait_ref")==PREP_WAIT_REF,
+-        "Actual completed preparation permanently closed READONLY")
+-    require(set(req["refs"])=={"runtime","preparation","preparation_config","preparation_close"},
+-        "CPU counts accepts no model/checkpoint/completion inputs")
+-    return req,caps,runtime
+-
++BRIDGE="research/reviews/C3_native_post_MLM_root_handoff_20261015_v1/post_mlm_bridge_v1.py"
++RAM="research/reviews/C3_native_post_MLM_root_handoff_20261015_v1/ram_downstream_v1.py"
++NVML_ACCEPTANCE_REF=dict(path="research/reviews/American_C3_native_MLM_full_fit_v8/nvml_abi_acceptance.root_active_v1.json",
++ sha256="69b13084c5275629e194651b71a9db2b233f0ef924e6c12394b2971aa70e195b")
++def native_contract():
++    return load(ref(REL+"/consumer_contract_v1.py"),"_postMLM980_native_contract")
+ def source_paths():
+-    from arggnn.american_c3_native_contract_v1 import PROJECT_SOURCES
+-    return tuple(dict.fromkeys((*PROJECT_SOURCES,SOURCE,DRIVER,CONTEXT,RUNTIME_HELPER,
++    native=native_contract()
++    return tuple(dict.fromkeys((*native.PROJECT_SOURCES,SOURCE,DRIVER,CONTEXT,RUNTIME_HELPER,
+         "src/arggnn/census_tsinfer_fit_v1.py","src/arggnn/census_tsinfer_observation_v1.py",
+         "src/arggnn/biological_candidate.py","src/arggnn/project_budget_v9_consumer.py",
+         "scripts/launch_reserved_gpu_full_storage_v1.py","scripts/launch_reserved_gpu_terminal_retired_scopes_v1.py",
+-        "research/reviews/American_C3_native_MLM_amendment_v12/owned_lifecycle_v2.py",
+-        "research/reviews/American_C3_native_MLM_full_source_v5/pidfd_backend_v1.py")))
++        PROC_HELPER,"research/reviews/American_C3_native_MLM_amendment_v12/owned_lifecycle_v2.py",
++        "research/reviews/American_C3_native_MLM_full_source_v5/pidfd_backend_v1.py",
++        "research/reviews/American_C3_native_MLM_amendment_v12/abstract_unix_bootstrap_v1.py",
++        "research/reviews/American_C3_native_MLM_amendment_v12/terminal_namespace_v12.py",
++        "research/reviews/American_C3_native_MLM_amendment_v12/terminal_bounds_v1.py",
++        "research/reviews/American_C3_native_MLM_full_fit_v8/gpu_monitor_v8.py",
++        "research/reviews/American_C3_native_MLM_full_fit_v8/progress_v8.py",
++        "research/reviews/American_C3_native_MLM_full_fit_v8/nvml_abi_provenance.json",
++        REL+"/launcher_postMLM980_v1.py","src/arggnn/resources.py","scripts/project_budget_v9.py")))
++def counts_metadata_v1(record,wait_ref,refs):
++    require(record==COUNTS_REF and wait_ref==COUNTS_WAIT_REF,"Exact completed current980 counts and actual root wait pins")
++    value,wait=validate_upstream(record,wait_ref)
++    native=native_contract();prep=read(PREP_REF)
++    require(value.get("schema")=="american_c3_native_actual_counts_v1"
++        and value.get("status")=="completed_C3_native_observation_only_counts"
++        and value.get("source_ref")==ref("src/arggnn/american_c3_native_concat_v1.py")
++        and value.get("preparation_ref")==PREP_REF and value.get("preparation_config_ref")==PREP_CONFIG_REF
++        and value.get("parent_id")==PARENT and value.get("class_order")==["EUR","EAS","AFR"]
++        and value.get("native_training_eligible") is True and value.get("query_ancestry_truth_opened") is False
++        and value.get("query_focal_count")==10000 and wait.get("phase")=="counts",
++        "Genuine exact generic six-dataset counts plus actual root wait0/drain")
++    require(set(value["datasets"])==set(prep["native_dataset_refs"]),"All six native count datasets")
++    for key,item in value["datasets"].items():
++        require(item["dataset_ref"]==prep["native_dataset_refs"][key]
++            and item["row_order_ref"]==prep["full_path_id_order_refs"][key]
++            and type(item["rows"]) is int and item["rows"]>0,"Exact complete raw-path count identities")
++    require(value["MLM_optimizer_updates"]==5*(value["datasets"]["mlm/train"]["rows"]//512)==224775
++        and value["contrastive_optimizer_updates"]==value["datasets"]["contrastive/train"]["rows"]//4096==CONTRASTIVE_UPDATES
++        and value["datasets"]["contrastive/train"]["rows"]%4096==CONTRASTIVE_DROPPED_REMAINDER
++        and all(value["datasets"]["contrastive/"+sp]["rows"]==n for sp,n in CONTRASTIVE_ROWS.items())
++        and sum(value["datasets"]["query_paths/"+sp]["rows"] for sp in ("train","val"))==10000
++        and sum(value["datasets"]["contrastive/"+sp]["rows"] for sp in ("train","val"))==9583977,
++        "Actual full-corpus release budgets, no metadata-estimated reference split")
++    return value
++def validate_fit_metadata_v1(record,wait_ref,*,counts_ref,mlm_ref):
++    packet,output=phase_paths("fit")
++    require(record["path"]==output+"/completed.json"
++        and wait_ref["path"]==str((packet/"actual_wait.json").relative_to(ROOT)),
++        "Actual own postMLM980 fit completion and terminal root wait paths")
++    fit,wait=validate_upstream(record,wait_ref)
++    require(fit.get("status")=="completed_C3_fresh_native_fit" and fit.get("MLM_reexecuted") is False
++        and fit["parent_id"]==PARENT and fit["counts_ref"]==counts_ref
++        and fit["preparation_ref"]==PREP_REF and fit.get("mlm_completion_ref")==mlm_ref
++        and fit.get("post_MLM_bridge_source_ref")==ref(BRIDGE)
++        and wait.get("phase")=="fit" and wait.get("parent_id")==PARENT
++        and wait.get("driver_ref")==ref(DRIVER),
++        "Actual own contrastive-only fresh fit and root wait0/drain")
++    return fit
++
++def validate_request(record):
++    req=read(record);native=native_contract()
++    require(req.get("schema")=="american_c3_native_specific_stage_request_v1"
++        and req.get("root_authorizer")=="root_agent" and req.get("execution_authorized") is True
++        and req.get("parent_id")==PARENT and req.get("phase") in PHASES
++        and req.get("physical_gpu") in (4,5),"Explicit fresh root GPU4/5 postMLM phase")
++    native.no_private_refs(req);refs=req["refs"];phase=req["phase"]
++    required={"runtime","preparation","preparation_config","preparation_close","counts","MLM_completion"}
++    if phase=="embeddings":required.add("fit_completion")
++    require(set(refs)==required and refs["preparation"]==PREP_REF
++        and refs["preparation_config"]==PREP_CONFIG_REF and refs["preparation_close"]==PREP_CLOSE_REF,
++        "Exact actual observation-only preparation and phase-specific late-bound receipts")
++    require(req["upstream_wait_refs"]["preparation"]==PREP_WAIT_REF,"Genuine original preparation wait")
++    prep,_=validate_upstream(PREP_REF,PREP_WAIT_REF,preparation=True)
++    close=read(PREP_CLOSE_REF)
++    require(close["value"]["future_writes_and_relaunch_revoked"] is True
++        and close["value"]["request"]["completed_ref"]==PREP_REF,"Original corpus permanently closed READONLY")
++    counts=counts_metadata_v1(refs["counts"],req["upstream_wait_refs"]["counts"],refs)
++    bridge=load(ref(BRIDGE),"_postMLM980_actual_MLM_bridge")
++    bridge.v12_mlm_phase_v1(refs["MLM_completion"],req["upstream_wait_refs"]["MLM_completion"],
++        dict(parent_id=PARENT,refs=dict(preparation=PREP_REF)))
++    if phase=="embeddings":
++        validate_fit_metadata_v1(refs["fit_completion"],req["upstream_wait_refs"]["fit_completion"],
++            counts_ref=refs["counts"],mlm_ref=refs["MLM_completion"])
++    caps=validate_caps(read(req["caps_ref"]),req);runtime=read(refs["runtime"])
++    require(runtime.get("schema")=="american_c3_native_postMLM_runtime_binding_v1"
++        and runtime.get("status")=="existing_inventory_bound_actual_GPU_at_execution"
++        and runtime.get("root_authorizer")=="root_agent"
++        and runtime["target_physical_gpu"]==req["physical_gpu"]
++        and runtime["target_GPU_UUID"]==req["GPU_UUID"]
++        and runtime["bert_base_config_ref"]==BASE_CONFIG_REF
++        and runtime["native_CPU_qualification_ref"]==NATIVE_CPU_QUAL_REF
++        and runtime["native_inventory_ref"]==NATIVE_INVENTORY_REF,
++        "Existing exact inventory/local-base binding, actual device checked in held lease")
++    import re
++    require(re.fullmatch(r"GPU-[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}",req["GPU_UUID"]),
++        "Actual root-selected GPU UUID, never a guessed device")
++    read(runtime["shared_cpu_runtime_ref"]);read(NATIVE_CPU_QUAL_REF)
++    acceptance=read(NVML_ACCEPTANCE_REF)
++    require(acceptance.get("active") is True and acceptance.get("root_accepts_actual_UUID_memory_comparison") is True,
++        "Existing reviewed NVML ABI/device memory monitor acceptance")
++    require(caps["checkpoint_live_allowance_bytes"]==(8*2**30+65536 if phase=="fit" else 0)
++        and caps["cache_allowance_bytes"]==4*2**30 and caps["temp_allowance_bytes"]==256*2**20
++        and caps["child_artifact_allowance_bytes"]==256*2**20
++        and caps["max_checkpoint_files"]==2 and caps["max_checkpoint_bytes"]==4*2**30,
++        "Fixed retention1/max2-file operational checkpoint/cache/TMP caps")
++    return req,caps,runtime
++
++def launcher_ref_v1():return ref(LAUNCHER_REF["path"])
+--- research/reviews/C3_native_counts980_root_handoff_20261015_v1/context_factory_v1.py
++++ research/reviews/C3_native_postMLM980_root_source_20261015_v1/context_factory_v1.py
+@@ -1,13 +1,23 @@
+-"""Counts-only existing consumer context; current980 and original primitive writer."""
++"""Concrete existing-guard context for original C3 full TRAIN engineering.
++
++No import-time guard, runtime, process, hardware or data actions. Consumer memo2
++is installed only by parent/CPU factories. Native children never load the
++storage adapter or construct a writer while their scope is active.
++"""
+ from pathlib import Path
+-import hashlib,importlib.util,json,os,resource,stat,sys,time
++import ast,hashlib,importlib.util,json,os,resource,stat,subprocess,sys,time
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-REL='research/reviews/C3_native_counts980_root_handoff_20261015_v1'
++REL="research/reviews/C3_native_postMLM980_root_source_20261015_v1"
+ def contract():
+     path=ROOT/REL/"root_native_contract_v1.py"
+     ms=importlib.util.spec_from_file_location("_C3_native_factory_contract",path)
+     c=importlib.util.module_from_spec(ms);ms.loader.exec_module(c);return c
+-
++def _proc_reader(c,spec):
++    path=c.local(c.PROC_HELPER);c.require(c.ref(path)["sha256"]==spec["source_sha256"][c.PROC_HELPER],"Exact existing owned-process reader")
++    node=next(n for n in ast.parse(path.read_text()).body if isinstance(n,ast.FunctionDef) and n.name=="owned_group_RSS_v1")
++    ns=dict(Path=Path,os=os,c=c)
++    exec(compile(ast.Module(body=[node],type_ignores=[]),str(path)+":unchanged_owned_RSS_reader","exec"),ns)
++    return ns["owned_group_RSS_v1"]
+ def _validate(c,record,spec):
+     c.active(spec);req,caps,runtime=c.validate_request(spec["root_stage_request_ref"])
+     packet,output=c.phase_paths(spec["phase"]);admitted=c.read(c.ref(packet/"admitted.json"))
+@@ -22,7 +32,37 @@
+         "Exact current policy inherited by all consumers")
+     for path,sha in spec["source_sha256"].items():c.require(c.ref(path)["sha256"]==sha,"Actual complete source closure")
+     return req,caps,runtime
+-
++def _lease(c,spec,runtime,CPU):
++    from arggnn.native_argformer_exec import validate_lease,apply_and_validate_title
++    if CPU:
++        c.require(os.environ.get("CUDA_VISIBLE_DEVICES")=="","Explicit CPU context hides CUDA");return None
++    lease=validate_lease();apply_and_validate_title()
++    c.require(lease["physical_gpu"]==spec["physical_gpu"]==runtime["target_physical_gpu"]
++        and lease["physical_gpu"] in (4,5) and lease["visible_gpu_uuid"]==spec["execution_gpu_uuid"]==runtime["target_GPU_UUID"]
++        and (os.environ.get("ARGGNN_LOGICAL_JOB_NAME") or os.environ.get("ARGGNN_JOB_NAME"))==spec["job_id"],
++        "Actual root-selected held GPU45 UUID/logical job; original runtime inventory preserved")
++    return lease
++def _fast_guard(c,spec,caps,lease):
++    from gpu_monitor_v8 import OwnedGpuMemory
++    gpu=OwnedGpuMemory(lease["visible_gpu_uuid"],lease["physical_gpu"]) if lease is not None else None
++    reader=_proc_reader(c,spec);known={};started=time.monotonic()
++    def check(event,**owned):
++        from arggnn.census_tsinfer_fit_v1 import require_logical_job_v1
++        c.active(spec)
++        c.require(time.monotonic()-started<=caps["operational_deadline_seconds"],"Actual stage operational deadline")
++        if lease is not None:
++            from arggnn.native_argformer_exec import validate_lease,apply_and_validate_title
++            c.require(validate_lease()==lease,"Inherited lease unchanged");apply_and_validate_title()
++            require_logical_job_v1(lease,spec)
++        pid=owned.get("child_pid",os.getpid());roster=known.setdefault(pid,{pid:None})
++        rss=reader(pid,roster)
++        if pid!=os.getpid():rss+=int(Path("/proc/self/statm").read_text().split()[1])*os.sysconf("SC_PAGE_SIZE")
++        c.require(rss<=caps["max_cpu_rss_bytes"],"Actual owned parent/native-descendant CPU RSS bound")
++        if lease is not None:
++            used=gpu.owned_bytes(roster)
++            c.require(used<=caps["max_cuda_reserved_bytes"],"Fresh owned GPU-process memory cap")
++        return dict(event=event,owned_RSS_bytes=rss,no_storage_journal_or_scope_scan=True)
++    return check
+ class _PrimitiveJSONWriter:
+     """Existing v9 writer with explicit primitive-JSON serialization adaptation.
+ 
+@@ -58,7 +98,15 @@
+             and named.st_size==len(data),"Created output pathname changed during save")
+         writer.used+=planned
+         return dict(path=str(path.relative_to(ROOT)),sha256=hashlib.sha256(data).hexdigest())
+-
++class _SealCompletionEnvelope:
++    """Explicit root completion status, preserving the full original seal receipt."""
++    def __init__(self,writer):self.writer=writer;self.path=writer.path
++    def save(self,name,value,kind="json"):
++        if name=="completed.json" and kind=="json":
++            if value.get("status")!="sealed_native_C3_top1":raise ValueError("Original native seal receipt required")
++            value=dict(value,status="completed_C3_native_original_top1_seal",
++                original_producer_completion=dict(value),original_producer_status=value["status"])
++        return self.writer.save(name,value,kind=kind)
+ def _parent_context(record,spec,CPU):
+     c=contract();req,caps,runtime=_validate(c,record,spec);lease=_lease(c,spec,runtime,CPU)
+     from arggnn.census_tsinfer_fit_v1 import ConsumerReaderV1
+@@ -68,7 +116,7 @@
+     c.require(runtime_report()==expected,"Actual qualified shared supervisor/CPU runtime and separately leased visibility")
+     guard,memo=c.consumer_guard();storage=c.read(spec["refs"]["storage"]);cfg=c.read(spec["refs"]["config"])
+     c.require(storage["completed_overlay_policy_ref"]==c.POLICY_REF
+-        and storage["reserved_new_bytes"]==caps["reservation_cap_bytes"],"Actual same-stage current policy/cap")
++        and storage["reserved_new_bytes"]==caps["reservation_cap_bytes"],"Actual new current980 stage policy/cap")
+     guard.validate_storage_v9(spec,dict(output_cap_bytes=caps["reservation_cap_bytes"]),storage,
+         source_ref=spec["main_source_ref"],config_ref=spec["refs"]["config"],runtime_ref=spec["refs"]["runtime"])
+     writer=_PrimitiveJSONWriter(guard.PilotOutputV9(spec["output_directory"],storage,ConsumerReaderV1()),guard)
+@@ -79,22 +127,61 @@
+         upstream_inputs_complete_and_drained=True,fast_guard_scans_or_writes_scope=False,
+         fast_guard=_fast_guard(c,spec,caps,lease),boundary_guard=boundary,writer=writer,
+         consumer_memo2=memo,device="cpu" if CPU else "cuda")
++def build_context_v1(record,spec):return _parent_context(record,spec,False)
++def build_cpu_context_v1(record,spec):return _parent_context(record,spec,True)
++def _actual_context_uuid(c,lease,torch):
++    """Reuse the current-context driver method in existing biological_candidate.
+ 
+-def build_cpu_context_v1(record,spec):return _parent_context(record,spec,True)
+-
+-
+-def _lease(c,spec,runtime,CPU):
+-    c.require(CPU and spec["phase"]=="counts" and spec["GPU_authorized"] is False
+-        and os.environ.get("CUDA_VISIBLE_DEVICES")=="","Counts-only CPU context, no lease/CUDA")
+-    return None
+-
+-def _fast_guard(c,spec,caps,lease):
+-    c.require(lease is None,"Counts has no GPU lease")
+-    started=time.monotonic()
+-    def check(event,**owned):
+-        c.active(spec)
+-        c.require(time.monotonic()-started<=caps["operational_deadline_seconds"],"Counts operational deadline")
+-        rss=int(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)*1024
+-        c.require(rss<=caps["max_cpu_rss_bytes"],"Actual CPU count-process peak RSS bound")
+-        return dict(event=event,own_peak_RSS_bytes=rss,no_storage_journal_or_scope_scan=True)
+-    return check
++    Torch2.4 lacks a UUID property. This I/O-only adaptation retains evidence in
++    the returned runtime receipt rather than writing a qualification directory.
++    """
++    import ctypes,uuid
++    torch.cuda.set_device(0)
++    keep_context=torch.empty(1,device=torch.device("cuda",0));torch.cuda.synchronize()
++    c.require(torch.cuda.current_device()==0,"Exact single logical CUDA0 context")
++    drivers=set()
++    for line in Path("/proc/self/maps").read_text().splitlines():
++        parts=line.split(maxsplit=5)
++        if len(parts)==6 and Path(parts[5]).name.startswith("libcuda.so."):
++            path=Path(parts[5])
++            c.require(path.is_absolute() and path.is_file(),"Actual own loaded CUDA driver file")
++            drivers.add(path.resolve())
++    c.require(len(drivers)==1,"Exactly one own loaded CUDA driver")
++    driver_path=drivers.pop();driver=ctypes.CDLL(str(driver_path));device=ctypes.c_int(-1)
++    lookup=driver.cuCtxGetDevice;lookup.argtypes=[ctypes.POINTER(ctypes.c_int)];lookup.restype=ctypes.c_int
++    c.require(lookup(ctypes.byref(device))==0,"Actual driver context device lookup")
++    class CudaUUID(ctypes.Structure):
++        _fields_=[("bytes",ctypes.c_ubyte*16)]
++    identity=CudaUUID();name="cuDeviceGetUuid_v2" if hasattr(driver,"cuDeviceGetUuid_v2") else "cuDeviceGetUuid"
++    lookup=getattr(driver,name);lookup.argtypes=[ctypes.POINTER(CudaUUID),ctypes.c_int];lookup.restype=ctypes.c_int
++    c.require(lookup(ctypes.byref(identity),device.value)==0,"Actual driver context UUID lookup")
++    actual=str(uuid.UUID(bytes=bytes(identity.bytes)))
++    c.require(actual==lease["canonical_uuid"],"Actual CUDA context UUID equals held original GPU45 lease")
++    del keep_context
++    return dict(actual_context_uuid=actual,driver_library=str(driver_path),uuid_function=name,
++        context_device=device.value,method_source_ref=c.ref("src/arggnn/biological_candidate.py"))
++def build_native_child_context_v1(record,spec):
++    c=contract();req,caps,runtime=_validate(c,record,spec);lease=_lease(c,spec,runtime,False)
++    fast=_fast_guard(c,spec,caps,lease);verified={}
++    def validate_runtime(runtime_ref,value):
++        ms=importlib.util.spec_from_file_location("_C3_actual_native_runtime",c.local(c.RUNTIME_HELPER))
++        helper=importlib.util.module_from_spec(ms);ms.loader.exec_module(helper)
++        receipt,after=helper.validate_native_runtime_v1(runtime_ref,value);verified.update(after=after,receipt=receipt)
++        return receipt
++    def configure_device(value,actual_lease):
++        c.require(actual_lease==lease and "after" in verified,"Native runtime validated before device use")
++        fast("before_actual_native_device")
++        import torch
++        c.require(torch.cuda.device_count()==1,"One exact visible leased device")
++        device=torch.device("cuda",0);props=torch.cuda.get_device_properties(device)
++        torch.cuda.set_per_process_memory_fraction(min(1.,caps["max_cuda_reserved_bytes"]/props.total_memory),device)
++        identity=_actual_context_uuid(c,lease,torch)
++        verified["after"]()
++        verified["receipt"].update(actual_device_identity=identity,
++            actual_total_memory_bytes=props.total_memory,max_cuda_reserved_bytes=caps["max_cuda_reserved_bytes"])
++        fast("after_actual_native_runtime_imports")
++    # Deliberately no storage guard import/install or writer construction here.
++    return dict(root_authorizer="root_agent",admitted=True,authority_validated_by_existing_guard=True,
++        upstream_inputs_complete_and_drained=True,fast_guard_scans_or_writes_scope=False,
++        fast_guard=fast,validate_native_runtime=validate_runtime,configure_native_device=configure_device,
++        verify_runtime_imports=lambda:verified["after"](),actual_device_receipt=lambda:verified["receipt"])
+--- research/reviews/C3_native_counts980_root_handoff_20261015_v1/root_native_driver_v1.py
++++ research/reviews/C3_native_postMLM980_root_source_20261015_v1/root_native_driver_v1.py
+@@ -1,14 +1,14 @@
+-"""Root-only current980 counts admission/CPU execution. Default source-only; no MLM dependency."""
++"""Root-only current980 native contrastive/RAM phases. Default source-only; genuine MLM required."""
+ from pathlib import Path
+ from datetime import datetime,timezone,timedelta
+ import argparse,collections,hashlib,importlib.util,json,os,selectors,signal,subprocess,sys,time
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-REL='research/reviews/C3_native_counts980_root_handoff_20261015_v1'
++REL='research/reviews/C3_native_postMLM980_root_source_20261015_v1'
+ sys.path[:0]=[str(ROOT),str(ROOT/"src"),str(ROOT/"scripts"),str(ROOT/"research/reviews/American_C3_native_MLM_full_source_v5"),str(ROOT/"research/reviews/American_C3_native_MLM_amendment_v12")]
+ _ms=importlib.util.spec_from_file_location("_C3_counts980_contract",ROOT/REL/"root_native_contract_v1.py")
+ c=importlib.util.module_from_spec(_ms);_ms.loader.exec_module(c)
+ SOURCE=c.DRIVER
+-STATUSES=dict(counts="completed_C3_native_observation_only_counts")
++STATUSES=dict(fit="completed_C3_fresh_native_fit",embeddings="completed_C3_native_RAM_prediction_seal_v1")
+ def unique(rows):
+     indexed={}
+     for row in rows:
+@@ -21,10 +21,10 @@
+ def admit(request_ref):
+     req,caps,runtime=c.validate_request(request_ref);phase=req["phase"];packet,output=c.phase_paths(phase)
+     c.require(not packet.exists() and not c.local(output).exists(),"Fresh exclusive root stage packet/output")
+-    from arggnn import american_c3_native_contract_v1 as native
++    native=c.native_contract()
+     cfg=c.make_config(req,caps);native.validate_config(cfg,phase)
+     cfg_tmp=c.local(cfg["short_tmp_directory"]);c.require(not cfg_tmp.exists(),"Fresh exact separately reserved native TMPDIR")
+-    c.require(c.ref(c.LAUNCHER_REF["path"])==c.LAUNCHER_REF,"Frozen current GPU45 launcher")
++    c.require(c.ref(c.launcher_ref_v1()["path"])==c.launcher_ref_v1(),"Frozen current GPU45 launcher")
+     sources={p:c.ref(p)["sha256"] for p in c.source_paths()}
+     for row in (c.GUARD_REF,c.MEMO_REF,c.V4_REF,c.LEGACY_RUNTIME_REF,c.GPU_AUTH_REF):sources[row["path"]]=c.ref(row["path"])["sha256"]
+     packet.mkdir();config_ref=c.save(packet,"config.json",cfg)
+@@ -38,7 +38,7 @@
+     with m.budget.v4.mutex(ROOT):state=m._state_locked(c.CORE,c.BASE,fresh=True)
+     view,bindings=state[2],state[3]
+     direct=[c.ref(p) for p in (*native.PROJECT_SOURCES,c.SOURCE,c.DRIVER,c.CONTEXT,c.RUNTIME_HELPER)]
+-    direct.extend([c.GUARD_REF,c.POLICY_REF,c.REPAIR_REF,c.MEMO_REF,c.V4_REF,c.LAUNCHER_REF,c.GPU_AUTH_REF,
++    direct.extend([c.GUARD_REF,c.POLICY_REF,c.REPAIR_REF,c.MEMO_REF,c.V4_REF,c.launcher_ref_v1(),c.GPU_AUTH_REF,
+         native.AUTHOR_MANIFEST_REF,native.ORIGINAL_REGISTRY_REF,native.ORIGINAL_H041_REGISTRATION_REF,
+         request_ref,req["caps_ref"],config_ref,refs["runtime"],closure_ref])
+     for path in ("scripts/launch_reserved_gpu_terminal_retired_scopes_v1.py",
+@@ -48,7 +48,7 @@
+         direct.append(c.ref(path))
+     consumers=unique([*bindings.values(),*direct])
+     now=datetime.now(timezone.utc);expiry=now+timedelta(seconds=min(86400,caps["operational_deadline_seconds"]+300))
+-    job="American-C3-native-train000-full30mb-counts-980-v1";aux=packet/"worker_aux"
++    job="American-C3-native-train000-postMLM980-"+phase+"-v1";aux=packet/"worker_aux"
+     request=dict(key="H041/"+job,output=str(ROOT/output),auxiliary_scopes=[str(aux),str(cfg_tmp)],
+         reserved_bytes=caps["reservation_cap_bytes"],consumer_bindings=consumers)
+     authority=m.operation_draft_v1("reserve",request,expected_before=m._pins(view),bindings=bindings)
+@@ -67,12 +67,13 @@
+     spec=dict(schema="american_c3_native_active_input_v1",status="active",root_authorizer="root_agent",
+         hypothesis_id="H041",execution_authorized=True,GPU_authorized=(phase in c.GPU_PHASES),
+         parent_id=c.PARENT,split="train",phase=phase,job_id=job,output_directory=output,
+-        main_source_ref=c.ref(main),actual_launcher_ref=c.LAUNCHER_REF if phase in c.GPU_PHASES else None,
++        main_source_ref=c.ref(main),actual_launcher_ref=c.launcher_ref_v1() if phase in c.GPU_PHASES else None,
+         root_context_module_ref=c.ref(c.CONTEXT),root_stage_request_ref=request_ref,caps_ref=req["caps_ref"],
+         upstream_wait_refs=req["upstream_wait_refs"],source_sha256=sources,
+         transitive_source_closure_ref=closure_ref,author_source_manifest_ref=native.AUTHOR_MANIFEST_REF,
+         input_binding_mode="actual_SHA_input_through_root_context",refs=refs,
+-        physical_gpu=req.get("physical_gpu") if phase in c.GPU_PHASES else None,
++        physical_gpu=req["physical_gpu"],execution_gpu_uuid=req["GPU_UUID"],
++        root_auxiliary_directory=str(aux.relative_to(ROOT)),
+         created_at_utc=now.isoformat(),expires_at_utc=expiry.isoformat(),completed_overlay_policy_ref=c.POLICY_REF,
+         max_cpu_rss_bytes=caps["max_cpu_rss_bytes"],
+         max_cuda_reserved_bytes=caps.get("max_cuda_reserved_bytes"),engineering_TRAIN_only=True)
+@@ -125,14 +126,10 @@
+ 
+ def _harvest_native_waits(phase,output,completion,known,groups):
+     """Read only exact terminal consumer wait metadata, never a live scope."""
+-    names={"fit":("mlm","contrastive"),
+-        "embeddings":("query_paths_train","query_paths_val","contrastive_train","contrastive_val"),
+-        "retrieve":("retrieve",)}.get(phase,())
++    names={"fit":("contrastive",),"embeddings":("RAM",)}.get(phase,())
+     expected={}
+     if completion is not None:
+-        rows=(completion["phases"].values() if phase=="fit" else
+-            completion["outputs"].values() if phase=="embeddings" else
+-            [completion] if phase=="retrieve" else [])
++        rows=([completion["phases"]["contrastive"]] if phase=="fit" else [completion])
+         expected={r["actual_wait_ref"]["path"]:r["actual_wait_ref"] for r in rows}
+     receipts=[];pids=set(known);all_groups=set(groups)
+     for name in names:
+@@ -151,6 +148,8 @@
+         pid=value["native_child_pid"];group=value["process_group"]
+         c.require(type(pid) is int and pid>1 and group==pid,"Actual new-session native child/group identity")
+         pids.add(pid);all_groups.add(group)
++        for owned in value.get("owned_identity_drain_proof",{}).get("owned_identities",[]):
++            pids.add(owned["pid"])
+         for item in value["adopted_descendant_waits"]:
+             c.require(type(item["pid"]) is int and item["pid"]>1,"Actual adopted native descendant wait PID")
+             pids.add(item["pid"])
+@@ -165,7 +164,7 @@
+     req,caps,runtime=c.validate_request(spec["root_stage_request_ref"]);c.active(spec)
+     c.require(admitted["driver_ref"]==c.ref(SOURCE) and not c.local(output).exists(),"Exact original source and fresh output")
+     for path,sha in spec["source_sha256"].items():c.require(c.ref(path)["sha256"]==sha,"Admitted source changed")
+-    m=c.original_guard();storage=c.read(spec["refs"]["storage"])
++    m,_launch_memo=c.consumer_guard();storage=c.read(spec["refs"]["storage"])
+     reserve=c.read(admitted["reserve_receipt_ref"])
+     c.require(storage["reservation"]==reserve["value"] and storage["initial_ledger_pins"]==reserve["initial_ledger_pins"],
+         "Preserve actual original immutable reservation prefix; no rebasing")
+@@ -180,10 +179,10 @@
+     env=os.environ.copy();env.update(TMPDIR=str(tmp),TMP=str(tmp),TEMP=str(tmp),PYTHONDONTWRITEBYTECODE="1",
+         PYTHONPATH=os.pathsep.join([str(ROOT),str(ROOT/"src"),str(ROOT/"scripts")]),
+         ARGGNN_COMPLETED_CREDITS_POLICY_REF=json.dumps(c.POLICY_REF,separators=(",",":")))
+-    module=(c.GPU_MAIN if phase in c.GPU_PHASES else c.CPU_MAIN)[4:-3].replace("/",".")
++    module=c.GPU_MAIN
+     command=[str(ROOT/".runtime/env/bin/python"),"-B"]
+     if phase in c.GPU_PHASES:
+-        command+=[str(ROOT/c.LAUNCHER_REF["path"]),"--gpu",str(req["physical_gpu"]),"--job",spec["job_id"],
++        command+=[str(ROOT/c.launcher_ref_v1()["path"]),"--gpu",str(req["physical_gpu"]),"--job",spec["job_id"],
+             "--storage-record",spec["refs"]["storage"]["path"],"--expected-storage-sha256",spec["refs"]["storage"]["sha256"],
+             "--expected-budget-source-sha256",c.CORE,"--expected-launcher-sha256",c.BASE,module]
+     else:env["CUDA_VISIBLE_DEVICES"]="";command+=["-m",module]
+@@ -240,7 +239,7 @@
+                     actual_direct_launcher_wait=True,phase=phase,parent_id=c.PARENT,
+                     input_ref=admitted["input_ref"],driver_ref=c.ref(SOURCE),
+                     drain_state="not_yet_certified",finished_utc=datetime.now(timezone.utc).isoformat()))
+-                print(json.dumps(dict(event="genuine_counts980_direct_wait",pid=proc.pid,returncode=rc,
++                print(json.dumps(dict(event="genuine_postMLM980_direct_wait",pid=proc.pid,returncode=rc,
+                     actual_wait_minimal_ref=minimal_ref)),flush=True)
+             except BaseException as error:
+                 failure=failure or "Genuine wait capture: "+type(error).__name__+": "+str(error)[:1000]
+@@ -344,34 +343,73 @@
+     for old in list(known.values()):
+         if old is not None:signal_identity(old,signum,read_stat=_stat)
+ 
+-def activate():
+-    """Root explicit metadata activation only; no reservation or launch."""
+-    from arggnn.american_c3_native_contract_v1 import no_private_refs
+-    caps=c.read(c.ref(ROOT/REL/"caps.inactive.json"))
+-    request=c.read(c.ref(ROOT/REL/"request.inactive.json"))
+-    c.require(caps["active"] is False and request["execution_authorized"] is False,
+-        "Only source inactive templates may be activated")
+-    caps=dict(caps,active=True,driver_source_ref=c.ref(SOURCE))
+-    caps_ref=c.save(ROOT/REL,"caps.root_active_v1.json",caps)
+-    request=dict(request,execution_authorized=True,caps_ref=caps_ref)
+-    no_private_refs(request)
+-    request_ref=c.save(ROOT/REL,"request.root_active_v1.json",request)
++
++def bind(phase,physical,gpu_uuid,counts_ref,counts_wait_ref,mlm_ref,mlm_wait_ref,fit_ref=None,fit_wait_ref=None):
++    """Explicit root actual-metadata binding only; no reservation/model/GPU."""
++    c.require(phase in c.PHASES and physical in (4,5),"Root phase/device choice")
++    import re
++    c.require(re.fullmatch(r"GPU-[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}",gpu_uuid),
++        "Actual root GPU UUID")
++    c.counts_metadata_v1(counts_ref,counts_wait_ref,{})
++    c.load(c.ref(c.BRIDGE),"_postMLM980_bind_MLM").v12_mlm_phase_v1(mlm_ref,mlm_wait_ref,
++        dict(parent_id=c.PARENT,refs=dict(preparation=c.PREP_REF)))
++    if phase=="embeddings":
++        c.require(fit_ref is not None and fit_wait_ref is not None,"Actual fit completion/wait required")
++        c.validate_fit_metadata_v1(fit_ref,fit_wait_ref,counts_ref=counts_ref,mlm_ref=mlm_ref)
++    folder=ROOT/REL
++    request_path=folder/("request_"+phase+".root_active_v1.json")
++    c.require(not request_path.exists(),"No active-request replay")
++    runtime=c.read(c.ref(folder/"runtime.inactive.json"))
++    runtime.update(target_physical_gpu=physical,target_GPU_UUID=gpu_uuid)
++    runtime_ref=c.save(folder,"runtime_"+phase+".root_active_v1.json",runtime)
++    refs=dict(runtime=runtime_ref,preparation=c.PREP_REF,preparation_config=c.PREP_CONFIG_REF,
++        preparation_close=c.PREP_CLOSE_REF,counts=counts_ref,MLM_completion=mlm_ref)
++    waits=dict(preparation=c.PREP_WAIT_REF,counts=counts_wait_ref,MLM_completion=mlm_wait_ref)
++    if phase=="embeddings":
++        c.require(fit_ref is not None and fit_wait_ref is not None,"Actual completed fit plus wait0/drain")
++        refs["fit_completion"]=fit_ref;waits["fit_completion"]=fit_wait_ref
++    else:c.require(fit_ref is None and fit_wait_ref is None,"Fresh contrastive fit does not accept an earlier contrastive checkpoint")
++    caps=c.read(c.ref(folder/("caps_"+phase+".inactive.json")))
++    caps.update(active=True,physical_gpu=physical,driver_source_ref=c.ref(SOURCE),runtime_ref=runtime_ref,
++        preparation_ref=c.PREP_REF,counts_ref=counts_ref)
++    caps_ref=c.save(folder,"caps_"+phase+".root_active_v1.json",caps)
++    req=dict(schema="american_c3_native_specific_stage_request_v1",root_authorizer="root_agent",
++        execution_authorized=True,parent_id=c.PARENT,phase=phase,physical_gpu=physical,GPU_UUID=gpu_uuid,
++        refs=refs,upstream_wait_refs=waits,caps_ref=caps_ref,
++        original_scientific_settings_unchanged=True,checkpoint_retention_IO_override=1,
++        no_prior_full4096_fit_or_RAM_sufficiency_claim=True)
++    request_ref=c.save(folder,request_path.name,req)
+     c.validate_request(request_ref)
+-    return dict(request_ref=request_ref,caps_ref=caps_ref,storage_admitted=False,execution_started=False)
++    return dict(request_ref=request_ref,caps_ref=caps_ref,runtime_ref=runtime_ref,
++        actual_admission=None,actual_execution=False)
+ 
+ def main(argv=None):
+-    parser=argparse.ArgumentParser(description=__doc__);mode=parser.add_mutually_exclusive_group()
+-    mode.add_argument("--activate",action="store_true");mode.add_argument("--admit",action="store_true")
+-    mode.add_argument("--launch",choices=("counts",));mode.add_argument("--close",choices=("counts",))
+-    parser.add_argument("--root-approval");parser.add_argument("--expected-root-approval-sha256")
+-    args=parser.parse_args(argv)
+-    if args.activate:print(json.dumps(activate(),sort_keys=True));return 0
+-    if args.admit:admit(c.ref(ROOT/REL/"request.root_active_v1.json"));return 0
+-    if args.launch:return launch(args.launch)
+-    if args.close:
+-        c.require(args.root_approval and args.expected_root_approval_sha256,"Actual terminal/revocation root approval")
+-        close("counts",dict(path=args.root_approval,sha256=args.expected_root_approval_sha256));return 0
+-    print(json.dumps(dict(status="source_only_counts980_packet_no_guard_runtime_process_or_payload_work",
+-        phase="counts",MLM_dependency=False,actual_counts=None,actual_admission=None,actual_wait=None)))
++    p=argparse.ArgumentParser(description=__doc__);mode=p.add_mutually_exclusive_group()
++    mode.add_argument("--bind",choices=("fit","embeddings"));mode.add_argument("--admit",choices=("fit","embeddings"))
++    mode.add_argument("--launch",choices=("fit","embeddings"));mode.add_argument("--close",choices=("fit","embeddings"))
++    p.add_argument("--gpu",type=int,choices=(4,5));p.add_argument("--gpu-uuid")
++    for name in ("counts","counts-wait","MLM","MLM-wait","fit","fit-wait"):
++        p.add_argument("--"+name);p.add_argument("--"+name+"-sha256")
++    p.set_defaults(counts=c.COUNTS_REF["path"],counts_sha256=c.COUNTS_REF["sha256"],
++        counts_wait=c.COUNTS_WAIT_REF["path"],counts_wait_sha256=c.COUNTS_WAIT_REF["sha256"])
++    p.add_argument("--root-approval");p.add_argument("--expected-root-approval-sha256")
++    a=p.parse_args(argv)
++    def record(name,required=False):
++        path=getattr(a,name.replace("-","_"));sha=getattr(a,name.replace("-","_")+"_sha256")
++        c.require(bool(path)==bool(sha) and (not required or bool(path)),"Actual path/SHA together: "+name)
++        return dict(path=path,sha256=sha) if path else None
++    if a.bind:
++        c.require(a.gpu is not None and a.gpu_uuid,"Actual root GPU4/5 UUID required")
++        value=bind(a.bind,a.gpu,a.gpu_uuid,record("counts",True),record("counts-wait",True),
++            record("MLM",True),record("MLM-wait",True),record("fit"),record("fit-wait"))
++        print(json.dumps(value,sort_keys=True));return 0
++    if a.admit:admit(c.ref(ROOT/REL/("request_"+a.admit+".root_active_v1.json")));return 0
++    if a.launch:return launch(a.launch)
++    if a.close:
++        c.require(a.root_approval and a.expected_root_approval_sha256,"Actual terminal/revocation approval")
++        close(a.close,dict(path=a.root_approval,sha256=a.expected_root_approval_sha256));return 0
++    print(json.dumps(dict(status="source_only_current980_postMLM_route",phases=list(c.PHASES),
++        actual_counts_ref=c.COUNTS_REF,actual_counts_wait_ref=c.COUNTS_WAIT_REF,
++        contrastive_updates=c.CONTRASTIVE_UPDATES,actual_MLM_fit_GPU_UUID_refs=None,actual_admission=None,actual_execution=False)))
+     return 0
+ if __name__=="__main__":raise SystemExit(main())
+--- research/reviews/American_C3_native_model_root_v1/native_runtime_v1.py
++++ research/reviews/C3_native_postMLM980_root_source_20261015_v1/native_runtime_v1.py
+@@ -2,7 +2,7 @@
+ from pathlib import Path
+ import ast,copy,hashlib,importlib,importlib.machinery,importlib.util,json,os,re,stat,sys
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-REL="research/reviews/American_C3_native_model_root_v1"
++REL="research/reviews/C3_native_postMLM980_root_source_20261015_v1"
+ def _contract():
+     path=ROOT/REL/"root_native_contract_v1.py"
+     spec=importlib.util.spec_from_file_location("_C3_native_runtime_contract",path)
+--- research/reviews/American_C3_native_MLM_amendment_v12/native_child_v1.py
++++ research/reviews/C3_native_postMLM980_root_source_20261015_v1/native_child_v1.py
+@@ -1,16 +1,14 @@
+-"""Isolated native-interpreter child. Standard library only before title/lease.
+-
+-Author functions/configuration are unchanged. Only per-parent I/O bindings,
+-offline base-config location, fresh-run state, device and disabled external
+-logging are adapted. Parent owns direct wait/group drain and delayed log writes.
+-"""
++"""Native postMLM child: exact author contrastive science and RAM I/O only."""
+ from __future__ import annotations
+-import argparse,hashlib,importlib,importlib.util,json,os,stat,sys,traceback
++import argparse,hashlib,importlib,importlib.util,io,json,os,resource,stat,sys,traceback
+ from pathlib import Path
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-sys.path[1:1]=[str(ROOT/"research/reviews/American_C3_native_MLM_full_fit_v8"),str(ROOT/"research/reviews/American_C3_native_MLM_full_source_v5")]
+-import amendment_v12 as amendment
+-SOURCE="research/reviews/American_C3_native_MLM_amendment_v12/native_child_v1.py"
++REL='research/reviews/C3_native_postMLM980_root_source_20261015_v1'
++sys.path[:0]=[str(ROOT/REL),str(ROOT/"research/reviews/C3_native_post_MLM_root_handoff_20261015_v1"),
++ str(ROOT/"research/reviews/American_C3_native_MLM_full_fit_v8"),
++ str(ROOT/"research/reviews/American_C3_native_MLM_full_source_v5"),
++ str(ROOT/"research/reviews/American_C3_native_MLM_amendment_v12")]
++SOURCE=REL+"/native_child_v1.py"
+ GUARD="src/arggnn/native_argformer_exec.py"
+ GUARD_SHA="84ed405379ac56511c2f4722c130e8b884226018bbf8e2949ea2bb4dceeb99d0"
+ def _early_read(record):
+@@ -40,6 +38,24 @@
+     if type(value) is not int:raise ValueError("Actual integer Composer timestamp")
+     return value
+ 
++def _verify_author_import_origins(author_root):
++    for name,module in list(sys.modules.items()):
++        if name=="src" or name.startswith("src.") or name in ("main","sequence_contrastive","embeddings","retrieve"):
++            origin=getattr(module,"__file__",None)
++            if origin is None:continue
++            path=Path(origin).resolve()
++            if not path.is_relative_to(author_root):raise ValueError("Native author import shadowed: "+name)
++
++def _io_config(mode,*,data_root,checkpoint,directory,base_config,OmegaConf,author_root):
++    name="mlm" if mode=="mlm" else "contrastive"
++    cfg=OmegaConf.load(author_root/"yamls"/(name+".yaml"))
++    cfg.data_local=str(data_root);cfg.run_name="C3_native_"+mode
++    cfg.save_folder=str(directory/"checkpoints");cfg.load_path=None;cfg.autoresume=False
++    cfg.loggers={};cfg.device="gpu";cfg.model.pretrained_model_name=str(base_config.parent)
++    if name=="contrastive":cfg.model.pretrained_checkpoint=str(checkpoint) if checkpoint is not None else None
++    # No cfg.model.train_loader injection: preserve current uniform fallback.
++    if "train_loader" in cfg.model:raise ValueError("Primary native config-plumbing correction forbidden")
++    return cfg
+ def optimizer_counter_evidence(optimizers):
+     if not isinstance(optimizers,dict) or set(optimizers)!={"DecoupledAdamW"}:
+         raise ValueError("Actual author DecoupledAdamW serialized state required")
+@@ -112,109 +128,160 @@
+     selected["checkpoint_latest_alias"]=alias
+     return selected
+ 
+-def _verify_author_import_origins(author_root):
+-    for name,module in list(sys.modules.items()):
+-        if name=="src" or name.startswith("src.") or name in ("main","sequence_contrastive","embeddings","retrieve"):
+-            origin=getattr(module,"__file__",None)
+-            if origin is None:continue
+-            path=Path(origin).resolve()
+-            if not path.is_relative_to(author_root):raise ValueError("Native author import shadowed: "+name)
+-
+-def _io_config(mode,*,data_root,checkpoint,directory,base_config,OmegaConf,author_root):
+-    name="mlm" if mode=="mlm" else "contrastive"
+-    cfg=OmegaConf.load(author_root/"yamls"/(name+".yaml"))
+-    cfg.data_local=str(data_root);cfg.run_name="C3_native_"+mode
+-    cfg.save_folder=str(directory/"checkpoints");cfg.load_path=None;cfg.autoresume=False
+-    cfg.loggers={};cfg.device="gpu";cfg.model.pretrained_model_name=str(base_config.parent)
+-    if name=="contrastive":cfg.model.pretrained_checkpoint=str(checkpoint) if checkpoint is not None else None
+-    # No cfg.model.train_loader injection: preserve current uniform fallback.
+-    if "train_loader" in cfg.model:raise ValueError("Primary native config-plumbing correction forbidden")
+-    return cfg
+-
+ def main(argv=None):
+-    import resource
+     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument("--child-input",required=True)
+     parser.add_argument("--expected-child-input-sha256",required=True);args=parser.parse_args(argv)
+     packet_ref=dict(path=args.child_input,sha256=args.expected_child_input_sha256);packet=_early_read(packet_ref)
+-    root_ref=packet["active_input_ref"];spec=_early_read(root_ref);guard,lease=_title_lease()
++    root_ref=packet["active_input_ref"];spec=_early_read(root_ref)
++    # No project or model/runtime import occurs before existing title and lease.
++    guard,lease=_title_lease()
+     if lease["lease_metadata_sha256"]!=packet["lease_metadata_sha256"]:raise ValueError("Inherited original lease changed")
+     sys.path.insert(0,str(ROOT/"src"))
+     from arggnn.american_c3_common_v1 import require,local,ref,bound,CLASSES
+-    from consumer_contract_v1 import (MAIN,AUTHOR_ROOT,AUTHOR_MANIFEST_REF,metadata,validate_active_input,
+-        load_root_context,preparation_v1,counts_v1)
++    from consumer_contract_v1 import (
++        SOURCE as CONTRACT_SOURCE,MAIN,AUTHOR_ROOT,AUTHOR_MANIFEST_REF,metadata,
++        validate_active_input,load_root_context,preparation_v1,counts_v1)
+     cfg,_=validate_active_input(root_ref,spec,MAIN,GPU=True)
+-    require(packet["schema"]=="american_c3_native_child_input_v1" and packet["stage"]==spec["phase"]
+-        and packet["stage"]=="mlm","One exact MLM-only child stage")
++    require(packet["schema"]=="american_c3_native_child_input_v1"
++        and packet["stage"] in ("contrastive","RAM")
++        and spec["source_sha256"][SOURCE]==ref(SOURCE)["sha256"]
++        and packet["stage"] in {"fit":("contrastive",),"embeddings":("RAM",)}[spec["phase"]],
++        "Exact canonical native child/source/phase")
+     directory=local(packet["directory"]);root_output=local(spec["output_directory"])
+-    require(directory==root_output/packet["name"] and local(packet_ref["path"])==root_output/(packet["name"]+"_child_input.json")
+-        and local(packet["short_tmp_directory"])==amendment.TMP/packet["name"],
+-        "Exact own parent-supplied child/input/temp paths")
+-    require(directory.is_dir() and not (directory/"completed.json").exists(),"Fresh child directory")
+-    # Per-file limit is an additional fail-stop, never an aggregate cache quota.
++    directory.relative_to(root_output)
++    require(directory==root_output/packet["name"]
++        and local(packet_ref["path"])==root_output/(packet["name"]+"_child_input.json")
++        and local(packet["short_tmp_directory"])==local(cfg["short_tmp_directory"])/packet["name"],
++        "Exact canonical parent-owned stage/input/temp paths")
++    require(directory.is_dir() and not (directory/"completed.json").exists(),"Owned fresh child stage directory")
+     resource.setrlimit(resource.RLIMIT_FSIZE,(cfg["max_checkpoint_bytes"],cfg["max_checkpoint_bytes"]))
+-    ctx=load_root_context(root_ref,spec,native_child=True);ctx["fast_guard"]("before_native_runtime")
+-    runtime=metadata(spec["refs"]["runtime"]);python=bound(runtime["native_python_ref"]);prefix=local(runtime["native_prefix"])
+-    require(Path(sys.prefix).resolve()==prefix and Path(sys.executable).resolve()==python and python.parent==prefix/"bin"
+-        and sys.dont_write_bytecode and sys.flags.no_user_site and os.environ.get("PYTHONPATH","")==""
+-        and os.environ.get("PYTHONNOUSERSITE")=="1","Isolated exact native executable, no user site/bytecode")
++    ctx=load_root_context(root_ref,spec,native_child=True)
++    ctx["fast_guard"]("before_native_runtime")
++    runtime=metadata(spec["refs"]["runtime"]);python=bound(runtime["native_python_ref"])
++    prefix=local(runtime["native_prefix"])
++    require(Path(sys.prefix).resolve()==prefix and Path(sys.executable).resolve()==python
++        and python.parent==prefix/"bin" and sys.dont_write_bytecode and sys.flags.no_user_site
++        and os.environ.get("PYTHONPATH","")=="" and os.environ.get("PYTHONNOUSERSITE")=="1",
++        "Actual isolated SHA-bound native interpreter, no user-site/PYTHONPATH/bytecode writes")
++    require(callable(ctx.get("validate_native_runtime")) and callable(ctx.get("configure_native_device")),
++        "Root must inject existing complete runtime inventory and device/resource guards")
+     runtime_receipt=ctx["validate_native_runtime"](spec["refs"]["runtime"],runtime)
+-    require(runtime_receipt.get("status")=="passed","Complete native inventory before imports")
+-    from abstract_unix_bootstrap_v1 import bootstrap_native_execution_v1
+-    ipc_bootstrap=bootstrap_native_execution_v1("c3mlm-v12",physical_gpu=spec["physical_gpu"],gpu_uuid=spec["execution_gpu_uuid"])
+-    _save_json(directory/"operational_IPC_bootstrap.json",ipc_bootstrap)
++    require(runtime_receipt.get("status")=="passed" and runtime_receipt.get("runtime_ref")==spec["refs"]["runtime"],
++        "Complete actual native runtime inventory must match before model import")
+     prep,_,prepared_dir=preparation_v1(spec);counts=counts_v1(spec,prep)
+     base=bound(runtime["bert_base_config_ref"]);base_value=metadata(runtime["bert_base_config_ref"])
+     require(base.name=="config.json" and runtime["bert_base_config_release_name"]=="bert-base-uncased"
+         and base_value["hidden_size"]==768 and base_value["intermediate_size"]==3072
+-        and base_value["num_hidden_layers"]==12 and base_value["num_attention_heads"]==12,"Exact local base configuration")
++        and base_value["num_hidden_layers"]==12 and base_value["num_attention_heads"]==12,
++        "Qualified local copy of release BERT base configuration, preserving numerical defaults")
++    from abstract_unix_bootstrap_v1 import bootstrap_native_execution_v1
++    bootstrap=bootstrap_native_execution_v1("c3post980",physical_gpu=spec["physical_gpu"],gpu_uuid=spec["execution_gpu_uuid"])
++    _save_json(directory/"operational_IPC_bootstrap.json",bootstrap)
+     author_root=local(AUTHOR_ROOT);sys.path.insert(0,str(author_root))
+     import torch
+     from omegaconf import OmegaConf
+     ctx["configure_native_device"](runtime,lease)
++    require(torch.cuda.is_available() and torch.cuda.device_count()==1,"One actual admitted visible CUDA UUID; no CPU fallback")
+     from composer.utils import dist
+-    require(torch.cuda.is_available() and torch.cuda.device_count()==1 and dist.get_world_size()==1,
+-        "One actual held GPU, no CPU/distributed fallback")
+-    guard.apply_and_validate_title();require(guard.validate_lease()==lease,"Title/lease before author import")
+-    os.chdir(directory)
+-    config=_io_config("mlm",data_root=prepared_dir/"mlm",checkpoint=None,directory=directory,base_config=base,
+-        OmegaConf=OmegaConf,author_root=author_root)
+-    resolved=OmegaConf.to_container(config,resolve=True)
+-    require((resolved["max_duration"],resolved["global_train_batch_size"],resolved["device_train_microbatch_size"],
+-        resolved["precision"],resolved["seed"])==("5ep",512,512,"amp_bf16",17)
+-        and resolved.get("train_subset_num_batches",-1)==-1
+-        and resolved["model"]["model_config"]["num_hidden_layers"]==12
+-        and resolved["model"]["model_config"]["num_attention_heads"]==12
+-        and resolved["max_seq_len"]==128,"Unchanged full author numeric budget")
+-    module=importlib.import_module("main")
+-    require(Path(module.__file__).resolve()==author_root/"main.py","Exact author main origin")
+-    _verify_author_import_origins(author_root)
+-    result=dict(schema="american_c3_native_mlm_child_completion_v1",status="completed_C3_native_MLM_child",
+-        stage=packet["stage"],parent_id=spec["parent_id"],active_input_ref=root_ref,child_input_ref=packet_ref,
+-        preparation_ref=spec["refs"]["preparation"],author_source_manifest_ref=AUTHOR_MANIFEST_REF,
+-        runtime_ref=spec["refs"]["runtime"],runtime_validation=runtime_receipt,physical_gpu=lease["physical_gpu"],operational_IPC_bootstrap=ipc_bootstrap,
+-        query_ancestry_truth_opened=False,author_code_modified=False,initializer_checkpoint_ref=None,corpus_authentication_ref=None)
+-    # Once, at the quiescent pre-load boundary; no decode/copy or per-update hash.
+-    from corpus_auth_v2 import authenticate_inputs,confirm_unchanged
+-    authenticated=authenticate_inputs(prep,prepared_dir)
+-    authenticated["preparation_ref"]=spec["refs"]["preparation"]
+-    _save_json(directory/"corpus_authentication.json",authenticated)
+-    result["corpus_authentication_ref"]=ref(directory/"corpus_authentication.json")
+-    OmegaConf.save(config,directory/"resolved_io_config.yaml",resolve=True)
+-    confirm_unchanged(authenticated,prepared_dir)
+-    trainer=module.main(config,return_trainer=True)
+-    observed_trainer=dict(epoch=_int_time(trainer.state.timestamp.epoch),batch=_int_time(trainer.state.timestamp.batch),
+-        batch_in_epoch=_int_time(trainer.state.timestamp.batch_in_epoch))
+-    observed_optimizer=optimizer_counter_evidence({type(opt).__qualname__:opt.state_dict() for opt in trainer.state.optimizers})
+-    require(observed_trainer["epoch"]==5 and observed_trainer["batch"]==224775
+-        and observed_optimizer["unique_step_values"]==[224775],
+-        "Actual full epoch5/update224775 Trainer timestamp")
+-    if hasattr(trainer,"close"):trainer.close()
+-    final=_final_checkpoint(directory/"checkpoints",epochs=5,updates=224775,
+-        max_files=cfg["max_checkpoint_files"],max_bytes=cfg["max_checkpoint_bytes"],torch=torch,reference=ref)
+-    result.update(final)
+-    result.update(trainer_timestamp=observed_trainer,trainer_optimizer_counters=observed_optimizer,
+-        expected_training_budget=dict(epochs=5,optimizer_updates=224775),observed_counters_verified=True)
+-    result["resolved_config_ref"]=ref(directory/"resolved_io_config.yaml")
+-    ctx["verify_runtime_imports"]();_verify_author_import_origins(author_root);ctx["fast_guard"]("after_native_author_call")
+-    _save_json(directory/"completed.json",result);return 0
++    require(dist.get_world_size()==1,"Exact release one-GPU full-batch condition")
++    guard.apply_and_validate_title();require(guard.validate_lease()==lease,"Actual title/lease before author model import")
++    os.chdir(directory);stage=packet["stage"];ctx["fast_guard"]("before_native_author_call")
++    result=dict(schema="american_c3_native_child_completion_v1",status="completed_C3_native_child",
++        stage=stage,parent_id=spec["parent_id"],active_input_ref=root_ref,child_input_ref=packet_ref,
++        preparation_ref=spec["refs"]["preparation"],counts_ref=spec["refs"]["counts"],
++        author_source_manifest_ref=AUTHOR_MANIFEST_REF,runtime_ref=spec["refs"]["runtime"],
++        runtime_validation=runtime_receipt,physical_gpu=lease["physical_gpu"],
++        query_ancestry_truth_opened=False,author_code_modified=False)
++    if stage=="contrastive":
++        checkpoint=bound(packet["initializer_checkpoint_ref"])
++        config=_io_config(stage,data_root=prepared_dir/"contrastive",checkpoint=checkpoint,
++            directory=directory,base_config=base,OmegaConf=OmegaConf,author_root=author_root)
++        config.save_num_checkpoints_to_keep=cfg["checkpoint_retention_IO_override"]
++        resolved=OmegaConf.to_container(config,resolve=True)
++        require((resolved["max_duration"],resolved["global_train_batch_size"],resolved["device_train_microbatch_size"],
++            resolved["global_eval_batch_size"],resolved["device_eval_microbatch_size"],resolved["precision"],resolved["seed"])==
++            ("1ep",4096,4096,4096,4096,"fp32",36)
++            and resolved["model"]["contrastive"]["temperature"]==.30
++            and resolved["model"]["contrastive"]["use_class_weights"] is True
++            and "train_loader" not in resolved["model"]
++            and resolved["save_interval"]=="20ba" and resolved["save_num_checkpoints_to_keep"]==1
++            and resolved.get("train_subset_num_batches",-1)==-1,
++            "Exact native supervised in-batch science with separately disclosed retention1")
++        OmegaConf.save(config,directory/"resolved_io_config.yaml",resolve=True)
++        module=importlib.import_module("sequence_contrastive");_verify_author_import_origins(author_root)
++        require(Path(module.__file__).resolve()==author_root/"sequence_contrastive.py","Exact pinned author train API")
++        module.train(config)
++        final=_final_checkpoint(directory/"checkpoints",epochs=1,updates=counts["contrastive_optimizer_updates"],
++            max_files=cfg["max_checkpoint_files"],max_bytes=cfg["max_checkpoint_bytes"],torch=torch,reference=ref)
++        result.update(final,resolved_config_ref=ref(directory/"resolved_io_config.yaml"),
++            initializer_checkpoint_ref=packet["initializer_checkpoint_ref"],
++            uniform_class_weight_fallback_preserved=True,training_config_plumbing_correction=False,
++            release_checkpoint_retention=-1,actual_checkpoint_retention=1,save_interval_unchanged=True,
++            live_optimizer_counters_independently_observed=False,saved_optimizer_counters_verified=True)
++    else:
++        from arggnn.american_c3_native_concat_v1 import row_order
++        from arggnn.american_c3_evaluate_v1 import registry,DEFAULTS as EVAL_DEFAULTS
++        import ram_downstream_v1 as ram
++        import embeddings as emb
++        import retrieve
++        _verify_author_import_origins(author_root)
++        checkpoint=bound(packet["checkpoint_ref"])
++        orders={key:row_order(record,parent_id=spec["parent_id"],reference=key.startswith("contrastive/"))
++            for key,record in prep["full_path_id_order_refs"].items() if key.startswith(("query_paths/","contrastive/"))}
++        frozen=registry(prep["focals_ref"]);require(len(frozen["record_ids"])==10000,"Exactly10000 frozen common focal records")
++        combined={}
++        for view in ("query_paths","contrastive"):
++            parts={}
++            for split in ("train","val"):
++                config=_io_config("embedding",data_root=prepared_dir/view,checkpoint=None,
++                    directory=directory,base_config=base,OmegaConf=OmegaConf,author_root=author_root)
++                config_path=directory/(view+"_"+split+"_resolved_io_config.yaml");OmegaConf.save(config,config_path,resolve=True)
++                model,loaded_cfg=emb.load_checkpoint_model(str(config_path),str(checkpoint))
++                parts[split]=ram.embed_single_split_ram_v1(torch=torch,embeddings_module=emb,model=model,cfg=loaded_cfg,
++                    view=view,split=split,expected_rows=counts["datasets"][view+"/"+split]["rows"],fast_guard=ctx["fast_guard"])
++                del model
++            combined[view],_=ram.concatenate_embeddings_ram_v1(torch=torch,view=view,parts=parts,
++                orders={sp:orders[view+"/"+sp] for sp in ("train","val")},counts=counts,
++                parent_id=spec["parent_id"],fast_guard=ctx["fast_guard"])
++            del parts
++        native=ram.retrieve_ram_v1(retrieve_module=retrieve,query=combined["query_paths"],corpus=combined["contrastive"],
++            device=torch.device("cuda",0),fast_guard=ctx["fast_guard"])
++        manifest=ram.tensor_manifest_v1(torch=torch,values=dict(query_paths=combined["query_paths"],
++            contrastive=combined["contrastive"],retrieval=native),fast_guard=ctx["fast_guard"])
++        manifest.update(checkpoint_ref=packet["checkpoint_ref"],counts_ref=spec["refs"]["counts"],
++            preparation_ref=spec["refs"]["preparation"],full_path_id_order_refs=prep["full_path_id_order_refs"])
++        manifest_path=directory/"RAM_tensor_manifest.json";_save_json(manifest_path,manifest)
++        seal_cfg=dict(EVAL_DEFAULTS,mode="native_top1_seal",preparation_ref=spec["refs"]["preparation"],
++            focal_registry_ref=prep["focals_ref"],native_query_embeddings_ref=None,native_corpus_embeddings_ref=None,
++            native_retrieval_ref=None,external_truth_ref=None,prediction_ref=None,native_RAM_tensor_manifest_ref=ref(manifest_path))
++        sealed_ref=ram.native_top1_seal_ram_v1(seal_cfg,_RAMWriter(directory),frozen,prep=prep,orders=orders,
++            query_arrays=combined["query_paths"],corpus_arrays=combined["contrastive"],native=native,torch=torch)
++        sealed=metadata(sealed_ref)
++        result.update(checkpoint_ref=packet["checkpoint_ref"],seal_completion_ref=sealed_ref,
++            prediction_ref=sealed["prediction_ref"],native_top1_preserved_ref=sealed["native_top1_preserved_ref"],
++            RAM_tensor_manifest_ref=ref(manifest_path),embedding_file_artifacts_written=False,
++            native_normalization_topk_and_C3_postprocessing_unchanged=True)
++        del combined,native
++    ctx["verify_runtime_imports"]();_verify_author_import_origins(author_root)
++    ctx["fast_guard"]("after_native_author_call")
++    _save_json(directory/"completed.json",result)
++    return 0
++
++class _RAMWriter:
++    """Only compact final native prediction/score products, never embeddings."""
++    def __init__(self,directory):self.directory=directory
++    def npz(self,name,**arrays):
++        import numpy as np
++        if Path(name).name!=name:raise ValueError("Flat child product")
++        buffer=io.BytesIO();np.savez_compressed(buffer,**arrays);raw=buffer.getvalue()
++        if len(raw)>16*1048576:raise ValueError("Compact sealed native product cap")
++        path=self.directory/name
++        with path.open("xb") as stream:stream.write(raw);stream.flush();os.fsync(stream.fileno())
++        from arggnn.american_c3_common_v1 import ref
++        return ref(path)
++    def json(self,name,value):
++        if name!="completed.json":raise ValueError("Only original native seal completion")
++        path=self.directory/"sealed_predictions_completed.json";_save_json(path,value)
++        from arggnn.american_c3_common_v1 import ref
++        return ref(path)
+ if __name__=="__main__":raise SystemExit(main())
+--- research/reviews/American_C3_native_MLM_amendment_v12/supervisor_v1.py
++++ research/reviews/C3_native_postMLM980_root_source_20261015_v1/supervisor_v1.py
+@@ -9,13 +9,12 @@
+ from __future__ import annotations
+ import argparse,collections,ctypes,importlib.util,json,os,selectors,signal,subprocess,sys,time
+ from pathlib import Path
+-import amendment_v12 as amendment
+ from arggnn.american_c3_common_v1 import ROOT,CLASSES,require,local,ref,bound
+ from consumer_contract_v1 import (
+     SOURCE as CONTRACT_SOURCE,AUTHOR_MANIFEST_REF,NATIVE_GUARD_REF,DEFAULTS,GPU_PHASES,
+-    metadata,validate_active_input,load_root_context,preparation_v1,counts_v1)
+-SOURCE=amendment.ENTRY
+-CHILD="research/reviews/American_C3_native_MLM_amendment_v12/native_child_v1.py"
++    metadata,validate_active_input,load_root_context,preparation_v1,counts_v1,fit_completion_v1)
++SOURCE='research/reviews/C3_native_postMLM980_root_source_20261015_v1/entry_postMLM_v1.py'
++CHILD='research/reviews/C3_native_postMLM980_root_source_20261015_v1/native_child_v1.py'
+ CACHE_VARS=("XDG_CACHE_HOME","XDG_CONFIG_HOME","XDG_DATA_HOME","HF_HOME","TORCH_HOME",
+     "TRITON_CACHE_DIR","CUDA_CACHE_PATH","TORCHINDUCTOR_CACHE_DIR","NUMBA_CACHE_DIR",
+     "MPLCONFIGDIR","WANDB_DIR","WANDB_CACHE_DIR","WANDB_CONFIG_DIR","HF_HUB_CACHE",
+@@ -72,7 +71,7 @@
+     ctx["boundary_guard"]("before_native_child",required_write_bytes=0)
+     directory=local(writer.path/name);require(not directory.exists(),"Fresh exclusive native stage scope")
+     directory.mkdir()
+-    tmp_base=amendment.TMP;tmp=tmp_base/name
++    tmp_base=local(cfg["short_tmp_directory"]);tmp=tmp_base/name
+     storage=metadata(spec["refs"]["storage"])
+     auxiliary=[local(x) for x in storage["reservation"].get("auxiliary_scopes",[])]
+     require(any(tmp_base==a or a in tmp_base.parents for a in auxiliary),"Short native TMPDIR must be an admitted auxiliary scope")
+@@ -96,7 +95,7 @@
+     _subreaper();proc=None;ownership=None;interruption=None;guard_error=None;old_handlers={};adopted=[]
+     from progress_v8 import Progress
+     progress=Progress()
+-    terminal=amendment.capture("native");direct_captured=False
++    terminal=_Terminal(spec,"native_"+name);direct_captured=False
+     logs=_RAMLog(cfg["child_log_ram_bytes"]);selector=selectors.DefaultSelector();drained=False;group_esrch=False
+     def capture_direct(rc):
+         nonlocal direct_captured,guard_error
+@@ -134,7 +133,7 @@
+     try:
+         for signum in (signal.SIGTERM,signal.SIGINT):old_handlers[signum]=signal.signal(signum,stop)
+         proc=subprocess.Popen(command,cwd=ROOT,env=env,start_new_session=True,
+-            pass_fds=(lease["lease_fd"],amendment.lifetime_fd()),stdout=subprocess.PIPE,stderr=subprocess.STDOUT,bufsize=0)
++            pass_fds=(lease["lease_fd"],),stdout=subprocess.PIPE,stderr=subprocess.STDOUT,bufsize=0)
+         ownership=OwnedTree(proc.pid)  # capture exact start identity before any poll/reap
+         os.set_blocking(proc.stdout.fileno(),False);selector.register(proc.stdout,selectors.EVENT_READ)
+         stop_at=None;next_guard=0.
+@@ -176,17 +175,24 @@
+         owned_identities_drained=drained,no_adopted_live_writer=not _children(),
+         owned_identity_drain_proof=ownership.evidence(),raw_stdout_tail=tail_evidence))
+     terminal.close()
+-    from terminal_namespace_v12 import clean_dead_sockets,normalize_latest
++    from terminal_namespace_v12 import socket_candidates,normalize_latest
+     prove=lambda:drained and not _children() and ownership.identities_absent()
+     counter=[0]
+     def preserve_namespace(value):
+-        counter[0]+=1;amendment.admin_save("native_namespace_%02d.json"%counter[0],value)
++        counter[0]+=1
++        value=dict(value,release_checkpoint_retention=-1,actual_checkpoint_retention=1,
++            checkpoint_save_interval_unchanged=True)
++        if "author_checkpoint_interval_or_keep_modified" in value:
++            value["author_checkpoint_interval_or_keep_modified"]=True
++        _terminal_json(spec,"native_"+name+"_namespace_%02d.json"%counter[0],value)
+     try:
+-        clean_dead_sockets(tmp,prove_drained=prove,preserve=preserve_namespace)
+-        normalize_latest(directory/"checkpoints",prove_drained=prove,preserve=preserve_namespace,max_bytes=cfg["max_checkpoint_bytes"])
++        require(not socket_candidates(tmp),"Qualified abstract IPC must leave no filesystem socket; preserve unexpected nodes")
++        if packet["stage"]=="contrastive":
++            normalize_latest(directory/"checkpoints",prove_drained=prove,preserve=preserve_namespace,max_bytes=cfg["max_checkpoint_bytes"])
+     except BaseException as error:
+         guard_error=guard_error or error
+-        amendment.admin_save("native_normalization_failure.json",dict(type=type(error).__name__,message=str(error)[:2000]))
++        _terminal_json(spec,"native_"+name+"_normalization_failure.json",
++            dict(type=type(error).__name__,message=str(error)[:2000]))
+ 
+     # Observation only. A reused numeric group is never signaled or claimed absent.
+     group_esrch=not _group_exists(proc.pid)
+@@ -218,31 +224,26 @@
+ 
+ 
+ def run_context_v1(record,spec,cfg,ctx,lease):
+-    prep,_,_=preparation_v1(spec);counts=counts_v1(spec,prep);writer=ctx["writer"]
+-    ctx["boundary_guard"]("before_complete_native_phase",required_write_bytes=cfg["phase_write_budget_bytes"])
+-    mode=spec["phase"]
+-    receipt,completion_ref,wait_ref=_run_child(dict(name=mode,stage=mode),record=record,spec=spec,cfg=cfg,ctx=ctx,lease=lease)
+-    require(receipt["stage"]==mode and receipt["parent_id"]==spec["parent_id"],"Actual same-parent MLM-only child")
+-    result=dict(status="completed_C3_native_full_MLM_v1",execution_amendment_ref=amendment.authority_ref(),actual_producer_ref=amendment.ref(SOURCE),
+-        parent_id=spec["parent_id"],preparation_ref=spec["refs"]["preparation"],runtime_ref=spec["refs"]["runtime"],
+-        author_source_manifest_ref=AUTHOR_MANIFEST_REF,child_completion_ref=completion_ref,actual_wait_ref=wait_ref,
+-        terminal_bounds_ref=ref(writer.path/(mode+"_terminal_bounds.json")),query_ancestry_truth_opened=False,
+-        model_reused_from_other_parent=False,author_Table1_exact_reproduction=False,contrastive_executed=False)
+-    if mode=="mlm":
+-        require(receipt["actual_optimizer_updates"]==224775 and receipt["completed_epochs"]==5
+-            and receipt["initializer_checkpoint_ref"] is None,"Full fresh same-ARG MLM completion")
+-        authentication=metadata(receipt["corpus_authentication_ref"])
+-        expected={"mlm/train":prep["native_dataset_refs"]["mlm/train"],"mlm/val":prep["native_dataset_refs"]["mlm/val"],"vocab":prep["vocab_ref"]}
+-        require(authentication["status"]=="authenticated_full_MLM_inputs"
+-            and authentication["preparation_ref"]==spec["refs"]["preparation"]
+-            and {k:v["ref"] for k,v in authentication["inputs"].items()}==expected
+-            and all(v["sha256_verified"] and v["stable_read_verified"] for v in authentication["inputs"].values()),
+-            "Actual exact full-MLM input byte authentication evidence")
+-        result.update(checkpoint_ref=receipt["checkpoint_ref"],actual_optimizer_updates=receipt["actual_optimizer_updates"],completed_epochs=receipt["completed_epochs"],
+-            trainer_timestamp=receipt["trainer_timestamp"],trainer_optimizer_counters=receipt["trainer_optimizer_counters"],
+-            checkpoint_optimizer_counters=receipt["checkpoint_optimizer_counters"],observed_counters_verified=receipt["observed_counters_verified"],
+-            corpus_authentication_ref=receipt["corpus_authentication_ref"])
+-    return writer.save("completed.json",result)
++    if spec["phase"]=="fit":
++        from post_mlm_bridge_v1 import run_contrastive_after_v12_v1
++        return run_contrastive_after_v12_v1(record,spec,cfg,ctx,lease,run_child=_run_child,
++            mlm_completion_ref=spec["refs"]["MLM_completion"],
++            mlm_root_wait_ref=spec["upstream_wait_refs"]["MLM_completion"])
++    prep,_,_=preparation_v1(spec);counts_v1(spec,prep)
++    fit=fit_completion_v1(spec["refs"]["fit_completion"],spec)
++    ctx["boundary_guard"]("before_native_RAM_phase",required_write_bytes=cfg["phase_write_budget_bytes"])
++    child,child_ref,wait_ref=_run_child(dict(name="RAM",stage="RAM",
++        checkpoint_ref=fit["phases"]["contrastive"]["checkpoint_ref"]),record=record,spec=spec,cfg=cfg,ctx=ctx,lease=lease)
++    require(child["stage"]=="RAM" and child["parent_id"]==spec["parent_id"]
++        and child["checkpoint_ref"]==fit["phases"]["contrastive"]["checkpoint_ref"],"Same actual native contrastive checkpoint for RAM inference")
++    return ctx["writer"].save("completed.json",dict(status="completed_C3_native_RAM_prediction_seal_v1",
++        parent_id=spec["parent_id"],preparation_ref=spec["refs"]["preparation"],counts_ref=spec["refs"]["counts"],
++        fit_completion_ref=spec["refs"]["fit_completion"],checkpoint_ref=child["checkpoint_ref"],
++        child_completion_ref=child_ref,actual_wait_ref=wait_ref,seal_completion_ref=child["seal_completion_ref"],
++        prediction_ref=child["prediction_ref"],native_top1_preserved_ref=child["native_top1_preserved_ref"],
++        RAM_tensor_manifest_ref=child["RAM_tensor_manifest_ref"],query_ancestry_truth_opened=False,
++        embedding_file_artifacts_written=False,author_Table1_exact_reproduction=False))
++
+ def main(argv=None):
+     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument("--execute",action="store_true")
+     parser.add_argument("--input");parser.add_argument("--expected-input-sha256");args=parser.parse_args(argv)
+@@ -263,4 +264,22 @@
+         print(json.dumps(dict(status="failed_native_child_preserved",returncode=error.returncode,
+             actual_wait_ref=error.wait_ref)),flush=True)
+         return error.returncode if error.returncode>0 else 128-error.returncode
++
++def _terminal_json(spec,name,value):
++    """Bounded actual terminal evidence; no scope scan while descendants drain."""
++    require(Path(name).name==name,"Flat exclusive root auxiliary evidence")
++    directory=local(spec["root_auxiliary_directory"])
++    require(directory.is_dir(),"Actual separately admitted root auxiliary directory")
++    data=(json.dumps(value,sort_keys=True,indent=2,allow_nan=False)+"\n").encode()
++    require(len(data)<=16*1048576,"Bounded terminal evidence")
++    path=directory/name
++    with path.open("xb") as stream:stream.write(data);stream.flush();os.fsync(stream.fileno())
++    return ref(path)
++class _Terminal:
++    def __init__(self,spec,prefix):self.spec=spec;self.prefix=prefix;self.counter=0
++    def event(self,index,value):return _terminal_json(self.spec,self.prefix+"_terminal_%02d.json"%index,value)
++    def tail(self,logs):
++        self.counter+=1
++        return _terminal_json(self.spec,self.prefix+"_tail_%02d.json"%self.counter,logs.record())
++    def close(self):pass
+ if __name__=="__main__":raise SystemExit(main())
+--- research/reviews/American_C3_native_MLM_amendment_v12/launcher_v12.py
++++ research/reviews/C3_native_postMLM980_root_source_20261015_v1/launcher_postMLM980_v1.py
+@@ -12,34 +12,32 @@
+ 
+ from pathlib import Path
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-sys.path[:0]=[str(ROOT/"research/reviews/American_C3_native_MLM_amendment_v12"),str(ROOT/"research/reviews/American_C3_native_MLM_full_fit_v8"),str(ROOT/"research/reviews/American_C3_native_MLM_full_source_v5"),str(ROOT),str(ROOT/"src"),str(ROOT/"scripts")]
++sys.path[:0]=[str(ROOT/'research/reviews/C3_native_postMLM980_root_source_20261015_v1'),str(ROOT/"research/reviews/American_C3_native_MLM_full_fit_v8"),str(ROOT/"research/reviews/American_C3_native_MLM_full_source_v5"),str(ROOT/"research/reviews/American_C3_native_MLM_amendment_v12"),str(ROOT),str(ROOT/"src"),str(ROOT/"scripts")]
+ from arggnn.resources import ALLOWED_GPUS,gpu_inventory
+-import amendment_v12 as amendment
+ import root_native_contract_v1 as contract
+ from owned_lifecycle_v2 import OwnedTree
+ from pidfd_backend_v1 import self_probe_v1
+-from supervisor_v1 import _subreaper,_children
++from supervisor_v1 import _subreaper,_children,_Terminal
+ _STORAGE_GUARD=None
++_SPEC=None
+ def eligible_free(record):
+     available=(record["memory_total_mib"]-record["memory_used_mib"])*1048576
+-    physical,uuid=amendment.execution_gpu_choice()
++    physical,uuid=_SPEC["physical_gpu"],_SPEC["execution_gpu_uuid"]
+     return record["index"]==physical and record["uuid"]==uuid and available>=54000000000
+ 
+ import project_budget_v9 as budget
+ 
+ SCHEDULABLE_GPUS = (4,5)
+-SOURCE = "research/reviews/American_C3_native_MLM_amendment_v12/launcher_v12.py"
+-BASE_LAUNCHER = "scripts/launch_reserved_gpu_v7.py"
++SOURCE = 'research/reviews/C3_native_postMLM980_root_source_20261015_v1/launcher_postMLM980_v1.py'
++BASE_LAUNCHER = "scripts/launch_reserved_gpu_v6.py"
+ 
+ 
+ def full_storage_check_locked(record,source_sha,launcher_sha,*,required_write_bytes=0):
+-    amendment.check_lifetime()
++    contract.active(_SPEC)
+     if source_sha!=contract.CORE or launcher_sha!=contract.BASE:raise ValueError("Original core/base source pins")
+-    if record!=amendment.read(amendment.ORIGINAL_STORAGE_REF):raise ValueError("Exact immutable allocation object")
++    if contract.ref(SOURCE) not in record["reservation"]["consumer_bindings"]:raise ValueError("Actual root launcher reserved")
+     account=_STORAGE_GUARD.check_storage_locked_v1(record,boundary=True,required_write_bytes=required_write_bytes)
+-    return dict(account,actual_launcher_ref=amendment.ref(SOURCE),
+-        execution_amendment_ref=amendment.authority_ref())
+-
++    return dict(account,actual_launcher_ref=contract.ref(SOURCE))
+ 
+ def admitted_storage_locked(path, expected_sha, job, source_sha, launcher_sha):
+     record = budget.v4.bound(ROOT, {"path": path, "sha256": expected_sha}, True)
+@@ -51,20 +49,21 @@
+     return record, account
+ 
+ def save_wait_evidence_locked(record, account, child, returncode, source_sha, launcher_sha):
+-    output = amendment.local(amendment.OUTPUT)
++    output = contract.local(_SPEC["output_directory"])
+     if not output.is_dir():
+         # A failed-before-output run remains charged; root may record terminal evidence separately.
+         return
+     path = output / "launcher_exit_full_storage_v1.json"
+-    data = budget.v4.encoded({"kind": "native_MLM_amended_GPU_launcher_actual_wait_v9",
+-        "actual_launcher_ref": amendment.ref(SOURCE), "execution_amendment_ref": amendment.authority_ref(),
++    data = budget.v4.encoded({"kind": "native_postMLM980_GPU_launcher_actual_wait_v1",
++        "actual_launcher_ref": contract.ref(SOURCE), "root_stage_request_ref": _SPEC["root_stage_request_ref"],
+         "job_id": record["job_id"], "launcher_pid": os.getpid(), "worker_pid": child.pid,
+         "returncode": returncode, "wait_status_known": True,
+         "completed_unix": time.time(), "reservation_sha256": budget.digest(record["reservation"]),
+         "descendant_drain_or_no_live_writer_claim": False,
+-        "storage_accounting": "concurrent_completed_scope_credits_v3"}) + b"\n"
+-    full_storage_check_locked(record, source_sha, launcher_sha,
+-        required_write_bytes=len(data) + 8192)
++        "storage_accounting": "prospective_980gb_v1"}) + b"\n"
++    contract.active(_SPEC)
++    _STORAGE_GUARD.budget_check_v9(record,boundary=True,required_write_bytes=len(data)+8192)
++    # The reviewed read-only memo transaction has ended before this product write.
+     fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
+     with os.fdopen(fd, "wb") as stream:
+         stream.write(data)
+@@ -72,16 +71,7 @@
+         os.fsync(stream.fileno())
+ 
+ def main():
+-    global _STORAGE_GUARD
+-    auth,spec,original_storage=amendment.validate_authority(amendment.authority_ref())
+-    amendment.check_lifetime();self_probe_v1()
+-    _STORAGE_GUARD=contract.original_guard()
+-    sharing=contract.read(contract.GPU_AUTH_REF)
+-    if (sharing.get("schema")!="project_external_GPU_sharing_authorization_v1" or sharing.get("status")!="authorized"
+-        or sharing.get("root_authorizer")!="root_agent" or sharing.get("physical_GPUs")!=[4,5]
+-        or sharing.get("maximum_distinct_project_GPUs")!=2 or sharing.get("preserve_external_processes") is not True
+-        or sharing.get("max_project_cuda_reserved_bytes")!=50000000000 or sharing.get("minimum_additional_free_bytes")!=4000000000):
+-        raise ValueError("Original exact GPU sharing authorization")
++    global _STORAGE_GUARD,_SPEC,budget
+     parser = argparse.ArgumentParser(description=__doc__)
+     parser.add_argument("--gpu", type=int, choices=SCHEDULABLE_GPUS)
+     parser.add_argument("--job", required=True)
+@@ -92,9 +82,25 @@
+     parser.add_argument("module")
+     parser.add_argument("module_args", nargs=argparse.REMAINDER)
+     args = parser.parse_args()
+-    if args.module!=amendment.ENTRY or args.gpu!=auth["physical_gpu"] or args.job!=amendment.JOB:
+-        parser.error("Only exact amended fullfit entry/job/root-selectedGPU4or5")
+-    amendment.validate_execution(auth["input_ref"],spec,args.module)
++    def module_arg(name):
++        i=args.module_args.index(name)
++        return args.module_args[i+1]
++    record=dict(path=module_arg("--input"),sha256=module_arg("--expected-input-sha256"))
++    _SPEC=contract.read(record)
++    contract.active(_SPEC)
++    req,caps,runtime=contract.validate_request(_SPEC["root_stage_request_ref"])
++    if args.module!=contract.GPU_MAIN or args.gpu!=_SPEC["physical_gpu"] or args.job!=_SPEC["job_id"]:
++        parser.error("Only exact current980 postMLM entry/job/root-selected GPU4/5")
++    contract.native_contract().validate_active_input(record,_SPEC,contract.GPU_MAIN,GPU=True)
++    self_probe_v1()
++    _STORAGE_GUARD,_launch_memo=contract.consumer_guard()
++    budget=_STORAGE_GUARD.budget
++    sharing=contract.read(contract.GPU_AUTH_REF)
++    if (sharing.get("schema")!="project_external_GPU_sharing_authorization_v1" or sharing.get("status")!="authorized"
++        or sharing.get("root_authorizer")!="root_agent" or sharing.get("physical_GPUs")!=[4,5]
++        or sharing.get("maximum_distinct_project_GPUs")!=2 or sharing.get("preserve_external_processes") is not True
++        or sharing.get("max_project_cuda_reserved_bytes")!=50000000000 or sharing.get("minimum_additional_free_bytes")!=4000000000):
++        raise ValueError("Original exact GPU sharing authorization")
+     # Never grant scientific/runtime authority: the bound consumer still validates those original guards.
+     lease = None
+     child = None
+@@ -106,9 +112,9 @@
+             record, account = admitted_storage_locked(
+                 args.storage_record, args.expected_storage_sha256, args.job,
+                 args.expected_budget_source_sha256, args.expected_launcher_sha256)
+-            if spec["main_source_ref"]!=amendment.ref(args.module):
+-                raise ValueError("Actual producer must be amendment-bound, not a forged original binding")
+-            amendment.check_lifetime()
++            if _SPEC["main_source_ref"]!=contract.ref(args.module):
++                raise ValueError("Actual producer must match the current admitted source")
++            contract.active(_SPEC)
+             candidates = {r["index"]: r for r in gpu_inventory()}
+             held, free_handles = [], {}
+             try:
+@@ -135,7 +141,7 @@
+                 lease.write(json.dumps({"launcher_pid": os.getpid(), "gpu": selected,
+                     "uuid": candidates[selected]["uuid"], "job": args.job,
+                     "started_unix": time.time(), "storage_bytes": account["projected_bytes"],
+-                    "storage_accounting": "concurrent_completed_scope_credits_v3",
++                    "storage_accounting": "prospective_980gb_v1",
+                     "storage_journal_tail_sha256": account["journal_tail_sha256"]}))
+                 lease.flush()
+             finally:
+@@ -155,10 +161,10 @@
+         print(json.dumps({"event": "launch", "gpu": selected, "uuid": candidates[selected]["uuid"],
+                           "job": args.job, "command_module": args.module}), flush=True)
+         if _children():raise ValueError("No unrelated launcher children")
+-        _subreaper();amendment.check_lifetime()
+-        terminal=amendment.capture("launcher")
++        _subreaper();contract.active(_SPEC)
++        terminal=_Terminal(_SPEC,"launcher")
+         child = subprocess.Popen(command,cwd=ROOT,env=env,start_new_session=True,
+-            pass_fds=(lease.fileno(),amendment.lifetime_fd()))
++            pass_fds=(lease.fileno(),))
+         ownership=OwnedTree(child.pid);interrupted=[]
+         def stop(signum,_frame):
+             interrupted.append(signum)
+@@ -168,7 +174,7 @@
+         try:
+             while child.poll() is None:
+                 ownership.refresh()
+-                try:amendment.check_lifetime()
++                try:contract.active(_SPEC)
+                 except BaseException as error:control_error=error;break
+                 if interrupted:control_error=ValueError("Launcher interrupted");break
+                 time.sleep(.2)
+@@ -204,9 +210,8 @@
+         if control_error is not None:raise control_error
+         print(json.dumps({"event": "supervisor_wait", "worker_pid": child.pid,
+                           "returncode": returncode, "wait_status_known": True}), flush=True)
+-        with budget.v4.mutex(ROOT):
+-            save_wait_evidence_locked(record, account, child, returncode,
+-                args.expected_budget_source_sha256, args.expected_launcher_sha256)
++        save_wait_evidence_locked(record, account, child, returncode,
++            args.expected_budget_source_sha256, args.expected_launcher_sha256)
+         return returncode
+     finally:
+         if lease is not None:
+--- research/reviews/American_C3_native_MLM_amendment_v12/entry_v12.py
++++ research/reviews/C3_native_postMLM980_root_source_20261015_v1/entry_postMLM_v1.py
+@@ -1,12 +1,13 @@
+-"""Truthful v9 execution entry; original canonical v8 remains frozen."""
++"""Current980 native postMLM entry; no import-time authority/state action."""
+ from pathlib import Path
+ import sys
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-REL="research/reviews/American_C3_native_MLM_amendment_v12"
+ def main(argv=None):
+-    sys.path[:0]=[str(ROOT/REL),str(ROOT/"research/reviews/American_C3_native_MLM_full_fit_v8"),str(ROOT/"research/reviews/American_C3_native_MLM_full_source_v5"),str(ROOT/"src"),str(ROOT/"scripts"),str(ROOT)]
+-    import amendment_v12 as amendment
+-    amendment.check_lifetime()
++    sys.path[:0]=[str(ROOT/'research/reviews/C3_native_postMLM980_root_source_20261015_v1'),str(ROOT/"research/reviews/C3_native_post_MLM_root_handoff_20261015_v1"),
++        str(ROOT/"research/reviews/American_C3_native_MLM_full_fit_v8"),
++        str(ROOT/"research/reviews/American_C3_native_MLM_full_source_v5"),
++        str(ROOT/"research/reviews/American_C3_native_MLM_amendment_v12"),
++        str(ROOT/"src"),str(ROOT/"scripts"),str(ROOT)]
+     import supervisor_v1
+     return supervisor_v1.main(argv)
+ if __name__=="__main__":raise SystemExit(main())

@@ -117,6 +117,17 @@ def cpu_stage(output,packet,flare=False):
         actual_wait_ref=ref(packet+"/"+wait_name) if wait else None)
 
 def main():
+    import importlib.util
+    normalization_path=ROOT/"research/reviews/current_score_reporting_audit_20261015_v1/normalization_reference_v1.py"
+    normalization_spec=importlib.util.spec_from_file_location("_scored_cells_reporting_normalization",normalization_path)
+    normalization=importlib.util.module_from_spec(normalization_spec)
+    normalization_spec.loader.exec_module(normalization)
+    all_scored_details=normalization.load_normalized()
+    native_path=ROOT/"research/reviews/current_score_reporting_audit_20261015_v1/native_metric_overrides_v1.py"
+    native_spec=importlib.util.spec_from_file_location("_native_scored_metrics_reporting",native_path)
+    native_normalization=importlib.util.module_from_spec(native_spec)
+    native_spec.loader.exec_module(native_normalization)
+    native_details=native_normalization.load_native_overrides()
     models=[]
     def add(name,source,cohorts,training,notes=""):
         models.append(dict(name=name,source_ref=ref(source),cohorts=cohorts,training=training,notes=notes))
@@ -130,15 +141,15 @@ def main():
     for key,label in [("native_ARGMix","Current native ARGMix"),("native_AP","Native AncestralPaths derived C4")]:
         rows=read(p)["models"][key]["rows"]
         cs={r["cohort"]:normalize(r) for r in rows}
-        if key=="native_AP":
-            cs[PRIMARY]["nll"]=stat("∞")
+        for cohort,values in native_details[key]["cohorts"].items():
+            cs.setdefault(cohort,{}).update(values)
         add(label,p,cs,("11 epochs, native early stopping" if key=="native_ARGMix" else "5 epochs, native fixed schedule"),
             "Native inputs/objective/selection retained. AP six-path probabilities collapsed to C4.")
     p="research/reviews/H040_completed_comparison_root_20261015_v1/summary.json"
     for key,r in read(p)["rows"].items():
-        cs={c:dict(accuracy=stat(v["accuracy_mean_percent"]/100,v["accuracy_sample_SD_percentage_points"]/100)) for c,v in r["populations"].items()}
-        cs[PRIMARY]["nll"]=stat(r["nll"])
-        add("H040 "+key,p,cs,"H038 warmstart +30 passes /960 updates, seed101")
+        cs=all_scored_details["H040"]["arms"][key]["cohorts"]
+        add("H040 "+key,all_scored_details["H040"]["source_ref"]["path"],cs,
+            "H038 warmstart +30 passes /960 updates, seed101")
     p="research/reviews/H042_completed_cohort_diagnostics_root_20261015_v1/summary.json"
     add("H042 exact local-clade flags",p,{c:normalize(v) for c,v in read(p)["cohorts"].items()},
         "H038 warmstart +30 passes /960 updates, seed101")
@@ -148,11 +159,8 @@ def main():
             "H042 warmstart +30 passes /960 updates per arm, seed101")
     p="research/reviews/H044_completed_comparison_root_20261015_v1/summary.json"
     for key,r in read(p)["arms"].items():
-        cs={c:dict(accuracy=stat(v["accuracy_percent"]/100,v["accuracy_sample_SD_pp"]/100),nll=stat(v["mean_nll"])) for c,v in r["cohorts"].items()}
-        b=r["primary_boundaries_percent"]
-        for k in ("precision","recall","f1"):
-            cs[PRIMARY]["boundary_"+k]=stat(b[k]/100,b.get(k+"_sample_SD_pp",0)/100 if k+"_sample_SD_pp" in b else None)
-        add("H044 "+key,p,cs,"H042 warmstart +30 passes /960 updates per arm, seed101",
+        cs=all_scored_details["H044"]["arms"][key]["cohorts"]
+        add("H044 "+key,all_scored_details["H044"]["source_ref"]["path"],cs,"H042 warmstart +30 passes /960 updates per arm, seed101",
             "Written scores independently verified. Original post-completion CLI exit1 preserved.")
     p="research/reviews/H045_completed_comparison_root_20261015_v1/summary.json"
     for key,r in read(p)["arms"].items():
@@ -192,6 +200,19 @@ def main():
             add("H046 "+key,h046_summary,{c:normalize(v) for c,v in r["cohorts"].items()},
                 "H042 warmstart +30 passes /960 updates per arm, seed101",
                 "Foreign-minus-own accuracy +0.011573 ± 0.069124pp paired sample SD; registered utility criterion not met.")
+    audit_path="research/reviews/current_score_reporting_audit_20261015_v1/all17_allcohort_metrics.actual.json"
+    audited=read(audit_path)
+    for original in audited["models"]:
+        matched=next((r for r in models if r["name"]==original["name"]),None)
+        if matched is None:continue
+        raw_ref={k:original["raw_score_ref"][k] for k in ("path","sha256")}
+        summary_ref={k:original["score_summary_ref"][k] for k in ("path","sha256")}
+        assert ref(raw_ref["path"])==raw_ref and ref(summary_ref["path"])==summary_ref
+        assert matched["source_ref"] in (raw_ref,summary_ref)
+        matched.update(cohorts=original["cohorts"],raw_score_ref=raw_ref,
+            training_budget_lineage={k:original[k] for k in (
+                "training_budget","completed_extra_updates","cumulative_model_lineage_updates",
+                "selected_model_lineage_updates","selected_pass")})
     models.sort(key=lambda r:r["cohorts"][PRIMARY]["accuracy"]["mean"],reverse=True)
     jobs=[]
     for hid,gpu,output,packet in [
@@ -206,6 +227,11 @@ def main():
             row.update(accuracy_available=True,evaluation_completed=True,summary_ref=ref(h046_summary),
                 actual_evaluation_wait0=True,evaluation_wait_ref=h046_wait_ref,
                 validation_score=h046_scores,runtime_status="TRAIN and VAL completed")
+        if hid=="H048":
+            boundary_path="research/reviews/H048_boundary_contention_root_20261015_v1/actual_scheduler_lock_observation.root_v1.json"
+            boundary=maybe_read(boundary_path)
+            if boundary and row["passes_completed"]==boundary["no_new_pass_receipt_count"] and row["worker_pid"]==boundary["pid"] and row["process_observation"].get("start_ticks")==boundary["start_ticks"]:
+                row.update(latest_boundary_observation_ref=ref(boundary_path),runtime_status="training process alive; latest observation at shared scheduler mutex boundary; compute may precede receipt counts")
         jobs.append(row)
     gstpath="research/reviews/GST_training_readiness_20261015_v1/readiness.json"
     gst=read(gstpath)["existing_observations"]["models"]
@@ -236,6 +262,9 @@ def main():
         "research/reviews/prospective_980GB_capacity_source_v1/admitted_infer_v1")
     val_native_paths=cpu_stage("experiments/results/American_C3_val000_full30mb_shared_v1/native_paths",
         "research/reviews/prospective_980GB_capacity_source_v1/admitted_native_paths_v1")
+    flare_val_conversion=cpu_stage("data/FLARE_val000_convert_memo2_980_root_v2",
+        "research/reviews/FLARE_val000_convert_memo2_980_root_v2",True)
+    flare_val_old_stop="research/reviews/FLARE_VAL000_consumer_IO_repair_root_20261015_v1/original68464_actual_terminal_v1.json"
     val_status=("Original 30 Mb VAL000 simulation: "+val_simulation["status"]+"; inferred observation: "+val_inference["status"]
         +"; shared native-path/10k-focal preparation: "+val_native_paths["status"]+". R600/Q1000 identities stay common. No VAL ancestry score.")
     if all(stage["completed_and_wait0_verified"] for stage in (val_simulation,val_inference,val_native_paths)):
@@ -247,7 +276,16 @@ def main():
         val_flare_counts=read(val_flare_target["count_manifest_ref"]["path"])
         val_flare_binding=dict(target_ref=ref(val_flare_target_path),count_manifest_ref=val_flare_target["count_manifest_ref"],
             sites=val_flare_counts["num_sites"],reference_haplotypes=600,query_haplotypes=1000,score_status=val_flare_target["score_status"])
-        val_status+=" Native FLARE VAL000 target bound: "+str(val_flare_counts["num_sites"])+" sites, common R600/Q1000; predictions and scoring pending."
+        val_status+=" Native FLARE VAL000 target bound: "+str(val_flare_counts["num_sites"])+" sites, common R600/Q1000. Fresh memo2 conversion: "+flare_val_conversion["status"]+"; predictions/scoring pending. Earlier conversion deliberately stopped to repair scheduler contention, with all artifacts retained."
+    remaining_val_phases=[]
+    remaining_val_root="research/reviews/American_C3_remaining_VAL_full30mb_root_source_20261015_v1"
+    for index in range(1,5):
+        for stage,dirname in (("simulate","simulation"),("infer","inference"),("native_paths","native_paths")):
+            state=cpu_stage("experiments/results/American_C3_val%03d_full30mb_shared_v1/"%index+dirname,
+                remaining_val_root+"/admitted_val%03d_"%index+stage+"_v1")
+            remaining_val_phases.append(dict(parent_id="american_c3_val_%03d"%index,stage=stage,**state))
+    remaining_val_status="; ".join(r["parent_id"][-3:]+"/"+r["stage"]+": "+r["status"] for r in remaining_val_phases if r["status"]!="not admitted")
+    remaining_val_status=remaining_val_status or "Original remaining VAL001–004 source ready; actual execution pending."
     native_launch="research/reviews/American_C3_native_MLM_amendment_v10/root_execution_admin_v2/worker_metadata/v11_root_outer_launch.json"
     native_status="Full30Mb corpus prepared. Native fit pending."
     native_device="GPU4/5 pending"
@@ -306,6 +344,20 @@ def main():
         prepared=bool(cleanup and cleanup.get("active") is True and cleanup.get("cleanup_failure") is None and len(cleanup.get("per_node_events",[]))==16)
         native_status=("V11 failed with actual root exit1; native optimizer updates unknown. V12 operational source reviewed; "
             +("exact namespace cleanup completed, GPU binding/activation and launch pending." if prepared else "root preparation/activation pending, no actual v12 launch receipt."))
+    native_latest_path="research/reviews/H048_boundary_contention_root_20261015_v1/native_MLM_progress_metadata_actual_v2.json"
+    native_latest=maybe_read(native_latest_path)
+    if native_latest and v12_launch and not v12_wait:
+        latest_checkpoints=[r for r in native_latest["checkpoints"] if not r["symlink"]]
+        native_execution.update(latest_checkpoint_metadata_observation_ref=ref(native_latest_path),checkpoint_metadata_only=latest_checkpoints)
+        native_status=("Native author MLM training on "+native_device+". Checkpoint metadata observed at "+native_latest["observed_utc"]+": "+", ".join(r["name"] for r in latest_checkpoints)+". Full five-epoch/224775-update budget and final saved-Adam verification remain pending. No native ancestry score.")
+    counts_packet="research/reviews/C3_native_counts980_root_handoff_20261015_v1/admitted_counts980_v1"
+    counts_output="experiments/results/American_C3_native_train000_full30mb_counts980_v1"
+    counts_wait=maybe_read(counts_packet+"/actual_wait.json")
+    counts_done=maybe_read(counts_output+"/completed.json")
+    counts_launch=maybe_read(counts_packet+"/launch.json")
+    counts_ready=bool(counts_wait and counts_done and counts_wait.get("returncode")==0 and counts_wait.get("actual_direct_launcher_wait") is True and counts_wait.get("all_owned_processes_and_groups_drained") is True and counts_wait.get("operational_failure") is None and counts_wait.get("completed_ref")==ref(counts_output+"/completed.json"))
+    counts_status=("completed; actual count producer wait0 and drain verified" if counts_ready else "terminal receipt requires review" if counts_wait else "CPU count producer launched; completion pending" if counts_launch else "admitted; root CPU launch started, scientific child startup pending" if (ROOT/counts_packet/"admitted.json").exists() else "source ready")
+    counts_execution=dict(status=counts_status,MLM_dependency=False,ancestry_score=None,completion_ref=ref(counts_output+"/completed.json") if counts_done else None,actual_wait_ref=ref(counts_packet+"/actual_wait.json") if counts_wait else None)
     empirical_output=ROOT/"experiments/results/H018_H045_empirical_application_root_v1"
     empirical_aux=ROOT/"research/reviews/H018_H045_empirical_CPU_root_v1/worker_aux"
     empirical_products=all((empirical_output/n).exists() for n in ["probabilities_all355_holds.npz","query_bpweighted_proportions_and_PCA.tsv","query_genotype_PCA.svg"])
@@ -363,9 +415,28 @@ def main():
     fanout_status=("remaining TRAIN001–013 fanout "+str(len(fanout_completed))+"/13 completed with actual wait0"
         +("; terminal "+fanout_result["status"] if fanout_result else "; launched, completion pending") if fanout_started else
         "remaining TRAIN001–013 fanout source ready; root launch pending")
+    fanout_stop_path="research/reviews/H048_boundary_contention_root_20261015_v1/stop_fanout_additions.root_v1.json"
+    fanout_stop=maybe_read(fanout_stop_path)
+    if fanout_stop:
+        fanout_status+="; root requested cooperative stop of new additions to relieve GPU training mutex contention, current scientific children drain unchanged"
+    continuation_root="research/reviews/C3_focal_plan_continuation_memo2_20261015_v1"
+    continuation_run=continuation_root+"/run006_015_v1"
+    continuation_started=maybe_read(continuation_run+"/started.json")
+    continuation_result=maybe_read(continuation_run+"/fanout_result.json")
+    continuation_completed=[]
+    for index in range(6,16):
+        parent="american_c3_short_train_%03d"%index
+        wait=maybe_read(continuation_run+"/"+parent+"/execute/actual_wait.json")
+        completed_path="experiments/results/C3_short_TRAIN_focal_plans_v1/"+parent+"/completed.json"
+        if wait and wait.get("actual_direct_worker_wait") is True and wait.get("returncode")==0 and wait.get("owned_process_group_ESRCH") is True and not wait.get("errors") and (ROOT/completed_path).is_file() and wait.get("completed_ref")==ref(completed_path):
+            continuation_completed.append(parent)
+    if continuation_started:
+        fanout_status+=". Fresh controlled TRAIN006–015 continuation "+str(len(continuation_completed))+"/10 completed with genuine wait0; max2CPU producers; "+("terminal "+continuation_result["status"] if continuation_result else "launched, completion pending")
     focal_preparation=dict(first000_status=focal_status,first000_completion_ref=ref(focal_output+"/completed.json") if focal_done else None,
         first000_actual_wait_ref=ref(focal_packet+"/"+focal_prefix+"actual_wait.json") if focal_wait else None,
         fanout_status=fanout_status,fanout_completed_parents=fanout_completed,
+        controlled_continuation_completed_parents=continuation_completed,
+        controlled_continuation_started_ref=ref(continuation_run+"/started.json") if continuation_started else None,
         fanout_source_ref=ref(fanout_root+"/fanout_v1.py"),fanout_handoff_ref=ref(fanout_root+"/HANDOFF.md"))
     h048=next((r for r in read("research/experiment_decisions.json")["decisions"] if r["id"]=="H048"),None)
     h048_job=next(j for j in jobs if j["hypothesis"]=="H048")
@@ -421,6 +492,8 @@ def main():
             pair_present=pair_observation["present"] and pair_observation.get("start_ticks")==pair1617["remote_supervisor_start_ticks"]
             wave_text+=" TRAIN016/017 parallel preparation "+("running" if pair_present else "launched; terminal pending")+", root exec"+str(pair1617["exec_session_id"])+"."
     wave_text+=" TRAIN018/019 require actual016/017 completion and closure; at most two wave parents."
+    table1_audit_path="research/reviews/ARGformer_Table1_downstream_fidelity_20261015_v1/REPORT.md"
+    table1_fidelity="Original ARGformer Table1 specifies reference-fitted PCA with10components, but the exact clustering/label-mapping rule was not recovered from published text and public author history. Current native release top1 retrieval remains a separate disclosed comparison. PCA10/KMeans3 is only an inactive reconstruction proposal."
     stamp=datetime.now(timezone.utc).isoformat()
     result=dict(schema="ARG_GNN_current_scientific_scoreboard_v1",updated_utc=stamp,
         dataset=dict(name="European C4 shared development",length_bp=2000000,haplotypes=952,queries=686,
@@ -442,10 +515,12 @@ def main():
         GST_status=dict(status=gst_status,full_TRAIN_count_ref=ref("research/reviews/GST_full_TRAIN_count_root_v1/counts.json"),
             full_TRAIN_source_checkpoint_ref=ref("research/reviews/GST_full_TRAIN_CPU_source_v1/checkpoint.json")),
         CPU_stage_status=dict(VAL_simulation=val_simulation,VAL_inference=val_inference,VAL_native_paths=val_native_paths,
-            FLARE_author_build=flare_build,FLARE_TRAIN_conversion=flare_conversion,FLARE_TRAIN_native=flare_native,FLARE_TRAIN_seal=flare_seal),
+            FLARE_author_build=flare_build,FLARE_TRAIN_conversion=flare_conversion,FLARE_TRAIN_native=flare_native,FLARE_TRAIN_seal=flare_seal,
+            FLARE_VAL_conversion=flare_val_conversion,FLARE_VAL_original_deliberate_stop_ref=ref(flare_val_old_stop)),
+        American_remaining_VAL_preparation=dict(status=remaining_val_status,phases=remaining_val_phases),
         American_short_TRAIN_remaining_preparation=wave_status,
         American_short_TRAIN014_recovery=recovery,C3_focal_plan_preparation=focal_preparation,
-        native_ARGformer_execution=native_execution,VAL000_FLARE_target_binding=val_flare_binding,
+        native_ARGformer_execution=native_execution,native_ARGformer_counts_execution=counts_execution,ARGformer_Table1_fidelity=dict(status=table1_fidelity,report_ref=ref(table1_audit_path)),VAL000_FLARE_target_binding=val_flare_binding,
         FLARE_native_completion_close=dict(receipt_ref=ref(flare_close_path),credit_bytes=flare_close["credit_bytes"],retained_bytes=flare_close["retained_bytes"]) if flare_close else None,
         native_FLARE_build_status=flare_status,
         source_only_or_engineering_checks_are_not_training_results=True)
@@ -471,6 +546,15 @@ def main():
         for c,label in zip(COHORTS,LABELS):
             q=r["cohorts"].get(c,{})
             lines.append("| "+r["name"]+" / "+label+" | "+" | ".join(fmt(q.get(k),pct) for k,pct in [("accuracy",True),("nll",False),("macro_f1",True),("boundary_f1",True),("brier",False),("calibration_ece",False)])+" |")
+    lines+=["","## Additional available cohort metrics","",
+        "| Setup / cohort | Balanced accuracy % ± SD | Boundary precision % ± SD | Boundary recall % ± SD | Dosage MSE ± SD | Dosage MAE ± SD |",
+        "|---|---:|---:|---:|---:|---:|"]
+    for r in models:
+        for c,label in zip(COHORTS,LABELS):
+            q=r["cohorts"].get(c,{})
+            lines.append("| "+r["name"]+" / "+label+" | "+" | ".join(fmt(q.get(k),pct) for k,pct in [
+                ("balanced_accuracy",True),("boundary_precision",True),("boundary_recall",True),
+                ("dosage_mse_per_diploid_bp_class",False),("dosage_mae_per_diploid_bp_class",False)])+" |")
     lines+=["","## H046 matched continuous-flank outcome","",h046_outcome,
         "[Completed H046 comparison and paired effects](../research/reviews/H046_completed_comparison_root_20261015_v1/REPORT.md).","",
         "## Live full-budget training","",
@@ -484,9 +568,11 @@ def main():
     lines+=["","## Registered next architecture experiment","",h048_status,"","[Fresh independent novelty/cross-domain report](../"+novelty_path+"). "+novelty_status,"","H048 retains 31,933 parameters per arm and a fixed 30-pass/960-update schedule. Its matched comparison places the same graph signal into transitions or confidence. The reset-chain components have prior art. No novelty or accuracy claim is established.","","## American C3 benchmark","",
         "| Method | Current ancestry scores | Status |","|---|---|---|",
         "| Native ARGformer | unavailable | "+native_status+" |",
+        "| Native ARGformer dataset counts | not an accuracy run | "+counts_status+" |",
         "| Native FLARE | unavailable | "+flare_status+" |",
         "| Our C3 GNN | unavailable | TRAIN000 exact native focal/plan preparation: "+focal_status+". "+fanout_status+". Shared 30 Mb VAL000 inference completed. Remaining TRAIN parents, checkpoint and full prespecified VAL gate pending |",
         "","The TRAIN000 conversion is development evidence. Independent VAL000 inference now has its own actual completion/wait receipts; its method predictions and common-truth scoring remain pending. "+val_status+" Original-paper simulation assumptions and source versions remain explicitly documented.","",
+        table1_fidelity+" [Exact fidelity audit](../"+table1_audit_path+").","",
         "## GST molecular graph-set pilot","",
         gst_status+" AP is pooled per-atom average precision. One seed supplies no training-seed SD.","",
         "| Native setup | VALID AP | Selected epoch |","|---|---:|---:|"]
@@ -519,13 +605,16 @@ def main():
         updates=str(min(j["updates_per_arm"].values()))+"/960 verified updates per arm (receipt lower bound)" if j["updates_per_arm"] else "optimizer updates not yet verified"
         table.append(f"| {j['hypothesis']} | GPU{j['GPU']} | {j['passes_completed']}/30 completed passes; {updates}; {j['runtime_status']} | {j['validation_score']} |")
     table+=["| C3 remaining TRAIN014–019 | CPU | "+wave_text+" | no ancestry score |","| Original American VAL000 | CPU | "+val_status+" | no ancestry score |","| Native ARGformer | "+native_device+" | "+native_status+" | pending |",
+        "| Native ARGformer dataset counts | CPU | "+counts_status+" | no ancestry score |",
+        "| Original American VAL001–004 | CPU | "+remaining_val_status+" | no ancestry score |",
         "| Native FLARE | CPU | "+flare_status+" | pending |",
         "| Our C3 GNN | CPU preparation | TRAIN000 exact native focal/plans: "+focal_status+". "+fanout_status+". VAL000 inference completed; remaining TRAIN parents, checkpoint and full prespecified VAL gate pending | pending |",
         "| Empirical data | CPU | "+real_status+" | completion "+("verified" if empirical_verified else "pending")+" |","",
         "**Current measured development scores:** H045 foreign-episode **96.8270 ± 0.5870%** Present182 span accuracy, matched own-state **96.8175 ± 0.6142%**. H046: "+h046_scores+". "+h046_outcome+" H047 original-risk **96.7777 ± 0.5970%**, balanced-risk **96.7576 ± 0.5287%**. SD is across eight VAL simulations, one optimizer seed. H048 accuracy remains pending. [All "+str(len(models))+" measured setups, all seven cohorts, NLL/F1/boundaries/Brier/ECE and training budgets](research/current_scoreboard.md#detailed-cohort-metrics).","",
         "[Fresh independent H048 novelty/cross-domain assessment]("+novelty_path+"). "+novelty_status,"",
+        "**ARGformer paper fidelity:** "+table1_fidelity+" [Audit]("+table1_audit_path+").","",
         "**GST and cross-domain status:** "+gst_status,"",
-        "Parallel ownership: worker1 handles training startup and throughput, worker2 handles scores and reporting, and worker3 handles architecture plus C3 focal/plan integration. Root owns executions and Git. Independent worker tasks proceed in parallel, with completed handoffs integrated by root.","","<!-- CURRENT_SCOREBOARD_END -->"]
+        "Parallel ownership: worker1 integrates executable C3 GNN training and has completed the score audit, worker2 handles data preparation and ARGMix paper-panel reconstruction, worker3 implements the matched graph-memory candidate. Root owns live experiments, integration, scores and Git. Independent work continues in parallel.","","<!-- CURRENT_SCOREBOARD_END -->"]
     p=ROOT/"README.md"
     text=p.read_text()
     a="<!-- CURRENT_SCOREBOARD_START -->"
@@ -556,6 +645,21 @@ def main():
         text,count=re.subn(r"\| Setup \| Present182 \| BronzeAge162[^\n]*\n\|[^\n]*\n(?:\|[^\n]*\n)+",
             "\n".join(pop_table)+"\n",text,count=1)
     assert count==1
+    # This whole status section is generated so old queue and running claims cannot linger.
+    section_start="### Running and next experiments"
+    section_end="### Original-paper and empirical validation"
+    if section_start in text and section_end in text:
+        running=[section_start,"",
+            "**H048, GPU4:** "+h048_status+" Fixed budget:30 FP32 passes and960 updates per arm. [Registered evaluation route](research/reviews/H048_evaluate_root_handoff_20261015_v1/HANDOFF.md).","",
+            "**Native ARGformer, "+native_device+":** "+native_status,"",
+            "**Native FLARE:** "+flare_status+" Held-out VAL000 conversion: "+flare_val_conversion["status"]+".","",
+            "**Original remaining American VAL:** "+remaining_val_status+".","",
+            "**Completed H046:** "+h046_outcome+" [Results](research/reviews/H046_completed_comparison_root_20261015_v1/REPORT.md).","",
+            "**Completed H047:** original-risk96.7777±0.5970%, balanced-risk96.7576±0.5287%. Both30passes/960updates. Registered accuracy benefit not met. [Results](research/reviews/H047_completed_comparison_root_20261015_v1/REPORT.md).","",
+            "**American GNN preparation:** "+fanout_status+". "+wave_text,"",
+            "**Architecture work:** sample-witness order-2 cut memory has a source design and matched null/leaf-memory controls. Implementation is underway. Predictive utility and a distinct new contribution remain unproved. [Design and prior-art limits](research/reviews/ordered_graph_operator_research_20261015_v1/REPORT.md).","",
+            "Root orchestrates execution and publishing. Three workers handle C3 GNN execution integration, original benchmark preparation and architecture implementation in parallel. Only physical GPUs4–5 are eligible, with process title AI Auto Research Pipeline Test.","",""]
+        text=text[:text.index(section_start)]+"\n".join(running)+text[text.index(section_end):]
     pilot_start="<!-- ADAPTED_ARGFORMER_PILOT_START -->"
     pilot_end="<!-- ADAPTED_ARGFORMER_PILOT_END -->"
     pilot_block=pilot_start+"\n"+"\n".join(pilot_lines)+"\n"+pilot_end
@@ -563,6 +667,20 @@ def main():
         text=text[:text.index(pilot_start)]+pilot_block+text[text.index(pilot_end)+len(pilot_end):]
     else:
         text+="\n"+pilot_block+"\n"
+    stale_table_start="| Benchmark | Completed evidence | What is still needed |"
+    if stale_table_start in text:
+        rows=[stale_table_start,"| --- | --- | --- |",
+            "| European common-input development panel | Native AP, current native ARGMix and our GNN on eight shared VAL simulations, population SDs and confusion/boundary diagnostics | Independent test confirmation and training-seed variation |",
+            "| ARGMix published Tables 1 and 2 | Primary-source protocol and published values audited | Published-panel IID and misspecification experiments. Paper-era code and recipe details remain unavailable |",
+            "| ARGformer American Table 1 | Full30Mb TRAIN and VAL000 simulated/inferred inputs and native paths completed. Native MLM is training on "+native_device+". FLARE TRAIN000 calls sealed. | Finish native per-target fits, original remaining VAL001–004, all matched predictions and common EUR/EAS/AFR metrics. Exact Table1 downstream settings remain unresolved |",
+            "| Empirical ancestry and PCA | H045 predictions, bp-weighted proportions and original-genotype PCA completed for24query haplotypes/12subjects on the355-tree,2074-site panel | Descriptive biological/domain assessment. No known empirical truth or accuracy |"]
+        text,count=re.subn(r"\| Benchmark \| Completed evidence[^\n]*\n\|[^\n]*\n(?:\|[^\n]*\n)+",
+            "\n".join(rows)+"\n",text,count=1)
+        assert count==1
+    text=text.replace("Fourteen independent 2 Mb TRAIN preparations are complete.",
+        "TRAIN000–015 independent2Mb preparations are complete; TRAIN016/017 are running and018/019 remain pending.")
+    text=text.replace("The 40-haplotype panel and pre-size/domain differences still need an explicit adapter and assessment. No ancestry or PCA result.",
+        "The variable-panel adapter and H045 empirical application have completed, with ancestry probabilities, bp-weighted proportions and genotype PCA for24query haplotypes/12subjects. These are descriptive outputs without known ancestry truth. Panel/domain assessment remains necessary. [Completed application](experiments/results/H018_H045_empirical_application_root_v1/completed.json).")
     p.write_text(text)
     print(json.dumps(dict(current_setups=len(models),cohorts=len(COHORTS),recorded_metric_receipts=len(inventory),live_jobs=jobs,updated_utc=stamp)),flush=True)
 if __name__=="__main__":

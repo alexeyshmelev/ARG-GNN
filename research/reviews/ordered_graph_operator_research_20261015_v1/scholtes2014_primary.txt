@@ -1,0 +1,503 @@
+
+ Causality-driven slow-down and speed-up of diffusion in non-Markovian temporal networks | Nature Communications
+ Skip to main content
+Thank you for visiting nature.com. You are using a browser version with limited support for CSS. To obtain
+ the best experience, we recommend you use a more up to date browser (or turn off compatibility mode in
+ Internet Explorer). In the meantime, to ensure continued support, we are displaying the site without styles
+ and JavaScript.
+Advertisement
+ [IMAGE ALT Advertisement] 
+ [IMAGE ALT Nature Communications] 
+ View all journals
+ Saved research
+ Search
+ Account
+ Log in
+ Content
+ Explore content
+ About the journal
+ Publish with us
+ Sign up for alerts
+ RSS feed
+nature
+nature communications
+articles
+ article
+ Causality-driven slow-down and speed-up of diffusion in non-Markovian temporal networks
+ Download PDF
+ Download PDF
+Article
+Published: 24 September 2014
+Causality-driven slow-down and speed-up of diffusion in non-Markovian temporal networks
+Ingo Scholtes1, 
+Nicolas Wider1, 
+René Pfitzner1, 
+Antonios Garas1, 
+Claudio J. Tessone1 & 
+…
+Frank Schweitzer1 
+Show authors
+ Nature Communications
+ volume 5, Article number: 5024 (2014) Cite this article
+ Save article
+ View saved research
+13k Accesses
+304 Citations
+26 Altmetric
+Metrics details
+Abstract
+Recent research has highlighted limitations of studying complex systems with time-varying topologies from the perspective of static, time-aggregated networks. Non-Markovian characteristics resulting from the ordering of interactions in temporal networks were identified as one important mechanism that alters causality and affects dynamical processes. So far, an analytical explanation for this phenomenon and for the significant variations observed across different systems is missing. Here we introduce a methodology that allows to analytically predict causality-driven changes of diffusion speed in non-Markovian temporal networks. Validating our predictions in six data sets we show that compared with the time-aggregated network, non-Markovian characteristics can lead to both a slow-down or speed-up of diffusion, which can even outweigh the decelerating effect of community structures in the static topology. Thus, non-Markovian properties of temporal networks constitute an important additional dimension of complexity in time-varying complex systems.
+Similar content being viewed by others
+ Temporal heterogeneity shapes diffusion dynamics in complex networks
+ Article
+ Open access
+ 23 April 2026
+ Non-equilibrium entropy production and information dissipation in a non-Markovian quantum dot
+ Article
+ 09 February 2026
+ Characterization of interactions’ persistence in time-varying networks
+ Article
+ Open access
+ 14 January 2023
+Explore related subjects
+ Discover the latest articles and news in related subjects.
+ Theoretical physics
+ Temporal Network Dynamics and Epidemic Processes
+Introduction
+Complex systems in nature, society and technology are rarely static but typically have time-varying network topologies. The increasing availability of high-resolution data on time-stamped or time-ordered interactions from a variety of complex systems has fostered research on how different aspects of the temporal dynamics of networks influence their properties. Focusing on one particular aspect, a first line of research has studied the concurrency and duration of interactions1,2,3,4,5. Some of these works show that compared with systems where, similar to static networks, most or all links are available concurrently, dynamical processes such as epidemic spreading or diffusion are slowed down by the continuously switching topologies of temporal networks1,4,5. Other works show that the dynamics of network topologies can introduce noise that fosters certain types of consensus processes2,3. Assuming that network topologies change in response to the dynamical process running on top of it, another line of research has studied adaptive networks, again highlighting that network dynamics have important consequences for dynamical processes6,7. Considering interactions in dynamic networks as a time series of events, a number of recent works focused on the question of whether observed inter-event times are consistent with the Poissonian distribution expected from a memoryless stochastic process. For a number of dynamic social systems, it has been shown that inter-event times follow non-Poissonian, heavy-tail distributions, and that the resulting bursty interaction patterns influence the speed of dynamical processes such as spreading and diffusion8,9,10,11,12,13,14,15,16,17,18. Although all of these works highlight the importance of temporal information in the study of networks, there are a number of questions that have not been answered satisfactorily. Most empirical studies of dynamical processes in temporal networks focus on the influence of heavy-tail inter-event time distributions in dynamic social networks, which probably result from human task-execution mechanisms19,20,21. However, inter-event time distributions cannot explain temporality effects in other types of dynamic complex systems in which interactions are distributed homogeneously in time. Furthermore, this approach requires that sufficiently precise time stamps can be assigned to interactions, thus excluding path-based data where merely the ordering of interactions can be inferred.
+Although inter-event time statistics have been studied in much detail, an important additional characteristic of temporal networks is that the ordering of interactions influences causality. Different from static networks, the presence of two time-stamped edges (a, b) and (b, c) in a temporal network does not necessarily imply the existence of a path a→b→c, connecting node a to c via b. Instead, so-called time-respecting paths must additionally respect causality, that is, a time-respecting path only exists if edge (a, b) occurs before edge (b, c)22,23. To additionally consider the timing of interactions, it is common practice to impose the additional constraint that edges (a,b) and (b,c) must occur within a certain time window, thus imposing a limit on the time a particular process can wait in node b. As such, both the order and timing of interactions affect time-respecting paths—and thus causality—in temporal networks. Compared with the rich literature on node activities, a relatively smaller number of studies empirically investigated effects of causality in temporal networks22,24,25,26,27,28,29,30. Recent works have shown that order correlations in temporal networks lead to causality structures, which significantly deviate from what is expected based on paths in the corresponding time-aggregated networks27,28,29. Studying time-respecting paths a→b→c from the perspective of a contact sequence a,b,c passing through node b, it was shown that the next contact c not only depends on the current contact b but also on the previous one28,29,30,31. As a consequence, contact sequences in real-world temporal networks exhibit non-Markovian characteristics that are in conflict with the Markovian assumption implicitly made when studying temporal networks from the perspective of time-aggregated networks, and which can neither be attributed to inter-event time distributions nor to the concurrency or duration of interactions27,28,29,30. Furthermore, it was shown that causality structures resulting from non-Markovian contact sequences influence both the speed of and the paths taken by dynamical processes28,29. These works not only question the applicability of the static network paradigm when modelling dynamic complex systems, they also highlight a temporal-topological dimension of temporal networks, which is ignored when exclusively focusing on time distributions of events and associated changes in the duration of dynamical processes. In line with the general lack of analytical approaches to understand and predict the effects of network dynamics on dynamical processes4,32, an analytical explanation for the influence of causality structures in real-world complex systems, as well as for the significant variations observed across different systems, is currently missing.
+To fill these gaps, in this article we introduce an analytical approach that allows to study dynamical processes in non-Markovian temporal networks. In particular, we introduce higher-order time-aggregated representations of temporal networks that preserve causality and use them to define Markov models for non-Markovian interaction sequences. We show that the eigenvalue spectrum of the associated transition matrices explains the slow-down and speed-up of diffusion processes in temporal networks compared with time-aggregated networks. We derive an analytical prediction for direction and magnitude of the change in a temporal network, validate it against six empirical data sets and show that order correlations can both slow-down or speed-up diffusion even in systems with the same static topology. Our results highlight that non-Markovian characteristics of temporal networks can either enforce or mitigate the influence of topological properties on dynamical processes. As such, they constitute an important additional dimension of complexity that needs to be taken into account when studying time-varying network topologies.
+Results
+Causality-driven changes of diffusive behaviour
+We define a temporal network to be a set of directed, time-stamped edges (v, w; t) connecting node v to w at a discrete time step t. In this framework, we assume time-stamped interactions (v, w; t) to be instantaneous, occurring at time t for exactly one discrete time step. However, interactions lasting longer than one time step can still be represented by multiple interactions occurring at consecutive time steps. We further define a time-aggregated, or aggregate, network to be a projection along the time axis, that is, a directed edge (v, w) between nodes v and w exists whenever a directed time-stamped edge (v, w; t) exists in the temporal network for at least one time stamp t. Capturing the intensity of interactions, we define edge weights in the time-aggregated network as the number of times an edge occurs in the temporal network. A convenient way to illustrate temporal networks are time-unfolded representations. In this representation, time is unfolded into an additional topological dimension by replacing nodes v and w by temporal copies vt and wt for each time step t. Time-stamped edges (v, w; t) are represented by directed edges (vt, wt+1), whose directionality captures the directionality of time. Finally, we define a time-respecting path of length n as a sequence of n time-stamped edges (v1, v2; t1),(v2, v3; t2),…,(vn, vn+1; tn) with t1<t2<…<tn. In addition, it is common practice to assume a limited waiting time τ for time-respecting paths, additionally imposing the constraint that consecutive interactions occur within a time window of τ, that is, 0<ti−ti−1≤τ for i=2,…,n. We refer to time-respecting paths of length two as two-paths. Representing the shortest possible time-ordered interaction sequence, two-paths are the simplest possible extension of edges (which can be viewed as ‘one-path’) that capture causality in temporal networks. As such, two-paths are a particularly simple abstraction that allows to study causality in temporal networks28,29.
+Figure 1b shows time-unfolded representations of two different temporal networks GT and consisting of four nodes and 27 time steps. Although both examples correspond to the same weighted time-aggregated network shown in Fig. 1a, the two temporal networks differ in terms of the ordering of interactions. As a consequence, assuming a limited waiting time of τ=1, the time-unfolded representations reveal that a time-respecting path d→b→c only exists in the temporal network , while it is absent in GT. This simple example illustrates how the mere ordering of interactions influences causality in temporal networks. In the following, we highlight the relevance of causality in real-world systems by studying diffusion dynamics in six empirical temporal network data sets: (AN) time-stamped interactions between ants in a colony33; (RM) time-stamped social interactions between students and academic staff at a university campus34; (FL) time-ordered flight itineraries connecting airports in the United States; (EM) time-stamped E-mail exchanges between employees of a company35; (HO) time-stamped interactions between patients and medical staff in a hospital36; and (LT) passenger itineraries in the London Tube metro system (see details in Methods section). For each system, we study causality-driven changes of diffusion speed. In particular, we use a random walk process and study the time needed until node visitation probabilities converge to a stationary state37,38. This convergence behaviour of a random walk is a simple proxy that captures the influence of both the topology and dynamics of temporal networks on general diffusive processes39. For a given convergence threshold ε, we compute a slow-down factor (ε) that captures the slow-down of diffusive behaviour between the weighted aggregated network and a temporal network model derived from the empirical contact sequence, respectively (details in Methods section). To exclude effects related to node activities and inter-event time distributions, and to exclusively focus on effects of causality observed in the real data sets, this model only preserves the weighted aggregate network as well as the statistics of two-paths in the data. Figure 2 shows the causality-driven slow-down factor for the six empirical networks and different convergence thresholds ε. Even though networks are of comparable size, deviations from the corresponding aggregate networks in the limit of small ε (that is, the long-term behaviour) are markedly different. For ε=10−5 and (RM), the slow-down factor is ≈7.68±0.01, while for (AN) we obtain a slow-down ≈2.11±0.02. For a threshold of ε=10−10 in the (HO) data set, we have ≈5.63±0.019, while for (EM) we get ≈2.93±0.005. Although all these results signify a slow-down of diffusion, for ε=10−5, and (FL) and (LT), we obtain ≈0.957±0.002 and ≈0.25±0.01, which translate to a speed-up of diffusion by a factor of 1.04 and 4, respectively. Although it is not surprising that the travel patterns in (FL) and (LT) are ‘optimized’ in such a way that diffusion is more efficient than in temporal networks generated by contacts between humans (RM, EM and HO) or ants (AN), an analytical explanation for the direction and magnitude of this phenomenon, as well as for the variations across systems, is currently missing.
+Figure 1: Two temporal networks with the same first-order, but different second-order time-aggregated networks.
+ [IMAGE ALT Figure 1: Two temporal networks with the same first-order, but different second-order time-aggregated networks.] 
+Full size image
+(a) Time-aggregated network G(1), whose edge weights capture the number of times each edge occurred in a temporal network. The time-aggregated network is consistent with both temporal networks shown in b. (b) Time-unfolded representations of two temporal networks, each consisting of 4 nodes and 27 time steps, both consistent with G(1). Differences in their causality structures are highlighted by the corresponding second-order aggregate networks shown in c and d. Both second-order aggregate networks are consistent with G(1).
+Figure 2: Causality-driven changes of diffusion speed.
+ [IMAGE ALT Figure 2: Causality-driven changes of diffusion speed.] 
+Full size image
+We investigate the causality-driven changes of diffusive behaviour by an empirical study of the convergence time of random walks. For a given convergence threshold ε, we compute a slow-down factor (ε), which captures the slow-down of diffusion in a temporal network model that preserves the weighted aggregate network as well as the statistics of time-respecting paths of length two in the data, compared with diffusion in the weighted aggregate network. The six panels show the ε-dependent slow-down factor for (a) the (AN) data set covering interactions between 89 ants, (b) the (RM) data on proximity relations between 64 academic staff members and students, (c) the (FL) data on flight itineraries connecting 116 airports, (d) the (EM) data covering E-mail exchanges between 167 employees in a company, (e) the (HO) data on contacts between 75 patients and health-care workers in a hospital and (f) the (LT) data on passenger journeys between 309 London Tube stations. Each result is the mean of random walks starting at every node; error bars indicate the s.e.m. The predicted * value (see equation (2)) is shown by the horizontal dashed line.
+Causality-preserving time-aggregated networks
+In the following, we provide an analytical explanation for the direction of this change (that is, slow-down or speed-up) as well as for its magnitude in specific temporal networks. We show that an accurate analytical estimate * slow-down observed in empirical temporal networks can be calculated based on the eigenvalue spectrum of higher-order, time-aggregated representations of temporal networks. Our approach uses a state space expansion to obtain a higher-order Markovian representation of non-Markovian temporal networks40. This means that a non-Markovian sequence of interactions in which the next interaction only depends on the previous one (that is, one-step memory) can be modelled by a Markovian stochastic process that generates a sequence of two-paths. Analogous to a first-order time-aggregated network G(1) consisting of (first-order) nodes V(1) and (first-order) edges E(1), we define a second-order time-aggregated network G(2) consisting of second-order nodes V(2) and second-order edges E(2). Similar to a directed line graph construction41, each second-order node represents an edge in the first-order aggregate network. As second-order edges, we define all possible paths of length two in the first-order aggregate network, that is, the set of all pairs (e1, e2) for edges e1=(a, b) and e2=(b, c) in G(1). With this, second-order edge weights w(2)(e1, e2) can be defined as the relative frequency of time-respecting paths (a, b; t1)→(b, c; t2) of length two in a temporal network. Although the full details of this construction can be found in the Methods section, we illustrate our approach using the two temporal networks shown in Fig. 1. Figure 1c,d shows two second-order time-aggregated networks G(2) and corresponding to the temporal networks GT and , respectively. In particular, the absence of a time-respecting path d→b→c in GT is captured by the absence of the second-order edge between the second-order nodes e1=(d, b) and e2=(b, c). Further differences between the causality structures of GT and are captured by different second-order edge weights. Notably, this example illustrates that temporal networks giving rise to different second-order time-aggregated networks can still be consistent with the same first-order time-aggregated network.
+This approach allows us to generate a second-order network representation where each second-order node represents an edge in the underlying temporal network, each second-order edge represents a time-respecting path of length two and weights w(2) capture the statistics of two-paths in the temporal network. An interesting aspect of this construction is that it allows to easily define second-order Markov models generating contact sequences, which exhibit ‘one-step memory’ and which thus correctly reproduce the statistics of time-respecting paths of length two in the original temporal network. For this, one can define a second-order transition matrix T(2) where transition rates between second-order nodes are proportional to second-order edge weights (see details in Methods section). In the following, we illustrate the construction of second-order transition matrices using the examples in Fig. 1. For the second-order aggregate network G(2) shown in Fig. 1c, corresponding to the temporal network GT, the transition matrix T(2) (rows/columns ordered as indicated) is
+The leading eigenvector of a stochastic matrix captures the stationary distribution of the associated Markov chain. As such, the leading eigenvector π of the second-order transition matrix captures the stationary activation frequencies of edges in contact sequences generated by the corresponding second-order Markov model. For the example above, we obtain a normalized leading eigenvector , which reproduces the relative weights of edges in the first-order aggregate network shown in Fig. 1a. In summary, interpreting T(2) as transition matrix of a random walker in the second-order aggregate network, we obtain a second-order Markov model generating contact sequences that preserve the relative weights in the first-order aggregate network, as well as the statistics of two-paths. In line with recent observations that one-step memory is often sufficient to characterize time-respecting paths in empirical temporal networks29, in the remainder of this article we focus on such second-order models. However, our findings can be generalized to n-th order networks G(n) and matrices T(n) that capture the statistics of time-respecting paths of any length n. From this perspective, the weighted first-order aggregate network can be seen as a first-order approximation where weights only capture the statistics of edges, that is, time-respecting paths of length one. Contact sequences generated by a random walk in the first-order time-aggregated network with transition probabilities proportional to edge weights preserve the statistics of edges but destroy the statistics of time-respecting paths. As such, a random walker in the first-order time-aggregate network must be interpreted as null model that destroys causality, and which can thus not be used to gain analytical insights about dynamical processes in non-Markovian temporal networks42. A second-order representation of the same null model can be constructed using a maximum entropy second-order transition matrix . For two links e1=(a, b) and e2=(b, c), the transition probability simply corresponds to the transition rate of a random walk across the weighted link (b, c) in the first-order aggregate network (see details in Methods section). This definition ensures that the corresponding random walker generates Markovian temporal networks, which are consistent with a given weighted time-aggregated network, and which exhibit a two-path statistic as expected based on paths in the first-order aggregate network. We again illustrate our approach using the first-order time-aggregated network G(1) shown in the left panel of Fig. 1. For this example, the transition matrix corresponding to a ‘Markovian’ temporal network is given as
+Again, as leading eigenvector we obtain , confirming that the stationary activation frequencies of edges correspond to the relative weights of edges in the first-order time-aggregated network. From the perspective of statistical ensembles, which is commonly applied in the study of complex networks, each second-order transition matrix whose leading eigenvector π satisfies (π)e=w(1)(a, b) (∀ edges e=(a, b)) defines a statistical ensemble of temporal networks constrained by a weighted time-aggregated network G(1) and a given two-path statistics. The entropy H(T(2)) of this ensemble can be defined as the entropy growth rate of the Markov chain described by the corresponding transition matrix (details in Methods section)43. Different from entropy measures previously applied to dynamic networks44, this measure quantifies to what extent the next step in a contact sequence is determined by the previous one. For a specific second-order transition matrix T(2) and a corresponding maximum entropy model , we define the entropy growth rate ratio as
+This ratio ranges between a minimum of zero for transition matrices corresponding to contact sequences that are completely deterministic and a maximum of one for transition matrices corresponding to Markovian temporal networks. In general, an entropy growth rate ratio smaller than one highlights that the statistics of two-paths—and thus causality in the temporal network—deviates from what is expected based on the first-order aggregate network. As such, ΛH is a simple measure that quantifies the importance of non-Markovian properties in temporal networks. We illustrate this using the simple example introduced in Fig. 1. For the second-order transition matrices T(2) and , we obtain ΛH(T(2))=0.84 and thus ΛH(T(2))<1. This confirms that T(2) corresponds to a non-Markovian temporal network, and that the statistics of time-respecting paths in GT deviates from what one could expect based on edge frequencies in the first-order aggregate network. Considering the temporal network , one easily verifies that edge weights in the corresponding second-order aggregate network coincide with the transition matrix . The resulting entropy growth rate ratio of one for verifies that this temporal network does not exhibit non-Markovian characteristics and that two-path statistics do not deviate from what is expected based on the first-order aggregate network.
+Predicting causality-driven changes of diffusion speed
+A particularly interesting aspect of the second-order network representation introduced above is that temporal transitivity is preserved, that is, the existence of two second-order edges (e1, e2) and (e2, e3) implies that a time-respecting path e1→e2→e3 exists in the underlying temporal network. Notably, the same is not true for first-order aggregate networks, which do not necessarily preserve temporal transitivity in terms of time-respecting paths, that is, the existence of two first-order edges (a, b) and (b, c) does not imply that a time-respecting path a→b→c exists. Transitivity of paths is a precondition for the use of algebraic methods in the study of dynamical processes. As such, it is possible to study diffusion dynamics in temporal networks based on the spectral properties of the matrix T(2), while the same is not true for a transition matrix defined based on edge weights in the first-order aggregate network. In particular, the convergence time of a random walk process (and thus diffusion speed) can be related to the second largest eigenvalue of its transition matrix45. For a primitive stochastic matrix with (not necessarily real) eigenvalues 1=λ1>|λ2|>|λ3|≥…≥|λn|, one can show that the number of steps k after which the total variation distance Δ(πk, π) between the visitation probabilities πk and the stationary distribution π of a random walk falls below ε is proportional to 1/ln(|λ2|) (see Supplementary Note 1 for a detailed derivation). For a matrix T(2) capturing the statistics of two-paths in an empirical temporal network, and a matrix corresponding to the ‘Markovian’-null model derived from the first-order aggregate network, an analytical prediction * for causality-driven changes of convergence speed can thus be derived as
+where λ2 and denote the second largest eigenvalue of T(2) and , respectively. Depending on the eigenvalues λ2 and , both a slow-down (*(T(2))>1) or speed-up (*(T(2))<1) of diffusion can occur.
+This approach allows us to analytically study the effect of non-Markovian characteristics in the empirical data sets introduced above. For each data set, we construct matrices T(2) and (see equations (4) and (5) in Methods), and compute the entropy growth rate ratio ΛH for the corresponding statistical ensembles. For (RM) we obtain ΛH(T(2))≈0.40, for (AN) ΛH(T(2))≈0.42, for (EM) we get ΛH(T(2))≈0.62 and for (HO) we obtain ΛH(T(2))≈0.71. For (LT) we obtain ΛH(T(2))≈0.30, while for (FL) we have ΛH(T(2))≈0.82. This indicates that the topologies of time-respecting paths in all six cases differ from what is expected from the first-order time-aggregated networks. The impact of these differences on diffusion can be quantified by means of the analytical prediction *(T(2)): for (RM) we obtain *(T(2))≈7.77, for (AN) *(T(2))≈2.05, for (EM) we get *(T(2))≈3.01 and for (HO) we obtain *(T(2))≈5.75. Considering the two data sets that show a speed-up of diffusion, we get *(T(2))≈0.93 for (FL), while for (LT) we obtain *(T(2))≈0.23. All six predictions are consistent with the diffusion behaviour observed in numerical simulations in the limit of small ε (see Fig. 2). As argued above, the significantly smaller magnitude of the slow-down effect in (AN) compared with that in (RM) can neither be attributed to differences in system size nor inter-event time distributions. A spectral analysis of T(2) can explain the smaller slow-down of (AN) compared with that of (RM) by a ‘better-connected’ causal topology indicated by a smaller *. Similarly, the large slow-down observed in (HO) can be related to a ‘badly connected’ causal topology indicated by a large value of *. For (FL), the analytical prediction *(T(2))≈0.93 is consistent with the asymptotic empirical speed-up observed in Fig. 2. Similarly, the prediction *(T(2))≈0.23 for (LT) is in line with the speed-up observed in Fig. 2. Here, the small value of *(T(2)) highlights that the empirical second-order aggregate network is much better connected than the one expected from a Markovian temporal network, thus explaining the large speed-up by a factor of four. The nonlinear behaviour of (ε) can be understood by recalling that equation (2) makes the simplifying assumption that only λ2 contributes to the convergence time, which holds in the limit of small ε. As ε increases, an increasing number of eigenvalues and eigenvectors have non-negligible contributions to the empirical slow-down .
+Causality structures can slow-down or speed-up diffusion
+In the above we have shown that non-Markovian characteristics alter the causal topology of time-varying complex systems, and that the dynamics of diffusion in such systems can be explained by the resulting changes in the eigenvalue spectrum of higher-order aggregate networks, compared with the first-order aggregate network. We further analytically found that depending on the system under study, non-Markovian characteristics can both slow down or speed up diffusion dynamics. In the following, we further investigate the mechanism behind the speed-up and slow-down by a model in which order correlations can mitigate or enforce topology-driven limitations of diffusion speed. The model generates non-Markovian temporal networks consistent with a uniformly weighted aggregate network with two interconnected communities, each consisting of a random 4-regular graph with 50 nodes. A parameter σε(−1,1) controls whether time-respecting paths between nodes in different communities are—compared with a ‘Markovian’ realization—over- (σ>0) or underrepresented (σ<0). The Markovian case coincides with σ=0. An important aspect of this model is that realizations generated for any parameter σ are consistent with the same weighted aggregate network. The parameter σ exclusively influences the temporal ordering of interactions, but neither their frequency, topology nor their temporal distribution (see Supplementary Note 1 for model details and mathematical proofs). Figure 3a shows the effect of σ on the entropy growth rate ratio ΛH (blue, dashed line) and the predicted slow-down * (black, solid line). All non-Markovian realizations of the model (that is, σ≠0) exhibit an entropy growth rate ratio ΛH<1 (blue dashed line), which signifies the presence of order correlations. Whether these correlations result in a speed-up (*<1) or slow-down (*>1) depends on how order correlations are aligned with community structures. For σ<0, time-respecting paths across communities are inhibited and diffusion slows down compared with the time-aggregated network (*>1). For σ>0, non-Markovian properties enforce time-respecting paths across communities and thus mitigate the decelerating effect of community structures on diffusion dynamics (*<1)46. We analytically substantiate this intuitive interpretation by means of a a spectral analysis provided in Fig. 3b. For each σ, we compute the algebraic connectivity of the causal topology, that is, the second-smallest eigenvalue λ2 of the normalized Laplacian matrix =In−T(2) corresponding to the second-order aggregate network (In being the n-dimensional identity matrix). Larger values λ2 indicate ‘better-connected’ topologies that do not exhibit small cuts47,48. The effect of non-Markovian characteristics on λ2 validates that the speed-up and slow-down is due to the ‘connectivity’ of the causal topology. In addition, the insets in Fig. 3b show entries (v2)i of the Fiedler vector, that is, the eigenvector v2 corresponding to eigenvalue λ2 . The distribution of entries of v2 is related to community structures and is frequently used for divisive spectral partitioning of networks49. For σ=−0.75, the strong community structure in the causal topology shows up as two separate value ranges with different signs, while the two entries close to zero represent edges that interconnect communities. Apart from the larger algebraic connectivity, the distribution of entries in the Fiedler vector for σ=0.75 shows that the separation between communities is less pronounced. This highlights that non-Markovian properties can effectively outweigh the decelerating effect of community structures in the time-aggregated network, and that the associated changes in the causality structures can be understood by an analysis of the spectrum of higher-order time-aggregated networks.
+Figure 3: Slow-down and speed-up regimes in a temporal network model.
+ [IMAGE ALT Figure 3: Slow-down and speed-up regimes in a temporal network model.] 
+Full size image
+We analytically study a model of non-Markovian temporal networks consistent with a weighted first-order aggregate network with n=100 nodes that has two pronounced communities with 50 nodes each. A parameter σ controls whether two-paths across communities are overrepresented (σ>0, turquoise) or underrepresented (σ<0, magenta) compared with the Markovian case (σ=0). Realizations for different parameters only differ in the ordering of interactions and thus their second-order aggregate networks. Weighted first-order time-aggregated networks are the same for all parameters σ. (a) Entropy growth rate ratio ΛH (blue, dashed line) and slow-down factor * (black, solid line) for different parameters σ. (b) Algebraic connectivity λ2 of the weighted second-order aggregate network for different parameters σ of non-Markovian temporal networks. Insets show the Fiedler vector for two points σ=−0.75 (magenta) and σ=0.75 (turquoise) in the model’s parameter space corresponding to cases where two-paths across communities are inhibited and enforced, respectively.
+Discussion
+In summary, we introduce higher-order aggregate representations of temporal networks with non-Markovian contact sequences. This abstraction allows to define Markov models generating statistical ensembles of temporal networks that preserve the weighted aggregate network as well as the statistics of time-respecting paths. Focusing on second-order Markov models, we show how transition matrices for such models can be computed based on empirical contact sequences. The ratio of entropy growth rates (see equation (1)) between this transition matrix and that of a null model, which can easily be constructed from the first-order aggregate network, allows to assess the importance of non-Markovian properties in a particular temporal network. Considering six different empirical data sets, we show that spectral properties of the transition matrices capture the connectivity of the causal topology of real-world temporal networks. We demonstrate that this approach allows to analytically predict whether non-Markovian properties slow-down or speed-up diffusive processes, as well as the magnitude of this change (see equation (2)). With this, we provide the first analytical explanation for both the direction and magnitude of causality-driven changes in diffusive dynamics observed in empirical systems. Focusing on the finding that non-Markovian characteristics of temporal networks can both slow down or speed up diffusion processes, we finally introduce a simple model that allows to analytically investigate the underlying mechanisms. Our results show that the mere ordering of interactions can either mitigate or enforce topological properties that limit diffusion speed. Both our empirical and analytical studies confirm that causality structures in real-world systems have large and significant effects, slowing down diffusion by a factor of more than seven in one system, while other systems experience a speed-up by a factor of four compared with what is expected from the first-order time-aggregated network. These findings highlight that the causal topologies of time-varying complex systems constitute an important additional temporal dimension of complexity, which can reinforce, mitigate and even outweigh effects that are due to topological features such as community structures.
+Different from studies exclusively considering how interactions are distributed in time, in our study we focus on how their ordering influences causality structures in temporal networks. The finding that causality structures alone can lead to both a speed-up or a slow-down of diffusion highlights that, to understand the influence of the temporal dynamics in real-world systems, effects both activity patterns and causality must be taken into account. Considering temporal networks in which interactions are homogeneously distributed in time, our approach further provides a novel explanation for changes in dynamical processes that cannot be explained in terms of bursty node activity patterns. An additional benefit of our approach is that it can be used for the network-based study of systems for which causal relations between different links can be inferred even though links cannot be assigned absolute time stamps. The data on airline and subway passenger itineraries analysed in our article are two examples for such systems where only the ordering of links is known.
+Our approach of constructing higher-order Markov models that preserve the statistics of time-respecting paths allows to study the temporal-topological dimension of time-varying complex systems—a dimension that is often ignored when exclusively focusing on changes in the duration of dynamical processes. The higher-order time-aggregated networks introduced in this study are simple static representations of temporal networks, which compared with first-order aggregate networks preserve causality better. This approach provides interesting perspectives not only for analytical studies of further classes of dynamical processes in complex systems with time-varying interaction topologies. It is also a promising approach for the development of novel temporal community detection algorithms using, for example, spectral clustering or random walk based methods as well as for the design of refined eigenvector-based centrality measures taking into account the ordering of links in dynamic networks. Finally, we foresee applications in the development of novel temporal network visualization methods, such as layout algorithms that make use of both the first- and the second-order time-aggregated networks.
+Methods
+Details on empirical data sets
+In our work, we study diffusion dynamics in temporal networks constructed from six different empirical data sets: (AN) captures pairwise interactions between individuals in an ant colony, (RM) is based on contact networks of students and academic staff members at a university campus, (EM) covers E-Mail exchanges between employees of a company, (FL) represents multi-segment itineraries of airline passengers in the United States and (LT) captures passenger journeys in the London underground transportation network.
+For the (AN) data set, we used the largest data set from an empirical study of ant interactions33, that is, the first filming of colony 1 with a total of 1,911 antenna–body interactions between 89 ants recorded over a period of 1,438 s. For the (RM) data set, we used time-stamped proximity data on students and academic staff members recorded via Bluetooth-enabled phones at a university campus over a period of more than 6 months34. For computational reasons, we used a subset covering the week from 8 to 15 September 2004, which comprises a total of 26,260 time-stamped interactions between 64 individuals. The (EM) data set covers E-mail exchanges recorded over a period of 9 months between 167 employees of a medium-size manufacturing company35. Here we use a subset covering close to 11,000 E-mail exchanges occurring during the first month of the observation period. The (HO) data set contains time-stamped contacts between 46 health-care workers and 29 patients in a hospital in Lyon36. Contacts have been recorded via proximity sensing badges in the week from 6 to 10 December 2010. For our analysis, we use a subset of more than 15,000 contacts occurring within the first 48 h of the observation period. The (FL) data set has been extracted from the freely available RITA TranStats Airline Origin and Destination Survey (DB1B) database50, which contains 10% samples of all airline tickets sold in the United States for each quarter since 1993. For our study we extracted 230,000 multi-segment flights ticketed by American Airlines in the fourth quarter of 2001, which connect a total of 116 airports in the United States. For each ticket number i, an itinerary consists of a time-ordered sequence of multiple flight segments between airports indicated by their three-letter IATA code. An example for a time-ordered itinerary with ticket number i is given in the following:
+Although no precise time stamps are known for individual segments, their ordering allows to directly construct time-respecting flight paths taken by individual passengers. For the example above, a time-respecting path (CLT, ORF;1)→(ORF, LGA;2)→(LGA, ORF;3)→(ORF, CLT;4) can be constructed. Here, time-respecting paths necessarily consist of interactions that immediately follow each other in subsequent time steps, as otherwise a spurious flight path (CLT, ORF;1)→(ORF, CLT;4) would be inferred for the example above. Furthermore, a time-respecting path is only inferred if the ticket number of consecutive flight segments is identical. We used the same approach in the (LT) data set, which has been extracted from the freely available Rolling Origin and Destination Survey database51 provided by the London Underground. The Rolling Origin and Destination Survey database covers a 5% sample of all journeys made by passengers who used the Oyster electronic ticketing card during a period of 1 week. This amounts to a total of more than four million passenger flows between 309 London Underground stations. By mapping those passenger flows to a network representation of the London Underground, we extracted detailed itinerary data just like those in the example for the (FL) data set. We then computed time-respecting paths based on directly consecutive travel segments in the same way as for the (FL) data set. Although the condition of directly consecutive travel segments is crucial for the (FL) and the (LT) data set, for the (AN), (RM), (HO) and (EM) data sets we relax this definition of a time-respecting path and additionally consider time-respecting paths if links occur within a certain time period. In particular, following arguments that many dynamical processes set limitations on how long paths are allowed to wait at certain nodes23, we limit the waiting time on time-respecting paths to a maximum of τ. In other words, we assume that a time-respecting path between nodes a and c exists whenever two time-stamped edges (a,b;t1) and (b,c;t2) exist for 0<t2−t1≤τ. In general, we have chosen the maximum waiting time τ as the smallest possible value such that the set of nodes that can mutually influence each other via time-respecting paths (that is, the strongly connected component) represents a sizeable fraction of the network. For the (AN) data, a maximum waiting time τ of 6 s was applied, which gives rise to a subset of 61 nodes that can reach each other via time-respecting paths. For the (RM) and (HO) data sets, we used a maximum waiting time τ of 5 min, which resulted in a subset of 58 and 53 individuals, respectively, who can mutually reach each other via time-respecting paths. For the (EM) data set, we used a maximum waiting time τ of 60 min, resulting in a subset of 96 employees mutually connected via time-respecting paths. For the (FL) data set, the strongly connected component comprises 116 airports, while it comprises 132 underground stations in the (LT) data set.
+Diffusion dynamics in empirical temporal networks
+We study causality-driven changes of diffusive behaviour in the six temporal network data sets (AN), (RM), (FL), (EM), (HO), (FL) and (LT) described above. We use the convergence behaviour of a random walk process as a proxy that captures the influence of both the topology and dynamics of temporal networks on general diffusive processes. For this, we first consider a random walk process in the weighted, time-aggregated network and study the time needed until node visitation probabilities converge to a stationary state. Starting from a randomly chosen node, in each step of the random walk the next step is chosen with probabilities proportional to the weights of incident edges. A standard approach to assess the convergence time of random walks is to study the evolution of the total variation distance between observed node visitation probabilities and the stationary distribution52. For a distribution πk of visitation probabilities (πk)υ of nodes υ after k steps of a random walk and a stationary distribution π, the total variation distance is defined as
+For a given threshold distance ε, we define the convergence time tagg(ε) as the minimum number of steps k after which Δ(πk, π)<ε. The random walk itineraries produced by this simple random walk model correctly reproduce edge weights in the time-aggregated network and the use of random walk itineraries, as a model for temporal networks has been proposed before42. However, random walk itineraries do not preserve statistics of longer time-respecting paths and thus alter causality. To derive a causality-driven slow-down factor, we thus contrast the convergence time tagg(ε) with the convergence time ttemp(ε) of a second model that additionally preserves the statistics of time-respecting paths of length two in the real data sets (see previous section for details on how we define time-respecting paths in the different data sets). Again starting with a random node, this model randomly chooses two-paths according to their relative frequencies in the data set, thus corresponding to a walk process that is advanced by two steps at a time. The random itineraries generated by this model correctly reproduce edge weights in the time-aggregated network, and—different from a random walk in the time-aggregated network—the statistics of time-respecting paths of length two. For a given threshold distance ε, we again define the convergence time ttemp(ε) as the minimum number of steps k after which Δ(πk, π)<ε. For a convergence threshold ε, this allows us to define a causality-driven slow-down factor (ε):=ttemp(ε)/tagg(ε) that is due to the temporal-topological characteristics of time-respecting paths, while ruling out effects of inter-event time distributions or bursty node activities.
+Constructing higher-order time-aggregated networks
+Extracting time-respecting paths in the six data sets allows us to construct higher-order time-aggregated representations of the underlying temporal interaction sequences. In the following, we provide a detailed description of this construction. We consider a temporal network GT consisting of directed time-stamped edges (υ,w; t) for nodes υ and w, and discrete time stamps t. A first-order time-aggregated network G(1) can then be defined, where a directed edge (v,w) between nodes v and w exists whenever a time-stamped edge (v,w; t) exists in GT for some time stamp t. In addition, edge weights w(1) (v,w) can be defined as the (relative) number of edge occurrences in the temporal network. Considering that edges can be thought of as time-respecting paths of length one, we can similarly construct a second-order time-aggregated network by considering time-respecting paths of length two. For this, we define a second-order time-aggregated network G(2) as tuple (V(2), E(2)) consisting of second-order nodes V(2) and second-order edges E(2). Second-order nodes eεV(2) represent edges in the first-order aggregate network G(1). Second-order edges E(2) represent all possible time-respecting paths of length two in G(1). Based on the definition of time-respecting paths with a limited waiting time τ, second-order edge weights w(2)(e1,e2) can be defined based on the frequency of two-paths, that is, the frequency of time-respecting paths (a, b; t1)→(b, c; t2) of length two in GT (for 0<t2−t1≤τ). As multiple two-paths (a′, b; t)→(b, c′; t′) can pass through node b at the same time, it is necessary to proportionally correct second-order edge weights for all multiple occurrences. For the simple case τ=1, one can define second-order edge weights as
+where δ(a, b; t)=1 if edge (a, b; t) exists in the temporal network GT and δ(a, b; t)=0 otherwise. Following the arguments above, it is simple to generalize weights to capture two-paths (a, b; t1)−(b, c; t2) for 0<t2−t1≤τ. The software used to infer time-respecting paths and to construct weighted second-order time-aggregated networks from the six empirical data sets is available online53.
+Higher-order Markov models for temporal networks
+Using the second-order time-aggregated network G(2) and second-order edge weights w(2) defined above, for all time-respecting paths e1→e2 of length two we define the entries of the transition matrix T(2) for a random walk in the weighted network G(2) as
+In line with the standard way of defining random walks on weighted networks, transition rates between nodes e1 and e2 are defined to be proportional to edge weights and are normalized by the cumulative weight of all edges (e1, e′) emanating from node e1. If the transition matrix T(2) is primitive, the Perron–Frobenius theorem guarantees that a unique leading eigenvector π of T(2) exists. Note that T(2) can always be made primitive by restricting it to the largest strongly connected component of G(2) and adding small positive diagonal entries.
+Although the transition matrix T(2) captures the statistics of two-paths in a given temporal network, we can additionally define a maximum entropy transition matrix , which captures the two-path statistics one would expect based on the relative edge weights in the first-order time-aggregated network. For e1=(a, b) and e2=(b, c), the entries corresponding to a two-path e1→e2 are given as
+This second-order Markov model preserves the weights w(1) of edges in G(1) and creates ‘Markovian’ temporal networks in which consecutive links are independent from each other.
+The entropy of a second-order Markov model for a particular temporal network can be quantified in terms of the entropy growth rate of a transition matrix T(2). This notion of entropy quantifies the amount of information that is lost about the current state of a Markov process based on a given transition matrix. We define the entropy growth rate of a second-order transition matrix as
+For a transition matrix, which only consists of deterministic transitions with probability 1, the entropy growth rate is zero, while it reaches a (size-dependent) maximum for a transition matrix where every state can be reached with equal probability in every step.
+Additional information
+How to cite this article: Scholtes, I. et al. Causality-driven slow-down and speed-up of diffusion in non-Markovian temporal networks. Nat. Commun. 5:5024 doi: 10.1038/ncomms6024 (2014).
+References
+Morris, M. & Kretzschmar, M. Concurrent partnerships and transmission dynamics in networks. Soc. Networks 17, 299–318 (1995).
+Article 
+ Google Scholar 
+Aurell, E. & Pfitzner, R. Gaussian belief with dynamic data and in dynamic network. EPL (Europhys. Lett.) 87, 68004 (2009).
+Article 
+ ADS 
+ Google Scholar 
+Tessone, C. J. & Zanette, D. H. Synchronised firing induced by network dynamics in excitable systems. EPL 99, 68006 (2012).
+Article 
+ ADS 
+ CAS 
+ Google Scholar 
+Masuda, N., Klemm, K. & Eguiluz, V. M. Temporal networks: Slowing down diffusion by long lasting interactions. Phys. Rev. Lett. 111, 188701 (2013).
+Article 
+ ADS 
+ PubMed 
+ Google Scholar 
+Ribeiro, B., Perra, N. & Baronchelli, A. Quantifying the effect of temporal resolution on time-varying networks. Sci. Rep. 3, 3006 (2013).
+Article 
+ ADS 
+ PubMed 
+ PubMed Central 
+ Google Scholar 
+Gross, T., D'Lima, C. J. D. & Blasius, B. Epidemic dynamics on an adaptive network. Phys. Rev. Lett. 96, 208701 (2006).
+Article 
+ ADS 
+ PubMed 
+ Google Scholar 
+Gross, T. & Sayama, H. inAdaptive Networks, Understanding Complex Systems (eds Gross T., Sayama H. 1–8Springer Berlin: Heidelberg, (2009).
+Iribarren, J. L. & Moro, E. Impact of human activity patterns on the dynamics of information diffusion. Phys. Rev. Lett. 103, 038702 (2009).
+Article 
+ ADS 
+ PubMed 
+ Google Scholar 
+Karsai, M. et al. Small but slow world: How network topology and burstiness slow down spreading. Phys. Rev. E 83, 025102 (2011).
+Article 
+ ADS 
+ CAS 
+ Google Scholar 
+Rocha, L. E. C., Liljeros, F. & Holme, P. Simulated epidemics in an empirical spatiotemporal network of 50,185 sexual contacts. PLoS Comp. Biol. 7, e1001109 (2011).
+Article 
+ ADS 
+ CAS 
+ Google Scholar 
+Starnini, M., Baronchelli, A., Barrat, A. & Pastor-Satorras, R. Random walks on temporal networks. Phys. Rev. E 85, 056115 (2012).
+Article 
+ ADS 
+ Google Scholar 
+Perra, N. et al. Random walks and search in time-varying networks. Phys. Rev. Lett. 109, 238701 (2012).
+Article 
+ ADS 
+ PubMed 
+ Google Scholar 
+Perra, N., Gonçalves, B., Pastor-Satorras, R. & Vespignani, A. Activity driven modeling of time varying networks. Sci. Rep. 2, 469 (2012).
+Article 
+ ADS 
+ CAS 
+ PubMed 
+ PubMed Central 
+ Google Scholar 
+Hoffmann, T., Porter, M. A. & Lambiotte, R. inTemporal Networks, Understanding Complex Systems (eds Holme P., SaramÃ¤ki J. 295–313Springer Berlin: Heidelberg, (2013).
+Takaguchi, T., Masuda, N. & Holme, P. Bursty communication patterns facilitate spreading in a threshold-based epidemic dynamics. PLoS ONE 8, e68629 (2013).
+Article 
+ ADS 
+ CAS 
+ PubMed 
+ PubMed Central 
+ Google Scholar 
+Rocha, L. E. C. & Blondel, V. D. Bursts of vertex activation and epidemics in evolving networks. PLoS Comput. Biol. 9, e1002974 (2013).
+Article 
+ ADS 
+ MathSciNet 
+ CAS 
+ PubMed 
+ PubMed Central 
+ Google Scholar 
+Karsai, M., Perra, N. & Vespignani, A. Time-varying networks and the weakness of strong ties. Sci. Rep. 4, 4001 (2014).
+Article 
+ ADS 
+ PubMed 
+ PubMed Central 
+ Google Scholar 
+Jo, H.-H., Perotti, J. I., Kaski, K. & Kertész, J. Analytically solvable model of spreading dynamics with non-poissonian processes. Phys. Rev. X 4, 011041 (2014).
+ Google Scholar 
+Grinstein, G. & Linsker, R. Power-law and exponential tails in a stochastic priority-based model queue. Phys. Rev. E 77, 012101 (2008).
+Article 
+ ADS 
+ CAS 
+ Google Scholar 
+Garas, A., Garcia, D., Skowron, M. & Schweitzer, F. Emotional persistence in online chatting communities. Sci. Rep. 2, 402 (2012).
+Article 
+ ADS 
+ PubMed 
+ PubMed Central 
+ Google Scholar 
+Jo, H.-H., Karsai, M., Kertész, J. & Kaski, K. Circadian pattern and burstiness in mobile phone communication. New J. Phys. 14, 013055 (2012).
+Article 
+ ADS 
+ Google Scholar 
+Kempe, D., Kleinberg, J. & Kumar, A. Connectivity and inference problems for temporal networks. J. Comput. Syst. Sci. 64, 820–842 (2002).
+Article 
+ MathSciNet 
+ Google Scholar 
+Holme, P. & Saramäki, J. Temporal networks. Phys. Rep. 519, 97–125 (2012).
+Article 
+ ADS 
+ Google Scholar 
+Kostakos, V. Temporal graphs. Phys. A Stat. Mech. Appl. 388, 1007–1023 (2009).
+Article 
+ MathSciNet 
+ Google Scholar 
+Kovanen, L., Karsai, M., Kaski, K., Kertész, J. & Saramäki, J. Temporal motifs in time-dependent networks. J. Stat. Mech. 2011, P11005 (2011).
+Article 
+ Google Scholar 
+Rocha, L. E. C. & Blondel, V. D. Flow motifs reveal limitations of the static framework to represent human interactions. Phys. Rev. E 87, 042814 (2013).
+Article 
+ ADS 
+ Google Scholar 
+Lentz, H. H. K., Selhorst, T. & Sokolov, I. M. Unfolding accessibility provides a macroscopic approach to temporal networks. Phys. Rev. Lett. 110, 118701 (2013).
+Article 
+ ADS 
+ PubMed 
+ Google Scholar 
+Pfitzner, R., Scholtes, I., Garas, A., Tessone, C. J. & Schweitzer, F. Betweenness preference: quantifying correlations in the topological dynamics of temporal networks. Phys. Rev. Lett. 110, 198701 (2013).
+Article 
+ ADS 
+ PubMed 
+ Google Scholar 
+Rosvall, M., Esquivel, A. V., Lancichinetti, A., West, J. D. & Lambiotte, R. Memory in network flows and its effects on spreading dynamics and community detection. Nat. Commun. 5, 4630 (2014).
+Article 
+ ADS 
+ CAS 
+ PubMed 
+ Google Scholar 
+Lambiotte, R., Salnikov, V. & Rosvall, M. Effect of memory on the dynamics of random walks on networks. Preprint at http://arxiv.org/abs/1401.0447 (2014).
+Sun, K., Baronchelli, A. & Perra, N. Epidemic spreading in non-Markovian time-varying networks. Preprint at http://arxiv.org/abs/1404.1006 (2014).
+Porter, M. A. & Gleeson, J. P. Dynamical systems on networks: A tutorial. Preprint at http://arxiv.org/abs/1403.7663 (2014).
+Blonder, B. & Dornhaus, A. Time-ordered networks reveal limitations to information flow in ant colonies. PLoS ONE 6, e20298 (2011).
+Article 
+ ADS 
+ CAS 
+ PubMed 
+ PubMed Central 
+ Google Scholar 
+Eagle, N. & Pentland, A. (S.). Reality mining: sensing complex social systems. Pers. Ubiquit. Comput. 10, 255–268 (2006).
+Article 
+ Google Scholar 
+Michalski, R., Palus, S. & Kazienko, P. Lecture Notes in Business Information Processing 87, 197–206Springer (2011).
+Article 
+ Google Scholar 
+Vanhems, P. et al. Estimating potential infection transmission routes in hospital wards using wearable proximity sensors. PLoS ONE 8, e73970 (2013).
+Article 
+ ADS 
+ CAS 
+ PubMed 
+ PubMed Central 
+ Google Scholar 
+Lovász, L. inCombinatorics, Paul Erdös is Eighty Vol. 2,1–46Keszthely: Hungary, (1993).
+Blanchard, P. & Volchenkov, D. Random Walks and Difussions on Graphs and Databases Springer Berlin: Heidelberg, (2011).
+Noh, J. D. & Rieger, H. Random walks on complex networks. Phys. Rev. Lett. 92, 118701 (2004).
+Article 
+ ADS 
+ PubMed 
+ Google Scholar 
+Nelson, R. Probability, Stochastic Processes, and Queueing Theory: The Mathematics of Computer Performance Modeling Springer: Berlin, Heidelberg, (1995).
+Harary, F. & Norman, R. Some properties of line digraphs. Rendiconti del Circolo Matematico di Palermo 9, 161–168 (1960).
+Article 
+ MathSciNet 
+ Google Scholar 
+Barrat, A., Fernandez, B., Lin, K. K. & Young, L.-S. Modeling temporal networks using random itineraries. Phys. Rev. Lett. 110, 158702 (2013).
+Article 
+ ADS 
+ PubMed 
+ Google Scholar 
+Cover, T. M. & Thomas, J. A. Elements of Information Theory (Wiley Series in Telecommunications and Signal Processing) Wiley-Interscience (2006).
+Zhao, K., Karsai, M. & Bianconi, G. Entropy of dynamical social networks. PLoS ONE 6, e28116 (2011).
+Article 
+ ADS 
+ CAS 
+ PubMed 
+ PubMed Central 
+ Google Scholar 
+Chung, F. Laplacians and the cheeger inequality for directed graphs. Ann. Comb. 9, 1–19 (2005).
+Article 
+ MathSciNet 
+ Google Scholar 
+Salathé, M. & Jones, J. H. Dynamics and control of diseases in networks with community structure. PLoS Comput. Biol. 6, e1000736 (2010).
+Article 
+ ADS 
+ MathSciNet 
+ PubMed 
+ PubMed Central 
+ Google Scholar 
+Fiedler, M. Algebraic connectivity of graphs. Czech. Math. J. 23, 298–305 (1973).
+MathSciNet 
+ MATH 
+ Google Scholar 
+Wu, C. W. Algebraic connectivity of directed graphs. Linear Multilinear Algebra 53, 203–223 (2005).
+Article 
+ MathSciNet 
+ Google Scholar 
+Pothen, A., Simon, H. D. & Liou, K.-P. Partitioning sparse matrices with eigenvectors of graphs. SIAM J. Matrix Anal. Appl. 11, 430–452 (1990).
+Article 
+ MathSciNet 
+ Google Scholar 
+Bureau of Transportation Statistics. RITA TranStat Origin and Destination Survey database. Available online http://www.transtats.bts.gov/Tables.asp?DB_ID=125 (2014).
+Transport for London. Rolling Origin and Destination Survey (RODS) database. Available online http://www.tfl.gov.uk/info-for/open-data-users/our-feeds (2014).
+Rosenthal, J. S. Convergence rates for Markov chains. SIAM Rev. 37, 387–405 (1995).
+Article 
+ MathSciNet 
+ Google Scholar 
+Source code of “Temporal Network Analysis: Higher-Order Networks”, available online at https://zenodo.org/record/10679 10.5281/zenodo.10679, (2014).
+Download references
+Acknowledgements
+I.S. acknowledges financial support by SNF project CR_31I1_140644. I.S. and R.P. acknowledge support by the COST action TD1210 KNOWeSCAPE. N.W., A.G. and F.S. acknowledge financial support by EU-FET project MULTIPLEX 317532. We acknowledge feedback on the manuscript by R. Burkholz.
+Author information
+Authors and Affiliations
+ETH Zurich, Chair of Systems Design, Weinbergstrasse 56/58, Zurich, CH-8092, Switzerland
+Ingo Scholtes, Nicolas Wider, René Pfitzner, Antonios Garas, Claudio J. Tessone & Frank Schweitzer
+Authors
+Ingo Scholtes
+View author publications
+Search author on:PubMed Google Scholar
+Nicolas Wider
+View author publications
+Search author on:PubMed Google Scholar
+René Pfitzner
+View author publications
+Search author on:PubMed Google Scholar
+Antonios Garas
+View author publications
+Search author on:PubMed Google Scholar
+Claudio J. Tessone
+View author publications
+Search author on:PubMed Google Scholar
+Frank Schweitzer
+View author publications
+Search author on:PubMed Google Scholar
+Contributions
+I.S., N.W., R.P., A.G., C.J.T. and F.S. conceived and designed the research. I.S. and N.W. analysed data, performed the simulations, provided the analytical results and wrote the article. All authors discussed the results, reviewed and edited the manuscript.
+Corresponding author
+Correspondence to
+ Ingo Scholtes.
+Ethics declarations
+Competing interests
+The authors declare no competing financial interests.
+Supplementary information
+Supplementary Information (download PDF )
+Supplementary Figure 1, Supplementary Note 1 and Supplementary References. (PDF 292 kb)
+Rights and permissions
+Reprints and permissions
+About this article
+ [IMAGE ALT Check for updates. Verify currency and authenticity via CrossMark] 
+Cite this article
+Scholtes, I., Wider, N., Pfitzner, R. et al. Causality-driven slow-down and speed-up of diffusion in non-Markovian temporal networks.
+ Nat Commun 5, 5024 (2014). https://doi.org/10.1038/ncomms6024
+Download citation
+Received: 15 April 2014
+Accepted: 20 August 2014
+Published: 24 September 2014
+DOI: https://doi.org/10.1038/ncomms6024
+Share this article
+Anyone you share the following link with will be able to read this content:
+Get shareable link
+Sorry, a shareable link is not currently available for this article.
+Copy shareable link to clipboard
+ Provided by the Springer Nature SharedIt content-sharing initiative
+ Download PDF
+Advertisement
+ [IMAGE ALT Advertisement] 
+Explore content
+ Research articles
+ Reviews & Analysis
+ News & Comment
+ Videos
+ Collections
+ Subjects
+ Follow us on Facebook
+ Follow us on X
+ Sign up for alerts
+ RSS feed
+About the journal
+ Aims & Scope
+ Journal Information
+ Editors
+ Open Access Fees and Funding
+ Calls for Papers
+ Editorial Values Statement
+ Journal Metrics
+ Editors' Highlights
+ Contact
+ Editorial policies
+ Top Articles
+Publish with us
+ For authors
+ For Reviewers
+ Language editing services
+ Open access funding
+ Submit manuscript
+Search
+ Search articles by subject, keyword or author
+ Show results from
+ All journals
+ This journal
+ Search
+ Advanced search
+Quick links
+Explore articles by subject
+Find a job
+Guide to authors
+Editorial policies
+ Nature Communications
+ (Nat Commun)
+ ISSN 2041-1723 (online)
+nature.com footer links
+About Nature Portfolio
+About us
+Press releases
+Press office
+Contact us
+Discover content
+Journals A-Z
+Articles by subject
+protocols.io
+Nature Index
+Publishing policies
+Nature portfolio policies
+Open access
+Author & Researcher services
+Reprints & permissions
+Research data
+Language editing
+Scientific editing
+Nature Masterclasses
+Research Solutions
+Libraries & institutions
+Librarian service & tools
+Librarian portal
+Open research
+Recommend to library
+Advertising & partnerships
+Advertising
+Partnerships & Services
+Media kits
+Branded
+ content
+Professional development
+Nature Awards
+Nature Careers
+Nature 
+ Conferences
+Regional websites
+Nature Africa
+Nature China
+Nature India
+Nature Japan
+Nature Middle East
+Privacy
+ Policy
+Use
+ of cookies
+ Your privacy choices/Manage cookies
+Legal
+ notice
+Accessibility
+ statement
+Terms & Conditions
+Your US state privacy rights
+ [IMAGE ALT Springer Nature] 
+© 2026 Springer Nature Limited
+ Close banner
+ Close
+ [IMAGE ALT Nature Briefing] 
+Sign up for the Nature Briefing newsletter — what matters in science, free to your inbox daily.
+ Email address
+ Sign up
+ I agree my information will be processed in accordance with the Nature and Springer Nature Limited Privacy Policy.
+ Close banner
+ Close
+ Get the most important science stories of the day, free in your inbox.
+ Sign up for Nature Briefing
