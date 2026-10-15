@@ -7,21 +7,27 @@ Graph neural networks for ordered collections of whole genealogical trees, with 
 [Persistent research goal and reporting requirements](research/goal_current.json). Current limits: physical GPUs4–5 and1TB, with all project writes inside this server repository.
 
 <!-- CURRENT_SCOREBOARD_START -->
-**Scoreboard updated UTC: 2026-10-15T15:03:17.933220+00:00.** [Every current setup, all cohorts and detailed metrics](research/current_scoreboard.md) · [All recorded historical/engineering metric receipts](research/all_recorded_metric_receipts.md)
+**Scoreboard updated UTC: 2026-10-15T15:39:55.230304+00:00.** [Every current setup, all cohorts and detailed metrics](research/current_scoreboard.md) · [All recorded historical/engineering metric receipts](research/all_recorded_metric_receipts.md)
 
 | Current run | Device | Progress | Validation score |
 |---|---:|---|---|
-| H046 | GPU5 | 23/30 passes, 736/960 updates per arm, TRAIN complete=False, VAL complete=False | pending |
-| H047 | GPU4 | 30/30 passes, 960/960 updates per arm, TRAIN complete=True, VAL complete=True | 96.7777% original-risk, 96.7576% balanced-risk |
-| H048 marker-grid decoder | GPU4 planned | Marker-grid structured decoder registered. Scientific TRAIN/EVAL bridge in preparation. No actual training or accuracy result. | unavailable |
-| C3 missing TRAIN014–015 | CPU | Remaining-data wave launched. Actual per-stage progress is recorded in the dedicated wave packet. | no ancestry score |
-| Original American VAL000 | CPU | Original30Mb independent VAL000 simulation completed. Genealogy inference running on CPU. | no ancestry score |
-| Native ARGformer | GPU4 | Full5epoch fit attempt terminal, actual root exit1. No native optimizer progress verified. Execution repair pending. | pending |
-| Native FLARE | CPU | Native author build completed. Original30Mb TRAIN000 conversion admitted and execution requested. Not a held-out accuracy result. | pending |
-| Our C3 GNN | source ready | Actual shared VAL observations and completed training checkpoint required | pending |
+| H046 | GPU5 | 28/30 completed passes; 896/960 verified updates per arm (receipt lower bound); training; completed-pass update counts are a lower bound | pending |
+| H047 | GPU4 | 30/30 completed passes; 960/960 verified updates per arm (receipt lower bound); TRAIN and VAL completed | 96.7777% original-risk, 96.7576% balanced-risk |
+| H048 | GPU4 | 0/30 completed passes; 1/960 verified updates per arm (receipt lower bound); training; completed-pass update counts are a lower bound | pending |
+| C3 remaining TRAIN014–019 | CPU | Fourteen original 2 Mb TRAIN parents completed; future pairs are 014/015, 016/017, 018/019, at most two parents. 014/simulate: running on CPU; 014/infer: not admitted; 015/simulate: completed; actual wait0 and owned-group drain verified; 015/infer: running on CPU. Later pairs require actual prior-pair scope closure. | no ancestry score |
+| Original American VAL000 | CPU | Original 30 Mb VAL000 simulation: completed; actual wait0 and owned-group drain verified; inferred observation: completed; actual wait0 and owned-group drain verified; shared native-path/10k-focal preparation: running on CPU. R600/Q1000 identities stay common. No VAL ancestry score. | no ancestry score |
+| Native ARGformer | GPU4/5 pending | V11 failed with actual root exit1; native optimizer updates unknown. V12 operational source reviewed; root preparation/activation pending, no actual v12 launch receipt. | pending |
+| Native FLARE | CPU | Author build and TRAIN000 full-site conversion completed with actual wait0. Native inference: running on CPU; sealing: not admitted. Accuracy pending; TRAIN000 is development, not held-out. | pending |
+| Our C3 GNN | source ready | VAL000 inference completed; remaining TRAIN parents, checkpoint and full prespecified VAL gate pending | pending |
 | Empirical data | CPU | H045 empirical probabilities, bp-weighted proportions and original-genotype PCA written. Actual successful wait and completion verified. Descriptive24query haplotypes/12subjects only. No known ancestry truth. | completion verified |
 
-Parallel ownership: worker1 handles benchmark/evaluation execution sources, worker2 handles comparison figures and runtime bottlenecks, worker3 handles architecture and the American C3 PyG adapter. Root owns live runs, integration, Git and score publication. Independent work proceeds concurrently.
+**Current measured development scores:** H045 foreign-episode **96.8270 ± 0.5870%** Present182 span accuracy, matched own-state **96.8175 ± 0.6142%**. SD is across eight VAL simulations, one optimizer seed. H047 original-risk **96.7777 ± 0.5970%**, balanced-risk **96.7576 ± 0.5287%**. H046/H048 accuracy is pending. [All 15 measured setups, all seven cohorts, NLL/F1/boundaries/Brier/ECE and training budgets](research/current_scoreboard.md#detailed-cohort-metrics).
+
+[Fresh independent H048 novelty/cross-domain assessment](research/reviews/H048_novelty_crossdomain_fresh_20261015_v1/report.md). Fresh independent H048 audit: reset transitions have RFMix precedent; a distinct graph-collection operator is unestablished. GST reaction-center sets have no native chain order, so whole-H048 transfer is not justified. PKU-MMD is only a possible future decoder study after native label-overlap semantics are resolved; no transfer result exists.
+
+**GST and cross-domain status:** Only the saved TRAIN 1000/VALID 1495, seed 0 CPU pilot is scored: four models, AdamW lr=0.001, weight_decay=0.0001, batch=16, 20 epochs/1260 updates per fit. Full TRAIN has 10439/10500 retained reactions; this count is data readiness, not a fit. The full-data multi-seed fit is inactive and unfinished. Our molecular adapter and native paired TEST comparison remain unfinished; TEST withheld. GST inputs are unordered reactant sets with no native chain order, so whole-H048 transfer is not justified.
+
+Parallel ownership: worker1 handles training startup and throughput, worker2 handles scores and reporting, and worker3 handles architecture plus C3 focal/plan integration. Root owns executions and Git. All three worker tracks are active concurrently.
 
 <!-- CURRENT_SCOREBOARD_END -->
 

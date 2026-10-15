@@ -1,6 +1,8 @@
 # Current scientific scoreboard
 
-Updated UTC: 2026-10-15T15:03:17.933220+00:00
+Updated UTC: 2026-10-15T15:39:55.230304+00:00
+
+[All measured cohort details](#detailed-cohort-metrics) · [Complete historical receipt inventory](all_recorded_metric_receipts.md) · [Fresh H048 novelty/cross-domain audit](../research/reviews/H048_novelty_crossdomain_fresh_20261015_v1/report.md)
 
 ## European C4 shared development
 
@@ -160,28 +162,37 @@ BronzeAge is not asserted identical to the paper's Post-Neolithic cohort. A dash
 
 | Run | GPU | Verified process present | Passes | Actual updates per arm | Planned updates per arm | Validation accuracy |
 |---|---:|---|---:|---|---:|---|
-| H046 | 5 | True | 23/30 | {'foreign_flank': 736, 'own_state': 736} | 960 | pending |
+| H046 | 5 | True | 28/30 | {'foreign_flank': 896, 'own_state': 896} | 960 | pending |
 | H047 | 4 | False | 30/30 | {'balanced_risk': 960, 'original_risk': 960} | 960 | 96.7777% original-risk, 96.7576% balanced-risk |
+| H048 | 4 | True | 0/30 | {'graph_to_own_confidence_fixed_distance_chain': 1, 'graph_to_transition': 1} | 960 | pending |
+
+Update counts below are verified receipt lower bounds, not live optimizer counters.
+
+- H046: training; completed-pass update counts are a lower bound. AdamW lr=0.001, weight_decay=0.0001, seed=101, dtype=float32.
+- H047: TRAIN and VAL completed. AdamW lr=0.001, weight_decay=0.0001, seed=101, dtype=float32.
+- H048: training; completed-pass update counts are a lower bound. AdamW lr=0.001, weight_decay=0.0001, seed=101, dtype=float32.
 
 ## Registered next architecture experiment
 
-Marker-grid structured decoder registered. Scientific TRAIN/EVAL bridge in preparation. No actual training or accuracy result.
+GPU4 training; completed-pass update counts are a lower bound. 0/30 completed passes; {'graph_to_own_confidence_fixed_distance_chain': 1, 'graph_to_transition': 1} verified update lower bounds. No validation accuracy yet.
 
-H048 retains31933parameters per arm and a fixed30pass/960update schedule. Its matched comparison places the same graph signal into transitions or confidence. The reset-chain components have prior art. No novelty or accuracy claim is established.
+[Fresh independent novelty/cross-domain report](../research/reviews/H048_novelty_crossdomain_fresh_20261015_v1/report.md). Fresh independent H048 audit: reset transitions have RFMix precedent; a distinct graph-collection operator is unestablished. GST reaction-center sets have no native chain order, so whole-H048 transfer is not justified. PKU-MMD is only a possible future decoder study after native label-overlap semantics are resolved; no transfer result exists.
+
+H048 retains 31,933 parameters per arm and a fixed 30-pass/960-update schedule. Its matched comparison places the same graph signal into transitions or confidence. The reset-chain components have prior art. No novelty or accuracy claim is established.
 
 ## American C3 benchmark
 
 | Method | Current ancestry scores | Status |
 |---|---|---|
-| Native ARGformer | unavailable | Full5epoch fit attempt terminal, actual root exit1. No native optimizer progress verified. Execution repair pending. |
-| Native FLARE | unavailable | Native author build completed. Original30Mb TRAIN000 conversion admitted and execution requested. Not a held-out accuracy result. |
-| Our C3 GNN | unavailable | Shared30Mb adapter source ready. Completed training checkpoint and actual VAL observation required |
+| Native ARGformer | unavailable | V11 failed with actual root exit1; native optimizer updates unknown. V12 operational source reviewed; root preparation/activation pending, no actual v12 launch receipt. |
+| Native FLARE | unavailable | Author build and TRAIN000 full-site conversion completed with actual wait0. Native inference: running on CPU; sealing: not admitted. Accuracy pending; TRAIN000 is development, not held-out. |
+| Our C3 GNN | unavailable | Shared 30 Mb VAL000 inference completed. Remaining TRAIN parents, checkpoint and full prespecified VAL gate pending |
 
-The complete 30 Mb observation currently available is a TRAIN parent. It must not be presented as a held-out performance comparison. Original30Mb independent VAL000 simulation completed. Genealogy inference running on CPU. Original-paper simulation assumptions and source versions remain explicitly documented.
+The TRAIN000 conversion is development evidence. Independent VAL000 inference now has its own actual completion/wait receipts; its method predictions and common-truth scoring remain pending. Original 30 Mb VAL000 simulation: completed; actual wait0 and owned-group drain verified; inferred observation: completed; actual wait0 and owned-group drain verified; shared native-path/10k-focal preparation: running on CPU. R600/Q1000 identities stay common. No VAL ancestry score. Original-paper simulation assumptions and source versions remain explicitly documented.
 
 ## GST molecular graph-set pilot
 
-First1,000 retained TRAIN reactions, full1,495 VALID, seed0, 20 epochs per mode. AP is pooled per-atom average precision. Our molecular adapter and final paired TEST comparison are unfinished.
+Only the saved TRAIN 1000/VALID 1495, seed 0 CPU pilot is scored: four models, AdamW lr=0.001, weight_decay=0.0001, batch=16, 20 epochs/1260 updates per fit. Full TRAIN has 10439/10500 retained reactions; this count is data readiness, not a fit. The full-data multi-seed fit is inactive and unfinished. Our molecular adapter and native paired TEST comparison remain unfinished; TEST withheld. GST inputs are unordered reactant sets with no native chain order, so whole-H048 transfer is not justified. AP is pooled per-atom average precision. One seed supplies no training-seed SD.
 
 | Native setup | VALID AP | Selected epoch |
 |---|---:|---:|
@@ -190,7 +201,7 @@ First1,000 retained TRAIN reactions, full1,495 VALID, seed0, 20 epochs per mode.
 | gsc-bc | 0.65378329 | 19 |
 | gsc-ca | 0.63791939 | 19 |
 
-Full TRAIN parsing retains10,439/10,500 reactions. This is data readiness, not a new model score.
+Full TRAIN parsing retains10,439/10,500 reactions. This is data readiness, not a new model score. [Fresh task-semantics/transfer assessment](../research/reviews/H048_novelty_crossdomain_fresh_20261015_v1/report.md).
 
 ## Earlier adapted ARGformer pilot
 

@@ -1,0 +1,750 @@
+NEW accepted helper: abstract_unix_bootstrap_v1.py
+--- research/reviews/American_C3_native_MLM_amendment_v11/amendment_v11.py
++++ research/reviews/American_C3_native_MLM_amendment_v12/amendment_v12.py
+@@ -4,22 +4,29 @@
+ import ast,copy,fcntl,hashlib,importlib.util,json,os,stat,sys,time
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-REL="research/reviews/American_C3_native_MLM_amendment_v11"
+-SOURCE=REL+"/amendment_v11.py"
+-ENTRY=REL+"/entry_v11.py"
+-LAUNCHER=REL+"/launcher_v11.py"
++REL="research/reviews/American_C3_native_MLM_amendment_v12"
++SOURCE=REL+"/amendment_v12.py"
++ENTRY=REL+"/entry_v12.py"
++LAUNCHER=REL+"/launcher_v12.py"
+ DRIVER=REL+"/root_native_driver_v1.py"
+ KEY="H041/American-C3-native-MLM-full30mb-mlm-fit-v8"
+ JOB="American-C3-native-MLM-full30mb-mlm-fit-v8"
+ PARENT_OUTPUT="experiments/results/American_C3_native_MLM_full30mb_mlm_fit_v8"
+-OUTPUT=PARENT_OUTPUT+"/amended_v11_attempt1"
++OUTPUT=PARENT_OUTPUT+"/amended_v12_attempt1"
+ AUX=ROOT/"research/reviews/American_C3_native_MLM_full_fit_v8/admitted_mlm_v1/worker_aux"
+ PARENT_TMP=ROOT/".runtime/tmp/c3full8/f"
+-TMP=PARENT_TMP/"v11a"
+-ATTEMPT=AUX/"amended_v11_attempt1"
+-LOCK=AUX/"amendment_v11.activation"
+-GPU_UUID="GPU-6cf64ff3-d8c2-9201-b2b8-683029625d71"
++TMP=PARENT_TMP/"v12a"
++ATTEMPT=AUX/"amended_v12_attempt1"
++LOCK=AUX/"amendment_v12.activation"
++def execution_gpu_choice(auth=None):
++    import re
++    if auth is None:auth=read(authority_ref())
++    physical=auth.get("physical_gpu");uuid=auth.get("GPU_UUID")
++    require(type(physical) is int and physical in (4,5) and isinstance(uuid,str)
++        and re.fullmatch(r"GPU-[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}",uuid),
++        "Explicit root physical4or5 and actual UUID required")
++    return physical,uuid
+ CAP=15032385536
+-ENV_REF="ARGGNN_MLM_AMENDMENT_V11_REF"
+-ENV_FD="ARGGNN_MLM_AMENDMENT_V11_FD"
++ENV_REF="ARGGNN_MLM_AMENDMENT_V12_REF"
++ENV_FD="ARGGNN_MLM_AMENDMENT_V12_FD"
+ CREATED='2026-10-15T11:47:27.217781+00:00'
+ EXPIRES='2026-10-18T11:47:27.217781+00:00'
+@@ -67,5 +74,5 @@
+         fields=Path("/proc/%d/stat"%pid).read_text().rsplit(")",1)[1].split()
+         return dict(pid=pid,state=fields[0],ppid=int(fields[1]),start=int(fields[19]))
+-    except FileNotFoundError:return None
++    except (FileNotFoundError, ProcessLookupError):return None
+ 
+ def same_identity(actual,expected):
+@@ -88,5 +95,5 @@
+     raw=os.pread(fd,65537,0);require(len(raw)<=65536,"Bounded attempt token")
+     token=json.loads(raw)
+-    require(token["schema"]=="native_MLM_execution_attempt_token_v11" and token["authority_ref"]==authority_ref()
++    require(token["schema"]=="native_MLM_execution_attempt_token_v12" and token["authority_ref"]==authority_ref()
+         and token["attempt_directory"]==str(ATTEMPT.relative_to(ROOT)),"Exact active one-use attempt token")
+     require(descends_from(os.getpid(),token["owner"]),"Actual root-owned attempt descendant")
+@@ -107,14 +114,14 @@
+     require(datetime.fromisoformat(CREATED)<=now<datetime.fromisoformat(EXPIRES),"Original fullfit expiry; no renewal")
+ def required_execution_sources():
+-    return [REL+"/"+name for name in ("amendment_v11.py","entry_v11.py","launcher_v11.py","root_native_contract_v1.py",
++    return [REL+"/"+name for name in ("amendment_v12.py","entry_v12.py","launcher_v12.py","root_native_contract_v1.py",
+         "root_native_driver_v1.py","context_factory_v1.py","consumer_contract_v1.py","supervisor_v1.py","native_child_v1.py",
+-        "native_runtime_v1.py","owned_lifecycle_v2.py","terminal_bounds_v1.py","corpus_auth_v2.py","terminal_capture_v11.py","terminal_namespace_v11.py","root_namespace_v11.py")]
++        "native_runtime_v1.py","owned_lifecycle_v2.py","terminal_bounds_v1.py","corpus_auth_v2.py","terminal_capture_v12.py","terminal_namespace_v12.py","root_namespace_v12.py","abstract_unix_bootstrap_v1.py")]
+ def validate_authority(record,*,allow_expired=False):
+     auth=read(record)
+-    require(auth["schema"]=="native_MLM_fullfit_execution_authority_v11" and auth["root_authorizer"]=="root_agent"
++    require(auth["schema"]=="native_MLM_fullfit_execution_authority_v12" and auth["root_authorizer"]=="root_agent"
+         and auth["active"] is True and auth["key"]==KEY and auth["job_id"]==JOB
+         and auth["original_refs"]==FIXED_REFS and auth["reserved_bytes"]==CAP
+         and auth["created_at_utc"]==CREATED and auth["expires_at_utc"]==EXPIRES
+-        and auth["physical_gpu"]==4 and auth["GPU_UUID"]==GPU_UUID
++        and execution_gpu_choice(auth)==(auth["physical_gpu"],auth["GPU_UUID"])
+         and auth["accounting_or_original_binding_mutation_authorized"] is False
+         and auth["scientific_scope_changed"] is False
+@@ -137,19 +144,19 @@
+     require(outer["actual_direct_outer_supervisor_wait"] is True and outer["pid"]==2817234
+         and outer["returncode"]==1,"Genuine failed v8 root outer wait1, never native reconstruction")
+-    from root_namespace_v11 import validate_directive,validate_cleanup_receipt
++    from root_namespace_v12 import validate_directive,validate_cleanup_receipt
+     validate_directive(auth["root_directive_ref"])
+     validate_cleanup_receipt(auth["namespace_cleanup_receipt_ref"],auth["root_directive_ref"])
+     closure=read(auth["source_closure_ref"])
+-    require(closure["schema"]=="native_MLM_fullfit_execution_source_closure_v11"
++    require(closure["schema"]=="native_MLM_fullfit_execution_source_closure_v12"
+         and closure["original_storage_ref"]==ORIGINAL_STORAGE_REF
+         and all(closure["source_sha256"].get(p)==sha for p,sha in original["source_sha256"].items())
+         and all(p in closure["source_sha256"] for p in required_execution_sources()),
+-        "All original allocation pins plus truthful complete actual v11 execution closure")
+-    for path,sha in closure["source_sha256"].items():require(ref(path)["sha256"]==sha,"Actual v11 source closure bytes")
++        "All original allocation pins plus truthful complete actual v12 execution closure")
++    for path,sha in closure["source_sha256"].items():require(ref(path)["sha256"]==sha,"Actual v12 source closure bytes")
+     spec=read(auth["input_ref"]);expected=copy.deepcopy(original)
+     expected.update(main_source_ref=ref(ENTRY),actual_launcher_ref=ref(LAUNCHER),
+         root_context_module_ref=ref(REL+"/context_factory_v1.py"),source_sha256=closure["source_sha256"],
+-        transitive_source_closure_ref=auth["source_closure_ref"],input_binding_mode="actual_root_execution_amendment_v11",
+-        output_directory=OUTPUT)
++        transitive_source_closure_ref=auth["source_closure_ref"],input_binding_mode="actual_root_execution_amendment_v12",
++        output_directory=OUTPUT,physical_gpu=auth["physical_gpu"],execution_gpu_uuid=auth["GPU_UUID"])
+     require(spec==expected,"Only explicit execution provenance/child output changes; exact original science/storage/expiry")
+     return auth,spec,storage
+@@ -168,5 +175,5 @@
+         check_lifetime();return self.original.budget_check_v9(storage,**kw)
+ def observe_old_absence(auth):
+-    from root_namespace_v11 import known_roots_groups_absent,validate_directive,validate_cleanup_receipt
++    from root_namespace_v12 import known_roots_groups_absent,validate_directive,validate_cleanup_receipt
+     validate_directive(auth["root_directive_ref"])
+     validate_cleanup_receipt(auth["namespace_cleanup_receipt_ref"],auth["root_directive_ref"])
+@@ -178,5 +185,5 @@
+ def capture(role):
+     check_lifetime()
+-    from terminal_capture_v11 import Capture
++    from terminal_capture_v12 import Capture
+     admitted=read(ref(ATTEMPT/"admitted.json"));manifest=read(admitted["terminal_capture_manifest_ref"])
+     require(manifest["directory"]==str(ATTEMPT/"terminal_capture"),"Exact precharged capture scope")
+@@ -193,5 +200,5 @@
+         and not (ROOT/OUTPUT).exists() and not TMP.exists()
+         and not (ROOT/PARENT_OUTPUT/"completed.json").exists(),"Preserved parents and fresh exact child namespaces")
+-    require(not LOCK.exists() and not ATTEMPT.exists(),"One-use v11 attempt, never replay")
++    require(not LOCK.exists() and not ATTEMPT.exists(),"One-use v12 attempt, never replay")
+     with guard.budget.v4.mutex(ROOT):
+         guard.check_storage_locked_v1(storage,boundary=True,required_write_bytes=134217728)
+@@ -201,13 +208,13 @@
+         try:
+             ATTEMPT.mkdir()
+-            from terminal_capture_v11 import prepare
++            from terminal_capture_v12 import prepare
+             manifest=prepare(ATTEMPT/"terminal_capture")
+             manifest_ref=save(ATTEMPT/"terminal_capture_manifest.json",manifest)
+             old=read(ORIGINAL_ADMITTED_REF)
+-            save(ATTEMPT/"admitted.json",dict(schema="native_MLM_execution_attempt_admitted_v11",
++            save(ATTEMPT/"admitted.json",dict(schema="native_MLM_execution_attempt_admitted_v12",
+                 input_ref=auth["input_ref"],driver_ref=ref(DRIVER),storage=storage,
+                 reserve_receipt_ref=old["reserve_receipt_ref"],terminal_capture_manifest_ref=manifest_ref,
+                 execution_amendment_ref=record,original_admitted_ref=ORIGINAL_ADMITTED_REF))
+-            token=dict(schema="native_MLM_execution_attempt_token_v11",authority_ref=record,
++            token=dict(schema="native_MLM_execution_attempt_token_v12",authority_ref=record,
+                 owner=_stat(os.getpid()),attempt_directory=str(ATTEMPT.relative_to(ROOT)))
+             raw=json.dumps(token,sort_keys=True).encode();os.write(fd,raw);os.fsync(fd)
+@@ -236,5 +243,5 @@
+     require(value["status"]=="completed_C3_native_full_MLM_v1" and value["actual_optimizer_updates"]==224775
+         and value["completed_epochs"]==5 and value["observed_counters_verified"] is True,"Actual full science/counters completion")
+-    value=dict(value,namespace_child_completion_ref=child_ref,execution_namespace_version=11,
++    value=dict(value,namespace_child_completion_ref=child_ref,execution_namespace_version=12,
+         original_parent_scopes_fully_charged=True)
+     guard.budget_check_v9(storage,boundary=True,required_write_bytes=65536+8192)
+--- research/reviews/American_C3_native_MLM_amendment_v11/consumer_contract_v1.py
++++ research/reviews/American_C3_native_MLM_amendment_v12/consumer_contract_v1.py
+@@ -3,5 +3,5 @@
+ from pathlib import Path
+ import hashlib,importlib.util,json,os,sys
+-import amendment_v11 as amendment
++import amendment_v12 as amendment
+ from arggnn.american_c3_common_v1 import ROOT,CLASSES,require,local,ref,bound
+ AUTHOR_ROOT=".runtime/author_sources/argformer_f7545be7bca0"
+@@ -21,7 +21,7 @@
+     sha256="c3d58a8d10d901a162f406e2e218a10e17e5f1617b3c626503d72bcbd1b4ccee")
+ 
+-REL="research/reviews/American_C3_native_MLM_amendment_v11"
++REL="research/reviews/American_C3_native_MLM_amendment_v12"
+ SOURCE=REL+"/consumer_contract_v1.py"
+-MAIN=REL+"/entry_v11.py"
++MAIN=REL+"/entry_v12.py"
+ PREP_REF=dict(path="experiments/results/American_C3_native_paths_train000_full30mb_seed92001_v3/completed.json",sha256="3cc49fbf55bd4b4b3859a93ce1123e9218f407f7c7299ad5029be81f59c7c6fa")
+ GPU_PHASES=("mlm",)
+@@ -32,5 +32,5 @@
+  child_log_ram_bytes=4194304,guard_poll_seconds=1.,termination_grace_seconds=20.,
+  phase_write_budget_bytes=None,short_tmp_directory=None,max_checkpoint_files=None,max_checkpoint_bytes=None)
+-PROJECT_SOURCES=(REL+"/amendment_v11.py",REL+"/launcher_v11.py",REL+"/terminal_capture_v11.py",REL+"/terminal_namespace_v11.py","src/arggnn/american_c3_common_v1.py",MAIN,SOURCE,REL+"/supervisor_v1.py",REL+"/native_child_v1.py",
++PROJECT_SOURCES=(REL+"/amendment_v12.py",REL+"/launcher_v12.py",REL+"/terminal_capture_v12.py",REL+"/terminal_namespace_v12.py","src/arggnn/american_c3_common_v1.py",MAIN,SOURCE,REL+"/supervisor_v1.py",REL+"/native_child_v1.py",
+  "research/reviews/American_C3_native_MLM_full_fit_v8/progress_v8.py","research/reviews/American_C3_native_MLM_full_fit_v8/qualifier_evidence_v8.py","research/reviews/American_C3_native_MLM_full_fit_v8/gpu_monitor_v8.py","research/reviews/American_C3_native_MLM_full_fit_v8/nvml_abi_provenance.json",REL+"/terminal_bounds_v1.py",REL+"/corpus_auth_v2.py",REL+"/owned_lifecycle_v2.py","research/reviews/American_C3_native_MLM_full_source_v5/pidfd_backend_v1.py","src/arggnn/native_argformer_exec.py","src/arggnn/__init__.py")
+ def validate_config(cfg,phase):
+@@ -100,5 +100,5 @@
+     for path,sha in spec["source_sha256"].items():bound(dict(path=path,sha256=sha))
+     closure=metadata(spec["transitive_source_closure_ref"])
+-    require(closure.get("schema")=="native_MLM_fullfit_execution_source_closure_v11"
++    require(closure.get("schema")=="native_MLM_fullfit_execution_source_closure_v12"
+         and closure.get("source_sha256")==spec["source_sha256"]
+         and closure.get("original_storage_ref")==amendment.ORIGINAL_STORAGE_REF,
+--- research/reviews/American_C3_native_MLM_amendment_v11/context_factory_v1.py
++++ research/reviews/American_C3_native_MLM_amendment_v12/context_factory_v1.py
+@@ -7,7 +7,7 @@
+ from pathlib import Path
+ import ast,hashlib,importlib.util,json,os,resource,stat,subprocess,sys,time
+-import amendment_v11 as amendment
++import amendment_v12 as amendment
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-REL="research/reviews/American_C3_native_MLM_amendment_v11"
++REL="research/reviews/American_C3_native_MLM_amendment_v12"
+ def contract():
+     path=ROOT/REL/"root_native_contract_v1.py"
+@@ -39,8 +39,8 @@
+         c.require(os.environ.get("CUDA_VISIBLE_DEVICES")=="","Explicit CPU context hides CUDA");return None
+     lease=validate_lease();apply_and_validate_title()
+-    c.require(lease["physical_gpu"]==spec["physical_gpu"]==runtime["target_physical_gpu"]
+-        and lease["physical_gpu"] in (4,5) and lease["visible_gpu_uuid"]==runtime["target_GPU_UUID"]
++    c.require(lease["physical_gpu"]==spec["physical_gpu"]==amendment.execution_gpu_choice()[0]
++        and lease["physical_gpu"] in (4,5) and lease["visible_gpu_uuid"]==spec["execution_gpu_uuid"]==amendment.execution_gpu_choice()[1]
+         and (os.environ.get("ARGGNN_LOGICAL_JOB_NAME") or os.environ.get("ARGGNN_JOB_NAME"))==spec["job_id"],
+-        "Actual original held GPU45 UUID/logical job/runtime")
++        "Actual root-selected held GPU45 UUID/logical job; original runtime inventory preserved")
+     return lease
+ def _fast_guard(c,spec,caps,lease):
+--- research/reviews/American_C3_native_MLM_amendment_v11/entry_v11.py
++++ research/reviews/American_C3_native_MLM_amendment_v12/entry_v12.py
+@@ -3,8 +3,8 @@
+ import sys
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-REL="research/reviews/American_C3_native_MLM_amendment_v11"
++REL="research/reviews/American_C3_native_MLM_amendment_v12"
+ def main(argv=None):
+     sys.path[:0]=[str(ROOT/REL),str(ROOT/"research/reviews/American_C3_native_MLM_full_fit_v8"),str(ROOT/"research/reviews/American_C3_native_MLM_full_source_v5"),str(ROOT/"src"),str(ROOT/"scripts"),str(ROOT)]
+-    import amendment_v11 as amendment
++    import amendment_v12 as amendment
+     amendment.check_lifetime()
+     import supervisor_v1
+--- research/reviews/American_C3_native_MLM_amendment_v11/launcher_v11.py
++++ research/reviews/American_C3_native_MLM_amendment_v12/launcher_v12.py
+@@ -13,7 +13,7 @@
+ from pathlib import Path
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-sys.path[:0]=[str(ROOT/"research/reviews/American_C3_native_MLM_amendment_v11"),str(ROOT/"research/reviews/American_C3_native_MLM_full_fit_v8"),str(ROOT/"research/reviews/American_C3_native_MLM_full_source_v5"),str(ROOT),str(ROOT/"src"),str(ROOT/"scripts")]
++sys.path[:0]=[str(ROOT/"research/reviews/American_C3_native_MLM_amendment_v12"),str(ROOT/"research/reviews/American_C3_native_MLM_full_fit_v8"),str(ROOT/"research/reviews/American_C3_native_MLM_full_source_v5"),str(ROOT),str(ROOT/"src"),str(ROOT/"scripts")]
+ from arggnn.resources import ALLOWED_GPUS,gpu_inventory
+-import amendment_v11 as amendment
++import amendment_v12 as amendment
+ import root_native_contract_v1 as contract
+ from owned_lifecycle_v2 import OwnedTree
+@@ -23,10 +23,11 @@
+ def eligible_free(record):
+     available=(record["memory_total_mib"]-record["memory_used_mib"])*1048576
+-    return record["index"]==4 and record["uuid"]==amendment.GPU_UUID and available>=54000000000
++    physical,uuid=amendment.execution_gpu_choice()
++    return record["index"]==physical and record["uuid"]==uuid and available>=54000000000
+ 
+ import project_budget_v9 as budget
+ 
+-SCHEDULABLE_GPUS = (4,)
+-SOURCE = "research/reviews/American_C3_native_MLM_amendment_v11/launcher_v11.py"
++SCHEDULABLE_GPUS = (4,5)
++SOURCE = "research/reviews/American_C3_native_MLM_amendment_v12/launcher_v12.py"
+ BASE_LAUNCHER = "scripts/launch_reserved_gpu_v7.py"
+ 
+@@ -92,6 +93,6 @@
+     parser.add_argument("module_args", nargs=argparse.REMAINDER)
+     args = parser.parse_args()
+-    if args.module!=amendment.ENTRY or args.gpu!=4 or args.job!=amendment.JOB:
+-        parser.error("Only exact amended fullfit entry/job/GPU4")
++    if args.module!=amendment.ENTRY or args.gpu!=auth["physical_gpu"] or args.job!=amendment.JOB:
++        parser.error("Only exact amended fullfit entry/job/root-selectedGPU4or5")
+     amendment.validate_execution(auth["input_ref"],spec,args.module)
+     # Never grant scientific/runtime authority: the bound consumer still validates those original guards.
+--- research/reviews/American_C3_native_MLM_amendment_v11/native_child_v1.py
++++ research/reviews/American_C3_native_MLM_amendment_v12/native_child_v1.py
+@@ -10,6 +10,6 @@
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+ sys.path[1:1]=[str(ROOT/"research/reviews/American_C3_native_MLM_full_fit_v8"),str(ROOT/"research/reviews/American_C3_native_MLM_full_source_v5")]
+-import amendment_v11 as amendment
+-SOURCE="research/reviews/American_C3_native_MLM_amendment_v11/native_child_v1.py"
++import amendment_v12 as amendment
++SOURCE="research/reviews/American_C3_native_MLM_amendment_v12/native_child_v1.py"
+ GUARD="src/arggnn/native_argformer_exec.py"
+ GUARD_SHA="84ed405379ac56511c2f4722c130e8b884226018bbf8e2949ea2bb4dceeb99d0"
+@@ -160,4 +160,7 @@
+     runtime_receipt=ctx["validate_native_runtime"](spec["refs"]["runtime"],runtime)
+     require(runtime_receipt.get("status")=="passed","Complete native inventory before imports")
++    from abstract_unix_bootstrap_v1 import bootstrap_native_execution_v1
++    ipc_bootstrap=bootstrap_native_execution_v1("c3mlm-v12",physical_gpu=spec["physical_gpu"],gpu_uuid=spec["execution_gpu_uuid"])
++    _save_json(directory/"operational_IPC_bootstrap.json",ipc_bootstrap)
+     prep,_,prepared_dir=preparation_v1(spec);counts=counts_v1(spec,prep)
+     base=bound(runtime["bert_base_config_ref"]);base_value=metadata(runtime["bert_base_config_ref"])
+@@ -189,5 +192,5 @@
+         stage=packet["stage"],parent_id=spec["parent_id"],active_input_ref=root_ref,child_input_ref=packet_ref,
+         preparation_ref=spec["refs"]["preparation"],author_source_manifest_ref=AUTHOR_MANIFEST_REF,
+-        runtime_ref=spec["refs"]["runtime"],runtime_validation=runtime_receipt,physical_gpu=lease["physical_gpu"],
++        runtime_ref=spec["refs"]["runtime"],runtime_validation=runtime_receipt,physical_gpu=lease["physical_gpu"],operational_IPC_bootstrap=ipc_bootstrap,
+         query_ancestry_truth_opened=False,author_code_modified=False,initializer_checkpoint_ref=None,corpus_authentication_ref=None)
+     # Once, at the quiescent pre-load boundary; no decode/copy or per-update hash.
+--- research/reviews/American_C3_native_MLM_amendment_v11/native_runtime_v1.py
++++ research/reviews/American_C3_native_MLM_amendment_v12/native_runtime_v1.py
+@@ -3,5 +3,5 @@
+ import ast,copy,hashlib,importlib,importlib.machinery,importlib.util,json,os,re,stat,sys
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-REL="research/reviews/American_C3_native_MLM_amendment_v11"
++REL="research/reviews/American_C3_native_MLM_amendment_v12"
+ def _contract():
+     path=ROOT/REL/"root_native_contract_v1.py"
+--- research/reviews/American_C3_native_MLM_amendment_v11/owned_lifecycle_v2.py
++++ research/reviews/American_C3_native_MLM_amendment_v12/owned_lifecycle_v2.py
+@@ -8,5 +8,5 @@
+         row=Path("/proc/%d/stat"%pid).read_text().rsplit(")",1)[1].split()
+         return dict(pid=pid,state=row[0],ppid=int(row[1]),group=int(row[2]),session=int(row[3]),start=int(row[19]))
+-    except FileNotFoundError:return None
++    except (FileNotFoundError, ProcessLookupError):return None
+ def _children(pid):
+     result=set()
+@@ -14,6 +14,6 @@
+         for task in Path("/proc/%d/task"%pid).iterdir():
+             try:result.update(int(p) for p in (task/"children").read_text().split())
+-            except FileNotFoundError:pass
+-    except FileNotFoundError:pass
++            except (FileNotFoundError, ProcessLookupError):pass
++    except (FileNotFoundError, ProcessLookupError):pass
+     return sorted(result)
+ def _same(actual,expected):
+--- research/reviews/American_C3_native_MLM_amendment_v11/root_namespace_v11.py
++++ research/reviews/American_C3_native_MLM_amendment_v12/root_namespace_v12.py
+@@ -1,12 +1,12 @@
+-"""Root-only exact eight old IPC nodes; no archive or process census."""
++"""Root-only exact sixteen failed-v11 IPC nodes; no archive or process census."""
+ from pathlib import Path
+ from datetime import datetime,timezone
+ import argparse,hashlib,json,os,stat,sys
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-REL="research/reviews/American_C3_native_MLM_amendment_v11"
++REL="research/reviews/American_C3_native_MLM_amendment_v12"
+ sys.path[:0]=[str(ROOT/REL),str(ROOT/"research/reviews/American_C3_native_MLM_full_fit_v8"),
+     str(ROOT/"research/reviews/American_C3_native_MLM_full_source_v5"),str(ROOT),str(ROOT/"src"),str(ROOT/"scripts")]
+-import amendment_v11 as a
+-SOURCE=REL+"/root_namespace_v11.py"
++import amendment_v12 as a
++SOURCE=REL+"/root_namespace_v12.py"
+ ADMIN_STORAGE_REF=dict(path="research/reviews/American_C3_native_MLM_amendment_v10/root_execution_admin_v2/storage.json",
+     sha256="50056bcfc7f1b2fc927951bedd9a3ca9c4965aefc97b32887c1c00ddd8fc9290")
+@@ -14,5 +14,5 @@
+ ADMIN_EXPIRY="2026-10-16T07:54:34.759077+00:00"
+ WRITES=ROOT/"research/reviews/American_C3_native_MLM_amendment_v10/root_execution_admin_v2/worker_metadata"
+-ATTEMPT=WRITES/"v11_namespace_attempt1"
++ATTEMPT=WRITES/"v12_namespace_attempt1"
+ ARCHIVE=ROOT/"research/reviews/American_C3_native_MLM_full_fit_v8/v8_failed_root_archive_v10"
+ PRESERVED_REFS=[
+@@ -21,5 +21,8 @@
+  dict(path=str((ARCHIVE/"before_rename.json").relative_to(ROOT)),
+       sha256="c175eca4f7cdb918490a2553aa5940ab99797b41451c9c2fa854730569707436")]
+-KNOWN_ROOTS=(2817234,2817625,2817931,2818200)
++OLD_V11_OBSERVATION_REF=dict(path="research/reviews/native_MLM_v12_root_preparation_20261015_v1/old_v11_socket_observation.root_v1.json",sha256="ec77101dfee9811b4f34baf6b01b5c0b19efaf3d86b835ee6d6fcd1c2225f9a5")
++V11_FRAMED_DIAGNOSIS_REF=dict(path="research/reviews/native_MLM_owned_ESRCH_abstract_IPC_source_v1/diagnosis_evidence.json",sha256="02509df64d511e2d2bc27c8ac23bc050c5dd150f75d59870ceb9419fe44d6fc1")
++OLD_V11_TMP=ROOT/".runtime/tmp/c3full8/f/v11a/mlm"
++KNOWN_ROOTS=(2889131,2889553,2891969,2893282)
+ KNOWN_GROUPS=KNOWN_ROOTS
+ def stamp(s):
+@@ -32,14 +35,16 @@
+             except ProcessLookupError:rows.append(dict(kind=kind,id=value,ESRCH=True))
+             else:raise ValueError("Known old root/group remains observable")
+-    return dict(schema="native_MLM_v11_targeted_known_roots_only",checks=rows,
++    return dict(schema="native_MLM_v12_targeted_known_roots_only",checks=rows,
+         observed_utc=datetime.now(timezone.utc).isoformat(),historical_ids_complete=False,
+         historical_descendant_ids_lost=True,complete_old_writer_absence_claimed=False,
+-        native_wait_exit="UNKNOWN",actual_optimizer_updates="UNKNOWN",unrelated_process_metadata_scanned=False)
++        native_wait_exit=-9,actual_optimizer_updates="UNKNOWN",unrelated_process_metadata_scanned=False)
+ def validate_directive(record):
+     value=a.read(record)
+-    needed=dict(schema="native_MLM_v11_namespace_root_directive_v1",root_authorizer="root_agent",active=True,
++    needed=dict(schema="native_MLM_v12_namespace_root_directive_v1",root_authorizer="root_agent",active=True,
+         key=a.KEY,original_storage_ref=a.ORIGINAL_STORAGE_REF,reserved_bytes=a.CAP,expires_at_utc=a.EXPIRES,
+         original_parent_scopes_fully_measured=True,all_regular_scientific_files_preserved_in_place=True,
+-        original_failed_namespace_unlinks_exact_eight_recorded_sockets_only=True,
++        old_v11_namespace_unlinks_exact_sixteen_recorded_sockets_only=True,
++        old_v11_observation_ref=OLD_V11_OBSERVATION_REF,
++        allowed_operational_physical_GPUs=[4,5],actual_GPU_selection_requires_root_execution_authority=True,
+         current_attempt_dead_IPC_cleanup_after_genuine_owned_drain_authorized=True,known_roots_groups_ESRCH_before_each_unlink=True,
+         exact_lstat_and_kernel_no_listener_before_each_unlink=True,
+@@ -47,5 +52,5 @@
+         all_prior_launch_resume_write_capabilities_cooperatively_revoked=True,
+         complete_old_writer_absence_claimed=False,historical_ids_complete=False,
+-        historical_descendant_ids_lost=True,prior_native_wait_exit="UNKNOWN",prior_optimizer_updates="UNKNOWN",
++        historical_descendant_ids_lost=True,prior_native_wait_exit=-9,prior_optimizer_updates="UNKNOWN",
+         no_new_reservation=True,science_unchanged=True,
+         output_child=a.OUTPUT,tmp_child=str(a.TMP.relative_to(ROOT)),aux_child=str(a.ATTEMPT.relative_to(ROOT)),
+@@ -57,15 +62,32 @@
+     return value
+ def original_socket_rows():
+-    for record in PRESERVED_REFS:a.read(record)
+-    before=a.read(PRESERVED_REFS[1])
+-    a.require(before["historical_ids_complete"] is False and before["native_wait_exit"]=="UNKNOWN"
+-        and before["actual_optimizer_updates"]=="UNKNOWN","Preserved historical uncertainty")
+-    rows=before["dead_socket_metadata"]
+-    a.require(len(rows)==8 and len({row["path"] for row in rows})==8,"Exactly eight original recorded sockets")
++    observation=a.read(OLD_V11_OBSERVATION_REF)
++    a.require(observation["schema"]=="native_v12_root_targeted_old_v11_IPC_observation_v1"
++        and observation["root_authorizer"]=="root_agent" and observation["exact_kernel_listener_matches"]==[]
++        and observation["actual_unlink_performed"] is False
++        and observation["complete_historical_writer_absence_claimed"] is False
++        and observation["native_optimizer_updates"]=="UNKNOWN"
++        and observation["all_regular_files_preserved"] is True,"Exact actual root v11 observation")
++    wait=a.read(observation["actual_v11_root_wait_ref"])
++    a.require(wait["root_authorizer"]=="root_agent" and wait["actual_direct_Popen_wait"] is True
++        and wait["pid"]==2889131 and wait["returncode"]==1,"Genuine v11 root direct wait1")
++    required={(kind,pid) for kind in ("pid","process_group") for pid in KNOWN_ROOTS}
++    a.require({(r["kind"],r["id"]) for r in observation["known_roots_groups_ESRCH"]}==required
++        and all(r["ESRCH"] is True for r in observation["known_roots_groups_ESRCH"]),"Bound eight root ESRCH observations")
++    diagnosis=a.read(V11_FRAMED_DIAGNOSIS_REF)
++    records={(r["role"],r["slot"]):r for r in diagnosis["framed_wait_records"]}
++    a.require(records[("native",0)]["committed"] and records[("native",0)]["value"]["returncode"]==-9
++        and records[("outer",1)]["committed"]
++        and records[("outer",1)]["value"]["all_owned_processes_and_groups_drained"] is True
++        and records[("outer",1)]["value"]["no_adopted_live_writer"] is True,
++        "Preserved actual framed v11 failed wait and full owned drain; no optimizer claim")
++    rows=observation["old_v11_exact_socket_nodes"]
++    a.require(len(rows)==16 and len({r["path"] for r in rows})==16,"Exactly sixteen root-observed v11 sockets")
+     for row in rows:
+         p=a.local(row["path"]);s=row["lstat"]
+         a.require(set(row)=={"path","lstat"} and len(s)==7 and stat.S_ISSOCK(s[2]) and s[3]==1
+-            and a.PARENT_TMP in p.parents and p.parent.name.startswith("pymp-") and p.name.startswith("listener-"),
+-            "Exact original multiprocessing socket metadata")
++            and OLD_V11_TMP in p.parents and p.parent.parent==OLD_V11_TMP
++            and p.parent.name.startswith("pymp-") and p.name.startswith("listener-"),
++            "Only exact recorded v11 multiprocessing socket nodes")
+     return rows
+ def socket_ancestors(path):
+@@ -79,20 +101,32 @@
+ def listeners(paths,*,read_text=None):
+     if read_text is None:read_text=Path("/proc/net/unix").read_text()
+-    from terminal_namespace_v11 import kernel_listeners
+-    return kernel_listeners(paths,read_text)
++    from terminal_namespace_v12 import kernel_listeners
++    return kernel_listeners([str(a.local(path)) for path in paths],read_text)
+ def validate_cleanup_receipt(record,directive_ref):
+     value=a.read(record)
+-    a.require(value["schema"]=="native_MLM_v11_exact_namespace_cleanup_receipt"
++    a.require(value["schema"]=="native_MLM_v12_exact_namespace_cleanup_receipt"
+         and value["root_authorizer"]=="root_agent" and value["active"] is True
+         and value["helper_ref"]==a.ref(SOURCE) and value["root_directive_ref"]==directive_ref
+         and value["original_admin_storage_ref"]==ADMIN_STORAGE_REF
+         and value["preserved_metadata_refs"]==PRESERVED_REFS
++        and value["old_v11_observation_ref"]==OLD_V11_OBSERVATION_REF
++        and value["v11_framed_diagnosis_ref"]==V11_FRAMED_DIAGNOSIS_REF
+         and value["removed_socket_metadata"]==original_socket_rows()
++        and len(value["per_node_events"])==16 and all(r["actual_unlink"] is True for r in value["per_node_events"])
++        and value["all_v11_regular_files_and_waits_preserved"] is True
++        and value["cleanup_failure"] is None
+         and value["all_regular_scientific_files_preserved_in_place"] is True
+         and value["original_archive_two_files_preserved_byte_exact"] is True
+         and value["new_reservation_created"] is False and value["global_unrelated_metadata_census_used"] is False
+         and value["complete_old_writer_absence_claimed"] is False
+-        and value["historical_ids_complete"] is False and value["prior_native_wait_exit"]=="UNKNOWN"
++        and value["historical_ids_complete"] is False and value["prior_native_wait_exit"]==-9
+         and value["prior_optimizer_updates"]=="UNKNOWN","Exact original-node-only root cleanup receipt")
++    before=a.read(value["before_cleanup_ref"])
++    a.require(before["nodes"]==original_socket_rows()
++        and before["authority_ref"]==value["authority_ref"]
++        and before["root_directive_ref"]==directive_ref
++        and [r["index"] for r in value["per_node_events"]]==list(range(16))
++        and [r["node"] for r in value["per_node_events"]]==original_socket_rows(),
++        "Persisted pre-unlink manifest and exact actual event batch")
+     for row in value["removed_socket_metadata"]:
+         p=a.local(row["path"]);a.require(not p.exists() and not p.is_symlink(),"Old exact socket pathname must remain absent")
+@@ -112,57 +146,73 @@
+ def cleanup(authority_ref):
+     auth=a.read(authority_ref);directive_ref=auth["root_directive_ref"]
+-    a.require(auth["schema"]=="native_MLM_v11_exact_namespace_cleanup_authority"
++    a.require(auth["schema"]=="native_MLM_v12_exact_namespace_cleanup_authority"
+         and auth["root_authorizer"]=="root_agent" and auth["active"] is True
+         and auth["helper_ref"]==a.ref(SOURCE) and auth["original_admin_storage_ref"]==ADMIN_STORAGE_REF
+         and auth["preserved_metadata_refs"]==PRESERVED_REFS
++        and auth["old_v11_observation_ref"]==OLD_V11_OBSERVATION_REF
++        and auth["v11_framed_diagnosis_ref"]==V11_FRAMED_DIAGNOSIS_REF
+         and auth["no_new_reservation"] is True and auth["all_prior_capabilities_revoked"] is True,
+-        "Separately authenticated actual root helper; never a false original consumer binding")
++        "Separately authenticated fresh root exact16socket cleanup authority")
+     validate_directive(directive_ref)
+     closure=a.read(auth["source_closure_ref"])
+-    a.require(closure["schema"]=="native_MLM_fullfit_execution_source_closure_v11"
++    a.require(closure["schema"]=="native_MLM_fullfit_execution_source_closure_v12"
+         and closure["original_storage_ref"]==a.ORIGINAL_STORAGE_REF,"Actual new source closure")
+-    for path,sha in closure["source_sha256"].items():a.require(a.ref(path)["sha256"]==sha,"Exact new actual source bytes")
+-    a.require(closure["source_sha256"].get(SOURCE)==a.ref(SOURCE)["sha256"],"Actual helper source authenticated")
+-    a.require(set(p.name for p in ARCHIVE.iterdir())=={Path(x["path"]).name for x in PRESERVED_REFS},
+-        "Preserve exact original two-file partial archive")
++    for path,sha in closure["source_sha256"].items():
++        a.require(a.ref(path)["sha256"]==sha,"Exact actual source bytes")
++    a.require(closure["source_sha256"].get(SOURCE)==a.ref(SOURCE)["sha256"],"Actual helper authenticated")
+     rows=original_socket_rows()
+     for row in rows:
+         p=a.local(row["path"]);socket_ancestors(p)
+-        a.require(stamp(p.lstat())==row["lstat"],"Original exact socket lstat unchanged")
+-    a.require(not listeners([row["path"] for row in rows]),"No exact old socket kernel endpoint")
++        a.require(stamp(p.lstat())==row["lstat"],"Actual root-observed node lstat unchanged")
++    a.require(not listeners([r["path"] for r in rows]),"No exact old v11 kernel endpoint")
+     known_roots_groups_absent()
+-    a.require(not ATTEMPT.exists(),"Single cleanup attempt, no reset or replay")
+-    m,storage=admin_guard();m.budget_check_v9(storage,boundary=True,required_write_bytes=1048576)
++    a.require(not ATTEMPT.exists(),"One fresh cleanup attempt, never reset/replay")
++    m,storage=admin_guard()
++    m.budget_check_v9(storage,boundary=True,required_write_bytes=1048576)
+     ATTEMPT.mkdir()
+-    admin_save(m,storage,"before_cleanup.json",dict(authority_ref=authority_ref,root_directive_ref=directive_ref,
+-        nodes=rows,preserved_metadata_refs=PRESERVED_REFS,known_state=known_roots_groups_absent(),
+-        historical_ids_complete=False,complete_old_writer_absence_claimed=False))
+-    events=[]
+-    for index,row in enumerate(rows):
+-        # No unrelated process state is consulted. Recheck known IDs, ancestors,
+-        # inode/type/metadata and exact kernel endpoint immediately before unlink.
+-        validate_directive(directive_ref)
+-        state=known_roots_groups_absent()
+-        p=a.local(row["path"]);socket_ancestors(p)
+-        a.require(stamp(p.lstat())==row["lstat"] and not listeners([str(p)]),"Fresh exact dead-socket pre-unlink state")
+-        event=dict(index=index,node=row,known_state=state,exact_kernel_listener_matches=[])
+-        events.append(admin_save(m,storage,"before_unlink_%02d.json"%index,event))
+-        # Administrative guard writes are outside original TMP. Recheck after
+-        # their accounting boundary, before the only original-namespace mutation.
+-        known_roots_groups_absent();socket_ancestors(p)
+-        a.require(stamp(p.lstat())==row["lstat"] and not listeners([str(p)]),"Immediate unchanged exact-node check")
+-        p.unlink()
+-    # Native guard still scans all original parent scopes without exclusions.
+-    native=a.read(a.ORIGINAL_STORAGE_REF);m.budget_check_v9(native,boundary=True,required_write_bytes=0)
+-    for record in PRESERVED_REFS:a.read(record)
+-    receipt=dict(schema="native_MLM_v11_exact_namespace_cleanup_receipt",root_authorizer="root_agent",active=True,
+-        helper_ref=a.ref(SOURCE),authority_ref=authority_ref,root_directive_ref=directive_ref,
++    before_ref=a.save(ATTEMPT/"before_cleanup.json",dict(authority_ref=authority_ref,
++        root_directive_ref=directive_ref,nodes=rows,old_v11_observation_ref=OLD_V11_OBSERVATION_REF,
++        v11_framed_diagnosis_ref=V11_FRAMED_DIAGNOSIS_REF,preserved_metadata_refs=PRESERVED_REFS,
++        known_state=known_roots_groups_absent(),all_v11_regular_files_and_waits_preserved=True))
++    events=[];failure=None
++    try:
++        for index,row in enumerate(rows):
++            # Only fresh targeted process/group ESRCH, canonical ancestry/lstat and
++            # exact kernel endpoint checks. No accounting replay/write per node.
++            a.check_expiry()
++            state=known_roots_groups_absent()
++            p=a.local(row["path"]);socket_ancestors(p)
++            a.require(stamp(p.lstat())==row["lstat"] and not listeners([str(p)]),
++                "Immediate exact dead-v11-socket identity/endpoint check")
++            p.unlink()
++            events.append(dict(index=index,node=row,known_state=state,
++                exact_kernel_listener_matches=[],actual_unlink=True,
++                unlinked_utc=datetime.now(timezone.utc).isoformat()))
++        # Original native parent scopes are still fully measured, with no exclusions.
++        native=a.read(a.ORIGINAL_STORAGE_REF)
++        m.budget_check_v9(native,boundary=True,required_write_bytes=0)
++        for record in PRESERVED_REFS:a.read(record)
++    except BaseException as error:
++        failure=error
++    receipt=dict(schema="native_MLM_v12_exact_namespace_cleanup_receipt",
++        root_authorizer="root_agent",active=failure is None,helper_ref=a.ref(SOURCE),
++        authority_ref=authority_ref,root_directive_ref=directive_ref,
+         original_admin_storage_ref=ADMIN_STORAGE_REF,preserved_metadata_refs=PRESERVED_REFS,
+-        removed_socket_metadata=rows,pre_unlink_receipt_refs=events,
+-        all_regular_scientific_files_preserved_in_place=True,original_archive_two_files_preserved_byte_exact=True,
+-        new_reservation_created=False,global_unrelated_metadata_census_used=False,complete_old_writer_absence_claimed=False,
+-        historical_ids_complete=False,historical_descendant_ids_lost=True,prior_native_wait_exit="UNKNOWN",
+-        prior_optimizer_updates="UNKNOWN",completed_utc=datetime.now(timezone.utc).isoformat())
+-    result=admin_save(m,storage,"cleanup_receipt.json",receipt)
++        old_v11_observation_ref=OLD_V11_OBSERVATION_REF,v11_framed_diagnosis_ref=V11_FRAMED_DIAGNOSIS_REF,
++        before_cleanup_ref=before_ref,removed_socket_metadata=[r["node"] for r in events],
++        per_node_events=events,accounting_guard_inside_unlink_loop=False,
++        all_regular_scientific_files_preserved_in_place=True,all_v11_regular_files_and_waits_preserved=True,
++        original_archive_two_files_preserved_byte_exact=True,new_reservation_created=False,
++        global_unrelated_metadata_census_used=False,complete_old_writer_absence_claimed=False,
++        historical_ids_complete=False,historical_descendant_ids_lost=True,prior_native_wait_exit=-9,
++        actual_v11_native_wait=-9,prior_optimizer_updates="UNKNOWN",
++        cleanup_failure=None if failure is None else dict(type=type(failure).__name__,message=str(failure)[:2000]),
++        completed_utc=datetime.now(timezone.utc).isoformat())
++    # Persist actual completed-node events as one batch, including a partial
++    # failure. Only a complete successful batch can authorize future activation.
++    m.budget_check_v9(storage,boundary=True,required_write_bytes=73728)
++    result=a.save(ATTEMPT/"cleanup_receipt.json",receipt)
++    m.budget_check_v9(storage,boundary=True)
++    if failure is not None:raise failure
+     print(json.dumps(dict(namespace_cleanup_receipt_ref=result)),flush=True)
+     return result
+@@ -171,5 +221,5 @@
+     p.add_argument("--authority");p.add_argument("--expected-authority-sha256");args=p.parse_args(argv)
+     if not args.cleanup:
+-        print(json.dumps(dict(status="source_only_inert_v11",actual_cleanup=False)));return 0
++        print(json.dumps(dict(status="source_only_inert_v12",actual_cleanup=False)));return 0
+     a.require(args.authority and args.expected_authority_sha256,"Exact actual root cleanup authority")
+     cleanup(dict(path=args.authority,sha256=args.expected_authority_sha256));return 0
+--- research/reviews/American_C3_native_MLM_amendment_v11/root_native_contract_v1.py
++++ research/reviews/American_C3_native_MLM_amendment_v12/root_native_contract_v1.py
+@@ -3,7 +3,7 @@
+ from datetime import datetime,timezone
+ import copy,hashlib,importlib.util,json,os,sys
+-import amendment_v11 as amendment
++import amendment_v12 as amendment
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-REL="research/reviews/American_C3_native_MLM_amendment_v11"
++REL="research/reviews/American_C3_native_MLM_amendment_v12"
+ SOURCE=REL+"/root_native_contract_v1.py"
+ DRIVER=REL+"/root_native_driver_v1.py"
+@@ -82,5 +82,5 @@
+ PHASES=GPU_PHASES=("mlm",)
+ CPU_PHASES=()
+-GPU_MAIN=REL+"/entry_v11.py"
++GPU_MAIN=REL+"/entry_v12.py"
+ CPU_MAIN=None
+ def native_contract():
+--- research/reviews/American_C3_native_MLM_amendment_v11/root_native_driver_v1.py
++++ research/reviews/American_C3_native_MLM_amendment_v12/root_native_driver_v1.py
+@@ -1,8 +1,8 @@
+-"""Root-only same-charge v9 execution amendment/close; no new reservation."""
++"""Root-only same-charge v12 execution amendment; legacy close revoked."""
+ from pathlib import Path
+ from datetime import datetime,timezone,timedelta
+ import argparse,collections,hashlib,importlib.util,json,os,selectors,signal,subprocess,sys,time
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-REL="research/reviews/American_C3_native_MLM_amendment_v11"
++REL="research/reviews/American_C3_native_MLM_amendment_v12"
+ sys.path[:0]=[str(ROOT/REL),str(ROOT/"research/reviews/American_C3_native_MLM_full_fit_v8"),str(ROOT/"research/reviews/American_C3_native_MLM_full_source_v5"),str(ROOT),str(ROOT/"src"),str(ROOT/"scripts")]
+ _ms=importlib.util.spec_from_file_location("_C3_native_specific_root_contract",ROOT/REL/"root_native_contract_v1.py")
+@@ -10,5 +10,5 @@
+ from owned_lifecycle_v2 import signal_identity
+ from pidfd_backend_v1 import self_probe_v1
+-import amendment_v11 as amendment
++import amendment_v12 as amendment
+ SOURCE=c.DRIVER
+ STATUSES=dict(mlm="completed_C3_native_full_MLM_v1")
+@@ -27,5 +27,5 @@
+         return dict(pid=pid,state=values[0],ppid=int(values[1]),group=int(values[2]),session=int(values[3]),
+             start=int(values[19]),rss=int(values[21])*os.sysconf("SC_PAGE_SIZE"))
+-    except FileNotFoundError:return None
++    except (FileNotFoundError, ProcessLookupError):return None
+ def _tree(known,groups):
+     queue=[(pid,None) for pid in known]
+@@ -33,5 +33,5 @@
+     # must still be a direct child of the exact parent that enumerated it.
+     try:queue.extend((int(p),os.getpid()) for p in Path("/proc/self/task/%d/children"%os.getpid()).read_text().split())
+-    except FileNotFoundError:pass
++    except (FileNotFoundError, ProcessLookupError):pass
+     visited=set();rss=0;reused=[]
+     while queue:
+@@ -51,6 +51,6 @@
+             for task in Path("/proc/%d/task"%pid).iterdir():
+                 try:queue.extend((int(p),pid) for p in (task/"children").read_text().split())
+-                except FileNotFoundError:pass
+-        except FileNotFoundError:pass
++                except (FileNotFoundError, ProcessLookupError):pass
++        except (FileNotFoundError, ProcessLookupError):pass
+     if reused:raise ValueError("Historical owned PID reused outside owned tree; replacement excluded after adopted children registered")
+     own=_stat(os.getpid())
+@@ -103,5 +103,5 @@
+     command=[str(ROOT/".runtime/env/bin/python"),"-B"]
+     if phase in c.GPU_PHASES:
+-        command+=[str(ROOT/amendment.LAUNCHER),"--gpu",str(req["physical_gpu"]),"--job",spec["job_id"],
++        command+=[str(ROOT/amendment.LAUNCHER),"--gpu",str(spec["physical_gpu"]),"--job",spec["job_id"],
+             "--storage-record",spec["refs"]["storage"]["path"],"--expected-storage-sha256",spec["refs"]["storage"]["sha256"],
+             "--expected-budget-source-sha256",c.CORE,"--expected-launcher-sha256",c.BASE,module]
+@@ -115,5 +115,5 @@
+     from progress_v8 import RootRelay
+     progress=RootRelay()
+-    from terminal_capture_v11 import WaitRelay
++    from terminal_capture_v12 import WaitRelay
+     wait_relay=WaitRelay()
+     selector=selectors.DefaultSelector();started=time.monotonic();stop_at=None;original_handlers={};reaped=[]
+@@ -226,63 +226,5 @@
+     return rc if rc else (1 if failure else 0)
+ def close(phase,approval_ref):
+-    packet,_=c.phase_paths(phase);admitted=c.read(c.ref(packet/"admitted.json"));spec=c.read(admitted["input_ref"])
+-    launch_ref=c.ref(packet/"launch.json");wait_ref=c.ref(packet/"actual_wait.json")
+-    launch=c.read(launch_ref);wait=c.read(wait_ref);approval=c.read(approval_ref)
+-    c.require(approval.get("schema")=="native_MLM_v11_current_attempt_root_close_approval_v2"
+-        and approval.get("root_authorizer")=="root_agent" and approval.get("active") is True
+-        and approval.get("driver_ref")==c.ref(SOURCE) and approval.get("input_ref")==admitted["input_ref"]
+-        and approval.get("actual_wait_ref")==wait_ref and approval.get("root_actually_consumed_supervisor_terminal_wait0") is True
+-        and approval.get("all_prior_launch_resume_write_capabilities_revoked") is True
+-        and approval.get("all_current_v11_attempt_owned_PIDs_and_groups_listed") is True
+-        and approval.get("historical_v8_ids_complete") is False,
+-        "Root must supply genuine complete supervisor/writer revocation certificate")
+-    c.require(wait["returncode"]==0 and wait["operational_failure"] is None and wait["all_owned_processes_and_groups_drained"],
+-        "Only genuinely completed wait0 stage can close")
+-    pids=approval["root_owned_pids"];groups=approval["root_owned_process_groups"]
+-    c.require(set(wait["known_owned_pids"])|{wait["supervisor_pid"]}<=set(pids)
+-        and set(wait["known_owned_process_groups"])|{wait["supervisor_process_group"]}<=set(groups)
+-        and 1<=len(set(pids))==len(pids)<=256 and 1<=len(set(groups))==len(groups)<=256,
+-        "Complete actual worker/launcher/supervisor/descendant roster")
+-    auth,actual,_=amendment.validate_authority(amendment.authority_ref(),allow_expired=True)
+-    from root_namespace_v11 import KNOWN_ROOTS,KNOWN_GROUPS,known_roots_groups_absent
+-    c.require(set(KNOWN_ROOTS)<=set(pids) and set(KNOWN_GROUPS)<=set(groups),"Include known roots/groups without lost-history claims")
+-    current_close_proof_ref=amendment.admin_save("postdrain_known_roots_state_v11.json",known_roots_groups_absent())
+-    observations=[]
+-    for pid in pids:
+-        try:os.kill(pid,0)
+-        except ProcessLookupError:observations.append(dict(pid=pid,absent=True,method="targeted os.kill(pid,0) ESRCH",checked_utc=datetime.now(timezone.utc).isoformat()))
+-        else:raise ValueError("Owned process remains alive; no completed credit")
+-    c.require(all(_absent_group(g) for g in groups),"Every root-owned group must remain ESRCH")
+-    m=c.original_guard();storage=admitted["storage"];own=storage["reservation"]
+-    with m.budget.v4.mutex(ROOT):state=m._state_locked(c.CORE,c.BASE,fresh=True)
+-    c.require(state[0].get(own["key"])==own and own["key"] not in state[1],"Exact original open reservation, no replay/rebase")
+-    folder=packet/"closed";c.require(not folder.exists(),"No close replay");folder.mkdir()
+-    completion=c.read(wait["completed_ref"])
+-    observation=dict(schema="concurrent_completed_scope_targeted_root_observation_v1",root_authorizer="root_agent",
+-        key=own["key"],reservation_sha256=m.budget.digest(own),storage_ref=c.ref(packet/"admitted.json"),
+-        launch_ref=launch_ref,direct_wait_ref=wait_ref,completed_ref=wait["completed_ref"],launcher_pid=launch["pid"],
+-        all_root_owned_launcher_supervisor_worker_pids_listed=True,direct_wait_observed=True,
+-        completed_scope_all_old_original_resume_write_capabilities_revoked=True,preserve_all_files=True,
+-        external_NFS_writers_outside_observation=True,pids=pids,observations=observations,
+-        root_owned_process_groups=groups,root_approval_ref=approval_ref,
+-        roster_scope="complete actual current v11 attempt plus known v8 roots only",
+-        historical_v8_ids_complete=False,historical_v8_descendant_ids_lost=True,
+-        complete_old_writer_absence_claimed=False,
+-        namespace_root_directive_ref=auth["root_directive_ref"],
+-        current_writer_proof_ref=current_close_proof_ref)
+-    obs_ref=c.save(folder,"root_observation.json",observation)
+-    request=dict(key=own["key"],reservation_sha256=m.budget.digest(own),storage_ref=c.ref(packet/"admitted.json"),
+-        storage_locator=["storage"],launch_ref=launch_ref,launch_pid_locator=["pid"],
+-        launch_identity=dict(pid=launch["pid"],phase=phase,input_ref=admitted["input_ref"],driver_ref=c.ref(SOURCE)),
+-        direct_wait_ref=wait_ref,wait_pid_locator=["pid"],wait_exit_locator=["returncode"],
+-        wait_identity=dict(pid=wait["pid"],returncode=0,actual_direct_launcher_wait=True,phase=phase,
+-            all_owned_processes_and_groups_drained=True,completed_ref=wait["completed_ref"],operational_failure=None),
+-        completed_ref=wait["completed_ref"],completed_identity=dict(status=STATUSES[phase],parent_id=c.PARENT),
+-        observation_ref=obs_ref)
+-    authority=m.operation_draft_v1("close_completed",request,expected_before=m._pins(state[2]),bindings=state[3])
+-    authority.update(active=True,expires_at_utc=(datetime.now(timezone.utc)+timedelta(hours=1)).isoformat())
+-    auth_ref=c.save(folder,"close_authority.json",authority)
+-    result=m.apply_close_completed_v1(auth_ref,expected_source_sha256=c.CORE,expected_launcher_sha256=c.BASE)
+-    receipt_ref=c.save(folder,"close_receipt.json",result);print(json.dumps(dict(close_receipt_ref=receipt_ref)),flush=True)
++    raise ValueError("Legacy old-v3 reserve/close mutations are revoked; root must use the separately authorized current accounting path")
+ def main(argv=None):
+     parser=argparse.ArgumentParser(description=__doc__)
+@@ -291,13 +233,10 @@
+     parser.add_argument("--close",choices=("mlm",));parser.add_argument("--root-approval");parser.add_argument("--expected-root-approval-sha256")
+     args=parser.parse_args(argv)
++    if args.close:return close("mlm",None)
+     if not args.execute_amendment and not args.close:
+-        print(json.dumps(dict(status="source_only_inert_v11_no_new_reservation",actual_execution=False)));return 0
++        print(json.dumps(dict(status="source_only_inert_v12_no_new_reservation",actual_execution=False)));return 0
+     c.require(args.authority and args.expected_authority_sha256,"Exact root execution-only authority")
+     record=dict(path=args.authority,sha256=args.expected_authority_sha256)
+     os.environ[amendment.ENV_REF]=json.dumps(record,separators=(",",":"))
+-    if args.close:
+-        c.require(args.root_approval and args.expected_root_approval_sha256,"Root actual fullfit terminal approval")
+-        amendment.validate_authority(record,allow_expired=True)
+-        close("mlm",dict(path=args.root_approval,sha256=args.expected_root_approval_sha256));return 0
+     self_probe_v1()
+     fd=amendment.activate(record,c.original_guard())
+--- research/reviews/American_C3_native_MLM_amendment_v11/supervisor_v1.py
++++ research/reviews/American_C3_native_MLM_amendment_v12/supervisor_v1.py
+@@ -10,5 +10,5 @@
+ import argparse,collections,ctypes,importlib.util,json,os,selectors,signal,subprocess,sys,time
+ from pathlib import Path
+-import amendment_v11 as amendment
++import amendment_v12 as amendment
+ from arggnn.american_c3_common_v1 import ROOT,CLASSES,require,local,ref,bound
+ from consumer_contract_v1 import (
+@@ -16,5 +16,5 @@
+     metadata,validate_active_input,load_root_context,preparation_v1,counts_v1)
+ SOURCE=amendment.ENTRY
+-CHILD="research/reviews/American_C3_native_MLM_amendment_v11/native_child_v1.py"
++CHILD="research/reviews/American_C3_native_MLM_amendment_v12/native_child_v1.py"
+ CACHE_VARS=("XDG_CACHE_HOME","XDG_CONFIG_HOME","XDG_DATA_HOME","HF_HOME","TORCH_HOME",
+     "TRITON_CACHE_DIR","CUDA_CACHE_PATH","TORCHINDUCTOR_CACHE_DIR","NUMBA_CACHE_DIR",
+@@ -177,5 +177,5 @@
+         owned_identity_drain_proof=ownership.evidence(),raw_stdout_tail=tail_evidence))
+     terminal.close()
+-    from terminal_namespace_v11 import clean_dead_sockets,normalize_latest
++    from terminal_namespace_v12 import clean_dead_sockets,normalize_latest
+     prove=lambda:drained and not _children() and ownership.identities_absent()
+     counter=[0]
