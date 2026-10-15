@@ -6,17 +6,21 @@ Graph neural networks for ordered collections of whole genealogical trees, with 
 
 [Current 8-page AAAI working PDF](paper/current_full_panel_working.pdf) · [LaTeX source](paper/current_full_panel_working.tex) · [Overleaf working bundle](paper/current_full_panel_overleaf_working.zip). Compiled and visually checked on 2026-10-15. This is a development draft with unfinished scientific validation.
 
-**Best completed development result:** H042 local-clade flags reach **96.5778 ± 0.5954% Present182 span accuracy**, versus **94.4461 ± 1.1491%** for the current native ARGMix release on the same eight validation simulations. The pipeline difference is **2.1317 percentage points**. It includes differences in SNP inputs, training budget and checkpoint selection, so it does not isolate architecture or reproduce the published ARGMix tables.
+**Latest measured development result:** H044 localized readout reaches **96.7919 ± 0.5967% Present182 span accuracy**, versus **96.7866 ± 0.6161%** for its matched tree-pooled control and **94.4461 ± 1.1491%** for current native ARGMix. The localized-versus-ARGMix pipeline difference is **2.3458 percentage points**. SNP inputs, training budget and checkpoint selection differ, so this does not isolate architecture or reproduce the published tables.
 
-Our current best model combines **whole-tree PyTorch Geometric message passing, observed SNP features, exact local topology-change flags and a bidirectional GRU across genomic trees**. It has 30,788 parameters and uses no ARGMix predictions. Whole trees, all 952 observed haplotypes and the full genomic recurrent history are retained.
+H044 wrote its complete scores, then exited 1 because the CLI returned a result dictionary into SystemExit. An independent source/log/record audit verifies the written results, matching scoring support and all 96 prediction bindings. The actual nonzero exit remains recorded. Localization gains only 0.0053 pp over its matched control and reduces boundary F1, so this experiment does not establish useful marker localization. [Results and caveat](research/reviews/H044_completed_comparison_root_20261015_v1/README.md).
+
+The shared model backbone combines **whole-tree PyTorch Geometric message passing, observed SNP features, exact local topology-change flags and a bidirectional GRU across genomic trees**. H042 has 30,788 parameters. H044 adds a 640-parameter marker readout, for 31,428 total. Neither uses ARGMix predictions. Whole trees, all 952 observed haplotypes and the full genomic recurrent history are retained.
 
 ### Shared-data development comparison
 
 The panel contains 476 diploids, 686 queries and 266 proxies over 2 Mb. All 32 independent TRAIN and eight VAL simulations, native Relate post-size inference and observation banks completed. Eight reserved outer simulations remain ungenerated and untouched. SD below is across the eight VAL simulations, with one optimizer seed per model. It is not training-seed uncertainty.
 
-| Completed pipeline | Present182 accuracy, mean ± SD (%) | Mean NLL |
+| Pipeline | Present182 accuracy, mean ± SD (%) | Mean NLL |
 | --- | ---: | ---: |
-| **H042 exact local-clade flags** | **96.5778 ± 0.5954** | **0.100656** |
+| **H044 localized continuation** | **96.7919 ± 0.5967** | **0.094944** |
+| H044 tree-pooled continuation | 96.7866 ± 0.6161 | 0.094962 |
+| H042 exact local-clade flags | 96.5778 ± 0.5954 | 0.100656 |
 | H043 true neighboring-tree states | 96.5182 ± 0.6201 | 0.101527 |
 | H043 matched own-state control | 96.5029 ± 0.6006 | 0.101819 |
 | H040 tensor clade coupling | 96.2674 ± 0.7493 | 0.109332 |
@@ -25,7 +29,7 @@ The panel contains 476 diploids, 686 queries and 266 proxies over 2 Mb. All 32 i
 | Current native ARGMix | 94.4461 ± 1.1491 | 0.219695 |
 | Native AncestralPaths, derived C4 endpoint | 93.7830 ± 0.8385 | ∞* |
 
-H040 and H042 start from the same H038 checkpoint and each complete 30 additional FP32 passes/960 whole-parent updates. H042 beats the tensor layer by 0.3104 pp at the same added budget and parameter count. Tensor coupling beats its matched event MLP by only 0.0667 pp, positive in 6/8 simulations. The simpler local-clade control is currently strongest, and these results do not establish new-layer novelty.
+H040 and H042 start from the same H038 checkpoint and each complete 30 additional FP32 passes/960 whole-parent updates. H042 beats the tensor layer by 0.3104 pp at the same added budget and parameter count. Tensor coupling beats its matched event MLP by only 0.0667 pp, positive in 6/8 simulations. The local-clade control is strongest among these H040/H042 variants. These results do not establish new-layer novelty.
 
 ARGMix retains the current author implementation and native early stopping, ending after 11 epochs. AncestralPaths retains the author Dense512 model and fixed five-epoch fit on 5,190,874 sampled rows. Its six-path probabilities are collapsed to four source classes before argmax, with native six-path SNP-focal scores retained separately. Our checkpoint uses validation accuracy selection. All pipelines use common physical-span C4 scoring support, but our GNN additionally consumes observed SNPs. Earlier README text incorrectly called this full-panel genealogy tsinfer/tsdate because reused helper modules carry that name.
 
@@ -35,19 +39,19 @@ ARGMix retains the current author implementation and native early stopping, endi
 
 ### Population and tract-boundary metrics
 
-| Cohort | Native AP accuracy (%) | Current native ARGMix (%) | H038 aligned (%) | H042 local-clade flags (%) |
-|---|---:|---:|---:|---:|
-| Present (182) | 93.78±0.84 | 94.45±1.15 | 95.49±0.83 | **96.58±0.60** |
-| Bronze Age (162) | 94.76±1.18 | 97.71±0.75 | 98.17±0.80 | **99.07±0.32** |
-| BAA (14) | 96.94±1.32 | 98.44±1.02 | 98.90±0.89 | **99.02±1.07** |
-| Neo (302) | 97.57±0.27 | 99.30±0.26 | 99.41±0.13 | **99.53±0.18** |
-| Yam (26) | 95.43±1.41 | 99.22±0.90 | 98.96±1.31 | **99.86±0.19** |
-| Ancient (504) | 96.54±0.32 | 98.76±0.31 | 98.98±0.32 | **99.39±0.16** |
-| All (686) | 95.81±0.45 | 97.61±0.50 | 98.05±0.43 | **98.64±0.26** |
+| Cohort | Native AP accuracy (%) | Current native ARGMix (%) | H038 aligned (%) | H042 local-clade flags (%) | H044 localized (%) | H044 tree pooled (%) |
+|---|---:|---:|---:|---:|---:|---:|
+| Present (182) | 93.78±0.84 | 94.45±1.15 | 95.49±0.83 | 96.58±0.60 | 96.79±0.60 | 96.79±0.62 |
+| Bronze Age (162) | 94.76±1.18 | 97.71±0.75 | 98.17±0.80 | 99.07±0.32 | 99.19±0.34 | 99.19±0.34 |
+| BAA (14) | 96.94±1.32 | 98.44±1.02 | 98.90±0.89 | 99.02±1.07 | 99.23±1.19 | 99.27±1.07 |
+| Neo (302) | 97.57±0.27 | 99.30±0.26 | 99.41±0.13 | 99.53±0.18 | 99.63±0.09 | 99.63±0.10 |
+| Yam (26) | 95.43±1.41 | 99.22±0.90 | 98.96±1.31 | 99.86±0.19 | 99.87±0.21 | 99.86±0.23 |
+| Ancient (504) | 96.54±0.32 | 98.76±0.31 | 98.98±0.32 | 99.39±0.16 | 99.49±0.14 | 99.49±0.14 |
+| All (686) | 95.81±0.45 | 97.61±0.50 | 98.05±0.43 | 98.64±0.26 | 98.77±0.25 | 98.77±0.26 |
 
 H042 has higher mean span accuracy than native AP and current native ARGMix in all seven cohorts. This does not imply a win on every simulation or metric. Bronze Age is an approximate correspondence to the paper's Post-Neolithic category, not a verified identical panel. These rows cannot be compared directly with its published Tables 1/2.
 
-Present182 boundary F1 at 1 kb tolerance is **18.05 ± 1.84%** for H042, **13.42 ± 1.47%** for H038, **11.74 ± 1.73%** for current native ARGMix and **7.03 ± 0.78%** for native AncestralPaths. H042 precision is 15.21 ± 2.01% and recall 22.30 ± 1.86%. Boundary inference remains weak despite high span accuracy. The fixed H038 diagnostic finds about 27.3% of true changes have no allowed native-hold edge within 1 kb, motivating a finer readout.
+Present182 boundary F1 at 1 kb tolerance is **18.05 ± 1.84%** for H042, **13.42 ± 1.47%** for H038, **11.74 ± 1.73%** for current native ARGMix and **7.03 ± 0.78%** for native AncestralPaths. H042 precision is 15.21 ± 2.01% and recall 22.30 ± 1.86%. Boundary inference remains weak despite high span accuracy. The fixed H038 diagnostic finds about 27.3% of true changes have no allowed native-hold edge within 1 kb, motivating a finer readout. H044 localized continuation scores **15.54 ± 1.18%** and its tree-pooled control **18.67 ± 1.27%**. The localized head has worse boundary F1 despite its slightly higher span accuracy. H044 includes another 30 training passes, so gains versus H042 do not isolate the readout.
 
 ![Development population accuracy and tract boundaries](research/reviews/H042_completed_cohort_diagnostics_root_20261015_v1/accuracy_and_boundary_mean_SD.png)
 
@@ -56,8 +60,8 @@ Present182 boundary F1 at 1 kb tolerance is **18.05 ± 1.84%** for H042, **13.42
 ### Running and next experiments
 
 - **H043 completed:** neighboring-tree states reach 96.5182 ± 0.6201%, versus 96.5029 ± 0.6006% for the matched own-state control. The 0.0153 pp difference is below the registered practical threshold and both trail H042. This condition does not establish useful foreign-state transfer. [Completed paired comparison](research/reviews/H043_completed_comparison_root_20261015_v1/README.md).
-- **H044 SNP-resolution readout:** registered paired test preserves the complete H042 PyG/GRU body and compares localized marker evidence with the same evidence pooled within native trees. Each arm has 31,428 parameters and a fixed 30 additional-pass budget. All 40 observation sidecars completed. Both arms completed all 30 passes and 960 whole-parent updates each on physical GPU 4, with genuine supervisor wait 0 and drained descendants. Evaluation is launched on physical GPU 5. Two earlier launch attempts stopped before worker/model updates and are logged. No H044 accuracy result exists yet. [Launch and corrections](research/reviews/H044_marker_resolution_root_v1/train_execution_status_root_20261015_v3.json).
-- **H044 evaluation efficiency:** a separate inactive successor reuses only the original fixed FP32 observation blocks across the same 96 predictions. Source review and a small CPU interface check passed. Full-model/GPU parity and actual timing remain unverified. The original 960-update training and genuine wait/drain prerequisites are now complete. The pending original evaluation has been admitted and launched on physical GPU 5. [Independent review](research/reviews/H044_cached_evaluation_independent_review_20261015_v1/assessment.md).
+- **H044 completed:** both arms finished 30 passes and 960 updates each on physical GPU 4. Evaluation on physical GPU 5 produced all 96 prespecified predictions and complete selected diagnostics. Localization gains 0.0053 pp accuracy and loses 3.14 pp boundary F1 versus its matched control. This condition does not establish useful localization. [Measured comparison](research/reviews/H044_completed_comparison_root_20261015_v1/README.md).
+- **H044 evaluation execution:** eight immutable feature pairs supported the same 96 predictions, with one 2.634 GB pair cached at a time. Total supervised execution took 702.1 seconds, with 27.4 GB peak owned RSS. No comparison against an uncached runtime was run. A post-completion CLI return-type bug caused genuine exit 1, preserved with the scores and process drain. [Independent audit](research/reviews/H044_terminal_exit_and_metrics_independent_20261015_v1/review.md).
 - **Eligible devices:** only physical GPUs 4 and 5. Previous GPU 2/3 assignments are revoked. GPU jobs use the title AI Auto Research Pipeline Test.
 
 An additional source audit found direct prior work for temporal-graph commutators, BCH/Magnus operators and graph log-signature processing. A commutator alone is therefore not being claimed as our novel contribution. [Prior-art assessment](research/reviews/ordered_operator_priority_20261015_v1/assessment.md).
@@ -73,11 +77,13 @@ A fresh H043 priority audit identifies prior cross-graph message exchange in Gra
 | European common-input development panel | Native AP, current native ARGMix and our GNN on eight shared VAL simulations, population SDs and confusion/boundary diagnostics | Independent test confirmation and training-seed variation |
 | ARGMix published Tables 1 and 2 | Primary-source protocol and exact published numbers audited | Published-panel IID and demographic-misspecification experiments. Paper-era code and several recipe details are unavailable |
 | ARGformer American Table 1 | Full 30 Mb simulated and inferred TRAIN input completed. Fourteen independent 2 Mb TRAIN preparations completed with actual supervisor wait 0. Complete native corpus preparation finished with actual wait 0. Native ARGformer and FLARE fits remain downstream | Remaining independent data, native fits and common EUR/EAS/AFR precision, recall and F1 |
-| Empirical ancestry and PCA | Original region fails its 1,000-site gate with 434 passing sites. Prospective 10 Mb extension now passes unchanged QC with 4,148 of 94,892 sites | Observed-input bridge and native runtime qualification, genealogy inference, model application and ancestry-masked genotype PCA |
+| Empirical ancestry and PCA | Original region fails its 1,000-site gate with 217 passing sites. Prospective 10 Mb extension now passes unchanged QC with 2,074 of 94,892 sites | Native monomorphic-site/date/runtime qualification, genealogy inference, model application and ancestry-masked genotype PCA |
 
 The American data are a disclosed reconstruction with 1,600 explicitly haploid samples and a 12-generation pulse, not an exact ARGformer Table 1 reproduction. Fourteen independent 2 Mb TRAIN preparations are complete. The complete label-blind count found 25,574,587 unique paths, 316,672,003 tokens and maximum raw path length 29. The independently reviewed v3 preparation completed in 18.6 minutes with genuine wait 0 and all native paths, six raw corpus files, vocabulary, seed-42 splits and original focal identities retained. Its peak owned RSS was 42.2 GB. Preparation is not model training or a C3 accuracy result. Native model fits and C3 scores remain unfinished. [Full-corpus completion](experiments/results/American_C3_native_paths_train000_full30mb_seed92001_v3/completed.json) · [Genuine supervisor wait](research/reviews/American_C3_native_paths_root_v3/admitted_native_paths_train000_full30mb_v3/actual_wait.json) · [Independent review](research/reviews/American_C3_native_paths_v3_independent_review_20261015_v1/assessment.md).
 
-The original real-data region failed its fixed 1,000-site gate with 434/13,312 passing sites. The prospectively registered 10 Mb extension now passes unchanged QC with **4,148/94,892 sites**, and acquisition completed with actual wait 0. No genealogy inference, model application, real-data ancestry accuracy or PCA result is claimed from acquisition alone. Its timing records attribute 1,632 of 1,669 worker seconds to repeated storage checks, motivating batched artifacts in the next pipeline.
+The original real-data region failed its fixed 1,000-site gate with 217/13,312 passing sites. The prospectively registered 10 Mb extension now passes unchanged QC with **2,074/94,892 sites**, and acquisition completed with actual wait 0. No genealogy inference, model application, real-data ancestry accuracy or PCA result is claimed from acquisition alone. Its timing records attribute 1,632 of 1,669 worker seconds to repeated storage checks, motivating batched artifacts in the next pipeline.
+
+An audit of the actual frozen QC tables corrected a doubled upstream counter: the original region has **217** passing sites, and the extension has **2,074**. Earlier acquisition reports said 434 and 4,148. The 1,000-site gate results and exact site masks are unchanged. The bridge also assumed textual Booleans although the writer emits 0/1. Its failed preparation is retained. The corrected adapter completed on CPU with genuine worker/root exit 0. Independent parsing verifies all 2,074 written sites against the original genotypes, including biological nucleotides, phase, sample/date order and map. All 277 monomorphic sites are retained. Native support and fractional-age serialization remain to be qualified. [Actual serialized readback](research/reviews/H018_QC_boolean_serialization_repair_source_v1/worker_aux_v2/serialized_readback_root_v2.json). [Verified count erratum](research/reviews/H018_QC_count_erratum_root_20261015_v1/actual_QC_site_count_erratum_v2.json).
 
 The real-data regional map is now qualified: 12,280 rows preserve all 12,278 interior public-map knots and span 23.12908 cM. Forty sample-date entries retain the original calibrated BP1950/28 convention. All output hashes and dates were verified after an outer controller logging failure, whose unknown child exit remains recorded without a wait-0 claim. No empirical genealogy or model result follows from these metadata. [Qualified map and dates](research/reviews/H018_genealogy_next_source_v1/root_metadata_stage_basis_v1/completed.json) · [Controller caveat and output verification](research/reviews/H018_metadata_root_execution_20261015_v1/root_result_validation_after_control_failure.json).
 
@@ -158,7 +164,7 @@ At most two physical GPUs from indices2–5 are assigned to the project. GPU wor
 
 ## Main advantages and current evidence
 
-**Latest full-panel evidence:** the H039 directed extension scores95.7119% Present182 development accuracy. Its equal-budget plain continuation scores95.5635% and generic smoothing scores95.4964%. The earlier H038 aligned model scores95.4891% with29,764 parameters, versus94.9252% for zero concordance,94.4461% for current native ARGMix and93.7830% for native AncestralPaths on the same development C4 endpoint. It learns directly from observed SNPs and complete inferred trees, without ARGMix predictions. A32-parent training pass takes 43.6 seconds. The 0.5639 pp validation advantage supports further development, with architectural novelty, original-benchmark confirmation and superiority over full-panel ARGformer and untouched outer simulations still unproven.
+**Current full-panel evidence:** the latest shared-data development comparison is shown above. H044 localized continuation reaches 96.7919% Present182 accuracy, with its matched tree-pooled control at 96.7866% and current native ARGMix at 94.4461%. Our models consume observed SNPs and complete inferred trees without ARGMix predictions. The added training budget and inputs remain comparison qualifications. Localization and architectural novelty are unproven, and original-paper benchmarks and untouched outer evaluation remain unfinished.
 
 **Earlier reused-panel evidence:** the strongest genuine residual pipeline scored85.9697%, versus85.9397% for ordinary smoothing and85.554% for frozen ARGMix. Those historical pilot values are separate from the full-panel experiment above.
 

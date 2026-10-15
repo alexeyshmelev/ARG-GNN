@@ -1,0 +1,103 @@
+--- research/reviews/H018_observed_bridge_root_source_v1/root_bridge_driver_v2.py
++++ research/reviews/H018_observed_bridge_root_source_v1/root_bridge_driver_v3.py
+@@ -21,10 +21,10 @@
+ 
+ ROOT = Path("/workspace-SR003.nfs2/ARG-GNN")
+ REL = "research/reviews/H018_observed_bridge_root_source_v1"
+-SOURCE = REL + "/root_bridge_driver_v2.py"
+-CONFIG = REL + "/config.json"
+-MANIFEST = REL + "/source_manifest_v2.json"
+-PACKET = REL + "/admission_v1"
++SOURCE = REL + "/root_bridge_driver_v3.py"
++CONFIG = REL + "/config_v3.json"
++MANIFEST = REL + "/source_manifest_v3.json"
++PACKET = REL + "/admission_v2"
+ AUX = REL + "/worker_aux"
+ OUTPUT = "data/H018_R16_observed_bridge_v1"
+ JOB = "H018-observed-baseline-GT-preparation-v1"
+@@ -129,6 +129,27 @@
+                 fractional_calBP1950_div28_native_age_roundtrip_policy_resolved=False,
+                 HS_draws_materialized=False, GPU_used=False, model_prediction=False,
+                 ancestry_truth_available=False)
++
++
++DIRECT_BINDING_SUFFIXES = (".json", ".py", ".sh")
++
++
++def direct_authority_refs(manifest, closure=None):
++    """Retain every ref transitively; only original allowed suffixes bind directly."""
++    groups = ("source_refs", "metadata_refs")
++    excluded = {group: {name: rec for name, rec in manifest[group].items()
++                       if Path(rec["path"]).suffix not in DIRECT_BINDING_SUFFIXES}
++                for group in groups}
++    require(manifest["direct_binding_suffixes"] == list(DIRECT_BINDING_SUFFIXES)
++            and manifest["transitive_only_refs"] == excluded,
++            "Exact original allowed direct suffixes and full excluded-reference manifest required")
++    if closure is not None:
++        require(all(closure[group] == manifest[group] for group in groups)
++                and closure["direct_binding_suffixes"] == manifest["direct_binding_suffixes"]
++                and closure["transitive_only_refs"] == excluded,
++                "Actual direct JSON closure must preserve every complete source/metadata/excluded ref")
++    return [rec for group in groups for rec in manifest[group].values()
++            if Path(rec["path"]).suffix in DIRECT_BINDING_SUFFIXES]
+ 
+ 
+ def verify_request(b, request_ref):
+@@ -161,6 +182,7 @@
+     require(manifest["schema"] == "H018_observed_bridge_root_source_manifest_v1"
+             and manifest["source_only"] is True and manifest["source_refs"]["driver"] == r["driver_ref"]
+             and manifest["source_refs"]["config"] == r["config_ref"], "Exact source closure")
++    direct_authority_refs(manifest)  # Classification never skips the original full SHA checks below.
+     for rec in manifest["source_refs"].values():
+         require(b.ref(rec["path"]) == rec, "Source closure drift")
+     for rec in manifest["metadata_refs"].values():
+@@ -219,18 +241,29 @@
+     closure = save(b, packet, "consumer_manifest.json", dict(schema="H018_observed_bridge_consumer_v1",
+         request_ref=record, source_manifest_ref=r["source_manifest_ref"], runtime_ref=runtime,
+         registration_ref=r["registration_ref"], source_refs=manifest["source_refs"],
+-        metadata_refs=manifest["metadata_refs"], observed_payload_refs={k: refs[k] for k in ("source_VCF", "source_QC")},
++        metadata_refs=manifest["metadata_refs"], direct_binding_suffixes=manifest["direct_binding_suffixes"],
++        transitive_only_refs=manifest["transitive_only_refs"],
++        observed_payload_refs={k: refs[k] for k in ("source_VCF", "source_QC")},
+         observed_payloads_opened=False, native_execution_authorized=False,
+         metadata_original_OS_exit="unknown", metadata_original_reservation_retained_bytes=5_000_000))
++    closure_direct = direct_authority_refs(manifest, b.read(closure))
+     m = b.guard()
+     lock = b.local("research/reviews/American_C3_short_train2mb_wave_source_v1/scheduler/admission.lock")
+     with lock.open("a+") as stream:
+         fcntl.flock(stream, fcntl.LOCK_EX)
+         view = m.inspect_v1(expected_source_sha256=b.CORE, expected_launcher_sha256=b.BASE)
+-        consumers = list({x["path"]: x for x in [record, r["config_ref"], r["source_manifest_ref"],
++        candidates = list({x["path"]: x for x in [record, r["config_ref"], r["source_manifest_ref"],
+             r["registration_ref"], runtime, closure, *manifest["source_refs"].values(),
+             *manifest["metadata_refs"].values(), b.GUARD, b.POLICY, b.REPAIR,
+             *view["bindings"].values()]}.values())
++        consumers = [x for x in candidates if Path(x["path"]).suffix in DIRECT_BINDING_SUFFIXES]
++        authorities = [record, r["config_ref"], r["source_manifest_ref"], r["registration_ref"],
++                       runtime, closure, *closure_direct, b.GUARD, b.POLICY, b.REPAIR,
++                       *view["bindings"].values()]
++        require(all(Path(x["path"]).suffix in DIRECT_BINDING_SUFFIXES and x in consumers
++                    for x in authorities), "Every actual runtime/source/guard authority remains directly bound")
++        require(all(x not in consumers for group in manifest["transitive_only_refs"].values()
++                    for x in group.values()), "Excluded full refs remain transitive, never direct authorities")
+         require(len(consumers) <= 64, "Original direct-reference bound")
+         operation = m.operation_draft_v1("reserve", dict(key=KEY, output=str(output),
+             auxiliary_scopes=[str(aux)], reserved_bytes=CAP, consumer_bindings=consumers),
+@@ -282,10 +315,14 @@
+             "Original combined output-plus-aux reservation")
+     require(closure["request_ref"] == ad["request_ref"] and closure["runtime_ref"] == ad["runtime_ref"]
+             and closure["source_manifest_ref"] == r["source_manifest_ref"], "Actual bound consumer manifest")
++    closure_direct = direct_authority_refs(manifest, closure)
+     required = [ad["request_ref"], ad["runtime_ref"], ad["consumer_manifest_ref"], r["config_ref"],
+-                r["source_manifest_ref"], r["registration_ref"], *manifest["source_refs"].values(),
+-                *manifest["metadata_refs"].values()]
+-    require(all(x in own["consumer_bindings"] for x in required), "Actual producer/runtime/source/input-reference bindings")
++                r["source_manifest_ref"], r["registration_ref"], *closure_direct,
++                b.GUARD, b.POLICY, b.REPAIR, *storage["budget_components"].values()]
++    require(all(Path(x["path"]).suffix in DIRECT_BINDING_SUFFIXES and x in own["consumer_bindings"]
++                for x in required), "Actual producer/runtime/source/guard authorities must remain direct bindings")
++    require(all(x not in own["consumer_bindings"] for group in manifest["transitive_only_refs"].values()
++                for x in group.values()), "All excluded refs retained only in bound manifest/closure JSON")
+     return b, ad, r, refs, storage
+ 
+ 

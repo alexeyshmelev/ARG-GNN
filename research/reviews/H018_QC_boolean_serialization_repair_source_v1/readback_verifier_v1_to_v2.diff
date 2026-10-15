@@ -1,0 +1,131 @@
+--- research/reviews/H018_bridge_serialization_readback_source_v1/serialization_readback.py
++++ research/reviews/H018_QC_boolean_serialization_repair_source_v1/readback_verifier_v2.py
+@@ -14,7 +14,11 @@
+ from types import MappingProxyType
+ 
+ _Contract = namedtuple("_Contract", "begin end candidates retained subjects references queries map_rows pins production")
++QC_COUNT_ERRATUM_REF = {'path': 'research/reviews/H018_QC_count_erratum_root_20261015_v1/actual_QC_site_count_erratum_v2.json', 'sha256': '47db1404927848d2dfa836f5760ded106fe50f868e699616ff339ccc493b1f78'}
++QC_WRITER_REF = {'path': 'research/reviews/H018_R16_decode_performance_source_v1/prospective_worker_v3.py', 'sha256': '8fb225c48b791e3876eb51116a4ee1996c775c5794a092d5904f97e958bfeda6'}
++
+ _PIN_VALUES = {
++    "qc_count_erratum": (QC_COUNT_ERRATUM_REF["path"], QC_COUNT_ERRATUM_REF["sha256"]),
+     "source_VCF": ("data/H018_R16_20_30Mb_extension_batched_v4/H018_R16_Q24.chr22_20_30Mb_extension.noAP.vcf.gz",
+                    "8b2adb8436896d91a7fbfae63d610faf3b7fa0d90e72b6331c709ebd86a69e29"),
+     "source_QC": ("data/H018_R16_20_30Mb_extension_batched_v4/regional_site_QC.tsv",
+@@ -34,15 +38,15 @@
+     "metadata_independent_result_validation": ("research/reviews/H018_metadata_root_execution_20261015_v1/root_result_validation_after_control_failure.json",
+                                                "622968f16c8d6740a0d3ed519a8ed468c03f7054d4870ae28713a5ce2efbec29"),
+ }
+-H018 = _Contract(20_000_000, 30_000_000, 94892, 4148, 20, 16, 24, 12280,
++H018 = _Contract(20_000_000, 30_000_000, 94892, 2074, 20, 16, 24, 12280,
+                  MappingProxyType(dict(_PIN_VALUES)), True)
+ ORIGINAL_BASIS_REFS = MappingProxyType({k: MappingProxyType(dict(path=v[0], sha256=v[1]))
+                                        for k, v in H018.pins.items()})
+-OUTPUT_DIRECTORY = "data/H018_R16_observed_bridge_v1"
+-JOB = "H018-observed-baseline-GT-preparation-v1"
++OUTPUT_DIRECTORY = "data/H018_R16_observed_bridge_v2"
++JOB = "H018-observed-baseline-GT-preparation-v2"
+ CONDITION = "H018_R16_20_30Mb_extension_v1"
+-BRIDGE_REF = {"path": "research/reviews/H018_observed_bridge_source_v1/bridge_core.py",
+-              "sha256": "a860ebf2f046834871d06a1938f0a1de0431cc20f698c1c5096b87bdc4ef89d2"}
++BRIDGE_REF = {"path": "research/reviews/H018_QC_boolean_serialization_repair_source_v1/bridge_core_v2.py",
++              "sha256": "0675d1fb8e2442af1172a0f6d14088a701b7befb2f19c0ef8d7bf240537fa24d"}
+ INPUT_REFS_REF = {"path": "research/reviews/H018_observed_bridge_source_v1/input_refs.inactive.json",
+                   "sha256": "dbc7ad96c9d91574c6c3137f0c0767380c4238116c15b7bb7c2dc953e13b26b7"}
+ ASSET_NAMES = frozenset(("baseline.haps", "baseline.sample", "sample_ages.generations",
+@@ -124,6 +128,24 @@
+             2_000_000 if name == "qualified.regional.map" else 65_536)
+         _need(type(raw) is bytes and len(raw) <= cap, "Bounded immutable basis bytes: " + name)
+         _need(_sha(raw) == contract.pins[name][1], "Immutable original SHA differs: " + name)
++    if contract.production:
++        erratum = _json(basis["qc_count_erratum"])
++        extension, original = erratum["extension"], erratum["original_2Mb"]
++        _need(erratum["schema"] == "H018_QC_counter_serialization_erratum_v1"
++              and erratum["status"] == "actual_frozen_QC_rows_recounted_original_mask_unchanged"
++              and erratum["canonical_future_bridge_retained_sites"] == contract.retained
++              and extension["candidate_sites"] == contract.candidates and extension["actual_retained_sites"] == contract.retained
++              and extension["serialized_boolean_counts"] == {"0": 92818, "1": 2074}
++              and extension["source_QC_ref"] == _ref(contract, "source_QC")
++              and extension["minimum_required"] == 1000 and extension["actual_gate_passed"] is True
++              and original["actual_retained_sites"] == 217 and original["candidate_sites"] == 13312
++              and original["minimum_required"] == 1000 and original["actual_gate_passed"] is False
++              and erratum["incorrect_original_reported_counts"] == {"extension": 4148, "original_2Mb": 434}
++              and erratum["original_QC_threshold_or_mask_modified"] is False
++              and erratum["original_artifacts_or_histories_modified"] is False
++              and erratum["pinned_writer_ref"] == QC_WRITER_REF
++              and erratum["prior_bridge_scope_full_charge_retained_bytes"] == 50_000_000,
++              "Exact root QC count erratum; frozen masks and historical charges unchanged")
+     done = _json(basis["metadata_completion"])
+     _need(done["status"] == "completed_source_qualified_map_and_sample_metadata"
+           and done["no_internal_OS_exit_or_wait0_claim"] is True
+@@ -198,8 +220,8 @@
+         _need(ref in BASES and alt in BASES and len(ref) == len(alt) == 1 and ref != alt, "Original biallelic ACGT candidate")
+         identity = ["22", pos, ref, alt]
+         candidates.append(identity); previous = pos
+-        _need(row["H018_fixed_QC_pass"] in ("True", "False"), "Frozen QC Boolean spelling")
+-        if row["H018_fixed_QC_pass"] == "True":
++        _need(row["H018_fixed_QC_pass"] in ("0", "1"), "Frozen QC Boolean spelling 0/1")
++        if row["H018_fixed_QC_pass"] == "1":
+             ancestor = row["pan_troglodytes"]
+             _need(ancestor in (ref, alt), "Retained source ancestor belongs to original alleles")
+             retained.append((identity, ancestor))
+@@ -295,8 +317,8 @@
+           and len(admitted_ref["sha256"]) == 64
+           and all(c in "0123456789abcdef" for c in admitted_ref["sha256"]), "Actual compact preparation admission ref")
+     if contract.production:
+-        _need(admitted_ref["path"] == "research/reviews/H018_observed_bridge_root_source_v1/admission_v1/admitted.json",
+-              "Original preparation admission scope")
++        _need(admitted_ref["path"] == "research/reviews/H018_QC_boolean_serialization_repair_source_v1/admission_v1/admitted.json",
++              "Fresh v2 preparation admission scope")
+     for name in ASSET_NAMES:
+         raw, rec = outputs[name], completed["assets"][name]
+         _need(_equal(rec, dict(path=OUTPUT_DIRECTORY+"/"+name, bytes=len(raw), sha256=_sha(raw))),
+@@ -368,7 +390,12 @@
+               and obj["unsupported_site_count"] == 0 and obj["monomorphic_site_count"] == len(monomorphic)
+               and obj["source_GT_biological_nucleotides_and_phase_unchanged"] is True,
+               "Counts/GT/phase claims independently reproduced")
++        _need(obj["qc_count_erratum_ref"] == QC_COUNT_ERRATUM_REF and obj["qc_writer_ref"] == QC_WRITER_REF
++              and obj["historical_reported_QC_counts"] == {"extension": 4148, "original_2Mb": 434}
++              and obj["prior_bridge_scope_full_charge_retained_bytes"] == 50_000_000,
++              "Bound root count erratum/writer and incorrect historical reports")
+         _gates(obj)
++    _need(report["minimum_retained_SNPs"] == 1000, "Original QC threshold unchanged")
+     identity_sha = _sha(json.dumps(identities, separators=(",", ":")).encode())
+     blockers = ["separate_native_policy_and_admission", "fractional_native_age_roundtrip_policy"]
+     if monomorphic:
+@@ -386,7 +413,10 @@
+     provenance = _json(outputs["provenance.json"])
+     _need(provenance["schema"] == "H018_observed_bridge_preparation_provenance_v1"
+           and provenance["condition_id"] == CONDITION and provenance["admitted_ref"] == completed["admitted_ref"]
+-          and provenance["bridge_ref"] == BRIDGE_REF and provenance["input_refs_ref"] == INPUT_REFS_REF,
++          and provenance["bridge_ref"] == BRIDGE_REF and provenance["input_refs_ref"] == INPUT_REFS_REF
++          and provenance["qc_count_erratum_ref"] == QC_COUNT_ERRATUM_REF and provenance["qc_writer_ref"] == QC_WRITER_REF
++          and provenance["historical_reported_QC_counts"] == {"extension": 4148, "original_2Mb": 434}
++          and provenance["prior_bridge_scope_full_charge_retained_bytes"] == 50_000_000,
+           "Actual preparation provenance")
+     for key, name in (("source_VCF_ref", "source_VCF"), ("source_QC_ref", "source_QC"),
+                       ("map_ref", "qualified.regional.map"), ("roster_ref", "planned_haplotype_roster.json"),
+@@ -399,9 +429,12 @@
+           and provenance["map_curve"] == "qualified piecewise public source curve copied unchanged; no uniform substitution"
+           and provenance["extension_normalization_bp"] == 10_000_000
+           and provenance["future_GNN_span_denominator"] == "log(2000001), unchanged"
+-          and provenance["original_2Mb_failure"] == dict(retained=434, candidates=13312, below_1000=True, replaced=False),
++          and provenance["original_2Mb_failure"] == dict(retained=217, reported_retained=434, candidates=13312, minimum_required=1000, below_1000=True, replaced=False),
+           "Original coordinate/date/map/normalization caveats")
+-    receipt = dict(schema="H018_bridge_serialized_readback_v1",
++    receipt = dict(schema="H018_bridge_serialized_readback_v2",
++        qc_count_erratum_ref=dict(QC_COUNT_ERRATUM_REF), qc_writer_ref=dict(QC_WRITER_REF),
++        historical_reported_QC_counts=dict(extension=4148, original_2Mb=434),
++        original_2Mb_actual_retained_sites=217, prior_bridge_scope_full_charge_retained_bytes=50_000_000,
+         status="verified_preparation_serialization_only_not_native_admitted" if contract.production else "synthetic_verifier_check_only",
+         immutable_H018_contract=contract.production, preparation_admitted_ref=completed["admitted_ref"],
+         preparation_completed_sha256=_sha(outputs["completed.json"]),
+@@ -427,7 +460,7 @@
+     return receipt
+ 
+ 
+-def verify_h018_serialized_v1(basis_bytes, actual_output_bytes):
++def verify_h018_serialized_v2(basis_bytes, actual_output_bytes):
+     """Verify actual written bytes against immutable H018 originals.
+ 
+     Root must admit/read/hash the inputs and output set, bind this exact verifier

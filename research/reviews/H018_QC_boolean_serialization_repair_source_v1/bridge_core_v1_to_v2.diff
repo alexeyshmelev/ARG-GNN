@@ -1,0 +1,47 @@
+--- research/reviews/H018_observed_bridge_source_v1/bridge_core.py
++++ research/reviews/H018_QC_boolean_serialization_repair_source_v1/bridge_core_v2.py
+@@ -11,7 +11,9 @@
+ import math
+ 
+ BEGIN, END = 20_000_000, 30_000_000
+-CANDIDATES, RETAINED, SUBJECTS = 94892, 4148, 20
++CANDIDATES, RETAINED, SUBJECTS = 94892, 2074, 20
++QC_COUNT_ERRATUM_REF = {'path': 'research/reviews/H018_QC_count_erratum_root_20261015_v1/actual_QC_site_count_erratum_v2.json', 'sha256': '47db1404927848d2dfa836f5760ded106fe50f868e699616ff339ccc493b1f78'}
++QC_WRITER_REF = {'path': 'research/reviews/H018_R16_decode_performance_source_v1/prospective_worker_v3.py', 'sha256': '8fb225c48b791e3876eb51116a4ee1996c775c5794a092d5904f97e958bfeda6'}
+ MAX_INPUT_COMPRESSED = 80_000_000
+ MAX_QC_BYTES = 80_000_000
+ MAX_EXPANDED_VCF = 1_000_000_000
+@@ -49,11 +51,11 @@
+         require(identity[1] > previous, "Every candidate QC row uniquely ordered")
+         previous = identity[1]; all_ids.append(identity)
+         flag = row["H018_fixed_QC_pass"]
+-        require(flag in ("True", "False"), "Exact original serialized QC Boolean")
+-        if flag == "True":
++        require(flag in ("0", "1"), "Exact original serialized QC Boolean 0/1")
++        if flag == "1":
+             require(row["pan_troglodytes"] in identity[2:], "Frozen polarization evidence")
+             mask[identity] = row["pan_troglodytes"]
+-    require(len(all_ids) == CANDIDATES and len(mask) == RETAINED, "Exact94892/4148 frozen mask")
++    require(len(all_ids) == CANDIDATES and len(mask) == RETAINED, "Exact94892/2074 original frozen mask; root counter erratum bound")
+     return all_ids, mask
+ 
+ 
+@@ -160,7 +162,7 @@
+             observed_ids.append(identity)
+             if identity in mask:
+                 native, audit = polarize_GT_record(f, mask[identity]); haps.append(native); audits.append(audit)
+-    require(observed_ids == all_ids and len(audits) == RETAINED, "Exact all-candidate and4148-site identity/order join")
++    require(observed_ids == all_ids and len(audits) == RETAINED, "Exact all-candidate and2074-site identity/order join")
+     identities = [list(x) for x in mask]
+     ages = "".join(format(x["age_generations"], ".17g")+"\n" for x in roster).encode()
+     sample = ("ID_1 ID_2 missing\n0 0 0\n"+"".join(f"{n} {n} 0\n" for n in names)).encode()
+@@ -168,6 +170,9 @@
+     report = dict(schema="H018_baseline_observed_bridge_prepared_v1",
+         status="prepared_GT_inputs_not_native_admitted",candidate_sites=CANDIDATES,retained_sites=RETAINED,
+         haplotypes=2*SUBJECTS,reference_haplotypes=16,query_haplotypes=24,
++        qc_count_erratum_ref=dict(QC_COUNT_ERRATUM_REF),qc_writer_ref=dict(QC_WRITER_REF),
++        historical_reported_QC_counts=dict(extension=4148,original_2Mb=434),
++        minimum_retained_SNPs=1000,prior_bridge_scope_full_charge_retained_bytes=50_000_000,
+         source_GT_biological_nucleotides_and_phase_unchanged=True,AP_used=False,
+         source_VCF_sha256=sha(vcf_gz_raw),source_QC_sha256=sha(qc_raw),
+         retained_identity_sha256=sha(json.dumps(identities,separators=(",",":")).encode()),

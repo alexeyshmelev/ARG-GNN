@@ -1,0 +1,144 @@
+--- research/reviews/H018_observed_bridge_root_source_v1/root_bridge_driver_v3.py
++++ research/reviews/H018_QC_boolean_serialization_repair_source_v1/root_bridge_driver.py
+@@ -20,15 +20,15 @@
+ import time
+ 
+ ROOT = Path("/workspace-SR003.nfs2/ARG-GNN")
+-REL = "research/reviews/H018_observed_bridge_root_source_v1"
+-SOURCE = REL + "/root_bridge_driver_v3.py"
+-CONFIG = REL + "/config_v3.json"
+-MANIFEST = REL + "/source_manifest_v3.json"
+-PACKET = REL + "/admission_v2"
+-AUX = REL + "/worker_aux"
+-OUTPUT = "data/H018_R16_observed_bridge_v1"
+-JOB = "H018-observed-baseline-GT-preparation-v1"
+-KEY = "H018/observed_baseline_GT_preparation_v1"
++REL = "research/reviews/H018_QC_boolean_serialization_repair_source_v1"
++SOURCE = REL + "/root_bridge_driver.py"
++CONFIG = REL + "/config.json"
++MANIFEST = REL + "/source_manifest.json"
++PACKET = REL + "/admission_v1"
++AUX = REL + "/worker_aux_v2"
++OUTPUT = "data/H018_R16_observed_bridge_v2"
++JOB = "H018-observed-baseline-GT-preparation-v2"
++KEY = "H018/observed_baseline_GT_preparation_v2"
+ CONDITION = "H018_R16_20_30Mb_extension_v1"
+ CAP, OUTPUT_CAP, AUX_WRITE = 50_000_000, 32_000_000, 3_000_000
+ CORE_PAYLOAD_CAP, INPUT_CAP, LOG_CAP = 25_000_000, 80_000_000, 2_000_000
+@@ -36,10 +36,13 @@
+ WORKER_SECONDS, SUPERVISOR_SECONDS, GRACE_SECONDS = 300, 600, 10
+ COMMON = dict(path="research/reviews/H018_map_acquisition_root_source_v1/root_map_driver.py",
+               sha256="4c957db44a1bf6c9cd8e76fd6cd5e31b979b7c618554c6a73c57cce8099af65d")
+-BRIDGE = dict(path="research/reviews/H018_observed_bridge_source_v1/bridge_core.py",
+-              sha256="a860ebf2f046834871d06a1938f0a1de0431cc20f698c1c5096b87bdc4ef89d2")
++BRIDGE = dict(path="research/reviews/H018_QC_boolean_serialization_repair_source_v1/bridge_core_v2.py",
++              sha256="0675d1fb8e2442af1172a0f6d14088a701b7befb2f19c0ef8d7bf240537fa24d")
+ INPUT_REFS = dict(path="research/reviews/H018_observed_bridge_source_v1/input_refs.inactive.json",
+                   sha256="dbc7ad96c9d91574c6c3137f0c0767380c4238116c15b7bb7c2dc953e13b26b7")
++QC_COUNT_ERRATUM_REF = {'path': 'research/reviews/H018_QC_count_erratum_root_20261015_v1/actual_QC_site_count_erratum_v2.json', 'sha256': '47db1404927848d2dfa836f5760ded106fe50f868e699616ff339ccc493b1f78'}
++QC_WRITER_REF = {'path': 'research/reviews/H018_R16_decode_performance_source_v1/prospective_worker_v3.py', 'sha256': '8fb225c48b791e3876eb51116a4ee1996c775c5794a092d5904f97e958bfeda6'}
++
+ PYTHON = dict(path=".runtime/env/bin/python3.11",
+               sha256="463a65c4055c18d88f6ed863d227383593395c2f7f70976e38df24f17a836289")
+ PYTHON_VERSION = "3.11.17 (main, Oct  7 2026, 00:02:24) [GCC 15.3.0]"
+@@ -173,6 +176,8 @@
+         termination_grace_seconds=GRACE_SECONDS, address_space_per_process_bytes=MEMORY,
+         combined_RSS_cap_bytes=COMBINED_RSS, CPU_threads=1, physical_gpu=None,
+         common_ref=COMMON, bridge_ref=BRIDGE, input_refs_ref=INPUT_REFS,
++        qc_count_erratum_ref=QC_COUNT_ERRATUM_REF, qc_writer_ref=QC_WRITER_REF,
++        candidate_sites=94892, retained_sites=2074, minimum_retained_SNPs=1000,
+         python_binary_ref=PYTHON, python_version=PYTHON_VERSION,
+         guard_ref=b.GUARD, policy_ref=b.POLICY, repair_authority_ref=b.REPAIR,
+         native_execution_authorized=False, HS_execution_authorized=False,
+@@ -195,6 +200,26 @@
+             and inputs["root_metadata_replay_or_credit_authorized"] is False,
+             "Preserve original metadata-controller unknown exit/full-charge caveat")
+     refs = inputs["refs"]
++    require(manifest["source_refs"]["qc_count_erratum"] == QC_COUNT_ERRATUM_REF
++            and manifest["source_refs"]["upstream_QC_writer"] == QC_WRITER_REF,
++            "Exact root count erratum and original QC writer source bindings")
++    erratum = b.read(QC_COUNT_ERRATUM_REF)
++    extension, original = erratum["extension"], erratum["original_2Mb"]
++    require(erratum["schema"] == "H018_QC_counter_serialization_erratum_v1"
++            and erratum["status"] == "actual_frozen_QC_rows_recounted_original_mask_unchanged"
++            and erratum["canonical_future_bridge_retained_sites"] == 2074
++            and extension["actual_retained_sites"] == 2074 and extension["candidate_sites"] == 94892
++            and extension["serialized_boolean_counts"] == {"0": 92818, "1": 2074}
++            and extension["source_QC_ref"] == refs["source_QC"]
++            and extension["minimum_required"] == 1000 and extension["actual_gate_passed"] is True
++            and original["actual_retained_sites"] == 217 and original["candidate_sites"] == 13312
++            and original["minimum_required"] == 1000 and original["actual_gate_passed"] is False
++            and erratum["incorrect_original_reported_counts"] == {"extension": 4148, "original_2Mb": 434}
++            and erratum["original_QC_threshold_or_mask_modified"] is False
++            and erratum["original_artifacts_or_histories_modified"] is False
++            and erratum["pinned_writer_ref"] == QC_WRITER_REF
++            and erratum["prior_bridge_scope_full_charge_retained_bytes"] == 50_000_000,
++            "Root verified actual frozen QC counts; incorrect reported history preserved")
+     require(manifest["metadata_refs"] == {k: refs[k] for k in manifest["metadata_refs"]},
+             "Exact transitive qualified inputs")
+     caveat = b.read(refs["metadata_independent_result_validation"])
+@@ -376,11 +401,13 @@
+             roster = b.read(refs["planned_haplotype_roster.json"])
+             qualified_map = bounded_file(b, refs["qualified.regional.map"], 2_000_000)
+             core = load("_H018_pinned_pure_observed_bridge", ROOT / BRIDGE["path"])
++            require(core.QC_COUNT_ERRATUM_REF == QC_COUNT_ERRATUM_REF and core.QC_WRITER_REF == QC_WRITER_REF,
++                    "Pure core bound to exact root count erratum and upstream writer")
+             payloads, report = core.assemble_baseline(vcf, qc, roster,
+                 expected_vcf_sha256=refs["source_VCF"]["sha256"], expected_qc_sha256=refs["source_QC"]["sha256"])
+             require(set(payloads) == CORE_NAMES and all(isinstance(x, bytes) for x in payloads.values())
+                     and sum(map(len, payloads.values())) <= CORE_PAYLOAD_CAP, "Bounded exact pure bridge batch")
+-            require(report["retained_sites"] == 4148 and report["candidate_sites"] == 94892
++            require(report["retained_sites"] == 2074 and report["candidate_sites"] == 94892
+                     and report["source_GT_biological_nucleotides_and_phase_unchanged"] is True
+                     and report["HS_draws_materialized"] is False and report["AP_used"] is False,
+                     "All frozen sites, unchanged biological GT/phase, no HS/AP")
+@@ -389,7 +416,7 @@
+                 require(hashlib.sha256(payloads[name]).hexdigest() == refs[original]["sha256"],
+                         "Exact qualified sample order and fractional dates")
+             mono = report["monomorphic_sites"]
+-            require(isinstance(mono, list) and len(set(mono)) == len(mono) and len(mono) <= 4148,
++            require(isinstance(mono, list) and len(set(mono)) == len(mono) and len(mono) <= 2074,
+                     "Honest monomorphic site list")
+             validated_counts = dict(counts_complete=True, monomorphic_site_count=len(mono),
+                                     unsupported_site_count=0)
+@@ -404,13 +431,16 @@
+             payloads["NOTICE.txt"] = bounded_file(b, b.read(refs["metadata_completion"])["assets"]["NOTICE.txt"], 64_000)
+             payloads["provenance.json"] = b.encoded(dict(schema="H018_observed_bridge_preparation_provenance_v1",
+                 condition_id=CONDITION, admitted_ref=record, bridge_ref=BRIDGE, input_refs_ref=INPUT_REFS,
++                qc_count_erratum_ref=QC_COUNT_ERRATUM_REF, qc_writer_ref=QC_WRITER_REF,
++                historical_reported_QC_counts=dict(extension=4148, original_2Mb=434),
++                prior_bridge_scope_full_charge_retained_bytes=50_000_000,
+                 source_VCF_ref=refs["source_VCF"], source_QC_ref=refs["source_QC"],
+                 map_ref=refs["qualified.regional.map"], roster_ref=refs["planned_haplotype_roster.json"],
+                 metadata_completion_ref=refs["metadata_completion"],
+                 metadata_independent_validation_ref=refs["metadata_independent_result_validation"],
+                 metadata_original_OS_exit="unknown", metadata_original_wait0_available=False,
+                 metadata_original_reservation_retained_bytes=5_000_000,
+-                original_2Mb_failure=dict(retained=434, candidates=13312, below_1000=True, replaced=False),
++                original_2Mb_failure=dict(retained=217, reported_retained=434, candidates=13312, minimum_required=1000, below_1000=True, replaced=False),
+                 coordinate_basis="GRCh37 chr22 absolute bp0 [20000000,30000000); Oxford/map local bp1",
+                 dates="source calBP1950 / 28, fractional, no 2026 offset, rounding or clamp",
+                 map_curve="qualified piecewise public source curve copied unchanged; no uniform substitution",
+@@ -422,7 +452,9 @@
+             completed = dict(schema="H018_observed_bridge_completed_v1",
+                 status="completed_baseline_GT_preparation_not_native_admitted", job_id=JOB,
+                 condition_id=CONDITION, admitted_ref=record, assets=assets, candidate_sites=94892,
+-                retained_sites=4148, haplotypes=40, reference_haplotypes=16, query_haplotypes=24,
++                retained_sites=2074, qc_count_erratum_ref=QC_COUNT_ERRATUM_REF, qc_writer_ref=QC_WRITER_REF,
++                historical_reported_QC_counts=dict(extension=4148, original_2Mb=434),
++                prior_bridge_scope_full_charge_retained_bytes=50_000_000, haplotypes=40, reference_haplotypes=16, query_haplotypes=24,
+                 counts_complete=True, monomorphic_site_count=len(mono), unsupported_site_count=0,
+                 monomorphic_details_ref=assets["bridge_preparation.json"], sites_dropped=0,
+                 source_GT_biological_nucleotides_and_phase_unchanged=True,
+@@ -606,7 +638,10 @@
+     result = b.read(terminal)
+     require(result["schema"] == "H018_observed_bridge_completed_v1"
+             and result["status"] == "completed_baseline_GT_preparation_not_native_admitted"
+-            and result["admitted_ref"] == admitted_ref and result["retained_sites"] == 4148
++            and result["admitted_ref"] == admitted_ref and result["retained_sites"] == 2074
++            and result["qc_count_erratum_ref"] == QC_COUNT_ERRATUM_REF and result["qc_writer_ref"] == QC_WRITER_REF
++            and result["historical_reported_QC_counts"] == {"extension": 4148, "original_2Mb": 434}
++            and result["prior_bridge_scope_full_charge_retained_bytes"] == 50_000_000
+             and result["counts_complete"] is True and result["unsupported_site_count"] == 0
+             and result["sites_dropped"] == 0 and result["native_execution_authorized"] is False
+             and result["native_inference_executed"] is False
