@@ -1,0 +1,76 @@
+{
+  "complexity": {
+    "core_sweeps": "O(N*d^2) per complete up/down pair; H049/H050 each use two such pairs",
+    "genomic_GRU": "O(T*H*d^2) work with serial dependence along T",
+    "history_buffers": "Each explicit FP32[T,H,8] output is32*T*H bytes; current left/right/combined arrays are not constant-memory.",
+    "limits": [
+      "No profiled runtime/peak memory claim",
+      "H049 common decoder and preprocessing I/O add cost outside this component analysis."
+    ],
+    "memory": "O(K*d*r+T*H*r) work; each occupied pair/triple support<=H",
+    "plan_tensor_bytes_exact": "13*K+8*T*H+68*G*H+H",
+    "plan_tensor_bytes_excludes": "Python tuples/stamps/fingerprints; original bank, neural activations, histories and I/O",
+    "plan_worst_bound": "89*T*H+H because K<=TH andG<=T",
+    "preparation_expected": "O(N+TH+GH) with hash maps and fixed sample dates",
+    "representative_upper_example": {
+      "H": 952,
+      "T": 10000,
+      "one_rank8_history_bytes": 304640000,
+      "plan_upper_tensor_bytes": 847280952,
+      "scope": "illustrative bound, not measured usage"
+    },
+    "sites": "O(S*H*(19*d+d^2)) leading MLP work"
+  },
+  "current_carry": {
+    "P": "D_BC^-1 L_BC^T L_AB",
+    "P_entry": "n_ABC/n_BC",
+    "actual_time_update": "m <- exp(-width/ell_bp)*carry(m) + (1-exp(-width/ell_bp))*f",
+    "forcing": "f=U(upward+outside) at exact cut representatives",
+    "leaf_space_null": "Pi_B x",
+    "leaf_space_triple": "Pi_BC x",
+    "null_Q_entry": "n_AB/n_B",
+    "original_semantics": "Anonymous observed cut memberships, not identified persistent ancestors.",
+    "x": "old cell state lifted to leaves; lies in range(Pi_AB)"
+  },
+  "definitions": {
+    "D_X": "diag(L_X^T1)",
+    "G": "distinct consecutive cut episodes",
+    "H": "persistent sampled leaves",
+    "K": "sum of cut-group counts over all holds",
+    "L_X": "H-by-occupied-cells hard incidence for leaf partition X",
+    "N": "sum of retained native vertices",
+    "Pi_X": "L_X D_X^-1 L_X^T",
+    "S": "observed sites",
+    "T": "native complete-tree holds",
+    "d": 32,
+    "r": 8
+  },
+  "efficient_exact_options": [
+    "Batch/stream contiguous blocks containing complete trees; retain all sampled leaves and native vertices.",
+    "Reuse observation-only structural recipes, keep tree-sequence edge-diff representation, and bucket complete-tree levels for GPU batching.",
+    "Use exact activation checkpoint/recomputation and CPU offload with bidirectional boundary states; never detach/reset or truncate history.",
+    "Same-partition affine recurrences admit associative(alpha,b) scans; arbitrary cross-event transport products can densify toH-by-H.",
+    "Changing one edge can alter upward ancestry and global outside states; edge_diffs alone does not give O(edge changes) neural work.",
+    "Compress occupied event cells/ragged layouts to remove padding; retain per-hold forcing when trees differ despite an unchanged cut."
+  ],
+  "lemma": {
+    "consequences": [
+      "||J||_2<=1",
+      "Pi_B J=0",
+      "J Pi_B=0",
+      "J=0 iff empirical A and C are conditionally independent given B on occupied cells.",
+      "Nonzero J proves sample witness dependence, not ancestry predictiveness."
+    ],
+    "innovation": "J=(Pi_BC-Pi_B)Pi_AB",
+    "limits": "Contraction concerns carry alone. Learned forcing/output maps and complete predictor are not certified contractive. If alpha depends on the learned state x, the fixed-operator norm is not a global Lipschitz bound.",
+    "proof": "B is coarser than AB and BC, so Pi_BC Pi_B=Pi_B Pi_BC=Pi_B. Pi_BC-Pi_B is an orthogonal projector.",
+    "shrinkage": "T_alpha=Pi_B+alpha_B(Pi_BC-Pi_B), alpha_B constant within each B and0<=alpha_B<=1",
+    "shrinkage_properties": [
+      "For fixed observation-derived alpha: contraction in leaf L2",
+      "Preserves each B sum/mean",
+      "alpha=0 adjacent null;alpha=1 triple carry"
+    ]
+  },
+  "schema": "H050_conditional_projection_and_scaling_derivation_v1",
+  "status": "analytical_source_derivation_no_execution"
+}

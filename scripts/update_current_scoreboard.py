@@ -399,6 +399,8 @@ def main():
         native_status=("V11 failed with actual root exit1; native optimizer updates unknown. V12 operational source reviewed; "
             +("exact namespace cleanup completed, GPU binding/activation and launch pending." if prepared else "root preparation/activation pending, no actual v12 launch receipt."))
     native_latest_path=("research/reviews/native_ARGformer_checkpoint_metadata_20261016_v1.json" if (ROOT/"research/reviews/native_ARGformer_checkpoint_metadata_20261016_v1.json").is_file() else "research/reviews/H048_boundary_contention_root_20261015_v1/native_MLM_progress_metadata_actual_v3.json")
+    if (ROOT/"research/reviews/native_ARGformer_checkpoint_metadata_20261016_v2.json").is_file():native_latest_path="research/reviews/native_ARGformer_checkpoint_metadata_20261016_v2.json"
+    if (ROOT/"research/reviews/native_ARGformer_checkpoint_metadata_20261016_v3.json").is_file():native_latest_path="research/reviews/native_ARGformer_checkpoint_metadata_20261016_v3.json"
     native_latest=maybe_read(native_latest_path)
     if native_latest and v12_launch and not v12_wait:
         latest_checkpoints=[r for r in native_latest["checkpoints"] if not r["symlink"]]
@@ -697,8 +699,43 @@ def main():
     h050_binding_path="research/reviews/H050_direct_readout_cut_memory_source_20261015_v1/producer_integration_v1/root_bridge_v1/bound_root_v1/canonical_metadata_binding.json"
     h050_bound=maybe_read(h050_binding_path)
     h050_execution_status=("Root-bound canonical config and full caps reviewed. GPU admission/launch pending; current route requires an exclusive lease" if h050_bound else "Registered; source integration pending")
+    shared_root="research/reviews/GPU45_C3cache_H050_migration_gate_successor_20261016_v2"
+    shared_snapshot_path=shared_root+"/root_live_status_latest_v1.json"
+    shared_snapshot=maybe_read(shared_snapshot_path)
+    shared_c3_admitted=maybe_read(shared_root+"/admitted_C3_shared_train_v1/admitted.json")
+    shared_h050_admitted_path="research/reviews/H050_shared_admission_source_metadata_closure_fix_20261016_v1/admitted_H050_shared_train_v2/admitted.json"
+    shared_h050_admitted=maybe_read(shared_h050_admitted_path)
+    old_c3_terminal_path="research/reviews/C3_original_handover_root_20261016_v1/original_tool_terminal_actual_v1.json"
+    old_c3_terminal=maybe_read(old_c3_terminal_path)
+    if old_c3_terminal:
+        c3_status="Original slow campaign stopped through its exact supervisor; actual tool exit1 and launcher wait-15 retained. Original optimizer count unknown. Cached replacement launch pending"
+        c3_execution.update(original_campaign_terminal_ref=ref(old_c3_terminal_path),original_optimizer_updates=None,
+            original_campaign_stopped=True,original_campaign_completion_claimed=False)
+    if shared_c3_admitted:
+        c3_status="Cached full600-update TRAIN admitted for shared GPU4 execution; runtime launch pending"
+        c3_execution.update(shared_admitted_ref=ref(shared_root+"/admitted_C3_shared_train_v1/admitted.json"))
+        c3_device="GPU4"
+    if shared_h050_admitted:
+        h050_execution_status="Four-arm TRAIN admitted for shared GPU4 execution; runtime launch pending"
+    if shared_snapshot and shared_snapshot.get("schema")=="root_GPU4_shared_live_status_v1":
+        c3_job=shared_snapshot.get("jobs",{}).get("C3-GNN-cachev3-shared-TRAIN-v1")
+        h050_job=shared_snapshot.get("jobs",{}).get("H050-direct-readout-shared-TRAIN-v2")
+        if c3_job:
+            state=c3_job["state"]
+            lower=c3_job.get("verified_optimizer_updates_lower_bound")
+            c3_status="Cached full600-update TRAIN "+state+" on shared GPU4. "+("Successful optimizer-update lower bound: "+str(lower)+"/600" if lower is not None else "Optimizer count not yet verified")
+            c3_execution.update(shared_live_status_ref=ref(shared_snapshot_path),shared_logical_job=c3_job,
+                actual_optimizer_updates_lower_bound=lower,original_optimizer_count_unknown_not_zero=True)
+            c3_device="GPU4"
+        if h050_job:
+            h050_execution_status="Four-arm TRAIN "+h050_job["state"]+" on shared GPU4. "+("Verified completed-pass updates: "+str(h050_job["updates_per_arm"]) if h050_job.get("updates_per_arm") else "Optimizer counts not yet verified")
+    if shared_snapshot and shared_snapshot.get("controller_status"):
+        c3_status+=". Shared controller: "+shared_snapshot["controller_status"]
+        h050_execution_status+=". Shared controller: "+shared_snapshot["controller_status"]
+    c3_execution["status"]=c3_status
     result=dict(schema="ARG_GNN_current_scientific_scoreboard_v1",updated_utc=stamp,
         American_C3_GNN_execution=c3_execution,
+        GPU4_shared_execution=shared_snapshot,
         H050_registered_candidate=dict(status=h050["status"],execution_status=h050_execution_status,canonical_metadata_binding_ref=ref(h050_binding_path) if h050_bound else None,training_budget="4arms x30passes x32parents =3840updates",actual_optimizer_updates=None,accuracy=None,parameters_per_arm=h050["parameters_per_arm"],VAL_products_required_before_truth=192,source_handoff_ref=h050["source_handoff_ref"],utility_criteria=h050["prospective_utility_criteria"]) if h050 else None,
         H049_registered_candidate=dict(status=h049["status"],parameters_per_arm=32446,
             arms=h049["execution_budget"]["arms"],training_budget="30passes/960updates per arm",
@@ -834,7 +871,7 @@ def main():
         "| Native FLARE | CPU | Author build, TRAIN000 full-site inference and prediction seal completed. Held-out VAL000 conversion: "+flare_val_conversion["status"]+"; native inference: "+flare_val_native["status"]+"; seal: "+flare_val_seal["status"]+". | held-out score pending |",
         "| Our American C3 GNN | "+c3_device+" | "+str(focal_ready)+"/20 exact TRAIN plans completed. "+c3_status+". Original VAL000 full-length GNN block plan: "+gnn_VAL000_plan["status"]+". | no ancestry score |",
         "| H049 cut-memory candidate | CPU preparation | "+h049_prepare_status+". Three matched 32,446-parameter arms. Full 30 passes / 960 updates per arm planned. | no fit or accuracy yet |",
-        "| H050 stronger direct-readout candidate | GPU4/5 pending | "+h050_execution_status+". H045 predictor retained initially. Three 32,325-parameter memory arms and an unmodified 31,812-parameter continuation. 960 updates per arm, 192 prediction seals planned. | no fit or accuracy yet |",
+        "| H050 stronger direct-readout candidate | "+("GPU4" if shared_h050_admitted else "GPU4/5 pending")+" | "+h050_execution_status+". H045 predictor retained initially. Three 32,325-parameter memory arms and an unmodified 31,812-parameter continuation. 960 updates per arm, 192 prediction seals planned. | no fit or accuracy yet |",
         "| Empirical data | CPU | H045 probabilities, ancestry proportions and genotype PCA completed for 24 query haplotypes / 12 subjects. Descriptive only, without known ancestry truth. | completed |","",
         "**Completed H048:** "+h048_scores+". Both registered utility criteria failed. [Actual scores, all cohorts and provenance](research/reviews/H048_completed_comparison_root_20261015_v1/REPORT.md)." if h048_ready else "**H048 evaluation:** pending.","",
         "**Current measured development scores:** H045 foreign-episode **96.8270 ± 0.5870%** Present182 span accuracy, matched own-state **96.8175 ± 0.6142%**. H046: "+h046_scores+". "+h046_outcome+" H047 original-risk **96.7777 ± 0.5970%**, balanced-risk **96.7576 ± 0.5287%**. SD is across eight VAL simulations, one optimizer seed. H048: "+h048_scores+". [All "+str(len(models))+" measured setups, all seven cohorts, NLL/F1/boundaries/Brier/ECE and training budgets](research/current_scoreboard.md#detailed-cohort-metrics).","",
@@ -842,10 +879,10 @@ def main():
         "**ARGformer paper fidelity:** "+table1_fidelity+" [Audit]("+table1_audit_path+").","",
         "**Remaining biological error:** H045 recovers22.59% of true Present182 changes at1kb tolerance despite96.827% span accuracy. Across8VAL parents its selected predictions match905 changes, miss3103 and add5063extra calls. [Audited residual-error table and scope limits](research/reviews/residual_biological_errors_20261015_v1/REPORT.md).", "",
         "**Comparison contract:** Use the same observed genomes, reference/query identities, truth and scored support. Each method keeps its native representation, such as VCFs, ancestral paths or PyG tensors. Extra inputs, training changes and reconstruction differences are disclosed. Native-format differences do not postpone a shared-data comparison.","",
-        "**Next ARGMix comparison, not yet run:** A prospective 1,611-diploid paired panel with explicit reference/query roles. This is a new common-data comparison, distinct from the unavailable original-table inputs. [Frozen plan and remaining adapters](research/reviews/ARGMix_published_panel_fair_comparison_source_plan_20261016_v1/HANDOFF.md).","",
+        "**Next ARGMix comparison, not yet run:** A prospective 1,611-diploid paired panel with explicit reference/query roles. The official HapMapII GRCh37 chr22 map has been acquired and the generator map contract passed. Simulation and model comparison remain pending. This is a new common-data comparison, distinct from the unavailable original-table inputs. [Frozen plan and remaining adapters](research/reviews/ARGMix_published_panel_fair_comparison_source_plan_20261016_v1/HANDOFF.md).","",
         "**Next biological validation, not yet run:** A prespecified Danish earlier-versus-later Neolithic contrast with matched genotype corroboration. [Candidate selection, public assets and limits](research/reviews/empirical_biological_followup_audit_20261016_v1/readiness_report.txt).","",
         "**GST and cross-domain status:** "+gst_status,"",
-        "Parallel ownership: worker1 prepares prospective1611 generation and native comparison readiness, worker2 prepares the shared GPU4 cache-C3/H050 route, worker3 independently reviews the execution changes. Root owns live GPU4/GPU5 execution, shared data, integration, score reporting and Git.","","<!-- CURRENT_SCOREBOARD_END -->"]
+        "Parallel ownership: worker1 prepares full prospective1611 generation execution, worker2 prepares shared-run evaluation and lineage integration, worker3 assesses operator novelty and scaling. Root owns live GPU4/GPU5 execution, shared data, integration, score reporting and Git.","","<!-- CURRENT_SCOREBOARD_END -->"]
     p=ROOT/"README.md"
     text=p.read_text()
     a="<!-- CURRENT_SCOREBOARD_START -->"
@@ -889,7 +926,7 @@ def main():
             "**Completed H047:** original-risk96.7777±0.5970%, balanced-risk96.7576±0.5287%. Both30passes/960updates. Registered accuracy benefit not met. [Results](research/reviews/H047_completed_comparison_root_20261015_v1/REPORT.md).","",
             "**American GNN preparation:** "+fanout_status+". "+wave_text+" "+c3_status+".","",
             "**Architecture work:** H049 sample-witness order-2 cut memory is implemented and registered with matched null/leaf-memory controls. "+h049_prepare_status+". Predictive utility and a distinct new contribution remain unproved. [Design and prior-art limits](research/reviews/ordered_graph_operator_research_20261015_v1/REPORT.md).","",
-            "Root orchestrates execution and publishing. Three workers handle prospective1611 generation/native comparison readiness, shared GPU4 cache-C3/H050 execution, and independent source review in parallel. Only physical GPUs4–5 are eligible, with process title AI Auto Research Pipeline Test.","",""]
+            "Root orchestrates execution and publishing. Three workers handle full prospective1611 generation, shared-run evaluation integration, and operator novelty/scaling in parallel. Only physical GPUs4–5 are eligible, with process title AI Auto Research Pipeline Test.","",""]
         text=text[:text.index(section_start)]+"\n".join(running)+text[text.index(section_end):]
     pilot_start="<!-- ADAPTED_ARGFORMER_PILOT_START -->"
     pilot_end="<!-- ADAPTED_ARGFORMER_PILOT_END -->"
