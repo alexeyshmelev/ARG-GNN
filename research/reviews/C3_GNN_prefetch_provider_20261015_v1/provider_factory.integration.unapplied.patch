@@ -1,0 +1,82 @@
+--- a/src/arggnn/american_c3_gnn_train_v1.py
++++ b/src/arggnn/american_c3_gnn_train_v1.py
+@@ -187,7 +187,8 @@
+     return value,state,step
+ 
+ def run_train_v1(cfg,*,parent_plan_refs,writer,device,worker_tmp_directory,
+-        resolve_train_truth,runtime_guard,resume_ref=None,train_target_joiner_factory=None):
++        resolve_train_truth,runtime_guard,resume_ref=None,train_target_joiner_factory=None,
++        observation_provider_factory=None):
+     """Run primary30 epochs; real first-update checks occur inside this run.
+ 
+     All20 supplied plans, every observation block and all external TRAIN targets
+@@ -208,8 +209,11 @@
+     providers={};safe=None;scheduled=[];history=[];step=0
+     try:
+         # Constructors read plan metadata only. No resolver is reachable yet.
++        provider_factory=(SealedObservationProviderV1 if observation_provider_factory is None
++            else observation_provider_factory)
++        require(callable(provider_factory),"Explicit optional observation provider factory")
+         for parent in TRAIN:
+-            providers[parent]=SealedObservationProviderV1(parent_plan_refs[parent],parent_id=parent,
++            providers[parent]=provider_factory(parent_plan_refs[parent],parent_id=parent,
+                 worker_tmp_directory=worker_tmp_directory,cache_bytes=cfg["CPU_observation_cache_bytes"])
+         seals={p:providers[p].seal(resource_check=runtime_guard) for p in TRAIN}
+         require(len(seals)==20 and all(s["all_blocks_sealed_before_truth"] for s in seals.values()),
+@@ -242,6 +246,19 @@
+             require(all(ref(r["path"])==r for r in binding["source_refs"]),"Exact operational successor sources")
+             signature["actual_TRAIN_execution_binding"]=binding
+             signature["source_refs"].extend(binding["source_refs"])
++            signature_sha=json_sha(signature)
++        if observation_provider_factory is not None:
++            provider_binding=copy.deepcopy(getattr(observation_provider_factory,"execution_binding",None))
++            require(isinstance(provider_binding,dict)
++                and provider_binding.get("schema")=="C3_observation_provider_operational_v1"
++                and provider_binding.get("observation_equations_unchanged") is True
++                and provider_binding.get("checkpoint_parent_gradient_unchanged") is True
++                and provider_binding.get("cached_features_rehashed") is True
++                and provider_binding.get("source_refs"),"Audited optional observation provider binding")
++            require(all(ref(r["path"])==r for r in provider_binding["source_refs"]),
++                "Exact optional provider source closure")
++            signature["observation_provider_execution_binding"]=provider_binding
++            signature["source_refs"].extend(provider_binding["source_refs"])
+             signature_sha=json_sha(signature)
+         runtime_guard("before_fresh_model")
+         require(torch.get_default_dtype()==torch.float32 and not torch.is_autocast_enabled(),
+@@ -284,6 +301,8 @@
+             result=checkpointed_complete_parent_step_v1(model,providers[parent],targets[parent],optimizer,
+                 device=actual,resource_check=runtime_guard,gradient_clip=1.,
+                 focal_chunk_size=cfg["focal_chunk_size"],first_update=(global_index==0))
++            if observation_provider_factory is not None:
++                result["observation_provider"]=providers[parent].diagnostics()
+             result.update(epoch=epoch,parent_index=index,global_step=global_index+1);history.append(result)
+             # Snapshot before any potentially failing serialization/next update.
+             candidate=_make_snapshot(model,optimizer,signature=signature,signature_sha=signature_sha,
+--- a/research/reviews/American_C3_PyG_execution_source_20261015_v1/execution_hooks_v1.py
++++ b/research/reviews/American_C3_PyG_execution_source_20261015_v1/execution_hooks_v1.py
+@@ -104,17 +104,23 @@
+ 
+ 
+ def run_train_stage_v1(cfg,*,parent_plan_refs,actual_train_bindings,writer,device,
+-        worker_tmp_directory,resolve_train_truth,runtime_guard,resume_ref=None):
++        worker_tmp_directory,resolve_train_truth,runtime_guard,resume_ref=None,
++        observation_provider_factory=None):
+     """Canonical20x2Mb/600-update training; requires the supplied narrow patch."""
+     require(callable(runtime_guard),"Root-owned current runtime boundary")
+     runtime_guard("before_C3_TRAIN_scientific_import")
+     from arggnn import american_c3_gnn_train_v1 as train
+     require("train_target_joiner_factory" in inspect.signature(train.run_train_v1).parameters,
+         "Root must first review/integrate minimal_train_target_factory.patch; no monkeypatch or old-path fallback")
++    if observation_provider_factory is not None:
++        require("observation_provider_factory" in inspect.signature(train.run_train_v1).parameters,
++            "Root must review optional provider-factory successor; no monkeypatch")
+     factory=make_actual_target_joiner_factory_v1(actual_train_bindings)
+     return train.run_train_v1(cfg,parent_plan_refs=parent_plan_refs,writer=writer,device=device,
+         worker_tmp_directory=worker_tmp_directory,resolve_train_truth=resolve_train_truth,
+-        runtime_guard=runtime_guard,resume_ref=resume_ref,train_target_joiner_factory=factory)
++        runtime_guard=runtime_guard,resume_ref=resume_ref,train_target_joiner_factory=factory,
++        **({"observation_provider_factory":observation_provider_factory}
++            if observation_provider_factory is not None else {}))
+ 
+ 
+ def build_plan_stage_v1(cfg,*,parent_id,writer,runtime_guard):
