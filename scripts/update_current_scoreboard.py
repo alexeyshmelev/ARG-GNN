@@ -410,7 +410,17 @@ def main():
         recovery["status"]+="; actual outer exec session76279 exit"+str(recovery_terminal["actual_exec_session_exit_code"])
     wave_text="TRAIN000–013 original 2 Mb preparations completed. "+recovery["status"]+" for TRAIN014; successful TRAIN015 reused; original session50286 failure preserved. "
     wave_text+="; ".join(r["parent_id"][-3:]+"/"+r["stage"]+": "+r["status"] for r in wave_status if r["parent_id"].endswith(("014","015")))
-    wave_text+=". TRAIN016/017 then018/019 require actual prior-pair closure; at most two wave parents."
+    close014015_path="research/reviews/C3_wave014_capacity_recovery_20261015_v1/root_actual_close_loop_terminal_v1.json"
+    close014015=maybe_read(close014015_path)
+    pair1617_path="research/reviews/American_C3_short_train2mb_wave_980_source_v1/root_pair016_017_exec_launch_identity_actual_v1.json"
+    pair1617=maybe_read(pair1617_path)
+    if close014015 and close014015.get("actual_exec_session_terminal") is True and close014015.get("actual_SSH_propagated_returncode")==0 and len(close014015.get("actual_four_completed_scope_close_receipts",[]))==4 and all(ref(r["path"])==r for r in close014015["actual_four_completed_scope_close_receipts"]):
+        wave_text+=". All four014/015 scope closes completed, actual root exec19862 exit0."
+        if pair1617:
+            pair_observation=known_process(pair1617["remote_supervisor_pid"])
+            pair_present=pair_observation["present"] and pair_observation.get("start_ticks")==pair1617["remote_supervisor_start_ticks"]
+            wave_text+=" TRAIN016/017 parallel preparation "+("running" if pair_present else "launched; terminal pending")+", root exec"+str(pair1617["exec_session_id"])+"."
+    wave_text+=" TRAIN018/019 require actual016/017 completion and closure; at most two wave parents."
     stamp=datetime.now(timezone.utc).isoformat()
     result=dict(schema="ARG_GNN_current_scientific_scoreboard_v1",updated_utc=stamp,
         dataset=dict(name="European C4 shared development",length_bp=2000000,haplotypes=952,queries=686,
