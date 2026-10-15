@@ -1,0 +1,171 @@
+{
+  "author_commit": "f7545be7bca0200fb39aeb7f94a8e5f0b6bf5596",
+  "conclusions": {
+    "allowance_assessment": "14GiB reservation and4GiB operational-cache planning headroom have no obvious source contradiction from a padded-tokenized corpus disk cache; no such corpus cache is prescribed by this author path",
+    "collation": "HF DataCollatorForLanguageModeling on current DataLoader batches; author code does not persist batch outputs",
+    "explicit_tokenizer_write": "save_vocabulary writes a vocab JSON if called; not called by inspected model/loader path, not corpus arrays",
+    "limitations": "4GiB compiler/kernel/library cache headroom, transient aggregate writes and full corpus RAM remain unmeasured; no guarantee and no live output/cache inventory performed",
+    "loader": "custom torch Dataset/DataLoader ARG path; not HF datasets cache/map pipeline",
+    "model_padding": "yaml model padding:unpadded and unpad_embeddings:true concern model internal compute; loader still returns padded128 samples",
+    "padding": "max_seq_len128 and no sequence_packing option in pinned MLM yaml; pad_sequences=True; input_ids/attention_mask/token_type_ids produced per requested sample in memory",
+    "raw_data": "existing per-split pickle read in rb mode, eagerly retained as raw variable-length self.sequences in RAM",
+    "sampler": "PCG64DXSM shuffled index list constructed in memory at each epoch; no sampler disk writer",
+    "tokenization": "per requested __getitem__, dictionary mapping returns a new Python list; no full-corpus pretokenization or disk cache construction",
+    "vocab": "custom ARG tokenizer loads existing validation pickle to read vocab; no AutoTokenizer branch for tokenizer_name:argformer",
+    "workers": "8 per loader; default prefetch_factor2 and persistent_workersTrue; batching/prefetch holds finite current batches rather than persisted corpus"
+  },
+  "hypothetical_not_actual_disk_allocation": {
+    "actually_written_by_author_loader": false,
+    "bytes_per_int32": 4,
+    "one_array_GiB": 12.194913387298584,
+    "one_array_bytes": 13094188544,
+    "padded_length": 128,
+    "paths": 25574587
+  },
+  "no_guard_accounting_import_or_call": true,
+  "no_live_pinned_source_or_caps_change": true,
+  "no_live_process_GPU_action": true,
+  "no_runtime_library_import": true,
+  "no_scientific_payload_or_live_output_cache_read": true,
+  "recorded_utc": "2026-10-15T11:52:48.554748+00:00",
+  "schema": "native_MLM_live_fit_author_cache_source_followup_v1",
+  "scope": "source-only author loader/tokenizer cache review requested by root; live fullfit unaffected",
+  "sources": {
+    "main.py": {
+      "excerpts": [
+        {
+          "end_line": 310,
+          "start_line": 297,
+          "text": "    if cfg.name == \"text\":\n        data_loader = text_data_module.build_text_dataloader(\n            cfg,\n            tokenizer,\n            device_batch_size,\n            device_microbatch_size=device_microbatch_size,\n        )\n    elif cfg.name == \"arg\":\n        data_loader = arg_data_module.build_arg_dataloader(\n            cfg,\n            tokenizer,\n            device_batch_size,\n            device_microbatch_size=device_microbatch_size,\n        )"
+        },
+        {
+          "end_line": 326,
+          "start_line": 314,
+          "text": "    if not count_padding_tokens:\n        num_tokens_in_batch_fn = get_num_tokens_in_batch_unpadded\n    if cfg.get(\"sequence_packing\", False):\n        split_batch_fn = split_packed_batch\n        num_samples_in_batch_fn = get_num_samples_in_packed_batch\n\n    data_loader = DataSpec(\n        data_loader,\n        get_num_tokens_in_batch=num_tokens_in_batch_fn,\n        split_batch=split_batch_fn,\n        get_num_samples_in_batch=num_samples_in_batch_fn,\n    )\n    return data_loader"
+        },
+        {
+          "end_line": 352,
+          "start_line": 329,
+          "text": "def build_model(cfg: DictConfig):\n    if cfg.name == \"hf_bert\":\n        return hf_bert_module.create_hf_bert_mlm(\n            pretrained_model_name=cfg.pretrained_model_name,\n            use_pretrained=cfg.get(\"use_pretrained\", None),\n            model_config=cfg.get(\"model_config\", None),\n            tokenizer_name=cfg.get(\"tokenizer_name\", None),\n            gradient_checkpointing=cfg.get(\"gradient_checkpointing\", None),\n        )\n    elif cfg.name == \"mosaic_bert\":\n        return mosaic_bert_module.create_mosaic_bert_mlm(\n            pretrained_model_name=cfg.pretrained_model_name,\n            pretrained_checkpoint=cfg.get(\"pretrained_checkpoint\", None),\n            model_config=cfg.get(\"model_config\", None),\n            tokenizer_name=cfg.get(\"tokenizer_name\", None),\n            gradient_checkpointing=cfg.get(\"gradient_checkpointing\", None),\n        )\n    elif cfg.name == \"flex_bert\":\n        return flex_bert_module.create_flex_bert_mlm(\n            pretrained_model_name=cfg.pretrained_model_name,\n            pretrained_checkpoint=cfg.get(\"pretrained_checkpoint\", None),\n            model_config=cfg.get(\"model_config\", None),\n            tokenizer_name=cfg.get(\"tokenizer_name\", None),\n            gradient_checkpointing=cfg.get(\"gradient_checkpointing\", None),"
+        },
+        {
+          "end_line": 428,
+          "start_line": 412,
+          "text": "    # Dataloaders\n    print(\"Building train loader...\")\n    train_loader = build_dataloader(\n        cfg=cfg.train_loader,\n        tokenizer=model.tokenizer,\n        device_batch_size=cfg.global_train_batch_size // dist.get_world_size(),\n        count_padding_tokens=cfg.get(\"count_padding_tokens\", True),\n        device_microbatch_size=cfg.device_train_microbatch_size,\n    )\n    if cfg.get(\"eval_loader\", None) is not None:\n        print(\"Building eval loader...\")\n        global_eval_batch_size = cfg.get(\"global_eval_batch_size\", cfg.global_train_batch_size)\n        eval_loader = build_dataloader(\n            cfg=cfg.eval_loader,\n            tokenizer=model.tokenizer,\n            device_batch_size=cfg.get(\"device_eval_batch_size\", global_eval_batch_size // dist.get_world_size()),\n        )"
+        }
+      ],
+      "path": ".runtime/author_sources/argformer_f7545be7bca0/main.py",
+      "sha256": "f4e025417114a54d369d2203ed3ef9ccd412fa71630ea14feca682928f4bce1a"
+    },
+    "src/arg_data.py": {
+      "excerpts": [
+        {
+          "end_line": 91,
+          "start_line": 72,
+          "text": "    def save_vocabulary(self, save_directory: str, filename_prefix: Optional[str] = None) -> Tuple[str]:\n        vocab = self.arg_tokenizer.vocab\n        vocab_path = os.path.join(save_directory, f\"{filename_prefix}vocab.json\")\n        with open(vocab_path, \"w\") as f:\n            json.dump(vocab, f)\n        return (vocab_path,)\n\n\n    def _build_inv_vocab(self):\n        inv = {}\n        for key, token in self.arg_tokenizer.vocab[\"special\"].items():\n            inv[token] = key\n        for key, token in self.arg_tokenizer.vocab.get(\"node_id_tokens\", {}).items():\n            inv[token] = key\n        return inv\n\n    def __call__(self, examples, **kwargs):\n        input_ids = [ex[\"input_ids\"] for ex in examples]\n        attention_mask = [ex[\"attention_mask\"] for ex in examples]\n        return {\"input_ids\": input_ids, \"attention_mask\": attention_mask}"
+        },
+        {
+          "end_line": 167,
+          "start_line": 146,
+          "text": "    def __init__(\n        self, \n        local: str,\n        split: Optional[str],\n        max_seq_len: Optional[int] = None,\n        tokenizer: None = None,\n        pad_sequences: bool = True,\n        skip_extant_tokens: bool = True,\n        return_metadata: bool = False,\n    ) -> None:\n        super().__init__()\n        assert tokenizer is None, \"Tokenizer must be None; ARGDataset handles (pre)tokenization itself\"\n        \n        sequences, vocab, is_pretokenized = self._load_split_data(local, split)\n        self.vocab = vocab\n        self._data_is_pretokenized = is_pretokenized\n        self.sequences = sequences\n        self.len = len(self.sequences)\n        \n        self.tokenizer = None\n        self.pad_sequences = pad_sequences\n        self.pad_token_id = self.vocab[\"special\"][\"[PAD]\"]"
+        },
+        {
+          "end_line": 228,
+          "start_line": 184,
+          "text": "        if max_seq_len is None:\n            max_raw_length = max(len(seq) for seq in self.sequences)\n            \n            if skip_extant_tokens:\n                max_raw_length = max_raw_length - 1\n            \n            inferred_max_seq_len = max_raw_length + 2\n            \n            self.max_seq_len = inferred_max_seq_len\n        else:\n            self.max_seq_len = max_seq_len\n    \n    @staticmethod\n    def _load_split_data(local: str, split: str):\n        split_path = os.path.join(local, split)\n        \n        candidate_files = [f\"tokenized_{split}_sequences_and_vocab.pkl\"]\n        if split is not None:\n            candidate_files.append(f\"raw_{split}_sequences_and_vocab.pkl\")\n        candidate_files.append(f\"{split}_sequences_and_vocab.pkl\")\n        \n        data_path = None\n        for fname in candidate_files:\n            path_try = os.path.join(split_path, fname)\n            if os.path.exists(path_try):\n                data_path = path_try\n                break\n        if data_path is None:\n            data_path = os.path.join(split_path, f\"tokenized_{split}_sequences_and_vocab.pkl\")\n        \n        data = pickle.load(open(data_path, \"rb\"))\n        vocab = data[\"vocab\"]\n        \n        if \"tokenized_sequences\" in data:\n            is_pretokenized = True\n            sequences = data[\"tokenized_sequences\"]\n        elif \"raw_sequences\" in data:\n            is_pretokenized = False\n            sequences = data[\"raw_sequences\"]\n        else:\n            raise KeyError(\n                f\"Expected 'tokenized_sequences' or 'raw_sequences' in {data_path}\"\n            )\n        \n        return sequences, vocab, is_pretokenized"
+        },
+        {
+          "end_line": 247,
+          "start_line": 233,
+          "text": "    def _tokenize_raw_sequence_from_vocab(self, raw_sequence: List[int]) -> List[int]:\n        token_ids: List[int] = []\n        \n        for raw_token in raw_sequence:\n            vocab_key = f\"node_{raw_token}\"\n            if vocab_key not in self._node_id_token_map:\n                raise KeyError(f\"Node token '{vocab_key}' not found in vocabulary.\")\n            token_ids.append(self._node_id_token_map[vocab_key])\n        \n        return token_ids\n\n    def __getitem__(self, idx: int):\n        seq = self.sequences[idx]\n        if not self._data_is_pretokenized:\n            seq = self._tokenize_raw_sequence_from_vocab(seq)"
+        },
+        {
+          "end_line": 294,
+          "start_line": 262,
+          "text": "        if self.skip_extant_tokens:\n            if len(seq) >= 1:\n                seq = seq[1:]\n            else:\n                raise ValueError(f\"Sequence at index {idx} is too short to remove extant token (length={len(seq)}).\")\n        \n        available_length = self.max_seq_len - 2\n\n        truncated_seq = seq[:available_length]\n        seq = [self.cls_token_id] + truncated_seq + [self.sep_token_id]\n        \n        assert len(seq) <= self.max_seq_len, f\"Sequence is too long: {len(seq)} > {self.max_seq_len}\"\n        if self.pad_sequences:\n            if len(seq) < self.max_seq_len:\n                padded = seq + [self.pad_token_id] * (self.max_seq_len - len(seq))\n                attention_mask = [1] * len(seq) + [0] * (self.max_seq_len - len(seq))\n            else:\n                padded = seq\n                attention_mask = [1] * len(seq)\n        else:\n            padded = seq\n            attention_mask = [1] * len(seq)\n        \n        token_type_ids = [0] * self.max_seq_len\n        \n        item = {\n            \"input_ids\": padded,\n            \"token_type_ids\": token_type_ids,\n            \"attention_mask\": attention_mask\n        }\n        if self.return_metadata:\n            item[\"extant_node_id_raw\"] = extant_node_id_raw\n        return item"
+        },
+        {
+          "end_line": 335,
+          "start_line": 303,
+          "text": "def build_arg_dataloader(\n    cfg: DictConfig,\n    tokenizer: ARGPreTrainedTokenizer,\n    device_batch_size: int,\n    device_microbatch_size: int,\n):\n    assert cfg.name == \"arg\", f\"Tried to build ARG dataloader with cfg.name={cfg.name}\"\n    assert cfg.dataset.streaming == False, \"ARG dataset does not support streaming for now\"\n    assert cfg.dataset.local is not None, \"Local path must be provided when not using streaming\"\n    assert cfg.dataset.split is not None, \"Split must be provided\"\n    assert cfg.dataset.remote is None, \"ARG dataset does not support remote for now\"\n\n    dataset = build_arg_dataset(\n        cfg=cfg, \n        tokenizer=None,\n        pad_sequences=not cfg.get(\"sequence_packing\", False),\n        return_metadata=cfg.dataset.get(\"return_metadata\", False),\n    )\n    sampler = DistributedSamplerPCG64DXSM(\n        dataset,\n        num_replicas=dist.get_world_size(),\n        rank=dist.get_global_rank(),\n        shuffle=cfg.dataset.get(\"shuffle\", False),\n        seed=cfg.dataset.get(\"shuffle_seed\", 9176),\n        drop_last=cfg.drop_last,\n    )\n    mlm_probability = cfg.dataset.get(\"mlm_probability\", None)\n    \n    base_collate_fn = transformers.DataCollatorForLanguageModeling(\n        tokenizer=tokenizer,\n        mlm=mlm_probability is not None,\n        mlm_probability=mlm_probability\n    )"
+        },
+        {
+          "end_line": 364,
+          "start_line": 337,
+          "text": "    def collate_fn(batch):\n        if getattr(dataset, 'return_metadata', False):\n            extant_ids = [b.get('extant_node_id_raw', None) for b in batch]\n            stripped = []\n            for b in batch:\n                if 'extant_node_id_raw' in b:\n                    b = {k: v for k, v in b.items() if k != 'extant_node_id_raw'}\n                stripped.append(b)\n            collated = base_collate_fn(stripped)\n            collated['extant_node_id_raw'] = torch.tensor([\n                (-1 if (e is None) else int(e)) for e in extant_ids\n            ], dtype=torch.long)\n            return collated\n        else:\n            return base_collate_fn(batch)\n\n    return DataLoader(\n        dataset,\n        collate_fn=collate_fn,\n        batch_size=device_batch_size,\n        drop_last=cfg.drop_last,\n        num_workers=cfg.num_workers,\n        pin_memory=cfg.get(\"pin_memory\", True),\n        prefetch_factor=cfg.get(\"prefetch_factor\", 2) if cfg.num_workers > 0 else None,\n        persistent_workers=cfg.get(\"persistent_workers\", True) if cfg.num_workers > 0 else False,\n        timeout=cfg.get(\"timeout\", 0),\n        sampler=sampler,\n    )"
+        },
+        {
+          "end_line": 380,
+          "start_line": 366,
+          "text": "def build_arg_dataset(\n    cfg: DictConfig,\n    tokenizer: ARGPreTrainedTokenizer,\n    pad_sequences: bool = True,\n    return_metadata: bool = False,\n):\n    return ARGDataset(\n        tokenizer=tokenizer,\n        local=cfg.dataset.get(\"local\", None),\n        split=cfg.dataset.get(\"split\", None),\n        max_seq_len=cfg.dataset.get(\"max_seq_len\", None),\n        pad_sequences=pad_sequences,\n        skip_extant_tokens=cfg.dataset.get(\"skip_extant_tokens\", False),\n        return_metadata=return_metadata,\n    )"
+        }
+      ],
+      "path": ".runtime/author_sources/argformer_f7545be7bca0/src/arg_data.py",
+      "sha256": "2e7df2c955ece89ced3f05c609a4450f997250df5a7cb06ff4a2ca957e49ffdf"
+    },
+    "src/flex_bert.py": {
+      "excerpts": [
+        {
+          "end_line": 337,
+          "start_line": 286,
+          "text": "    # setup the tokenizer\n    # When tokenizer_name=='argformer', use our custom tokenizer.\n    if tokenizer_name == \"argformer\":\n        # Require dataset information in the config when using the custom tokenizer.\n        if not hasattr(config, \"dataset\") or not config.dataset.get(\"local\") or not config.dataset.get(\"split\"):\n            raise ValueError(\"For 'argformer' tokenizer, model_config must contain dataset.local and dataset.split.\")\n        # Assume that your ARG vocabulary is stored locally in the dataset directory.\n        # For example, we require that config.dataset.local and config.dataset.split are provided.\n        if not hasattr(config, \"dataset\") or not config.dataset.get(\"local\") or not config.dataset.get(\"split\"):\n            raise ValueError(\"For 'argformer' tokenizer, config.dataset.local and config.dataset.split must be provided.\")\n        local = config.dataset.get(\"local\")\n        split = config.dataset.get(\"split\")\n        # Support tokenized/raw/generic file names\n        candidate_files = [\n            os.path.join(local, split, f\"tokenized_{split}_sequences_and_vocab.pkl\"),\n            os.path.join(local, split, f\"raw_{split}_sequences_and_vocab.pkl\"),\n        ]\n        data_path = None\n        for path_try in candidate_files:\n            if os.path.exists(path_try):\n                data_path = path_try\n                break\n        if data_path is None:\n            data_path = candidate_files[0]\n        with open(data_path, \"rb\") as f:\n            data = pickle.load(f)\n        vocab = data[\"vocab\"]\n        # Determine max_seq_len: prefer config, else infer from data\n        max_seq_len = getattr(config, \"max_seq_len\", None)\n        if not max_seq_len:\n            try:\n                sequences = data.get(\"tokenized_sequences\") or data.get(\"raw_sequences\")\n                if sequences:\n                    raw_max_len = max(len(seq) for seq in sequences)\n                    # Reserve space for [CLS] and [SEP]\n                    max_seq_len = raw_max_len + 2\n                else:\n                    raise ValueError(\"No sequences found in dataset\")\n            except Exception:\n                raise ValueError(\"No sequences found in dataset\")\n        arg_tokenizer_obj = ARGTokenizer(vocab, model_max_length=max_seq_len)\n        tokenizer = ARGPreTrainedTokenizer(arg_tokenizer_obj)\n        \n        # Resize model embeddings to match the tokenizer\n        tokenizer_vocab_size = len(tokenizer)\n        model.resize_token_embeddings(tokenizer_vocab_size)\n    else:\n        # Default: load tokenizer via AutoTokenizer.\n        if tokenizer_name:\n            tokenizer = transformers.AutoTokenizer.from_pretrained(tokenizer_name)\n        else:\n            tokenizer = transformers.AutoTokenizer.from_pretrained(pretrained_model_name)"
+        }
+      ],
+      "path": ".runtime/author_sources/argformer_f7545be7bca0/src/flex_bert.py",
+      "sha256": "bf8f041c30a1af410b1b41f8b047b1c84fb3ad8b991d45a7cc7d38d66a4f227a"
+    },
+    "src/text_data.py": {
+      "excerpts": [
+        {
+          "end_line": 72,
+          "start_line": 45,
+          "text": "# Subclass DistributedSampler to use PCG64DXSM for shuffling\nclass DistributedSamplerPCG64DXSM(DistributedSampler):\n    def __iter__(self) -> Iterator[int]:\n        if self.shuffle:\n            # deterministically shuffle based on epoch and seed\n            # use numpy's RNG PCG64DXSM instead of torch.randperm\n            rng = np.random.Generator(np.random.PCG64DXSM(self.seed + self.epoch))\n            indices = rng.permutation(len(self.dataset)).tolist()  # type: ignore[arg-type]\n        else:\n            indices = list(range(len(self.dataset)))  # type: ignore[arg-type]\n\n        if not self.drop_last:\n            # add extra samples to make it evenly divisible\n            padding_size = self.total_size - len(indices)\n            if padding_size <= len(indices):\n                indices += indices[:padding_size]\n            else:\n                indices += (indices * math.ceil(padding_size / len(indices)))[:padding_size]\n        else:\n            # remove tail of data to make it evenly divisible.\n            indices = indices[: self.total_size]\n        assert len(indices) == self.total_size\n\n        # subsample\n        indices = indices[self.rank : self.total_size : self.num_replicas]\n        assert len(indices) == self.num_samples\n\n        return iter(indices)"
+        }
+      ],
+      "path": ".runtime/author_sources/argformer_f7545be7bca0/src/text_data.py",
+      "sha256": "2b5b8f0a15a092a4e9c0a96e0f7cadac8087cd77531cf1db00cf5f314d05ea43"
+    },
+    "yamls/mlm.yaml": {
+      "excerpts": [
+        {
+          "end_line": 10,
+          "start_line": 5,
+          "text": "data_local: /path/to/arg/data/dataset_name/dataset_variant\nmax_seq_len: 128\ndata_remote: null\n\ntokenizer_name: argformer\nmlm_probability: 0.3"
+        },
+        {
+          "end_line": 22,
+          "start_line": 13,
+          "text": "model:\n  name: flex_bert\n  recompute_metric_loss: false\n  pretrained_model_name: bert-base-uncased\n  tokenizer_name: ${tokenizer_name}\n  model_config:\n    dataset:\n      local: ${data_local}\n      split: val\n    max_seq_len: ${max_seq_len}"
+        },
+        {
+          "end_line": 66,
+          "start_line": 46,
+          "text": "    padding: unpadded\n    sparse_prediction: false\n    rotary_emb_dim: null\n    rotary_emb_base: 10000.0\n    rotary_emb_scale_base: null\n    rotary_emb_interleaved: false\n    hidden_act: gelu\n    init_method: full_megatron\n    init_std: 0.02\n    init_cutoff_factor: 2.0\n    init_small_embedding: False\n    deterministic_fa2: false\n    initial_attention_layer: null\n    initial_bert_layer: null\n    initial_mlp_layer: null\n    num_initial_layers: 0\n    skip_first_prenorm: true\n    sliding_window: 128\n    global_attn_every_n_layers: 3\n    unpad_embeddings: true\n    pad_logits: false"
+        },
+        {
+          "end_line": 97,
+          "start_line": 69,
+          "text": "train_loader:\n  name: arg\n  dataset:\n    local: ${data_local}\n    remote: null\n    split: train\n    streaming: false\n    tokenizer_name: ${tokenizer_name}\n    max_seq_len: ${max_seq_len}\n    shuffle: true\n    mlm_probability: ${mlm_probability}\n    skip_extant_tokens: true\n  drop_last: true\n  num_workers: 8\n\neval_loader:\n  name: arg\n  dataset:\n    local: ${data_local}\n    remote: null\n    split: val\n    streaming: false\n    tokenizer_name: ${tokenizer_name}\n    max_seq_len: ${max_seq_len}\n    shuffle: false\n    mlm_probability: 0.15\n    skip_extant_tokens: true\n  drop_last: false\n  num_workers: 8"
+        }
+      ],
+      "path": ".runtime/author_sources/argformer_f7545be7bca0/yamls/mlm.yaml",
+      "sha256": "df1cbb747a1bb6740fffd1e6eee5eb0ac3a1fa43d8fbbb15ce70d6b9cc7799b6"
+    }
+  },
+  "static_checks": {
+    "ARGDataset_has_no_listed_disk_cache_pipeline_markers": [
+      "load_dataset",
+      "keep_in_memory",
+      "load_from_cache_file",
+      "save_to_disk",
+      "cache_file",
+      "pickle.dump",
+      "torch.save"
+    ],
+    "arg_data_all_open_calls": [
+      "open(vocab_path, \"w\")",
+      "open(data_path, \"rb\")"
+    ],
+    "pinned_MLM_yaml_has_no_sequence_packing_option": true
+  }
+}

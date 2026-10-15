@@ -1,0 +1,49 @@
+{
+  "imported_from_shared_environment": false,
+  "process_function": "nvmlDeviceGetComputeRunningProcesses_v3",
+  "relevant_source_excerpts": [
+    {
+      "lines": [
+        1162,
+        1171
+      ],
+      "text": "class c_nvmlProcessInfo_v2_t(_PrintableStructure):\n    _fields_ = [\n        ('pid', c_uint),\n        ('usedGpuMemory', c_ulonglong),\n        ('gpuInstanceId', c_uint),\n        ('computeInstanceId', c_uint),\n    ]\n    _fmt_ = {'usedGpuMemory': \"%d B\"}\n\nc_nvmlProcessInfo_t = c_nvmlProcessInfo_v2_t"
+    },
+    {
+      "lines": [
+        2169,
+        2175
+      ],
+      "text": "def nvmlDeviceGetHandleByUUID(uuid):\n    c_uuid = c_char_p(uuid)\n    device = c_nvmlDevice_t()\n    fn = _nvmlGetFunctionPointer(\"nvmlDeviceGetHandleByUUID\")\n    ret = fn(c_uuid, byref(device))\n    _nvmlCheckReturn(ret)\n    return device"
+    },
+    {
+      "lines": [
+        2779,
+        2811
+      ],
+      "text": "def nvmlDeviceGetComputeRunningProcesses_v3(handle):\n    # first call to get the size\n    c_count = c_uint(0)\n    fn = _nvmlGetFunctionPointer(\"nvmlDeviceGetComputeRunningProcesses_v3\")\n    ret = fn(handle, byref(c_count), None)\n\n    if (ret == NVML_SUCCESS):\n        # special case, no running processes\n        return []\n    elif (ret == NVML_ERROR_INSUFFICIENT_SIZE):\n        # typical case\n        # oversize the array incase more processes are created\n        c_count.value = c_count.value * 2 + 5\n        proc_array = c_nvmlProcessInfo_t * c_count.value\n        c_procs = proc_array()\n\n        # make the call again\n        ret = fn(handle, byref(c_count), c_procs)\n        _nvmlCheckReturn(ret)\n\n        procs = []\n        for i in range(c_count.value):\n            # use an alternative struct for this object\n            obj = nvmlStructToFriendlyObject(c_procs[i])\n            if (obj.usedGpuMemory == NVML_VALUE_NOT_AVAILABLE_ulonglong.value):\n                # special case for WDDM on Windows, see comment above\n                obj.usedGpuMemory = None\n            procs.append(obj)\n\n        return procs\n    else:\n        # error case\n        raise NVMLError(ret)"
+    }
+  ],
+  "schema": "native_MLM_NVML_ABI_source_provenance_v8",
+  "source_path": "/home/jovyan/miniconda3/lib/python3.11/site-packages/pynvml.py",
+  "source_sha256": "536b250e90ce4fe1e0cfee9e9c379f4795b6643f49617821e6559a4216d73511",
+  "struct": "c_nvmlProcessInfo_v2_t",
+  "structure_fields": [
+    [
+      "pid",
+      "unsigned int"
+    ],
+    [
+      "usedGpuMemory",
+      "unsigned long long"
+    ],
+    [
+      "gpuInstanceId",
+      "unsigned int"
+    ],
+    [
+      "computeInstanceId",
+      "unsigned int"
+    ]
+  ]
+}

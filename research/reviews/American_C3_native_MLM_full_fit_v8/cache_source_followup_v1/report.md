@@ -1,0 +1,13 @@
+The pinned author path does not construct a corpus-wide tokenized/padded disk cache. There is no obvious source contradiction between this loader and the14GiB reservation/4GiB operational-cache allowance. This is a source finding, not a guarantee that all runtime caches or transient writes fit.
+
+MLM yaml69–97 selects name:arg for train/VAL. main.py304–310 dispatches directly to build_arg_dataloader. ARGDataset loads the existing split pickle in read-only binary mode and retains its original sequences in RAM (src/arg_data.py159–163,196–228). It maps raw node IDs on each requested __getitem__ (233–247); it does not tokenize the complete corpus at construction or write a transformed dataset.
+
+The loader returns fixed128 sample lists in memory. yaml6 sets max_seq_len128; no sequence_packing setting exists in the pinned MLM yaml. build_arg_dataloader318 therefore passes pad_sequences=True; ARGDataset applies padding and masks only for the requested sample (262–294). These current sample lists are passed to DataCollatorForLanguageModeling and DataLoader (331–364). Model padding:unpadded/yaml46 is an internal model-compute choice and does not mean variable-length loader outputs.
+
+This is a custom torch Dataset path, not Hugging Face datasets.load_dataset/map or an Arrow disk-cache pipeline. There is no keep_in_memory/cache-disabled flag to interpret. The tokenizer uses the local ARG vocabulary; the AutoTokenizer branch is skipped for tokenizer_name:argformer (src/flex_bert.py286–337). That setup reads the existing validation pickle to retrieve vocab. The sole explicit tokenizer writer, save_vocabulary (src/arg_data.py72–77), writes vocab JSON if called and is not invoked by the inspected model/loader path.
+
+Raw sequences and epoch shuffle indices occupy RAM. Train and VAL use8 workers each; loader defaults are prefetch_factor2 and persistent_workersTrue (src/arg_data.py358–361). The inspected author sampler creates an in-memory permutation/list (src/text_data.py45–72). No padded corpus arrays are persisted by these source paths.
+
+For comparison only,25,574,587 x128 x4 bytes would be13,094,188,544 bytes (12.195GiB) for one hypothetical int32 array. The author loader does not create/write this array. This arithmetic is not an observed allocation.
+
+The4GiB allowance for compiler/kernel/library caches remains unmeasured; transient aggregate cache/workspace writes and full-corpus RAM are not proven by this review. No live output/cache inventory, scientific payload read, runtime import, GPU/process/accounting action, or change to any live pinned source/caps was performed. Source hashes and exact numbered excerpts are in source_evidence.json.
