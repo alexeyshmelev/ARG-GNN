@@ -1,0 +1,139 @@
+{
+  "basis": "source call graph, not live profiling or measured timings",
+  "hotspots": [
+    {
+      "cost": "budget_check takes mutex; check calls policy then state, rehashes own bindings; boundary also inventories own scopes.",
+      "lines": [
+        371,
+        375,
+        380,
+        386,
+        396,
+        397
+      ],
+      "source": "research/reviews/concurrent_completed_scope_credits_v3/completed_scope_credits_v3.py"
+    },
+    {
+      "cost": "Policy validation runs twice in each check. Each policy does1 policy read+1 source reference+8 bound reads: >=20 file_bytes calls before the rest. _bindings adds another source reference.",
+      "lines": [
+        125,
+        128,
+        131,
+        133,
+        254,
+        255
+      ],
+      "source": "research/reviews/concurrent_completed_scope_credits_v3/completed_scope_credits_v3.py"
+    },
+    {
+      "cost": "No overlay state cache: reads legacy, parses all base paths, reads every overlay event/authority, replays all completions/prefix charges and source-bound path schemas each check.",
+      "lines": [
+        263,
+        265,
+        266,
+        267,
+        268,
+        274,
+        281,
+        292
+      ],
+      "source": "research/reviews/concurrent_completed_scope_credits_v3/completed_scope_credits_v3.py"
+    },
+    {
+      "cost": "Every scope_spec consumer binding calls bound\u2192file_bytes\u2192canonical Path.resolve, lstat, open/read, fstat, SHA. Shared sources are reread across each reservation, then again for own bindings.",
+      "lines": [
+        45,
+        51,
+        57,
+        62,
+        171,
+        192,
+        195
+      ],
+      "source": "src/arggnn/project_budget_v4.py"
+    },
+    {
+      "cost": "Base has a cache; warm checks still fingerprint every discovered dependency through canonical+fresh lstat. Do not claim base always fully replays; cache invalidates when watched identities change.",
+      "lines": [
+        229,
+        230,
+        231,
+        232
+      ],
+      "source": "research/reviews/H039_failed_scope_capacity_v1/failed_scope_capacity_v1.py"
+    },
+    {
+      "cost": "Fingerprint lstat loops and canonical path resolution persist even when base replay is cached.",
+      "lines": [
+        61,
+        66,
+        67,
+        69,
+        70
+      ],
+      "source": "src/arggnn/project_storage_cpu_closed_scopes_v1.py"
+    },
+    {
+      "cost": "Every H040 guard invokes original lease/RSS/CUDA checks and full v3 budget check.",
+      "lines": [
+        49,
+        50,
+        51
+      ],
+      "source": "research/reviews/H040_GPU45_frozen_evaluation_source_v2/context_factory_v2.py"
+    },
+    {
+      "cost": "All96 pre-forward guards invoke context; exact line refs also captured by AST index in qualification receipt. Each following RAM seal writes JSON and triggers strict budget boundary.",
+      "lines": [
+        269,
+        273
+      ],
+      "source": "src/arggnn/H040_GPU45_frozen_evaluation_v2.py"
+    },
+    {
+      "cost": "RAMMatrix.seal delegates durable JSON to output.save; context-only throttling would leave96 strict boundary replays.",
+      "lines": [
+        381,
+        399
+      ],
+      "source": "src/arggnn/H040_latent_clade_execution_v1.py"
+    },
+    {
+      "cost": "PilotOutput.save always checks strict boundary with planned len(data)+8192 immediately before write. Keep it unthrottled.",
+      "lines": [
+        417,
+        429
+      ],
+      "source": "research/reviews/concurrent_completed_scope_credits_v3/completed_scope_credits_v3.py"
+    },
+    {
+      "cost": "Supervisor checks full budget every15 s inside same event loop as5 s work sampling and log draining. Long mutex hold also delays those supervision duties.",
+      "lines": [
+        309,
+        311,
+        312,
+        322
+      ],
+      "source": "research/reviews/American_C3_observation_supervisor_repair_source_v1/root_observation_driver.py"
+    },
+    {
+      "cost": "H042 per-step context retains lightweight original resource checks and avoids adding full accounting on every step; writes remain guarded.",
+      "lines": [
+        96
+      ],
+      "source": "research/reviews/H042_GPU45_clade_flags_root_source_v1/context_factory_v1.py"
+    }
+  ],
+  "lower_bound_v3_file_reads": "21 + sum(base reservation binding counts) + sum(new-reserve binding counts) + sum(closed-measurement binding counts) + own_binding_count + 2*overlay_event_count + 5*overlay_close_count, before base fingerprint/replay and other repeated proof reads.",
+  "model_prediction_minimum": "96 pre-forward full checks +96 seal strict-boundary full checks = at least192 accounting transactions from these two sites alone.",
+  "savings": "Within one operation, repeated raw reads collapse fromR logical file_bytes calls toU unique cacheable canonical paths plus uncached final namespace/identity checks; journal parsing/replay/overlap work and dependency lstat remain. No production speedup asserted.",
+  "scheduler_mutex": {
+    "behavior": "One exclusive original flock covers all nested budget replay and source reads.",
+    "lines": [
+      105,
+      118
+    ],
+    "source": "src/arggnn/project_budget_v4.py"
+  },
+  "schema": "resource_guard_hotpath_static_cost_audit_v1"
+}

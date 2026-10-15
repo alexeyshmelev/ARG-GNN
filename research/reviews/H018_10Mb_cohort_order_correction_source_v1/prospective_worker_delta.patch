@@ -1,0 +1,21 @@
+--- src/arggnn/prepare_h018_r16_10mb_extension_v1.py
++++ src/arggnn/prepare_h018_r16_10mb_extension_v2.py
+@@ -10,7 +10,7 @@
+ from urllib.request import Request,urlopen
+ import argparse,csv,datetime,gzip,hashlib,io,json,math,os,re,resource,struct,subprocess,sys,time,zlib
+ ROOT=Path('/workspace-SR003.nfs2/ARG-GNN')
+-SOURCE='src/arggnn/prepare_h018_r16_10mb_extension_v1.py'
++SOURCE='src/arggnn/prepare_h018_r16_10mb_extension_v2.py'
+ BASE='https://erda.ku.dk/archives/917f1ac64148c3800ab7baa29402d088/neo/genotypes-public/'
+ VCF_URL=BASE+'22.neo_impute_ph.vcf.gz';INDEX_URL=VCF_URL+'.tbi'
+ SOURCE_BYTES=1654398745;INDEX_BYTES=28008
+@@ -306,7 +306,8 @@
+  for r in cfg['frozen_refs'].values():bound(r)
+  endpoint=read_json(cfg['frozen_refs']['endpoint']);validate_extension_v1(cfg,endpoint)
+  subjects=(ROOT/cfg['frozen_refs']['subject_ids']['path']).read_text().splitlines()
+- expected=[s for group in endpoint['reference_subjects'].values() for s in group]+endpoint['query_subjects']
++ original_order=read_json(ORIGINAL_REFS['original_endpoint'])
++ expected=[s for group in original_order['reference_subjects'].values() for s in group]+endpoint['query_subjects']
+  require(subjects==expected and len(subjects)==len(set(subjects))==20 and all(not x.endswith('_rnd') for x in subjects),'Frozen H018 cohort/order')
+  require(endpoint['region']['interval_bp0']==[BEGIN,END] and endpoint['reference_haplotypes']==16
+   and endpoint['query_haplotypes']==24,'Frozen H018 R16/Q24 region')

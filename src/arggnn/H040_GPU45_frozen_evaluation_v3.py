@@ -1,0 +1,420 @@
+"""Source-only H040 frozen paired evaluation with exact interrupted provenance.
+
+Scientific evaluation is the unchanged original H040 implementation. Only
+checkpoint provenance and root GPU4/5 execution capability validation differ.
+"""
+from __future__ import annotations
+import argparse, hashlib, importlib.util, io, json, os
+from datetime import datetime, timezone
+from pathlib import Path
+from . import H040_latent_clade_execution_v1 as base
+from . import H040_GPU45_resume_v1 as resume_worker
+from .H040_latent_clade_execution_v1 import (
+    ROOT, ARMS, TRAIN, VAL, PASSES, MODEL, SELECTION, WARM_CHECKPOINT, MECHANISM_REFS,
+    require, bound, metadata, PhaseReader, WitnessCache, RAMMatrix, load_banks,
+    validate_protocol)
+SOURCE = "src/arggnn/H040_GPU45_frozen_evaluation_v3.py"
+CONTEXT = "research/reviews/H040_GPU45_frozen_evaluation_source_v3/context_factory_v3.py"
+ORIGINAL_SHA = "28973fe0a9dae2c950c07dd463a23edcb6b45ab6659813f5ef31b9dc766bf84d"
+RESUME_SHA = "3fb89e4efc7a7fc6e50d3da5e2e30517357a7ac78cbf1279f42b7138b1e4e39d"
+RESUME_CONTEXT = "research/reviews/H040_GPU45_resume_source_v1/context_factory_v2.py"
+RESUME_CONTEXT_SHA = "71ed68a36ae7dc5d8614f23a711e753ccf8a632f4fb1a3ad13c840fee502aee4"
+LAUNCHER = "scripts/launch_reserved_gpu_authorized_GPU45_completed_v1.py"
+GPU_AUTH = "research/reviews/H040_GPU45_migration_root_20261015_v1/GPU45_authorization.json"
+GUARD_REF = dict(path="research/reviews/concurrent_completed_scope_credits_v3/completed_scope_credits_v3.py",
+                 sha256="ea14c12c41b9385a86182aa9c24058f7b1276107fc5706c70e47828e8b2c31ef")
+LAUNCHER_REF = dict(path=LAUNCHER,sha256="d4cc990e430625e9cc7d02739e7e8012f5c8b3bdc78f048f801febacea64583d")
+POLICY_REF = dict(path="research/reviews/completed_scope_credits_root_activation_20261015_v1/activation_policy.json",
+                  sha256="a0885b5209172dd79a835d442e0ad3495f5c1a0eac61a1c5c08154ec877ecf85")
+ORIGINAL_H038_INPUT = "research/reviews/expanded_full_panel_v1_root/full_panel_pyg_fits_v4/aligned/input.json"
+RESUME_ROOT = "research/reviews/H040_GPU45_migration_root_20261015_v1"
+RESUME_MANIFESTS = {
+    "tensor": dict(path="research/reviews/H040_GPU45_resume_source_v1/resume_tensor_inactive.json",
+                   sha256="9ebb757af8189d04b6ab7c08f61d9803c6d7965abeb5c0e73bbde627832574a6"),
+    "event_mlp": dict(path="research/reviews/H040_GPU45_resume_source_v1/resume_event_mlp_inactive.json",
+                      sha256="cf21f3fe3614db09a0ff71fd69f1ebfe21f5f63d61fc9ba0cccca27bf34c0c6a"),
+}
+
+
+MEMO_REF={'path': 'research/reviews/resource_guard_hotpath_source_audit_v1/transaction_memo_adapter_v2.py', 'sha256': 'c972e9a779d424ceafdb258848614bf40994d1004e2c73fc5cd225ae99621364'}
+V4_REF={'path': 'src/arggnn/project_budget_v4.py', 'sha256': 'a093c7d86f57fee569cb99f4712250e9505a1119f3950fa44282c7ba8c57df47'}
+OLD_MAIN_REF={'path': 'src/arggnn/H040_GPU45_frozen_evaluation_v2.py', 'sha256': '38b710aa851670bbfefc8aff8fcbd9c83403d3fc0528663fddb4c14fd4acba1d'}
+OLD_CONTEXT_REF={'path': 'research/reviews/H040_GPU45_frozen_evaluation_source_v2/context_factory_v2.py', 'sha256': 'c32b745dad73f17604873253beffd30244feb176f371df47952adf92fd4722fe'}
+OLD_DRIVER_REF={'path': 'research/reviews/H040_GPU45_frozen_evaluation_source_v2/root_evaluation_driver_v2.py', 'sha256': 'dc85f609b2a543447072b656cae5594a22859d1903667a516a2f4f1703ab9705'}
+OLD_PACKET="research/reviews/H040_GPU45_frozen_evaluation_source_v2/admitted_evaluate"
+OLD_OUTPUT="experiments/results/H040_GPU45_frozen_evaluation_seed101_v2"
+
+def actual_ref(path):
+    return dict(path=path, sha256=hashlib.sha256((ROOT/path).read_bytes()).hexdigest())
+
+
+def science():
+    base.science()
+    globals().update(np=base.np, torch=base.torch, h038=base.h038, fit=base.fit)
+
+
+def current_resource_config(cfg):
+    require(actual_ref(GUARD_REF["path"]) == GUARD_REF and actual_ref(LAUNCHER) == LAUNCHER_REF,
+            "Exact fixed completed-credit guard and GPU45 launcher sources required")
+    value = dict(cfg)
+    value["helper_refs"] = dict(cfg["helper_refs"],full_reservation_adapter=GUARD_REF,
+                                actual_full_storage_launcher=LAUNCHER_REF)
+    return value
+
+
+def val_target_bindings_v2(original):
+    return dict(original,parents={p:original["parents"][p] for p in VAL},
+                phase="evaluate",TRAIN_included=False,VAL_included=True,outer_included=False)
+
+
+def validate_runtime_supersession_v3(spec,reader):
+    """Metadata-only barrier: failed v2 is terminal before this unchanged repeat."""
+    require(spec.get("memo_helper_ref")==MEMO_REF and spec.get("transaction_memo_no_throttling") is True,
+            "Exact pinned transaction-local memo helper and no throttling required")
+    request=reader.decode_json(spec["runtime_supersession_ref"])
+    require(request.get("schema")=="H040_v2_runtime_supersession_evidence_v1"
+            and request.get("root_authorizer")=="root_agent" and request.get("active") is True
+            and request.get("reason")=="duplicate_guard_IO_before_VAL_truth"
+            and request.get("preserve_all_old_files") is True
+            and request.get("VAL_results_used_for_retry") is False
+            and request.get("new_training_authorized") is False,
+            "Root runtime-only supersession before VAL truth, with old files preserved")
+    require(request["old_launch_ref"]["path"]==OLD_PACKET+"/launch.json"
+            and request["old_actual_wait_ref"]["path"]==OLD_PACKET+"/actual_wait.json",
+            "Exact original v2 launch and direct-wait metadata required")
+    launch=reader.decode_json(request["old_launch_ref"])
+    wait=reader.decode_json(request["old_actual_wait_ref"])
+    old_input=reader.decode_json(launch["input_ref"])
+    require(old_input.get("schema")=="H040_GPU45_frozen_evaluation_input_v2"
+            and old_input.get("phase")=="evaluate" and old_input.get("arm")=="joint_pair"
+            and old_input.get("output_directory")==OLD_OUTPUT
+            and old_input.get("main_source_ref")==OLD_MAIN_REF
+            and old_input.get("root_context_module_ref")==OLD_CONTEXT_REF,
+            "Same frozen v2 joint evaluation input required")
+    require(type(wait.get("returncode")) is int and wait["returncode"]!=0
+            and wait.get("actual_direct_launcher_wait") is True
+            and wait.get("completed_ref") is None
+            and type(launch.get("launcher_pid")) is int and launch["launcher_pid"]>=2
+            and wait.get("launcher_pid")==launch["launcher_pid"],
+            "Actual old v2 nonzero direct launcher wait required; no completed predecessor")
+    observed=reader.decode_json(request["process_absence_ref"])
+    require(observed.get("schema")=="H040_v2_evaluation_terminal_observation_v1"
+            and observed.get("root_authorizer")=="root_agent"
+            and observed.get("old_launch_ref")==request["old_launch_ref"]
+            and observed.get("old_actual_wait_ref")==request["old_actual_wait_ref"]
+            and observed.get("all_root_owned_evaluation_pids_listed") is True
+            and observed.get("all_old_evaluation_write_resume_capabilities_revoked") is True,
+            "Complete targeted root terminal/revocation certificate required")
+    pids=observed.get("pids");rows=observed.get("observations")
+    require(isinstance(pids,list) and 1<=len(pids)<=256 and launch["launcher_pid"] in pids
+            and all(type(pid) is int and pid>=2 for pid in pids) and len(set(pids))==len(pids)
+            and isinstance(rows,list) and len(rows)==len(pids),"Complete unique old evaluation PID roster required")
+    waited=datetime.fromisoformat(wait["waited_utc"].replace("Z","+00:00"))
+    require(waited.tzinfo is not None,"Timezone-aware actual old wait time required")
+    now=datetime.now(timezone.utc)
+    for pid,row in zip(pids,rows):
+        stamp=datetime.fromisoformat(row["checked_utc"].replace("Z","+00:00"))
+        require(set(row)=={"pid","absent","method","checked_utc"} and row["pid"]==pid
+                and row["absent"] is True and row["method"]=="targeted os.kill(pid,0) ESRCH"
+                and stamp.tzinfo is not None and waited<=stamp<=now,
+                "Actual targeted process absence after old direct wait required")
+    for name in ("completed.json","all96_VAL_RAM_sealed_before_truth.json"):
+        require(not os.path.lexists(ROOT/OLD_OUTPUT/name),
+                "Old evaluation completion/all96 gate must remain absent before runtime-only repeat")
+    return request
+
+
+def validate_evaluation_contract_v3(spec, cfg, reader):
+    """Validate only metadata/capabilities before the root creates CUDA state."""
+    require(spec.get("schema") == "H040_GPU45_frozen_evaluation_input_v3"
+            and spec.get("phase") == "evaluate" and spec.get("arm") == "joint_pair"
+            and spec.get("main_source_ref") == actual_ref(SOURCE)
+            and spec.get("root_context_module_ref") == actual_ref(CONTEXT),
+            "Exact paired evaluation successor capability required")
+    validate_runtime_supersession_v3(spec,reader)
+    closure = spec["source_sha256"]
+    needed = {base.SOURCE:ORIGINAL_SHA, resume_worker.SOURCE:RESUME_SHA,
+              RESUME_CONTEXT:RESUME_CONTEXT_SHA, SOURCE:actual_ref(SOURCE)["sha256"],
+              CONTEXT:actual_ref(CONTEXT)["sha256"],
+              GUARD_REF["path"]:GUARD_REF["sha256"],LAUNCHER:LAUNCHER_REF["sha256"]}
+    needed.update({r["path"]:r["sha256"] for r in (MEMO_REF,V4_REF,OLD_MAIN_REF,OLD_CONTEXT_REF,OLD_DRIVER_REF)})
+    require(all(closure.get(path) == sha for path,sha in needed.items()),
+            "Original, resume and new evaluation source closure required")
+    require(spec.get("GPU45_authorization_ref") == actual_ref(GPU_AUTH),
+            "Exact root GPU4/5 authorization required")
+    auth = reader.decode_json(spec["GPU45_authorization_ref"])
+    require(auth["physical_GPUs"] == [4,5] and auth["preserve_external_processes"] is True,
+            "Only user-authorized GPUs4/5")
+    require(set(spec["train_completion_refs"]) == set(ARMS)
+            and set(spec["train_actual_wait_refs"]) == set(ARMS),
+            "Both actual resumed TRAIN completion and direct launcher wait refs required")
+    require(spec.get("physical_gpu") == 5 and spec.get("completed_overlay_policy_ref") == POLICY_REF
+            and actual_ref(POLICY_REF["path"]) == POLICY_REF,
+            "Fixed active completed-credit policy and root-selected GPU5 required")
+    transitive = reader.decode_json(spec["transitive_source_closure_ref"])
+    require(transitive.get("schema") == "H040_GPU45_evaluation_transitive_source_closure_v3"
+            and transitive["source_sha256"] == closure
+            and transitive["train_completion_refs"] == spec["train_completion_refs"]
+            and transitive["train_actual_wait_refs"] == spec["train_actual_wait_refs"]
+            and set(transitive["train_launch_refs"]) == set(ARMS),
+            "Exact JSON transitive source and actual TRAIN evidence closure required")
+    require(transitive["memo_helper_ref"]==MEMO_REF and transitive["runtime_supersession_ref"]==spec["runtime_supersession_ref"],
+            "Exact memo and old terminal evidence must be bound transitively")
+    h038_ref = spec["original_H038_input_ref"]
+    require(h038_ref["path"] == ORIGINAL_H038_INPUT
+            and transitive["original_H038_input_ref"] == h038_ref,
+            "Original H038 input metadata required for fresh VAL-only binding")
+    h038_input = reader.decode_json(h038_ref)
+    original_targets = reader.decode_json(h038_input["refs"]["target_bindings"])
+    require(reader.decode_json(spec["refs"]["target_bindings"]) == val_target_bindings_v2(original_targets),
+            "Fresh exact eight-VAL-only targets copied from original H038 metadata required")
+    for arm in ARMS:
+        wait_ref = spec["train_actual_wait_refs"][arm]
+        launch_ref = transitive["train_launch_refs"][arm]
+        require(wait_ref["path"] == RESUME_ROOT+"/admitted_"+arm+"/actual_wait.json"
+                and launch_ref["path"] == RESUME_ROOT+"/admitted_"+arm+"/launch.json",
+                "Actual root resumed launch/wait receipt paths required")
+        wait = reader.decode_json(wait_ref);launch = reader.decode_json(launch_ref)
+        train = reader.decode_json(spec["train_completion_refs"][arm])
+        require(type(wait.get("returncode")) is int and wait["returncode"] == 0
+                and wait.get("actual_direct_launcher_wait") is True
+                and type(wait.get("launcher_pid")) is int and wait["launcher_pid"] >= 2
+                and wait["launcher_pid"] == launch["launcher_pid"]
+                and launch["input_ref"] == train["input_ref"]
+                and launch["physical_gpu"] == (4 if arm == "tensor" else 5)
+                and wait["completed_ref"] == spec["train_completion_refs"][arm],
+                "Actual same-launcher direct wait0 for both resumed completions required")
+    for arm in ARMS:
+        manifest = reader.decode_json(RESUME_MANIFESTS[arm])
+        old = reader.decode_json(manifest["original_input_ref"])
+        old_cfg = reader.decode_json(manifest["original_config_ref"])
+        require(cfg == current_resource_config(old_cfg), "Evaluation config may change only the two exact resource helper refs")
+        require(all(closure.get(path) == sha for path,sha in old["source_sha256"].items()),
+                "Every original science/source pin must remain bound")
+        for key in ("registration","generation_config","observation_cache"):
+            require(spec["refs"][key] == old["refs"][key], "Original observation/generation source required")
+        require(spec["observation_entry_refs"] == old["observation_entry_refs"]
+                and spec["observation_cache_source_refs"] == old["observation_cache_source_refs"],
+                "All original observed entries/cache source refs required")
+    validate_training_lineages_v1(dict(reader=reader,cfg=cfg,
+        train_actual_wait_refs=spec["train_actual_wait_refs"],train_completion_refs=spec["train_completion_refs"]),
+        {arm:reader.decode_json(spec["train_completion_refs"][arm]) for arm in ARMS})
+    return True
+
+
+def expected_checkpoint_provenance_v1(train, manifest, train_input, at, arm):
+    """A unique expected provenance tuple, never a relaxed accepted-membership set."""
+    require(type(at) is int and at in PASSES and manifest["arm"] == arm
+            and arm in ARMS, "Registered checkpoint cell required")
+    if at <= manifest["resume_pass_index"]:
+        return dict(checkpoint_ref=manifest["retained_checkpoint_groups"][str(at)][arm],
+                    input_ref=manifest["original_input_ref"], config_ref=manifest["original_config_ref"])
+    record = train["checkpoint_groups"][str(at)][arm]
+    require(record["path"] == train_input["output_directory"] + "/" + arm + ".pass_%02d.pt"%at,
+            "Resumed checkpoint must be its exact original per-pass worker output")
+    return dict(checkpoint_ref=record, input_ref=train["input_ref"], config_ref=train["config_ref"])
+
+
+def validate_training_lineages_v1(ctx, trains):
+    reader, cfg = ctx["reader"], ctx["cfg"]
+    require(set(trains) == set(ARMS) and set(ctx["train_actual_wait_refs"]) == set(ARMS),
+            "Both exact actual TRAIN lineages required")
+    lineages = {}
+    for arm in ARMS:
+        train = trains[arm]
+        manifest_ref = RESUME_MANIFESTS[arm]
+        manifest = reader.decode_json(manifest_ref)
+        require(train.get("schema") == "H040_train_completion_v1"
+                and train.get("status") == "completed_fixed_30_pass_single_arm_TRAIN"
+                and train.get("arm") == arm and train.get("hypothesis_id") == "H040"
+                and train.get("steps") == {arm:960}
+                and train.get("VAL_truth_read") is False and train.get("outer_truth_read") is False
+                and train.get("resume_manifest_ref") == manifest_ref
+                and train.get("resumed_from_pass") == manifest["resume_pass_index"]
+                and train.get("resumed_from_checkpoint_ref") == manifest["resume_checkpoint_ref"]
+                and train.get("original_input_ref") == manifest["original_input_ref"]
+                and train.get("original_config_ref") == manifest["original_config_ref"]
+                and train.get("resumed_optimizer_steps_performed") == manifest["remaining_updates"]
+                and train.get("optimizer_state_restored") is True
+                and train.get("optimizer_state_reset_on_resume") is False,
+                "Exact complete saved-plus-resumed TRAIN lineage required")
+        require(set(train["checkpoint_groups"]) == set(map(str,PASSES))
+                and set(train["checkpoint_provenance"]) == set(map(str,PASSES))
+                and len(train["history"]) == 30
+                and [row["pass_index"] for row in train["history"]] == list(range(1,31))
+                and all(row["steps"] == {arm:32*row["pass_index"]} and row["full_parent_updates"] == 32
+                        for row in train["history"]), "All six checkpoints and 30 complete passes required")
+        train_input = reader.decode_json(train["input_ref"])
+        train_cfg = reader.decode_json(train["config_ref"])
+        require(train_input["refs"]["config"] == train["config_ref"]
+                and train_input["resume_manifest_ref"] == manifest_ref
+                and current_resource_config(train_cfg) == cfg, "Actual resumed input/config must match evaluation science after only two resource helper replacements")
+        resume_worker.validate_original_contract(train_input, train_cfg, reader)
+        wait = reader.decode_json(ctx["train_actual_wait_refs"][arm])
+        require(type(wait.get("returncode")) is int and wait["returncode"] == 0 and wait.get("actual_direct_launcher_wait") is True
+                and wait.get("completed_ref") == ctx["train_completion_refs"][arm]
+                and ctx["train_completion_refs"][arm]["path"] == train_input["output_directory"]+"/completed.json",
+                "Actual direct exit0 launcher wait for this exact resumed completion required")
+        initial = reader.decode_json(manifest["original_initialization_ref"])
+        require(train["initialization"] == initial["initialization"]
+                and train["initial_state_sha256"] == initial["initial_state_sha256"][arm],
+                "Original matched initialization must be retained")
+        for at in PASSES:
+            require(set(train["checkpoint_groups"][str(at)]) == {arm}
+                    and set(train["checkpoint_provenance"][str(at)]) == {arm},
+                    "Exact single-arm per-pass checkpoint mapping required")
+            expected = expected_checkpoint_provenance_v1(train,manifest,train_input,at,arm)
+            require(train["checkpoint_provenance"][str(at)][arm] == expected
+                    and train["checkpoint_groups"][str(at)][arm] == expected["checkpoint_ref"],
+                    "Checkpoint provenance must equal its unique original/resumed input/config tuple")
+        lineages[arm] = dict(manifest=manifest,train_input=train_input)
+    return lineages
+
+
+def validate_checkpoint_provenance_v1(cp, train, lineage, at, arm):
+    expected = expected_checkpoint_provenance_v1(train,lineage["manifest"],lineage["train_input"],at,arm)
+    require(cp.get("input_ref") == expected["input_ref"] and cp.get("config_ref") == expected["config_ref"],
+            "Checkpoint payload must match its exact per-pass input/config provenance")
+    if at > lineage["manifest"]["resume_pass_index"]:
+        require(cp.get("optimizer_state_restored_from_checkpoint") is True
+                and cp.get("optimizer_state_reset") is False
+                and cp.get("resume_manifest_ref") == train["resume_manifest_ref"]
+                and cp.get("resumed_from_checkpoint_ref") == lineage["manifest"]["resume_checkpoint_ref"]
+                and cp.get("resumed_from_pass") == lineage["manifest"]["resume_pass_index"],
+                "Actual resumed checkpoint restore provenance required")
+    else:
+        require(cp.get("optimizer_state_reset") is True,
+                "Original checkpoint must preserve initial optimizer reset provenance")
+    return True
+
+
+def run_evaluate(ctx,input_ref):
+    from .anonymous_clade_gnn_v1 import AnonymousCladeTensorGNNV1
+    from .mutation_routed_full_panel_primary_v1 import FullPanelPrimaryValidationV1
+    cfg,output,guard,device=ctx["cfg"],ctx["output"],ctx["guard"],ctx["device"]
+    reader=PhaseReader(ctx["reader"],"evaluate",ctx["bindings"])
+    require(set(ctx["train_completion_refs"])==set(ARMS), "Both actual single-arm completion refs")
+    trains={a:reader.decode_json(ctx["train_completion_refs"][a]) for a in ARMS}
+    for arm, train in trains.items():
+        require(train.get("status")=="completed_fixed_30_pass_single_arm_TRAIN"
+            and train.get("hypothesis_id")=="H040" and train.get("arm")==arm
+            and train.get("steps")=={arm:960} and train.get("outer_truth_read") is False,
+            "Actual complete30-pass/960-update single-arm TRAIN required")
+    require(trains[ARMS[0]]["initial_state_sha256"]==trains[ARMS[1]]["initial_state_sha256"]
+        and trains[ARMS[0]]["initialization"]==trains[ARMS[1]]["initialization"],
+        "Both arms must share the original matched initializer")
+    lineages=validate_training_lineages_v1(ctx,trains)
+    states,checkpoints={},{}
+    for at in PASSES:
+        for arm in ARMS:
+            guard()
+            train=trains[arm]
+            ref=train["checkpoint_groups"][str(at)][arm]
+            cp=torch.load(io.BytesIO(reader.read(ref)),map_location="cpu",weights_only=False)
+            require(cp.get("schema")=="H040_frozen_checkpoint_v1" and cp.get("arm")==arm
+                and cp.get("pass_index")==at and cp.get("additional_optimizer_steps")==32*at
+                and cp.get("parameter_count")==30788 and cp.get("model_kwargs")==MODEL
+                and cp.get("teacher_used") is False and cp.get("mechanism_refs")==list(MECHANISM_REFS)
+                and cp.get("warmstart_checkpoint_ref")==WARM_CHECKPOINT
+                and validate_checkpoint_provenance_v1(cp,train,lineages[arm],at,arm),
+                "Exact actual frozen H040 checkpoint/provenance required")
+            require(all(isinstance(v,torch.Tensor) and v.dtype==torch.float32 for v in cp["model_state"].values()),
+                "Raw FP32 learned states required")
+            states[at,arm],checkpoints[at,arm]=cp["model_state"],ref
+            del cp
+    cache=WitnessCache(cfg,guard)
+    banks,parents,keys,observation_seal=load_banks(ctx,reader,VAL,cache)
+    ram=RAMMatrix(output,reader,parents,banks,cfg)
+    reader.ram=ram
+    residency=h038.FullParentResidencyV1(banks,{},device,cfg["GPU_residency_cap_bytes"])
+    model=AnonymousCladeTensorGNNV1(**MODEL).to(device=device,dtype=torch.float32).eval().requires_grad_(False)
+    for pid in VAL:
+        guard()
+        events_cpu=cache.get(pid,banks[pid],keys[pid])
+        require(events_cpu.tensor_bytes()<=cfg["GPU_event_cap_bytes"],"Complete GPU event cap")
+        bank,_=residency.get(pid)
+        events=events_cpu.to(device)
+        for at in PASSES:
+            for arm in ARMS:
+                guard()
+                model.load_state_dict(states[at,arm],strict=True)
+                with torch.no_grad(),torch.autocast(device_type="cuda",enabled=False):
+                    probability=model.forward_train_holds(bank,boundary=events,interaction=arm).softmax(-1)
+                ram.seal(at,arm,pid,probability.cpu().numpy(),checkpoints[at,arm])
+                del probability
+        del bank,events,events_cpu
+    del model,residency,states
+    ram.verify()
+    reader.truth_gate=True
+    helpers=fit.metric_helpers_v1()
+    selected,history,full={}, {}, {}
+    for arm in ARMS:
+        validation=FullPanelPrimaryValidationV1(parents,ctx["bindings"],reader,helpers,cfg)
+        rows=[]
+        for at in PASSES:
+            guard()
+            seals=[(p,ram.records[at,arm,p]) for p in VAL]
+            cells,means=validation.score(seals)
+            row=dict(pass_index=at,cells=cells,equal_parent_metrics=means,
+                checkpoint=checkpoints[at,arm],selection_rule=SELECTION)
+            rows.append(row)
+            output.save("%s.pass_%02d.primary_metrics.json"%(arm,at),row)
+        best=min(rows,key=lambda row:h038.selection_key_v1(row["equal_parent_metrics"],row["pass_index"]))
+        selected[arm],history[arm]=best,rows
+        chosen=[(p,ram.records[best["pass_index"],arm,p]) for p in VAL]
+        cells,means=validation.full_final(chosen)
+        full[arm]=dict(cells=cells,equal_parent_metrics=means,selection_revised=False)
+        output.save(arm+".selected_full_diagnostics.json",full[arm])
+    result=dict(schema="H040_frozen_VAL_completion_v1",status="completed_original_H038_selection",
+        hypothesis_id="H040",input_ref=input_ref,train_completion_refs=ctx["train_completion_refs"],
+        observations_seal=observation_seal,selection_rule=SELECTION,selected=selected,history=history,
+        selected_full_diagnostics=full,optimization_performed=False,
+        all96_RAM_seals_before_any_VAL_truth=True,RAM_native_probability_bytes=ram.bytes,
+        dense_prediction_arrays_saved=False,outer_truth_read=False)
+    output.save("completed.json",result)
+    return result
+
+
+def run_context(ctx, input_ref):
+    require(ctx.get("phase") == "evaluate" and ctx.get("arm") == "joint_pair"
+            and ctx.get("train_actual_wait_refs"), "Frozen paired evaluation context required")
+    science()
+    previous = base.run_evaluate
+    base.run_evaluate = run_evaluate
+    try:
+        return base.run_context(ctx,input_ref)
+    finally:
+        base.run_evaluate = previous
+
+
+def main(argv=None):
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--execute",action="store_true")
+    parser.add_argument("--input")
+    parser.add_argument("--expected-input-sha256")
+    args=parser.parse_args(argv)
+    if not args.execute:
+        print(json.dumps(dict(status="source_only_frozen_evaluation_not_executed",source=SOURCE,
+            checkpoint_passes=list(PASSES),arms=list(ARMS),VAL=list(VAL),
+            native_RAM_prediction_count=96,physical_GPUs=[4,5],optimization_performed=False),indent=2))
+        return 0
+    require(args.input and args.expected_input_sha256,"Exact fresh root evaluation input required")
+    record=dict(path=args.input,sha256=args.expected_input_sha256)
+    spec=metadata(record)
+    require(spec.get("schema")=="H040_GPU45_frozen_evaluation_input_v3"
+            and spec.get("root_authorizer")=="root_agent" and spec.get("status")=="active"
+            and spec.get("hypothesis_id")=="H040" and spec.get("phase")=="evaluate"
+            and spec.get("arm")=="joint_pair","Active root frozen paired evaluation capability required")
+    context_ref=spec["root_context_module_ref"]
+    require(context_ref==actual_ref(CONTEXT),"Exact separate evaluation context required")
+    bound(context_ref)
+    module_spec=importlib.util.spec_from_file_location("H040_GPU45_evaluation_context",ROOT/CONTEXT)
+    module=importlib.util.module_from_spec(module_spec);module_spec.loader.exec_module(module)
+    ctx=module.build_context_v3(record,spec)
+    require(ctx["phase"]==spec["phase"] and ctx["arm"]==spec["arm"],"Root factory phase/arm differs")
+    run_context(ctx,record)
+    return 0
+
+
+if __name__=="__main__":
+    raise SystemExit(main())

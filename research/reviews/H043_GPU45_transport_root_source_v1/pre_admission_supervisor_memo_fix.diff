@@ -1,0 +1,103 @@
+--- before/root_common_v1.py
++++ after/root_common_v1.py
+@@ -23,10 +23,15 @@
+ RSS_CAP=512000000000
+ CUDA_CAP=50000000000
+ 
+-def load_guard_v1():
+-    """Future fresh consumer only. Original credit-v3 authority stays unchanged."""
++def load_guard_v1(*,consumer=False):
++    """Fresh processes: mutations use original v4; consumer checks may use memo2."""
+     require(ref(MEMO_REF["path"])==MEMO_REF and ref(V4_REF["path"])==V4_REF,"Pinned memo2/originalv4 required")
+     guard=previous.load_guard()
++    if not consumer:
++        require(all(getattr(guard.budget.v4,name).__module__==guard.budget.v4.__name__
++                    for name in ("canonical","file_bytes","mutex")),
++                "Reserve/close mutations require unmemoized original v4 functions")
++        return guard,None
+     spec=importlib.util.spec_from_file_location("_H043_memo2",ROOT/MEMO_REF["path"])
+     memo=importlib.util.module_from_spec(spec);spec.loader.exec_module(memo)
+     adapter=memo.install(guard.budget.v4,expected_source_path=ROOT/V4_REF["path"],
+--- before/context_factory_v1.py
++++ after/context_factory_v1.py
+@@ -61,7 +61,7 @@
+     storage=reader.decode_json(refs["storage"])
+     require(storage["completed_overlay_policy_ref"]==POLICY_REF,"One exact storage/launcher/worker policy")
+     validate_closure_v1(reader,spec,cfg,storage)
+-    storage_guard,memo=load_guard_v1()
++    storage_guard,memo=load_guard_v1(consumer=True)
+     storage_guard.validate_storage_v9(spec,cfg,storage,source_ref=spec["main_source_ref"],
+                                      config_ref=refs["config"],runtime_ref=refs["runtime"])
+     worker.science()
+--- before/root_driver.py
++++ after/root_driver.py
+@@ -59,7 +59,7 @@
+         
+         train_completion_ref=train_completion_ref,train_launch_ref=train_launch_ref,train_actual_wait_ref=train_actual_wait_ref)
+     manifest_ref=save(packet,"consumer_manifest.json",manifest)
+-    m,memo=load_guard_v1()
++    m,memo=load_guard_v1(consumer=False)
+     with m.budget.v4.mutex(ROOT):state=m._state_locked(CORE,BASE,fresh=True)
+     view,budget_bindings=state[2],state[3]
+     mandatory=[ref(MAIN),config_ref,runtime_ref,ref(CONTEXT),ref(SOURCE),ref(CLI),cfg["source_manifest_ref"],manifest_ref,
+@@ -107,7 +107,7 @@
+     require(admitted["driver_ref"]==ref(SOURCE) and admitted["launcher_ref"]==LAUNCHER_REF,"Actual driver/launcher changed")
+     spec=read(admitted["input_ref"]);require(not (ROOT/spec["output_directory"]).exists(),"No execution replay")
+     gpu=spec["physical_gpu"];require(gpu in (4,5),"Exactly one root-selected eligible GPU")
+-    m,memo=load_guard_v1();storage=read(spec["refs"]["storage"])
++    m,memo=load_guard_v1(consumer=True);storage=read(spec["refs"]["storage"])
+     storage["initial_ledger_pins"]=m._pins(m.inspect_v1(expected_source_sha256=CORE,expected_launcher_sha256=BASE))
+     spec["refs"]["storage"]=save(packet,"launch_storage.json",storage)
+     input_ref=save(packet,"launch_input.json",spec)
+@@ -119,29 +119,34 @@
+         "--expected-storage-sha256",spec["refs"]["storage"]["sha256"],"--expected-budget-source-sha256",CORE,
+         "--expected-launcher-sha256",BASE,CLI[:-3].replace("/","."),
+         "--execute","--input",input_ref["path"],"--expected-input-sha256",input_ref["sha256"]]
+-    retained=received=0;logging_error=None
+-    with (auxiliary/"launch.log").open("xb") as log:
+-        proc=subprocess.Popen(cmd,cwd=ROOT,env=policy_env(),stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
++    captured=bytearray();received=0;supervisor_error=None
++    proc=subprocess.Popen(cmd,cwd=ROOT,env=policy_env(),stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
++    try:
+         save(packet,"launch.json",dict(launcher_pid=proc.pid,phase=phase,physical_gpu=gpu,input_ref=input_ref,
+             command=cmd,actual_wait_pending=True,completed_overlay_policy_ref=POLICY_REF))
+         for data in iter(lambda:proc.stdout.read1(65536),b""):
+-            received+=len(data)
+-            piece=data[:max(0,LOG_CAP-retained)]
+-            if piece and logging_error is None:
+-                try:
+-                    m.budget_check_v9(storage,boundary=True,required_write_bytes=len(piece)+8192)
+-                    log.write(piece);log.flush();retained+=len(piece)
+-                except BaseException as error:logging_error=type(error).__name__+": "+str(error)[:2048]
+-        rc=proc.wait()
+-        log.flush();os.fsync(log.fileno())
++            received+=len(data);captured.extend(data[:max(0,LOG_CAP-len(captured))])
++    except BaseException as error:
++        supervisor_error=type(error).__name__+": "+str(error)[:2048]
++    finally:
++        rc=proc.wait();proc.stdout.close()
++    log_ref=None;logging_error=None
++    # No charged-scope scan or log write by this supervisor while the child runs.
++    try:
++        m.budget_check_v9(storage,boundary=True,required_write_bytes=len(captured)+8192)
++        with (auxiliary/"launch.log").open("xb") as log:log.write(captured);log.flush();os.fsync(log.fileno())
++        log_ref=ref(auxiliary/"launch.log")
++    except BaseException as error:logging_error=type(error).__name__+": "+str(error)[:2048]
+     completed=ROOT/spec["output_directory"]/"completed.json"
+     receipt=dict(launcher_pid=proc.pid,returncode=rc,actual_direct_launcher_wait=True,
+-        completed_ref=ref(completed) if completed.exists() else None,log_ref=ref(auxiliary/"launch.log"),
+-        log_bytes_received=received,log_bytes_retained=retained,log_truncated=received>retained,
+-        logging_error=logging_error,physical_gpu=gpu,phase=phase,waited_utc=datetime.now(timezone.utc).isoformat())
++        completed_ref=ref(completed) if completed.exists() else None,log_ref=log_ref,
++        log_bytes_received=received,log_bytes_retained=len(captured),log_truncated=received>len(captured),
++        logging_error=logging_error,supervisor_error=supervisor_error,physical_gpu=gpu,phase=phase,
++        waited_utc=datetime.now(timezone.utc).isoformat(),descendant_drain_or_no_live_writer_claim=False)
+     save(packet,"actual_wait.json",receipt)
+-    print(json.dumps(dict(phase=phase,returncode=rc,actual_wait=True,logging_error=logging_error)),flush=True)
+-    return rc if rc else (1 if logging_error else 0)
++    print(json.dumps(dict(phase=phase,returncode=rc,actual_wait=True,
++        logging_error=logging_error,supervisor_error=supervisor_error)),flush=True)
++    return rc if rc else (1 if logging_error or supervisor_error else 0)
+ def main(argv=None):
+     parser=argparse.ArgumentParser(description=__doc__)
+     group=parser.add_mutually_exclusive_group()
