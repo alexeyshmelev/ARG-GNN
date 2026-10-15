@@ -57,6 +57,77 @@ def scalar_metrics(obj):
                     out[container + "." + key] = nested[key]
     return out
 
+def h047_comparison_records():
+    """Index the two measured H047 arms from root's scalar cohort summary."""
+    path = ROOT / "research/reviews/H047_completed_comparison_root_20261015_v1/summary.json"
+    if not path.exists():
+        return [], []
+    obj, digest = read_json(path)
+    if obj.get("schema") != "H047_actual_completed_comparison_root_v1":
+        raise ValueError("Unexpected H047 comparison schema")
+    source_ref = obj["actual_source_ref"]
+    completed, source_hash = read_json(ROOT / source_ref["path"])
+    if (source_hash != source_ref["sha256"] or
+            completed.get("schema") != "H047_paired_VAL_completion_v1" or
+            completed.get("status") != "completed_original8VAL_paired_development_selection"):
+        raise ValueError("H047 comparison completion binding changed")
+    arms = ("balanced_risk", "original_risk")
+    cohorts = {"primary_present_day_182", "secondary_ancient_504", "all_queries_686",
+               "age_stratum_BAA", "age_stratum_Bronze_Age", "age_stratum_Neo", "age_stratum_Yam"}
+    if set(obj["arms"]) != set(arms):
+        raise ValueError("H047 comparison must contain both measured arms")
+    inventory, rows = [], []
+    for arm in arms:
+        selected = obj["arms"][arm]
+        actual = completed["selected"][arm]
+        if (selected["checkpoint_ref"] != actual["checkpoint"] or
+                selected["selected_pass"] != actual["pass_index"] or
+                set(selected["cohorts"]) != cohorts):
+            raise ValueError("H047 selected arm/cohort binding changed")
+        cohort_metrics = {}
+        for cohort, values in sorted(selected["cohorts"].items()):
+            stats = {k: v for k, v in values.items()
+                     if k not in ("boundaries", "per_class")}
+            stats.update({"boundary_" + k: v for k, v in values["boundaries"].items()})
+            for per_class in values["per_class"]:
+                prefix = "class_" + str(per_class["class_0based"]) + "."
+                stats.update({prefix + k: v for k, v in per_class.items() if k != "class_0based"})
+            for metric, stat in sorted(stats.items()):
+                for key in ("mean", "sample_SD", "defined_parent_count", "undefined_parent_count"):
+                    value = stat[key]
+                    if value is not None and type(value) not in (int, float):
+                        raise ValueError("H047 aggregate must contain numeric or null scalars")
+                    cohort_metrics[cohort + "." + metric + "." + key] = value
+        primary = selected["cohorts"]["primary_present_day_182"]
+        metrics = dict(cohort_metrics, mean_accuracy=primary["accuracy"]["mean"],
+                       mean_accuracy_sample_SD=primary["accuracy"]["sample_SD"],
+                       validation_nll=primary["nll"]["mean"],
+                       validation_nll_sample_SD=primary["nll"]["sample_SD"],
+                       independent_replicates=primary["accuracy"]["defined_parent_count"])
+        study = Path(source_ref["path"]).parent.name + "/" + arm
+        record = dict(study=study, method=arm, artifact=str(path.relative_to(ROOT)),
+                      sha256=digest, kind="reported_model_result", metrics=metrics,
+                      status=completed["status"], context_receipts=[source_ref],
+                      bindings=dict(dataset=obj["dataset"], training=selected["training"],
+                                    selected_pass=selected["selected_pass"],
+                                    checkpoint_ref=selected["checkpoint_ref"],
+                                    statistical_unit=obj["statistical_unit"],
+                                    aggregation="equal_parent_mean; sample_SD across independent VAL parents",
+                                    accuracy_unit="fraction; multiply by100 for percent and SD percentage points",
+                                    other_metric_units="unchanged source metric units",
+                                    evaluation_split="original8VAL development selection; no outer TEST",
+                                    same_VAL_is_development_evidence=True,
+                                    actual_launcher_wait_ref=obj["actual_launcher_wait_ref"]))
+        inventory.append(record)
+        rows.append(dict(study=study, method=arm, record_kind="reported_model_result",
+                         artifact=record["artifact"], sha256=digest,
+                         **{k: metrics.get(k) for k in METRICS},
+                         mean_accuracy_sample_SD=metrics["mean_accuracy_sample_SD"],
+                         validation_nll_sample_SD=metrics["validation_nll_sample_SD"],
+                         cohort_metrics_json=json.dumps(cohort_metrics, sort_keys=True, separators=(",", ":")),
+                         evaluation_scope=record["bindings"]["evaluation_split"], training_seed=101))
+    return inventory, rows
+
 def main():
     if Path.cwd().resolve() != ROOT:
         raise RuntimeError("Run in the dedicated server repository")
@@ -139,6 +210,9 @@ def main():
                     inventory.append({"study": path.name, "artifact": str(f.relative_to(ROOT)),
                                       "sha256": digest, "kind": "aggregate_comparator",
                                       "method": key, "reported_values": val})
+    h047_inventory, h047_rows = h047_comparison_records()
+    inventory.extend(h047_inventory)
+    rows.extend(h047_rows)
     record = {"schema_version": 1, "decision_spec_sha256": spec_hash,
               "scope": spec["scope"], "rules": spec["rules"],
               "metric_warning": "Reported source metrics retain their original scope. Different studies, "
@@ -149,7 +223,8 @@ def main():
         ROOT / "research/experiment_ledger.json": json.dumps(record, indent=2, allow_nan=False) + "\n"}
     buf = io.StringIO()
     fields = ["study", "method", "record_kind", *METRICS, "evaluation_scope", "training_seed",
-              "protocol_sha256", "artifact", "sha256"]
+              "protocol_sha256", "artifact", "sha256", "mean_accuracy_sample_SD",
+              "validation_nll_sample_SD", "cohort_metrics_json"]
     writer = csv.DictWriter(buf, fieldnames=fields, lineterminator='\n')
     writer.writeheader()
     writer.writerows(rows)

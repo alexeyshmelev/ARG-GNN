@@ -468,7 +468,7 @@ Evidence: [research/reviews/H046_continuous_clade_context_proposal_v1/proposal.m
 
 ## H047: Equal total Present182 and ancient504 training risk improves present-day local ancestry over matched all-query H042 continuation at equal optimization budget.
 
-**GPU4_full_paired_FP32_training_underway.** Identical full H042 PyG two-sweep/SNP/BiGRU architecture with zero added parameters. Same H042 pass30 checkpoint, all weights trainable, independent reset AdamW,32TRAIN/8VAL,30passes/960whole-parentFP32updates perarm. Only objective allocation differs. Preserve all686outputs and original100bp scoring support.
+**completed_paired_development_hypothesis_not_supported.** Identical full H042 PyG two-sweep/SNP/BiGRU architecture with zero added parameters. Same H042 pass30 checkpoint, all weights trainable, independent reset AdamW,32TRAIN/8VAL,30passes/960whole-parentFP32updates perarm. Only objective allocation differs. Preserve all686outputs and original100bp scoring support.
 
 **Conclusion:** All32original observation recipes and once-onlyTRAINtargetmasses prepared. Identical30788parameterinitialization and independentresetAdamW verified. Botharms executed finite firstrealFP32whole-parent updates inside fixed960schedule. First-steppeakreserved19,698,548,736B. Trainingcontinues onGPU4, H046onGPU5, noaccuracyresult.
 

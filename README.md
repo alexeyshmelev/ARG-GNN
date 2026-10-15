@@ -4,23 +4,28 @@ Graph neural networks for ordered collections of whole genealogical trees, with 
 
 ## Latest status
 
+[Persistent research goal and reporting requirements](research/goal_current.json). Current limits: physical GPUs4–5 and1TB, with all project writes inside this server repository.
+
 <!-- CURRENT_SCOREBOARD_START -->
-**Scoreboard updated UTC: 2026-10-15T13:47:10.611808+00:00.** [Every current setup, all cohorts and detailed metrics](research/current_scoreboard.md) · [All recorded historical/engineering metric receipts](research/all_recorded_metric_receipts.md)
+**Scoreboard updated UTC: 2026-10-15T14:42:55.564249+00:00.** [Every current setup, all cohorts and detailed metrics](research/current_scoreboard.md) · [All recorded historical/engineering metric receipts](research/all_recorded_metric_receipts.md)
 
 | Current run | Device | Progress | Validation score |
 |---|---:|---|---|
-| H046 | GPU5 | 14/30 passes, 448/960 updates per arm, process verified live=True | pending |
-| H047 | GPU4 | 30/30 passes, 960/960 updates per arm, process verified live=False | pending |
-| Native ARGformer | GPU4 queue | Same-charge full-fit operational repair in progress | pending |
-| Native FLARE | CPU | Native author-source build completed. Conversion and inference pending. | pending |
+| H046 | GPU5 | 20/30 passes, 640/960 updates per arm, TRAIN complete=False, VAL complete=False | pending |
+| H047 | GPU4 | 30/30 passes, 960/960 updates per arm, TRAIN complete=True, VAL complete=True | 96.7777% original-risk, 96.7576% balanced-risk |
+| Original American VAL000 | CPU | Original30Mb independent VAL000 simulation completed. Inferred observations and comparisons pending. | no ancestry score |
+| Native ARGformer | GPU4 | Full5epoch fit launched on GPU4. Startup/storage checks active. No native optimizer progress verified yet. | pending |
+| Native FLARE | CPU | Native author build completed. Original30Mb TRAIN000 conversion admitted and execution requested. Not a held-out accuracy result. | pending |
 | Our C3 GNN | source ready | Actual shared VAL observations and completed training checkpoint required | pending |
-| Empirical data | CPU | Observed bank prepared, 2074 sites, 355 trees, 40 haplotypes. Metadata recovered from the saved bank after original worker exit1. Model application and PCA pending. | predictions and PCA pending |
+| Empirical data | CPU | H045 empirical probabilities, bp-weighted proportions and original-genotype PCA written. Actual successful wait and completion verified. Descriptive24query haplotypes/12subjects only. No known ancestry truth. | completion verified |
+
+Parallel ownership: worker1 handles native FLARE execution sources, worker2 handles matched cohort/confusion figures, worker3 handles the next Torch/PyG decoder prototype. Root owns live runs, integration, Git and score publication. Independent work proceeds concurrently.
 
 <!-- CURRENT_SCOREBOARD_END -->
 
 [Current 8-page AAAI working PDF](paper/current_full_panel_working.pdf) · [LaTeX source](paper/current_full_panel_working.tex) · [Overleaf working bundle](paper/current_full_panel_overleaf_working.zip). Compiled and visually checked on 2026-10-15. This is a development draft with unfinished scientific validation.
 
-**Latest measured development result:** H045 clade-episode context reaches **96.8270 ± 0.5870% Present182 span accuracy**, versus **96.8175 ± 0.6142%** for its matched own-state arm. Both completed 30 FP32 passes and 960 updates. The gain is only **0.0096 percentage points**, below the registered 0.10 pp threshold. This condition does not establish useful cross-tree exchange or novelty. [Completed comparison and population metrics](research/reviews/H045_completed_comparison_root_20261015_v1/README.md).
+**Best measured development result:** H045 clade-episode context reaches **96.8270 ± 0.5870% Present182 span accuracy**, versus **96.8175 ± 0.6142%** for its matched own-state arm. Both completed 30 FP32 passes and 960 updates. The gain is only **0.0096 percentage points**, below the registered 0.10 pp threshold. This condition does not establish useful cross-tree exchange or novelty. [Completed comparison and population metrics](research/reviews/H045_completed_comparison_root_20261015_v1/README.md).
 
 Current native ARGMix reaches **94.4461 ± 1.1491%** on the shared development panel. SNP inputs, training budget and checkpoint selection differ, so this pipeline comparison does not isolate architecture or reproduce published tables. H044 written scores remain verified, with genuine post-completion CLI exit 1 preserved. [H044 results and caveat](research/reviews/H044_completed_comparison_root_20261015_v1/README.md).
 
@@ -36,6 +41,8 @@ The panel contains 476 diploids, 686 queries and 266 proxies over 2 Mb. All 32 i
 | H045 own_state | 96.8175 ± 0.6142 | 0.092976 ± 0.020230 | 18.0557 ± 1.7761 |
 | H044 localized | 96.7919 ± 0.5967 | 0.094944 | 15.5374 ± 1.1777 |
 | H044 tree_pooled | 96.7866 ± 0.6161 | 0.094962 | 18.6750 ± 1.2687 |
+| H047 original_risk | 96.7777 ± 0.5970 | 0.094808 ± 0.020849 | 18.2775 ± 1.7493 |
+| H047 balanced_risk | 96.7576 ± 0.5287 | 0.096819 ± 0.021357 | 18.5574 ± 1.7800 |
 | H042 exact local-clade flags | 96.5778 ± 0.5954 | 0.100656 ± 0.020069 | 18.0451 ± 1.8423 |
 | H043 true_partner | 96.5182 ± 0.6201 | 0.101527 ± 0.019742 | 17.4301 ± 1.3301 |
 | H043 own_state | 96.5029 ± 0.6006 | 0.101819 ± 0.019255 | 17.1055 ± 0.7889 |
@@ -56,12 +63,22 @@ ARGMix retains the current author implementation and native early stopping, endi
 
 ### Population and tract-boundary metrics
 
+
+[Current matched comparison figures and metric provenance](research/reviews/current_comparison_figures_20261015_v1/cohort_score_table.md).
+
+![Present-day ancestry confusion, mean and SD across eight simulations](research/reviews/current_comparison_figures_20261015_v1/present182_confusion_mean_sd.png)
+
+![Per-class precision, recall and F1](research/reviews/current_comparison_figures_20261015_v1/present182_per_class_mean_sd.png)
+
+
 | Setup | Present182 | BronzeAge162 | BAA14 | Neo302 | Yam26 | Ancient504 | All686 |
 |---|---:|---:|---:|---:|---:|---:|---:|
 | H045 foreign_episode | 96.8270 ± 0.5870 | 99.2047 ± 0.3199 | 99.1511 ± 1.2545 | 99.6063 ± 0.0850 | 99.9039 ± 0.1292 | 99.4799 ± 0.1347 | 98.7761 ± 0.2486 |
 | H045 own_state | 96.8175 ± 0.6142 | 99.1658 ± 0.3983 | 99.2765 ± 1.1385 | 99.6424 ± 0.0859 | 99.8687 ± 0.1833 | 99.4907 ± 0.1501 | 98.7815 ± 0.2566 |
 | H044 localized | 96.7919 ± 0.5967 | 99.1895 ± 0.3391 | 99.2328 ± 1.1873 | 99.6288 ± 0.0928 | 99.8685 ± 0.2092 | 99.4889 ± 0.1358 | 98.7734 ± 0.2475 |
 | H044 tree_pooled | 96.7866 ± 0.6161 | 99.1900 ± 0.3386 | 99.2662 ± 1.0684 | 99.6324 ± 0.0993 | 99.8593 ± 0.2264 | 99.4917 ± 0.1384 | 98.7740 ± 0.2550 |
+| H047 original_risk | 96.7777 ± 0.5970 | 99.1860 ± 0.3514 | 99.2947 ± 1.0733 | 99.6369 ± 0.0956 | 99.8433 ± 0.2268 | 99.4931 ± 0.1426 | 98.7727 ± 0.2516 |
+| H047 balanced_risk | 96.7576 ± 0.5287 | 99.1282 ± 0.3234 | 99.3747 ± 0.6939 | 99.5660 ± 0.0872 | 99.8167 ± 0.2111 | 99.4329 ± 0.1213 | 98.7231 ± 0.2210 |
 | H042 exact local-clade flags | 96.5778 ± 0.5954 | 99.0748 ± 0.3242 | 99.0226 ± 1.0723 | 99.5291 ± 0.1771 | 99.8569 ± 0.1871 | 99.3859 ± 0.1560 | 98.6409 ± 0.2641 |
 | H043 true_partner | 96.5182 ± 0.6201 | 98.9949 ± 0.3463 | 99.1731 ± 1.0093 | 99.5198 ± 0.1912 | 99.8251 ± 0.2007 | 99.3572 ± 0.1652 | 98.6040 ± 0.2688 |
 | H043 own_state | 96.5029 ± 0.6006 | 99.0107 ± 0.3257 | 99.1048 ± 0.9583 | 99.5217 ± 0.1935 | 99.8547 ± 0.1785 | 99.3630 ± 0.1737 | 98.6042 ± 0.2691 |
@@ -82,12 +99,16 @@ Present182 boundary F1 at 1 kb tolerance is **18.05 ± 1.84%** for H042, **13.42
 
 ### Running and next experiments
 
-The four modules work in parallel: root owns execution, integration and score reporting. Worker1 owns the native FLARE build/inference route, Worker2 owns our GNN's shared American-data adapter, and Worker3 owns original full30Mb VAL preparation and the native ARGformer protocol audit. Native ARGformer's execution repair has passed independent source review. Both current GPU runs continue.
+**Latest completed hypothesis (H047):** balancing Present/ancient loss gives 96.7576 ± 0.5287% Present accuracy versus 96.7777 ± 0.5970% for the matched original-risk control. Both completed30passes/960updates. Accuracy and NLL worsened, while boundaryF1 improved0.2799pp. The registered benefit criterion failed. [All cohorts, per-class metrics and uncertainty](research/reviews/H047_completed_comparison_root_20261015_v1/REPORT.md).
+
+**Fresh novelty audit:** cross-graph exchange, genomic recurrence and continuous filters have precedents. Priority for H046's specific composition remains unverified. Its bounded correction and context-support limits need measured benefit. [Independent primary-source audit](research/reviews/ordered_operator_novelty_independent_20261015_v1/audit.md).
+
+Root executes shared-data preparation, integrates results and publishes scores. Three workers independently handle native ARGformer execution, empirical model application and architecture/novelty assessment. The H047 paired train/evaluation is complete. H046 remains in training.
 
 - **H045 completed on GPU 5:** 30 passes and 960 updates per arm. Episode context gains 0.0096 pp accuracy and 0.1001 pp boundary F1 over own-state, below the accuracy criterion. Pooling has prior art, and identical-hold splitting can change context. [Results](research/reviews/H045_completed_comparison_root_20261015_v1/README.md).
 - **H046 launched on GPU 5:** distance-weighted clade flanks and local reference-only SNP evidence, with matched own-state control. Canonical v2 entry point corrects the preserved preworker exit-2 failure. Both arms have entered continuous FP32 optimizer training, retaining whole trees and the complete original panel. The fixed budget remains 30 passes and 960 updates per arm. No accuracy result yet. The proof concerns fixed-field integration only.
-- **H047 launched on GPU 4:** same H042 architecture and initialization, with matched original-risk and equal present/ancient-risk objectives. Both arms retain the full panel and a fixed 30-pass/960-update FP32 budget. This tests loss allocation and extra optimization, with no new architecture claim. All 32 observation recipes are prepared, and both arms have entered continuous whole-parent FP32 training. No accuracy result yet. [Frozen protocol](research/reviews/H047_GPU45_cohort_risk_root_source_v1/registration_root_v1.json).
-- **Native ARGformer, queued for GPU 4 after H047:** the three-step synthetic BF16/batch-512 engineering check passed. The full five-epoch fit launched but did not produce verified completion. Its wrapper returned 1 while trying to record the native outcome because eight dead multiprocessing socket files failed its namespace check. Native update counts remain unknown. The operational repair passed independent source review, with author science preserved. Supervised relaunch remains pending. [Actual outer wait](research/reviews/American_C3_native_MLM_full_fit_v8/admitted_mlm_v1/actual_outer_direct_wait_root_v1.json).
+- **H047 completed on GPU 4:** both arms finished30passes/960updates and all96 prespecified VAL products were sealed before scoring. Balanced loss gives96.7576±0.5287% Present accuracy, matched original loss96.7777±0.5970%. The balancing hypothesis did not pass its registered criterion. [Complete results](research/reviews/H047_completed_comparison_root_20261015_v1/REPORT.md).
+- **Native ARGformer, GPU4 queue:** author-code five-epoch full-corpus fitting remains unfinished. The original wrapper exit1 and unknown native update count are preserved. Global process-check repairs encountered unrelated host permission/churn failures. A fresh isolated-attempt I/O route is being prepared, retaining author science, original charge and failed artifacts. No full30Mb native accuracy is available.
 - **H043 completed:** neighboring-tree states reach 96.5182 ± 0.6201%, versus 96.5029 ± 0.6006% for the matched own-state control. The 0.0153 pp difference is below the registered practical threshold and both trail H042. This condition does not establish useful foreign-state transfer. [Completed paired comparison](research/reviews/H043_completed_comparison_root_20261015_v1/README.md).
 - **H044 completed:** both arms finished 30 passes and 960 updates each on physical GPU 4. Evaluation on physical GPU 5 produced all 96 prespecified predictions and complete selected diagnostics. Localization gains 0.0053 pp accuracy and loses 3.14 pp boundary F1 versus its matched control. This condition does not establish useful localization. [Measured comparison](research/reviews/H044_completed_comparison_root_20261015_v1/README.md).
 - **H044 evaluation execution:** eight immutable feature pairs supported the same 96 predictions, with one 2.634 GB pair cached at a time. Total supervised execution took 702.1 seconds, with 27.4 GB peak owned RSS. No comparison against an uncached runtime was run. A post-completion CLI return-type bug caused genuine exit 1, preserved with the scores and process drain. [Independent audit](research/reviews/H044_terminal_exit_and_metrics_independent_20261015_v1/review.md).
@@ -105,8 +126,8 @@ A fresh H043 priority audit identifies prior cross-graph message exchange in Gra
 | --- | --- | --- |
 | European common-input development panel | Native AP, current native ARGMix and our GNN on eight shared VAL simulations, population SDs and confusion/boundary diagnostics | Independent test confirmation and training-seed variation |
 | ARGMix published Tables 1 and 2 | Primary-source protocol and exact published numbers audited | Published-panel IID and demographic-misspecification experiments. Paper-era code and several recipe details are unavailable |
-| ARGformer American Table 1 | Full 30 Mb simulated and inferred TRAIN input completed. Fourteen independent 2 Mb TRAIN preparations completed with actual supervisor wait 0. Complete native corpus preparation finished with actual wait 0. Native ARGformer and FLARE fits remain downstream | Remaining independent data, native fits and common EUR/EAS/AFR precision, recall and F1 |
-| Empirical ancestry and PCA | All eight native commands returned 0. 355 inferred trees cover 9,996,712 bp. All 2,074 sites have graph support, with all 277 constants retained. Exported genotype equivalence failed | Separate graph-only/original-genotype interface verified against the simulation TRAIN dataflow. A source-only variable-panel adapter passed 24 tiny CPU checks. The empirical reader is under implementation, with panel/domain assessment still required. No ancestry or PCA result |
+| ARGformer American Table 1 | Complete30Mb TRAIN simulated/inferred input and native corpus. Original full30Mb independent VAL000 simulation now running on CPU. Fourteen2Mb TRAIN preparations complete. Native FLARE built successfully from unchanged author source | Inferred VAL observations, native fits and common EUR/EAS/AFR precision, recall and F1 |
+| Empirical ancestry and PCA | Prepared355-tree/2074-site/40-haplotype bank over9,996,712bp, with exact original SNP/phase features. Variable-panel H045 interface matches original compatible-panel outputs and supports24queries | Actual selected-model CPU application, ancestry proportions and descriptive PCA. No empirical truth or accuracy exists |
 
 ARGformer uses node tokens specific to each ARG. Each independent target ARG needs its own native vocabulary, unsupervised pretraining and reference-only fit, with query ancestry truth withheld. Our GNN uses a separate supervised TRAIN split. Evaluation must use the same target observations, reference/query identities and scoring support for both pipelines.
 
@@ -324,3 +345,28 @@ Native ARGformer v7 completed genuine fitting and retrieval in the original capt
 Run `.runtime/env/bin/python scripts/update_research_ledger.py` after new results. Record a hypothesis or explicit repeat reason before each substantive experiment. Preserve complete outcomes, provenance and failures, and push concise conclusions regularly.
 
 The next scientific checks are accuracy and mechanism discovery with matched controls, followed by independent simulation-parent confirmation, original-paper task comparisons, demographic shifts and a justified real-data endpoint. Published ancestry paintings are comparator outputs, rather than ground truth.
+
+
+### Completed real-data descriptive application
+
+H045 foreign-episode pass30 has been applied without training to355trees and24query haplotypes from12subjects across9,996,712covered base pairs. Saved probabilities have shape355×24×4. The input-count interface was adapted from the952input training panel to40observed haplotypes, preserving model arithmetic. This small real-data panel and roughly10Mb span differ from2Mb training. There is no ancestry ground truth, so these are descriptive predictions, not accuracy or biological confirmation.
+
+[Actual completion and provenance](experiments/results/H018_H045_empirical_application_root_v1/completed.json) · [Ancestry proportions and genotype PCA table](experiments/results/H018_H045_empirical_application_root_v1/query_bpweighted_proportions_and_PCA.tsv).
+
+![Descriptive predicted ancestry proportions](experiments/results/H018_H045_empirical_application_root_v1/bpweighted_ancestry_proportions.svg)
+
+![Original-genotype PCA of the empirical query panel](experiments/results/H018_H045_empirical_application_root_v1/query_genotype_PCA.svg)
+
+
+<!-- ADAPTED_ARGFORMER_PILOT_START -->
+## Earlier adapted ARGformer pilot
+
+Two European VAL simulations,280observed haplotypes,64present-day/56ancient queries,2Mb,tsinfer/tsdate trees. Native per-ARG5epoch MLM plus1reference-only contrastive epoch. This differs from both the952input panel above and the original American benchmark. SD is across two VAL simulations. Raw hard-vote NLL is infinite. No probability floor or recalibration.
+
+| Setup | Present64 accuracy % ± SD | Ancient56 accuracy % ± SD | All120 accuracy % ± SD |
+|---|---:|---:|---:|
+| Adapted ARGformer top1 | 75.6818 ± 4.5195 | 75.4447 ± 3.5081 | 75.5711 ± 4.0476 |
+| Adapted ARGformer top5 | 75.1358 ± 3.7500 | 74.7885 ± 4.0220 | 74.9737 ± 3.8769 |
+
+[Actual summary with all metrics](experiments/results/native_argformer_tsinfer_fit_v7_summary_v2/summary.json).
+<!-- ADAPTED_ARGFORMER_PILOT_END -->

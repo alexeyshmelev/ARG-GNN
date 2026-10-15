@@ -1,6 +1,6 @@
 # Current scientific scoreboard
 
-Updated UTC: 2026-10-15T13:47:10.611808+00:00
+Updated UTC: 2026-10-15T14:42:55.564249+00:00
 
 ## European C4 shared development
 
@@ -12,6 +12,8 @@ Updated UTC: 2026-10-15T13:47:10.611808+00:00
 | H045 own_state | 96.8175 ± 0.6142 | 0.092976 ± 0.020230 | 18.0557 ± 1.7761 | H042 warmstart +30 passes /960 updates per arm, seed101 |
 | H044 localized | 96.7919 ± 0.5967 | 0.094944 | 15.5374 ± 1.1777 | H042 warmstart +30 passes /960 updates per arm, seed101 |
 | H044 tree_pooled | 96.7866 ± 0.6161 | 0.094962 | 18.6750 ± 1.2687 | H042 warmstart +30 passes /960 updates per arm, seed101 |
+| H047 original_risk | 96.7777 ± 0.5970 | 0.094808 ± 0.020849 | 18.2775 ± 1.7493 | H042 warmstart +30 passes /960 updates per arm, seed101 |
+| H047 balanced_risk | 96.7576 ± 0.5287 | 0.096819 ± 0.021357 | 18.5574 ± 1.7800 | H042 warmstart +30 passes /960 updates per arm, seed101 |
 | H042 exact local-clade flags | 96.5778 ± 0.5954 | 0.100656 ± 0.020069 | 18.0451 ± 1.8423 | H038 warmstart +30 passes /960 updates, seed101 |
 | H043 true_partner | 96.5182 ± 0.6201 | 0.101527 ± 0.019742 | 17.4301 ± 1.3301 | H042 warmstart +30 passes /960 updates per arm, seed101 |
 | H043 own_state | 96.5029 ± 0.6006 | 0.101819 ± 0.019255 | 17.1055 ± 0.7889 | H042 warmstart +30 passes /960 updates per arm, seed101 |
@@ -30,6 +32,8 @@ Updated UTC: 2026-10-15T13:47:10.611808+00:00
 | H045 own_state | 96.8175 ± 0.6142 | 99.1658 ± 0.3983 | 99.2765 ± 1.1385 | 99.6424 ± 0.0859 | 99.8687 ± 0.1833 | 99.4907 ± 0.1501 | 98.7815 ± 0.2566 |
 | H044 localized | 96.7919 ± 0.5967 | 99.1895 ± 0.3391 | 99.2328 ± 1.1873 | 99.6288 ± 0.0928 | 99.8685 ± 0.2092 | 99.4889 ± 0.1358 | 98.7734 ± 0.2475 |
 | H044 tree_pooled | 96.7866 ± 0.6161 | 99.1900 ± 0.3386 | 99.2662 ± 1.0684 | 99.6324 ± 0.0993 | 99.8593 ± 0.2264 | 99.4917 ± 0.1384 | 98.7740 ± 0.2550 |
+| H047 original_risk | 96.7777 ± 0.5970 | 99.1860 ± 0.3514 | 99.2947 ± 1.0733 | 99.6369 ± 0.0956 | 99.8433 ± 0.2268 | 99.4931 ± 0.1426 | 98.7727 ± 0.2516 |
+| H047 balanced_risk | 96.7576 ± 0.5287 | 99.1282 ± 0.3234 | 99.3747 ± 0.6939 | 99.5660 ± 0.0872 | 99.8167 ± 0.2111 | 99.4329 ± 0.1213 | 98.7231 ± 0.2210 |
 | H042 exact local-clade flags | 96.5778 ± 0.5954 | 99.0748 ± 0.3242 | 99.0226 ± 1.0723 | 99.5291 ± 0.1771 | 99.8569 ± 0.1871 | 99.3859 ± 0.1560 | 98.6409 ± 0.2641 |
 | H043 true_partner | 96.5182 ± 0.6201 | 98.9949 ± 0.3463 | 99.1731 ± 1.0093 | 99.5198 ± 0.1912 | 99.8251 ± 0.2007 | 99.3572 ± 0.1652 | 98.6040 ± 0.2688 |
 | H043 own_state | 96.5029 ± 0.6006 | 99.0107 ± 0.3257 | 99.1048 ± 0.9583 | 99.5217 ± 0.1935 | 99.8547 ± 0.1785 | 99.3630 ± 0.1737 | 98.6042 ± 0.2691 |
@@ -74,6 +78,20 @@ BronzeAge is not asserted identical to the paper's Post-Neolithic cohort. A dash
 | H044 tree_pooled / Yam26 | 99.8593 ± 0.2264 | 0.004352 | — | — | — | — |
 | H044 tree_pooled / Ancient504 | 99.4917 ± 0.1384 | 0.016019 | — | — | — | — |
 | H044 tree_pooled / All686 | 98.7740 ± 0.2550 | 0.036963 | — | — | — | — |
+| H047 original_risk / Present182 | 96.7777 ± 0.5970 | 0.094808 ± 0.020849 | 96.6136 ± 0.6237 | 18.2775 ± 1.7493 | 0.048271 ± 0.008964 | 0.005880 ± 0.002626 |
+| H047 original_risk / BronzeAge162 | 99.1860 ± 0.3514 | 0.027015 ± 0.014085 | 99.1042 ± 0.3453 | 20.8667 ± 3.0520 | 0.013182 ± 0.005900 | 0.002489 ± 0.001713 |
+| H047 original_risk / BAA14 | 99.2947 ± 1.0733 | 0.020258 ± 0.017187 | 98.7889 ± 2.1329 | 9.8039 ± 15.0793 | 0.011275 ± 0.013061 | 0.007279 ± 0.004510 |
+| H047 original_risk / Neo302 | 99.6369 ± 0.0956 | 0.010674 ± 0.002146 | 99.5742 ± 0.1094 | 23.5846 ± 3.3946 | 0.005629 ± 0.001204 | 0.001162 ± 0.000400 |
+| H047 original_risk / Yam26 | 99.8433 ± 0.2268 | 0.004814 ± 0.003852 | 99.9122 ± 0.1094 | 23.2456 ± 26.5523 (n=7) | 0.002287 ± 0.002632 | 0.002206 ± 0.001528 |
+| H047 original_risk / Ancient504 | 99.4931 ± 0.1426 | 0.015890 ± 0.004889 | 99.3434 ± 0.2304 | 22.1980 ± 2.7222 | 0.008041 ± 0.002225 | 0.001133 ± 0.000651 |
+| H047 original_risk / All686 | 98.7727 ± 0.2516 | 0.036828 ± 0.008563 | 98.5053 ± 0.3240 | 19.6304 ± 2.0264 | 0.018714 ± 0.003814 | 0.002175 ± 0.001060 |
+| H047 balanced_risk / Present182 | 96.7576 ± 0.5287 | 0.096819 ± 0.021357 | 96.5750 ± 0.5481 | 18.5574 ± 1.7800 | 0.048867 ± 0.008525 | 0.006078 ± 0.003096 |
+| H047 balanced_risk / BronzeAge162 | 99.1282 ± 0.3234 | 0.026923 ± 0.010640 | 99.0392 ± 0.3130 | 20.0447 ± 2.5542 | 0.013445 ± 0.004809 | 0.002919 ± 0.001277 |
+| H047 balanced_risk / BAA14 | 99.3747 ± 0.6939 | 0.019795 ± 0.014973 | 98.6400 ± 1.7417 | 17.8906 ± 22.6927 | 0.010744 ± 0.010410 | 0.007543 ± 0.004383 |
+| H047 balanced_risk / Neo302 | 99.5660 ± 0.0872 | 0.012386 ± 0.002046 | 99.5398 ± 0.0838 | 23.5915 ± 3.4118 | 0.006610 ± 0.001254 | 0.001086 ± 0.000463 |
+| H047 balanced_risk / Yam26 | 99.8167 ± 0.2111 | 0.005930 ± 0.004251 | 99.8929 ± 0.1055 | 22.8852 ± 26.5580 (n=7) | 0.002807 ± 0.002799 | 0.002404 ± 0.001411 |
+| H047 balanced_risk / Ancient504 | 99.4329 ± 0.1213 | 0.016932 ± 0.003598 | 99.2656 ± 0.2057 | 21.5887 ± 2.2840 | 0.008725 ± 0.001832 | 0.001013 ± 0.000422 |
+| H047 balanced_risk / All686 | 98.7231 ± 0.2210 | 0.038126 ± 0.007804 | 98.4504 ± 0.2848 | 19.6316 ± 1.8046 | 0.019375 ± 0.003496 | 0.002190 ± 0.000960 |
 | H042 exact local-clade flags / Present182 | 96.5778 ± 0.5954 | 0.100656 ± 0.020069 | 96.4206 ± 0.5867 | 18.0451 ± 1.8423 | 0.051586 ± 0.009430 | 0.005352 ± 0.002373 |
 | H042 exact local-clade flags / BronzeAge162 | 99.0748 ± 0.3242 | 0.030127 ± 0.013364 | 98.9890 ± 0.3241 | 18.5716 ± 3.4095 | 0.014728 ± 0.005658 | 0.003044 ± 0.001611 |
 | H042 exact local-clade flags / BAA14 | 99.0226 ± 1.0723 | 0.028516 ± 0.025591 | 98.3862 ± 1.8705 | 8.9583 ± 13.4795 | 0.014997 ± 0.014443 | 0.009864 ± 0.006341 |
@@ -142,18 +160,18 @@ BronzeAge is not asserted identical to the paper's Post-Neolithic cohort. A dash
 
 | Run | GPU | Verified process present | Passes | Actual updates per arm | Planned updates per arm | Validation accuracy |
 |---|---:|---|---:|---|---:|---|
-| H046 | 5 | True | 14/30 | {'foreign_flank': 448, 'own_state': 448} | 960 | pending |
-| H047 | 4 | False | 30/30 | {'balanced_risk': 960, 'original_risk': 960} | 960 | pending |
+| H046 | 5 | True | 20/30 | {'foreign_flank': 640, 'own_state': 640} | 960 | pending |
+| H047 | 4 | False | 30/30 | {'balanced_risk': 960, 'original_risk': 960} | 960 | 96.7777% original-risk, 96.7576% balanced-risk |
 
 ## American C3 benchmark
 
 | Method | Current ancestry scores | Status |
 |---|---|---|
-| Native ARGformer | unavailable | Full corpus prepared, full fit execution repair under independent review |
-| Native FLARE | unavailable | Native author-source build completed. Conversion and inference pending. |
+| Native ARGformer | unavailable | Full5epoch fit launched on GPU4. Startup/storage checks active. No native optimizer progress verified yet. |
+| Native FLARE | unavailable | Native author build completed. Original30Mb TRAIN000 conversion admitted and execution requested. Not a held-out accuracy result. |
 | Our C3 GNN | unavailable | Shared30Mb adapter source ready. Completed training checkpoint and actual VAL observation required |
 
-The complete 30 Mb observation currently available is a TRAIN parent. It must not be presented as a held-out performance comparison. Original-paper simulation assumptions and source versions remain explicitly documented.
+The complete 30 Mb observation currently available is a TRAIN parent. It must not be presented as a held-out performance comparison. Original30Mb independent VAL000 simulation completed. Inferred observations and comparisons pending. Original-paper simulation assumptions and source versions remain explicitly documented.
 
 ## GST molecular graph-set pilot
 
@@ -168,9 +186,20 @@ First1,000 retained TRAIN reactions, full1,495 VALID, seed0, 20 epochs per mode.
 
 Full TRAIN parsing retains10,439/10,500 reactions. This is data readiness, not a new model score.
 
+## Earlier adapted ARGformer pilot
+
+Two European VAL simulations,280observed haplotypes,64present-day/56ancient queries,2Mb,tsinfer/tsdate trees. Native per-ARG5epoch MLM plus1reference-only contrastive epoch. This differs from both the952input panel above and the original American benchmark. SD is across two VAL simulations. Raw hard-vote NLL is infinite. No probability floor or recalibration.
+
+| Setup | Present64 accuracy % ± SD | Ancient56 accuracy % ± SD | All120 accuracy % ± SD |
+|---|---:|---:|---:|
+| Adapted ARGformer top1 | 75.6818 ± 4.5195 | 75.4447 ± 3.5081 | 75.5711 ± 4.0476 |
+| Adapted ARGformer top5 | 75.1358 ± 3.7500 | 74.7885 ± 4.0220 | 74.9737 ± 3.8769 |
+
+[Actual summary with all metrics](../experiments/results/native_argformer_tsinfer_fit_v7_summary_v2/summary.json).
+
 ## Real data and paper
 
-Observed bank prepared, 2074 sites, 355 trees, 40 haplotypes. Metadata recovered from the saved bank after original worker exit1. Model application and PCA pending. No empirical ancestry accuracy exists. The AAAI draft is8pages and remains unfinished.
+H045 empirical probabilities, bp-weighted proportions and original-genotype PCA written. Actual successful wait and completion verified. Descriptive24query haplotypes/12subjects only. No known ancestry truth. No empirical ancestry accuracy exists. The AAAI draft is8pages and remains unfinished.
 
 ## Evidence and complete recorded inventory
 
@@ -178,6 +207,8 @@ Observed bank prepared, 2074 sites, 355 trees, 40 haplotypes. Metadata recovered
 - H045 own_state: [research/reviews/H045_completed_comparison_root_20261015_v1/summary.json](../research/reviews/H045_completed_comparison_root_20261015_v1/summary.json)
 - H044 localized: [research/reviews/H044_completed_comparison_root_20261015_v1/summary.json](../research/reviews/H044_completed_comparison_root_20261015_v1/summary.json)
 - H044 tree_pooled: [research/reviews/H044_completed_comparison_root_20261015_v1/summary.json](../research/reviews/H044_completed_comparison_root_20261015_v1/summary.json)
+- H047 original_risk: [research/reviews/H047_completed_comparison_root_20261015_v1/summary.json](../research/reviews/H047_completed_comparison_root_20261015_v1/summary.json)
+- H047 balanced_risk: [research/reviews/H047_completed_comparison_root_20261015_v1/summary.json](../research/reviews/H047_completed_comparison_root_20261015_v1/summary.json)
 - H042 exact local-clade flags: [research/reviews/H042_completed_cohort_diagnostics_root_20261015_v1/summary.json](../research/reviews/H042_completed_cohort_diagnostics_root_20261015_v1/summary.json)
 - H043 true_partner: [research/reviews/H043_completed_comparison_root_20261015_v1/summary.json](../research/reviews/H043_completed_comparison_root_20261015_v1/summary.json)
 - H043 own_state: [research/reviews/H043_completed_comparison_root_20261015_v1/summary.json](../research/reviews/H043_completed_comparison_root_20261015_v1/summary.json)

@@ -1,0 +1,13 @@
+# H047 ledger logging handoff
+
+The ledger now indexes the actual H047 completed comparison as exactly two reported model results, one each for balanced_risk and original_risk. The handler accepts only the named H047_actual_completed_comparison_root_v1 summary, verifies its actual completion hash and selected checkpoint metadata, and preserves all seven cohorts' scalar means, sample SDs and defined/undefined-parent counts. Source fractions remain fractions. Multiply accuracy and its SD by100 for percent and percentage points.
+
+Both arm records cite the root summary and actual completion. The original completion, TRAIN receipts, seals and engineering receipts retain their original kinds. No checkpoints, prediction payloads or scientific truth were read. CSV adds two distinct arm rows, primary accuracy/NLL SD columns and serialized scalar cohort metrics.
+
+40 actual-metadata/mocked regression checks passed. The old/new full generators preserved every existing inventory record and CSV row, added exactly two measured results, introduced no duplicate old records, and produced identical output on repeat. Two test-fixture errors were corrected: the write-capture fixture initially omitted outputs skipped by the generator's idempotent-write check, and the check for the original completion initially assumed every inventory entry has an artifact key. Both diagnostics are retained with explicit fixture-failure names. Production source did not fail those checks.
+
+Actual ledger refresh passed, increasing reported model results135→137 and scalar metric receipts201→203. Ten post-refresh checks passed. The unmodified scoreboard generator then refreshed all15 setups and the generated history/README with both arms visible. Existing current-model science values stayed exact. Root explicitly authorized its two existing targeted /proc PID-presence checks. At that refresh H046 was17/30 passes,544/960 updates per arm; H047 was30/30,960/960 per arm, evaluation complete.
+
+H047 Present182 accuracy is96.7576311162% ±0.5286708836percentage points for balanced risk versus96.7776604190% ±0.5969576233percentage points for original risk. These are eight independent VAL-parent sample SDs and one optimizer seed. This remains development evidence. The registered benefit criterion remains false.
+
+Owned source: scripts/update_research_ledger.py and this review folder. Generated files were changed only by the two authorized generators. No scoreboard-source, manual README, scientific-source, checkpoint, GPU, storage-guard, admission, Git or prior980-source changes were made. Runtime process presence was limited to the two root-authorized existing scoreboard checks.

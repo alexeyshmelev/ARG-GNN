@@ -1,7 +1,7 @@
 """Refresh the current evidence-based scoreboard without training or truth access."""
 from pathlib import Path
 from datetime import datetime, timezone
-import hashlib, json, math, os
+import hashlib, json, math, os, statistics
 ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
 RESEARCH=ROOT/"research"
 PRIMARY="primary_present_day_182"
@@ -89,6 +89,12 @@ def main():
         add("H045 "+key,p,{c:normalize(v) for c,v in r["groups"].items()},
             "H042 warmstart +30 passes /960 updates per arm, seed101",
             "Foreign-minus-own accuracy gain0.009568pp, below0.10pp prespecified criterion.")
+    h047_summary="research/reviews/H047_completed_comparison_root_20261015_v1/summary.json"
+    if (ROOT/h047_summary).exists():
+        for key,r in read(h047_summary)["arms"].items():
+            add("H047 "+key,h047_summary,{c:normalize(v) for c,v in r["cohorts"].items()},
+                "H042 warmstart +30 passes /960 updates per arm, seed101",
+                "Balanced-minus-original accuracy -0.020029pp. Registered practical criterion not met.")
     models.sort(key=lambda r:r["cohorts"][PRIMARY]["accuracy"]["mean"],reverse=True)
     jobs=[]
     for hid,gpu,output,packet in [
@@ -103,6 +109,14 @@ def main():
             passes_completed=last.get("pass_index",0),target_passes=30,updates_per_arm=last.get("steps",{}),
             target_updates_per_arm=960,completed=(ROOT/output/"completed.json").exists(),accuracy_available=False,
             last_pass_ref=ref(str(rows[-1].relative_to(ROOT))) if rows else None)
+        if hid=="H047" and (ROOT/h047_summary).exists():
+            row["accuracy_available"]=True
+            row["evaluation_completed"]=True
+            row["summary_ref"]=ref(h047_summary)
+            row["validation_score"]="96.7777% original-risk, 96.7576% balanced-risk"
+        else:
+            row["evaluation_completed"]=False
+            row["validation_score"]="pending"
         jobs.append(row)
     gstpath="research/reviews/GST_training_readiness_20261015_v1/readiness.json"
     gst=read(gstpath)["existing_observations"]["models"]
@@ -116,6 +130,60 @@ def main():
     flare_status=("Native author-source build completed. Conversion and inference pending." if flare_done.exists()
         else "Native author-source build running. Conversion and inference pending." if not flare_wait.exists()
         else "Native build terminal. Inspect preserved actual wait before use.")
+    val_folder=ROOT/"research/reviews/prospective_980GB_capacity_source_v1/admitted_simulate_v1"
+    val_launch=val_folder/"launch.json"
+    val_wait=val_folder/"actual_wait.json"
+    val_sim_complete=ROOT/"experiments/results/American_C3_val000_full30mb_shared_v1/simulation/completed.json"
+    val_status="Original30Mb VAL000 preparation pending."
+    if val_launch.exists():
+        val_pid=json.loads(val_launch.read_text())["pid"]
+        if (Path("/proc")/str(val_pid)).exists():
+            val_status="Original30Mb independent VAL000 simulation running on CPU."
+        elif val_wait.exists() and val_sim_complete.exists() and json.loads(val_wait.read_text())["returncode"]==0:
+            val_status="Original30Mb independent VAL000 simulation completed. Inferred observations and comparisons pending."
+        else:
+            val_status="Original30Mb VAL000 simulation terminal, inspect actual wait and completion."
+    native_launch="research/reviews/American_C3_native_MLM_amendment_v10/root_execution_admin_v2/worker_metadata/v11_root_outer_launch.json"
+    native_status="Full30Mb corpus prepared. Native fit pending."
+    if (ROOT/native_launch).exists():
+        native_pid=read(native_launch)["pid"]
+        try:
+            native_live="root_native_driver_v1.py" in (Path("/proc")/str(native_pid)/"cmdline").read_bytes().decode(errors="replace")
+        except OSError:
+            native_live=False
+        native_status=("Full5epoch fit launched on GPU4. Startup/storage checks active. No native optimizer progress verified yet."
+            if native_live else "Native full-fit root terminal. Actual wait and counters need inspection.")
+    empirical_output=ROOT/"experiments/results/H018_H045_empirical_application_root_v1"
+    empirical_aux=ROOT/"research/reviews/H018_H045_empirical_CPU_root_v1/worker_aux"
+    empirical_products=all((empirical_output/n).exists() for n in ["probabilities_all355_holds.npz","query_bpweighted_proportions_and_PCA.tsv","query_genotype_PCA.svg"])
+    empirical_wait=empirical_aux/"outer_wait.json"
+    empirical_verified=(empirical_output/"completed.json").exists() and empirical_wait.exists() and json.loads(empirical_wait.read_text()).get("returncode")==0
+    if empirical_products:
+        real_status=("H045 empirical probabilities, bp-weighted proportions and original-genotype PCA written. "
+            +("Actual successful wait and completion verified." if empirical_verified else "Root completion/wait verification pending.")
+            +" Descriptive24query haplotypes/12subjects only. No known ancestry truth.")
+    pilot_source="experiments/results/native_argformer_tsinfer_fit_v7_summary_v2/summary.json"
+    pilot=read(pilot_source)
+    pilot_cohorts=["primary_present_day_64","secondary_ancient_56","all_queries_120"]
+    pilot_rows=[]
+    for k in ["1","5"]:
+        cs={}
+        for c in pilot_cohorts:
+            raw=[r["results_by_k"][k]["exact_support_metrics"][c] for r in pilot["rows"]]
+            cs[c]={metric:stat(statistics.mean(r[metric] for r in raw),statistics.stdev(r[metric] for r in raw))
+                for metric in ["accuracy","macro_f1","balanced_accuracy","brier","calibration_ece","dosage_mse_per_diploid_bp_class","dosage_mae_per_diploid_bp_class"]}
+            cs[c]["nll"]=stat("∞")
+        pilot_rows.append(dict(name="Adapted ARGformer top"+k,cohorts=cs))
+    pilot_lines=["## Earlier adapted ARGformer pilot","",
+        "Two European VAL simulations,280observed haplotypes,64present-day/56ancient queries,2Mb,tsinfer/tsdate trees. Native per-ARG5epoch MLM plus1reference-only contrastive epoch. This differs from both the952input panel above and the original American benchmark. SD is across two VAL simulations. Raw hard-vote NLL is infinite. No probability floor or recalibration.","",
+        "| Setup | Present64 accuracy % ± SD | Ancient56 accuracy % ± SD | All120 accuracy % ± SD |",
+        "|---|---:|---:|---:|"]
+    for r in pilot_rows:
+        pilot_lines.append("| "+r["name"]+" | "+" | ".join(fmt(r["cohorts"][c]["accuracy"],True) for c in pilot_cohorts)+" |")
+    pilot_lines+=["","[Actual summary with all metrics]("+("../" if False else "")+pilot_source+")."]
+    flare_convert=ROOT/"research/reviews/FLARE_train000_convert_980_root_v1"
+    if (flare_convert/"admission.json").exists():
+        flare_status="Native author build completed. Original30Mb TRAIN000 conversion admitted and execution requested. Not a held-out accuracy result."
     stamp=datetime.now(timezone.utc).isoformat()
     result=dict(schema="ARG_GNN_current_scientific_scoreboard_v1",updated_utc=stamp,
         dataset=dict(name="European C4 shared development",length_bp=2000000,haplotypes=952,queries=686,
@@ -123,9 +191,10 @@ def main():
             original_paper_reproduction=False,untouched_outer_test_completed=False),
         models=models,live_jobs=jobs,GST_TRAIN1000_seed0_VALID_AP=gst,
         original_American_C3=dict(our_GNN_score=None,native_ARGformer_score=None,native_FLARE_score=None,
-            status="Model comparisons unfinished. Native ARGformer execution repair, FLARE build/conversion and our C3 adapter proceed in parallel."),
-        real_data=dict(predictions_available=False,PCA_available=False,observed_bank_prepared=empirical is not None,
+            status=val_status+" Native ARGformer, FLARE and our C3 adapter proceed in parallel.",shared_VAL_preparation_status=val_status,native_ARGformer_execution_status=native_status),
+        real_data=dict(predictions_available=empirical_verified,PCA_available=empirical_verified,products_written=empirical_products,completion_verified=empirical_verified,observed_bank_prepared=empirical is not None,
             prepared_bank_completion_ref=ref(empirical_path) if empirical else None,status=real_status),
+        adapted_ARGformer_pilot=dict(source_ref=ref(pilot_source),rows=pilot_rows,original_paper_reproduction=False),
         native_FLARE_build_status=flare_status,
         source_only_or_engineering_checks_are_not_training_results=True)
     (RESEARCH/"current_scoreboard.json").write_text(json.dumps(result,indent=2,sort_keys=True)+"\n")
@@ -153,19 +222,19 @@ def main():
         "| Run | GPU | Verified process present | Passes | Actual updates per arm | Planned updates per arm | Validation accuracy |",
         "|---|---:|---|---:|---|---:|---|"]
     for j in jobs:
-        lines.append(f"| {j['hypothesis']} | {j['GPU']} | {j['verified_process_present']} | {j['passes_completed']}/30 | {j['updates_per_arm']} | 960 | pending |")
+        lines.append(f"| {j['hypothesis']} | {j['GPU']} | {j['verified_process_present']} | {j['passes_completed']}/30 | {j['updates_per_arm']} | 960 | {j['validation_score']} |")
     lines+=["","## American C3 benchmark","",
         "| Method | Current ancestry scores | Status |","|---|---|---|",
-        "| Native ARGformer | unavailable | Full corpus prepared, full fit execution repair under independent review |",
+        "| Native ARGformer | unavailable | "+native_status+" |",
         "| Native FLARE | unavailable | "+flare_status+" |",
         "| Our C3 GNN | unavailable | Shared30Mb adapter source ready. Completed training checkpoint and actual VAL observation required |",
-        "","The complete 30 Mb observation currently available is a TRAIN parent. It must not be presented as a held-out performance comparison. Original-paper simulation assumptions and source versions remain explicitly documented.","",
+        "","The complete 30 Mb observation currently available is a TRAIN parent. It must not be presented as a held-out performance comparison. "+val_status+" Original-paper simulation assumptions and source versions remain explicitly documented.","",
         "## GST molecular graph-set pilot","",
         "First1,000 retained TRAIN reactions, full1,495 VALID, seed0, 20 epochs per mode. AP is pooled per-atom average precision. Our molecular adapter and final paired TEST comparison are unfinished.","",
         "| Native setup | VALID AP | Selected epoch |","|---|---:|---:|"]
     for k,v in gst.items():
         lines.append(f"| {k} | {v['selected_VALID_AP']:.8f} | {v['selected_epoch']} |")
-    lines+=["","Full TRAIN parsing retains10,439/10,500 reactions. This is data readiness, not a new model score.","",
+    lines+=["","Full TRAIN parsing retains10,439/10,500 reactions. This is data readiness, not a new model score.",""]+pilot_lines+["",
         "## Real data and paper","",
         real_status+" No empirical ancestry accuracy exists. The AAAI draft is8pages and remains unfinished.","",
         "## Evidence and complete recorded inventory",""]
@@ -173,7 +242,7 @@ def main():
         p=r["source_ref"]["path"]
         lines.append(f"- {r['name']}: [{p}](../{p})")
     lines+=["","[All recorded metric receipts, including historical pilots](all_recorded_metric_receipts.md) · [Machine-readable current scoreboard](current_scoreboard.json)"]
-    (RESEARCH/"current_scoreboard.md").write_text("\n".join(lines)+"\n")
+    (RESEARCH/"current_scoreboard.md").write_text("\n".join(lines).replace("]("+pilot_source,"](../"+pilot_source)+"\n")
     ledger=read("research/experiment_ledger.json")
     inventory=[r for r in ledger["result_inventory"] if r.get("metrics")]
     (RESEARCH/"all_recorded_metric_receipts.json").write_text(json.dumps(dict(updated_utc=stamp,
@@ -189,11 +258,11 @@ def main():
     table=["<!-- CURRENT_SCOREBOARD_START -->",f"**Scoreboard updated UTC: {stamp}.** [Every current setup, all cohorts and detailed metrics](research/current_scoreboard.md) · [All recorded historical/engineering metric receipts](research/all_recorded_metric_receipts.md)","",
         "| Current run | Device | Progress | Validation score |","|---|---:|---|---|"]
     for j in jobs:
-        table.append(f"| {j['hypothesis']} | GPU{j['GPU']} | {j['passes_completed']}/30 passes, {min(j['updates_per_arm'].values()) if j['updates_per_arm'] else 0}/960 updates per arm, process verified live={j['verified_process_present']} | pending |")
-    table+=["| Native ARGformer | GPU4 queue | Same-charge full-fit operational repair in progress | pending |",
+        table.append(f"| {j['hypothesis']} | GPU{j['GPU']} | {j['passes_completed']}/30 passes, {min(j['updates_per_arm'].values()) if j['updates_per_arm'] else 0}/960 updates per arm, TRAIN complete={j['completed']}, VAL complete={j['evaluation_completed']} | {j['validation_score']} |")
+    table+=["| Original American VAL000 | CPU | "+val_status+" | no ancestry score |","| Native ARGformer | GPU4 | "+native_status+" | pending |",
         "| Native FLARE | CPU | "+flare_status+" | pending |",
         "| Our C3 GNN | source ready | Actual shared VAL observations and completed training checkpoint required | pending |",
-        "| Empirical data | CPU | "+real_status+" | predictions and PCA pending |","","<!-- CURRENT_SCOREBOARD_END -->"]
+        "| Empirical data | CPU | "+real_status+" | completion "+("verified" if empirical_verified else "pending")+" |","","Parallel ownership: worker1 handles native FLARE execution sources, worker2 handles matched cohort/confusion figures, worker3 handles the next Torch/PyG decoder prototype. Root owns live runs, integration, Git and score publication. Independent work proceeds concurrently.","","<!-- CURRENT_SCOREBOARD_END -->"]
     p=ROOT/"README.md"
     text=p.read_text()
     a="<!-- CURRENT_SCOREBOARD_START -->"
@@ -224,6 +293,13 @@ def main():
         text,count=re.subn(r"\| Setup \| Present182 \| BronzeAge162[^\n]*\n\|[^\n]*\n(?:\|[^\n]*\n)+",
             "\n".join(pop_table)+"\n",text,count=1)
     assert count==1
+    pilot_start="<!-- ADAPTED_ARGFORMER_PILOT_START -->"
+    pilot_end="<!-- ADAPTED_ARGFORMER_PILOT_END -->"
+    pilot_block=pilot_start+"\n"+"\n".join(pilot_lines)+"\n"+pilot_end
+    if pilot_start in text:
+        text=text[:text.index(pilot_start)]+pilot_block+text[text.index(pilot_end)+len(pilot_end):]
+    else:
+        text+="\n"+pilot_block+"\n"
     p.write_text(text)
     print(json.dumps(dict(current_setups=len(models),cohorts=len(COHORTS),recorded_metric_receipts=len(inventory),live_jobs=jobs,updated_utc=stamp)),flush=True)
 if __name__=="__main__":
