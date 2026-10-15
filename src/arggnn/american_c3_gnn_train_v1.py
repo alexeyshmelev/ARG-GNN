@@ -187,7 +187,7 @@ def _resume(record,model,optimizer,*,signature,signature_sha,observation_sha,tar
     return value,state,step
 
 def run_train_v1(cfg,*,parent_plan_refs,writer,device,worker_tmp_directory,
-        resolve_train_truth,runtime_guard,resume_ref=None):
+        resolve_train_truth,runtime_guard,resume_ref=None,train_target_joiner_factory=None):
     """Run primary30 epochs; real first-update checks occur inside this run.
 
     All20 supplied plans, every observation block and all external TRAIN targets
@@ -219,7 +219,9 @@ def run_train_v1(cfg,*,parent_plan_refs,writer,device,worker_tmp_directory,
             observation_only=True,truth_resolver_calls_before_barrier=0)
         observation_sha=json_sha(observation)
         observation_ref=writer.save("TRAIN_observation_barrier.json",observation)
-        joiner=TrainTargetJoinV1(resolve_train_truth,max_truth_uncompressed_bytes=cfg["max_truth_uncompressed_bytes"])
+        target_factory=TrainTargetJoinV1 if train_target_joiner_factory is None else train_target_joiner_factory
+        require(callable(target_factory),"Root-supplied audited TRAIN target joiner")
+        joiner=target_factory(resolve_train_truth,max_truth_uncompressed_bytes=cfg["max_truth_uncompressed_bytes"])
         targets={}
         for parent in TRAIN:
             runtime_guard("external_TRAIN_target_join")
@@ -231,6 +233,16 @@ def run_train_v1(cfg,*,parent_plan_refs,writer,device,worker_tmp_directory,
         target_sha=json_sha(target_manifest)
         target_ref=writer.save("TRAIN_external_target_joins.json",target_manifest)
         signature,signature_sha=_signature(cfg,parent_plan_refs)
+        if train_target_joiner_factory is not None:
+            binding=copy.deepcopy(getattr(train_target_joiner_factory,"execution_binding",None))
+            require(isinstance(binding,dict) and binding.get("schema")=="C3_actual_TRAIN_simulation_binding_operational_v1"
+                and binding.get("registry_ref")==REGISTRY_REF and set(binding.get("parents",{}))==set(TRAIN)
+                and binding.get("target_equations_unchanged") is True and binding.get("source_refs"),
+                "Actual TRAIN path successor must bind unchanged registry/targets and its execution source")
+            require(all(ref(r["path"])==r for r in binding["source_refs"]),"Exact operational successor sources")
+            signature["actual_TRAIN_execution_binding"]=binding
+            signature["source_refs"].extend(binding["source_refs"])
+            signature_sha=json_sha(signature)
         runtime_guard("before_fresh_model")
         require(torch.get_default_dtype()==torch.float32 and not torch.is_autocast_enabled(),
             "Fresh FP32 initialization and no ambient mixed-precision training")

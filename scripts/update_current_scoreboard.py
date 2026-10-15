@@ -195,6 +195,17 @@ def main():
             val_status="Original30Mb independent VAL000 simulation completed. Genealogy inference running on CPU."
     elif (infer_packet/"admission.json").exists():
         val_status="Original30Mb independent VAL000 simulation completed. Genealogy inference admitted, startup checks active."
+    h048=next((r for r in read("research/experiment_decisions.json")["decisions"] if r["id"]=="H048"),None)
+    h048_status="Marker-grid structured decoder registered. Scientific TRAIN/EVAL bridge in preparation. No actual training or accuracy result."
+    wave_root=ROOT/"research/reviews/American_C3_short_train2mb_wave_980_source_v1/admitted"
+    wave_status=[]
+    for parent in ["american_c3_short_train_014","american_c3_short_train_015"]:
+        for stage in ["simulate","infer"]:
+            folder=wave_root/parent/stage
+            if (folder/"launch.json").exists():
+                v=json.loads((folder/"launch.json").read_text())
+                wave_status.append(dict(parent_id=parent,stage=stage,launch_ref=ref(str((folder/"launch.json").relative_to(ROOT))),
+                    actual_process_present=(Path("/proc")/str(v.get("pid",v.get("worker_pid",-1)))).exists()))
     stamp=datetime.now(timezone.utc).isoformat()
     result=dict(schema="ARG_GNN_current_scientific_scoreboard_v1",updated_utc=stamp,
         dataset=dict(name="European C4 shared development",length_bp=2000000,haplotypes=952,queries=686,
@@ -206,6 +217,8 @@ def main():
         real_data=dict(predictions_available=empirical_verified,PCA_available=empirical_verified,products_written=empirical_products,completion_verified=empirical_verified,observed_bank_prepared=empirical is not None,
             prepared_bank_completion_ref=ref(empirical_path) if empirical else None,status=real_status),
         adapted_ARGformer_pilot=dict(source_ref=ref(pilot_source),rows=pilot_rows,original_paper_reproduction=False),
+        H048_registered_candidate=dict(status=h048_status,trained=False,accuracy=None,registration_ref=ref("research/experiment_decisions.json")) if h048 else None,
+        American_short_TRAIN_remaining_preparation=wave_status,
         native_FLARE_build_status=flare_status,
         source_only_or_engineering_checks_are_not_training_results=True)
     (RESEARCH/"current_scoreboard.json").write_text(json.dumps(result,indent=2,sort_keys=True)+"\n")
@@ -234,7 +247,7 @@ def main():
         "|---|---:|---|---:|---|---:|---|"]
     for j in jobs:
         lines.append(f"| {j['hypothesis']} | {j['GPU']} | {j['verified_process_present']} | {j['passes_completed']}/30 | {j['updates_per_arm']} | 960 | {j['validation_score']} |")
-    lines+=["","## American C3 benchmark","",
+    lines+=["","## Registered next architecture experiment","",h048_status,"","H048 retains31933parameters per arm and a fixed30pass/960update schedule. Its matched comparison places the same graph signal into transitions or confidence. The reset-chain components have prior art. No novelty or accuracy claim is established.","","## American C3 benchmark","",
         "| Method | Current ancestry scores | Status |","|---|---|---|",
         "| Native ARGformer | unavailable | "+native_status+" |",
         "| Native FLARE | unavailable | "+flare_status+" |",
@@ -270,7 +283,7 @@ def main():
         "| Current run | Device | Progress | Validation score |","|---|---:|---|---|"]
     for j in jobs:
         table.append(f"| {j['hypothesis']} | GPU{j['GPU']} | {j['passes_completed']}/30 passes, {min(j['updates_per_arm'].values()) if j['updates_per_arm'] else 0}/960 updates per arm, TRAIN complete={j['completed']}, VAL complete={j['evaluation_completed']} | {j['validation_score']} |")
-    table+=["| Original American VAL000 | CPU | "+val_status+" | no ancestry score |","| Native ARGformer | GPU4 | "+native_status+" | pending |",
+    table+=["| H048 marker-grid decoder | GPU4 planned | "+h048_status+" | unavailable |","| C3 missing TRAIN014–015 | CPU | Remaining-data wave launched. Actual per-stage progress is recorded in the dedicated wave packet. | no ancestry score |","| Original American VAL000 | CPU | "+val_status+" | no ancestry score |","| Native ARGformer | GPU4 | "+native_status+" | pending |",
         "| Native FLARE | CPU | "+flare_status+" | pending |",
         "| Our C3 GNN | source ready | Actual shared VAL observations and completed training checkpoint required | pending |",
         "| Empirical data | CPU | "+real_status+" | completion "+("verified" if empirical_verified else "pending")+" |","","Parallel ownership: worker1 handles benchmark/evaluation execution sources, worker2 handles comparison figures and runtime bottlenecks, worker3 handles architecture and the American C3 PyG adapter. Root owns live runs, integration, Git and score publication. Independent work proceeds concurrently.","","<!-- CURRENT_SCOREBOARD_END -->"]

@@ -1,6 +1,6 @@
 # Current scientific scoreboard
 
-Updated UTC: 2026-10-15T14:47:29.547520+00:00
+Updated UTC: 2026-10-15T15:03:17.933220+00:00
 
 ## European C4 shared development
 
@@ -160,8 +160,14 @@ BronzeAge is not asserted identical to the paper's Post-Neolithic cohort. A dash
 
 | Run | GPU | Verified process present | Passes | Actual updates per arm | Planned updates per arm | Validation accuracy |
 |---|---:|---|---:|---|---:|---|
-| H046 | 5 | True | 21/30 | {'foreign_flank': 672, 'own_state': 672} | 960 | pending |
+| H046 | 5 | True | 23/30 | {'foreign_flank': 736, 'own_state': 736} | 960 | pending |
 | H047 | 4 | False | 30/30 | {'balanced_risk': 960, 'original_risk': 960} | 960 | 96.7777% original-risk, 96.7576% balanced-risk |
+
+## Registered next architecture experiment
+
+Marker-grid structured decoder registered. Scientific TRAIN/EVAL bridge in preparation. No actual training or accuracy result.
+
+H048 retains31933parameters per arm and a fixed30pass/960update schedule. Its matched comparison places the same graph signal into transitions or confidence. The reset-chain components have prior art. No novelty or accuracy claim is established.
 
 ## American C3 benchmark
 

@@ -1,0 +1,20 @@
+--- research/reviews/American_C3_native_MLM_amendment_v11/owned_lifecycle_v2.py
++++ research/reviews/native_MLM_owned_ESRCH_abstract_IPC_source_v1/owned_lifecycle_esrch_v1.py
+@@ -7,14 +7,14 @@
+     try:
+         row=Path("/proc/%d/stat"%pid).read_text().rsplit(")",1)[1].split()
+         return dict(pid=pid,state=row[0],ppid=int(row[1]),group=int(row[2]),session=int(row[3]),start=int(row[19]))
+-    except FileNotFoundError:return None
++    except (FileNotFoundError, ProcessLookupError):return None
+ def _children(pid):
+     result=set()
+     try:
+         for task in Path("/proc/%d/task"%pid).iterdir():
+             try:result.update(int(p) for p in (task/"children").read_text().split())
+-            except FileNotFoundError:pass
+-    except FileNotFoundError:pass
++            except (FileNotFoundError, ProcessLookupError):pass
++    except (FileNotFoundError, ProcessLookupError):pass
+     return sorted(result)
+ def _same(actual,expected):
+     return actual is not None and expected is not None and (actual["pid"],actual["start"])==(expected.get("pid"),expected.get("start"))

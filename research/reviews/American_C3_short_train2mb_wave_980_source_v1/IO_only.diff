@@ -1,0 +1,176 @@
+--- research/reviews/American_C3_short_train2mb_wave_supervision_v2/root_wave_driver.py
++++ research/reviews/American_C3_short_train2mb_wave_980_source_v1/root_wave_980_driver.py
+@@ -1,4 +1,4 @@
+-"""Root-only independent2Mb American C3 TRAIN preparation, at most4 parents.
++"""Root-only independent2Mb American C3 TRAIN future980 IO, parents014–019, at most2.
+ 
+ Import/default report reads source metadata only. No bulk admission, activation,
+ credit, scientific execution or GPU activity occurs without explicit root mode.
+@@ -10,14 +10,17 @@
+ import argparse,errno,fcntl,hashlib,importlib.util,json,os,selectors,subprocess,sys,time
+ 
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-REL="research/reviews/American_C3_short_train2mb_wave_supervision_v2"
++REL="research/reviews/American_C3_short_train2mb_wave_980_source_v1"
+ HERE=ROOT/REL
+ SCHEDULER=ROOT/"research/reviews/American_C3_short_train2mb_wave_source_v1/scheduler"
+-SOURCE=REL+"/root_wave_driver.py"
++SOURCE=REL+"/root_wave_980_driver.py"
+ CONDITION="C3_independent20x2Mb_TRAIN_1600haps_inferred_unary_v1"
+ STAGES=("simulate","infer")
+ UNARY_POLICY="direct_tskit_simplify_all_samples_keep_unary_false_no_site_filter_no_trimming_no_gap_split_v1"
+ PARENT_IDS=tuple("american_c3_short_train_%03d"%i for i in range(20))
++ELIGIBLE_PARENTS=tuple("american_c3_short_train_%03d"%i for i in range(14,20))
++PAIRS=tuple(tuple("american_c3_short_train_%03d"%i for i in range(start,start+2)) for start in (14,16,18))
++PREVIOUS=ROOT/"research/reviews/American_C3_short_train2mb_wave_supervision_v2"
+ LOG_CAP=16777216
+ WORK_CAP=134217728
+ sys.path[:0]=[str(ROOT),str(ROOT/"src")]
+@@ -58,6 +61,10 @@
+ def frozen():
+     r=ref(REL+"/frozen_refs.json");value=read(r)
+     for item in value["refs"].values():require(ref(item["path"])==item,"Frozen source metadata changed")
++    config_snapshot=read(value["refs"]["frozen_scientific_configs"])
++    require(len(config_snapshot["configs"])==40
++        and all(ref(row["config_ref"]["path"])==row["config_ref"] for row in config_snapshot["configs"]),
++        "All40 original scientific config refs must remain frozen")
+     return r,value["refs"]
+ 
+ 
+@@ -67,7 +74,7 @@
+ 
+ 
+ def registry_parent(parent,pins):
+-    require(parent in PARENT_IDS,"Only registered independent2Mb TRAIN IDs allowed")
++    require(parent in ELIGIBLE_PARENTS,"Future admissions only for unfinished original parents014–019; preserve000–013")
+     registry=read(pins["registry"])
+     require(registry["scientific_condition_id"]==CONDITION and registry["new_independent_TRAIN_count"]==20,
+             "Exact new prospective training condition required")
+@@ -132,17 +139,17 @@
+ @contextmanager
+ def parent_slot(parent):
+     folder=SCHEDULER;folder.mkdir(exist_ok=True)
+-    for index in range(4):
++    for index in range(2):
+         fd=os.open(folder/("parent_slot_%d.lock"%index),os.O_RDWR|os.O_CREAT|os.O_NOFOLLOW,0o600)
+         try:fcntl.flock(fd,fcntl.LOCK_EX|fcntl.LOCK_NB)
+         except BlockingIOError:os.close(fd);continue
+         try:yield dict(fd=fd,index=index,parent_id=parent);return
+         finally:os.close(fd)
+-    raise ValueError("All four wave parent slots are occupied; root must wait for own workers")
++    raise ValueError("Both wave parent slots are occupied; root must wait for own workers")
+ 
+ 
+ def slot_valid(slot,parent):
+-    require(slot["parent_id"]==parent and slot["index"] in range(4),"Exact owned parent slot required")
++    require(slot["parent_id"]==parent and slot["index"] in range(2),"Exact owned parent slot required")
+     named=SCHEDULER/("parent_slot_%d.lock"%slot["index"])
+     a,b=os.fstat(slot["fd"]),named.stat()
+     require((a.st_dev,a.st_ino)==(b.st_dev,b.st_ino),"Inherited live parent-slot identity required")
+@@ -165,20 +172,21 @@
+     require(policy_ref==pins["policy"],"Exact activated root overlay policy ref required")
+     evidence=qualifier(pins);cfg_template,cfg,dependencies=activate_config(parent,stage,row,pins)
+     packet,output,job,key=stage_identity(parent,stage,row)
+-    require(not packet.exists() and not local(output).exists(),"Fresh per-stage packet/output required")
++    require(not packet.exists() and not local(output).exists()
++        and not (PREVIOUS/"admitted"/parent).exists(),"Fresh future-only stage; no old parent admission replay")
++    require(cfg["output_cap_bytes"]==(1000000000 if stage=="simulate" else 2000000000),
++        "Exact unchanged1GB simulation/2GB inference cap")
+     # The wave serializes its own operations. Root coordinates external credit/admission operations.
+     with root_lock("admission.lock"):
+-        packet.mkdir(parents=True);local(output).parent.mkdir(parents=True,exist_ok=True)
+-        config_ref=save(packet,"config.json",cfg)
+         worker=pins["simulation_worker" if stage=="simulate" else "inference_worker"]
+         runtime=pins["simulation_runtime" if stage=="simulate" else "inference_runtime"]
+         closure=[pins["common"],worker]
+         if stage=="infer":closure.append(pins["simulation_worker"])
+-        v5=helper(pins);guard=v5.overlay_guard_v5(policy_ref,pins)
++        guard=active980_guard_v1(policy_ref,pins)
+         with guard.budget.v4.mutex(ROOT):
+             state=guard._state_locked(pins["budget"]["sha256"],pins["launcher"]["sha256"],fresh=True)
+         require(len(state)==7,"Exact current credit overlay state API required")
+-        # No fifth open wave-parent allocation, even through separate root CLI calls.
++        # No third open wave-parent allocation, even through separate root CLI calls.
+         open_parents=set()
+         for registered in read(pins["registry"])["parents"]:
+             for which in STAGES:
+@@ -190,9 +198,12 @@
+                 if old_key in state[0] and old_key not in state[1]:open_parents.add(registered["parent_id"])
+                 require(registered["parent_id"]!=parent or old_key not in state[0],
+                     "Earlier v1 parent admission exists; root must audit migration, never duplicate a registered parent")
+-        require(parent in open_parents or len(open_parents)<4,"Root must credit/drain completed parents before a fifth allocation")
++        require_pair_predecessors_closed_v1(parent,pins,state)
++        require(parent in open_parents or len(open_parents)<2,"Root must close completed scopes before a third parent allocation")
++        packet.mkdir(parents=True);local(output).parent.mkdir(parents=True,exist_ok=True)
++        config_ref=save(packet,"config.json",cfg)
+         consumers=[*closure,config_ref,runtime,ref(SOURCE),pins["v5_driver"],pins["v3_driver"],
+-            frozen_ref,pins["registry"],cfg_template,policy_ref,*state[3].values(),*evidence.values(),*dependencies.values()]
++            frozen_ref,pins["registry"],cfg_template,policy_ref,pins["predecessor_v2_driver"],pins["frozen_scientific_configs"],pins["preserved_completed_prefix"],*state[3].values(),*evidence.values(),*dependencies.values()]
+         consumers=list({(r["path"],r["sha256"]):r for r in consumers}.values())
+         require(len(consumers)<=64 and all(Path(r["path"]).suffix in (".py",".sh",".json") for r in consumers),
+                 "Existing64 source/JSON direct consumer limit required")
+@@ -220,6 +231,33 @@
+         admitted=dict(parent_id=parent,stage=stage,admission_ref=admission_ref,driver_ref=ref(SOURCE),policy_ref=policy_ref)
+         save(packet,"admitted.json",admitted,guard,storage)
+         return admitted
++
++
++
++def active980_guard_v1(policy_ref,pins):
++    require(policy_ref==pins["policy"] and ref(policy_ref["path"])==policy_ref
++        and pins["overlay"]["path"]=="research/reviews/prospective_980GB_capacity_source_v1/prospective_980gb_v1.py",
++        "Exact active980 guard/policy only")
++    ms=importlib.util.spec_from_file_location("_C3_short_wave_active980",local(pins["overlay"]["path"]))
++    guard=importlib.util.module_from_spec(ms);ms.loader.exec_module(guard)
++    guard.configure_v2(pins["repair_authority"],policy_ref=policy_ref)
++    require(guard.MODE=="prospective_980gb_v1"
++        and all(getattr(guard.budget.v4,name).__module__==guard.budget.v4.__name__
++            for name in ("canonical","file_bytes","mutex")),
++        "Actual980 with original unmemoized mutation functions")
++    return guard
++
++def require_pair_predecessors_closed_v1(parent,pins,state):
++    """Actual completed-scope journal closure is required; this helper never closes."""
++    index=next(i for i,pair in enumerate(PAIRS) if parent in pair)
++    for pair in PAIRS[:index]:
++        for prior in pair:
++            row=registry_parent(prior,pins)
++            for stage in STAGES:
++                successful_stage(prior,stage,pins)
++                key=stage_identity(prior,stage,row)[3]
++                require(key in state[0] and key in state[1],
++                    "Root must genuinely close every completed previous-pair stage before the next pair")
+ 
+ 
+ def group_drained(pgid):
+@@ -303,7 +341,7 @@
+     template,cfg,dependencies=activate_config(parent,stage,row,pins)
+     require(read(spec["config_ref"])==cfg and spec["stage_dependencies"]==dependencies,
+             "Exact scientific config and prior actual simulation required")
+-    v5=helper(pins);guard=v5.overlay_guard_v5(policy_ref,pins)
++    guard=active980_guard_v1(policy_ref,pins)
+     receipt=read(ref(packet/"reserve_receipt.json"))
+     require(storage["reservation"]==receipt["value"] and storage["initial_ledger_pins"]==receipt["initial_ledger_pins"],
+             "Own reserve-event prefix must remain unchanged")
+@@ -416,15 +454,17 @@
+         require(a.parent and policy,"Root parent and policy required")
+         result=admit_stage_v1(a.parent,a.admit,policy) if a.admit else launch_stage_v1(a.parent,a.launch,policy)
+     elif a.run_parents:
+-        require(policy and 1<=len(a.run_parents)<=4 and len(set(a.run_parents))==len(a.run_parents)
+-                and set(a.run_parents)<=set(PARENT_IDS),"Explicit batch of1–4 exact independent parents required")
++        require(policy and 1<=len(a.run_parents)<=2 and len(set(a.run_parents))==len(a.run_parents)
++                and set(a.run_parents)<=set(ELIGIBLE_PARENTS) and any(set(a.run_parents)<=set(pair) for pair in PAIRS),
++                "Explicit batch of1–2 within one of pairs014/015,016/017,018/019 required")
+         with ThreadPoolExecutor(max_workers=len(a.run_parents)) as pool:
+             futures=[pool.submit(prepare_parent_v1,parent,policy) for parent in a.run_parents]
+             result=[future.result() for future in futures]
+     else:
+         closure,pins=frozen()
+-        result=dict(status="source_only_inactive_20x2Mb_TRAIN_wave",driver_ref=ref(SOURCE),frozen_refs_ref=closure,
+-            registry_ref=pins["registry"],parent_ids=list(PARENT_IDS),maximum_concurrent_wave_parents=4,
++        result=dict(status="source_only_future980_014_019_two_parent_pairs",driver_ref=ref(SOURCE),frozen_refs_ref=closure,
++            registry_ref=pins["registry"],parent_ids=list(ELIGIBLE_PARENTS),all_original_parent_ids=list(PARENT_IDS),maximum_concurrent_wave_parents=2,
++            root_pairs=[list(pair) for pair in PAIRS],actual_previous_pair_scope_closes_required=True,
+             no_bulk_admission=True,requires_single_successful_v5_qualification=True,
+             VAL_TEST_generation_authorized=False,scientific_execution_performed=False)
+     print(json.dumps(result,indent=2,sort_keys=True));return 0

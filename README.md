@@ -7,12 +7,14 @@ Graph neural networks for ordered collections of whole genealogical trees, with 
 [Persistent research goal and reporting requirements](research/goal_current.json). Current limits: physical GPUs4–5 and1TB, with all project writes inside this server repository.
 
 <!-- CURRENT_SCOREBOARD_START -->
-**Scoreboard updated UTC: 2026-10-15T14:47:29.547520+00:00.** [Every current setup, all cohorts and detailed metrics](research/current_scoreboard.md) · [All recorded historical/engineering metric receipts](research/all_recorded_metric_receipts.md)
+**Scoreboard updated UTC: 2026-10-15T15:03:17.933220+00:00.** [Every current setup, all cohorts and detailed metrics](research/current_scoreboard.md) · [All recorded historical/engineering metric receipts](research/all_recorded_metric_receipts.md)
 
 | Current run | Device | Progress | Validation score |
 |---|---:|---|---|
-| H046 | GPU5 | 21/30 passes, 672/960 updates per arm, TRAIN complete=False, VAL complete=False | pending |
+| H046 | GPU5 | 23/30 passes, 736/960 updates per arm, TRAIN complete=False, VAL complete=False | pending |
 | H047 | GPU4 | 30/30 passes, 960/960 updates per arm, TRAIN complete=True, VAL complete=True | 96.7777% original-risk, 96.7576% balanced-risk |
+| H048 marker-grid decoder | GPU4 planned | Marker-grid structured decoder registered. Scientific TRAIN/EVAL bridge in preparation. No actual training or accuracy result. | unavailable |
+| C3 missing TRAIN014–015 | CPU | Remaining-data wave launched. Actual per-stage progress is recorded in the dedicated wave packet. | no ancestry score |
 | Original American VAL000 | CPU | Original30Mb independent VAL000 simulation completed. Genealogy inference running on CPU. | no ancestry score |
 | Native ARGformer | GPU4 | Full5epoch fit attempt terminal, actual root exit1. No native optimizer progress verified. Execution repair pending. | pending |
 | Native FLARE | CPU | Native author build completed. Original30Mb TRAIN000 conversion admitted and execution requested. Not a held-out accuracy result. | pending |
