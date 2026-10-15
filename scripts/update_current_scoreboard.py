@@ -404,7 +404,7 @@ def main():
         latest_checkpoints=[r for r in native_latest["checkpoints"] if not r["symlink"]]
         native_execution.update(latest_checkpoint_metadata_observation_ref=ref(native_latest_path),checkpoint_metadata_only=latest_checkpoints)
         native_status=("Engineering TRAIN000: native author MLM training on "+native_device+". Checkpoint metadata observed at "+native_latest["observed_utc"]+": "+", ".join(r["name"] for r in latest_checkpoints)+". Full five-epoch/224775-update budget and final saved-Adam verification remain pending. No native ancestry score.")
-    epoch_path=("research/reviews/native_ARGformer_epoch3_actual_console_20261015_v1.json" if (ROOT/"research/reviews/native_ARGformer_epoch3_actual_console_20261015_v1.json").is_file() else "research/reviews/native_ARGformer_epoch2_actual_console_20261015_v1.json")
+    epoch_path=next("research/reviews/native_ARGformer_epoch%d_actual_console_20261015_v1.json"%ep for ep in (5,4,3,2) if (ROOT/("research/reviews/native_ARGformer_epoch%d_actual_console_20261015_v1.json"%ep)).is_file())
     epoch_event=maybe_read(epoch_path)
     if epoch_event and v12_launch and not v12_wait:
         progress=epoch_event["actual_console_payload"]
@@ -632,6 +632,17 @@ def main():
             "fresh bounded-v4 CPU preparation admitted, launch pending; prior failure retained")
     elif maybe_read("research/reviews/H049_bounded_actual_metadata_allocation_repair_20261015_v1/root_source_cap_approval_v1.json"):
         h049_prepare_status+=". Fresh bounded-v4 allocation repair approved, admission pending"
+    h049v5="research/reviews/H049_bounded_directory_metadata_repair_20261015_v1/admitted_prepare"
+    h049v5_admit=maybe_read(h049v5+"/admitted.json")
+    h049v5_launch=maybe_read(h049v5+"/launch.json")
+    h049v5_wait=maybe_read(h049v5+"/actual_wait.json")
+    h049v5_done=maybe_read("experiments/results/H049_CPU_order2_cut_memory_prepare_bounded_v5/completed.json")
+    if h049v5_admit:
+        h049_prepare_verified=bool(h049v5_wait and h049v5_done and h049v5_wait.get("returncode")==0 and h049v5_wait.get("owned_group_drained") is True and h049v5_wait.get("error") is None and h049v5_wait.get("completed_ref")==ref("experiments/results/H049_CPU_order2_cut_memory_prepare_bounded_v5/completed.json"))
+        h049_prepare_status=("bounded-v5 CPU preparation completed with genuine wait0/drain" if h049_prepare_verified else
+            "bounded-v5 CPU preparation failed; original artifacts and charge preserved" if h049v5_wait and h049v5_wait.get("returncode")!=0 else
+            "bounded-v5 CPU preparation launched with corrected directory allowance; prior v4 failure after38/40 logged preparations preserved" if h049v5_launch else
+            "bounded-v5 CPU preparation admitted, launch pending; unchanged science and full256MiB cap")
     c3_failed_output="experiments/results/C3_GNN_prefetch_current980_train_v1/failed_training.json"
     c3_wait_path="research/reviews/C3_GNN_prefetch_current980_root_20261015_v1/admitted_train_v1/actual_wait.json"
     c3_failed=maybe_read(c3_failed_output)
@@ -649,6 +660,27 @@ def main():
     elif maybe_read(c3_new_packet+"/root_source_resource_approval_v1.json"):
         c3_status="Isolated-boundary encoder repair installed and root source/caps approved; fresh full600-update GPU4 admission in progress, prior failure preserved"
         c3_execution["status"]=c3_status
+    c3_start_path="experiments/results/C3_GNN_prefetch_isolated980_train_v1/started.json"
+    c3_start=maybe_read(c3_start_path)
+    if c3_start:
+        runtime=c3_start.get("runtime",{})
+        title_verified=runtime.get("actual_process_title")=="AI Auto Research Pipeline Test" and runtime.get("nvtop",{}).get("actual_pid_title_and_index_verified") is True
+        c3_observed=known_process(runtime.get("pid",-1))
+        c3_live=bool(c3_observed["present"] and c3_observed.get("start_ticks")==476966238 and c3_observed["required_title_present"])
+        barrier_path="experiments/results/C3_GNN_prefetch_isolated980_train_v1/TRAIN_observation_barrier.json"
+        target_path="experiments/results/C3_GNN_prefetch_isolated980_train_v1/TRAIN_external_target_joins.json"
+        barrier_ready=(ROOT/barrier_path).is_file() and (ROOT/target_path).is_file()
+        current_wait=maybe_read(c3_new_packet+"/admitted_train_v1/actual_wait.json")
+        current_done=maybe_read("experiments/results/C3_GNN_prefetch_isolated980_train_v1/completed.json")
+        if current_wait:
+            c3_status=("Full600-update TRAIN completion recorded; exact counts/evaluation require review" if current_done and current_wait.get("returncode")==0 else "Repaired campaign terminal; actual wait and partial artifacts require review")
+        elif c3_live:
+            c3_status=("Full600-update campaign active on GPU4. All20 observation seals and TRAIN target joins completed; optimizer update counts not yet verified" if barrier_ready else "Full600-update repaired campaign started CUDA on GPU4; observation loading active, optimizer update counts not yet verified")
+        else:
+            c3_status="Recorded GPU4 runtime is no longer observed; actual wait and optimizer counts require review"
+        c3_execution.update(status=c3_status,started_ref=ref(c3_start_path),process_title_verified_in_NVTOP=title_verified,process_observation=c3_observed,worker_identity_present=c3_live,
+            all20_observation_barrier_complete=barrier_ready,observation_barrier_ref=ref(barrier_path) if barrier_ready else None,TRAIN_target_manifest_ref=ref(target_path) if barrier_ready else None)
+    c3_device="GPU4" if c3_execution.get("worker_identity_present") else "GPU4 planned"
     flare_val_seal["outer_tool_terminal_or_final_guard_success_claimed"]=False
     if flare_val_seal["completed_and_wait0_verified"]:
         flare_val_seal["status"]="prediction worker completed; direct wait0 and owned-group drain verified, outer tool terminal/final guard unconfirmed"
@@ -656,6 +688,11 @@ def main():
     if maybe_read(val002_attempt_path):
         correction=maybe_read("research/reviews/American_C3_remaining_VAL_namespace_memo_root_20261015_v1/root_val002_environment_correction_active_v1.json")
         remaining_val_status+=(". Original VAL002 pre-admission import failure preserved; corrected project-root import environment authorized and root launch issued" if correction else ". VAL002 parent launcher returned1 before useful output; preserved attempt, early cause under investigation, no replay")
+    val002_infer_attempt_path="research/reviews/American_C3_remaining_VAL_namespace_memo_root_20261015_v1/root_val002_parent_terminal_actual_v1.json"
+    if maybe_read(val002_infer_attempt_path):
+        recovery_path="research/reviews/VAL002_infer_unconsumed_admission_recovery_20261015_v1/root_recovery_admit_actual_terminal_v1.json"
+        recovery=maybe_read(recovery_path)
+        remaining_val_status+=(". Original parent session92429 returned1 after successful simulate/close; fresh same-science inference admission recovered, original failure preserved" if recovery and recovery.get("returncode")==0 else ". Parent session92429 returned1 after successful simulate/close, next inference admission stopped before a worker; capacity recovery in progress")
     h050=next((d for d in read("research/experiment_decisions.json")["decisions"] if d["id"]=="H050"),None)
     result=dict(schema="ARG_GNN_current_scientific_scoreboard_v1",updated_utc=stamp,
         American_C3_GNN_execution=c3_execution,
@@ -792,7 +829,7 @@ def main():
         "| Native ARGformer | "+native_device+" | "+native_brief+" | pending |",
         "| Native ARGformer held-out VAL000 | CPU | Original per-ARG six-dataset counts: "+val000_native_counts["status"]+". Separate native fit follows actual counts. | no ancestry score |",
         "| Native FLARE | CPU | Author build, TRAIN000 full-site inference and prediction seal completed. Held-out VAL000 conversion: "+flare_val_conversion["status"]+"; native inference: "+flare_val_native["status"]+"; seal: "+flare_val_seal["status"]+". | held-out score pending |",
-        "| Our American C3 GNN | GPU4 planned, repair on CPU | "+str(focal_ready)+"/20 exact TRAIN plans completed. "+c3_status+". Original VAL000 full-length GNN block plan: "+gnn_VAL000_plan["status"]+". | no ancestry score |",
+        "| Our American C3 GNN | "+c3_device+" | "+str(focal_ready)+"/20 exact TRAIN plans completed. "+c3_status+". Original VAL000 full-length GNN block plan: "+gnn_VAL000_plan["status"]+". | no ancestry score |",
         "| H049 cut-memory candidate | CPU preparation | "+h049_prepare_status+". Three matched 32,446-parameter arms. Full 30 passes / 960 updates per arm planned. | no fit or accuracy yet |",
         "| H050 stronger direct-readout candidate | Source integration | Registered. H045 predictor retained initially. Three 32,325-parameter memory arms and an unmodified 31,812-parameter continuation. 960 updates per arm, 192 prediction seals planned. | no fit or accuracy yet |",
         "| Empirical data | CPU | H045 probabilities, ancestry proportions and genotype PCA completed for 24 query haplotypes / 12 subjects. Descriptive only, without known ancestry truth. | completed |","",
@@ -803,7 +840,7 @@ def main():
         "**Remaining biological error:** H045 recovers22.59% of true Present182 changes at1kb tolerance despite96.827% span accuracy. Across8VAL parents its selected predictions match905 changes, miss3103 and add5063extra calls. [Audited residual-error table and scope limits](research/reviews/residual_biological_errors_20261015_v1/REPORT.md).", "",
         "**Comparison contract:** Use the same observed genomes, reference/query identities, truth and scored support. Each method keeps its native representation, such as VCFs, ancestral paths or PyG tensors. Extra inputs, training changes and reconstruction differences are disclosed. Native-format differences do not postpone a shared-data comparison.","",
         "**GST and cross-domain status:** "+gst_status,"",
-        "Parallel ownership: worker1 develops the stronger H050 readout with matched controls, worker2 repairs the C3 boundary-forest encoder and stages fresh execution sources, worker3 audits held-out native benchmark evidence and common-support score gates. Root owns actual execution, H049 preparation, integration, full score reporting and Git. Independent work continues in parallel.","","<!-- CURRENT_SCOREBOARD_END -->"]
+        "Parallel ownership: worker1 prepares biological validation and H050 execution, worker2 advances the held-out native ARGformer route, worker3 resolves the next fair ARGMix panel. Root owns live GPU4/GPU5 execution, shared American data, integration, score reporting and Git.","","<!-- CURRENT_SCOREBOARD_END -->"]
     p=ROOT/"README.md"
     text=p.read_text()
     a="<!-- CURRENT_SCOREBOARD_START -->"
@@ -847,7 +884,7 @@ def main():
             "**Completed H047:** original-risk96.7777±0.5970%, balanced-risk96.7576±0.5287%. Both30passes/960updates. Registered accuracy benefit not met. [Results](research/reviews/H047_completed_comparison_root_20261015_v1/REPORT.md).","",
             "**American GNN preparation:** "+fanout_status+". "+wave_text+" "+c3_status+".","",
             "**Architecture work:** H049 sample-witness order-2 cut memory is implemented and registered with matched null/leaf-memory controls. "+h049_prepare_status+". Predictive utility and a distinct new contribution remain unproved. [Design and prior-art limits](research/reviews/ordered_graph_operator_research_20261015_v1/REPORT.md).","",
-            "Root orchestrates execution and publishing. Three workers handle H050 architecture, the C3 encoder repair and native benchmark evidence in parallel. Only physical GPUs4–5 are eligible, with process title AI Auto Research Pipeline Test.","",""]
+            "Root orchestrates execution and publishing. Three workers handle biological/H050 readiness, held-out native ARGformer and the next ARGMix panel in parallel. Only physical GPUs4–5 are eligible, with process title AI Auto Research Pipeline Test.","",""]
         text=text[:text.index(section_start)]+"\n".join(running)+text[text.index(section_end):]
     pilot_start="<!-- ADAPTED_ARGFORMER_PILOT_START -->"
     pilot_end="<!-- ADAPTED_ARGFORMER_PILOT_END -->"

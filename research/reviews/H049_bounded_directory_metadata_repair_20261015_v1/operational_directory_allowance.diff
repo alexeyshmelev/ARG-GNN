@@ -1,0 +1,135 @@
+--- research/reviews/H049_bounded_actual_metadata_allocation_repair_20261015_v1/H049_prepare_context_v1.py
++++ research/reviews/H049_bounded_directory_metadata_repair_20261015_v1/H049_prepare_context_v1.py
+@@ -7,7 +7,7 @@
+     validate_eval_train_io_v1,load_guard_v1)
+ from research.reviews.H049_order2_cut_memory_root_source_20261015_v1 import producer_v1 as worker
+ from research.reviews.H049_order2_cut_memory_root_source_20261015_v1 import cut_recipe_codec_v1 as codec
+-SOURCE="research/reviews/H049_bounded_actual_metadata_allocation_repair_20261015_v1/H049_prepare_context_v1.py"
++SOURCE="research/reviews/H049_bounded_directory_metadata_repair_20261015_v1/H049_prepare_context_v1.py"
+ PREP_SOURCE=HERE+"/prepare_v1.py"
+ WORKER_SOURCE=HERE+"/producer_v1.py"
+ 
+@@ -135,7 +135,7 @@
+         and plan["total_output_scope_upper_bound_bytes"]<=cfg["output_cap_bytes"],"Reviewed complete output forecast")
+     # Exact prospective operational source bindings. No production API patch.
+     import sys
+-    sys.path.insert(0,str(ROOT/"research/reviews/H049_bounded_actual_metadata_allocation_repair_20261015_v1"))
++    sys.path.insert(0,str(ROOT/"research/reviews/H049_bounded_directory_metadata_repair_20261015_v1"))
+     from bounded_phase_writer_v1 import PhaseOutputV1
+     from H049_prepare_layout_v1 import validate_count_layout_v1
+     phase_plan=reader.decode_json(spec["bounded_phase_plan_ref"])
+--- research/reviews/H049_bounded_actual_metadata_allocation_repair_20261015_v1/H049_prepare_layout_v1.py
++++ research/reviews/H049_bounded_directory_metadata_repair_20261015_v1/H049_prepare_layout_v1.py
+@@ -33,7 +33,7 @@
+     # Success/failure are terminal alternatives; charging all three keeps the bound simple.
+     metadata_total=sum(charge_cap(rule["max_payload_bytes"]) for rule in files.values() if rule["group"]=="phase_metadata")
+     # Fixed preparation has exactly three directories: output, aux and aux/ro.
+-    directories=3*16384;lease=charge_cap(8192)
++    directories=3*65536;lease=charge_cap(8192)
+     # Escaped RAM log plus independent <=64KiB root wait metadata, both allocation-rounded.
+     terminal_tail=charge_cap(6*cfg["log_cap_bytes"]+65536)+charge_cap(65536)
+     # Scratch contains the current payload plus a zero-byte owned final placeholder.
+@@ -45,7 +45,7 @@
+         "group_charge_caps":{"recipes":recipe_total,"phase_metadata":metadata_total},
+         "readonly_aux_directories":["ro"],"readonly_environment_keys":list(READONLY_ENV),
+         "per_file_overhead_bytes":OVERHEAD,"allocation_round_bytes":ROUND,"allocation_slack_bytes":ALLOCATION_SLACK,
+-        "per_directory_charge_cap_bytes":16384,"phase_lease_charge_cap_bytes":lease,
++        "per_directory_charge_cap_bytes":65536,"phase_lease_charge_cap_bytes":lease,
+         "reserved_terminal_tail_bytes":terminal_tail,"scratch_charge_bound_bytes":scratch,
+         "peak_phase_charge_bound_bytes":peak}
+ 
+--- research/reviews/H049_bounded_actual_metadata_allocation_repair_20261015_v1/root_driver.py
++++ research/reviews/H049_bounded_directory_metadata_repair_20261015_v1/root_driver.py
+@@ -9,9 +9,9 @@
+     policy_env,GUARD_REF,POLICY_REF,LAUNCHER_REF,REPAIR_REF,AUTH_REF,MEMO_REF,V4_REF,CORE,BASE,
+     validate_eval_train_io_v1)
+ from research.reviews.H049_order2_cut_memory_root_source_20261015_v1 import producer_v1 as worker
+-PACKET_HERE="research/reviews/H049_bounded_actual_metadata_allocation_repair_20261015_v1"
++PACKET_HERE="research/reviews/H049_bounded_directory_metadata_repair_20261015_v1"
+ SOURCE=PACKET_HERE+"/root_driver.py"
+-BOUNDED="research/reviews/H049_bounded_actual_metadata_allocation_repair_20261015_v1"
++BOUNDED="research/reviews/H049_bounded_directory_metadata_repair_20261015_v1"
+ CONTEXT=BOUNDED+"/H049_prepare_context_v1.py"
+ WRITER=BOUNDED+"/bounded_phase_writer_v1.py"
+ LAYOUT=BOUNDED+"/H049_prepare_layout_v1.py"
+@@ -25,7 +25,7 @@
+ 
+ 
+ def context():
+-    from research.reviews.H049_bounded_actual_metadata_allocation_repair_20261015_v1 import H049_prepare_context_v1
++    from research.reviews.H049_bounded_directory_metadata_repair_20261015_v1 import H049_prepare_context_v1
+     return H049_prepare_context_v1
+ 
+ 
+@@ -45,7 +45,7 @@
+     r=read(request_ref);phase=r["phase"]
+     require(r.get("schema")=="H049_order2_root_admission_request_v1"
+         and r.get("status")=="active" and r.get("root_authorizer")=="root_agent"
+-        and phase=="prepare","Explicit root H049 bounded prepare-v4 admission request")
++        and phase=="prepare","Explicit root H049 bounded prepare-v5 admission request")
+     cfg=read(r["config_ref"]);worker.validate_protocol(cfg,phase=phase)
+     require(r["reserved_bytes"]==cfg["output_cap_bytes"]==268435456,"Exact reviewed fresh 256MiB full charge")
+     require(cfg.get("preparation_execution_version")==2,"Exact sealed repaired scientific producer version2")
+@@ -56,7 +56,7 @@
+     gpu=r.get("physical_gpu")
+     require(gpu is None if phase=="prepare" else gpu in (4,5),"CPU prepare or root-selected GPU4/5")
+     packet=ROOT/PACKET_HERE/("admitted_"+phase)
+-    output=("experiments/results/H049_CPU_order2_cut_memory_prepare_bounded_v4" if phase=="prepare" else
++    output=("experiments/results/H049_CPU_order2_cut_memory_prepare_bounded_v5" if phase=="prepare" else
+         "experiments/results/H049_GPU%d_order2_cut_memory_%s_seed101_v1"%(gpu,phase))
+     auxiliary=str(packet.relative_to(ROOT)/"worker_aux")
+     require(not packet.exists() and not (ROOT/output).exists() and not (ROOT/auxiliary).exists(),
+@@ -99,7 +99,7 @@
+             "No previous TRAIN completion in prepare/train")
+     packet.mkdir()
+     now=datetime.now(timezone.utc);expiry=(now+timedelta(hours=24)).isoformat()
+-    job="H049-order2-%s-seed101-bounded-v4-%s"%(phase,"CPU" if phase=="prepare" else "GPU%d"%gpu)
++    job="H049-order2-%s-seed101-bounded-v5-%s"%(phase,"CPU" if phase=="prepare" else "GPU%d"%gpu)
+     runtime=save(packet,"runtime.json",dict(status="active",device="cpu" if phase=="prepare" else "cuda",
+         physical_gpu=gpu,job_id=job,output_directory=output,
+         process_title=None if phase=="prepare" else "AI Auto Research Pipeline Test",
+@@ -256,7 +256,7 @@
+ 
+ def launch(admitted_ref,root_stderr):
+     admitted=read(admitted_ref);spec=read(admitted["input_ref"]);c=context()
+-    require(spec.get("phase")=="prepare" and spec.get("output_directory")=="experiments/results/H049_CPU_order2_cut_memory_prepare_bounded_v4",
++    require(spec.get("phase")=="prepare" and spec.get("output_directory")=="experiments/results/H049_CPU_order2_cut_memory_prepare_bounded_v5",
+         "Bounded-v4 launch never reuses revoked failure scopes")
+     require(admitted["driver_ref"]==ref(SOURCE) and spec["root_driver_ref"]==ref(SOURCE),"Actual fresh root driver")
+     require(spec["producer_ref"]==ref(PREP_SOURCE) and spec["preparation_execution_version"]==2,"Exact sealed corrected producer")
+@@ -293,7 +293,7 @@
+     known={proc.pid:first};groups={first["group"]}
+     launch_record=dict(schema="H049_marker_original_launch_v1",launcher_pid=proc.pid,launcher_start=first["start"],
+         direct_child=True,phase="prepare",physical_gpu=None,input_ref=launch_input,command=cmd,
+-        preparation_execution_version=2,bounded_writer_execution_version=4,bounded_phase_plan_ref=spec["bounded_phase_plan_ref"],
++        preparation_execution_version=2,bounded_writer_execution_version=5,bounded_phase_plan_ref=spec["bounded_phase_plan_ref"],
+         phase_lease_ref=lease_ref,phase_lease_fd_inherited=True,actual_wait_pending=True,
+         created_at_utc=datetime.now(timezone.utc).isoformat())
+     launch_ref=save(packet,"launch.json",launch_record)
+@@ -355,7 +355,7 @@
+             owned_process_identities=[dict(pid=p,start=x["start"],group=x["group"]) for p,x in sorted(known.items())],
+             historical_owned_groups=sorted(groups),completed_ref=completed_ref,phase="prepare",physical_gpu=None,
+             log_ref=log_ref,peak_owned_RSS_bytes=peak,elapsed_seconds=time.monotonic()-start,error=error,
+-            preparation_execution_version=2,bounded_writer_execution_version=4,phase_lease_ref=lease_ref,
++            preparation_execution_version=2,bounded_writer_execution_version=5,phase_lease_ref=lease_ref,
+             independent_phase_lease_exclusion_observed=True,full_terminal_guard_returned=True,
+             original_full_reservation_retained_bytes=268435456,waited_utc=datetime.now(timezone.utc).isoformat())
+         wait_ref=save(packet,"actual_wait.json",waited)
+@@ -373,7 +373,7 @@
+     args=p.parse_args(argv)
+     if not (args.admit or args.launch or args.plan):
+         print(json.dumps(dict(status="source_only_no_guard_admission_or_execution",
+-            phase="prepare",science_version=2,bounded_writer_version=4,reserved_bytes=268435456,
++            phase="prepare",science_version=2,bounded_writer_version=5,reserved_bytes=268435456,
+             actual_repaired_producer_ref=ref(PREP_SOURCE),actual_codec_ref=CODEC_REF)));return 0
+     require(args.record and args.sha256,"Exact root metadata record")
+     record=dict(path=args.record,sha256=args.sha256)
+@@ -386,7 +386,7 @@
+             return launch(record,root_stderr)
+     except BaseException:
+         detail=traceback.format_exc();root_stderr.add(detail.encode("utf-8",errors="replace"))
+-        print(json.dumps(dict(event="root_prepare_v4_error",stderr=root_stderr.record(),
++        print(json.dumps(dict(event="root_prepare_v5_error",stderr=root_stderr.record(),
+             accounting_not_closed_or_credited=True)),flush=True)
+         return 1
+ 

@@ -1,0 +1,36 @@
+{
+  "PID_or_GPU_probe_performed": false,
+  "current_live_session": 50244,
+  "known_launcher_PID_from_started_metadata": 3042104,
+  "known_runtime_PID_from_started_metadata": 3042221,
+  "metadata_presence": {
+    "TRAIN_external_target_joins.json": false,
+    "TRAIN_observation_barrier.json": false,
+    "completed_training.json": false,
+    "failed_training.json": false,
+    "started.json": true
+  },
+  "new_provider_ref": {
+    "path": "research/reviews/C3_GNN_prefetch_ramcache_isolated980_root_20261015_v3/ram_cache_provider_v1.py",
+    "sha256": "7de3ce76df415f20056bdba0ef2b4a2fe48ea1938b270fa0fa4384719ac23936"
+  },
+  "no_live_patch_or_restart": true,
+  "observed_utc": "2026-10-15T20:44:36.537477+00:00",
+  "old_sources_unchanged": true,
+  "schema": "C3_GNN_isolated980_startup_efficiency_source_findings_v1",
+  "source_mechanisms": [
+    "Trainer constructs all20 providers, seals every original block and writes the observation barrier before any TRAIN truth join, model initialization or optimizer update.",
+    "The required first seal covers3089 blocks,98516 complete marginal trees,254141098 node appearances and303833 sites. This is substantial CPU/NFS preparation before useful GPU training.",
+    "The original seal calls _read directly, bypassing cache insertion, and release clears both main LRU and worker source state.",
+    "Each original parent update's forward/reverse scans and backward recomputation request identical deterministic CPU feature banks repeatedly; the512MiB LRU handles immediate adjacent get reuse and some scan-turn reuse but is cleared after every parent.",
+    "Both persistent workers are rebound620 times:20 required seals plus600 updates. On a cache miss their fresh parent Dataset state hashes/opens original tree/genotype/positions/allele/focal payloads before feature construction.",
+    "Worker _read hashes the complete bank, the main receiver verifies the transport hash, and every cache get hashes again. Original row-only and checkpoint get calls also repeat the cache hash. The new route retains these scientific content checks rather than trusting a cache hit.",
+    "The fast runtime callback performs current expiry/RSS/GPU lease/title/job checks. Persistent receive loops repeat it every<=0.1s while waiting. It has no storage scan or journal call; repeated lease/path syscalls can cost NFS latency, while full feature reconstruction is the large removable work.",
+    "The new cache captures the original checked CPU banks during the mandatory seal, retains them through all600 updates, and rejects a post-seal cache miss. All620 worker context binds/releases still occur, but training cache hits dispatch no worker feature task.",
+    "Only raw deterministic CPU features are cached. Weight-dependent encode_bank/GRU outputs, full BPTT, checkpoint recomputation, FP32 losses/gradients/optimizer order, checkpoints and all30 heldout seals remain unchanged."
+  ],
+  "started_ref": {
+    "path": "experiments/results/C3_GNN_prefetch_isolated980_train_v1/started.json",
+    "sha256": "035d2d4fb70b9cd601c518e12cdf64710bf12f003b002355f9db68e3816b252b"
+  }
+}

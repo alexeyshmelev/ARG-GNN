@@ -1,0 +1,11 @@
+cd /workspace-SR003.nfs2/ARG-GNN
+# Source-only metadata validation
+env PYTHONPATH=/workspace-SR003.nfs2/ARG-GNN:/workspace-SR003.nfs2/ARG-GNN/src .runtime/env/bin/python -B research/reviews/VAL002_infer_unconsumed_admission_recovery_20261015_v1/recover_val002_infer_v1.py
+# ROOT ONLY, exactly once after sufficient actual current headroom
+env PYTHONPATH=/workspace-SR003.nfs2/ARG-GNN:/workspace-SR003.nfs2/ARG-GNN/src .runtime/env/bin/python -B research/reviews/VAL002_infer_unconsumed_admission_recovery_20261015_v1/recover_val002_infer_v1.py --admit-recovery
+# Require root_recovery_admit_actual_terminal_v1.json returncode0 and actual reserve/admission refs before launching.
+# Unchanged existing root supervisor; one inference stage only.
+env PYTHONPATH=/workspace-SR003.nfs2/ARG-GNN:/workspace-SR003.nfs2/ARG-GNN/src .runtime/env/bin/python -B research/reviews/American_C3_remaining_VAL_namespace_memo_root_20261015_v1/root_execution_v1.py --parent american_c3_val_002 --launch infer
+# Require genuine direct worker wait0, operational_failure null, original completed.json and owned-group ESRCH before closing.
+env PYTHONPATH=/workspace-SR003.nfs2/ARG-GNN:/workspace-SR003.nfs2/ARG-GNN/src .runtime/env/bin/python -B research/reviews/American_C3_remaining_VAL_namespace_memo_root_20261015_v1/close_completed_v1.py --parent american_c3_val_002 --scope infer --execute
+# Preserve original terminal1 and original three partial files. Do not rerun run_parent_v1.sh or --admit infer.

@@ -1,0 +1,284 @@
+{
+  "aggregate_headroom_bytes": 17179869184,
+  "duplicate_and_ownership_notes": [
+    "Cache ownership counts each complete CPU tensor bank once per block, conservatively counting tensor aliases separately.",
+    "Each worker's 8 GiB whole-process RSS cap includes source observations, feature construction, outgoing bank and original hash-copy buffers.",
+    "The 1 GiB block-staging allowance is included within the 48 GiB main-process allowance: eight 128 MiB block slots for two incoming results, IPC/serialization bookkeeping buffers, the clone before CUDA and transfer/read scratch margin.",
+    "Retention keeps the received CPU object; it makes no second bank copy. Shared IPC pages are conservatively counted in the main and worker RSS bounds.",
+    "The remaining 47 GiB main-process allowance covers Python/PyG objects, runtime, CPU autograd boundary graphs, pinned transfer/driver allocations and allocator fragmentation.",
+    "The 48 GiB noncache allowance is prospective, not measured fit evidence. Whole-main-process peak RSS is hard-limited to 88 GiB by the new entry's original fast boundaries and cache accesses.",
+    "Main plus two workers is hard-bounded by 88+8+8=104 GiB, leaving 16 GiB under the existing 120 GiB aggregate bound. Root/launcher/supervisory overhead remains subject to the unchanged 128 GiB whole-owned-tree root cap with 24 GiB above this main/worker bound.",
+    "CUDA tensors and model-dependent encoder/GRU outputs are not cached; the original 40 GiB CUDA cap and original checkpointed FP32 computations remain.",
+    "No disk spill or additional data product is introduced; all retained banks are explicitly cleared after final worker drain."
+  ],
+  "existing_aggregate_RSS_cap_bytes": 128849018880,
+  "existing_root_scope_RSS_cap_bytes": 137438953472,
+  "formula_components": {
+    "hold_geometry_bytes_per_tree": 24,
+    "node_tensors_max_bytes_per_node": 100,
+    "query_reference_date_bytes_per_block": 27200,
+    "sample_index_bytes_per_tree": 12800,
+    "site_max_bytes": 1730,
+    "three_focal_indices_bytes_per_focal": 24
+  },
+  "logical_all20_cap_bytes": 42949672960,
+  "logical_parent_cap_bytes": 2147483648,
+  "main_RSS_hard_cap_bytes": 94489280512,
+  "main_duplicate_block_staging_included_allowance_bytes": 1073741824,
+  "main_noncache_included_planning_allowance_bytes": 51539607552,
+  "main_other_runtime_graph_allocator_metadata_included_allowance_bytes": 50465865728,
+  "main_plus_workers_hard_maximum_bytes": 111669149696,
+  "maximum_parent_tensor_byte_upper_bound": 1440604826,
+  "measured_RSS_or_timing": false,
+  "method": "current tensor dtypes/shapes plus authenticated exact plan counts; no payload run",
+  "no_disk_spill": true,
+  "root_scope_margin_above_main_plus_workers_bytes": 25769803776,
+  "rows": [
+    {
+      "blocks": 154,
+      "nodes": 12708378,
+      "parent": "american_c3_short_train_000",
+      "plan_ref": {
+        "path": "experiments/results/C3_short_TRAIN_focal_plans_v1/american_c3_short_train_000/block_index.json",
+        "sha256": "2240c86c9615569890853e5877bbfbf46910054188f63a8b4b39af53ae74051c"
+      },
+      "sites": 14937,
+      "tensor_byte_upper_bound": 1363906738,
+      "trees": 4897
+    },
+    {
+      "blocks": 154,
+      "nodes": 12615965,
+      "parent": "american_c3_short_train_001",
+      "plan_ref": {
+        "path": "experiments/results/C3_short_TRAIN_focal_plans_v1/american_c3_short_train_001/block_index.json",
+        "sha256": "ae8790f50d6e54b131fa4504cab5cb8d5859292df6f74b0e880d3017680afe69"
+      },
+      "sites": 15215,
+      "tensor_byte_upper_bound": 1355159202,
+      "trees": 4898
+    },
+    {
+      "blocks": 162,
+      "nodes": 13425825,
+      "parent": "american_c3_short_train_002",
+      "plan_ref": {
+        "path": "experiments/results/C3_short_TRAIN_focal_plans_v1/american_c3_short_train_002/block_index.json",
+        "sha256": "f54794dff907d7caa136c2b2705e1c476306988e3252a39f57acab00c4274fb7"
+      },
+      "sites": 15547,
+      "tensor_byte_upper_bound": 1440604826,
+      "trees": 5184
+    },
+    {
+      "blocks": 153,
+      "nodes": 12532940,
+      "parent": "american_c3_short_train_003",
+      "plan_ref": {
+        "path": "experiments/results/C3_short_TRAIN_focal_plans_v1/american_c3_short_train_003/block_index.json",
+        "sha256": "494b44a7294f1b0e6f3461ebd36ba6386a437b782a8a8d4883aec49aa9e6544c"
+      },
+      "sites": 15408,
+      "tensor_byte_upper_bound": 1346829968,
+      "trees": 4872
+    },
+    {
+      "blocks": 157,
+      "nodes": 12891529,
+      "parent": "american_c3_short_train_004",
+      "plan_ref": {
+        "path": "experiments/results/C3_short_TRAIN_focal_plans_v1/american_c3_short_train_004/block_index.json",
+        "sha256": "d866c7077a3718a2282366462b108d38a36b8a3d2f01bc462673a1ece322d3a9"
+      },
+      "sites": 15461,
+      "tensor_byte_upper_bound": 1384518006,
+      "trees": 4999
+    },
+    {
+      "blocks": 157,
+      "nodes": 12992430,
+      "parent": "american_c3_short_train_005",
+      "plan_ref": {
+        "path": "experiments/results/C3_short_TRAIN_focal_plans_v1/american_c3_short_train_005/block_index.json",
+        "sha256": "e9d8603319be2e76cb46a08edf5b2d02e75ad74ba8a293c2990d5359b60cd7c6"
+      },
+      "sites": 15360,
+      "tensor_byte_upper_bound": 1394433376,
+      "trees": 4999
+    },
+    {
+      "blocks": 152,
+      "nodes": 12586259,
+      "parent": "american_c3_short_train_006",
+      "plan_ref": {
+        "path": "experiments/results/C3_short_TRAIN_focal_plans_v1/american_c3_short_train_006/block_index.json",
+        "sha256": "47047fa8171c33fce9e8e968a62013a527b82f36696923ad8e4c1f68450c42a9"
+      },
+      "sites": 15099,
+      "tensor_byte_upper_bound": 1351484682,
+      "trees": 4863
+    },
+    {
+      "blocks": 145,
+      "nodes": 11889374,
+      "parent": "american_c3_short_train_007",
+      "plan_ref": {
+        "path": "experiments/results/C3_short_TRAIN_focal_plans_v1/american_c3_short_train_007/block_index.json",
+        "sha256": "6e1b333eba59882a8e90d4e824c51c79880d25c7b14c2fae96dbb4b408a179bf"
+      },
+      "sites": 14698,
+      "tensor_byte_upper_bound": 1277885588,
+      "trees": 4627
+    },
+    {
+      "blocks": 161,
+      "nodes": 13248483,
+      "parent": "american_c3_short_train_008",
+      "plan_ref": {
+        "path": "experiments/results/C3_short_TRAIN_focal_plans_v1/american_c3_short_train_008/block_index.json",
+        "sha256": "f0cd0449bf9aba4e18272eb58a7c4f750fd1826e4e5bc0a2ad13c0f55ccd02c7"
+      },
+      "sites": 15523,
+      "tensor_byte_upper_bound": 1422147882,
+      "trees": 5133
+    },
+    {
+      "blocks": 157,
+      "nodes": 12975846,
+      "parent": "american_c3_short_train_009",
+      "plan_ref": {
+        "path": "experiments/results/C3_short_TRAIN_focal_plans_v1/american_c3_short_train_009/block_index.json",
+        "sha256": "9b2278766c3d53f587444b9f2308b9d38a3ae81c74aa7b53125efa1fd3b0cfba"
+      },
+      "sites": 15374,
+      "tensor_byte_upper_bound": 1392837668,
+      "trees": 5002
+    },
+    {
+      "blocks": 156,
+      "nodes": 12876681,
+      "parent": "american_c3_short_train_010",
+      "plan_ref": {
+        "path": "experiments/results/C3_short_TRAIN_focal_plans_v1/american_c3_short_train_010/block_index.json",
+        "sha256": "dcc2b883491844ba0c2a83f93a4411f55b091833f3c7483dfaef1d76470e6591"
+      },
+      "sites": 15147,
+      "tensor_byte_upper_bound": 1382116538,
+      "trees": 4972
+    },
+    {
+      "blocks": 152,
+      "nodes": 12587736,
+      "parent": "american_c3_short_train_011",
+      "plan_ref": {
+        "path": "experiments/results/C3_short_TRAIN_focal_plans_v1/american_c3_short_train_011/block_index.json",
+        "sha256": "302a935d49ba34bcf060188e6e8c8aef8a68f4925a10924c5c65a4909ad91aad"
+      },
+      "sites": 15125,
+      "tensor_byte_upper_bound": 1351561946,
+      "trees": 4854
+    },
+    {
+      "blocks": 149,
+      "nodes": 12174174,
+      "parent": "american_c3_short_train_012",
+      "plan_ref": {
+        "path": "experiments/results/C3_short_TRAIN_focal_plans_v1/american_c3_short_train_012/block_index.json",
+        "sha256": "2e2ab44cdc571a4cfdf521224db24b381ff53866c590cec941b5e55af26b1730"
+      },
+      "sites": 15157,
+      "tensor_byte_upper_bound": 1309038170,
+      "trees": 4765
+    },
+    {
+      "blocks": 155,
+      "nodes": 12710742,
+      "parent": "american_c3_short_train_013",
+      "plan_ref": {
+        "path": "experiments/results/C3_short_TRAIN_focal_plans_v1/american_c3_short_train_013/block_index.json",
+        "sha256": "8b94816a94298f4a417d09e4ec480b312d7033d892640b98cc8b7f75c6b01ba5"
+      },
+      "sites": 15339,
+      "tensor_byte_upper_bound": 1365455702,
+      "trees": 4943
+    },
+    {
+      "blocks": 150,
+      "nodes": 12350161,
+      "parent": "american_c3_short_train_014",
+      "plan_ref": {
+        "path": "experiments/results/C3_short_TRAIN_focal_plans_v1/american_c3_short_train_014/block_index.json",
+        "sha256": "98d817c74ac63ac44f9be779e2e37ca5ec8335d35854928addedef7ad968684d"
+      },
+      "sites": 14819,
+      "tensor_byte_upper_bound": 1326451226,
+      "trees": 4794
+    },
+    {
+      "blocks": 159,
+      "nodes": 12961786,
+      "parent": "american_c3_short_train_015",
+      "plan_ref": {
+        "path": "experiments/results/C3_short_TRAIN_focal_plans_v1/american_c3_short_train_015/block_index.json",
+        "sha256": "e7ac3c04a47f83a715993569ed4623ae5b005db1250118a19201ccf2cac4afcd"
+      },
+      "sites": 15084,
+      "tensor_byte_upper_bound": 1391830752,
+      "trees": 5068
+    },
+    {
+      "blocks": 156,
+      "nodes": 12778361,
+      "parent": "american_c3_short_train_016",
+      "plan_ref": {
+        "path": "experiments/results/C3_short_TRAIN_focal_plans_v1/american_c3_short_train_016/block_index.json",
+        "sha256": "44190c719abf97e6489414990b88f3794c0a7713600d3b4685e21c57d75193e0"
+      },
+      "sites": 15015,
+      "tensor_byte_upper_bound": 1372004882,
+      "trees": 4968
+    },
+    {
+      "blocks": 154,
+      "nodes": 12642624,
+      "parent": "american_c3_short_train_017",
+      "plan_ref": {
+        "path": "experiments/results/C3_short_TRAIN_focal_plans_v1/american_c3_short_train_017/block_index.json",
+        "sha256": "02b95a51ed9cd97c3f714db0ab29d7e8ca053d6fcdecb2ef3bfdeef8daf4491d"
+      },
+      "sites": 15270,
+      "tensor_byte_upper_bound": 1358035668,
+      "trees": 4907
+    },
+    {
+      "blocks": 154,
+      "nodes": 12697218,
+      "parent": "american_c3_short_train_018",
+      "plan_ref": {
+        "path": "experiments/results/C3_short_TRAIN_focal_plans_v1/american_c3_short_train_018/block_index.json",
+        "sha256": "c9b65e3b6e517becc3da76e1a3de877a1dd0b76e00c3f8fb5a4d07216775e345"
+      },
+      "sites": 15012,
+      "tensor_byte_upper_bound": 1363189792,
+      "trees": 4918
+    },
+    {
+      "blocks": 152,
+      "nodes": 12494586,
+      "parent": "american_c3_short_train_019",
+      "plan_ref": {
+        "path": "experiments/results/C3_short_TRAIN_focal_plans_v1/american_c3_short_train_019/block_index.json",
+        "sha256": "15209b5b4717067497c7bed6937a4c0bc6089f044066cd767e893f5bbabe3602"
+      },
+      "sites": 15243,
+      "tensor_byte_upper_bound": 1342438262,
+      "trees": 4853
+    }
+  ],
+  "schema": "C3_immutable_RAM_cache_memory_forecast_v1",
+  "storage_cap_bytes": 2147483648,
+  "tensor_bound_formula": "100*N + 8*T*1600 + 1730*S + 24*T + 27200*B + 24*10000",
+  "total_tensor_byte_upper_bound": 27291930874,
+  "worker_RSS_cap_each_bytes": 8589934592,
+  "worker_count": 2
+}

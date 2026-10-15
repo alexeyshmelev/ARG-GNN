@@ -1,0 +1,480 @@
+--- /dev/null
++++ research/reviews/C3_GNN_prefetch_ramcache_isolated980_root_20261015_v3/ram_cache_provider_v1.py
+@@ -0,0 +1,148 @@
++"""Source-only bounded immutable CPU features; original scientific code is reused."""
++from __future__ import annotations
++import copy, resource, time
++from arggnn.american_c3_common_v1 import require, ref
++from research.reviews.C3_GNN_prefetch_isolated980_root_20261015_v2.persistent_provider_v1 import (
++    PersistentSealedObservationProviderV1, PersistentObservationProviderFactoryV1, TRAIN)
++from research.reviews.C3_GNN_prefetch_isolated980_root_20261015_v2.prefetch_provider_isolated_v2 import (
++    _buffer_feature_identity)
++
++SOURCE="research/reviews/C3_GNN_prefetch_ramcache_isolated980_root_20261015_v3/ram_cache_provider_v1.py"
++GiB=2**30
++CACHE_CAPS=dict(per_parent_logical_bytes=2*GiB,aggregate_logical_bytes=40*GiB,
++    main_RSS_cap_bytes=88*GiB,main_noncache_planning_allowance_bytes=48*GiB,
++    main_block_duplicate_planning_allowance_bytes=GiB,
++    aggregate_RSS_cap_bytes=120*GiB,root_RSS_cap_bytes=128*GiB,
++    worker_count=2,worker_RSS_cap_bytes=8*GiB)
++
++def tensor_byte_bound_v1(plan):
++    """Tensor payload upper bound from the exact complete observed plan, no data."""
++    require(plan["haplotypes"]==1600 and plan["focal_records"]==10000
++        and plan["class_order"]==["EUR","EAS","AFR"],"Exact C3 observation cardinalities")
++    n=sum(b["nodes"] for b in plan["blocks"]);t=plan["trees"];s=plan["sites"];b=len(plan["blocks"])
++    # Node tensors <=100N: parent8,time4,level/index arrays<=32,geometry16,support40.
++    # samples8TH; sites int8 genotype SH + donor96/mask6/panel16/entropy4/hold8.
++    # hold arrays24T; query/reference/date27200 per block; three focal indexes24F.
++    return 100*n+8*t*1600+(1600+130)*s+24*t+27200*b+24*10000
++
++class _RAMBudgetV1:
++    def __init__(self,caps):
++        require(caps==CACHE_CAPS,"Exact reviewed RAM ownership and headroom caps")
++        self.caps=copy.deepcopy(caps);self.entries={};self.by_parent={};self.used=0;self.peak=0
++    def reserve(self,parent,index,size):
++        key=(parent,index);require(parent in TRAIN and key not in self.entries and type(size)is int and size>0,"One complete immutable bank per physical block")
++        used=self.by_parent.get(parent,0)
++        require(used+size<=self.caps["per_parent_logical_bytes"] and self.used+size<=self.caps["aggregate_logical_bytes"],"Explicit per-parent and all20 logical CPU cache caps")
++        self.entries[key]=size;self.by_parent[parent]=used+size;self.used+=size;self.peak=max(self.peak,self.used)
++    def release_parent(self,parent):
++        for key in [k for k in self.entries if k[0]==parent]:self.used-=self.entries.pop(key)
++        self.by_parent.pop(parent,None)
++        require(self.used>=0,"Exact retained RAM ownership accounting")
++    def snapshot(self):
++        return dict(logical_bytes=self.used,peak_logical_bytes=self.peak,parents=dict(self.by_parent),entries=len(self.entries),caps=copy.deepcopy(self.caps))
++
++class ImmutableRAMObservationProviderV1(PersistentSealedObservationProviderV1):
++    def __init__(self,*args,ram_budget,**kwargs):
++        require(kwargs.get("cache_bytes")==CACHE_CAPS["per_parent_logical_bytes"],"Root selected exact2GiB per-parent immutable feature cache")
++        self.ram_budget=ram_budget;self._sealing=False;self._sealed_cache_complete=False;self._cache_poisoned=False
++        super().__init__(*args,**kwargs)
++        self.tensor_byte_bound=tensor_byte_bound_v1(self.plan)
++        require(self.tensor_byte_bound<=self.cache_bytes,"Whole original parent fits without eviction or spill")
++    def _remember(self,index,block,digest,size):
++        require(self._sealing and index not in self.cache and len(digest)==64
++            and size<=self.options["max_block_bytes"] and self.used+size<=self.tensor_byte_bound,"Only original checked seal features enter RAM")
++        self.ram_budget.reserve(self.plan["parent_id"],index,size)
++        try:self.cache[index]=(block,digest,size);self.used+=size
++        except BaseException:
++            self.ram_budget.release_parent(self.plan["parent_id"]);self.cache.clear();self.used=0;raise
++        require(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss*1024<=CACHE_CAPS["main_RSS_cap_bytes"],"Cache plus every main-process allocation fits88GiB")
++    def _read(self,index):
++        require(self._sealing and not self._cache_poisoned,"No CPU feature rebuild after the required seal")
++        block,digest,size=super()._read(index)
++        self._remember(index,block,digest,size)
++        return block,digest,size
++    def seal(self,*,resource_check):
++        require(not self._sealing and not self.cache and self.seal_record is None and not self._cache_poisoned,"One required full observation seal")
++        self._sealing=True
++        try:
++            value=super().seal(resource_check=resource_check)
++            require(set(self.cache)==set(range(len(self))) and self.used<=self.tensor_byte_bound
++                and self.ram_budget.by_parent.get(self.plan["parent_id"])==self.used,"Every sealed complete block retained before any truth")
++            self._sealed_cache_complete=True
++            return value
++        except BaseException:
++            self._release(failed=True);raise
++        finally:self._sealing=False
++    def get(self,index):
++        try:
++            require(type(index)is int and 0<=index<len(self) and self._sealed_cache_complete
++                and not self._sealing and not self._cache_poisoned and self.seal_record is not None
++                and index in self.cache,"Only complete required-seal banks; no fallback or eviction")
++            started=time.perf_counter();block,digest,size=self.cache[index]
++            actual,actual_size=_buffer_feature_identity(block)
++            self.counters["cache_hash_seconds"]+=time.perf_counter()-started
++            require(actual==digest==self.seal_record["block_feature_sha256"][index] and actual_size==size
++                and block.plan_ref==self.plan["plan_ref"] and block.parent_id==self.plan["parent_id"]
++                and block.block_index==index and block.start_tree==self.plan["blocks"][index]["start_tree"]
++                and block.stop_tree==self.plan["blocks"][index]["stop_tree"],"Full cached tensor content, original identity and seal digest on every reuse")
++            self.counters["cache_hits"]+=1;self.cache.move_to_end(index)
++            # Bind the same authenticated worker context even for a cache-only parent.
++            # No prefetch dispatch is useful because every physical block is retained.
++            self._pool()
++            require(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss*1024<=CACHE_CAPS["main_RSS_cap_bytes"],"Main-process complete RAM/graph/runtime cap")
++            return block
++        except BaseException:
++            self._release(failed=True);raise
++    def clear_retained_cache(self):
++        self.ram_budget.release_parent(self.plan["parent_id"]);self.cache.clear();self.used=0;self._sealed_cache_complete=False
++    def _release(self,*,failed):
++        try:
++            row=self.manager.release(self,failed=failed)
++            if row is not None:self.parent_releases.append(row)
++        except BaseException:
++            self._cache_poisoned=True;raise
++        finally:
++            self.engine=None;self.last_index=None;self.direction=1
++            self.dataset._state=None;self.dataset._pid=None
++            if failed:self._cache_poisoned=True
++            if self._cache_poisoned:self.clear_retained_cache()
++    def diagnostics(self):
++        value=super().diagnostics()
++        value["immutable_RAM_feature_cache"]=dict(retained_bytes=self.used,tensor_byte_bound=self.tensor_byte_bound,
++            fully_sealed=self._sealed_cache_complete,no_feature_rebuild_after_seal=True,
++            full_digest_each_reuse=True,model_inputs_cloned_by_unchanged_stream_consumer=True,
++            logical_cache_budget=self.ram_budget.snapshot())
++        return value
++
++class ImmutableRAMObservationProviderFactoryV1(PersistentObservationProviderFactoryV1):
++    def __init__(self,*,operational_caps,immutable_cache_caps,resource_check):
++        require(immutable_cache_caps==CACHE_CAPS and operational_caps["num_workers"]==2
++            and operational_caps["worker_rss_cap_bytes"]==8*GiB
++            and operational_caps["max_block_bytes"]==128*2**20
++            and operational_caps["aggregate_rss_cap_bytes"]==120*GiB,"Exact2workers/8GiB and complete reviewed RAM bounds")
++        self.ram_budget=_RAMBudgetV1(immutable_cache_caps);self.parent_tensor_bounds={}
++        super().__init__(operational_caps=operational_caps,resource_check=resource_check)
++        self.execution_binding["source_refs"].append(ref(SOURCE))
++        self.execution_binding["immutable_RAM_feature_cache"]=dict(caps=copy.deepcopy(CACHE_CAPS),
++            parent_tensor_byte_bounds=self.parent_tensor_bounds,required_seal_populates_cache=True,
++            full_digest_every_get=True,CPU_features_only_no_learned_context_cache=True,
++            no_disk_spill=True,all620_worker_context_releases_preserved=True)
++    def __call__(self,plan_ref,*,parent_id,worker_tmp_directory,cache_bytes):
++        require(parent_id not in self.providers,"One original immutable RAM provider per parent")
++        value=ImmutableRAMObservationProviderV1(plan_ref,parent_id=parent_id,worker_tmp_directory=worker_tmp_directory,
++            cache_bytes=cache_bytes,persistent_manager=self.manager,resource_check=self.resource_check,
++            ram_budget=self.ram_budget,**self.options)
++        self.providers[parent_id]=value;self.parent_tensor_bounds[parent_id]=value.tensor_byte_bound
++        require(sum(self.parent_tensor_bounds.values())<=CACHE_CAPS["aggregate_logical_bytes"],"All registered complete features fit logical RAM cap")
++        self.execution_binding["registered_parent_plan_refs"][parent_id]=copy.deepcopy(plan_ref)
++        return value
++    def finalize(self,*,training_failed):
++        retained_before=self.ram_budget.snapshot()
++        try:
++            # Original factory enforces20seal+600step releases and actual worker joins.
++            result=super().finalize(training_failed=training_failed)
++            result["immutable_RAM_feature_cache_before_final_clear"]=retained_before
++            return result
++        finally:
++            for provider in self.providers.values():provider.clear_retained_cache()
++            require(self.ram_budget.used==0 and not self.ram_budget.entries,"Every retained CPU bank released after final worker drain")
+--- research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2/tracking_factory_v1.py
++++ research/reviews/C3_GNN_prefetch_ramcache_isolated980_root_20261015_v3/tracking_factory_v1.py
+@@ -1,12 +1,12 @@
+ """Bind tracking source while delegating the separately reviewed persistent factory."""
+ import copy
+ from arggnn.american_c3_common_v1 import ref
+-SOURCE="research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2/tracking_factory_v1.py"
++SOURCE="research/reviews/C3_GNN_prefetch_ramcache_isolated980_root_20261015_v3/tracking_factory_v1.py"
+ 
+ class TrackingObservationProviderFactoryV1:
+-    def __init__(self,*,operational_caps,resource_check):
+-        from .persistent_provider_v1 import PersistentObservationProviderFactoryV1
+-        self.base=PersistentObservationProviderFactoryV1(operational_caps=operational_caps,resource_check=resource_check)
++    def __init__(self,*,operational_caps,immutable_cache_caps,resource_check):
++        from .ram_cache_provider_v1 import ImmutableRAMObservationProviderFactoryV1
++        self.base=ImmutableRAMObservationProviderFactoryV1(operational_caps=operational_caps,immutable_cache_caps=immutable_cache_caps,resource_check=resource_check)
+     @property
+     def execution_binding(self):
+         value=copy.deepcopy(self.base.execution_binding);value["source_refs"].append(ref(SOURCE))
+--- research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2/worker_entry_v1.py
++++ research/reviews/C3_GNN_prefetch_ramcache_isolated980_root_20261015_v3/worker_entry_v1.py
+@@ -2,7 +2,7 @@
+ from pathlib import Path
+ import argparse,hashlib,importlib.util,json,os,resource,sys,time
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-REL="research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2"
++REL="research/reviews/C3_GNN_prefetch_ramcache_isolated980_root_20261015_v3"
+ sys.path[:0]=[str(ROOT),str(ROOT/"src"),str(ROOT/"scripts"),str(ROOT/REL)]
+ import root_contract_v1 as c
+ def execute(record):
+@@ -50,7 +50,7 @@
+  start=time.monotonic()
+  def fast(event="C3_GNN_runtime_boundary"):
+   c.active(spec);c.require(time.monotonic()-start<caps["operational_deadline_seconds"],"Full fixed-condition deadline; no shortcut")
+-  c.require(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss*1024<=caps["max_cpu_rss_bytes"],"Main-process peak RSS cap; provider and outer supervisor separately cover owned workers")
++  c.require(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss*1024<=(cfg["immutable_feature_cache"]["main_RSS_cap_bytes"] if stage=="train" else caps["max_cpu_rss_bytes"]),"Main-process peak RSS cap; provider and outer supervisor separately cover owned workers")
+   if GPU:
+    check_fit_lease(qualified);fit.require_logical_job_v1(qualified,spec)
+    c.require(torch.cuda.max_memory_reserved()<=caps["max_cuda_reserved_bytes"],"Actual Torch CUDA reserved cap")
+@@ -62,15 +62,15 @@
+   def json(self,name,value):return self.save(name,value)
+   def npz(self,name,**arrays):return self.save(name,arrays,kind="npz")
+  w=Writer();h=c.hooks();b=req["bindings"]
+- fast();w.save("started.json",dict(status="started_C3_GNN_prefetch_isolated980",stage=stage,input_ref=record,
++ fast();w.save("started.json",dict(status="started_C3_GNN_prefetch_ramcache_isolated980",stage=stage,input_ref=record,
+   runtime=runtime,IPC_bootstrap=ipc_receipt,native_MLM_dependency=False,TEST_deferred=True,root_driver_ref=c.ref(c.DRIVER)))
+  if stage=="train":
+   config=c.read(cfg["scientific_training_config_ref"]);config["execution_enabled"]=True
+   meta=h.actual_train_metadata_v1(b["actual_train_bindings"])
+   def train_truth(parent):
+    c.require(parent in c.TRAIN,"Only all20 short TRAIN truth");return meta[parent]["private_truth_ref"]
+-  from research.reviews.C3_GNN_prefetch_isolated980_root_20261015_v2.tracking_factory_v1 import TrackingObservationProviderFactoryV1
+-  factory=TrackingObservationProviderFactoryV1(operational_caps=cfg["observation_prefetch"],resource_check=fast)
++  from research.reviews.C3_GNN_prefetch_ramcache_isolated980_root_20261015_v3.tracking_factory_v1 import TrackingObservationProviderFactoryV1
++  factory=TrackingObservationProviderFactoryV1(operational_caps=cfg["observation_prefetch"],immutable_cache_caps=cfg["immutable_feature_cache"],resource_check=fast)
+   training_failure=None
+   try:
+    result=h.run_train_stage_v1(config,parent_plan_refs=b["parent_plan_refs"],actual_train_bindings=b["actual_train_bindings"],
+--- research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2/root_driver_v1.py
++++ research/reviews/C3_GNN_prefetch_ramcache_isolated980_root_20261015_v3/root_driver_v1.py
+@@ -3,7 +3,7 @@
+ from datetime import datetime,timezone,timedelta
+ import argparse,collections,hashlib,importlib.util,json,os,selectors,signal,subprocess,sys,time
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-REL="research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2"
++REL="research/reviews/C3_GNN_prefetch_ramcache_isolated980_root_20261015_v3"
+ sys.path[:0]=[str(ROOT),str(ROOT/"src"),str(ROOT/"scripts"),str(ROOT/REL),str(ROOT/"research/reviews/American_C3_native_MLM_full_source_v5"),str(ROOT/"research/reviews/American_C3_native_MLM_amendment_v12")]
+ import root_contract_v1 as c
+ SOURCE=c.DRIVER
+@@ -26,7 +26,7 @@
+     c.require(not tmp.exists(),"Fresh separately reserved TMP")
+     sources={p:c.ref(p)["sha256"] for p in c.source_paths()}
+     packet.mkdir();config_ref=c.save(packet,"config.json",config)
+-    closure_ref=c.save(packet,"source_and_input_closure.json",dict(schema="C3_GNN_prefetch_isolated980_transitive_closure_v1",
++    closure_ref=c.save(packet,"source_and_input_closure.json",dict(schema="C3_GNN_prefetch_ramcache_isolated980_transitive_closure_v1",
+         source_sha256=sources,root_stage_request_ref=request_ref,bindings=req["bindings"],
+         scientific_train_source_ref=c.TRAIN_SOURCE_REF,hook_ref=c.HOOK_REF,native_MLM_dependency=False))
+     guard=c.original_guard()
+@@ -335,6 +335,6 @@
+  if a.close:
+   c.require(a.root_approval and a.expected_root_approval_sha256,"Actual root terminal/revocation certificate")
+   close(a.close,dict(path=a.root_approval,sha256=a.expected_root_approval_sha256));return 0
+- print(json.dumps(dict(status="source_only_C3_GNN_prefetch_isolated980",phases=list(c.PHASES),
++ print(json.dumps(dict(status="source_only_C3_GNN_prefetch_ramcache_isolated980",phases=list(c.PHASES),
+   actual_execution=False,actual_admission=False,native_MLM_dependency=False)));return 0
+ if __name__=="__main__":raise SystemExit(main())
+--- research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2/canonical_dispatch.staged.py
++++ research/reviews/C3_GNN_prefetch_ramcache_isolated980_root_20261015_v3/canonical_dispatch.staged.py
+@@ -4,7 +4,7 @@
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+ def main(argv=None):
+     sys.path[:0]=[str(ROOT),str(ROOT/"src"),str(ROOT/"scripts"),
+-        str(ROOT/"research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2")]
++        str(ROOT/"research/reviews/C3_GNN_prefetch_ramcache_isolated980_root_20261015_v3")]
+     from worker_entry_v1 import main as execute
+     return execute(argv)
+ if __name__=="__main__":raise SystemExit(main())
+--- src/arggnn/american_c3_gnn_prefetch_isolated980_exec_v2.py
++++ src/arggnn/american_c3_gnn_prefetch_ramcache_isolated980_exec_v3.py
+@@ -4,7 +4,7 @@
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+ def main(argv=None):
+     sys.path[:0]=[str(ROOT),str(ROOT/"src"),str(ROOT/"scripts"),
+-        str(ROOT/"research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2")]
++        str(ROOT/"research/reviews/C3_GNN_prefetch_ramcache_isolated980_root_20261015_v3")]
+     from worker_entry_v1 import main as execute
+     return execute(argv)
+ if __name__=="__main__":raise SystemExit(main())
+--- research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2/root_contract_v1.py
++++ research/reviews/C3_GNN_prefetch_ramcache_isolated980_root_20261015_v3/root_contract_v1.py
+@@ -2,10 +2,10 @@
+ from pathlib import Path
+ import copy,hashlib,importlib.util,json,os,sys
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-REL="research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2"
++REL="research/reviews/C3_GNN_prefetch_ramcache_isolated980_root_20261015_v3"
+ SOURCE=REL+"/root_contract_v1.py";DRIVER=REL+"/root_driver_v1.py";ENTRY=REL+"/worker_entry_v1.py"
+-CANONICAL="src/arggnn/american_c3_gnn_prefetch_isolated980_exec_v2.py"
+-GPU_MODULE="arggnn.american_c3_gnn_prefetch_isolated980_exec_v2"
++CANONICAL="src/arggnn/american_c3_gnn_prefetch_ramcache_isolated980_exec_v3.py"
++GPU_MODULE="arggnn.american_c3_gnn_prefetch_ramcache_isolated980_exec_v3"
+ GPU_MAIN=CANONICAL;CPU_MAIN=ENTRY
+ BASE_HELPER=dict(path="research/reviews/C3_native_postMLM980_root_source_20261015_v1/root_native_contract_v1.py",
+  sha256="aeb992d49d632003cbd971432afa607cc8e8ba2b0658f57501fcc435c8d74b69")
+@@ -23,7 +23,7 @@
+ HOOK_REF={'path': 'research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2/execution_hooks_prefetch_v1.py', 'sha256': 'b7418267d329b0d83df45c5f5d053ffd034db0e88c794d5a59c7b59ca52900d1'}
+ TRAIN_SOURCE_REF={'path': 'research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2/trainer_prefetch_v1.py', 'sha256': 'b2f08a3e84bd5fb65c5f3d95566ab082fb71a2dd0a826180a10aa518aa35025c'}
+ 
+-PREFETCH_SOURCE_PINS={'research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2/prefetch_provider_isolated_v2.py': '64fdb94c4cdf16163d2443b1aea8d2afde8f389d6f6690628ec622e13c98c057', 'research/reviews/C3_GNN_prefetch_provider_20261015_v1/bounded_workers_v1.py': '66f541e7e10bf0c86f1b28b39cfa69924a31b46974548d4a1f9fbf1d0aa6c21a', 'research/reviews/C3_GNN_prefetch_provider_20261015_v1/abstract_ipc_bootstrap_v1.py': '1d8f11ff88481ae5fabb4794cdd25aeafd377d253b308cb026f020c966989ad4', 'research/reviews/C3_GNN_prefetch_provider_20261015_v1/worker_entry_integration_api_v1.py': 'aebb1f2d75277f5311dadbdbfdad98be3906dbb0a25db92cee1060ce64b52f4b', 'research/reviews/C3_GNN_prefetch_provider_20261015_v1/transport_handoff.v1.json': '8338194f068d3dcc5cedb9648e74a6cd3f01126d3ac8aa185a1ce7b68bb78495', 'research/reviews/C3_GNN_prefetch_provider_20261015_v1/source_handoff.v1.json': 'b267322dccd07f480163240ae7755fcebbeab69c5bc6b4b7080759d22666b161', 'research/reviews/C3_GNN_prefetch_provider_20261015_v1/torch_pyg_transport_receipt.v1.json': '6164ccd1975a9ffdc75acd53f3f4bfccadc1c29c4bb6e89fc56cf1a6b5c215c6', 'research/reviews/C3_GNN_prefetch_provider_20261015_v1/torch_pyg_transport_actual_wait.v1.json': '48555568895376ee270c4613342f5ee4a0bb57c5cf788eb9b127db7eb52d2b16', 'src/arggnn/american_c3_gnn_stream_train_isolated_v2.py': '09394390199ceee020e4123d25a4cfcdcee38229450abc3ddd24dde55773b912', 'src/arggnn/american_c3_gnn_dataset_isolated_v2.py': '6e4f32fcec9e6af0c6aa2c81cdbcc4ef1bf7ff83da04b233f0064b6a65c33cb2', 'src/arggnn/american_c3_gnn_observations_isolated_v2.py': 'adf1be0aab14e54b0d48c8cb577b3df541bed2ee88ac846f16bab8a75d56f781', 'research/reviews/C3_GNN_prefetch_provider_20261015_v1/prefetch_provider_v1.py': 'd4a29905b6b7d1f4daff9946557e8967ab51665a0c5648603e25f028d782b4a9'}
++PREFETCH_SOURCE_PINS={'research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2/prefetch_provider_isolated_v2.py': '64fdb94c4cdf16163d2443b1aea8d2afde8f389d6f6690628ec622e13c98c057', 'research/reviews/C3_GNN_prefetch_provider_20261015_v1/bounded_workers_v1.py': '66f541e7e10bf0c86f1b28b39cfa69924a31b46974548d4a1f9fbf1d0aa6c21a', 'research/reviews/C3_GNN_prefetch_provider_20261015_v1/abstract_ipc_bootstrap_v1.py': '1d8f11ff88481ae5fabb4794cdd25aeafd377d253b308cb026f020c966989ad4', 'research/reviews/C3_GNN_prefetch_provider_20261015_v1/worker_entry_integration_api_v1.py': 'aebb1f2d75277f5311dadbdbfdad98be3906dbb0a25db92cee1060ce64b52f4b', 'research/reviews/C3_GNN_prefetch_provider_20261015_v1/transport_handoff.v1.json': '8338194f068d3dcc5cedb9648e74a6cd3f01126d3ac8aa185a1ce7b68bb78495', 'research/reviews/C3_GNN_prefetch_provider_20261015_v1/source_handoff.v1.json': 'b267322dccd07f480163240ae7755fcebbeab69c5bc6b4b7080759d22666b161', 'research/reviews/C3_GNN_prefetch_provider_20261015_v1/torch_pyg_transport_receipt.v1.json': '6164ccd1975a9ffdc75acd53f3f4bfccadc1c29c4bb6e89fc56cf1a6b5c215c6', 'research/reviews/C3_GNN_prefetch_provider_20261015_v1/torch_pyg_transport_actual_wait.v1.json': '48555568895376ee270c4613342f5ee4a0bb57c5cf788eb9b127db7eb52d2b16', 'src/arggnn/american_c3_gnn_stream_train_isolated_v2.py': '09394390199ceee020e4123d25a4cfcdcee38229450abc3ddd24dde55773b912', 'src/arggnn/american_c3_gnn_dataset_isolated_v2.py': '6e4f32fcec9e6af0c6aa2c81cdbcc4ef1bf7ff83da04b233f0064b6a65c33cb2', 'src/arggnn/american_c3_gnn_observations_isolated_v2.py': 'adf1be0aab14e54b0d48c8cb577b3df541bed2ee88ac846f16bab8a75d56f781', 'research/reviews/C3_GNN_prefetch_provider_20261015_v1/prefetch_provider_v1.py': 'd4a29905b6b7d1f4daff9946557e8967ab51665a0c5648603e25f028d782b4a9', 'research/reviews/C3_GNN_prefetch_ramcache_isolated980_root_20261015_v3/ram_cache_provider_v1.py': '7de3ce76df415f20056bdba0ef2b4a2fe48ea1938b270fa0fa4384719ac23936'}
+ LEGACY_DRIVER_REF={'path': 'research/reviews/C3_GNN_current980_executable_root_20261015_v1/root_driver_v1.py', 'sha256': '95f5c8fcbf096f9f648f6ff293152cc81b5adb36586b129c80e4e6dd1326015c'}
+ LEGACY_REL='research/reviews/C3_GNN_current980_executable_root_20261015_v1'
+ FROZEN_TRAIN_CONFIG_REF={'path': 'research/reviews/C3_GNN_current980_executable_root_20261015_v1/training_config.inactive.json', 'sha256': '7c04aa9274ee091f7677287df68f74c5419d5b611a5672c69ae4095d0cdf7d26'}
+@@ -37,11 +37,11 @@
+ PARENT="American_C3_short20_TRAIN_original5VAL"
+ CONTEXT=ENTRY;RUNTIME_HELPER=ENTRY
+ PROC_HELPER=_base.PROC_HELPER
+-STATUSES={p:"completed_C3_GNN_prefetch_isolated980_"+p for p in PHASES}
++STATUSES={p:"completed_C3_GNN_prefetch_ramcache_isolated980_"+p for p in PHASES}
+ def launcher_ref_v1():return LAUNCHER_REF
+ def phase_paths(stage):
+  require(stage in PHASES,"Registered independent GNN stage")
+- return ROOT/REL/("admitted_"+stage+"_v1"),"experiments/results/C3_GNN_prefetch_isolated980_"+stage+"_v1"
++ return ROOT/REL/("admitted_"+stage+"_v1"),"experiments/results/C3_GNN_prefetch_ramcache_isolated980_"+stage+"_v1"
+ def verify_shim():
+  target=dict(path=CANONICAL,sha256=ref(REL+"/canonical_dispatch.staged.py")["sha256"])
+  require(ref(CANONICAL)==target,"Root must first integrate the exact additive canonical shim")
+@@ -51,6 +51,9 @@
+ ORIGINAL_METADATA_IMPORT_SOURCE_PATHS=('src/arggnn/american_c3_gnn_dataset_v1.py', 'src/arggnn/american_c3_gnn_stream_train_v1.py', 'src/arggnn/american_c3_gnn_observations_v1.py', 'src/arggnn/american_c3_gnn_run_v1.py', 'src/arggnn/american_c3_gnn_train_v1.py')
+ PRIOR_PREFETCH_REL='research/reviews/C3_GNN_prefetch_current980_root_20261015_v1'
+ PRIOR_PREFETCH_DRIVER_REF={'path': 'research/reviews/C3_GNN_prefetch_current980_root_20261015_v1/root_driver_v1.py', 'sha256': '69a21fc2b8ef0d2a165fd6139c2348537f6920db082483dd296c23db02dbc29a'}
++RAM_CACHE_CAPS={'per_parent_logical_bytes': 2147483648, 'aggregate_logical_bytes': 42949672960, 'main_RSS_cap_bytes': 94489280512, 'main_noncache_planning_allowance_bytes': 51539607552, 'main_block_duplicate_planning_allowance_bytes': 1073741824, 'aggregate_RSS_cap_bytes': 128849018880, 'root_RSS_cap_bytes': 137438953472, 'worker_count': 2, 'worker_RSS_cap_bytes': 8589934592}
++PRIOR_ISOLATED_REL='research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2'
++PRIOR_ISOLATED_DRIVER_REF={'path': 'research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2/root_driver_v1.py', 'sha256': '7724766b65ad4463af9c2f8f108ce063a31564c2cd07a044e944fe65b6dc6e46'}
+ def source_paths():
+  scientific=("american_c3_common_v1","american_c3_gnn_targets_v1","american_c3_gnn_stream_train_isolated_v2","american_c3_gnn_train_v1",
+  "american_c3_gnn_model_v1","american_c3_gnn_run_isolated_v2","american_c3_gnn_dataset_isolated_v2","american_c3_gnn_observations_isolated_v2",
+@@ -60,7 +63,7 @@
+  cfg=read(BASE_CONFIG_REF)
+  return tuple(dict.fromkeys((*(("src/arggnn/"+x+".py") for x in scientific),
+   SOURCE,DRIVER,ENTRY,CANONICAL,HOOK_REF["path"],TRAIN_SOURCE_REF["path"],BASE_HELPER["path"],LAUNCHER_REF["path"],
+-  REL+"/metadata_contract_v1.py",REL+"/tracking_factory_v1.py",REL+"/persistent_provider_v1.py",REL+"/persistent_workers_v1.py",*PREFETCH_SOURCE_PINS,LEGACY_DRIVER_REF["path"],FROZEN_TRAIN_CONFIG_REF["path"],*ORIGINAL_METADATA_IMPORT_SOURCE_PATHS,PRIOR_PREFETCH_DRIVER_REF["path"],
++  'research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2/metadata_contract_v1.py',REL+"/tracking_factory_v1.py",'research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2/persistent_provider_v1.py','research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2/persistent_workers_v1.py',*PREFETCH_SOURCE_PINS,LEGACY_DRIVER_REF["path"],FROZEN_TRAIN_CONFIG_REF["path"],*ORIGINAL_METADATA_IMPORT_SOURCE_PATHS,PRIOR_PREFETCH_DRIVER_REF["path"],PRIOR_ISOLATED_DRIVER_REF["path"],
+   "scripts/launch_reserved_gpu_full_storage_v1.py","scripts/launch_reserved_gpu_terminal_retired_scopes_v1.py",
+   "scripts/project_budget_v9.py",cfg["gpu_runtime"]["nvtop_helper"],PROC_HELPER,
+   "research/reviews/American_C3_native_MLM_amendment_v12/owned_lifecycle_v2.py",
+@@ -132,12 +135,12 @@
+ def validate_closed_plan_stage(evidence,plan_ref,parent):
+  require(isinstance(evidence,dict) and set(evidence)=={"route","completion_ref","actual_wait_ref","close_receipt_ref"},"Actual closed observation-plan evidence")
+  stage="plan_val_"+parent[-3:]
+- require(evidence["route"] in ("current980_zero_worker","prefetch_current980","prefetch_isolated980"),"Known immutable plan route")
+- legacy=evidence["route"]=="current980_zero_worker"
+- prior_prefetch=evidence["route"]=="prefetch_current980"
+- rel=LEGACY_REL if legacy else (PRIOR_PREFETCH_REL if prior_prefetch else REL)
+- prefix="C3_GNN_current980_" if legacy else ("C3_GNN_prefetch_current980_" if prior_prefetch else "C3_GNN_prefetch_isolated980_")
+- driver=LEGACY_DRIVER_REF if legacy else (PRIOR_PREFETCH_DRIVER_REF if prior_prefetch else ref(DRIVER))
++ require(evidence["route"] in ("current980_zero_worker","prefetch_current980","prefetch_isolated980","prefetch_ramcache_isolated980"),"Known immutable plan route")
++ routes={"current980_zero_worker":(LEGACY_REL,"C3_GNN_current980_",LEGACY_DRIVER_REF),
++  "prefetch_current980":(PRIOR_PREFETCH_REL,"C3_GNN_prefetch_current980_",PRIOR_PREFETCH_DRIVER_REF),
++  "prefetch_isolated980":(PRIOR_ISOLATED_REL,"C3_GNN_prefetch_isolated980_",PRIOR_ISOLATED_DRIVER_REF),
++  "prefetch_ramcache_isolated980":(REL,"C3_GNN_prefetch_ramcache_isolated980_",ref(DRIVER))}
++ rel,prefix,driver=routes[evidence["route"]]
+  folder=rel+"/admitted_"+stage+"_v1"
+  require(evidence["completion_ref"]["path"]=="experiments/results/"+prefix+stage+"_v1/completed.json"
+   and evidence["actual_wait_ref"]["path"]==folder+"/actual_wait.json"
+@@ -163,7 +166,7 @@
+ 
+ def validate_caps(req,caps,*,activated):
+  stage=req["phase"]
+- require(caps.get("schema")=="C3_GNN_prefetch_isolated980_operational_caps_v1"
++ require(caps.get("schema")=="C3_GNN_prefetch_ramcache_isolated980_operational_caps_v1"
+   and caps.get("active") is activated and caps.get("phase") in (None,stage)
+   and caps.get("bound_method")=="operational_fail_stop_not_measured_fit_or_timing","Actual explicit operational caps")
+  for key in ("reservation_cap_bytes","phase_write_budget_bytes","temp_allowance_bytes","outer_auxiliary_cap_bytes",
+@@ -183,25 +186,37 @@
+   require(set(cfg)==set(base) and cfg["execution_enabled"] is False
+    and all(cfg[k]==base[k] for k in base if k!="CPU_observation_cache_bytes"),"Exact20parent/30epoch/600update FP32 science; cache alone operational")
+   cache=cfg["CPU_observation_cache_bytes"]
+-  require(type(cache) is int and cache>=p["max_block_bytes"] and p["worker_rss_cap_bytes"]>p["max_block_bytes"]
+-   and cache+(p["num_workers"]+2)*p["max_block_bytes"]+p["num_workers"]*p["worker_rss_cap_bytes"]<=p["aggregate_rss_cap_bytes"]<=caps["max_cpu_rss_bytes"],"Cache/transport/all-worker aggregate RSS bounds")
++  require(caps.get("immutable_feature_cache")==RAM_CACHE_CAPS and cache==RAM_CACHE_CAPS["per_parent_logical_bytes"]
++   and p["num_workers"]==2 and p["worker_rss_cap_bytes"]==8*2**30 and p["max_block_bytes"]==128*2**20
++   and p["aggregate_rss_cap_bytes"]==120*2**30 and caps["max_cpu_rss_bytes"]==128*2**30,"Exact RAM/cache/worker and unchanged root RSS caps")
++  require(RAM_CACHE_CAPS["aggregate_logical_bytes"]+RAM_CACHE_CAPS["main_noncache_planning_allowance_bytes"]==RAM_CACHE_CAPS["main_RSS_cap_bytes"]
++   and RAM_CACHE_CAPS["main_block_duplicate_planning_allowance_bytes"]<=RAM_CACHE_CAPS["main_noncache_planning_allowance_bytes"]
++   and RAM_CACHE_CAPS["main_RSS_cap_bytes"]+p["num_workers"]*p["worker_rss_cap_bytes"]<=p["aggregate_rss_cap_bytes"]-16*2**30,"Complete88+16=104GiB RSS bound and16GiB aggregate headroom")
++  total=0
+   for record in req["bindings"]["parent_plan_refs"].values():
+    plan=read(record,cap=33554432)
+    require(p["max_block_bytes"]>=plan["feature_tensor_byte_planning_bound_per_block"],"Block cap covers every original actual plan")
+- else:require(caps.get("observation_prefetch") is None,"Prefetch belongs only to TRAIN; VAL route unchanged")
++   require(plan["haplotypes"]==1600 and plan["focal_records"]==10000 and plan["class_order"]==["EUR","EAS","AFR"],"Exact RAM tensor-bound cardinalities")
++   n=sum(b["nodes"] for b in plan["blocks"]);t=plan["trees"];sites=plan["sites"];blocks=len(plan["blocks"])
++   bound=100*n+8*t*1600+1730*sites+24*t+27200*blocks+240000
++   require(bound<=cache,"Every complete original parent fits its no-eviction RAM cap");total+=bound
++  require(total<=RAM_CACHE_CAPS["aggregate_logical_bytes"],"All20 complete original feature banks fit aggregate RAM")
++
++ else:require(caps.get("observation_prefetch") is None and caps.get("immutable_feature_cache") is None,"RAM/prefetch belongs only to TRAIN; VAL route unchanged")
+  return caps
+ 
+ def make_config(req,caps):
+  stage=req["phase"]
+- return dict(schema="C3_GNN_prefetch_isolated980_operational_config_v1",execution_enabled=True,phase=stage,
+-  output_cap_bytes=caps["reservation_cap_bytes"],short_tmp_directory=".runtime/tmp/c3gnnprefetchisolated980/"+stage,
++ return dict(schema="C3_GNN_prefetch_ramcache_isolated980_operational_config_v1",execution_enabled=True,phase=stage,
++  output_cap_bytes=caps["reservation_cap_bytes"],short_tmp_directory=".runtime/tmp/c3gnnprefetchramcacheisolated980/"+stage,
+   scientific_training_config_ref=req.get("scientific_training_config_ref"),
+   observation_prefetch=copy.deepcopy(caps.get("observation_prefetch")),
++  immutable_feature_cache=copy.deepcopy(caps.get("immutable_feature_cache")),
+   child_log_ram_bytes=caps["child_log_ram_bytes"])
+ 
+ def validate_request(record):
+  req=read(record,cap=33554432);stage=req["phase"]
+- require(req.get("schema")=="C3_GNN_prefetch_isolated980_request_v1" and req.get("active") is True
++ require(req.get("schema")=="C3_GNN_prefetch_ramcache_isolated980_request_v1" and req.get("active") is True
+   and req.get("root_authorizer")=="root_agent" and stage in PHASES and req.get("native_MLM_dependency") is False,"Fresh explicit successor GNN authority")
+  require(req["runtime_ref"]==RUNTIME_REF and req["base_fit_config_ref"]==BASE_CONFIG_REF
+   and req["scientific_train_source_ref"]==TRAIN_SOURCE_REF and req["hook_ref"]==HOOK_REF,"Exact copied science/hooks/runtime")
+@@ -217,7 +232,7 @@
+ 
+ def bind(template_ref):
+  req=read(template_ref,cap=33554432);stage=req["phase"]
+- require(req.get("schema")=="C3_GNN_prefetch_isolated980_request_v1" and req.get("active") is False
++ require(req.get("schema")=="C3_GNN_prefetch_ramcache_isolated980_request_v1" and req.get("active") is False
+   and req.get("root_authorizer")=="root_agent" and stage in PHASES,"Inactive explicit root successor request")
+  require(req["runtime_ref"]==RUNTIME_REF and req["base_fit_config_ref"]==BASE_CONFIG_REF
+   and req["scientific_train_source_ref"]==TRAIN_SOURCE_REF and req["hook_ref"]==HOOK_REF
+--- research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2/training_config.inactive.json
++++ research/reviews/C3_GNN_prefetch_ramcache_isolated980_root_20261015_v3/training_config.inactive.json
+@@ -1,5 +1,5 @@
+ {
+-  "CPU_observation_cache_bytes": 536870912,
++  "CPU_observation_cache_bytes": 2147483648,
+   "H043_extension": null,
+   "backbone": "C3_typed_gated_upward_recipient_excluded_cavity_v1",
+   "checkpoint_epochs": [
+--- research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2/caps_train.root_active_v1.json
++++ research/reviews/C3_GNN_prefetch_ramcache_isolated980_root_20261015_v3/caps_train.proposed.inactive.json
+@@ -1,7 +1,18 @@
+ {
+-  "active": true,
++  "active": false,
+   "bound_method": "operational_fail_stop_not_measured_fit_or_timing",
+   "child_log_ram_bytes": 4194304,
++  "immutable_feature_cache": {
++    "aggregate_RSS_cap_bytes": 128849018880,
++    "aggregate_logical_bytes": 42949672960,
++    "main_RSS_cap_bytes": 94489280512,
++    "main_block_duplicate_planning_allowance_bytes": 1073741824,
++    "main_noncache_planning_allowance_bytes": 51539607552,
++    "per_parent_logical_bytes": 2147483648,
++    "root_RSS_cap_bytes": 137438953472,
++    "worker_RSS_cap_bytes": 8589934592,
++    "worker_count": 2
++  },
+   "max_cpu_rss_bytes": 137438953472,
+   "max_cuda_reserved_bytes": 42949672960,
+   "observation_prefetch": {
+@@ -19,6 +30,6 @@
+   "phase_write_budget_bytes": 1073741824,
+   "reservation_cap_bytes": 2147483648,
+   "root_packet_overhead_cap_bytes": 4194304,
+-  "schema": "C3_GNN_prefetch_isolated980_operational_caps_v1",
++  "schema": "C3_GNN_prefetch_ramcache_isolated980_operational_caps_v1",
+   "temp_allowance_bytes": 536870912
+ }
+--- research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2/request_train.root_active_v1.json
++++ research/reviews/C3_GNN_prefetch_ramcache_isolated980_root_20261015_v3/request_train.proposed.inactive.json
+@@ -1,6 +1,6 @@
+ {
+   "GPU_UUID": "GPU-6cf64ff3-d8c2-9201-b2b8-683029625d71",
+-  "active": true,
++  "active": false,
+   "base_fit_config_ref": {
+     "path": "configs/census_tsinfer_fit_v1.json",
+     "sha256": "7c2436d5479e68beb1a8f3edb04ca0ee729a23be35ca2d7893827c0db68e3b00"
+@@ -535,13 +535,9 @@
+       }
+     }
+   },
+-  "caps_ref": {
+-    "path": "research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2/caps_train.root_active_v1.json",
+-    "sha256": "73f891707ebf45312f7fd4b7ed331028b9b92c5148f4e84c0f85cb4a2369511d"
+-  },
+   "caps_template_ref": {
+-    "path": "research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2/caps_train.proposed.inactive.json",
+-    "sha256": "e75c69fd8953094d324102d561876c896a55e8136d09d1af51b5bc289ee1f52f"
++    "path": "research/reviews/C3_GNN_prefetch_ramcache_isolated980_root_20261015_v3/caps_train.proposed.inactive.json",
++    "sha256": "2909f8301e8bb12f6a22451bdb3d7770d779f10b21f1ba19fe31cfcf073e0b28"
+   },
+   "hook_ref": {
+     "path": "research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2/execution_hooks_prefetch_v1.py",
+@@ -555,13 +551,13 @@
+     "path": "research/reviews/ARGformer_American_C3_implementation_20261015_v1/shared_cpu_runtime_metadata.json",
+     "sha256": "e0944a1c2c4b2a26d2edfe68fad11db691b4b6853ebeddd8e3b79692b43fa602"
+   },
+-  "schema": "C3_GNN_prefetch_isolated980_request_v1",
++  "schema": "C3_GNN_prefetch_ramcache_isolated980_request_v1",
+   "scientific_train_source_ref": {
+     "path": "research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2/trainer_prefetch_v1.py",
+     "sha256": "b2f08a3e84bd5fb65c5f3d95566ab082fb71a2dd0a826180a10aa518aa35025c"
+   },
+   "scientific_training_config_ref": {
+-    "path": "research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2/training_config.inactive.json",
+-    "sha256": "7c04aa9274ee091f7677287df68f74c5419d5b611a5672c69ae4095d0cdf7d26"
++    "path": "research/reviews/C3_GNN_prefetch_ramcache_isolated980_root_20261015_v3/training_config.inactive.json",
++    "sha256": "483e00ec1e2d205ef21e6f164df537a70392761f02e231e87876c9ee3d47470b"
+   }
+ }

@@ -1,0 +1,19 @@
+# Root only, after source/cap review. Remote cwd: /workspace-SR003.nfs2/ARG-GNN
+# No command below was executed by the source worker.
+# First create fresh config_prepare.root_active_v1.json from proposed config,
+# setting BOTH execution_enabled=true AND root_resource_caps_reviewed=true.
+# Create fresh admission_request.prepare.root_active_v1.json from inactive request,
+# setting status=active and config_ref to the new active config's exact path/SHA.
+# With indent2/sort_keys/trailing-newline serialization, anticipated request ref:
+# research/reviews/H049_bounded_directory_metadata_repair_20261015_v1/admission_request.prepare.root_active_v1.json SHA a50d041200731dd390113337ce1fe17a52fd47963d2c965e96499c7b3842d2d5
+# Recompute the actual request SHA if root changes reviewed fields/serialization.
+
+.runtime/env/bin/python -B research/reviews/H049_bounded_directory_metadata_repair_20261015_v1/root_driver.py --execute --admit prepare --record research/reviews/H049_bounded_directory_metadata_repair_20261015_v1/admission_request.prepare.root_active_v1.json --sha256 a50d041200731dd390113337ce1fe17a52fd47963d2c965e96499c7b3842d2d5
+
+# Fill INPUT_SHA_FROM_THE_SUCCESSFUL_ADMIT with the returned fresh input_ref.sha256.
+.runtime/env/bin/python -B research/reviews/H049_bounded_directory_metadata_repair_20261015_v1/root_driver.py --execute --launch prepare --record research/reviews/H049_bounded_directory_metadata_repair_20261015_v1/admitted_prepare/input.json --sha256 INPUT_SHA_FROM_THE_SUCCESSFUL_ADMIT
+
+# Fresh job: H049-order2-prepare-seed101-bounded-v5-CPU
+# Fresh output: experiments/results/H049_CPU_order2_cut_memory_prepare_bounded_v5
+# Fresh packet: research/reviews/H049_bounded_directory_metadata_repair_20261015_v1/admitted_prepare
+# --execute is required on BOTH admit and launch. No close/credit/replay/resume.

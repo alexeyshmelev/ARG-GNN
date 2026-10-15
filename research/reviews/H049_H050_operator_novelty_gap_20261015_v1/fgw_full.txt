@@ -1,0 +1,987 @@
+Fused Gromov-Wasserstein distance for structured objects:theoretical foundations and mathematical properties
+Report GitHub Issue
+×
+Title:
+Content selection saved. Describe the issue below:
+Description:
+Submit without GitHub
+Submit in GitHub
+arXiv is now an independent nonprofit!
+Learn more
+×
+Back to arXiv
+Why HTML?
+Report Issue
+Back to Abstract
+Download PDF
+Abstract
+1 Introduction
+Notations
+Assumption
+2 Structured objects as distributions and Fused Gromov Wasserstein distance
+2.1 Comparing structured objects
+2.2 Background on OT distances
+Wasserstein distance
+Gromov Wasserstein distance
+Some adaptations of WW and G​WGW
+2.3 Fused Gromov-Wasserstein distance
+Toy trees
+3 Mathematical properties of F​G​WFGW
+3.1 Topology of (H⁡(Ω),dF​G​W,α,p,qΩ)(H(\Omega),d^{\Omega}_{FGW,\alpha,p,q})
+3.2 Interpolation properties between Wasserstein and Gromov-Wasserstein distances
+3.3 Geodesic properties
+Generality about geodesic spaces
+The F​G​WFGW case
+4 Examples and applications for the discrete case
+4.1 FGW in the discrete case
+4.2 Illustrations of FGW
+Example with 1D features and structure spaces
+Example on two simple images
+Time series example
+4.3 Structured Optimal Transport Barycenter
+Graph barycenter and compression
+Mesh barycenter
+5 Proofs of the mathematical properties
+5.1 Proof of Prop. Comparison between FGW, GW and W
+5.2 Proof of the theorem Metric properties of FGW
+‣ 5.2 Proof of the theorem Metric properties of FGW
+5.3 Proof of Prop. Convergence and concentration inequality
+5.4 Proof of theorem Interpolation properties between GW and W
+5.5 Proof of theorem Constant speed geodesic
+5.6 Proof of theorem Unicity of the geodesic
+5.7 Equivalence between definitions of F​G​WFGW
+6 Conclusion
+References
+License: arXiv.org perpetual non-exclusive license
+arXiv:1811.02834v1 [stat.ML] 07 Nov 2018
+Fused Gromov-Wasserstein distance for structured objects \shortauthorlistTitouan Vayer, Laetita Chapel, Rémi Flamary, Romain Tavenard, Nicolas Courty
+Fused Gromov-Wasserstein distance for structured objects:
+theoretical foundations and mathematical properties
+Titouan Vayer∗
+Univ. Bretagne-Sud
+CNRS
+IRISA
+F-56000 Vannes
+∗
+Laetita Chapel
+Univ. Bretagne-Sud
+Email: titouan.vayer@irisa.fr
+CNRS
+IRISA
+F-56000 Vannes
+laetitia.chapel@irisa.fr
+Rémi Flamary
+Univ. Côte d’Azur
+CNRS
+OCA Lagrange
+F-06000 Nice
+remi.flamary@unice.fr
+Romain Tavenard
+Univ. Rennes
+CNRS
+LETG
+F-35000 Rennes
+romain.tavenard@univ-rennes2.fr
+and
+Nicolas Courty
+Univ. Bretagne-Sud
+CNRS
+IRISA
+F-56000 Vannes
+nicolas.courty@irisa.fr
+Abstract
+Optimal transport theory has recently found many applications in machine learning thanks to its capacity for comparing various machine learning objects considered as distributions. The Kantorovitch formulation, leading to the Wasserstein distance, focuses on the features of the elements of the objects but treat them independently, whereas the Gromov-Wasserstein distance focuses only on the relations between the elements, depicting the structure of the object, yet discarding its features.
+In this paper we propose to extend these distances in order to encode simultaneously both the feature and structure informations, resulting in the Fused Gromov-Wasserstein distance. We develop the mathematical framework for this novel distance, prove its metric and interpolation properties and provide a concentration result for the convergence of finite samples. We also illustrate and interpret its use in various contexts where structured objects are involved.
+Optimal transport. Structured objects. Wasserstein and Gromov-Wasserstein distances.
+2000 Math Subject Classification: 34K30, 35K57, 35Q80, 92D25
+Contents
+1 Introduction
+2 Structured objects as distributions and Fused Gromov Wasserstein distance
+2.1 Comparing structured objects
+2.2 Background on OT distances
+2.3 Fused Gromov-Wasserstein distance
+3 Mathematical properties of F​G​WFGW
+3.1 Topology of (H⁡(Ω),dF​G​W,α,p,qΩ)(H(\Omega),d^{\Omega}_{FGW,\alpha,p,q})
+3.2 Interpolation properties between Wasserstein and Gromov-Wasserstein distances
+3.3 Geodesic properties
+4 Examples and applications for the discrete case
+4.1 FGW in the discrete case
+4.2 Illustrations of FGW
+4.3 Structured Optimal Transport Barycenter
+5 Proofs of the mathematical properties
+5.1 Proof of Prop. Comparison between FGW, GW and W
+5.2 Proof of the theorem Metric properties of FGW
+5.3 Proof of Prop. Convergence and concentration inequality
+5.4 Proof of theorem Interpolation properties between GW and W
+5.5 Proof of theorem Constant speed geodesic
+5.6 Proof of theorem Unicity of the geodesic
+5.7 Equivalence between definitions of F​G​WFGW
+6 Conclusion
+References
+1 Introduction
+In this paper we focus on the comparison of structured objects, i.e objects defined by both a feature and a structure information. Abstractly, the feature information covers all the attributes of an object. For example it can model the value of a signal when objects are time series, or the node labels in a graph context. In shape analysis, the spatial positions of the nodes can be regarded as features, or, when objects are images, local color histograms can describe the image’s feature information.
+As for the structure information, it encodes the specific relationships that exist among the components of the object. In a graph context, nodes and edges are representative of this notion so that each label of the graph may be linked to some others through the edges between the nodes. In a time series context, the values of the signal are related to each other through a temporal structure. This representation is clearly related with the concept of relational reasoning (see [6]) where some entities (or elements with attributes such as an intensity of a signal) coexist with some relations or properties between them (or some structure as described above).
+Including structural knowledge about objects in a machine learning context has often been valuable in order to build more generalizable models. As shown in many contexts such as graphical models [24, 25], relational reinforcement learning [12] or bayesian non parametrics [15], considering machine learning objects as a complex composition of entities together with their interactions is crucial in order to learn from small amounts of data. For a review of relational reasoning and its consequences, see [6].
+Unlike recent deep learning end-to-end approaches [17, 13] that attempt to avoid integration of prior knowledge or assumptions about the structure wherever possible, ad hoc methods, depending on the kind of structured objects involved, aim to build meaningful tools that include structure information in the machine learning process. In graph classification the structure can be taken into account through dedicated graph kernels, in which the structure drives the combination of the feature information [30, 21, 36]. In a time series context, Dynamic Time Warping and related approaches are based on the similarity between the features while allowing limited temporal distortion in the time instants that are matched [11, 29]. Closely related, an entire field has focused on predicting the structure as an output and has been deployed on tasks such as segmenting an image into meaningful components or predicting a natural language sentence [5, 23, 20].
+All these approaches rely on meaningful representations of the structured objects that are involved. In this context, an interesting description of machine learning objects can be done through distributions or probability measures. This allows to compare them within the Optimal Transport (OT) framework which provides an elegant way of comparing distributions by capturing the underlying geometric properties of the space through a cost function. When distributions dwell in a common metric space (Ω,d)(\Omega,d), the Wasserstein distance defines a metric between these distributions [35]. In contrast, the Gromov-Wasserstein distance [31, 19] aims at comparing distributions that live in different metric spaces through the intrinsic pair-to-pair distances in each space. Unifying both distances, the Fused Gromov-Wasserstein distance was proposed in [34] and used in the discrete setting to encode, in a single OT formulation, both feature and structure information of structured objects. This approach considers structured objects as joint distributions over a common feature space associated with a structure space specific to each object. An OT formulation is derived by considering a tradeoff between the feature and the structure costs, respectively defined with respect to the Wasserstein and the Gromov-Wasserstein standpoints.
+This paper presents the theoretical foundations of this distance and states the mathematical properties of the F​G​WFGW metric in the general setting. We first introduce a representation of structured objects using distributions. We show that classical Wasserstein and Gromov-Wasserstein distance can be used in order to compare either the feature information or the structure information of the structured object but that both fail at comparing the entire object. We then present the Fused Gromov-Wasserstein distance in its general formulation and we derive some of its mathematical properties. Particularly, we show that it is a metric in a given case, we give a concentration result, and we study its interpolation properties and its geodesic properties. We conclude by illustrating and interpreting the distance in several applicative contexts.
+Notations
+Let P⁡(Ω)P(\Omega) be the set of all probability measures on a space Ω\Omega and ℬ⁡(A)\mathcal{B}(A) the set of all Borel sets of a σ\sigma-algebra A. We note #\# the push forward-operator such that for B∈ℬ⁡(A)B\in\mathcal{B}(A), T​#​μ​(B)=μ⁡(T−1​(B))T\#\mu(B)=\mu(T^{-1}(B)).
+A measure μ\mu on a set Ω\Omega is said to be fully supported if supp​[μ]=Ω\text{supp}[\mu]=\Omega, where supp​[μ]\text{supp}[\mu] is the minimal closed subset A⊂ΩA\subset\Omega such that μ⁡(Ω​\​A)=0\mu(\Omega\textbackslash A)=0. Informally, this is the set where the measure “lives”. We note Pi​#​μP_{i}\#\mu the projection on the ii-th marginal of μ\mu.
+For two probability measures μ∈P⁡(A)\mu\in P(A) and ν∈P⁡(B)\nu\in P(B) we note Π⁡(μ,ν)\Pi(\mu,\nu) the set of all couplings or matching measures of μ\mu and ν\nu, i.e. the set {π∈P(A×B)|∀(A0,B0)∈B(A)×B(B),π(A0×B)=μ(A0),π(A×B0)=ν(B0)}\{\pi\in P(A\times B)\,|\,\forall(A_{0},B_{0})\in B(A)\times B(B),\pi(A_{0}\times B)=\mu(A_{0}),\pi(A\times B_{0})=\nu(B_{0})\}.
+For two metric spaces (X,dX)(X,d_{X}) and (Y,dY)(Y,d_{Y}) we define the distance dX⊕dYd_{X}\oplus d_{Y} on X×YX\times Y such that, for (x,y),(x′,y′)∈X×Y,dX⊕dY​((x,y),(x′,y′))=dX​(x,x′)+dY​(y,y′)(x,y),(x^{\prime},y^{\prime})\in X\times Y,\ d_{X}\oplus d_{Y}((x,y),(x^{\prime},y^{\prime}))=d_{X}(x,x^{\prime})+d_{Y}(y,y^{\prime}).
+We note the simplex of NN bins as ΣN={a∈(ℝ+∗)N,∑iai=1}\Sigma_{N}=\{a\in(\mathbb{R}^{*}_{+})^{N},\sum_{i}a_{i}=1\}. For two histograms a∈Σna\in\Sigma_{n} and b∈Σmb\in\Sigma_{m} we note with some abuses Π⁡(a,b)\Pi(a,b) the set of all couplings of aa and bb, i.e. the set Π(a,b)={π∈ℝ+n×m|∑iπi,j=bj;∑jπi,j=ai}\Pi(a,b)=\{\pi\in\mathbb{R}_{+}^{n\times m}|\sum_{i}\pi_{i,j}=b_{j};\sum_{j}\pi_{i,j}=a_{i}\}. We also note ⊗\otimes the tensor product, i.e. for a tensor L=(Li,j,k,l)L=(L_{i,j,k,l}), L⊗BL\otimes B is the matrix (∑k,lLi,j,k,l​Bk,l)i,j\left(\sum_{k,l}L_{i,j,k,l}B_{k,l}\right)_{i,j}. Finally, for x∈Ωx\in\Omega, δx\delta_{x} denotes the dirac in xx.
+Assumption
+In the paper we suppose that all metric spaces are Polish, non trivial and all measures are Borel.
+2 Structured objects as distributions and Fused Gromov Wasserstein distance
+We can represent structured objects in the discrete case by a labelled graph 𝒢\mathcal{G} described by ({xi,ai})i∈[1,..n](\{x_{i},a_{i}\})_{i\in[1,..n]} where A=(a1,…,an)∈ΩnA=(a_{1},...,a_{n})\in\Omega^{n} is the set of labels (also called features) and X=(x1,…,xn)X=(x_{1},...,x_{n}) a representation of the graph vertices. To this extent, features aia_{i} are structured by the intrinsic relation between the vertices xix_{i} (see Fig. 1). Note that in this model, we suppose that we can encode the relation between the vertices in the ambiant space of the vertices xix_{i} through the distance dXd_{X} in this space.
+Figure 1: Structured object (left) can be described by a labelled graph with (ai)i(a_{i})_{i} the feature information of the object and (xi)i(x_{i})_{i} the structure information. If we enrich this object with a histrogram (hi)i(h_{i})_{i} aiming at measuring the relative importance of the nodes between them we can represent the structured object as a fully supported probability measure μ\mu over the couple space of feature and structure with marginals μX\mu_{X} and μA\mu_{A} on the structure and the features respectively (right)
+In many applications in machine learning, objects are readily endowed with a notion of distance between their points, hence defining metric spaces. As such, structured objects can be viewed as couples of X×AX\times A where AA is a subset of some metric space (Ω,d)(\Omega,d) representative of the feature space and (X,dX)(X,d_{X}) is a metric space representative of the structure, with dXd_{X} the distance between elements of the space, modeling the intrinsic relationships between points of the structured object.
+In this paper, we propose to enrich the previous definition of a structured object with a (fully supported) probability measure which serves the purpose of signaling the relative importance of the object’s elements. For example, we can add weights (hi)i∈Σn(h_{i})_{i}\in\Sigma_{n} to each node in the graph defined previously. This way, we have created a fully supported probability measure μ=∑ihi​δ(xi,ai)\mu=\sum_{i}h_{i}\delta_{(x_{i},a_{i})} which includes all the structured object information (see Fig. 1).
+These considerations lead to the following and formal definition of a structured object and the space it belongs to:
+Definition 2.1.
+Structured objects.
+A structured object over a metric space (Ω,d)(\Omega,d) is the triplet (X×A,dX,μ)(X\times A,d_{X},\mu), where (X,dX)(X,d_{X}) is a compact metric space, AA is a compact of Ω\Omega and μ\mu is a fully supported probability measure over X×AX\times A. (Ω,d)(\Omega,d) is denoted as the feature space, AA is the feature information of the structured object and (X,dX)(X,d_{X}) its structure information.
+Definition 2.2.
+Space of structured objects.
+A structured object over (Ω,d)(\Omega,d) (simply denoted as Ω\Omega) is an element of the following space:
+H(Ω)={(X×A,dX,μ)|(X,dX)∈𝕏,A∈C(Ω),μ∈P¯(X×A)}H(\Omega)=\{(X\times A,d_{X},\mu)|(X,d_{X})\in\mathbb{X},A\in C(\Omega),\mu\in\overline{P}(X\times A)\}
+where C⁡(Ω)C(\Omega) is the set of all compact subsets of Ω\Omega, 𝕏\mathbb{X} the set of all compact metric spaces and P¯​(X×A)\overline{P}(X\times A) the set of fully supported probability measures on X×AX\times A.
+We will note μX\mu_{X} and μA\mu_{A} the structure and feature (fully-supported) marginals of μ\mu. Those marginals encode a very partial information since they focus only on independent feature distributions or only on the structure. An example of μ\mu, μX\mu_{X} and μA\mu_{A} is provided for a labeled graph in Fig. 1. With this definition, the features of all structured objects are directly comparable since they live in the same ambient space (Ω,d)(\Omega,d). For the sake of simplicity, and when it is clear from the context, we will denote only μ\mu the whole structured object.
+With this definition, we only consider the fully-supported case. Although mathematical results can be expanded to non fully supported measures, it leads to discussions about the support of the measures and for the sake of clarity, we omit here this extension. In the following paragraphs, (X×A,dX,μ)(X\times A,d_{X},\mu) and (Y×B,dY,ν)(Y\times B,d_{Y},\nu) are structured objects.
+2.1 Comparing structured objects
+We now aim to define a notion of equivalence between two structured objects.
+Intuitively, two structured objects are the same if they share the same feature information, if their structure information are lookalike and if the probability measures are corresponding in some sense. In this section, we present mathematical tools for comparing individually the elements of structured objects.
+First, our formalism implies comparing metric spaces, which can be done via the notion of isometry.
+Definition 2.3.
+Isometry
+Let (X,dX)(X,d_{X}) and (Y,dY)(Y,d_{Y}) be two metric spaces. An isometry is a sujective map f:X→Yf:X\rightarrow Y that preserves the distances:
+∀x,x′∈X,dY​(f⁡(x),f⁡(x′))=dX​(x,x′)\forall x,x^{\prime}\in X,d_{Y}(f(x),f(x^{\prime}))=d_{X}(x,x^{\prime})
+(1)
+An isometry is bijective, since for f⁡(x)=f⁡(x′)f(x)=f(x^{\prime}) we have dY​(f⁡(x),f⁡(x′))=0=dX​(x,x′)d_{Y}(f(x),f(x^{\prime}))=0=d_{X}(x,x^{\prime}) and hence x=x′x=x^{\prime} (in the same way f−1f^{-1} is also a isometry). When it exists, XX and YY have the same size and any “metric statement” in the first space is “transported” to the second space by the isometry ff.
+Example 2.4.
+Let us consider the two following graphs whose discrete metric spaces are obtained as shortest path between the vertices (see corresponding graphs in Figure 2)
+(x1x2x3x4),(0111101211021220)⏟dX​(xi,xj)​ and ​(y1y2y3y4),(0111102212011210)⏟dY​(yi,yj).\small\begin{pmatrix}x_{1}\\
+x_{2}\\
+x_{3}\\
+x_{4}\end{pmatrix},{\underbrace{\begin{pmatrix}0&1&1&1\\
+1&0&1&2\\
+1&1&0&2\\
+1&2&2&0\end{pmatrix}}_{d_{X}(x_{i},x_{j})}}\hskip 9.24994pt\text{ and }\hskip 9.24994pt\begin{pmatrix}y_{1}\\
+y_{2}\\
+y_{3}\\
+y_{4}\end{pmatrix},{\small\underbrace{\begin{pmatrix}0&1&1&1\\
+1&0&2&2\\
+1&2&0&1\\
+1&2&1&0\end{pmatrix}}_{d_{Y}(y_{i},y_{j})}}.
+These spaces are isometric since f⁡(x1)=y1f(x_{1})=y_{1}, f⁡(x2)=y3f(x_{2})=y_{3}, f⁡(x3)=y4f(x_{3})=y_{4}, f⁡(x4)=y2f(x_{4})=y_{2} verifies (1).
+x2x_{2}x3x_{3}x4x_{4}x1x_{1}y2y_{2}y3y_{3}y1y_{1}y4y_{4}
+Figure 2: Two isometric metric spaces. Distances between the nodes are given by the shortest path, and the weight of each edge is equal to 1.
+The previous definition can be used in order to compare the structure information of two structured objects. Regarding the feature information, since they all lie in the same ambient space Ω\Omega, a natural way for comparing them is by the standard equality A=BA=B. Finally, in order to compare measures on different spaces, the notion of preserving application can be used.
+Definition 2.5.
+Preserving application
+Let Ω1,μ1∈P⁡(Ω1)\Omega_{1},\mu_{1}\in P(\Omega_{1}) and Ω2,μ2∈P⁡(Ω2)\Omega_{2},\mu_{2}\in P(\Omega_{2}) be two measurable spaces. An application f:Ω1→Ω2f:\Omega_{1}\rightarrow\Omega_{2} is said to be measure preserving if it transports the measure μ1\mu_{1} on μ2\mu_{2} such that
+f​#​μ1=μ2.f\#\mu_{1}=\mu_{2}.
+If there exists such a measure preserving map, the properties about measures of Ω1\Omega_{1} are transported via ff to Ω2\Omega_{2} .
+Let us now consider a measurable metric space (denoted mm-space), i.e. a metric space (X,dX)(X,d_{X}) enriched with a probability measure and described by a triplet (X,dX,μX∈P¯​(X))(X,d_{X},\mu_{X}\in\overline{P}(X)). An interesting notion for comparing mm-spaces is the notion of isomophism.
+Definition 2.6.
+Isomorphism.
+Two mm-spaces (X,dX,μX),(Y,dY,μY)(X,d_{X},\mu_{X}),(Y,d_{Y},\mu_{Y}) are isomorphic if there exists a measure preserving isometry f:X→Yf:X\rightarrow Y between them.
+Example 2.7.
+Let us consider two mm-spaces (X={x1,x2},dX={1},μX={12,12})(X=\{x_{1},x_{2}\},d_{X}=\{1\},\mu_{X}=\{\frac{1}{2},\frac{1}{2}\}) and (Y={y1,y2},dY={1},μY={14,34})(Y=\{y_{1},y_{2}\},d_{Y}=\{1\},\mu_{Y}=\{\frac{1}{4},\frac{3}{4}\}) as depicted in Figure 3. These spaces are isometric but not isomorphic as there exists no measure preserving application between them.
+x1x_{1}x2x_{2}y1y_{1}y2y_{2}14\frac{1}{4}34\frac{3}{4}12\frac{1}{2}12\frac{1}{2}
+Figure 3: Two isometric but not isomorphic spaces.
+All this considered, we can now define a notion of equivalence between structured objects.
+Definition 2.8.
+Equivalence of structured objects.
+Two structured objects are said to be equivalent (and the equivalence relation is denoted ∼\sim ) if there exists an application f:X×A→Y×Bf:X\times A\rightarrow Y\times B such that ff is measure-preserving (f​#​μ=νf\#\mu=\nu) and if one defines f1:X→Yf_{1}:X\rightarrow Y and f2:A→Bf_{2}:A\rightarrow B such that f⁡(x,a)=(f1​(x),f2​(a))f(x,a)=(f_{1}(x),f_{2}(a)) then f1f_{1} is an isometry and f2=Idf_{2}=I_{d} ( i.e A=BA=B).
+It is clear that it defines an equivalence relation over H⁡(Ω)H(\Omega).
+Example 2.9.
+To illustrate this definition, we consider a simple example of two structured objects:
+((x1,a1)(x2,a2)(x3,a3)(x4,a4))⏟xi,ai,(0111101211021220)⏟dX​(xi,xj),(1/41/41/41/4)⏟hiand((y1,b1)(y2,b2)(y3,b3)(y4,b4))⏟yi,bi,(0111102212011210)⏟dY​(yi,yj),(1/41/41/41/4)⏟hi′\underbrace{\begin{pmatrix}(x_{1},a_{1})\\
+(x_{2},a_{2})\\
+(x_{3},a_{3})\\
+(x_{4},a_{4})\end{pmatrix}}_{x_{i},a_{i}},{\underbrace{\begin{pmatrix}0&1&1&1\\
+1&0&1&2\\
+1&1&0&2\\
+1&2&2&0\end{pmatrix}}_{d_{X}(x_{i},x_{j})}},\underbrace{\begin{pmatrix}\nicefrac{{1}}{{4}}\\
+\nicefrac{{1}}{{4}}\\
+\nicefrac{{1}}{{4}}\\
+\nicefrac{{1}}{{4}}\end{pmatrix}}_{h_{i}}\quad\text{and}\quad\underbrace{\begin{pmatrix}(y_{1},b_{1})\\
+(y_{2},b_{2})\\
+(y_{3},b_{3})\\
+(y_{4},b_{4})\end{pmatrix}}_{y_{i},b_{i}},{\small\underbrace{\begin{pmatrix}0&1&1&1\\
+1&0&2&2\\
+1&2&0&1\\
+1&2&1&0\end{pmatrix}}_{d_{Y}(y_{i},y_{j})}},\underbrace{\begin{pmatrix}\nicefrac{{1}}{{4}}\\
+\nicefrac{{1}}{{4}}\\
+\nicefrac{{1}}{{4}}\\
+\nicefrac{{1}}{{4}}\end{pmatrix}}_{h^{\prime}_{i}}
+with ∀i,ai=bi\forall i,a_{i}=b_{i} and ∀i≠j,ai≠aj\forall i\neq j,a_{i}\neq a_{j} (see Figure 4). The two structured objects have isometric structures and same features individually but they are not equivalent. One possible application f=(f1,f2):X×A→Y×Bf=(f_{1},f_{2}):X\times A\rightarrow Y\times B such that f1f_{1} is an isometry is f⁡(x1,a1)=(y1,b1)f(x_{1},a_{1})=(y_{1},b_{1}), f⁡(x2,a2)=(y3,b3)f(x_{2},a_{2})=(y_{3},b_{3}), f⁡(x3,a3)=(y4,b4)f(x_{3},a_{3})=(y_{4},b_{4}), f⁡(x4,a4)=(y2,b2)f(x_{4},a_{4})=(y_{2},b_{2}). Yet this application does not verifies f2=Idf_{2}=I_{d} since f2​(a2)=b3f_{2}(a_{2})=b_{3} and a2≠b3a_{2}\neq b_{3}. The other possible applications such that f1f_{1} is an isometry are simple permutation of this example, yet it is easy to check that none of them verifies f2=Idf_{2}=I_{d} (for example with f⁡(x2,a2)=(y4,b4)f(x_{2},a_{2})=(y_{4},b_{4})).
+(x2,a2CLOSE(x_{2},\color[rgb]{1,0,0}{a_{2}})(x3,a3CLOSE(x_{3},\color[rgb]{0,0.88,0}{a_{3}})(x4,a4CLOSE(x_{4},\color[rgb]{1,0.58,0}{a_{4}})(x1,a1CLOSE(x_{1},\color[rgb]{0,0.5,1}{a_{1}})(y2,b2CLOSE(y_{2},\color[rgb]{1,0,0}{b_{2}})(y3,b3CLOSE(y_{3},\color[rgb]{0,0.88,0}{b_{3}})(y1,b1CLOSE(y_{1},\color[rgb]{0,0.5,1}{b_{1}})(y4,b4CLOSE(y_{4},\color[rgb]{1,0.58,0}{b_{4}})
+Figure 4: Two structured objects with isometric structures and identical features that are not equivalent. The color of the nodes represent the node feature and each edge represents a distance of 1 between the connected nodes.
+2.2 Background on OT distances
+The Optimal Transport (OT) framework defines useful distances between probability measures that describe either the feature or the structure information of structured objects.
+Wasserstein distance
+When the probability measures live in the same metric space (Ω,d)(\Omega,d), the quantity:
+dW,pΩ​(μA,νB)=(infπ∈Π⁡(μA,νB)​HpΩ​(π))1pd^{\Omega}_{W,p}(\mu_{A},\nu_{B})=\bigg(\underset{\pi\in\Pi(\mu_{A},\nu_{B})}{\text{inf}}H^{\Omega}_{p}(\pi)\bigg)^{\frac{1}{p}}
+(2)
+where
+HpΩ​(π)=∫A×B​d​(a,b)p​d​π​(a,b)H^{\Omega}_{p}(\pi)=\underset{A\times B}{\int}d(a,b)^{p}d\pi(a,b)
+is usually called the pp-Wasserstein distance (also known with p=1p=1 as Earth Mover’s distance [28] in the computer vision comunity) between distributions μA\mu_{A} and νB\nu_{B}.
+Figure 5: Example of coupling between two discrete measures on the same ground space equipped with a distance dd that will define the Wasserstein distance. Left: the discrete measures on Ω\Omega. Right: One possible coupling between these measures which respects the mass conservation. Image inspired from [26, Fig 2.6]
+Optimal transport theory defines a distance on probability measures such that dW,pΩ​(μA,νB)=0d^{\Omega}_{W,p}(\mu_{A},\nu_{B})=0 iff μA=νB\mu_{A}=\nu_{B}. This distance also has a nice geometrical interpretation as it represents the optimal cost w.r.t. dd to move the measure μA\mu_{A} onto νB\nu_{B} with π⁡(a,b)\pi(a,b) the amount of probability mass shifted from aa to bb (see figure 5)
+To this extent, the Wasserstein distance quantifies how “far” μA\mu_{A} is from νB\nu_{B} by measuring how “difficult” it is to move all the mass from μA\mu_{A} onto νB\nu_{B}. Optimal transport can deal with both smooth and discrete measures and has proved very useful for comparing distributions in a shared space but with different (and even non-overlapping) supports.
+Gromov Wasserstein distance
+In order to compare measures that are not necessarily in the same ambient space, [31, 19] define an OT-like distance. By relaxing the classical Hausdorff distance [19, 35] that is untractable in practice, authors build a distance over the space of all metric spaces. For two compact mm-spaces 𝒳=(X,dX,μX∈P¯​(X))\mathcal{X}=(X,d_{X},\mu_{X}\in\overline{P}(X)) and 𝒴=(Y,dY,νY∈P¯​(Y))\mathcal{Y}=(Y,d_{Y},\nu_{Y}\in\overline{P}(Y)), the Gromov-Wasserstein distance is defined as:
+dG​W,p​(μX,νY)=(infπ∈Π⁡(μX,νY)​Jp​(π))1pd_{GW,p}(\mu_{X},\nu_{Y})=\big(\ \underset{\pi\in\Pi(\mu_{X},\nu_{Y})}{\text{inf}}J_{p}(\pi)\ \big)^{\frac{1}{p}}
+(3)
+where
+Jp​(π)=∫X×Y×X×Y​L​(x,y,x′,y′)p​d​π​(x,y)​d​π​(x′,y′)J_{p}(\pi)=\underset{X\times Y\times X\times Y}{\int}L(x,y,x^{\prime},y^{\prime})^{p}d\pi(x,y)d\pi(x^{\prime},y^{\prime})
+with
+L⁡(x,y,x′,y′)=|dX​(x,x′)−dY​(y,y′)|L(x,y,x^{\prime},y^{\prime})=|d_{X}(x,x^{\prime})-d_{Y}(y,y^{\prime})|
+Note that, with some abuse of notation, we denote the entire mm-space by its probability measure and that the Gromov-Wasserstein distance depends on the choice of the metrics dXd_{X} and dYd_{Y}. When it is not clear from the context we will denote by Jp​(dX,dY,π)J_{p}(d_{X},d_{Y},\pi) the Gromov-Wasserstein loss. The resulting coupling tends to associate pairs of points with similar distances within each pair (see figure 6). The Gromov-Wasserstein distance defines a metric over the space of all metric spaces quotiented by measure-preserving isometries (see def 2.3 and 2.5), thus allowing the comparison of measures over different ground spaces. This distance has been used for shape comparison in [18] and is invariant to rotations and translations in either spaces.
+Figure 6: Gromov-Wasserstein coupling of two mm-spaces 𝒳=(X,dX,μX)\mathcal{X}=(X,d_{X},\mu_{X}) and 𝒴=(Y,dY,νY)\mathcal{Y}=(Y,d_{Y},\nu_{Y}). Left: the mm-spaces share nothing in common. Similarity between pairwise distances is measured by |dX​(x,x′)−dY​(y,y′)||d_{X}(x,x^{\prime})-d_{Y}(y,y^{\prime})|. Right: an admissible coupling of μX\mu_{X} and μY\mu_{Y}. Image inspired from [26, Fig 10.8]
+Some adaptations of WW and G​WGW
+Despite the appealing properties of both Wasserstein and Gromov-Wasserstein distances, they fail at comparing structured objects as originally defined by focusing only on the feature and structure marginals respectively. However, with some hypotheses, one could adapt these distances for structured objects.
+If the structure spaces are part of a same ground space (Z,dZ)(Z,d_{Z}), one can build a distance d^\hat{d} between couples (x,a)(x,a) and (y,b)(y,b) and apply the Wasserstein distance so as to compare the two structured objects. In this case, when the Wasserstein distance vanishes it implies that the structured objects are equal in the sense of equality between the structures and the features respectively (X=YX=Y and A=BA=B). This approach is very related with the one discussed in [33] where authors define the Transportation LpL^{p} distance for signal analysis purposes. Their approach can be viewed as a transport between two joint measures μ(X×A)=λ({xs.tx∈X⊂Z=ℝd;f(x)∈A⊂ℝm})\mu(X\times A)=\lambda(\{x\ \text{s.t}\ x\in X\subset Z=\mathbb{R}^{d};\ f(x)\in A\subset\mathbb{R}^{m}\}), ν(Y×B)=λ({ys.ty∈Y⊂Z=ℝd;g(y)∈B⊂ℝm})\nu(Y\times B)=\lambda(\{y\ \text{s.t}\ y\in Y\subset Z=\mathbb{R}^{d};\ g(y)\in B\subset\mathbb{R}^{m}\}) for function f,g:Z→ℝmf,g:Z\rightarrow\mathbb{R}^{m} representative of the signal values and λ\lambda the Lebesgue measure. The distance for the transport is defined as d^​((x,f⁡(x)),(y,g⁡(y)))=1α​‖x−y‖pp+‖f⁡(x)−g⁡(y)‖pp\hat{d}((x,f(x)),(y,g(y)))=\frac{1}{\alpha}\|x-y\|_{p}^{p}+\|f(x)-g(y)\|_{p}^{p} for α>0\alpha>0 and ∥⋅∥p\|\cdot\|_{p} the lpl_{p} norm. In this case f⁡(x)f(x) and g⁡(y)g(y) can be interpreted as encoding the feature information of the signal while x,yx,y encode its structure information. In contrast to the F​G​WFGW approach, invariants of this approach are the feature and structure preserving applications from X×AX\times A to Y×BY\times B whereas the invariants for the F​G​WFGW distance are the feature preserving applications that are isometries in the structure space (as seen further in theorem 3.1).
+The Gromov-Wasserstein distance can also be adapted to structured objects by considering for example the distances dX⊕dd_{X}\oplus d and dY⊕dd_{Y}\oplus d within each space X×AX\times A and Y×BY\times B respectively. When the resulting distance vanishes, structured objects are isomorphic with respect to dX⊕dd_{X}\oplus d and dY⊕dd_{Y}\oplus d, yet resulting on a weaker result than when F​G​WFGW vanishes. Indeed, as seen in theorem 3.1 F​G​WFGW is null iff the structured objects are equivalent and in such case (X×A,dX⊕d,μ)(X\times A,d_{X}\oplus d,\mu) and (Y×B,dY⊕d,ν)(Y\times B,d_{Y}\oplus d,\nu) are de facto isomorphic. However the converse is not necessarily true. For example in Fig. 4 the structures are isometric and the distances between the features within each space are the same between each structured objects so (X×A,dX⊕d,μ)(X\times A,d_{X}\oplus d,\mu) and (Y×B,dY⊕d,ν)(Y\times B,d_{Y}\oplus d,\nu) are isomorphic, yet not equivalent as shown in the example.
+2.3 Fused Gromov-Wasserstein distance
+Building on both Gromov-Wasserstein and Wasserstein distances we define the Fused Gromov-Wasserstein (F​G​WFGW) distance on H⁡(Ω)H(\Omega):
+Definition 2.10.
+Fused Gromov-Wasserstein distance.
+The Fused-Gromov-Wasserstein distance is defined for α∈[0,1]\alpha\in[0,1] and p,q≥1p,q\geq 1 as:
+dF​G​W,α,p,qΩ​(μ,ν)=(infπ∈Π⁡(μ,ν)​Ep,q,αΩ​(π))1pd^{\Omega}_{FGW,\alpha,p,q}(\mu,\nu)=\big(\ \underset{\pi\in\Pi(\mu,\nu)}{\text{inf}}E^{\Omega}_{p,q,\alpha}(\pi)\ \big)^{\frac{1}{p}}
+(4)
+where
+Ep,q,αΩ​(π)=∫(X×A×Y×B)2((1−α)​d​(a,b)q+α​L​(x,y,x′,y′)q)p​𝑑π​((x,a),(y,b))​𝑑π​((x′,a′),(y′,b′))E^{\Omega}_{p,q,\alpha}(\pi){=}\int\limits_{(X\times A\times Y\times B)^{2}}\big((1-\alpha)d(a,b)^{q}+\alpha L(x,y,x^{\prime},y^{\prime})^{q}\big)^{p}\,d\pi((x,a),(y,b))\,d\pi((x^{\prime},a^{\prime}),(y^{\prime},b^{\prime}))
+Figure 7: Illustration of the definition 2.10. The figure shows two structured objects (X×A,dX,μ)(X\times A,d_{X},\mu) and (Y×B,dY,μ)(Y\times B,d_{Y},\mu). The feature space Ω\Omega is the common space for all features. The two metric spaces (X,dX)(X,d_{X}) and (Y,dY)(Y,d_{Y}) represent the structures of our two structured objects, the similarity between all pair to pair distances of the structure points is measured by L⁡(x,y,x′,y′)L(x,y,x^{\prime},y^{\prime}). μ\mu and ν\nu are the joint measures on the structure space and the feature space.
+This definition is illustrated in Figure 7. α\alpha acts as a trade-off parameter between the structure term represented by L⁡(x,y,x′,y′)L(x,y,x^{\prime},y^{\prime}) and the feature term d⁡(a,b)d(a,b). In this way, the convex combination of both terms leads to the use of both information in a single formalism resulting on a single map π\pi that behaves as the optimal map with respect to the structure and the feature costs in order to “move” the mass from the one joint probability measure to the other.
+In contrast to the work presented in [34] where the trade-off is defined via d​(a,b)q+α​L​(x,y,x′,y′)qd(a,b)^{q}+\alpha L(x,y,x^{\prime},y^{\prime})^{q} for α∈[0,∞[\alpha\in[0,\infty[ we rather consider a convex combination (1−α)​d​(a,b)q+α​L​(x,y,x′,y′)q(1-\alpha)d(a,b)^{q}+\alpha L(x,y,x^{\prime},y^{\prime})^{q} for α∈[0,1]\alpha\in[0,1]. Both formulations are strictly equivalent since any optimal plan w.r.t the cost with the convex combination leads to an optimal plan w.r.t for the other cost and conversely (see 5.7 for more details). However the definition with the convex combination of a feature and structure cost carries out more theoretical properties such as the interpolation (theorem 3.5).
+Many desirable properties arise from this definition. Among them, one can define a topology over the space of structured objects using the F​G​WFGW distance to compare structured objects, in the same philosophy as for Wasserstein and Gromov-Wasserstein distances. The definition also implies that F​G​WFGW acts as a generalization of both Wasserstein and Gromov-Wasserstein distances, with F​G​WFGW achieving an interpolation of these two distances. More remarkably, F​G​WFGW distance also realizes geodesic properties over the space of structured objects, allowing the definition of gradient flows. All these properties are detailed in the next section, and before reviewing them, we first compare F​G​WFGW with G​WGW and WW distances and state the following proposition (by assuming for now that F​G​WFGW exists, which will be shown later).
+Proposition 2.11.
+Comparaison between F​G​WFGW, G​WGW and WW.
+•
+The following inequalities hold:
+dF​G​W,α,p,qΩ​(μ,ν)≥(1−α)​dW,p​qΩ​(μA,νB)qd^{\Omega}_{FGW,\alpha,p,q}(\mu,\nu)\geq(1-\alpha)d^{\Omega}_{W,pq}(\mu_{A},\nu_{B})^{q}
+(5)
+dF​G​W,α,p,qΩ​(μ,ν)≥α​dG​W,p​q​(μX,νY)qd^{\Omega}_{FGW,\alpha,p,q}(\mu,\nu)\geq\alpha d_{GW,pq}(\mu_{X},\nu_{Y})^{q}
+(6)
+•
+Let us suppose that the structure spaces (X,dX)(X,d_{X}),(Y,dY)(Y,d_{Y}) are part of a single ground space (Z,dZ)(Z,d_{Z}) (i.e. dX=dY=dZd_{X}=d_{Y}=d_{Z}). We consider the Wasserstein distance between μ\mu and ν\nu (well defined in this case) for the distance on Z×ΩZ\times\Omega : d~​((x,a),(y,b))=(1−α)​d​(a,b)+α​dZ​(x,y)\tilde{d}((x,a),(y,b))=(1-\alpha)d(a,b)+\alpha d_{Z}(x,y). Then:
+dF​G​W,α,p,1Ω​(μ,ν)p≤2​dW,pZ×Ω​(μ,ν)pd^{\Omega}_{FGW,\alpha,p,1}(\mu,\nu)^{p}\leq 2d^{Z\times\Omega}_{W,p}(\mu,\nu)^{p}
+(7)
+In particular, following this proposition, when the F​G​WFGW distance is null then both G​WGW and WW distances vanish so that the structure and the feature of the structure object are individually “the same” (with respect to their corresponding equivalence relation). However the converse is not necessarily true as shown in the following example.
+Toy trees
+We construct two trees as illustrated in Figure 8 where the 1D node features are shown with colors. The shortest path between the nodes is used to capture the structures of the two structured objects and the euclidean distance is used for the features. Figure 8 illustrates the differences between F​G​WFGW, G​WGW and WW distances. The left part is Wasserstein distance between the features: red nodes are transported on red ones and the blue nodes on the blue ones but tree structures are completely discarded. In this case, the Wasserstein distance vanishes. In the right part, we compute the Gromov-Wasserstein distance between structures: all couples of points are transported to another couple of points, which enforces the matching of tree structures without taking into account the features. Since structures are isometric, the Gromov-Wasserstein distance is null. Finally, we compute the F​G​WFGW using intermediate α\alpha (center), the bottom and first level structure is preserved as well as the feature matching (red on red and blue on blue) and F​G​WFGW discriminates the two structured objects.
+dW=0d_{W}=0dF​G​W>0d_{FGW}>0dG​W=0d_{GW}=0
+Figure 8: Difference on transportation maps between F​G​WFGW, G​WGW and WW distances on synthetic trees. On the left the WW distance between the features is nul since feature information are the same, on the middle the F​G​WFGW is different from zero and discriminate the two structured objects and on the right the G​WGW between the two isometric structures is nul.
+3 Mathematical properties of F​G​WFGW
+In this section, we establish some mathematical properties of the F​G​WFGW distance. The first result relates to the existence of the F​G​WFGW distance and to the topology of the space of structured objects. We then prove that the F​G​WFGW distance is indeed a distance regarding the equivalence relation between structured objects as defined in Defintion 2.8, allowing us to derive a topology on H⁡(Ω)H(\Omega).
+3.1 Topology of (H⁡(Ω),dF​G​W,α,p,qΩ)(H(\Omega),d^{\Omega}_{FGW,\alpha,p,q})
+The F​G​WFGW distance has the following properties:
+Theorem 3.1.
+Metric properties
+Let p,q≥1p,q\geq 1 and α∈]0,1[\alpha\in]0,1[, π→Ep,q,αΩ​(π)\pi\rightarrow E^{\Omega}_{p,q,\alpha}(\pi) always achieves a infimum π∗\pi^{*} in Π⁡(μ,ν)\Pi(\mu,\nu) s.t dF​G​W,α,p,qΩ​(μ,ν)=Ep,q,αΩ​(π∗)d^{\Omega}_{FGW,\alpha,p,q}(\mu,\nu)=E^{\Omega}_{p,q,\alpha}(\pi^{*}) and:
+∙\bullet
+for all q≥1q\geq 1, dF​G​W,α,p,qΩ​(μ,ν)=0d^{\Omega}_{FGW,\alpha,p,q}(\mu,\nu)=0 iff there exists f=(f1,f2):X×A→Y×Bf=(f_{1},f_{2}):X\times A\rightarrow Y\times B with f⁡(x,a)=(f1​(x),f2​(a))f(x,a)=(f_{1}(x),f_{2}(a)) such that:
+f​#​μ=νf\#\mu=\nu
+(8)
+f1:X→Y​ is an isometryf_{1}:X\rightarrow Y\text{ is an isometry}
+(9)
+f2:A→B​ is an identity map ​(A=B).f_{2}:A\rightarrow B\text{ is an identity map }(A=B).
+(10)
+∙\bullet
+dF​G​W,α,p,qΩd^{\Omega}_{FGW,\alpha,p,q} is symmetric and, for q=1q=1, satisfies the triangle inequality. For q≥2q\geq 2, the triangular inequality is relaxed by a factor 2q−12^{q-1} .
+Proof of this theorem can be found in Section 5.
+The previous theorem states that F​G​WFGW is a distance over H⁡(Ω)H(\Omega) quotiented by the measure preserving maps that are feature and structure preserving (through an isometry). Informally, invariants of the F​G​WFGW are objects that have both the same structure and the same features "in the same place". In other words, the F​G​WFGW distance vanishes iff the structured objects are equivalent with respect to the equivalence relation ∼\sim defined in Definition 2.8.
+Theorem 3.1 allows a wide set of applications for F​G​WFGW such as kk-nearest-neighbors, distance-substitution kernels, pseudo-Euclidean embeddings, or representative-set methods [14, 9, 4]. Arguably, such a distance allows for a better interpretation than to end-to-end learning machines such as neural networks because the π\pi matrix exhibits the relationships between the elements of the objects.
+The metric property naturally endows the structured object space with a notion of convergence as described in the next definition:
+Definition 3.2.
+Convergence of structured objects.
+Let (𝕊n)n∈ℕ=((,,,,,))n∈ℕ(\mathbb{S}_{n})_{n\in\mathbb{N}}=\big((X_{n}\times A_{n},d_{X_{n}},\mu_{n})\big)_{n\in\mathbb{N}} be a sequence of structured objects. (𝕊n)n∈ℕ(\mathbb{S}_{n})_{n\in\mathbb{N}} is said to converge to 𝕊=(X×A,dX,μ)\mathbb{S}=(X\times A,d_{X},\mu) in the Fused Gromov-Wasserstein sense (denoted as 𝕊n​⟶n→+∞F​G​W​𝕊\mathbb{S}_{n}\underset{n\to+\infty}{\overset{FGW}{\longrightarrow}}\mathbb{S}) if
+limn→∞dF​G​W,α,p,1Ω​(μn,μ)=0\lim\limits_{n\rightarrow\infty}d^{\Omega}_{FGW,\alpha,p,1}(\mu_{n},\mu)=0
+Using Prop. 2.11, it is straightforward to see that, if (𝕊n)n∈ℕ(\mathbb{S}_{n})_{n\in\mathbb{N}} converges to 𝕊\mathbb{S} in F​G​WFGW sense, both the features and the structure of (𝕊n)n∈ℕ(\mathbb{S}_{n})_{n\in\mathbb{N}} converge respectively in Wasserstein and Gromov-Wasserstein sense (see [19] for the definition of convergence in the Gromov-Wasserstein sense).
+An interesting question arises from this definition. Let us consider a structured object 𝕊=(X×A,dX,μ)\mathbb{S}=(X\times A,d_{X},\mu) and let us sample the joint distribution so as to consider (𝕊n)n∈ℕ={(xi,ai)}i∈{1,..,n},dX,μn)n∈ℕ(\mathbb{S}_{n})_{n\in\mathbb{N}}=\{(x_{i},a_{i})\}_{i\in\{1,..,n\}},d_{X},\mu_{n})_{n\in\mathbb{N}} with μn=1n​∑i=1nδxi,ai\mu_{n}=\frac{1}{n}\sum\limits_{i=1}^{n}\delta_{x_{i},a_{i}} where (xi,ai)∈Xn×An(x_{i},a_{i})\in X_{n}\times A_{n} are sampled from μ\mu. Does (𝕊n)n∈ℕ(\mathbb{S}_{n})_{n\in\mathbb{N}} converge to 𝕊\mathbb{S} in the F​G​WFGW sense and how fast is the convergence?
+To answer this question, we will use the theory developped in [16]. We recall the following definitions:
+Definition 3.3.
+Upper Wasserstein dimension.
+Let SS be a subset of some polish metric space Ω\Omega. The ϵ\epsilon-covering of SS, denoted Nϵ​(S)N_{\epsilon}(S), is the minimum integer mm such that there exists closed balls B1,…,BmB_{1},...,B_{m} of diameter ϵ\epsilon which cover SS. More precisely, the balls verify S⊂∪i=1mBiS\subset\cup_{i=1}^{m}B_{i}. The ϵ\epsilon-dimension of SS is defined by:
+dimϵ​(S)=log⁡(Nϵ​(S))−log⁡(ϵ).\text{dim}_{\epsilon}(S)=\frac{\log(N_{\epsilon}(S))}{-\log(\epsilon)}.
+(11)
+Given a measure μ\mu on Ω\Omega, we consider its (ϵ\epsilon-τ\tau) covering as the number
+Nϵ,τ(μ)=inf{Nϵ(S)s.tμ(S)≥1−τ}N_{\epsilon,\tau}(\mu)=\text{inf}\{N_{\epsilon}(S)\ \text{{s.t}}\ \mu(S)\geq 1-\tau\}
+which represents the smallest ϵ\epsilon-covering of sufficiently “large” subsets (with respect to μ\mu).
+The (ϵ\epsilon-τ\tau) dimension of μ\mu is then defined as:
+dimϵ​(μ,τ)=log⁡(Nϵ,τ​(μ))−log⁡(ϵ).\text{dim}_{\epsilon}(\mu,\tau)=\frac{\log(N_{\epsilon,\tau}(\mu))}{-\log(\epsilon)}.
+(12)
+The upper Wasserstein dimension is defined by:
+dp∗(μ)=inf{s∈[2p,∞[s.t.limsupϵ→∞dimϵ(μ,ϵs​ps−2​p)≤s}d_{p}^{*}(\mu)=\text{inf}\{s\in[2p,\infty[\ \text{{s.t.}}\ \underset{\epsilon\rightarrow\infty}{\text{limsup}}\ \text{dim}_{\epsilon}(\mu,\epsilon^{\frac{sp}{s-2p}})\leq s\}
+(13)
+This notion of dimension exists due to the monotonicity of dimϵ​(μ,τ)\text{dim}_{\epsilon}(\mu,\tau) and coincides with the intuitive notion of “dimension” when the measure is sufficiently well behaved. For example, for any absolutely continuous measure μ\mu with respect to the Lebesgue measure on [0,1]d[0,1]^{d}, we have dp∗​(μ)=dd_{p}^{*}(\mu)=d for any p∈[1,d2]p\in[1,\frac{d}{2}]. For more general cases see Prop.7 in [16].
+Using these definitions and the results in [16], we answer the question of convergence of finite sample in the following proposition (proof can be found in Section 5) :
+Proposition 3.4.
+Convergence of finite samples and a concentration inequality
+Let p≥1p\geq 1. We have:
+limn→∞dF​G​W,α,p,1Ω​(μn,μ)=0.\lim\limits_{n\rightarrow\infty}d^{\Omega}_{FGW,\alpha,p,1}(\mu_{n},\mu)=0.
+Moreover, suppose that s>dp∗​(μ)s>d_{p}^{*}(\mu). Then:
+𝔼⁡[dF​G​W,α,p,1Ω​(μn,μ)]​<∼​n−1s.\mathbb{E}[d^{\Omega}_{FGW,\alpha,p,1}(\mu_{n},\mu)]\underset{\sim}{<}n^{\frac{-1}{s}}.
+(14)
+A particular case of this inequality is when α=1\alpha=1 so that we can use the result above to derive a concentration result for the Gromov-Wassersten distance. More precisely, if νn=1n​∑iδxi\nu_{n}=\frac{1}{n}\sum_{i}\delta_{x_{i}} denotes the empirical measure of ν∈P¯​(X)\nu\in\overline{P}(X) and if s′>dp∗​(ν)s^{\prime}>d_{p}^{*}(\nu) we have:
+𝔼⁡[dG​W,pΩ​(νn,ν)]​<∼​n−1s′.\mathbb{E}[d^{\Omega}_{GW,p}(\nu_{n},\nu)]\underset{\sim}{<}n^{\frac{-1}{s^{\prime}}}.
+(15)
+To the best of our knowledge, this is the first result about concentration for the Gromov-Wasserstein distance. In contrast to the Wasserstein distance case, it is not necessary sharp but it proves that considering the G​WGW and F​G​WFGW distances by sampling a continuous distribution makes sense as the finite samples concentrate around the expectation.
+3.2 Interpolation properties between Wasserstein and Gromov-Wasserstein distances
+In this section, we prove that the F​G​WFGW distance is a generalization of both Wasserstein and Gromov-Wasserstein distances in the sense that it achieves an interpolation between them. More precisely, we have the following theorem:
+Theorem 3.5.
+Interpolation properties.
+As α\alpha tends to zero, one recovers the Wasserstein distance between the feature information and as α\alpha goes to one, one recovers the Gromov-Wasserstein distance between the structure information :
+Let ((X,dX),A,μ∈P¯​(X×A)),((Y,dY),B,ν∈P¯​(Y×B))∈H​(Ω)2\big((X,d_{X}),A,\mu\in\overline{P}(X\times A)\big),\big((Y,d_{Y}),B,\nu\in\overline{P}(Y\times B)\big)\in H(\Omega)^{2}
+limα→0dF​G​W,α,p,qΩ​(dX,dY,μ,ν)=(dW,q​pΩ​(μA,νB))q\lim\limits_{\alpha\rightarrow 0}d^{\Omega}_{FGW,\alpha,p,q}(d_{X},d_{Y},\mu,\nu)=(d^{\Omega}_{W,qp}(\mu_{A},\nu_{B}))^{q}
+(16)
+limα→1dF​G​W,α,p,qΩ​(dX,dY,μ,ν)=(dG​W,q​pΩ​(μX,νY))q\lim\limits_{\alpha\rightarrow 1}d^{\Omega}_{FGW,\alpha,p,q}(d_{X},d_{Y},\mu,\nu)=(d^{\Omega}_{GW,qp}(\mu_{X},\nu_{Y}))^{q}
+(17)
+Proof of this theorem can be found in Section 5.
+This result shows that F​G​WFGW can revert to one of the other distances. In machine learning, this allows for a validation of the α\alpha parameter to better fit the data properties (i.e. by tuning the relative importance of the feature vs structure information). One can also see the choice of α\alpha as a representation learning problem and its value can be found by optimizing a given criterion.
+3.3 Geodesic properties
+In this section we present some geodesic properties about the F​G​WFGW distance. These properties are useful in order to define dynamic formulation of OT problems. This dynamic point of view is inspired by fluid dynamics and found its origin in the Wasserstein context with [7]. Various applications in machine learning can be derived from this formulation: interpolation along geodesic paths was used in computer graphics for color
+or illumination interpolations [8]; more recently, [10] used Wasserstein gradient flows in an optimization context, deriving global minima results for non-convex particle gradient descent paving the way for new methods for training neural networks; [38] used Wasserstein gradient flows in the context of reinforcement learning for policy optimization.
+The main idea of this dynamic formulation is to describe the optimal transport problem between two measures as a curve in the space of measures minimizing its total length. We first describe some generality about geodesic spaces and recall classical results for dynamic formulation in both Wasserstein and Gromov-Wasserstein contexts. In a second part, we derive new geodesic properties in the F​G​WFGW context.
+Generality about geodesic spaces
+Let (X,d)(X,d) be a metric space and x,yx,y two points in XX. We say that a curve w:[0,1]→Xw:[0,1]\rightarrow X joining the endpoints xx and yy (i.e. with w⁡(0)=xw(0)=x and w⁡(1)=yw(1)=y) is a constant speed geodesic if it satisfies d⁡(w⁡(t),w⁡(s))≤|t−s|​d​(w⁡(0),w⁡(1))=|t−s|d⁡(x,y)d(w(t),w(s))\leq|t-s|d(w(0),w(1))=|t-s|d(x,y) for t,s∈[0,1]t,s\in[0,1]. Moreover, if (X,d)(X,d) is a length space (i.e. if the distance between two points of XX is equal to the infimum of the lengths of the curves connecting these two points) then the converse is also true and a constant speed geodesic satisfies d⁡(w⁡(t),w⁡(s))=|t−s|d⁡(x,y)d(w(t),w(s))=|t-s|d(x,y). It is easy to compute distances along such curve as they are directly embedded into ℝ\mathbb{R}.
+In the Wasserstein context, if the ground space is a complete separable, locally compact length space and if endpoints of the geodesic are given, then there exists a geodesic curve. Moreover, if the optimal transport between the endpoints is unique then there is a unique displacement interpolation between the endpoints (see Corollary 7.22 and 7.23 in [35]). For example, if the ground space is ℝd\mathbb{R}^{d} and the distance between the points is measured via the ℓ2\ell_{2} norm, then geodesics exist and are uniquely determined (this can be generalized to strictly convex cost).
+In the Gromov-Wasserstein context, there always exists constant speed geodesics as long as the endpoints are given and these geodesics are unique modulo the isomorphism equivalence relation (see [31]).
+The F​G​WFGW case
+In this paragraph we suppose that Ω=ℝd\Omega=\mathbb{R}^{d}.
+We are interested in finding a geodesic curve in the space (H⁡(ℝd),dF​G​W,α,p,qℝd)\left(H(\mathbb{R}^{d}),d^{\mathbb{R}^{d}}_{FGW,\alpha,p,q}\right), i.e. a constant speed curve of structured objects joining two structured objects. As for Wasserstein and Gromov-Wasserstein, the structured object space endowed with the Fused Gromov-Wasserstein distance maintains some geodesic properties. The following result proves the existence of such a geodesic and characterizes it:
+Theorem 3.6.
+Constant speed geodesic.
+Let p,q≥1p,q\geq 1 and (X0×A0,dX0,μ0)(X_{0}\times A_{0},d_{X_{0}},\mu_{0}) and (X1×A1,dX1,μ1)∈H⁡(ℝd)(X_{1}\times A_{1},d_{X_{1}},\mu_{1})\in H(\mathbb{R}^{d}). Let π∗\pi^{*} be the optimal coupling for the Fused Gromov-Wasserstein distance between those two sets and t∈[0,1]t\in[0,1]. We equip ℝd\mathbb{R}^{d} with any ℓm\ell_{m} norm for all m≥1m\geq 1.
+We define ηt:X0×A0×X1×A1→X0×X1×At^\eta_{t}:X_{0}\times A_{0}\times X_{1}\times A_{1}\rightarrow X_{0}\times X_{1}\times\hat{A_{t}} with At^=d​e​f{(1−t)a0+ta1|∀a0∈A0,∀a1∈A1}\hat{A_{t}}\stackrel{{\scriptstyle def}}{{=}}\{(1-t)a_{0}+ta_{1}|\forall a_{0}\in A_{0},\forall a_{1}\in A_{1}\} such that
+ηt​(x0,a0,x1,a1)=(x0,x1,(1−t)​a0+t​a1),∀x0,a0,x1,a1∈X0×A0×X1×A1\eta_{t}(x_{0},a_{0},x_{1},a_{1})=(x_{0},x_{1},(1-t)a_{0}+ta_{1}),\quad\forall x_{0},a_{0},x_{1},a_{1}\in X_{0}\times A_{0}\times X_{1}\times A_{1}
+Then
+((X0×X1,(1−t)dX0⊕tdX1),At^,μt=ηt#π∗∈P¯(X0×X1×At^))t∈[0,1]\left((X_{0}\times X_{1},(1-t)d_{X_{0}}\oplus td_{X_{1}}),\hat{A_{t}},\mu_{t}=\eta_{t}\#\pi^{*}\in\overline{P}(X_{0}\times X_{1}\times\hat{A_{t}})\right)_{t\in[0,1]}
+(18)
+is a constant speed geodesic in (H⁡(ℝd),dF​G​W,α,p,qℝd)\left(H(\mathbb{R}^{d}),d^{\mathbb{R}^{d}}_{FGW,\alpha,p,q}\right).
+From the existence of a geodesic in the structured object space, one can wonder if this geodesic is unique so as to define properly the velocity field associated to the geodesic curve. Informally, if one tries to define the speed of a particle passing a point pp (here a structured object) at a time tt then the uniqueness of this particle passing through pp at tt seems mandatory. The following result proves that it is indeed the case modulo the equivalence relation of structured objects ∼\sim in the case where Ω=ℝd\Omega=\mathbb{R}^{d}
+Theorem 3.7.
+Unicity of geodesic in (H⁡(ℝd),dF​G​W,α,1,qℝd)\left(H(\mathbb{R}^{d}),d^{\mathbb{R}^{d}}_{FGW,\alpha,1,q}\right).
+Let p=1p=1 and q≥2q\geq 2. We equip ℝd\mathbb{R}^{d} with the ℓq\ell_{q} norm. Then each geodesic (𝕊t)t∈[0,1]=((,,,,,))t∈[0,1](\mathbb{S}_{t})_{t\in[0,1]}=\left((X_{t}\times A_{t},d_{X_{t}},\mu_{t})\right)_{t\in[0,1]} in H⁡(ℝd)H(\mathbb{R}^{d}) is of the same form as stated in Eq. (18).
+More precisely, for each geodesic (𝕊t)t∈[0,1]∈H⁡(ℝd)(\mathbb{S}_{t})_{t\in[0,1]}\in H(\mathbb{R}^{d}) there exists an optimal coupling π∗∈P¯​(X0×A0×X1×A1)\pi^{*}\in\overline{P}(X_{0}\times A_{0}\times X_{1}\times A_{1}) of measures μ0\mu_{0} and μ1\mu_{1}, representative as the endpoints, for the dF​G​W,α,1,qℝdd^{\mathbb{R}^{d}}_{FGW,\alpha,1,q} distance, such that for each t∈[0,1]t\in[0,1] a representative of the equivalence class ∼\sim of 𝕊t\mathbb{S}_{t} is given by:
+(X0×X1×At^,(1−t)​dX0⊕t​dX1,ηt​#​π∗)\left(X_{0}\times X_{1}\times\hat{A_{t}},(1-t)d_{X_{0}}\oplus td_{X_{1}},\eta_{t}\#\pi^{*}\right)
+with ηt\eta_{t} and At^\hat{A_{t}} defined in theorem 3.6..
+Proofs of the previous theorems can be found in Section 5. In a sense this result combines the geodesics in the Wasserstein space and in the space of all metric spaces since it suffices to interpolate the distances in the structure space and the features to construct the geodesic. The main interest is that it defines the minimum path between two structured objects. For example, considering two discrete structured objects represented by the measures μ0=∑i=1nhi​δ(xi,ai)\mu_{0}=\sum_{i=1}^{n}h_{i}\delta_{(x_{i},a_{i})} and μ1=∑j=1mgj​δ(yj,bj)\mu_{1}=\sum_{j=1}^{m}g_{j}\delta_{(y_{j},b_{j})}, the interpolation path is given for t∈[0,1]t\in[0,1] by the measure μt=∑i=1n∑j=1mπ∗​(i,j)​δ(xi,yj,(1−t)​ai+t​bj)\mu_{t}=\sum_{i=1}^{n}\sum_{j=1}^{m}\pi^{*}(i,j)\delta_{(x_{i},y_{j},(1-t)a_{i}+tb_{j})} where π∗\pi^{*} is the optimal coupling for the F​G​WFGW distance. However this geodesic is difficult to handle in practice since it requires the computation of the cartesian product X0×X1X_{0}\times X_{1}. To overcome this obstacle, an extension using Fréchet mean is defined in section 4.3. The proper definition and properties of velocity fields associated to this geodesic is postponed to further works.
+4 Examples and applications for the discrete case
+In this section, we illustrate the behavior of F​G​WFGW on simple cases where structured objects are involved.
+4.1 FGW in the discrete case
+In the following section, (Ω,d)(\Omega,d) is the feature space and 𝕏n\mathbb{X}_{n} is the set of all discrete metric spaces of size n≥1n\geq 1. Picking a structured object of size nn in the discrete case is choosing a metric space (X,C)(X,C), a set of nn elements (xi,ai)(x_{i},a_{i}) where (ai)i(a_{i})_{i} denotes the feature information and (xi)i(x_{i})_{i} denotes the structure information. The matrix C⁡(i,j)C(i,j) aims at comparing the structure points xix_{i} and xjx_{j}. From this set we derive a fully supported probability measure μ\mu by choosing a histogram h∈Σnh\in\Sigma_{n} and μ=∑i=1nhi​δ(xi,ai)\mu=\sum_{i=1}^{n}h_{i}\delta_{(x_{i},a_{i})}.
+More precisely, H⁡(Ω)=⋃n∈ℕHn​(Ω)H(\Omega)=\bigcup\limits_{n\in\mathbb{N}}H_{n}(\Omega) where
+Hn(Ω)=d​e​f{(xi,ai)i∈{1,..,n}∈(X×Ω)n,C∈ℝn×n,μ=∑i=1nhiδ(xi,ai)|(X,C)∈𝕏n,h∈Σn}H_{n}(\Omega)\stackrel{{\scriptstyle def}}{{=}}\{(x_{i},a_{i})_{i\in\{1,..,n\}}\in(X\times\Omega)^{n},\ C\in\mathbb{R}^{n\times n},\ \mu=\sum_{i=1}^{n}h_{i}\delta_{(x_{i},a_{i})}|(X,C)\in\mathbb{X}_{n},h\in\Sigma_{n}\}
+This set includes all graphs with any number of vertices (each from a given metric space), where each vertex xix_{i} is associated to a feature aia_{i} in Ω\Omega and a weight hih_{i} on the simplex.
+In the next paragraphs, μ∈Hn​(Ω)\mu\in H_{n}(\Omega) and ν∈Hm​(Ω)\nu\in H_{m}(\Omega) are structured data as described in the previous part. We suppose that C1C_{1} and C2C_{2} are the distance matrices inherent to each structure information of μ\mu and ν\nu respectively, and aia_{i}, bjb_{j} are the features. Let p,q≥1p,q\geq 1.
+Using previous notations, the Fused Gromov-Wasserstein distance is defined as:
+dF​G​W,α,p,qΩ​(μ,ν)=(minπ∈Π⁡(h,g)​Ep,q​(MA​B,C1,C2,π))1pd^{\Omega}_{FGW,\alpha,p,q}(\mu,\nu)=\bigg(\underset{\pi\in\Pi(h,g)}{\min}E_{p,q}(M_{AB},C_{1},C_{2},\pi)\bigg)^{\frac{1}{p}}\\
+(19)
+where:
+Ep,q​(MA​B,C1,C2,π)=∑i,j,k,l((1−α)​d​(ai,bj)q+α​|C1​(i,k)−C2​(j,l)|q)p​πi,j​πk,lE_{p,q}(M_{AB},C_{1},C_{2},\pi)=\sum\limits_{i,j,k,l}\big((1-\alpha)d(a_{i},b_{j})^{q}+\alpha|C_{1}(i,k)-C_{2}(j,l)|^{q}\big)^{p}\pi_{i,j}\,\pi_{k,l}
+Algorithms for solving the numerical optimization above are given in [34]. They rely on Conditional Gradient but converge only to a local minimum due to the non-convexity of the optimization problem. We used these algorithms for all the applications below.
+4.2 Illustrations of FGW
+In this section, we present several applications of F​G​WFGW as a distance betweeen structured objects and provide interpretation of the OT matrix.
+Example with 1D features and structure spaces
+Figure 9 illustrates the differences between Wasserstein, Gromov-Wasserstein and Fused Gromov-Wasserstein couplings π∗\pi^{*}. In this example both the feature and structure space are 1-dimensional (Figure 9 left). The feature space denotes two clusters among the elements of both objects illustrated in the OT matrix MA​BM_{AB} , the structure space denotes a noisy temporal sequence along the indexes liustrated in the matrices C1C_{1} and C2C_{2} (Figure 9 center). Wasserstein respects the clustering but forgets the temporal structure, Gromov-Wasserstein respects the structure but do not take the clustering into account. Only FGW retrieves a transport matrix respecting both feature and structure.
+Figure 9: Illustration of the difference between WW, G​WGW and F​G​WFGW couplings. (left) empirical distributions μ\mu with 20 samples and ν\nu with 30 samples which color is proportional to their index. (middle) Cost matrices in the feature (MA​BM_{{AB}}) and structure domains (C1,C2C_{1},C_{2}) with similar samples in white. (right) Solution for all methods. Dark blue indicates a non zero coefficient of the transportation map between ii and jj. Feature distances are large between points laying on the diagonal of MA​BM_{AB} such that Wasserstein maps is anti-diagonal but unstructured. Fused Gromov-Wasserstein incorporates both feature and structure maps in a single transport map.
+Example on two simple images
+We extract one 28×2828\times 28 image from the MNIST dataset and generate a second one by simply re-centering the digit on the frame. Features represent the gray level of each pixel, the structure is defined as the city-block distance on the pixel coordinate grid and we use equal weights for all the pixels in the image. Figure 10 shows the different couplings obtained when considering either the features only, the structure only or both information. F​G​WFGW aligns the pixels of the digits, recovering the correct order of the pixels, while both Wassertein and Gromov-Wasserstein distances fail at providing a meaningful transportation map. Note that in the Wasserstein and Gromov-Wasserstein case, the distances are equal to 0, whereas F​G​WFGW manages to spot that the two images are different. Also note that, in the F​G​WFGW sense, the original digit and its mirrored version are also equivalent as there exists an isometry between their structure spaces, making F​G​WFGW invariant to rotations or flips in the structure space in this case.
+Figure 10: Couplings obtained when considering (Top left) the features only, where we have dW,1Ω=0d^{\Omega}_{W,1}=0 (Top right) the structure only, with dG​W,1=0d_{GW,1}=0 (Bottom left and right) both the features and the structure, with dF​G​W,0.1,1,2Ωd^{\Omega}_{FGW,0.1,1,2}. For readibility issues, only the couplings starting from non white pixels on the left picture are depicted.
+Time series example
+One of the main assets of F​G​WFGW is that it can be used on a wide class of objects and time series are one more example of this. We consider here 25 monodimensional time series composed of two humps in [0,1][0,1] with random uniform height between 0 and 1. Signals are distributed according to two classes translated from each other with a fixed gap. The F​G​WFGW distance is computed by considering dd as the euclidean distance between the features of the signals (here the value of the signal in each point) and dXd_{X} and dYd_{Y} as the euclidean distance between timestamps.
+A 2D embedding is computed from a F​G​WFGW distance matrix between a number of examples in this dataset with multidimensional scaling (MDS) in Figure 11 (top). One can clearly see that the representation with a reasonable α\alpha value in the center is the most discriminant one. This can be better understood by looking as the OT matrices between the classes.
+Figure 11 (bottom) illustrates the behavior of F​G​WFGW on one pair of examples when going from Wasserstein to Gromov-Wasserstein. The black line depict the affectation provided by the transport matrix and one can clearly see that while Wasserstein on the left assigns samples completely independently to their temporal position, the Gromov-Wasserstein on the right tends to align perfectly the samples (note that it could have reversed exactly the alignment with the same loss) but discards the values in the signal. Only the true F​G​WFGW in the center finds a transport matrix that both respects the time sequences and aligns similar values in the signals.
+Figure 11: Behavior of trade-off parameter α\alpha on a toy time series classification problem. α\alpha is increasing from left (α=0\alpha=0 : Wasserstein distance) to right (α=1\alpha=1 : Gromov-Wasserstein distance). (top row) 2D-embedding is computed from the set of pairwise distances between samples with MDS (bottom row) illustration of couplings between two sample time series from opposite classes.
+4.3 Structured Optimal Transport Barycenter
+An interesting use of the F​G​WFGW distance is to define a barycenter of a set of structured data as a Fréchet mean. In that context, one seeks the structured object that minimizes the sum of the (weighted) F​G​WFGW distances with a given set of objects. OT barycenters have many desirable properties and applications [1, 27], yet no formulation can leverage both structural and feature information in the barycenter computation. Here we propose to use the F​G​WFGW distance to compute the barycenter of structured objects (μk)k∈H​(Ω)k(\mu_{k})_{k}\in H(\Omega)^{k} associated with structures (Ck)k(C_{k})_{k}, features (Bk)k(B_{k})_{k} and base histograms (hk)k(h_{k})_{k}.
+We suppose that the feature space is Ω=(ℝd,ℓ2)\Omega=(\mathbb{R}^{d},\ell_{2}) and p=1p=1. For simplicity, we assume that the base histograms and the histogram hh associated to the barycenter are known and fixed.
+In this context, for a fixed N∈ℕN\in\mathbb{N} and (λk)k(\lambda_{k})_{k} such that ∑kλk=1\sum_{k}\lambda_{k}=1 , we aim to find:
+min𝜇​∑kλk​dF​G​W,α,1,qℝd​(μ,μk)=minC,A∈ℝN×d,(πk)k​∑kλk​E1,q​(MA​Bk,C,Ck,πk)\underset{\mu}{\text{min}}\sum_{k}\lambda_{k}d^{\mathbb{R}^{d}}_{FGW,\alpha,1,q}(\mu,\mu_{k})=\underset{C,\ A\in\mathbb{R}^{N\times d},(\pi_{k})_{k}}{\text{min}}\sum_{k}\lambda_{k}E_{1,q}(M_{AB_{k}},C,C_{k},\pi_{k})
+(20)
+Note that this problem is convex w.r.t CC and AA but not w.r.t πk\pi_{k}. An algorithm to solve this problem is presented in [34]. Intuitively, looking for a barycenter means finding feature values supported on a fixed size support, and the structure that relates them. Interestingly enough, there are several variants of this problem, where features or structure can be fixed for the barycenter. Solving the related simpler optimization problems extend straightforwardly.
+Graph barycenter and compression
+In this experiment, we use F​G​WFGW to compute barycenters and approximations of toy graphs.
+Figure 12: Illustration of F​G​WFGW graph barycenter. The first column illustrates the original settings with the denoised graphs, and columns 2 to 7 are noisy samples that constitute the datasets. Columns 8 and 9 show the barycenters for each setting, with different number of nodes. Blue nodes indicates a feature value close to −1-1, yellow nodes close to 11.
+In the first example, we generate graphs following either a circle or 88 symbol with 1D features following a sine and linear variation respectively.
+For each example, the number of nodes is drawn randomly between 10 and 25, Gaussian noise is added to the features and a small noise is applied to the structure (some connections with the third neighbors are randomly added). An example graph with no noise is provided for each class in the first column of Figure 12. One can see from there that the circle class has a feature varying smoothly (sine) along the graph but the 88 has a sharp feature change at its center (so that low pass filtering would loose some information). Some examples of the generated graphs are provided in the 2nd-to-7th columns of Figure 12.
+We compute the F​G​WFGW barycenter containing 10 samples using the shortest path distance between the nodes as the structural information and the ℓ2\ell_{2} distance for the features.
+We recover an adjency matrix by thresholding the similarity matrix CC given by the barycenter. The threshold is tuned so as to minimize the Frobenius norm between the original CC matrix and the shortest path matrix constructed after thresholding CC. Resulting barycenters are showed in Figure 12 for n=15n=15 and n=7n=7 nodes. First, one can see that the barycenters are denoised both in the feature space and the structure space. Also note that the sharp change at the center of the 88 class is conserved in the barycenters which is a nice result compared to other divergences that tend to smooth-out their barycenters (ℓ2\ell_{2} for instance). Finally, note that by selecting the number of nodes in the barycenter one can compress the graph or estimate a "high resolution” representation from all the samples. To the best of our knowledge, no other method can compute such graph barycenters. Finally, note that F​G​WFGW is interpretable because the resulting OT matrix provides correspondence between the nodes from the samples and those from the barycenter.
+Figure 13: Example of community clustering on graphs using F​G​WFGW. (up) Community clustering with 4 communities and uniform features per cluster. (down) Community clustering with 4 communities and bimodal features per cluster (and two nodes per cluster in the approximate graph).
+In the second experiment, we evaluate the ability of FGW to perform graph approximation and compression on a simple Stochastic Block Model graph [37, 22]. The question is to see if estimating an approximated graph can recover the relation between the blocks and perform simultaneously a community clustering on the original graph (using the OT matrix). We generate two community graphs illustrated in the left column of Figure 13.
+We can see that the relation between the blocks is sparse and has a ’linear’ structure, the example in the first line has features that follow the blocks (noisy but similar in each block) whereas the example in the second line has two modes per blocks. The first graph approximation (top line) is done with 4 nodes and we can recover both the blocks in the graph and the average feature on each blocks (colors on the nodes). The second problem is more complex due to the two modes per blocks but we can see that when approximating the graph with 8 nodes we recover both the structure between the blocks but also the sub-clusters in each block which illustrate the strength of FGW: encoding both features and structures.
+Mesh barycenter
+We show in this section another example of barycenter. We aim at interpolating between unregistered 3D meshes.
+Here, we consider the problem of interpolating between k=2k=2 meshes in 3​D3D that share a common topology but not the same number of vertices. Such an interpolation is realized by setting λ1=λ\lambda_{1}=\lambda and λ2=1−λ\lambda_{2}=1-\lambda and varying λ\lambda between 0 and 1. We interpolate between two quadrupeds: a deer and a cat, that are triangular meshes with respectively 460 and 989 vertices. This is a particularly difficult problem, since there is no prior matching between meshes available. It has long been considered in the computational geometry and vision communities (e.g. [2, 32]), and generally requires user interventions. In our setting, the structure of the barycenter is set to be the one of the cat: the barycenter should have the same topological structure. Our method then only solves for the vertex positions
+X∈ℝ989×3X\in\mathbb{R}^{989\times 3}. The topological structures C1C_{1} and C2C_{2} are set to be the shortest path along the mesh between two vertices, which is a good approximation of the geodesic distance on the manifold.
+Figure 14: Interpolation of a cat and a deer mesh using F​G​WFGW. (first line) Interpolation using the F​G​WFGW distance with a high α\alpha value (bottomline) same with a very low α\alpha value, i.e. the mesh structure is almost not taken into account.
+Results are presented in Figure 14 for λ∈[0.75,0.5,0.25]\lambda\in[0.75,0.5,0.25]. A good way of assessing the quality of the results is to visually check that the consistency of the manifold mesh is preserved throughout the interpolation. The first line shows the resulting interpolation when the weight on the structure is set to a high value. When only 3D distances are used to match the shapes (bottom line), one can see that points belonging to different parts of the meshes are matched, because of the different densities of points in the two meshes. This results in highly unrealistic mesh.
+5 Proofs of the mathematical properties
+This section presents all the proofs of previous theorem and results. We will frequently use the following lemma :
+Lemma 5.1.
+Let q≥1q\geq 1. We claim :
+∀x,y∈ℝ+,(x+y)q≤2q−1​(xq+yq)\forall x,y\in\mathbb{R}_{+},\ (x+y)^{q}\leq 2^{q-1}(x^{q}+y^{q})
+(21)
+Proof 5.2.
+Indeed, if q>1q>1
+(x+y)q=((12q−1)1q​x(12q−1)1q+(12q−1)1q​y(12q−1)1q)q≤[(12q−1)1q−1+(12q−1)1q−1]q−1​(xq12q−1+yq12q−1)=xq12q−1+yq12q−1(x+y)^{q}=\big((\frac{1}{2^{q-1}})^{\frac{1}{q}}\frac{x}{(\frac{1}{2^{q-1}})^{\frac{1}{q}}}+(\frac{1}{2^{q-1}})^{\frac{1}{q}}\frac{y}{(\frac{1}{2^{q-1}})^{\frac{1}{q}}}\big)^{q}\leq\big[(\frac{1}{2^{q-1}})^{\frac{1}{q-1}}+(\frac{1}{2^{q-1}})^{\frac{1}{q-1}}\big]^{q-1}\big(\frac{x^{q}}{\frac{1}{2^{q-1}}}+\frac{y^{q}}{\frac{1}{2^{q-1}}}\big)\\
+=\frac{x^{q}}{\frac{1}{2^{q-1}}}+\frac{y^{q}}{\frac{1}{2^{q-1}}}
+Last inequality is a consequence of Hölder inequality. The result remains valid for q=1q=1.
+5.1 Proof of Prop. 2.11 Comparison between FGW, GW and W
+Proof 5.3.
+of the Proposition
+For the two inequalities (5) and (6) let π\pi be the optimal coupling for the Fused Gromov-Wasserstein distance between μ\mu and ν\nu (assuming its existence for now). Clearly :
+dF​G​W,α,p,qΩ​(μ,ν)=(∫(X×A×Y×B)2((1−α)​d​(a,b)q+α​L​((x,y,x′,y′)q)p​𝑑π​((x,a),(y,b))​𝑑π​((x′,a′),(y′,b′)))1p≥(∫X×A×Y×B(1−α)p​d​(a,b)p​q​𝑑π​((x,a),(y,b)))1p=(1−α)​(∫A×Bd​(a,b)p​q​d​P2,4​#​π​(a,b))1p𝐶𝐿𝑂𝑆𝐸d^{\Omega}_{FGW,\alpha,p,q}(\mu,\nu){=}\big(\int\limits_{(X\times A\times Y\times B)^{2}}\!\!\!\!\!\!\!\!\!\!\!\!\!\!((1-\alpha)d(a,b)^{q}+\alpha L((x,y,x^{\prime},y^{\prime})^{q})^{p}\,d\pi((x,a),(y,b))\,d\pi((x^{\prime},a^{\prime}),(y^{\prime},b^{\prime}))\big)^{\frac{1}{p}}\\
+\\
+{\geq}\big(\int\limits_{X\times A\times Y\times B}(1-\alpha)^{p}d(a,b)^{pq}\,d\pi((x,a),(y,b))\big)^{\frac{1}{p}}=(1-\alpha)\big(\int\limits_{A\times B}d(a,b)^{pq}\,dP_{2,4}\#\pi(a,b)\big)^{\frac{1}{p}}
+Since π∈Π⁡(μ,ν)\pi\in\Pi(\mu,\nu) the coupling P2,4​#​πP_{2,4}\#\pi is in Π⁡(μA,νB)\Pi(\mu_{A},\nu_{B}). So by suboptimality :
+dF​G​W,α,p,qΩ​(μ,ν)≥(1−α)​(dW,p​qΩ​(μA,νB))qd^{\Omega}_{FGW,\alpha,p,q}(\mu,\nu){\geq}(1-\alpha)(d^{\Omega}_{W,pq}(\mu_{A},\nu_{B}))^{q}
+which proves (5). Same reasoning is used for (6).
+For the last inequality (7) let π∈Π⁡(μ,ν)\pi\in\Pi(\mu,\nu) be any admissible coupling. By suboptimality :
+dF​G​W,α,p,1Ω​(μ,ν)≤(∫(X×A×Y×B)2((1−α)​d​(a,b)+α​|dZ​(x,x′)−dZ​(y,y′)|)p​𝑑π​((x,a),(y,b))​𝑑π​((x′,a′),(y′,b′)))1p≤(∗)(∫(X×A×Y×B)2((1−α)​d​(a,b)+α​dZ​(x,y)+α​dZ​(x′,y′))p​𝑑π​((x,a),(y,b))​𝑑π​((x′,a′),(y′,b′)))1p≤(∫(X×A×Y×B)2((1−α)​d​(a,b)+α​dZ​(x,y)+(1−α)​d​(a′,b′)+α​dZ​(x′,y′))p​𝑑π​((x,a),(y,b))​𝑑π​((x′,a′),(y′,b′)))1p≤(∗∗)2​(∫X×A×Y×B((1−α)​d​(a,b)+α​dZ​(x,y))p​𝑑π​((x,a),(y,b)))1pd^{\Omega}_{FGW,\alpha,p,1}(\mu,\nu)\\
+\\
+{\leq}\big(\!\!\!\!\!\!\!\!\!\!\!\!\!\!{\small\int\limits_{(X\times A\times Y\times B)^{2}}\!\!\!\!\!\!\!\!\!\!\!\!\!\!\big((1{-}\alpha)d(a,b)+\alpha|d_{Z}(x,x^{\prime})-d_{Z}(y,y^{\prime})|\big)^{p}d\pi((x,a),(y,b))d\pi((x^{\prime},a^{\prime}),(y^{\prime},b^{\prime}))}\big)^{\frac{1}{p}}\\
+\\
+\stackrel{{\scriptstyle(*)}}{{\leq}}\big(\!\!\!\!\!\!\!\!\!\!\!\!\!\!{\small\int\limits_{(X\times A\times Y\times B)^{2}}\!\!\!\!\!\!\!\!\!\!\!\!\!\!\big((1{-}\alpha)d(a,b)+\alpha d_{Z}(x,y)+\alpha d_{Z}(x^{\prime},y^{\prime})\big)^{p}d\pi((x,a),(y,b))d\pi((x^{\prime},a^{\prime}),(y^{\prime},b^{\prime}))}\big)^{\frac{1}{p}}\\
+\\
+{\leq}\big(\!\!\!\!\!\!\!\!\!\!\!\!\!\!{\small\int\limits_{(X\times A\times Y\times B)^{2}}\!\!\!\!\!\!\!\!\!\!\!\!\!\!\big((1{-}\alpha)d(a,b)+\alpha d_{Z}(x,y)+(1{-}\alpha)d(a^{\prime},b^{\prime})+\alpha d_{Z}(x^{\prime},y^{\prime})\big)^{p}d\pi((x,a),(y,b))d\pi((x^{\prime},a^{\prime}),(y^{\prime},b^{\prime}))}\big)^{\frac{1}{p}}\\
+\\
+\stackrel{{\scriptstyle(**)}}{{\leq}}2\big(\!\!\!\!\!\!\!\!\!\!\!\!\!\!{\small\int\limits_{X\times A\times Y\times B}\!\!\!\!\!\!\!\!\!\!\!\!\!\!\big((1{-}\alpha)d(a,b)+\alpha d_{Z}(x,y)\big)^{p}d\pi((x,a),(y,b))}\big)^{\frac{1}{p}}
+(*) is the triangle inequality of dZd_{Z} and (**) Minkowski inequality. Since this inequality is true for any admissible coupling π\pi we can apply it with the optimal coupling for the Wasserstein distance defined in the proposition and the claim follows.
+5.2 Proof of the theorem 3.1 Metric properties of FGW
+We propose to prove the theorem point by point : first the existence, then the equality relation and finally the triangle inequality statement. We first recall the following lemma (lemma 10.3 in [18]):
+Lemma 5.4.
+Let (W,dW)(W,d_{W}) be a compact metric space and ℳ\mathcal{M} be a subset of P⁡(W)P(W) which is sequentially compact for the weak convergence.
+If we find ϕ:W×W→ℝ\phi:W\times W\rightarrow\mathbb{R} Lipschitz for following the L1L^{1} metric on W×WW\times W :
+d^​((w1,w2),(w1′,w2′))=dW​(w1,w1′)+dW​(w2,w2′)\hat{d}((w_{1},w_{2}),(w_{1}^{\prime},w_{2}^{\prime}))=d_{W}(w_{1},w_{1}^{\prime})+d_{W}(w_{2},w_{2}^{\prime})
+with w1,w1′,w2,w2′∈W4w_{1},w_{1}^{\prime},w_{2},w_{2}^{\prime}\in W^{4}.
+Then the application μ→I⁡(μ)=∫∫W×W​ϕ​(w,w′)​d​μ​(w)​d​μ​(w′)\mu\rightarrow I(\mu)=\underset{W\times W}{\int\int}\phi(w,w^{\prime})d\mu(w)d\mu(w^{\prime}) admits a minimizer in ℳ\mathcal{M}.
+Moreover if (μn)n∈ℕ(\mu_{n})_{n\in\mathbb{N}} converges weakly to μ\mu then I⁡(μn)→I⁡(μ)I(\mu_{n})\rightarrow I(\mu) as n→∞n\rightarrow\infty
+Proposition 5.5.
+Existence of an optimal coupling for the F​G​WFGW distance
+For p,q≥1p,q\geq 1, π→Ep,q,αΩ​(π)\pi\rightarrow E^{\Omega}_{p,q,\alpha}(\pi) always always achieves a infimum π∗\pi^{*} in Π⁡(μ,ν)\Pi(\mu,\nu) such that dF​G​W,α,p,qΩ​(μ,ν)=Ep,q,αΩ​(π∗)d^{\Omega}_{FGW,\alpha,p,q}(\mu,\nu)=E^{\Omega}_{p,q,\alpha}(\pi^{*})
+Proof 5.6.
+The sequential compactness of Π⁡(μ,ν)\Pi(\mu,\nu) is classic results (see lemma 4.4 in [35]). To prove the existence of F​G​WFGW distance we use previous lemma 5.4 which states the existence of a minimizer for the integral of ϕ\phi. The main idea is to rewrite the definition of F​G​WFGW in the form of the lemma.
+We first consider the case p=1p=1 and use previous lemma 5.4 with W=X×A×Y×BW=X\times A\times Y\times B and for w,w′∈W×Ww,w^{\prime}\in W\times W :
+ϕ⁡(w=(x,a,y,b),w′=(x′,a′,y′,b′))=(1−α)​d​(a,b)q+α​L​(x,y,x′,y′)q\phi(w=(x,a,y,b),w^{\prime}=(x^{\prime},a^{\prime},y^{\prime},b^{\prime}))=(1-\alpha)d(a,b)^{q}+\alpha L(x,y,x^{\prime},y^{\prime})^{q}
+such that
+dF​G​W,α,1,qΩ​(μ,ν)=infπ∈ℳ⁡(μ,ν)​∫∫W×W​ϕ​(w,w′)​d​π​(w)​d​π​(w′)d^{\Omega}_{FGW,\alpha,1,q}(\mu,\nu)=\underset{\pi\in\mathcal{M}(\mu,\nu)}{\text{inf}}\underset{W\times W}{\int\int}\phi(w,w^{\prime})d\pi(w)d\pi(w^{\prime})
+We equip W with the metric:
+dW​(w=(x,a,y,b),w′=(x′,a′,y′,b′))=dX​(x,x′)+dY​(y,y′)+d⁡(a,a′)+d⁡(b,b′).d_{W}(w=(x,a,y,b),w^{\prime}=(x^{\prime},a^{\prime},y^{\prime},b^{\prime}))=d_{X}(x,x^{\prime})+d_{Y}(y,y^{\prime})+d(a,a^{\prime})+d(b,b^{\prime}).
+So by lemma 5.4 it suffices to show that ϕ\phi is Lipschitz on W×WW\times W with respect to :
+d^​(z=(w1,w2),z′=(w1′,w2′))=dW​(w1,w1′)+dW​(w2,w2′)\hat{d}(z=(w_{1},w_{2}),z^{\prime}=(w_{1}^{\prime},w_{2}^{\prime}))=d_{W}(w_{1},w_{1}^{\prime})+d_{W}(w_{2},w_{2}^{\prime})
+with w1,w1′,w2,w2′∈W4w_{1},w_{1}^{\prime},w_{2},w_{2}^{\prime}\in W^{4}
+We also consider g⁡(t)=tqg(t)=t^{q} and,
+ϕ1​(w=(x,a,y,b),w′=(x′,a′,y′,b′))=L​(x,y,x′,y′)q\phi_{1}(w=(x,a,y,b),w^{\prime}=(x^{\prime},a^{\prime},y^{\prime},b^{\prime}))=L(x,y,x^{\prime},y^{\prime})^{q}
+and
+ϕ2​(w=(x,a,y,b),w′=(x′,a′,y′,b′))=d​(a,b)q\phi_{2}(w=(x,a,y,b),w^{\prime}=(x^{\prime},a^{\prime},y^{\prime},b^{\prime}))=d(a,b)^{q}
+such that
+ϕ=(1−α)​g∘ϕ1+α​g∘ϕ2.\phi=(1-\alpha)g\circ\ \phi_{1}+\alpha g\circ\ \phi_{2}.
+This notations will be useful to prove the case q>1q>1 from the case q=1q=1. Indeed, we will show that ϕ1\phi_{1} and ϕ2\phi_{2} are 1-Lipschitz wrt d^\hat{d}, this will prove the result for q=1q=1. Using the boundedness of gg,ϕ1\phi_{1} and ϕ2\phi_{2} over compacts we will conclude for q>1q>1.
+To prove that ϕ1\phi_{1} and ϕ2\phi_{2} are 1-Lipschitz wrt d^\hat{d} we have to show that for i=1,2i=1,2 and (wi=(xi,ai,yi,bi),wi′=(xi′,ai′,yi′,bi′))∈W×W(w_{i}=(x_{i},a_{i},y_{i},b_{i}),w_{i}^{\prime}=(x_{i}^{\prime},a_{i}^{\prime},y_{i}^{\prime},b_{i}^{\prime}))\in W\times W :
+|ϕi​(z=(w1,w2))−ϕi​(z′=(w1′,w2′))|≤d^​(z=(w1,w2),z′=(w1′,w2′))|\phi_{i}(z=(w_{1},w_{2}))-\phi_{i}(z^{\prime}=(w_{1}^{\prime},w_{2}^{\prime}))|\leq\hat{d}(z=(w_{1},w_{2}),z^{\prime}=(w_{1}^{\prime},w_{2}^{\prime}))
+with by definition :
+d^​(z=(w1,w2),z′=(w1′,w2′))=dX​(x1,x1′)+dY​(y1,y1′)+d⁡(a1,a1′)+d⁡(b1,b1′)+dX​(x2,x2′)+dY​(y2,y2′)+d⁡(a2,a2′)+d⁡(b2,b2′)\hat{d}(z=(w_{1},w_{2}),z^{\prime}=(w_{1}^{\prime},w_{2}^{\prime}))=d_{X}(x_{1},x_{1}^{\prime})+d_{Y}(y_{1},y_{1}^{\prime})+d(a_{1},a_{1}^{\prime})+d(b_{1},b_{1}^{\prime})+d_{X}(x_{2},x_{2}^{\prime})+d_{Y}(y_{2},y_{2}^{\prime})\\
+\\
++d(a_{2},a_{2}^{\prime})+d(b_{2},b_{2}^{\prime})
+We first consider ϕ1\phi_{1} :
+|ϕ1​(z=(w1,w2))−ϕ1​(z′=(w1′,w2′))|=|ϕ1​(w1=(x1,a1,y1,b1),w2=(x2,a2,y2,b2))−ϕ1​(w1′=(x1′,a1′,y1′,b1′),w2′=(x2′,a2′,y2′,b2′))|=||dX​(x1,x2)−dY​(y1,y2)|−|dX​(x1′,x2′)−dY​(y1′,y2′)|||\phi_{1}(z=(w_{1},w_{2}))-\phi_{1}(z^{\prime}=(w_{1}^{\prime},w_{2}^{\prime}))|=\\
+\\
+|\phi_{1}(w_{1}{=}(x_{1},a_{1},y_{1},b_{1}),w_{2}{=}(x_{2},a_{2},y_{2},b_{2}))-\phi_{1}(w_{1}^{\prime}{=}(x_{1}^{\prime},a_{1}^{\prime},y_{1}^{\prime},b_{1}^{\prime}),w_{2}^{\prime}{=}(x_{2}^{\prime},a_{2}^{\prime},y_{2}^{\prime},b_{2}^{\prime}))|\\
+\\
+=|\ |d_{X}(x_{1},x_{2})-d_{Y}(y_{1},y_{2})|-|d_{X}(x_{1}^{\prime},x_{2}^{\prime})-d_{Y}(y_{1}^{\prime},y_{2}^{\prime})|\ |\\
+\\
+Yet :
+||dX​(x1,x2)−dY​(y1,y2)|−|dX​(x1′,x2′)−dY​(y1′,y2′)||≤|dX​(x1,x2)−dY​(y1,y2)+dX​(x1′,x2′)−dY​(y1′,y2′)|≤|dX​(x1,x2)−dX​(x1′,x2′)|+|dY​(y1,y2)−dY​(y1′,y2′)|≤dX​(x1,x1′)+dY​(y1,y1′)+dX​(x2,x2′)+dY​(y2,y2′)|\ |d_{X}(x_{1},x_{2})-d_{Y}(y_{1},y_{2})|-|d_{X}(x_{1}^{\prime},x_{2}^{\prime})-d_{Y}(y_{1}^{\prime},y_{2}^{\prime})|\ |\leq|d_{X}(x_{1},x_{2})-d_{Y}(y_{1},y_{2})+d_{X}(x_{1}^{\prime},x_{2}^{\prime})-d_{Y}(y_{1}^{\prime},y_{2}^{\prime})|\\
+\\
+\leq|d_{X}(x_{1},x_{2})-d_{X}(x_{1}^{\prime},x_{2}^{\prime})|+|d_{Y}(y_{1},y_{2})-d_{Y}(y_{1}^{\prime},y_{2}^{\prime})|\leq d_{X}(x_{1},x_{1}^{\prime})+d_{Y}(y_{1},y_{1}^{\prime})+d_{X}(x_{2},x_{2}^{\prime})+d_{Y}(y_{2},y_{2}^{\prime})\\
+\\
+Last inequality is consequence of triangle inequalities of dXd_{X} and dYd_{Y}.
+Consequently ||dX​(x1,x2)−dY​(y1,y2)|−|dX​(x1′,x2′)−dY​(y1′,y2′)||≤dX​(x1,x1′)+dY​(y1,y1′)+d⁡(a1,a1′)+d⁡(b1,b1′)+dX​(x2,x2′)+dY​(y2,y2′)+d⁡(a2,a2′)+d⁡(b2,b2′)|\ |d_{X}(x_{1},x_{2})-d_{Y}(y_{1},y_{2})|-|d_{X}(x_{1}^{\prime},x_{2}^{\prime})-d_{Y}(y_{1}^{\prime},y_{2}^{\prime})|\ |\leq d_{X}(x_{1},x_{1}^{\prime})+d_{Y}(y_{1},y_{1}^{\prime})+d(a_{1},a_{1}^{\prime})+d(b_{1},b_{1}^{\prime})+d_{X}(x_{2},x_{2}^{\prime})+d_{Y}(y_{2},y_{2}^{\prime})+d(a_{2},a_{2}^{\prime})+d(b_{2},b_{2}^{\prime}) and so ϕ1\phi_{1} is 1-Lipschitz w.r.t d^\hat{d}.
+Regarding ϕ2\phi_{2} :
+|ϕ1​(z=(w1,w2))−ϕ1​(z′=(w1′,w2′))|=|ϕ2​(w1=(x1,a1,y1,b1),w2=(x2,a2,y2,b2))−ϕ2​(w1′=(x1′,a1′,y1′,b1′),w2′=(x2′,a2′,y2′,b2′))|=|d⁡(a1,b1)−d⁡(a1′,b1′)|≤d⁡(a1,a1′)+d⁡(b1,b1′)≤d^​((z=(w1,w2),z′=(w1′,w2′))CLOSE|\phi_{1}(z=(w_{1},w_{2}))-\phi_{1}(z^{\prime}=(w_{1}^{\prime},w_{2}^{\prime}))|\\
+\\
+=|\phi_{2}(w_{1}{=}(x_{1},a_{1},y_{1},b_{1}),w_{2}{=}(x_{2},a_{2},y_{2},b_{2}))-\phi_{2}(w_{1}^{\prime}{=}(x_{1}^{\prime},a_{1}^{\prime},y_{1}^{\prime},b_{1}^{\prime}),w_{2}^{\prime}{=}(x_{2}^{\prime},a_{2}^{\prime},y_{2}^{\prime},b_{2}^{\prime}))|\\
+\\
+=|d(a_{1},b_{1})-d(a_{1}^{\prime},b_{1}^{\prime})|\leq d(a_{1},a_{1}^{\prime})+d(b_{1},b_{1}^{\prime})\\
+\\
+\leq\hat{d}((z=(w_{1},w_{2}),z^{\prime}=(w_{1}^{\prime},w_{2}^{\prime}))
+Last inequality is consequence of triangle inequalities of dd. So ϕ2\phi_{2} is 1-Lipschitz w.r.t d^\hat{d}
+Since all metric spaces are compact ϕ1\phi_{1} and ϕ2\phi_{2} are bounded by a constant M1M_{1} and M2M_{2}. Then the restriction g1g_{1} of gg on [0,M1][0,M_{1}] and the restriction g2g_{2} of gg on [0,M2][0,M_{2}] are Lipschitz with constants bounded by q​M1q−1qM_{1}^{q-1} and q​M2q−1qM_{2}^{q-1}.
+Since ϕ=(1−α)​g1∘ϕ1+α​g2∘ϕ2\phi=(1-\alpha)g_{1}\circ\ \phi_{1}+\alpha g_{2}\circ\ \phi_{2} then ϕ\phi is lipschitz with constant (1−α)​q​M1q−1+α​q​M2q−1(1-\alpha)qM_{1}^{q-1}+\alpha qM_{2}^{q-1}, so by lemma 5.4 there exists a minimizer for p=1p=1. For p>1p>1 we can have the same reasoning to show that ϕp\phi^{p} is lipschitz with constant p​((1−α)​q​M1q−1+α​q​M2q−1)p−1p((1-\alpha)qM_{1}^{q-1}+\alpha qM_{2}^{q-1})^{p-1} so there exists a minimizer for all pp.
+Proposition 5.7.
+Equality relation
+dF​G​W,α,p,qΩ​(μ,ν)=0d^{\Omega}_{FGW,\alpha,p,q}(\mu,\nu)=0 iff there exists f=(f1,f2):X×A→Y×Bf=(f_{1},f_{2}):X\times A\rightarrow Y\times B verifying (8), (10) and (9).
+Proof 5.8.
+First, let suppose that such an application exists. We consider the map π=(Id×f)​#​μ∈Π⁡(μ,ν)\pi=(I_{d}\times f)\#\mu\in\Pi(\mu,\nu). Then :
+Ep,q,αΩ​(π)=∫(X×A×Y×B)2((1−α)​d​(a,b)q+α​L​((x,y,x′,y′)q)p​𝑑π​((x,a),(y,b))​𝑑π​((x′,a′),(y′,b′))=∫(X×A)2((1−α)​d​(a,f2​(a))q+α​L​((x,f1​(x),x′,f1​(x′))q)p​𝑑μ​(x,a)​𝑑μ​(x′,a′)=∫(X×A)2((1−α)​d​(a,f2​(a))q+α​|dX​(x,x′)−dY​(f1​(x)​f1​(x′))|q)p​𝑑μ​(x,a)​𝑑μ​(x′,a′)=0𝐶𝐿𝑂𝑆𝐸𝐶𝐿𝑂𝑆𝐸E^{\Omega}_{p,q,\alpha}(\pi){=}\int\limits_{(X\times A\times Y\times B)^{2}}\!\!\!\!\!\!\!\!\!\!\!\!\!\!\big((1-\alpha)d(a,b)^{q}+\alpha L((x,y,x^{\prime},y^{\prime})^{q}\big)^{p}\,d\pi((x,a),(y,b))\,d\pi((x^{\prime},a^{\prime}),(y^{\prime},b^{\prime})\!)\\
+\\
+=\int\limits_{(X\times A)^{2}}\big((1-\alpha)d(a,f_{2}(a))^{q}+\alpha L((x,f_{1}(x),x^{\prime},f_{1}(x^{\prime}))^{q}\big)^{p}\,d\mu(x,a)d\mu(x^{\prime},a^{\prime})\\
+\\
+=\int\limits_{(X\times A)^{2}}\big((1-\alpha)d(a,f_{2}(a))^{q}+\alpha|d_{X}(x,x^{\prime})-d_{Y}(f_{1}(x)f_{1}(x^{\prime}))|^{q}\big)^{p}\,d\mu(x,a)d\mu(x^{\prime},a^{\prime})=0
+Since f2​(a)=af_{2}(a)=a and f1f_{1} is an isometry. So π\pi is the optimal map and dF​G​W,α,p,qΩ​(μ,ν)=0d^{\Omega}_{FGW,\alpha,p,q}(\mu,\nu)=0.
+Conversly suppose that dF​G​W,α,p,qΩ​(μ,ν)=0d^{\Omega}_{FGW,\alpha,p,q}(\mu,\nu)=0. To prove the existence of a map f=(f1,f2):X×A→Y×Bf=(f_{1},f_{2}):X\times A\rightarrow Y\times B we will use the Gromov-Wasserstein properties. We are looking for a vanishing Gromov-Wassersein distance between the spaces X×AX\times A and Y×BY\times B equipped with our two measures μ\mu and ν\nu and two distances applications.
+More precisely, we define for ((x,a),(y,b),(x′,a′),(y′,b′))∈(X×A×Y×B)2((x,a),(y,b),(x^{\prime},a^{\prime}),(y^{\prime},b^{\prime}))\in(X\times A\times Y\times B)^{2} :
+dX×A​((x,a),(x′,a′))=12​dX​(x,x′)+12​d​(a,a′)d_{X\times A}((x,a),(x^{\prime},a^{\prime}))=\frac{1}{2}d_{X}(x,x^{\prime})+\frac{1}{2}d(a,a^{\prime})
+and
+dY×B​((y,b),(y′,b′))=12​dY​(y,y′)+12​d​(b,b′)d_{Y\times B}((y,b),(y^{\prime},b^{\prime}))=\frac{1}{2}d_{Y}(y,y^{\prime})+\frac{1}{2}d(b,b^{\prime})
+We will prove that dG​W,p​(dX×A,dY×B,μ,ν)=0d_{GW,p}(d_{X\times A},d_{Y\times B},\mu,\nu)=0.
+Let π∈Π⁡(μ,ν)\pi\in\Pi(\mu,\nu) be any admissible transportation plan. Then for n≥1n\geq 1 :
+Jn​(dX×A,dY×B,π)=∫(X×A×Y×B)2L​(x,y,x′,y′)n​𝑑π​((x,a),(y,b))​𝑑π​((x′,a′),(y′,b′))=∫(X×A×Y×B)2|12​(dX​(x,x′)−dY​(y,y′))+12​(d⁡(a,a′)−d⁡(b,b′))|n​𝑑π​((x,a),(y,b))​𝑑π​((x′,a′),(y′,b′))≤∫(X×A×Y×B)212​|dX​(x,x′)−dY​(y,y′)|n​𝑑π​((x,a),(y,b))​𝑑π​((x′,a′),(y′,b′))+∫(X×A×Y×B)212​|d⁡(a,a′)−d⁡(b,b′)|n​𝑑π​((x,a),(y,b))​𝑑π​((x′,a′),(y′,b′))J_{n}(d_{X\times A},d_{Y\times B},\pi)=\!\!\!\!\!\!\!\!\!\!\!\!\!\!\int\limits_{(X\times A\times Y\times B)^{2}}\!\!\!\!\!\!\!\!\!\!\!\!\!\!L(x,y,x^{\prime},y^{\prime})^{n}d\pi((x,a),(y,b))\,d\pi((x^{\prime},a^{\prime}),(y^{\prime},b^{\prime})\!)\\
+\\
+{=}\int\limits_{(X\times A\times Y\times B)^{2}}\!\!\!\!\!\!\!\!\!\!\!\!\!\!|\frac{1}{2}(d_{X}(x,x^{\prime})-d_{Y}(y,y^{\prime}))+\frac{1}{2}(d(a,a^{\prime})-d(b,b^{\prime}))|^{n}d\pi((x,a),(y,b))\,d\pi((x^{\prime},a^{\prime}),(y^{\prime},b^{\prime})\!)\\
+\\
+{\leq}\int\limits_{(X\times A\times Y\times B)^{2}}\!\!\!\!\!\!\!\!\!\!\!\!\!\!\frac{1}{2}|d_{X}(x,x^{\prime})-d_{Y}(y,y^{\prime})|^{n}d\pi((x,a),(y,b))\,d\pi((x^{\prime},a^{\prime}),(y^{\prime},b^{\prime})\!)\\
++\int\limits_{(X\times A\times Y\times B)^{2}}\!\!\!\!\!\!\!\!\!\!\!\!\!\!\frac{1}{2}|d(a,a^{\prime})-d(b,b^{\prime})|^{n}d\pi((x,a),(y,b))\,d\pi((x^{\prime},a^{\prime}),(y^{\prime},b^{\prime})\!)
+using Jensen inequality with convexity of t→tnt\rightarrow t^{n} and subadditivity of |.| . We note (∗)(*) the first term and (∗∗)(**) the second term. By the triangle inequality properties of dd we have :
+(**)≤∫(X×A×Y×B)212​(d⁡(a,b)+d⁡(a′,b′))n​𝑑π​((x,a),(y,b))​𝑑π​((x′,a′),(y′,b′))=d​e​fMn​(π)\leq\int\limits_{(X\times A\times Y\times B)^{2}}\!\!\!\!\!\!\!\!\!\!\!\!\!\!\frac{1}{2}(d(a,b)+d(a^{\prime},b^{\prime}))^{n}d\pi((x,a),(y,b))\,d\pi((x^{\prime},a^{\prime}),(y^{\prime},b^{\prime})\!)\stackrel{{\scriptstyle def}}{{=}}M_{n}(\pi) such that we have shown :
+∀π∈Π⁡(μ,ν),∀n≥1,Jn​(dX×A,dY×B,π)≤12​Jn​(dX,dY,π)+Mn​(π)\forall\pi\in\Pi(\mu,\nu),\forall n\geq 1,J_{n}(d_{X\times A},d_{Y\times B},\pi)\leq\frac{1}{2}J_{n}(d_{X},d_{Y},\pi)+M_{n}(\pi)
+(22)
+Now let π∗\pi_{*} be the optimal coupling for dF​G​W,α,p,qΩd^{\Omega}_{FGW,\alpha,p,q} between μ\mu and ν\nu. By hypothesis dF​G​W,α,p,qΩ​(μ,ν)=0d^{\Omega}_{FGW,\alpha,p,q}(\mu,\nu)=0 then since Ep,q,αΩ​(π)≥αp​Jq​p​(dX,dY,π)E^{\Omega}_{p,q,\alpha}(\pi)\geq\alpha^{p}J_{qp}(d_{X},d_{Y},\pi) and Ep,q,αΩ​(dX,dY,π)≥Hq​p​(π)E^{\Omega}_{p,q,\alpha}(d_{X},d_{Y},\pi)\geq H_{qp}(\pi) :
+Jq​p(dX,dY,π∗)=0J_{qp}(d_{X},d_{Y},\pi{*})=0
+and
+Hq​p​(π∗)=0H_{qp}(\pi^{*})=0
+Then ∫(X×A×Y×B)d​(a,b)q​p​d​π∗​((x,a),(y,b))=0\int\limits_{(X\times A\times Y\times B)}d(a,b)^{qp}d\pi^{*}((x,a),(y,b))=0. Since all terms are positive we can conclude that ∀m∈ℕ∗,∫(X×A×Y×B)d​(a,b)m​d​π∗​((x,a),(y,b))=0\forall m\in\mathbb{N}^{*},\int\limits_{(X\times A\times Y\times B)}d(a,b)^{m}d\pi^{*}((x,a),(y,b))=0. In this way :
+Mq​p​(π∗)=12​∫(X×A×Y×B)2∑h(q​ph)​d​(a,b)h​d​(a′,b′)q​p−h​d​π∗​((x,a),(y,b))​𝑑π​((x′,a′),(y′,b′))=∑h(q​ph)⁡(∫(X×A×Y×B)d​(a,b)h​d​π∗​((x,a),(y,b)))​(∫(X×A×Y×B)d​(a′,b′)q​p−h​𝑑π​((x′,a′),(y′,b′)))=0M_{qp}(\pi^{*})=\frac{1}{2}\int\limits_{(X\times A\times Y\times B)^{2}}\sum_{h}{qp\choose h}d(a,b)^{h}d(a^{\prime},b^{\prime})^{qp-h}d\pi^{*}((x,a),(y,b))d\pi((x^{\prime},a^{\prime}),(y^{\prime},b^{\prime}))\\
+\\
+=\sum_{h}{qp\choose h}\big(\int\limits_{(X\times A\times Y\times B)}d(a,b)^{h}d\pi^{*}((x,a),(y,b))\big)\big(\int\limits_{(X\times A\times Y\times B)}d(a^{\prime},b^{\prime})^{qp-h}d\pi((x^{\prime},a^{\prime}),(y^{\prime},b^{\prime}))\big)\\
+\\
+=0
+Using eq (22) we have shown :
+Jq​p​(dX×A,dY×B,π∗)=0J_{qp}(d_{X\times A},d_{Y\times B},\pi_{*})=0
+So π∗\pi_{*} is the optimal coupling for dG​W,p​(μ,ν)d_{GW,p}(\mu,\nu) (for the distances dX×Ad_{X\times A} and dY×Bd_{Y\times B}) and dG​W,p​(μ,ν)=0d_{GW,p}(\mu,\nu)=0. Thanks to Gromov-Wasserstein properties (see [19]) there exists f=(f1,f2):X×A→Y×Bf=(f_{1},f_{2}):X\times A\rightarrow Y\times B which verifies (8) and
+∀((x,a),(x′,a′))∈(X×A)2,dX×A​((x,a),(x′,a′))=dY×B​(f⁡(x,a),f⁡(x′,a′))\forall((x,a),(x^{\prime},a^{\prime}))\in(X\times A)^{2},\ d_{X\times A}((x,a),(x^{\prime},a^{\prime}))=d_{Y\times B}(f(x,a),f(x^{\prime},a^{\prime}))
+or equivalently :
+∀((x,a),(x′,a′))∈(X×A)2,12​dX​(x,x′)+12​d​(a,a′)=12​dY​(f1​(x),f1​(x′))+12​d​(f2​(a),f2​(a′))\forall((x,a),(x^{\prime},a^{\prime}))\in(X\times A)^{2},\ \frac{1}{2}d_{X}(x,x^{\prime})+\frac{1}{2}d(a,a^{\prime})=\frac{1}{2}d_{Y}(f_{1}(x),f_{1}(x^{\prime}))+\frac{1}{2}d(f_{2}(a),f_{2}(a^{\prime}))
+(23)
+Moreover since π∗\pi^{*} is the optimal coupling for dG​W,p​(dX×A,dY×B,μ,ν)d_{GW,p}(d_{X\times A},d_{Y\times B},\mu,\nu) leading to a cost nul, then π∗\pi^{*} is supported by ff, in particular π∗=(Id×f)\pi^{*}=(I_{d}\times f). So Hq​p​(π∗)=∫(X×A×Y×B)d​(a,b)q​p​d​π∗​((x,a),(y,b))=∫Ad​(a,f2​(a))q​p​d​μA​(a)=0H_{qp}(\pi^{*})=\int\limits_{(X\times A\times Y\times B)}d(a,b)^{qp}d\pi^{*}((x,a),(y,b))=\int\limits_{A}d(a,f_{2}(a))^{qp}d\mu_{A}(a)=0. Since μA\mu_{A} fully supported on AA we can conclude that f2=Idf_{2}=I_{d}.
+In this way, using the equality (23) we can conclude that :
+∀(x,x′)∈X×X,dX​(x,x′)=dY​(f1​(x),f1​(x′))\forall(x,x^{\prime})\in X\times X,\ d_{X}(x,x^{\prime})=d_{Y}(f_{1}(x),f_{1}(x^{\prime}))
+Proposition 5.9.
+Symmetry and triangle Inequality
+dF​G​W,α,p,qΩd^{\Omega}_{FGW,\alpha,p,q} is symmetric and for q=1q=1 satisfies the triangle inequality. For q≥2q\geq 2 the triangular inequality is relaxed by a factor 2q−12^{q-1}
+To prove this result we will use the following lemma :
+Lemma 5.10.
+Let (X×A,dX,μ),(Y×B,dY,β),(Z,×C,dZ),ν)∈H(Ω)3(X\times A,d_{X},\mu),(Y\times B,d_{Y},\beta),(Z,\times C,d_{Z}),\nu)\in H(\Omega)^{3}.
+For (x,a),(x′,a′)∈(X×A)2(x,a),(x^{\prime},a^{\prime})\in(X\times A)^{2}, (y,b),(y′,b′)∈(Y×B)2(y,b),(y^{\prime},b^{\prime})\in(Y\times B)^{2} and (z,c),(z′,c′)∈(Z×C)2(z,c),(z^{\prime},c^{\prime})\in(Z\times C)^{2} we have :
+L​(x,z,x′,z′)q≤2q−1​(L​(x,y,x′,y′)q+L​(y,z,y′,z′)q)L(x,z,x^{\prime},z^{\prime})^{q}\leq 2^{q-1}(L(x,y,x^{\prime},y^{\prime})^{q}+L(y,z,y^{\prime},z^{\prime})^{q})
+(24)
+d​(a,c)q≤2q−1​(d​(a,b)q+d​(b,c)q)d(a,c)^{q}\leq 2^{q-1}(d(a,b)^{q}+d(b,c)^{q})
+(25)
+Proof 5.11.
+Direct consequence of (21) and triangle inequalities of d,dX,dY,dZd,d_{X},d_{Y},d_{Z}
+We now prove the proposition 5.9
+Proof 5.12.
+To prove the triangle inequality of dF​G​W,α,p,qΩd^{\Omega}_{FGW,\alpha,p,q} distance for arbitrary measures we will use the Gluing lemma which stresses the existence of couplings with a prescribed structure. Let (X×A,dX,μ),(Y×B,dY,β),(Z,×C,dZ),ν)∈H(Ω)3(X\times A,d_{X},\mu),(Y\times B,d_{Y},\beta),(Z,\times C,d_{Z}),\nu)\in H(\Omega)^{3}
+Let π1∈Π⁡(μ,β)\pi_{1}\in\Pi(\mu,\beta) and π2∈Π⁡(β,ν)\pi_{2}\in\Pi(\beta,\nu) be the optimal transportation plans for the Fused Gromov-Wasserstein distance between μ\mu, β\beta and β\beta, ν\nu respectively. By the Gluing Lemma (see [35] and lemma 5.3.2 in [3]) there exists a probability measure π∈P⁡((X×A)×(Y×B)×(Z×C))\pi\in P\big((X\times A)\times(Y\times B)\times(Z\times C)\big) with marginals π1\pi_{1} on (X×A)×(Y×B)(X\times A)\times(Y\times B) and π2\pi_{2} on (Y×B)×(Z×C)(Y\times B)\times(Z\times C). Let π3\pi_{3} be the marginal of π\pi on (X×A)×(Z×C)(X\times A)\times(Z\times C). By construction π3∈Π⁡(μ,ν)\pi_{3}\in\Pi(\mu,\nu). So by suboptimality of π3\pi_{3}:
+dF​G​W,α,p,qΩ​(dX,dZ,μ,ν)≤(∫(X×A×Z×C)2((1−α)​d​(a,c)q+α​L​(x,z,x′,z′)q)p​d​π3​((x,a),(z,c))​d​π3​((x′,a′),(z′,c′)))1p=(∫(X×A×Y×B×Z×C)2((1−α)​d​(a,c)q+α​L​(x,z,x′,z′)q)p​𝑑π​((x,a),(y,b),(z,c))​𝑑π​((x′,a′),(y′,b′),(z′,c′)))1p≤(∗)2q−1​(∫(X×A×Y×B×Z×C)2((1−α)​d​(a,b)q+(1−α)​d​(b,c)q+α​L​(x,y,x′,y′)q+α​L​(y,z,y′,z′)q)p​𝑑π​((x,a),(y,b),(z,c))​𝑑π​((x′,a′),(y′,b′),(z′,c′)))1p≤(∗∗)2q−1​((∫(X×A×Y×B×Z×C)2((1−α)​d​(a,b)q+α​L​(x,y,x′,y′)q)p​𝑑π​((x,a),(y,b),(z,c))​𝑑π​((x′,a′),(y′,b′),(z′,c′)))1p+(∫(X×A×Y×B×Z×C)2((1−α)​d​(b,c)q+α​L​(y,z,y′,z′)q)p​𝑑π​((x,a),(y,b),(z,c))​𝑑π​((x′,a′),(y′,b′),(z′,c′)))1p)=2q−1​((∫(X×A×Y×B)2((1−α)​d​(a,b)q+α​L​(x,y,x′,y′)q)p​d​π1​((x,a),(y,b))​d​π1​((x′,a′),(y′,b′)))1p+(∫(Y×B×Z×C)2((1−α)​d​(b,c)q+α​L​(y,z,y′,z′)q)p​d​π2​((y,b),(z,c))​d​π2​((y′,b′),(z′,c′)))1p)=2q−1​(dF​G​W,α,p,qΩ​(μ,β)+dF​G​W,α,p,qΩ​(β,ν))d^{\Omega}_{FGW,\alpha,p,q}(d_{X},d_{Z},\mu,\nu){\leq}\big(\!\!\!\!\!\!\!\!\!\!\!\!\!\!\int\limits_{(X\times A\times Z\times C)^{2}}\!\!\!\!\!\!\!\!\!\!\!\!\!\!\big((1-\alpha)d(a,c)^{q}+\alpha L(x,z,x^{\prime},z^{\prime})^{q}\big)^{p}d\pi_{3}((x,a),(z,c))d\pi_{3}((x^{\prime},a^{\prime}),(z^{\prime},c^{\prime}))\big)^{\frac{1}{p}}\\
+\\
+{=}\big(\!\!\!\!\!\!\!\!\!\!\!\!\!\!\int\limits_{(X\times A\times Y\times B\times Z\times C)^{2}}\!\!\!\!\!\!\!\!\!\!\!\!\!\!\big((1-\alpha)d(a,c)^{q}+\alpha L(x,z,x^{\prime},z^{\prime})^{q}\big)^{p}d\pi((x,a),(y,b),(z,c))d\pi((x^{\prime},a^{\prime}),(y^{\prime},b^{\prime}),(z^{\prime},c^{\prime}))\big)^{\frac{1}{p}}\\
+\\
+\stackrel{{\scriptstyle(*)}}{{\leq}}2^{q-1}\big(\!\!\!\!\!\!\!\!\!\!\!\!\!\!\int\limits_{(X\times A\times Y\times B\times Z\times C)^{2}}\!\!\!\!\!\!\!\!\!\!\!\!\!\!\big((1-\alpha)d(a,b)^{q}+(1-\alpha)d(b,c)^{q}+\alpha L(x,y,x^{\prime},y^{\prime})^{q}+\alpha L(y,z,y^{\prime},z^{\prime})^{q}\big)^{p}\\
+\\
+d\pi((x,a),(y,b),(z,c))d\pi((x^{\prime},a^{\prime}),(y^{\prime},b^{\prime}),(z^{\prime},c^{\prime}))\big)^{\frac{1}{p}}\\
+\\
+\stackrel{{\scriptstyle(**)}}{{\leq}}2^{q-1}\bigg(\big(\!\!\!\!\int\limits_{(X\times A\times Y\times B\times Z\times C)^{2}}\!\!\!\!\!\!\!\!\!\!\!\!\!\!\big((1-\alpha)d(a,b)^{q}+\alpha L(x,y,x^{\prime},y^{\prime})^{q}\big)^{p}d\pi((x,a),(y,b),(z,c))d\pi((x^{\prime},a^{\prime}),(y^{\prime},b^{\prime}),(z^{\prime},c^{\prime}))\big)^{\frac{1}{p}}\\
+\\
+{+}\big(\!\!\!\!\!\!\!\!\!\!\!\!\!\!\int\limits_{(X\times A\times Y\times B\times Z\times C)^{2}}\!\!\!\!\!\!\!\!\!\!\!\!\!\!\big((1-\alpha)d(b,c)^{q}+\alpha L(y,z,y^{\prime},z^{\prime})^{q}\big)^{p}d\pi((x,a),(y,b),(z,c))d\pi((x^{\prime},a^{\prime}),(y^{\prime},b^{\prime}),(z^{\prime},c^{\prime}))\big)^{\frac{1}{p}}\bigg)\\
+\\
+{=}2^{q-1}\bigg(\big(\!\!\!\!\int\limits_{(X\times A\times Y\times B)^{2}}\!\!\!\!\!\!\!\!\!\!\!\!\!\!\big((1-\alpha)d(a,b)^{q}+\alpha L(x,y,x^{\prime},y^{\prime})^{q}\big)^{p}d\pi_{1}((x,a),(y,b))d\pi_{1}((x^{\prime},a^{\prime}),(y^{\prime},b^{\prime}))\big)^{\frac{1}{p}}\\
+\\
+{+}\big(\!\!\!\!\!\!\!\!\!\!\!\!\!\!\int\limits_{(Y\times B\times Z\times C)^{2}}\!\!\!\!\!\!\!\!\!\!\!\!\!\!\big((1-\alpha)d(b,c)^{q}+\alpha L(y,z,y^{\prime},z^{\prime})^{q}\big)^{p}d\pi_{2}((y,b),(z,c))\,d\pi_{2}((y^{\prime},b^{\prime}),(z^{\prime},c^{\prime}))\big)^{\frac{1}{p}}\bigg)\\
+\\
+{=}2^{q-1}(d^{\Omega}_{FGW,\alpha,p,q}(\mu,\beta){+}d^{\Omega}_{FGW,\alpha,p,q}(\beta,\nu))
+with (*) comes from (24) and (25) and (**) is Minkowski inequality. So when q=1q=1 dF​G​W,α,p,qΩd^{\Omega}_{FGW,\alpha,p,q} satisfies the triangle inequality and when q>1q>1 dF​G​W,α,p,qΩd^{\Omega}_{FGW,\alpha,p,q} satisfies a relaxed triangle inequality so that it defines a semi-metric as described previously.
+5.3 Proof of Prop. 3.4 Convergence and concentration inequality
+Proof 5.13.
+The proof of the convergence in F​G​WFGW dervies directly from the weak convergence of the empirical measure and lemma 5.4. For the concentration (7) is valid between μn\mu_{n} and μ\mu since they are both in the same ground space. Then we have :
+dF​G​W,α,p,1Ω​(μn,μ)p≤2​dW,pX×Ω​(μn,μ)p⟹𝔼⁡[dF​G​W,α,p,1Ω​(μn,μ)p]≤2​𝔼​[dW,pX×Ω​(μn,μ)p]d^{\Omega}_{FGW,\alpha,p,1}(\mu_{n},\mu)^{p}\leq 2d^{X\times\Omega}_{W,p}(\mu_{n},\mu)^{p}\implies\mathbb{E}[d^{\Omega}_{FGW,\alpha,p,1}(\mu_{n},\mu)^{p}]\leq 2\mathbb{E}[d^{X\times\Omega}_{W,p}(\mu_{n},\mu)^{p}]
+We can directly apply theorem 1 in [16] to state the inequality.
+5.4 Proof of theorem 3.5 Interpolation properties between GW and W
+Proof 5.14.
+To prove the first point of the theorem we want to have a converse inequality of (5) and (6) in the limit cases.
+Let πO​T∈Π⁡(μA,νB)\pi_{OT}\in\Pi(\mu_{A},\nu_{B}) the optimal coupling for the pq-Wasserstein distance between μA\mu_{A} and ,νB,\nu_{B}. We can use the same Gluing lemma (lemma 5.3.2 in [3]) to construct :
+ρ∈P⁡(⏞μ​X×⏟πO​T​A×⏞ν​B×Y)\rho\in P(\mathrlap{\overbrace{\phantom{(c-2)}}^{\text{$\mu$}}}X\times\mathrlap{\underbrace{\phantom{2d)+(}}_{\text{$\pi_{OT}$}}}A\times\mathrlap{\overbrace{\phantom{2d)+(}}^{\text{$\nu$}}}B\times Y)
+such that ρ∈Π⁡(μ,ν)\rho\in\Pi(\mu,\nu) and P2,3​#​ρ=πO​TP_{2,3}\#\rho=\pi_{OT}.
+Moreover we have :
+∫A×B​d​(a,b)p​q​d​πO​T​(a,b)=∫X×A×B×Y​d​(a,b)p​q​d​ρ​(x,a,b,y)\underset{A\times B}{\int}d(a,b)^{pq}d\pi_{OT}(a,b)=\underset{X\times A\times B\times Y}{\int}d(a,b)^{pq}d\rho(x,a,b,y)
+(26)
+Let α≥0\alpha\geq 0 and πα\pi_{\alpha} optimal plan for the fused Gromov-Wasserstein distance between μ\mu, ν\nu.
+We can deduce that :
+dF​G​W,α,p,qΩ​(μ,ν)p−(1−α)p​dW,p​qΩ​(μA,νB)p​q=∫(X×A×Y×B)2((1−α)​d​(a,b)q+α​L​(x,y,x′,y′)q)p​d​πα​((x,a),(y,b))​d​πα​((x′,a′),(y′,b′))−∫A×B​(1−α)p​d​(a,b)p​q​d​πO​T​(a,b)≤(∗)∫(X×A×Y×B)2((1−α)​d​(a,b)q+α​L​(x,y,x′,y′)q)p​𝑑ρ​(x,a,b,y)​𝑑ρ​(x′,a′,b′,y′)−∫X×A×Y×B​(1−α)p​d​(a,b)p​q​𝑑ρ​(x,a,b,y)=(1−α)p​∫(X×A×Y×B)2d​(a,b)p​q​𝑑ρ​(x,a,b,y)​𝑑ρ​(x′,a′,b′,y′)−(1−α)p​∫X×A×Y×B​d​(a,b)p​q​𝑑ρ​(x,a,b,y)+∑k=0p−1(pk)​(1−α)k​αp−k​∫(X×A×Y×B)2d​(a,b)q​k​L​(x,y,x′,y′)q⁡(p−k)​𝑑ρ​(x,a,b,y)​𝑑ρ​(x′,a′,b′,y′)=∑k=0p−1(pk)​(1−α)k​αp−k​∫(X×A×Y×B)2d​(a,b)q​k​L​(x,y,x′,y′)q⁡(p−k)​𝑑ρ​(x,a,b,y)​𝑑ρ​(x′,a′,b′,y′)d^{\Omega}_{FGW,\alpha,p,q}(\mu,\nu)^{p}-(1-\alpha)^{p}d^{\Omega}_{W,pq}(\mu_{A},\nu_{B})^{pq}\\
+{=}\!\!\!\!\!\!\!\!\!\!\!\!\!\!{\small\int\limits_{(X\times A\times Y\times B)^{2}}\!\!\!\!\!\!\!\!\!\!\!\!\!\!\big((1{-}\alpha)d(a,b)^{q}+\alpha L(x,y,x^{\prime},y^{\prime})^{q}\big)^{p}d\pi_{\alpha}((x,a),(y,b))d\pi_{\alpha}((x^{\prime},a^{\prime}),(y^{\prime},b^{\prime}))}{-}\underset{A\times B}{\int}(1{-}\alpha)^{p}d(a,b)^{pq}d\pi_{OT}(a,b)\\
+\\
+{\stackrel{{\scriptstyle(*)}}{{\leq}}}{\small\int\limits_{(X\times A\times Y\times B)^{2}}\!\!\!\!\!\!\!\!\!\!\!\!\!\!\big((1{-}\alpha)d(a,b)^{q}+\alpha L(x,y,x^{\prime},y^{\prime})^{q}\big)^{p}d\rho(x,a,b,y)d\rho(x^{\prime},a^{\prime},b^{\prime},y^{\prime})}{-}\!\!\!\!\!\!\underset{X\times A\times Y\times B}{\int}\!\!\!\!\!\!(1{-}\alpha)^{p}d(a,b)^{pq}d\rho(x,a,b,y)\\
+\\
+=(1-\alpha)^{p}{\small\int\limits_{(X\times A\times Y\times B)^{2}}\!\!\!\!\!\!\!\!\!\!\!\!\!\!d(a,b)^{pq}d\rho(x,a,b,y)d\rho(x^{\prime},a^{\prime},b^{\prime},y^{\prime})}{-}(1-\alpha)^{p}\underset{X\times A\times Y\times B}{\int}\!\!\!\!\!\!d(a,b)^{pq}d\rho(x,a,b,y)\\
+\\
+{+}\sum_{k=0}^{p-1}{p\choose k}(1-\alpha)^{k}\alpha^{p-k}\int\limits_{(X\times A\times Y\times B)^{2}}d(a,b)^{qk}L(x,y,x^{\prime},y^{\prime})^{q(p-k)}d\rho(x,a,b,y)d\rho(x^{\prime},a^{\prime},b^{\prime},y^{\prime})\\
+\\
+{=}\sum_{k=0}^{p-1}{p\choose k}(1-\alpha)^{k}\alpha^{p-k}\int\limits_{(X\times A\times Y\times B)^{2}}d(a,b)^{qk}L(x,y,x^{\prime},y^{\prime})^{q(p-k)}d\rho(x,a,b,y)d\rho(x^{\prime},a^{\prime},b^{\prime},y^{\prime})
+We note Hk=∫(X×A×Y×B)2d​(a,b)q​k​L​(x,y,x′,y′)q⁡(p−k)​𝑑ρ​(x,a,b,y)​𝑑ρ​(x′,a′,b′,y′)H_{k}=\int\limits_{(X\times A\times Y\times B)^{2}}d(a,b)^{qk}L(x,y,x^{\prime},y^{\prime})^{q(p-k)}d\rho(x,a,b,y)d\rho(x^{\prime},a^{\prime},b^{\prime},y^{\prime})
+Using (5) we have shown that:
+(1−α)​(dW,p​qΩ​(μA,νB))q≤dF​G​W,α,p,qΩ​(μ,ν)≤((1−α)p​(dW,p​qΩ​(μA,νB))p​q+∑k=0p−1(pk)​(1−α)k​αp−k​Hk)1p(1-\alpha)(d^{\Omega}_{W,pq}(\mu_{A},\nu_{B}))^{q}\leq d^{\Omega}_{FGW,\alpha,p,q}(\mu,\nu)\leq\big((1-\alpha)^{p}(d^{\Omega}_{W,pq}(\mu_{A},\nu_{B}))^{pq}+\sum_{k=0}^{p-1}{p\choose k}(1-\alpha)^{k}\alpha^{p-k}H_{k}\big)^{\frac{1}{p}}
+So limα→0dF​G​W,α,p,qΩ​(μ,ν)=(dW,p​qΩ​(μA,νB))q\lim\limits_{\alpha\rightarrow 0}d^{\Omega}_{FGW,\alpha,p,q}(\mu,\nu)=(d^{\Omega}_{W,pq}(\mu_{A},\nu_{B}))^{q}
+For the case α→1\alpha\rightarrow 1 we rather consider πG​W∈Π⁡(μX,νY)\pi_{GW}\in\Pi(\mu_{X},\nu_{Y}) the optimal coupling for the pq-Gromov-Wasserstein distance between μX\mu_{X} and ,νY,\nu_{Y} and we construct
+γ∈P⁡(⏞μ​A×⏟πG​W​X×⏞ν​Y×B)\gamma\in P(\mathrlap{\overbrace{\phantom{(c-2)}}^{\text{$\mu$}}}A\times\mathrlap{\underbrace{\phantom{2d)+(}}_{\text{$\pi_{GW}$}}}X\times\mathrlap{\overbrace{\phantom{2d)+(}}^{\text{$\nu$}}}Y\times B)
+such that γ∈Π⁡(μ,ν)\gamma\in\Pi(\mu,\nu) and P2,3​#​ρ=πG​WP_{2,3}\#\rho=\pi_{GW}. We have :
+∫X×Y×X×Y​L​(x,y,x′,y′)p​q​d​πG​W​(x,y)​d​πG​W​(x′,y′)=∫A×X×Y×B​L​(x,y,x′,y′)p​q​d​γ​(a,x,y,b)​d​γ​(a′,x′,y′,b′)\underset{X\times Y\times X\times Y}{\int}\!\!\!\!\!\!\!\!\!\!L(x,y,x^{\prime},y^{\prime})^{pq}d\pi_{GW}(x,y)d\pi_{GW}(x^{\prime},y^{\prime}){=}\!\!\!\!\!\!\!\!\!\!\underset{A\times X\times Y\times B}{\int}\!\!\!\!\!\!\!\!\!\!L(x,y,x^{\prime},y^{\prime})^{pq}d\gamma(a,x,y,b)d\gamma(a^{\prime},x^{\prime},y^{\prime},b^{\prime})
+(27)
+So by suboptimality :
+dF​G​W,α,p,qΩ​(μ,ν)p−αp​dG​W,p​q​(μX,νY)p​q=∫(X×A×Y×B)2((1−α)​d​(a,b)q+α​L​(x,y,x′,y′)q)p​d​πα​((x,a),(y,b))​d​πα​((x′,a′),(y′,b′))−∫A×B​αp​L​(x,y,x′,y′)p​q​d​πG​W​(a,b)≤(∗)∫(X×A×Y×B)2((1−α)​d​(a,b)q+α​L​(x,y,x′,y′)q)p​𝑑ρ​(x,a,b,y)​𝑑ρ​(x′,a′,b′,y′)−∫X×A×Y×B​αp​L​(x,y,x′,y′)p​q​𝑑ρ​(x,a,b,y)=αp​∫(X×A×Y×B)2L​(x,y,x′,y′)p​q​𝑑ρ​(x,a,b,y)​𝑑ρ​(x′,a′,b′,y′)−αp​∫X×A×Y×B​L​(x,y,x′,y′)p​q​𝑑ρ​(x,a,b,y)+∑k=0p−1(pk)​(1−α)p−k​αk​∫(X×A×Y×B)2d​(a,b)q⁡(p−k)​L​(x,y,x′,y′)q​k​𝑑ρ​(x,a,b,y)​𝑑ρ​(x′,a′,b′,y′)=∑k=0p−1(pk)​(1−α)p−k​αk​∫(X×A×Y×B)2d​(a,b)q⁡(p−k)​L​(x,y,x′,y′)q​k​𝑑ρ​(x,a,b,y)​𝑑ρ​(x′,a′,b′,y′)d^{\Omega}_{FGW,\alpha,p,q}(\mu,\nu)^{p}-\alpha^{p}d_{GW,pq}(\mu_{X},\nu_{Y})^{pq}\\
+{=}\!\!\!\!\!\!\!\!\!\!\!\!\!\!{\small\int\limits_{(X\times A\times Y\times B)^{2}}\!\!\!\!\!\!\!\!\!\!\!\!\!\!\big((1{-}\alpha)d(a,b)^{q}+\alpha L(x,y,x^{\prime},y^{\prime})^{q}\big)^{p}d\pi_{\alpha}((x,a),(y,b))d\pi_{\alpha}((x^{\prime},a^{\prime}),(y^{\prime},b^{\prime}))}{-}\underset{A\times B}{\int}\alpha^{p}L(x,y,x^{\prime},y^{\prime})^{pq}d\pi_{GW}(a,b)\\
+\\
+{\stackrel{{\scriptstyle(*)}}{{\leq}}}{\small\int\limits_{(X\times A\times Y\times B)^{2}}\!\!\!\!\!\!\!\!\!\!\!\!\!\!\big((1{-}\alpha)d(a,b)^{q}+\alpha L(x,y,x^{\prime},y^{\prime})^{q}\big)^{p}d\rho(x,a,b,y)d\rho(x^{\prime},a^{\prime},b^{\prime},y^{\prime})}{-}\!\!\!\!\!\!\underset{X\times A\times Y\times B}{\int}\!\!\!\!\!\!\alpha^{p}L(x,y,x^{\prime},y^{\prime})^{pq}d\rho(x,a,b,y)\\
+\\
+=\alpha^{p}{\small\int\limits_{(X\times A\times Y\times B)^{2}}\!\!\!\!\!\!\!\!\!\!\!\!\!\!L(x,y,x^{\prime},y^{\prime})^{pq}d\rho(x,a,b,y)d\rho(x^{\prime},a^{\prime},b^{\prime},y^{\prime})}{-}\alpha^{p}\underset{X\times A\times Y\times B}{\int}\!\!\!\!\!\!L(x,y,x^{\prime},y^{\prime})^{pq}d\rho(x,a,b,y)\\
+\\
+{+}\sum_{k=0}^{p-1}{p\choose k}(1-\alpha)^{p-k}\alpha^{k}\int\limits_{(X\times A\times Y\times B)^{2}}d(a,b)^{q(p-k)}L(x,y,x^{\prime},y^{\prime})^{qk}d\rho(x,a,b,y)d\rho(x^{\prime},a^{\prime},b^{\prime},y^{\prime})\\
+\\
+{=}\sum_{k=0}^{p-1}{p\choose k}(1-\alpha)^{p-k}\alpha^{k}\int\limits_{(X\times A\times Y\times B)^{2}}d(a,b)^{q(p-k)}L(x,y,x^{\prime},y^{\prime})^{qk}d\rho(x,a,b,y)d\rho(x^{\prime},a^{\prime},b^{\prime},y^{\prime})
+We note Jk=∫(X×A×Y×B)2d​(a,b)q⁡(p−k)​L​(x,y,x′,y′)q​k​𝑑ρ​(x,a,b,y)​𝑑ρ​(x′,a′,b′,y′)J_{k}=\int\limits_{(X\times A\times Y\times B)^{2}}d(a,b)^{q(p-k)}L(x,y,x^{\prime},y^{\prime})^{qk}d\rho(x,a,b,y)d\rho(x^{\prime},a^{\prime},b^{\prime},y^{\prime})
+Using (6) we have shown that:
+α​(dG​W,p​qΩ​(μX,νY))q≤dF​G​W,α,p,qΩ​(μ,ν)≤(αp​(dG​W,p​qΩ​(μX,νY))p​q+∑k=0p−1(pk)​(1−α)p−k​αk​Jk)1p\alpha(d^{\Omega}_{GW,pq}(\mu_{X},\nu_{Y}))^{q}\leq d^{\Omega}_{FGW,\alpha,p,q}(\mu,\nu)\leq\big(\alpha^{p}(d^{\Omega}_{GW,pq}(\mu_{X},\nu_{Y}))^{pq}+\sum_{k=0}^{p-1}{p\choose k}(1-\alpha)^{p-k}\alpha^{k}J_{k})^{\frac{1}{p}}
+so limα→1dF​G​W,α,p,qΩ​(μ,ν)=(dG​W,p​qΩ​(μX,νY))q\lim\limits_{\alpha\rightarrow 1}d^{\Omega}_{FGW,\alpha,p,q}(\mu,\nu)=(d^{\Omega}_{GW,pq}(\mu_{X},\nu_{Y}))^{q}
+5.5 Proof of theorem 3.6 Constant speed geodesic
+Proof 5.15.
+Let t,s∈[0,1]t,s\in[0,1]. Recalling :
+∀x0,a0,x1,a1∈X0×A0×X1×A1,ηt​(x0,a0,x1,a1)=(x0,x1,(1−t)​a0+t​a1)\forall x_{0},a_{0},x_{1},a_{1}\in X_{0}\times A_{0}\times X_{1}\times A_{1},\eta_{t}(x_{0},a_{0},x_{1},a_{1})=(x_{0},x_{1},(1-t)a_{0}+ta_{1})
+We note 𝕊t=(X0×X1×At^,(1−t)​dX0⊕t​dX1,μt=ηt​#​π∗)\mathbb{S}_{t}=(X_{0}\times X_{1}\times\hat{A_{t}},(1-t)d_{X_{0}}\oplus td_{X_{1}},\mu_{t}=\eta_{t}\#\pi^{*}) and dt=(1−t)​dX0⊕t​dX1d_{t}=(1-t)d_{X_{0}}\oplus td_{X_{1}}. Let ∥.∥\|.\| be any ℓm\ell_{m} norm for m≥1m\geq 1.
+It suffices to prove :
+dF​G​W,α,p,1ℝd​(μt,μs)≤|t−s|​dF​G​W,α,p,1ℝd​(μ0,μ1)d^{\mathbb{R}^{d}}_{FGW,\alpha,p,1}(\mu_{t},\mu_{s})\leq|t-s|d^{\mathbb{R}^{d}}_{FGW,\alpha,p,1}(\mu_{0},\mu_{1})
+To do so we consider Δst∈P⁡(X0×X1×At^×X0×X1×As^)\Delta^{t}_{s}\in P(X_{0}\times X_{1}\times\hat{A_{t}}\times X_{0}\times X_{1}\times\hat{A_{s}}) defined by Δst=(ηt×ηs)​#​π∗∈Π⁡(μt,μs)\Delta^{t}_{s}=(\eta_{t}\times\eta_{s})\#\pi^{*}\in\Pi(\mu_{t},\mu_{s}) and the following "diagonal" coupling :
+d​γst​((x0,x1),a,(x0′′,x1′′),b)=d​Δst​((x0,x1),a,(x0′′,x1′′),b)​d​δ(x0,x1)​(x0′′,x1′′)d\gamma_{s}^{t}((x_{0},x_{1}),a,(x_{0}^{\prime\prime},x_{1}^{\prime\prime}),b)=d\Delta^{t}_{s}((x_{0},x_{1}),a,(x_{0}^{\prime\prime},x_{1}^{\prime\prime}),b)d\delta_{(x_{0},x_{1})}(x_{0}^{\prime\prime},x_{1}^{\prime\prime})
+Then γst∈P⁡(X0×X1×At×X0×X1×As)\gamma_{s}^{t}\in P(X_{0}\times X_{1}\times A_{t}\times X_{0}\times X_{1}\times A_{s}) and since Δst∈Π⁡(μt,μs)\Delta^{t}_{s}\in\Pi(\mu_{t},\mu_{s}) then γst∈Π⁡(μt,μs)\gamma_{s}^{t}\in\Pi(\mu_{t},\mu_{s}) So by suboptimality :
+dF​G​W,α,p,1ℝd(μt,μs)p≤∫(X0×X1×At^×X0×X1×As^)2((1−α)d(a,b)+α|dt[(x0,x1),(x0′,x1′)]−ds[(x0′′,x1′′),(x0′′′,x1′′′)]|)pdγst(x0,x1,a,x0′′,x1′′,b)dγst(x0′,x1′,a′,x0′′′,x1′′′,b′)=∫(X0×X1×At^×X0×X1×As^)2((1−α)d(a,b)+α|dt[(x0,x1),(x0′,x1′)]−ds[(x0,x1),(x0′,x1′)]|)pdΔst(x0,x1,a,x0,x1,b)dΔst(x0′,x1′,a′,x0′,x1′,b′)=∫(X0×A0×X1×A1)2((1−α)∥(1−t)a+tb−(1−s)a−sb∥+α|(1−t)dX0(x0,x0′)+tdX1(x1,x1′)−(1−s)dX0(x0,x0′)+sdX1(x1,x1′)|)pdπ∗(x0,a,x1,b)dπ∗(x0′,a′,x1′,b′)=|t−s|p∫(X0×A0×X1×A1)2((1−α)∥a−b∥+α|dX0(x0,x0′)−dX1(x1,x1′)|)pdπ∗(x0,a,x1,b)dπ∗(x0′,a′,x1′,b′)d^{\mathbb{R}^{d}}_{FGW,\alpha,p,1}(\mu_{t},\mu_{s})^{p}\\
+\\
+{\leq}\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!{\small\int\limits_{(X_{0}\times X_{1}\times\hat{A_{t}}\times X_{0}\times X_{1}\times\hat{A_{s}})^{2}}\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\big((1-\alpha)d(a,b){+}\alpha|d_{t}[(x_{0},x_{1}),(x_{0}^{\prime},x_{1}^{\prime})]{-}d_{s}[(x_{0}^{\prime\prime},x_{1}^{\prime\prime}),(x_{0}^{\prime\prime\prime},x_{1}^{\prime\prime\prime})]|\big)^{p}\,d\gamma_{s}^{t}(x_{0},x_{1},a,x_{0}^{\prime\prime},x_{1}^{\prime\prime},b)d\gamma_{s}^{t}(x_{0}^{\prime},x_{1}^{\prime},a^{\prime},x_{0}^{\prime\prime\prime},x_{1}^{\prime\prime\prime},b^{\prime})}\\
+\\
+=\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!{\small\int\limits_{(X_{0}\times X_{1}\times\hat{A_{t}}\times X_{0}\times X_{1}\times\hat{A_{s}})^{2}}\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\big((1-\alpha)d(a,b){+}\alpha|d_{t}[(x_{0},x_{1}),(x_{0}^{\prime},x_{1}^{\prime})]{-}d_{s}[(x_{0},x_{1}),(x_{0}^{\prime},x_{1}^{\prime})]|\big)^{p}\,d\Delta_{s}^{t}(x_{0},x_{1},a,x_{0},x_{1},b)d\Delta_{s}^{t}(x_{0}^{\prime},x_{1}^{\prime},a^{\prime},x_{0}^{\prime},x_{1}^{\prime},b^{\prime})}\\
+\\
+=\int\limits_{(X_{0}\times A_{0}\times X_{1}\times A_{1})^{2}}\big((1-\alpha)\|(1{-}t)a+tb{-}(1{-}s)a{-}sb\|\\
+\\
++\alpha|(1{-}t)d_{X_{0}}(x_{0},x_{0}^{\prime}){+}td_{X_{1}}(x_{1},x_{1}^{\prime}){-}(1-s)d_{X_{0}}(x_{0},x_{0}^{\prime}){+}sd_{X_{1}}(x_{1},x_{1}^{\prime})|\big)^{p}d\pi^{*}(x_{0},a,x_{1},b)d\pi^{*}(x_{0}^{\prime},a^{\prime},x_{1}^{\prime},b^{\prime})\\
+\\
+{=}|t{-}s|^{p}\int\limits_{(X_{0}\times A_{0}\times X_{1}\times A_{1})^{2}}\big((1{-}\alpha)\|a{-}b\|+\alpha|d_{X_{0}}(x_{0},x_{0}^{\prime}){-}d_{X_{1}}(x_{1},x_{1}^{\prime})|\big)^{p}d\pi^{*}(x_{0},a,x_{1},b)d\pi^{*}(x_{0}^{\prime},a^{\prime},x_{1}^{\prime},b^{\prime})
+So dF​G​W,α,p,1ℝd​(μt,μs)≤|t−s|​dF​G​W,α,p,1ℝd​(d0,d1,μ0,μ1)d^{\mathbb{R}^{d}}_{FGW,\alpha,p,1}(\mu_{t},\mu_{s})\leq|t-s|d^{\mathbb{R}^{d}}_{FGW,\alpha,p,1}(d_{0},d_{1},\mu_{0},\mu_{1}). Moreover by linearity of supp it is clear that supp​(μt)=At^\text{supp}(\mu_{t})=\hat{A_{t}}.
+It is straightforward to extend this result for any q≥1q\geq 1. More precisely we have the following inequality
+dF​G​W,α,p,qℝd​(μt,μs)≤|t−s|q​dF​G​W,α,p,qℝd​(μ0,μ1)≤|t−s|​dF​G​W,α,p,qℝd​(μ0,μ1)d^{\mathbb{R}^{d}}_{FGW,\alpha,p,q}(\mu_{t},\mu_{s})\leq|t-s|^{q}d^{\mathbb{R}^{d}}_{FGW,\alpha,p,q}(\mu_{0},\mu_{1})\leq|t-s|d^{\mathbb{R}^{d}}_{FGW,\alpha,p,q}(\mu_{0},\mu_{1})
+(28)
+5.6 Proof of theorem 3.7 Unicity of the geodesic
+We note ∥.∥p\|.\|_{p} the ℓp\ell_{p} norm. In order to prove the unicity of the geodesic we will need the following lemma :
+Lemma 5.16.
+•
+∀p∈[1,∞[,∀t0<…<tn,∀a1,..,an∈ℝ+\forall p\in[1,\infty[,\forall t_{0}<...<t_{n},\forall a_{1},..,a_{n}\in\mathbb{R_{+}},
+1(tn−t0)p−1​(∑i=1nai)p≤∑i=1n1(ti−ti−1)p−1​aip\frac{1}{(t_{n}-t_{0})^{p-1}}(\sum_{i=1}^{n}a_{i})^{p}\leq\sum_{i=1}^{n}\frac{1}{(t_{i}-t_{i-1})^{p-1}}a_{i}^{p}
+(29)
+•
+∀p∈[2,∞[,∀dyadict∈]0,1[,∃C=C(p,t)>0\forall p\in[2,\infty[,\forall\ \text{dyadic}\ t\in]0,1[,\exists C=C(p,t)>0,
+∀a,b∈ℝd,‖t​a+(1−t)​b‖pp≤t​‖a‖pp+(1−t)​‖b‖pp−t⁡(1−t)C​‖a−b‖pp\forall a,b\in\mathbb{R}^{d},\|ta+(1-t)b\|_{p}^{p}\leq t\|a\|_{p}^{p}+(1-t)\|b\|_{p}^{p}-\frac{t(1-t)}{C}\|a-b\|_{p}^{p}
+(30)
+Proof 5.17.
+Direct application of lemma 3.4 in [31].
+Proof 5.18 (Proof of the theorem).
+Let q≥2q\geq 2 and (𝕊t)t∈[0,1]=((,,,,,))t∈[0,1](\mathbb{S}_{t})_{t\in[0,1]}=\big((X_{t}\times A_{t},d_{X_{t}},\mu_{t})\big)_{t\in[0,1]} a geodesic in H⁡(ℝd)H(\mathbb{R}^{d}) be given. ∥.∥\|.\| denotes the ℓq\ell_{q} norm.
+The goal is to show that this geodesic in (H⁡(ℝd),dF​G​W,α,1,qℝd)(H(\mathbb{R}^{d}),d^{\mathbb{R}^{d}}_{FGW,\alpha,1,q}) is actually in the form :
+((,,,,,))t∈[0,1]\big((X_{0}\times X_{1}\times\hat{A_{t}},(1-t)d_{X_{0}}\oplus td_{X_{1}},\eta_{t}\#\pi^{*})\big)_{t\in[0,1]}
+with π∗\pi^{*} an optimal coupling between the endpoints (X0×A0,dX0,μ0)(X_{0}\times A_{0},d_{X_{0}},\mu_{0}) and (X1×A1,dX1,μ1)(X_{1}\times A_{1},d_{X_{1}},\mu_{1}) for the ,dΩF​G​W,α,1,q,d^{\Omega}_{FGW,\alpha,1,q} distance and ηt,At^\eta_{t},\hat{A_{t}} defined in theorem 3.6. The equality of this two geodesics will be with respect to the equivalence relation ∼\sim of structured objects defined previously.
+In order to prove this result we first consider discrete dyadic times t=i​2−kt=i2^{-k} for k∈ℕk\in\mathbb{N} and i∈1,..,2ki\in 1,..,2^{k} and we will extend by continuity for any t∈[0,1]t\in[0,1].
+Let πi\pi_{i} be the optimal couplings for dF​G​W,α,1,qΩd^{\Omega}_{FGW,\alpha,1,q} distance between μ(i−1)​2−k\mu_{(i-1)2^{-k}} and μi​2−k\mu_{i2^{-k}}.
+Using Gluing lemma we can construct :
+π∈P⁡(X0×A0×X2−k×A2−k×…×Xi​2−k×Ai​2−k×…×X1×A1)\pi\in P(X_{0}\times A_{0}\times X_{2^{-k}}\times A_{2^{-k}}\times...\times X_{i2^{-k}}\times A_{i2^{-k}}\times...\times X_{1}\times A_{1})
+by gluing all the couplings πi\pi_{i}.
+We consider the measures :
+π~=(P1,2×P2k−1,2k)​#​π1∈P⁡(X0×A0×X1×A1)\tilde{\pi}=(P_{1,2}\times P_{2^{k}-1,2^{k}})\#\pi^{1}\in P(X_{0}\times A_{0}\times X_{1}\times A_{1})
+coupling of μ0\mu_{0} and μ1\mu_{1}
+and for t∈[0,1]t\in[0,1] with the form t=i​2−kt=i2^{-k} :
+π~t=(P1,2×Pt−1,t×P2k−1,2k)​#​π∈P⁡(X0×A0×Xt×At×X1×A1)\tilde{\pi}_{t}=(P_{1,2}\times P_{t-1,t}\times P_{2^{k}-1,2^{k}})\#\pi\in P(X_{0}\times A_{0}\times X_{t}\times A_{t}\times X_{1}\times A_{1})
+such that P1,2,5,6​#​π~t=π~P_{1,2,5,6}\#\tilde{\pi}_{t}=\tilde{\pi} and π~t\tilde{\pi}_{t} is a coupling of μt\mu_{t} and π~\tilde{\pi}
+So, by suboptimality of π~\tilde{\pi} :
+dF​G​W,α,1,qΩ​(μ0,μ1)≤∫(X0×A0×X1×A1)2(1−α)​d​(a0,a1)q+α​|dX0​(x0,x0′)−dX1​(x1,x1′)|q​𝑑π~​(x0,a0,x1,a1)​𝑑π~​(x0′,a0′,x1′,a1′)=∫(X0×A0×Xt×At×X1×A1)2(1−α)​‖a0−a1‖q+α​|dX0​(x0,x0′)−dX1​(x1,x1′)|q​d​π~t​(x0,a0,xt,at,x1,a1)​d​π~t​(x0′,a0′,xt′,at′,x1′,a1′)=∫(X0×A0×Xt×At×X1×A1)2(1−α)​‖a0−at+at−a1‖q+α​|dX0​(x0,x0′)−dXt​(xt,xt′)+dXt​(xt,xt′)−dX1​(x1,x1′)|q​d​π~t​(x0,a0,xt,at,x1,a1)​d​π~t​(x0′,a0′,xt′,at′,x1′,a1′)=(1−α)​∫(X0×A0×Xt×At×X1×A1)2‖a0−at+at−a1‖q​d​π~t​(x0,a0,xt,at,x1,a1)​d​π~t​(x0′,a0′,xt′,at′,x1′,a1′)+α​∫(X0×A0×Xt×At×X1×A1)2|dX0​(x0,x0′)−dXt​(xt,xt′)+dXt​(xt,xt′)−dX1​(x1,x1′)|q​d​π~t​(x0,a0,xt,at,x1,a1)​d​π~t​(x0′,a0′,xt′,at′,x1′,a1′)d^{\Omega}_{FGW,\alpha,1,q}(\mu_{0},\mu_{1})\\
+\\
+{\leq}{\small\int\limits_{(X_{0}\times A_{0}\times X_{1}\times A_{1})^{2}}(1-\alpha)d(a_{0},a_{1})^{q}{+}\alpha|d_{X_{0}}(x_{0},x_{0}^{\prime}){-}d_{X_{1}}(x_{1},x_{1}^{\prime})|^{q}}d\tilde{\pi}(x_{0},a_{0},x_{1},a_{1})d\tilde{\pi}(x_{0}^{\prime},a_{0}^{\prime},x_{1}^{\prime},a_{1}^{\prime})\\
+\\
+{=}\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!{\small\int\limits_{(X_{0}\times A_{0}\times X_{t}\times A_{t}\times X_{1}\times A_{1})^{2}}\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!(1-\alpha)\|a_{0}{-}a_{1}\|^{q}{+}\alpha|d_{X_{0}}(x_{0},x_{0}^{\prime}){-}d_{X_{1}}(x_{1},x_{1}^{\prime})|^{q}}d\tilde{\pi}_{t}(x_{0},a_{0},x_{t},a_{t},x_{1},a_{1})d\tilde{\pi}_{t}(x_{0}^{\prime},a_{0}^{\prime},x_{t}^{\prime},a_{t}^{\prime},x_{1}^{\prime},a_{1}^{\prime})\\
+\\
+{=}\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!{\small\int\limits_{(X_{0}\times A_{0}\times X_{t}\times A_{t}\times X_{1}\times A_{1})^{2}}\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!(1-\alpha)\|a_{0}{-}a_{t}{+}a_{t}{-}a_{1}\|^{q}{+}\alpha|d_{X_{0}}(x_{0},x_{0}^{\prime}){-}d_{X_{t}}(x_{t},x_{t}^{\prime}){+}d_{X_{t}}(x_{t},x_{t}^{\prime})-d_{X_{1}}(x_{1},x_{1}^{\prime})|^{q}}\\
+\\
+d\tilde{\pi}_{t}(x_{0},a_{0},x_{t},a_{t},x_{1},a_{1})d\tilde{\pi}_{t}(x_{0}^{\prime},a_{0}^{\prime},x_{t}^{\prime},a_{t}^{\prime},x_{1}^{\prime},a_{1}^{\prime})\\
+\\
+{=}(1-\alpha)\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!{\small\int\limits_{(X_{0}\times A_{0}\times X_{t}\times A_{t}\times X_{1}\times A_{1})^{2}}\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\|a_{0}{-}a_{t}{+}a_{t}{-}a_{1}\|^{q}d\tilde{\pi}_{t}(x_{0},a_{0},x_{t},a_{t},x_{1},a_{1})}d\tilde{\pi}_{t}(x_{0}^{\prime},a_{0}^{\prime},x_{t}^{\prime},a_{t}^{\prime},x_{1}^{\prime},a_{1}^{\prime})\\
+\\
+{+}\alpha\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!{\small\int\limits_{(X_{0}\times A_{0}\times X_{t}\times A_{t}\times X_{1}\times A_{1})^{2}}\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!|d_{X_{0}}(x_{0},x_{0}^{\prime}){-}d_{X_{t}}(x_{t},x_{t}^{\prime}){+}d_{X_{t}}(x_{t},x_{t}^{\prime})-d_{X_{1}}(x_{1},x_{1}^{\prime})|^{q}}d\tilde{\pi}_{t}(x_{0},a_{0},x_{t},a_{t},x_{1},a_{1})d\tilde{\pi}_{t}(x_{0}^{\prime},a_{0}^{\prime},x_{t}^{\prime},a_{t}^{\prime},x_{1}^{\prime},a_{1}^{\prime})
+We note (I)(I) and (I​I)(II) this two terms. We have using (30) :
+(I)≤(1−α)​(∫(X0×A0×Xt×At×X1×A1)21tq−1​‖a0−at‖q+1(1−t)q−1​‖at−a1‖q​d​π~t​(x0,a0,xt,at,x1,a1)​d​π~t​(x0′,a0′,xt′,at′,x1′,a1′)−1C​(t⁡(1−t))q−1​∫(X0×A0×Xt×At×X1×A1)2‖(1−t)​(a0−at)−t⁡(at−a1)‖q​d​π~t​(x0,a0,xt,at,x1,a1)​d​π~t​(x0′,a0′,xt′,at′,x1′,a1′))(I)\leq(1-\alpha)\big(\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!{\small\int\limits_{(X_{0}\times A_{0}\times X_{t}\times A_{t}\times X_{1}\times A_{1})^{2}}\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\frac{1}{t^{q-1}}\|a_{0}{-}a_{t}\|^{q}+\frac{1}{(1-t)^{q-1}}\|a_{t}{-}a_{1}\|^{q}}d\tilde{\pi}_{t}(x_{0},a_{0},x_{t},a_{t},x_{1},a_{1})d\tilde{\pi}_{t}(x_{0}^{\prime},a_{0}^{\prime},x_{t}^{\prime},a_{t}^{\prime},x_{1}^{\prime},a_{1}^{\prime})\\
+\\
+{-}\frac{1}{C(t(1-t))^{q-1}}\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!{\small\int\limits_{(X_{0}\times A_{0}\times X_{t}\times A_{t}\times X_{1}\times A_{1})^{2}}\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\|(1-t)(a_{0}{-}a_{t})-t(a_{t}-a_{1})\|^{q}}d\tilde{\pi}_{t}(x_{0},a_{0},x_{t},a_{t},x_{1},a_{1})d\tilde{\pi}_{t}(x_{0}^{\prime},a_{0}^{\prime},x_{t}^{\prime},a_{t}^{\prime},x_{1}^{\prime},a_{1}^{\prime})\big)
+and :
+(I​I)≤(1−α)​(∫(X0×A0×Xt×At×X1×A1)21tq−1​|dX0​(x0,x0′)−dXt​(xt,xt′)|q+1(1−t)q−1​|dXt​(xt,xt′)−dX1​(x1,x1′)|q​d​π~t​(x0,a0,xt,at,x1,a1)​d​π~t​(x0′,a0′,xt′,at′,x1′,a1′)−1C​(t⁡(1−t))q−1​∫(X0×A0×Xt×At×X1×A1)2|(1−t)​(dX0​(x0,x0′)−dXt​(xt,xt′))−t⁡(dXt​(xt,xt′)−dX1​(x1,x1′))|q​d​π~t​(x0,a0,xt,at,x1,a1)​d​π~t​(x0′,a0′,xt′,at′,x1′,a1′))(II)\leq(1-\alpha)\bigg(\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!{\small\int\limits_{(X_{0}\times A_{0}\times X_{t}\times A_{t}\times X_{1}\times A_{1})^{2}}\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\frac{1}{t^{q-1}}|d_{X_{0}}(x_{0},x_{0}^{\prime}){-}d_{X_{t}}(x_{t},x_{t}^{\prime})|^{q}+\frac{1}{(1-t)^{q-1}}|d_{X_{t}}(x_{t},x_{t}^{\prime}){-}d_{X_{1}}(x_{1},x_{1}^{\prime})|^{q}}\\
+\\
+d\tilde{\pi}_{t}(x_{0},a_{0},x_{t},a_{t},x_{1},a_{1})d\tilde{\pi}_{t}(x_{0}^{\prime},a_{0}^{\prime},x_{t}^{\prime},a_{t}^{\prime},x_{1}^{\prime},a_{1}^{\prime})\\
+\\
+{-}\frac{1}{C(t(1-t))^{q-1}}\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!{\small\int\limits_{(X_{0}\times A_{0}\times X_{t}\times A_{t}\times X_{1}\times A_{1})^{2}}\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!|(1-t)(d_{X_{0}}(x_{0},x_{0}^{\prime}){-}d_{X_{t}}(x_{t},x_{t}^{\prime}))-t(d_{X_{t}}(x_{t},x_{t}^{\prime})-d_{X_{1}}(x_{1},x_{1}^{\prime}))|^{q}}\\
+\\
+d\tilde{\pi}_{t}(x_{0},a_{0},x_{t},a_{t},x_{1},a_{1})d\tilde{\pi}_{t}(x_{0}^{\prime},a_{0}^{\prime},x_{t}^{\prime},a_{t}^{\prime},x_{1}^{\prime},a_{1}^{\prime})\bigg)
+Combining both terms we can bound the F​G​WFGW distance as :
+dF​G​W,α,1,qℝd(μ0,μ1)≤∫(X0×A0×Xt×At×X1×A1)2(1−α)​‖a0−at‖q+α​|dX0​(x0,x0′)−dXt​(xt,xt′)|qtq−1+(1−α)​‖at−a1‖q+α​|dXt​(xt,xt′)−dX1​(x1,x1′)|q(1−t)q−1dπ~t(x0,a0,xt,at,x1,a1)dπ~t(x0′,a0′,xt′,at′,x1′,a1′)−1C​(t⁡(1−t))q−1∫(X0×A0×Xt×At×X1×A1)2(1−α)∥(1−t)a0+ta1−at∥q+α|(1−t)dX0(x0,x0′)+tdX1(x1,x1′)−dXt(xt,xt′))|qdπ~t(x0,a0,xt,at,x1,a1)dπ~t(x0′,a0′,xt′,at′,x1′,a1′)d^{\mathbb{R}^{d}}_{FGW,\alpha,1,q}(\mu_{0},\mu_{1})\\
+\\
+{\leq}\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!{\small\int\limits_{(X_{0}\times A_{0}\times X_{t}\times A_{t}\times X_{1}\times A_{1})^{2}}\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\frac{(1-\alpha)\|a_{0}-a_{t}\|^{q}+\alpha|d_{X_{0}}(x_{0},x_{0}^{\prime})-d_{X_{t}}(x_{t},x_{t}^{\prime})|^{q}}{t^{q-1}}+\frac{(1-\alpha)\|a_{t}-a_{1}\|^{q}+\alpha|d_{X_{t}}(x_{t},x_{t}^{\prime})-d_{X_{1}}(x_{1},x_{1}^{\prime})|^{q}}{(1-t)^{q-1}}}d\tilde{\pi}_{t}(x_{0},a_{0},x_{t},a_{t},x_{1},a_{1})\\
+\\
+d\tilde{\pi}_{t}(x_{0}^{\prime},a_{0}^{\prime},x_{t}^{\prime},a_{t}^{\prime},x_{1}^{\prime},a_{1}^{\prime})\\
+\\
+-\frac{1}{C(t(1-t))^{q-1}}\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!{\small\int\limits_{(X_{0}\times A_{0}\times X_{t}\times A_{t}\times X_{1}\times A_{1})^{2}}\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!(1-\alpha)\|(1-t)a_{0}+ta_{1}{-}a_{t}\|^{q}+\alpha|(1-t)d_{X_{0}}(x_{0},x_{0}^{\prime})+td_{X_{1}}(x_{1},x_{1}^{\prime}){-}d_{X_{t}}(x_{t},x_{t}^{\prime}))|^{q}}\\
+\\
+d\tilde{\pi}_{t}(x_{0},a_{0},x_{t},a_{t},x_{1},a_{1})d\tilde{\pi}_{t}(x_{0}^{\prime},a_{0}^{\prime},x_{t}^{\prime},a_{t}^{\prime},x_{1}^{\prime},a_{1}^{\prime})
+We write this inequality as :
+dF​G​W,α,1,qℝd​(μ0,μ1)≤(I′)−1C​(t⁡(1−t))q−1​(I​I′).d^{\mathbb{R}^{d}}_{FGW,\alpha,1,q}(\mu_{0},\mu_{1})\leq(I^{\prime})-\frac{1}{C(t(1-t))^{q-1}}(II^{\prime}).
+We will show that (I′)(I^{\prime}) actually achieves dF​G​W,α,1,qℝd​(μ0,μ1)d^{\mathbb{R}^{d}}_{FGW,\alpha,1,q}(\mu_{0},\mu_{1}). In this way we will conclude that all inequalities are equalities which will result on (I​I′)(II^{\prime}) being nul and π~\tilde{\pi} being the optimal coupling between the endpoints. As (I​I′)(II^{\prime}) vanishes we will conclude further that the geodesic in (H⁡(ℝd),dF​G​W,α,1,qℝd)(H(\mathbb{R}^{d}),d^{\mathbb{R}^{d}}_{FGW,\alpha,1,q}) has the wanted form.
+Let us have a closer look at (I′)(I^{\prime}) with t=i​2−kt=i2^{-k} :
+(I′)=∫(X0×A0×Xt×At×X1×A1)2(1−α)​‖a0−at‖q+α​|dX0​(x0,x0′)−dXt​(xt,xt′)|qtq−1+(1−α)​‖at−a1‖q+α​|dXt​(xt,xt′)−dX1​(x1,x1′)|q(1−t)q−1​d​π~t​(x0,a0,xt,at,x1,a1)​d​π~t​(x0′,a0′,xt′,at′,x1′,a1′)=2k⁡(q−1)​∫(1−α)​‖a0−ai​2−k‖q+α​|dX0​(x0,x0′)−dXi​2−k​(xi​2−k,xi​2−k′)|qiq−1+(1−α)​‖ai​2−k−a1‖q+α​|dXi​2−k​(xi​2−k,xi​2−k′)−dX1​(x1,x1′)|q(2k−i)q−1​𝑑π~​(x0,a0,…,xi​2−k,ai​2−k,…,x1,a1)​𝑑π~​(x0′,a0′,…,xi​2−k′,ai​2−k′,…,x1′,a1′)(I^{\prime})=\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!{\small\int\limits_{(X_{0}\times A_{0}\times X_{t}\times A_{t}\times X_{1}\times A_{1})^{2}}\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\frac{(1-\alpha)\|a_{0}-a_{t}\|^{q}+\alpha|d_{X_{0}}(x_{0},x_{0}^{\prime})-d_{X_{t}}(x_{t},x_{t}^{\prime})|^{q}}{t^{q-1}}+\frac{(1-\alpha)\|a_{t}-a_{1}\|^{q}+\alpha|d_{X_{t}}(x_{t},x_{t}^{\prime})-d_{X_{1}}(x_{1},x_{1}^{\prime})|^{q}}{(1-t)^{q-1}}}d\tilde{\pi}_{t}(x_{0},a_{0},x_{t},a_{t},x_{1},a_{1})\\
+\\
+d\tilde{\pi}_{t}(x_{0}^{\prime},a_{0}^{\prime},x_{t}^{\prime},a_{t}^{\prime},x_{1}^{\prime},a_{1}^{\prime})\\
+\\
+{=}2^{k(q-1)}{\small\int\limits\frac{(1-\alpha)\|a_{0}-a_{i2^{-k}}\|^{q}+\alpha|d_{X_{0}}(x_{0},x_{0}^{\prime})-d_{X_{i2^{-k}}}(x_{i2^{-k}},x_{i2^{-k}}^{\prime})|^{q}}{i^{q-1}}+\frac{(1-\alpha)\|a_{i2^{-k}}-a_{1}\|^{q}+\alpha|d_{X_{i2^{-k}}}(x_{i2^{-k}},x_{i2^{-k}}^{\prime})-d_{X_{1}}(x_{1},x_{1}^{\prime})|^{q}}{(2^{k}-i)^{q-1}}}\\
+\\
+d\tilde{\pi}(x_{0},a_{0},...,x_{i2^{-k}},a_{i2^{-k}},...,x_{1},a_{1})d\tilde{\pi}(x_{0}^{\prime},a_{0}^{\prime},...,x_{i2^{-k}}^{\prime},a_{i2^{-k}}^{\prime},...,x_{1}^{\prime},a_{1}^{\prime})
+Using a telescopic sum and (29) we have :
+1iq−1​‖a0−ai​2−k‖q=1iq−1​‖∑j=1ia(j−1)​2−k−aj​2−k‖q≤1iq−1​(∑j=1i‖a(j−1)​2−k−aj​2−k‖)q≤∑j=1i‖a(j−1)​2−k−aj​2−k‖q\frac{1}{i^{q-1}}\|a_{0}-a_{i2^{-k}}\|^{q}=\frac{1}{i^{q-1}}\|\sum_{j=1}^{i}a_{(j-1)2^{-k}}-a_{j2^{-k}}\|^{q}\leq\frac{1}{i^{q-1}}\big(\sum_{j=1}^{i}\|a_{(j-1)2^{-k}}-a_{j2^{-k}}\|\big)^{q}\leq\sum_{j=1}^{i}\|a_{(j-1)2^{-k}}-a_{j2^{-k}}\|^{q}
+and in the same way :
+1(2k−i)q−1​‖ai​2−k−a1‖q≤∑j=i+12k‖a(j−1)​2−k−aj​2−k‖q\frac{1}{(2^{k}-i)^{q-1}}\|a_{i2^{-k}}-a_{1}\|^{q}\leq\sum_{j=i+1}^{2^{k}}\|a_{(j-1)2^{-k}}-a_{j2^{-k}}\|^{q}
+such that (by doing the same reasoning for the dXsd_{X_{s}}’s) :
+(I′)≤2k⁡(q−1)∑j=12k∫(1−α)∥a(j−1)​2−k−aj​2−k∥q+α|dX(j−1)​2−k(x(j−1)​2−k,x(j−1)​2−k′)−dXj​2−k(xj​2−k,xj​2−k′)|qdπ~(x0,a0,…,x(j−1)​2−k,a(j−1)​2−k,,xj​2−k,aj​2−k,…,x1,a1)dπ~(x0′,a0′,…,,x(j−1)​2−k′,a(j−1)​2−k′,xj​2−k′,aj​2−k′,…,x1′,a1′)=2k⁡(q−1)∑j=12kdF​G​W,α,1,qℝd(μ(j−1)​2−k,μj​2−k)(I^{\prime})\leq 2^{k(q-1)}\sum_{j=1}^{2^{k}}\int\limits(1-\alpha)\|a_{(j-1)2^{-k}}-a_{j2^{-k}}\|^{q}+\alpha|d_{X_{(j-1)2^{-k}}}(x_{(j-1)2^{-k}},x_{(j-1)2^{-k}}^{\prime})-d_{X_{j2^{-k}}}(x_{j2^{-k}},x_{j2^{-k}}^{\prime})|^{q}\\
+\\
+d\tilde{\pi}(x_{0},a_{0},...,x_{(j-1)2^{-k}},a_{(j-1)2^{-k}},,x_{j2^{-k}},a_{j2^{-k}},...,x_{1},a_{1})d\tilde{\pi}(x_{0}^{\prime},a_{0}^{\prime},...,,x_{(j-1)2^{-k}}^{\prime},a_{(j-1)2^{-k}}^{\prime},x_{j2^{-k}}^{\prime},a_{j2^{-k}}^{\prime},...,x_{1}^{\prime},a_{1}^{\prime})\\
+\\
+{=}2^{k(q-1)}\sum_{j=1}^{2^{k}}d^{\mathbb{R}^{d}}_{FGW,\alpha,1,q}(\mu_{(j-1)2^{-k}},\mu_{j2^{-k}})
+Now using equation (28) :
+(I′)≤2k⁡(q−1)​∑j=12k2−k​q​dF​G​W,α,1,qℝd​(μ0,μ1)=dF​G​W,α,1,qℝd​(μ0,μ1)(I^{\prime})\leq 2^{k(q-1)}\sum_{j=1}^{2^{k}}2^{-kq}d^{\mathbb{R}^{d}}_{FGW,\alpha,1,q}(\mu_{0},\mu_{1})=d^{\mathbb{R}^{d}}_{FGW,\alpha,1,q}(\mu_{0},\mu_{1})
+So (I′)=dF​G​W,α,1,qℝd​(μ0,μ1)(I^{\prime})=d^{\mathbb{R}^{d}}_{FGW,\alpha,1,q}(\mu_{0},\mu_{1})
+This result means firstly that all inequalities are equalities and so π~\tilde{\pi} is actually the optimal coupling between the endpoints for the dF​G​W,α,1,qℝdd^{\mathbb{R}^{d}}_{FGW,\alpha,1,q} distance.
+Secondly since we had :
+dF​G​W,α,1,qℝd​(μ0,μ1)≤(I′)−1C​(t⁡(1−t))q−1​(I​I′)d^{\mathbb{R}^{d}}_{FGW,\alpha,1,q}(\mu_{0},\mu_{1})\leq(I^{\prime})-\frac{1}{C(t(1-t))^{q-1}}(II^{\prime})
+we can conclude that (I​I′)=0(II^{\prime})=0 and more precisely :
+∫(X0×A0×Xt×At×X1×A1)2(1−α)∥(1−t)a0+ta1−at∥q+α|(1−t)dX0(x0,x0′)+tdX1(x1,x1′)−dXt(xt,xt′))|qdπ~t(x0,a0,xt,at,x1,a1)dπ~t(x0′,a0′,xt′,at′,x1′,a1′)=0\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\int\limits_{(X_{0}\times A_{0}\times X_{t}\times A_{t}\times X_{1}\times A_{1})^{2}}\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!(1-\alpha)\|(1-t)a_{0}+ta_{1}{-}a_{t}\|^{q}+\alpha|(1-t)d_{X_{0}}(x_{0},x_{0}^{\prime})+td_{X_{1}}(x_{1},x_{1}^{\prime}){-}d_{X_{t}}(x_{t},x_{t}^{\prime}))|^{q}\\
+\\
+d\tilde{\pi}_{t}(x_{0},a_{0},x_{t},a_{t},x_{1},a_{1})d\tilde{\pi}_{t}(x_{0}^{\prime},a_{0}^{\prime},x_{t}^{\prime},a_{t}^{\prime},x_{1}^{\prime},a_{1}^{\prime})=0
+Moreover since π~t\tilde{\pi}_{t} is a coupling of μt\mu_{t} and π~\tilde{\pi} using theorem 3.1 this implies that (Xt×At,dXt,,μt)(X_{t}\times A_{t},d_{X_{t}},,\mu_{t}) and (X0×X1×At^,(1−t)​dX0⊕t​dX1,ηt​#​π~)(X_{0}\times X_{1}\times\hat{A_{t}},(1-t)d_{X_{0}}\oplus td_{X_{1}},\eta_{t}\#\tilde{\pi}) are equivalent.
+To summarize : we have proven that the coupling constructed by guing all the optimal couplings between each point of the geodesic with respect to the dF​G​W,α,1,qℝdd^{\mathbb{R}^{d}}_{FGW,\alpha,1,q} distance is actually an optimal coupling between the endpoints of this geodesic. Moreover we have proven that the geodesic is equivalent with (X0×X1×At^,(1−t)​dX0⊕t​dX1,ηt​#​π~)(X_{0}\times X_{1}\times\hat{A_{t}},(1-t)d_{X_{0}}\oplus td_{X_{1}},\eta_{t}\#\tilde{\pi}).
+This result is valid for all time t=i​2−kt=i2^{-k} and actually π~\tilde{\pi} depend on kk such that π~=π~k\tilde{\pi}=\tilde{\pi}^{k}. According to the sequential compactness of Π⁡(μ0,μ1)\Pi(\mu_{0},\mu_{1}) the family (π~k)k∈ℕ(\tilde{\pi}^{k})_{k\in\mathbb{N}} has a accumulation point π~∞\tilde{\pi}^{\infty} in Π⁡(μ0,μ1)\Pi(\mu_{0},\mu_{1}). The previous result can be applied to π~∞\tilde{\pi}^{\infty} such that for all dyadic numbers t∈[0,1]t\in[0,1], (Xt×At,dXt,μt)(X_{t}\times A_{t},d_{X_{t}},\mu_{t}) and (X0×X1×At^,(1−t)​dX0⊕t​dX1,ηt​#​π~∞)(X_{0}\times X_{1}\times\hat{A_{t}},(1-t)d_{X_{0}}\oplus td_{X_{1}},\eta_{t}\#\tilde{\pi}^{\infty}) are equivalent.
+We conclude for all t∈[0,1]t\in[0,1] by continuity in tt of theses two sets as elements of H⁡(ℝd)H(\mathbb{R}^{d}).
+5.7 Equivalence between definitions of F​G​WFGW
+Let μ\mu and ν\nu be two structured objects. We note dF​G​W,α,p,qΩd^{\Omega}_{FGW,\alpha,p,q} the F​G​WFGW distance for the cost with convex combination i.e for α∈]0,1[\alpha\in]0,1[ (we omit the extreme cases) :
+dF​G​W,α,p,qΩ​(μ,ν)p=infπ∈Π⁡(μ,ν)​∫(X×A×Y×B)2((1−α)​d​(a,b)q+α​L​(x,y,x′,y′)q)p​𝑑π​((x,a),(y,b))​𝑑π​((x′,a′),(y′,b′))d^{\Omega}_{FGW,\alpha,p,q}(\mu,\nu)^{p}{=}\underset{\pi\in\Pi(\mu,\nu)}{\text{inf}}\!\!\!\!\!\!\!\!\!\!\!\!\int\limits_{(X\times A\times Y\times B)^{2}}\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\big((1-\alpha)d(a,b)^{q}+\alpha L(x,y,x^{\prime},y^{\prime})^{q}\big)^{p}d\pi((x,a),(y,b))d\pi((x^{\prime},a^{\prime}),(y^{\prime},b^{\prime}))
+and d~F​G​W,α,p,qΩ\tilde{d}^{\Omega}_{FGW,\alpha,p,q} the F​G​WFGW distance for the cost defined in [34], i.e for α~∈]0,∞[\tilde{\alpha}\in]0,\infty[ :
+d~F​G​W,α~,p,qΩ​(μ,ν)p=infπ∈Π⁡(μ,ν)​∫(X×A×Y×B)2(d​(a,b)q+α~​L​(x,y,x′,y′)q)p​𝑑π​((x,a),(y,b))​𝑑π​((x′,a′),(y′,b′))\tilde{d}^{\Omega}_{FGW,\tilde{\alpha},p,q}(\mu,\nu)^{p}{=}\underset{\pi\in\Pi(\mu,\nu)}{\text{inf}}\!\!\!\!\!\!\!\!\!\!\!\!\int\limits_{(X\times A\times Y\times B)^{2}}\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\big(d(a,b)^{q}+\tilde{\alpha}L(x,y,x^{\prime},y^{\prime})^{q}\big)^{p}d\pi((x,a),(y,b))d\pi((x^{\prime},a^{\prime}),(y^{\prime},b^{\prime}))
+We note also π∗\pi^{*} and π~∗\tilde{\pi}^{*} the optimal plan for the first and second distance respectively. Then we have for any π\pi in Π⁡(μ,ν)\Pi(\mu,\nu) (with slight abuses of notations) :
+∫((1−α)​d​(a,b)q+α​L​(x,y,x′,y′)q)p​d​π∗​d​π∗≤∫((1−α)​d​(a,b)q+α​L​(x,y,x′,y′)q)p​𝑑π​𝑑π⟹∫(d​(a,b)q+α1−α​L​(x,y,x′,y′)q)p​d​π∗​d​π∗≤∫(d​(a,b)q+α1−α​L​(x,y,x′,y′)q)p​𝑑π​𝑑π\int\limits\big((1-\alpha)d(a,b)^{q}+\alpha L(x,y,x^{\prime},y^{\prime})^{q}\big)^{p}d\pi^{*}d\pi^{*}\leq\int\limits\big((1-\alpha)d(a,b)^{q}+\alpha L(x,y,x^{\prime},y^{\prime})^{q}\big)^{p}d\pi d\pi\\
+\\
+\implies\int\limits\big(d(a,b)^{q}+\frac{\alpha}{1-\alpha}L(x,y,x^{\prime},y^{\prime})^{q}\big)^{p}d\pi^{*}d\pi^{*}\leq\int\limits\big(d(a,b)^{q}+\frac{\alpha}{1-\alpha}L(x,y,x^{\prime},y^{\prime})^{q}\big)^{p}d\pi d\pi
+by dividing by (1−α)p(1-\alpha)^{p}. This implies that π∗\pi^{*} is an optimal plan for d~F​G​W,α1−α,p,qΩ\tilde{d}^{\Omega}_{FGW,\frac{\alpha}{1-\alpha},p,q} since α1−α∈]0,∞[\frac{\alpha}{1-\alpha}\in]0,\infty[. Conversly,
+∫(d​(a,b)q+α~​L​(x,y,x′,y′)q)p​d​π~∗​d​π~∗≤∫(d​(a,b)q+α~​L​(x,y,x′,y′)q)p​𝑑π​𝑑π⟹∫((1−α~1+α~)​d​(a,b)q+α~1+α~​L​(x,y,x′,y′)q)p​d​π~∗​d​π~∗≤∫(d​(a,b)q+α~1+α~​L​(x,y,x′,y′)q)p​𝑑π​𝑑π\int\limits\big(d(a,b)^{q}+\tilde{\alpha}L(x,y,x^{\prime},y^{\prime})^{q}\big)^{p}d\tilde{\pi}^{*}d\tilde{\pi}^{*}\leq\int\limits\big(d(a,b)^{q}+\tilde{\alpha}L(x,y,x^{\prime},y^{\prime})^{q}\big)^{p}d\pi d\pi\\
+\\
+\implies\int\limits\big((1-\frac{\tilde{\alpha}}{1+\tilde{\alpha}})d(a,b)^{q}+\frac{\tilde{\alpha}}{1+\tilde{\alpha}}L(x,y,x^{\prime},y^{\prime})^{q}\big)^{p}d\tilde{\pi}^{*}d\tilde{\pi}^{*}\leq\int\limits\big(d(a,b)^{q}+\frac{\tilde{\alpha}}{1+\tilde{\alpha}}L(x,y,x^{\prime},y^{\prime})^{q}\big)^{p}d\pi d\pi
+by dividing by (1+α~)p(1+\tilde{\alpha})^{p}. This implies that π~∗\tilde{\pi}^{*} is an optimal plan for dF​G​W,α~1+α~,p,qΩd^{\Omega}_{FGW,\frac{\tilde{\alpha}}{1+\tilde{\alpha}},p,q} since α~1+α~∈]0,1[\frac{\tilde{\alpha}}{1+\tilde{\alpha}}\in]0,1[.
+6 Conclusion
+We have presented in this paper a new OT distance called Fused Gromov-Wasserstein distance. Inspired by both Wasserstein and Gromov-Wasserstein distances the F​G​WFGW distance compare can compare structured objects by including the inherent relations that exist between the elements of the objects, constituting their structure information, and their feature information, part of a common ground space between each structured objects. We stated mathematical results about this new distance such as metric, interpolation and geodesic properties. We also gave a concentration result for the convergence of finite samples. We illustrated this new distance on structured objects and applied it to graph barycenter computation, graph clustering and mesh interpolation.
+References
+[1]
+Agueh, M. & Carlier, G. (2011) Barycenters in the
+Wasserstein space. SIAM Journal on Mathematical Analysis,
+43(2), 904–924.
+[2]
+Alexa, M., Cohen-Or, D. & Levin, D. (2000)
+As-rigid-as-possible shape interpolation. in Proceedings of the 27th
+annual conference on Computer graphics and interactive techniques, pp.
+157–164. ACM Press/Addison-Wesley Publishing Co.
+[3]
+Ambrosio, L., Gigli, N. & Savare, G. (2005) Gradient
+Flows: In Metric Spaces and in the Space of Probability Measures, Lectures
+in Mathematics. ETH Zürich. Birkhäuser Basel.
+[4]
+Bachem, O., Lucic, M. & Krause, A. (2017) Practical
+Coreset Constructions for Machine Learning. ArXiv e-prints.
+[5]
+Bakir, G. H., Hofmann, T., Schölkopf, B., Smola, A. J., Taskar, B.
+& Vishwanathan, S. V. N. (2007) Predicting Structured Data
+(Neural Information Processing). The MIT Press.
+[6]
+Battaglia, P. W., Hamrick, J. B., Bapst, V., Sanchez-Gonzalez,
+A., Zambaldi, V., Malinowski, M., Tacchetti, A., Raposo, D.,
+Santoro, A., Faulkner, R., Gulcehre, C., Song, F., Ballard, A.,
+Gilmer, J., Dahl, G., Vaswani, A., Allen, K., Nash, C., Langston,
+V., Dyer, C., Heess, N., Wierstra, D., Kohli, P., Botvinick, M.,
+Vinyals, O., Li, Y. & Pascanu, R. (2018) Relational
+inductive biases, deep learning, and graph networks. ArXiv e-prints.
+[7]
+Benamou, J.-D. & Brenier, Y. (2000) A computational fluid
+mechanics solution to the Monge-Kantorovich mass transfer problem.
+Numerische Mathematik, 84(3), 375–393.
+[8]
+Bonneel, N., van de Panne, M., Paris, S. & Heidrich, W.
+(2011) Displacement Interpolation Using Lagrangian Mass Transport. in
+Proceedings of the 2011 SIGGRAPH Asia Conference, SA ’11, pp.
+158:1–158:12, New York, NY, USA. ACM.
+[9]
+Borg, I. & Groenen, P. (2005) Modern
+Multidimensional Scaling: Theory and Applications. Springer.
+[10]
+Chizat, L. & Bach, F. (2018) On the Global
+Convergence of Gradient Descent for Over-parameterized Models using Optimal
+Transport. ArXiv e-prints.
+[11]
+Cuturi, M. & Blondel, M. (2017) Soft-DTW: a
+Differentiable Loss Function for Time-Series. in Proceedings of the
+ICML, vol. 70, pp. 894–903. PMLR.
+[12]
+Džeroski, S., De Raedt, L. & Driessens, K. (2001)
+Relational Reinforcement Learning. Machine Learning, 43(1),
+7–52.
+[13]
+Goodfellow, I., Bengio, Y. & Courville, A. (2016)
+Deep Learning. MIT Press, http://www.deeplearningbook.org.
+[14]
+Haasdonk, B. & Bahlmann, C. (2004) Learning with Distance
+Substitution Kernels. in Pattern Recognition, ed. by C. E. Rasmussen,
+H. H. Bülthoff, B. Schölkopf, & M. A. Giese, pp. 220–227,
+Berlin, Heidelberg. Springer Berlin Heidelberg.
+[15]
+Hjort, N., Holmes, C., Mueller, P. & Walker, S. (2010)
+Bayesian Nonparametrics: Principles and Practice. Cambridge University
+Press, Cambridge, UK.
+[16]
+Jonathan Weed, F. B. (2017) Sharp asymptotic and finite-sample rates
+of convergence of empirical measures in Wasserstein distance. arXiv
+preprint arXiv:1707.00087.
+[17]
+LeCun, Y., Bengio, Y. & Hinton, G. E. (2015) Deep
+learning. Nature, 521(7553), 436–444.
+[18]
+Memoli, F. (2011) Gromov Wasserstein Distances and the Metric
+Approach to Object Matching. Foundations of Computational Mathematics,
+pp. 1–71, 10.1007/s10208-011-9093-5.
+[19]
+Mémoli, F. & Sapiro, G. (2004) Comparing Point Clouds.
+in Proceedings of the 2004 Eurographics/ACM SIGGRAPH Symposium on
+Geometry Processing, SGP ’04, pp. 32–40, New York, NY, USA. ACM.
+[20]
+Niculae, V., Martins, A., Blondel, M. & Cardie, C. (2018)
+SparseMAP: Differentiable Sparse Structured Inference. in
+Proceedings of the 35th International Conference on Machine Learning,
+ed. by J. Dy, & A. Krause, vol. 80 of Proceedings of Machine
+Learning Research, pp. 3796–3805, Stockholmsmässan, Stockholm Sweden.
+PMLR.
+[21]
+Niepert, M., Ahmed, M. & Kutzkov, K. (2016) Learning
+Convolutional Neural Networks for Graphs. in ICML, ed. by M. F.
+Balcan, & K. Q. Weinberger, vol. 48 of Proceedings of
+Machine Learning Research, pp. 2014–2023, New York, New York, USA. PMLR.
+[22]
+Nowicki, K. & Snijders, T. A. B. (2001) Estimation and
+prediction for stochastic blockstructures. Journal of the American
+statistical association, 96(455), 1077–1087.
+[23]
+Nowozin, S., Gehler, P. V., Jancsary, J. & Lampert, C. H.
+(2014) Advanced Structured Prediction. The MIT Press.
+[24]
+Pearl, J. (1986) Fusion, Propagation, and Structuring in Belief
+Networks. Artif. Intell., 29(3), 241–288.
+[25]
+Pearl, J. (2009) Causality: Models, Reasoning and Inference.
+Cambridge University Press, New York, NY, USA, 2nd edn.
+[26]
+Peyré, G. & Cuturi, M. (2017) Computational Optimal
+Transport. Discussion paper.
+[27]
+Peyré, G., Cuturi, M. & Solomon, J. (2016)
+Gromov-Wasserstein averaging of kernel and distance matrices. in ICML,
+pp. 2664–2672.
+[28]
+Rubner, Y., Tomasi, C. & Guibas, L. J. (2000) The Earth
+Mover’s Distance as a Metric for Image Retrieval. International Journal
+of Computer Vision, 40(2), 99–121.
+[29]
+Sakoe, H. & Chiba, S. (1978) Dynamic programming algorithm
+optimization for spoken word recognition. ieeeassp, 26(1),
+43–49.
+[30]
+Shervashidze, N., Schweitzer, P., van Leeuwen, E. J., Mehlhorn, K.
+& Borgwardt, K. M. (2011) Weisfeiler-Lehman Graph Kernels.
+J. Mach. Learn. Res., 12, 2539–2561.
+[31]
+Sturm, K.-T. (2006) On the geometry of metric measure spaces.
+Acta Mathematica, 196(1), 65–131.
+[32]
+Sumner, R. W. & Popović, J. (2004) Deformation
+transfer for triangle meshes. in ACM Transactions on Graphics (TOG),
+vol. 23, pp. 399–405. ACM.
+[33]
+Thorpe, M., Park, S., Kolouri, S., Rohde, G. K. &
+Slepčev, D. (2017) A Transportation LpL^{p} Distance for Signal
+Analysis. Journal of Mathematical Imaging and Vision, 59(2),
+187–210.
+[34]
+Vayer, T., Chapel, L., Flamary, R., Tavenard, R. &
+Courty, N. (2018) Optimal Transport for structured data. ArXiv
+e-prints.
+[35]
+Villani, C. (2008) Optimal Transport: Old and New,
+Grundlehren der mathematischen Wissenschaften. Springer, 2009 edn.
+[36]
+Vishwanathan, S. V. N., Schraudolph, N. N., Kondor, R. &
+Borgwardt, K. M. (2010) Graph Kernels. J. Mach. Learn. Res.,
+11, 1201–1242.
+[37]
+Wang, Y. J. & Wong, G. Y. (1987) Stochastic blockmodels
+for directed graphs. Journal of the American Statistical Association,
+82(397), 8–19.
+[38]
+Zhang, R., Chen, C., Li, C. & Duke, L. C. (2018) Policy
+Optimization as Wasserstein Gradient Flows. in Proceedings of the
+35th International Conference on Machine Learning, ed. by J. Dy, & A. Krause, vol. 80 of Proceedings of Machine Learning Research,
+pp. 5741–5750, Stockholmsmässan, Stockholm Sweden. PMLR.
+Experimental support, please
+view the build logs
+for errors. Generated by
+L
+A
+T
+E
+xml
+.
+Instructions for reporting errors
+We are continuing to improve HTML versions of papers, and your feedback helps enhance accessibility and mobile
+support. To report errors in the HTML that will help us improve conversion and rendering, choose any of the
+methods listed below:
+Click the "Report Issue" (
+) button, located in the page header.
+Tip: You can select the relevant text first, to include it in your report.
+Our team has already identified the following issues. We appreciate your time reviewing and reporting rendering errors we
+may not have found yet. Your efforts will help us improve the HTML versions for all readers, because disability
+should not be a barrier to accessing research. Thank you for your continued support in championing open access for
+all.
+Have a free development cycle? Help support accessibility at arXiv! Our collaborators at LaTeXML maintain a list of packages that need conversion, and welcome developer contributions.
+We gratefully acknowledge support from
+our major funders,
+member institutions, ,
+and all contributors.
+About
+·
+Help
+·
+Contact
+·
+Subscribe
+·
+Copyright
+·
+Privacy
+·
+Accessibility
+·
+Operational Status (opens in new tab)
+Major funding support from
