@@ -162,7 +162,7 @@ def main():
         for cohort,values in native_details[key]["cohorts"].items():
             cs.setdefault(cohort,{}).update(values)
         add(label,p,cs,("11 epochs, native early stopping" if key=="native_ARGMix" else "5 epochs, native fixed schedule"),
-            "Native inputs/objective/selection retained. AP six-path probabilities collapsed to C4.")
+            ("Native inputs/objective/selection retained. Current author ARGMix release." if key=="native_ARGMix" else "Native inputs/objective/selection retained. AP six-path probabilities collapsed to C4."))
     p="research/reviews/H040_completed_comparison_root_20261015_v1/summary.json"
     for key,r in read(p)["rows"].items():
         cs=all_scored_details["H040"]["arms"][key]["cohorts"]
@@ -218,6 +218,24 @@ def main():
             add("H046 "+key,h046_summary,{c:normalize(v) for c,v in r["cohorts"].items()},
                 "H042 warmstart +30 passes /960 updates per arm, seed101",
                 "Foreign-minus-own accuracy +0.011573 ± 0.069124pp paired sample SD; registered utility criterion not met.")
+    h048_summary="research/reviews/H048_completed_comparison_root_20261015_v1/summary.json"
+    h048_result=maybe_read(h048_summary)
+    h048_wait_ref=h048_result.get("actual_launcher_wait_ref",{}) if h048_result else {}
+    h048_wait=maybe_read(h048_wait_ref["path"]) if h048_wait_ref else None
+    h048_ready=bool(h048_result and h048_wait and ref(h048_wait_ref["path"])==h048_wait_ref
+        and h048_wait.get("actual_direct_launcher_wait") is True and h048_wait.get("returncode")==0
+        and h048_wait.get("logging_error") is None and h048_wait.get("supervisor_error") is None
+        and h048_wait.get("completed_ref")==h048_result["completion_ref"]
+        and ref(h048_result["completion_ref"]["path"])==h048_result["completion_ref"]
+        and h048_result.get("all96_products_sealed_before_truth") is True and h048_result.get("outer_test_accessed") is False)
+    h048_scores="pending"
+    if h048_ready:
+        h048_scores="; ".join(fmt(v["cohorts"][PRIMARY]["accuracy"],True)+"% "+a for a,v in h048_result["arms"].items())
+        for a,v in h048_result["arms"].items():
+            add("H048 "+a,h048_summary,{c:normalize(vv) for c,vv in v["cohorts"].items()},
+                "H042 warmstart +30passes/960updates per arm, seed101",
+                "Both registered utility criteria failed; graph-transition accuracy delta -0.008640pp.")
+            models[-1]["training_budget_lineage"]={k:v[k] for k in ("completed_extra_updates","cumulative_model_lineage_updates","selected_model_lineage_updates","selected_pass")}
     audit_path="research/reviews/current_score_reporting_audit_20261015_v1/all17_allcohort_metrics.actual.json"
     audited=read(audit_path)
     for original in audited["models"]:
@@ -259,6 +277,9 @@ def main():
                     "TRAIN completed30passes/960updates per arm with actual wait0; registered evaluation launched, score pending" if el else
                     "TRAIN completed30passes/960updates per arm with actual wait0; evaluation admitted, startup pending" if ea else
                     "TRAIN completed30passes/960updates per arm with actual wait0; evaluation pending")
+            if h048_ready:
+                row.update(accuracy_available=True,evaluation_completed=True,summary_ref=ref(h048_summary),
+                    actual_evaluation_wait0=True,validation_score=h048_scores,runtime_status="TRAIN and VAL completed; both registered utility criteria failed")
             boundary_path="research/reviews/H048_boundary_contention_root_20261015_v1/actual_scheduler_lock_observation.root_v1.json"
             boundary=maybe_read(boundary_path)
             if boundary and row["passes_completed"]==boundary["no_new_pass_receipt_count"] and row["worker_pid"]==boundary["pid"] and row["process_observation"].get("start_ticks")==boundary["start_ticks"]:
@@ -308,6 +329,8 @@ def main():
         val_flare_binding=dict(target_ref=ref(val_flare_target_path),count_manifest_ref=val_flare_target["count_manifest_ref"],
             sites=val_flare_counts["num_sites"],reference_haplotypes=600,query_haplotypes=1000,score_status=val_flare_target["score_status"])
         val_status+=" Native FLARE VAL000 target bound: "+str(val_flare_counts["num_sites"])+" sites, common R600/Q1000. Fresh memo2 conversion: "+flare_val_conversion["status"]+"; predictions/scoring pending. Earlier conversion deliberately stopped to repair scheduler contention, with all artifacts retained."
+    flare_val_native=cpu_stage("data/FLARE_val000_native_namespace_980_root_v1","research/reviews/FLARE_val000_native_namespace_980_root_v1",True)
+    flare_val_seal=cpu_stage("data/FLARE_val000_seal_namespace_980_root_v1","research/reviews/FLARE_val000_seal_namespace_980_root_v1",True)
     remaining_val_phases=[]
     remaining_val_root="research/reviews/American_C3_remaining_VAL_full30mb_root_source_20261015_v1"
     for index in range(1,5):
@@ -320,7 +343,7 @@ def main():
     native_launch="research/reviews/American_C3_native_MLM_amendment_v10/root_execution_admin_v2/worker_metadata/v11_root_outer_launch.json"
     native_status="Full30Mb corpus prepared. Native fit pending."
     native_device="GPU4/5 pending"
-    native_execution=dict(optimizer_updates=None,optimizer_updates_verified=False)
+    native_execution=dict(optimizer_updates=None,optimizer_updates_verified=False,parent_id="american_c3_train_000",split="train",scientific_role="engineering_only_not_held_out")
     if (ROOT/native_launch).exists():
         native_pid=read(native_launch)["pid"]
         try:
@@ -403,6 +426,11 @@ def main():
     val000_native_counts=root_CPU_stage("experiments/results/American_C3_native_val000_full30mb_counts980_namespace_v1",
         "research/reviews/C3_native_VAL000_counts_namespace_root_20261015_v1/admitted_counts980_v1")
     val000_native_counts.update(parent_id="american_c3_val_000",split="val",scientific_role="held_out_per_ARG_input_readiness",ancestry_score=None)
+    if val000_native_counts["completed_and_wait0_verified"]:
+        count_result=read("experiments/results/American_C3_native_val000_full30mb_counts980_namespace_v1/completed.json")
+        val000_native_counts.update(actual_dataset_counts=count_result["datasets"],planned_MLM_optimizer_updates=count_result["MLM_optimizer_updates"],
+            planned_contrastive_optimizer_updates=count_result["contrastive_optimizer_updates"],actual_fit_updates=None,
+            native_training_eligible=count_result["native_training_eligible"],query_truth_opened=count_result["query_ancestry_truth_opened"])
     empirical_output=ROOT/"experiments/results/H018_H045_empirical_application_root_v1"
     empirical_aux=ROOT/"research/reviews/H018_H045_empirical_CPU_root_v1/worker_aux"
     empirical_products=all((empirical_output/n).exists() for n in ["probabilities_all355_holds.npz","query_bpweighted_proportions_and_PCA.tsv","query_genotype_PCA.svg"])
@@ -478,7 +506,7 @@ def main():
     if continuation_started:
         fanout_status+=". Fresh controlled TRAIN006–015 continuation "+str(len(continuation_completed))+"/10 completed with genuine wait0; max2CPU producers; "+("terminal "+continuation_result["status"] if continuation_result else "launched, completion pending")
     additional_continuation_runs=[]
-    for run_name,indices in (("run016_017_v1",range(16,18)),("run018_019_v1",range(18,20)),("run016_019_v1",range(16,20))):
+    for run_name,indices in (("run016_017_v1",range(16,18)),("run018_v1",range(18,19)),("run019_v1",range(19,20)),("run018_019_v1",range(18,20)),("run016_019_v1",range(16,20))):
         directory=continuation_root+"/"+run_name
         started=maybe_read(directory+"/started.json")
         if not started:continue
@@ -503,7 +531,7 @@ def main():
     h048_job=next(j for j in jobs if j["hypothesis"]=="H048")
     h048_status=("GPU4 "+h048_job["runtime_status"]+". "+str(h048_job["passes_completed"])+"/30 completed passes; "
         +(str(h048_job["updates_per_arm"])+" verified update lower bounds." if h048_job["updates_per_arm"] else "optimizer updates unverified.")
-        +" No validation accuracy yet.")
+        +(" Validation: "+h048_scores+". Both registered utility criteria failed." if h048_ready else " No validation accuracy yet."))
     novelty_path="research/reviews/H048_novelty_crossdomain_fresh_20261015_v1/report.md"
     novelty_evidence_path="research/reviews/H048_novelty_crossdomain_fresh_20261015_v1/evidence.json"
     novelty_status=("Fresh independent H048 audit: reset transitions have RFMix precedent; a distinct graph-collection operator is unestablished. "
@@ -564,6 +592,10 @@ def main():
     pair1819_terminal="research/reviews/American_C3_short_train2mb_wave_980_source_v1/root_pair018_019_exec_terminal_actual_v1.json"
     if maybe_read(pair1819_terminal):
         wave_text+=" Actual parent supervisor session2356 returned1. TRAIN018 simulation/inference andTRAIN019 simulation completed with genuine wait0. TRAIN019 inference has partial pre-admission metadata, recovery under investigation. Original failure and completed artifacts preserved."
+    recovered019="research/reviews/American_C3_short_train2mb_wave_980_source_v1/train019_infer_recovery_v1/root_finish_remote_direct_wait_actual_v1.json"
+    recovered019_wait=maybe_read(recovered019)
+    if recovered019_wait and recovered019_wait.get("actual_remote_direct_Popen_wait_observed") is True and recovered019_wait.get("actual_remote_direct_Popen_returncode")==0:
+        wave_text="All20/20 original inferred2Mb TRAIN inputs completed with genuine workerwait0/drain. Final019 recovery has genuine durable remotePopenwait0 and helpercompletion0. Original parent terminal1 and independentSSH255 transportfailure remain recorded. Exact focalplan readiness is reported separately."
     wave_text+=" At most two wave parents."
     table1_audit_path="research/reviews/ARGformer_Table1_downstream_fidelity_20261015_v1/REPORT.md"
     table1_fidelity="Original ARGformer Table1 specifies reference-fitted PCA with10components, but the exact clustering/label-mapping rule was not recovered from published text and public author history. Current native release top1 retrieval remains a separate disclosed comparison. PCA10/KMeans3 is only an inactive reconstruction proposal."
@@ -574,7 +606,17 @@ def main():
     h049_wait=maybe_read(h049_base+"/admitted_prepare/actual_wait.json")
     h049_launch=maybe_read(h049_base+"/admitted_prepare/launch.json") or {}
     h049_prepare_verified=bool(h049_done and h049_wait and h049_wait.get("actual_direct_launcher_wait") is True and h049_wait.get("returncode")==0 and h049_wait.get("owned_group_drained") is True and h049_wait.get("error") is None and h049_wait.get("completed_ref")==ref("experiments/results/H049_CPU_order2_cut_memory_prepare_v1/completed.json"))
-    h049_prepare_status=("CPU compact preparation completed with actual wait0 and drain" if h049_prepare_verified else "first CPU preparation failed before any recipe, codec property-call repair pending" if h049_wait and h049_wait.get("returncode")==1 else "preparation terminal evidence requires review" if h049_wait else "CPU preparation launched" if h049_launch else "root supervisor launched; scientific child startup pending" if maybe_read(h049_base+"/root_prepare_exec_launch_identity_actual_v1.json") else "CPU preparation admitted; launch pending" if maybe_read(h049_base+"/admitted_prepare/admitted.json") else "root preparation caps approved; admission pending" if maybe_read(h049_base+"/root_prepare_resource_review_actual_v1.json") else "source ready; root preparation-cap review pending")
+    h049_prepare_status=("CPU compact preparation completed with actual wait0 and drain" if h049_prepare_verified else "first CPU preparation failed before any recipe; codec correction sealed. Bounded-v3 admission failed at protocol metadata validation before any reservation/job; compatibility repair active" if h049_wait and h049_wait.get("returncode")==1 else "preparation terminal evidence requires review" if h049_wait else "CPU preparation launched" if h049_launch else "root supervisor launched; scientific child startup pending" if maybe_read(h049_base+"/root_prepare_exec_launch_identity_actual_v1.json") else "CPU preparation admitted; launch pending" if maybe_read(h049_base+"/admitted_prepare/admitted.json") else "root preparation caps approved; admission pending" if maybe_read(h049_base+"/root_prepare_resource_review_actual_v1.json") else "source ready; root preparation-cap review pending")
+    h049v3="research/reviews/H049_bounded_prepare_root_source_20261015_v3/admitted_prepare"
+    h049v3_launch=maybe_read(h049v3+"/launch.json")
+    h049v3_admit=maybe_read(h049v3+"/admitted.json")
+    h049v3_wait=maybe_read(h049v3+"/actual_wait.json")
+    h049v3_done=maybe_read("experiments/results/H049_CPU_order2_cut_memory_prepare_bounded_v3/completed.json")
+    if h049v3_admit:
+        h049_prepare_status=("corrected bounded CPU preparation completed with actual wait0/drain" if h049v3_wait and h049v3_done and h049v3_wait.get("returncode")==0 and h049v3_wait.get("owned_group_drained") is True else
+            "corrected bounded CPU preparation terminal requires review" if h049v3_wait else
+            "corrected bounded CPU preparation launched; original failed attempt preserved" if h049v3_launch else
+            "corrected bounded CPU preparation admitted, startup pending; inactive-config admission mistake preserved and corrected")
     result=dict(schema="ARG_GNN_current_scientific_scoreboard_v1",updated_utc=stamp,
         H049_registered_candidate=dict(status=h049["status"],parameters_per_arm=32446,
             arms=h049["execution_budget"]["arms"],training_budget="30passes/960updates per arm",
@@ -589,8 +631,8 @@ def main():
         real_data=dict(predictions_available=empirical_verified,PCA_available=empirical_verified,products_written=empirical_products,completion_verified=empirical_verified,observed_bank_prepared=empirical is not None,
             prepared_bank_completion_ref=ref(empirical_path) if empirical else None,status=real_status),
         adapted_ARGformer_pilot=dict(source_ref=ref(pilot_source),rows=pilot_rows,original_paper_reproduction=False),
-        H048_registered_candidate=dict(status=h048_status,trained=True if h048_job["updates_per_arm"] else None,accuracy=None,
-            runtime_started=h048_job["started_ref"] is not None,verified_update_lower_bounds=h048_job["updates_per_arm"],
+        H048_registered_candidate=dict(status=h048_status,trained=True if h048_job["updates_per_arm"] else None,accuracy={a:r["cohorts"][PRIMARY]["accuracy"] for a,r in h048_result["arms"].items()} if h048_ready else None,
+            runtime_started=h048_job["started_ref"] is not None,verified_update_lower_bounds=h048_job["updates_per_arm"],evaluation_completed=h048_ready,completed_comparison_ref=ref(h048_summary) if h048_ready else None,validation_scores=h048_scores,
             launch_ref=ref("research/reviews/H048_GPU45_grid_root_source_v1/admitted_train/launch.json"),
             registration_ref=ref("research/experiment_decisions.json")) if h048 else None,
         novelty_and_cross_domain=dict(status=novelty_status,report_ref=ref(novelty_path),evidence_ref=ref(novelty_evidence_path),
@@ -599,7 +641,7 @@ def main():
             full_TRAIN_source_checkpoint_ref=ref("research/reviews/GST_full_TRAIN_CPU_source_v1/checkpoint.json")),
         CPU_stage_status=dict(VAL_simulation=val_simulation,VAL_inference=val_inference,VAL_native_paths=val_native_paths,
             FLARE_author_build=flare_build,FLARE_TRAIN_conversion=flare_conversion,FLARE_TRAIN_native=flare_native,FLARE_TRAIN_seal=flare_seal,
-            FLARE_VAL_conversion=flare_val_conversion,FLARE_VAL_original_deliberate_stop_ref=ref(flare_val_old_stop),C3_original_VAL000_GNN_plan=gnn_VAL000_plan),
+            FLARE_VAL_conversion=flare_val_conversion,FLARE_VAL_native=flare_val_native,FLARE_VAL_seal=flare_val_seal,FLARE_VAL_original_deliberate_stop_ref=ref(flare_val_old_stop),C3_original_VAL000_GNN_plan=gnn_VAL000_plan),
         American_remaining_VAL_preparation=dict(status=remaining_val_status,phases=remaining_val_phases),
         American_short_TRAIN_remaining_preparation=wave_status,
         American_short_TRAIN014_recovery=recovery,C3_focal_plan_preparation=focal_preparation,
@@ -655,7 +697,7 @@ def main():
     lines+=["","Update counts below are verified receipt lower bounds, not live optimizer counters.",""]
     for j in jobs:
         lines.append("- "+j["hypothesis"]+": "+j["runtime_status"]+". AdamW lr="+str(j["training"]["learning_rate"])+", weight_decay="+str(j["training"]["weight_decay"])+", seed="+str(j["training"]["seed"])+", dtype="+str(j["training"]["dtype"])+".")
-    lines+=["","## Registered next architecture experiment","",h048_status,"","[Fresh independent novelty/cross-domain report](../"+novelty_path+"). "+novelty_status,"","H048 retains 31,933 parameters per arm and a fixed 30-pass/960-update schedule. Its matched comparison places the same graph signal into transitions or confidence. The reset-chain components have prior art. No novelty or accuracy claim is established.","","## American C3 benchmark","",
+    lines+=["","## Registered next architecture experiment","",h048_status,"","[Fresh independent novelty/cross-domain report](../"+novelty_path+"). "+novelty_status,"","H048 retains 31,933 parameters per arm and a fixed 30-pass/960-update schedule. Its matched comparison places the same graph signal into transitions or confidence. The reset-chain components have prior art. No novelty claim is established. Actual H048 scores are recorded above.","","## American C3 benchmark","",
         "| Method | Current ancestry scores | Status |","|---|---|---|",
         "| Native ARGformer | unavailable | "+native_status+" |",
         "| Native ARGformer dataset counts | not an accuracy run | "+counts_status+" |",
@@ -689,7 +731,7 @@ def main():
         metrics=json.dumps(r["metrics"],sort_keys=True,ensure_ascii=False).replace("|","\\|")
         hist.append(f"| {r['study']} | {r['kind']} | {r.get('status','')} | {metrics} | [{Path(p).name}](../{p}) |")
     (RESEARCH/"all_recorded_metric_receipts.md").write_text("\n".join(hist)+"\n")
-    table=["<!-- CURRENT_SCOREBOARD_START -->",f"**Scoreboard updated UTC: {stamp}.** [Every current setup, all cohorts and detailed metrics](research/current_scoreboard.md) · [Full scored comparison, native class metrics and training lineage](research/reviews/root_score_report_20261015_v1/REPORT.md) · [All recorded historical/engineering metric receipts](research/all_recorded_metric_receipts.md)","",
+    table=["<!-- CURRENT_SCOREBOARD_START -->",f"**Scoreboard updated UTC: {stamp}.** [Every current setup, all cohorts and detailed metrics](research/current_scoreboard.md) · [Native class metrics and training-lineage audit, frozen17-setup snapshot](research/reviews/root_score_report_20261015_v1/REPORT.md) · [All recorded historical/engineering metric receipts](research/all_recorded_metric_receipts.md)","",
         "| Current run | Device | Progress | Validation score |","|---|---:|---|---|"]
     for j in jobs:
         if j["evaluation_completed"]:continue
@@ -707,17 +749,18 @@ def main():
         "| Original American VAL001–004 | CPU | "+remaining_val_status+" | no ancestry score |",
         "| Native ARGformer | "+native_device+" | "+native_brief+" | pending |",
         "| Native ARGformer held-out VAL000 | CPU | Original per-ARG six-dataset counts: "+val000_native_counts["status"]+". Separate native fit follows actual counts. | no ancestry score |",
-        "| Native FLARE | CPU | Author build, TRAIN000 full-site inference and prediction seal completed. Held-out VAL000 conversion: "+flare_val_conversion["status"]+". | held-out score pending |",
+        "| Native FLARE | CPU | Author build, TRAIN000 full-site inference and prediction seal completed. Held-out VAL000 conversion: "+flare_val_conversion["status"]+"; native inference: "+flare_val_native["status"]+"; seal: "+flare_val_seal["status"]+". | held-out score pending |",
         "| Our American C3 GNN | CPU preparation | "+str(focal_ready)+"/20 exact TRAIN plans completed. Executable 30-epoch / 600-update route integrated. Original VAL000 full-length GNN block plan: "+gnn_VAL000_plan["status"]+". | pending |",
         "| H049 cut-memory candidate | CPU preparation | "+h049_prepare_status+". Three matched 32,446-parameter arms. Full 30 passes / 960 updates per arm planned. | no fit or accuracy yet |",
         "| Empirical data | CPU | H045 probabilities, ancestry proportions and genotype PCA completed for 24 query haplotypes / 12 subjects. Descriptive only, without known ancestry truth. | completed |","",
-        "**Current measured development scores:** H045 foreign-episode **96.8270 ± 0.5870%** Present182 span accuracy, matched own-state **96.8175 ± 0.6142%**. H046: "+h046_scores+". "+h046_outcome+" H047 original-risk **96.7777 ± 0.5970%**, balanced-risk **96.7576 ± 0.5287%**. SD is across eight VAL simulations, one optimizer seed. H048 accuracy remains pending. [All "+str(len(models))+" measured setups, all seven cohorts, NLL/F1/boundaries/Brier/ECE and training budgets](research/current_scoreboard.md#detailed-cohort-metrics).","",
+        "**Completed H048:** "+h048_scores+". Both registered utility criteria failed. [Actual scores, all cohorts and provenance](research/reviews/H048_completed_comparison_root_20261015_v1/REPORT.md)." if h048_ready else "**H048 evaluation:** pending.","",
+        "**Current measured development scores:** H045 foreign-episode **96.8270 ± 0.5870%** Present182 span accuracy, matched own-state **96.8175 ± 0.6142%**. H046: "+h046_scores+". "+h046_outcome+" H047 original-risk **96.7777 ± 0.5970%**, balanced-risk **96.7576 ± 0.5287%**. SD is across eight VAL simulations, one optimizer seed. H048: "+h048_scores+". [All "+str(len(models))+" measured setups, all seven cohorts, NLL/F1/boundaries/Brier/ECE and training budgets](research/current_scoreboard.md#detailed-cohort-metrics).","",
         "[Fresh independent H048 novelty/cross-domain assessment]("+novelty_path+"). "+novelty_status,"",
         "**ARGformer paper fidelity:** "+table1_fidelity+" [Audit]("+table1_audit_path+").","",
         "**Remaining biological error:** H045 recovers22.59% of true Present182 changes at1kb tolerance despite96.827% span accuracy. Across8VAL parents its selected predictions match905 changes, miss3103 and add5063extra calls. [Audited residual-error table and scope limits](research/reviews/residual_biological_errors_20261015_v1/REPORT.md).", "",
         "**Comparison contract:** Use the same observed genomes, reference/query identities, truth and scored support. Each method keeps its native representation, such as VCFs, ancestral paths or PyG tensors. Extra inputs, training changes and reconstruction differences are disclosed. Native-format differences do not postpone a shared-data comparison.","",
         "**GST and cross-domain status:** "+gst_status,"",
-        "Parallel ownership: worker1 develops the H049 bounded-phase preparation writer, worker2 reports all measured scores and repairs the unfinished American TRAIN019 admission, worker3 completed the declarative H049 GPU route and independently reviews the preparation writer. Root owns actual execution, integration, full score reporting and Git. Independent work continues in parallel.","","<!-- CURRENT_SCOREBOARD_END -->"]
+        "Parallel ownership: worker1 prepares final C3 training bindings and completed H049 preparation integration, worker2 handles recovered native benchmark closes and reviews shared GPU scheduling, worker3 prepares genuine held-out ARGformer training and completed the independent writer review. Root owns actual execution, integration, full score reporting and Git. Independent work continues in parallel.","","<!-- CURRENT_SCOREBOARD_END -->"]
     p=ROOT/"README.md"
     text=p.read_text()
     a="<!-- CURRENT_SCOREBOARD_START -->"

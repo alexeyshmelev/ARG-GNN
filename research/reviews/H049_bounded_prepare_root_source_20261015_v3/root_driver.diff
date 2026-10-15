@@ -1,0 +1,304 @@
+--- sealed_prepare_v2/root_driver.py
++++ bounded_prepare_v3/root_driver.py
+@@ -1,6 +1,6 @@
+-"""Fresh H049 prep-v2 execution packet; default and plan are source-only."""
++"""Executable fresh H049 bounded CPU prepare root. Default inert; original guards retained."""
+ from pathlib import Path
+-import argparse,collections,ctypes,hashlib,importlib.util,json,os,selectors,signal,subprocess,time,sys
++import argparse,collections,contextlib,ctypes,hashlib,importlib.util,json,os,selectors,signal,subprocess,time,sys,traceback,uuid
+ from datetime import datetime,timedelta,timezone
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+ sys.path[:0]=[str(ROOT),str(ROOT/"src")]
+@@ -9,17 +9,24 @@
+     policy_env,GUARD_REF,POLICY_REF,LAUNCHER_REF,REPAIR_REF,AUTH_REF,MEMO_REF,V4_REF,CORE,BASE,
+     validate_eval_train_io_v1)
+ from research.reviews.H049_order2_cut_memory_root_source_20261015_v1 import producer_v1 as worker
+-PACKET_HERE="research/reviews/H049_order2_cut_memory_prepare_source_20261015_v2"
++PACKET_HERE="research/reviews/H049_bounded_prepare_root_source_20261015_v3"
+ SOURCE=PACKET_HERE+"/root_driver.py"
+-CONTEXT=PACKET_HERE+"/context_factory_v2.py"
+-PREP_SOURCE=PACKET_HERE+"/prepare_v2.py"
++BOUNDED="research/reviews/bounded_phase_writer_20261015_v1"
++CONTEXT=BOUNDED+"/H049_prepare_context_v1.py"
++WRITER=BOUNDED+"/bounded_phase_writer_v1.py"
++LAYOUT=BOUNDED+"/H049_prepare_layout_v1.py"
++LIFECYCLE=BOUNDED+"/root_phase_lifecycle_v1.py"
++sys.path.insert(0,str(ROOT/BOUNDED))
++from H049_prepare_layout_v1 import proposed_plan_v1,validate_count_layout_v1
++from root_phase_lifecycle_v1 import establish_after_original_full_guard_v1,gate_after_actual_wait_and_drain_v1
++PREP_SOURCE="research/reviews/H049_order2_cut_memory_prepare_source_20261015_v2/prepare_v2.py"
+ CODEC_REF={'path': 'research/reviews/H049_order2_cut_memory_prepare_source_20261015_v2/cut_recipe_codec_v2.py', 'sha256': 'd9fa0e511d34420bd294b61c0a2266fd4a58a96b1ab255ab191b108c05578a45'}
+ WORKER_SOURCE=HERE+"/producer_v1.py"
+ 
+ 
+ def context():
+-    from research.reviews.H049_order2_cut_memory_prepare_source_20261015_v2 import context_factory_v2
+-    return context_factory_v2
++    from research.reviews.bounded_phase_writer_20261015_v1 import H049_prepare_context_v1
++    return H049_prepare_context_v1
+ 
+ 
+ def load_guard(c):
+@@ -38,8 +45,10 @@
+     r=read(request_ref);phase=r["phase"]
+     require(r.get("schema")=="H049_order2_root_admission_request_v1"
+         and r.get("status")=="active" and r.get("root_authorizer")=="root_agent"
+-        and phase=="prepare","Explicit root H049 prep-v2 admission request")
++        and phase=="prepare","Explicit root H049 bounded prepare-v3 admission request")
+     cfg=read(r["config_ref"]);worker.validate_protocol(cfg,phase=phase)
++    require(r["reserved_bytes"]==cfg["output_cap_bytes"]==242221056,"Exact full original 242221056-byte charge")
++    require(cfg.get("preparation_execution_version")==2,"Exact sealed repaired scientific producer version2")
+     require(cfg.get("cut_recipe_codec_ref")==CODEC_REF,"Exact one-bug repaired codec config pin")
+     worker.bind_registration_v1(cfg,type("MetadataReader",(),{"decode_json":staticmethod(read)})())
+     require(cfg["producer_ref"]==ref(WORKER_SOURCE)
+@@ -47,7 +56,7 @@
+     gpu=r.get("physical_gpu")
+     require(gpu is None if phase=="prepare" else gpu in (4,5),"CPU prepare or root-selected GPU4/5")
+     packet=ROOT/PACKET_HERE/("admitted_"+phase)
+-    output=("experiments/results/H049_CPU_order2_cut_memory_prepare_v2" if phase=="prepare" else
++    output=("experiments/results/H049_CPU_order2_cut_memory_prepare_bounded_v3" if phase=="prepare" else
+         "experiments/results/H049_GPU%d_order2_cut_memory_%s_seed101_v1"%(gpu,phase))
+     auxiliary=str(packet.relative_to(ROOT)/"worker_aux")
+     require(not packet.exists() and not (ROOT/output).exists() and not (ROOT/auxiliary).exists(),
+@@ -90,7 +99,7 @@
+             "No previous TRAIN completion in prepare/train")
+     packet.mkdir()
+     now=datetime.now(timezone.utc);expiry=(now+timedelta(hours=24)).isoformat()
+-    job="H049-order2-%s-seed101-v2-%s"%(phase,"CPU" if phase=="prepare" else "GPU%d"%gpu)
++    job="H049-order2-%s-seed101-bounded-v3-%s"%(phase,"CPU" if phase=="prepare" else "GPU%d"%gpu)
+     runtime=save(packet,"runtime.json",dict(status="active",device="cpu" if phase=="prepare" else "cuda",
+         physical_gpu=gpu,job_id=job,output_directory=output,
+         process_title=None if phase=="prepare" else "AI Auto Research Pipeline Test",
+@@ -107,11 +116,20 @@
+         observation_entry_refs=old["observation_entry_refs"],
+         observation_cache_source_refs=old["observation_cache_source_refs"],
+         train_io_lineage=train_io_lineage,**terminal))
++    required_local=[ref(WRITER),ref(LAYOUT),ref(CONTEXT),ref(LIFECYCLE)]
++    local_plan=proposed_plan_v1(count_plan=plan,cfg=cfg,parents=worker.TRAIN+worker.VAL,
++        job_id=job,output=output,auxiliary=auxiliary,reservation_key="H049/"+job,
++        reservation_bytes=r["reserved_bytes"],nonce=uuid.uuid4().hex,
++        expires_unix=datetime.fromisoformat(expiry).timestamp(),source_sha256=sources,
++        required_reserved_refs=required_local)
++    local_plan["status"]="active"
++    local_plan_ref=save(packet,"bounded_phase_plan.json",local_plan)
++    validate_count_layout_v1(local_plan,plan,cfg,worker.TRAIN+worker.VAL)
+     source=PREP_SOURCE if phase=="prepare" else WORKER_SOURCE
+     m,_=load_guard_v1(consumer=False)
+     with m.budget.v4.mutex(ROOT):state=m._state_locked(CORE,BASE,fresh=True)
+     view,budget_bindings=state[2],state[3]
+-    mandatory=[CODEC_REF,ref(source),r["config_ref"],runtime,ref(CONTEXT),ref(SOURCE),cfg["source_manifest_ref"],
++    mandatory=[local_plan_ref,*required_local,CODEC_REF,ref(source),r["config_ref"],runtime,ref(CONTEXT),ref(SOURCE),cfg["source_manifest_ref"],
+         cfg["registration_ref"],cfg["count_manifest_ref"],manifest,ref(HERE+"/root_common_v1.py"),
+         GUARD_REF,POLICY_REF,REPAIR_REF,AUTH_REF,MEMO_REF,V4_REF,
+         ref("src/arggnn/project_budget_v9_consumer.py"),
+@@ -149,11 +167,13 @@
+         GPU45_authorization_ref=AUTH_REF,completed_overlay_policy_ref=POLICY_REF,
+         storage_adapter_ref=GUARD_REF,storage_launcher_ref=LAUNCHER_REF,
+         marker_repair_authority_ref=REPAIR_REF,io_source_manifest_ref=cfg["source_manifest_ref"],
+-        train_io_lineage=train_io_lineage,**terminal)
++        train_io_lineage=train_io_lineage,bounded_phase_plan_ref=local_plan_ref,
++        bounded_phase_writer_ref=ref(WRITER),preparation_execution_version=2,**terminal)
+     input_ref=save(packet,"input.json",spec)
+     admitted=dict(schema="H049_order2_root_admitted_v1",input_ref=input_ref,driver_ref=ref(SOURCE),
+         request_ref=request_ref,consumer_binding_count=len(consumers),phase=phase,physical_gpu=gpu,
+         auxiliary_scope=auxiliary,scientific_execution_started=False,output_forecast=plan,
++        bounded_phase_plan_ref=local_plan_ref,bounded_phase_peak_bytes=local_plan["peak_phase_charge_bound_bytes"],
+         passes=30,updates_per_arm=960,updates_total=2880,checkpoint_files=18,VAL_products=144)
+     save(packet,"admitted.json",admitted)
+     print(json.dumps(admitted),flush=True);return admitted
+@@ -226,58 +246,70 @@
+     raw=Path("/proc/self/task/%d/children"%os.getpid()).read_text().strip()
+     return [int(p) for p in raw.split()] if raw else []
+ 
+-def launch(admitted_ref):
++class _RAMStderr:
++    """Capture root stderr in RAM and tee it into the caller's combined log."""
++    def __init__(self,log):self.log=log
++    def write(self,text):
++        self.log.add(text.encode("utf-8",errors="replace"))
++        sys.stdout.write(text);sys.stdout.flush();return len(text)
++    def flush(self):sys.stdout.flush()
++
++def launch(admitted_ref,root_stderr):
+     admitted=read(admitted_ref);spec=read(admitted["input_ref"]);c=context()
+-    require(spec.get("phase")=="prepare" and spec.get("output_directory")=="experiments/results/H049_CPU_order2_cut_memory_prepare_v2",
+-        "Prep-v2 launch cannot use any revoked old preparation scope")
+-    require(admitted["driver_ref"]==ref(SOURCE) and spec["root_driver_ref"]==ref(SOURCE),"Exact admitted root driver")
++    require(spec.get("phase")=="prepare" and spec.get("output_directory")=="experiments/results/H049_CPU_order2_cut_memory_prepare_bounded_v3",
++        "Bounded-v3 launch never reuses revoked failure scopes")
++    require(admitted["driver_ref"]==ref(SOURCE) and spec["root_driver_ref"]==ref(SOURCE),"Actual fresh root driver")
++    require(spec["producer_ref"]==ref(PREP_SOURCE) and spec["preparation_execution_version"]==2,"Exact sealed corrected producer")
+     require(not (ROOT/spec["output_directory"]).exists(),"No execution replay")
+-    m=load_guard(c);storage=read(spec["refs"]["storage"])
++    m=load_guard(c);storage=read(spec["refs"]["storage"]);cfg=read(spec["refs"]["config"])
++    local_plan=read(spec["bounded_phase_plan_ref"])
++    validate_count_layout_v1(local_plan,admitted["output_forecast"],cfg,worker.TRAIN+worker.VAL)
+     packet=(ROOT/admitted_ref["path"]).parent
++    # Same original unwrapped full guard, before every root-side aux mutation.
++    full=m.budget_check_v9(storage,boundary=True,
++        required_write_bytes=6*cfg["log_cap_bytes"]+65536+16384)
++    phase_fd,lease_ref,private_env=establish_after_original_full_guard_v1(root=ROOT,
++        plan_ref=spec["bounded_phase_plan_ref"],spec=spec,storage=storage,full_prewrite_result=full)
++    env=policy_env();env.update(private_env)
++    env["PYTHONPATH"]=str(ROOT/"scripts")+os.pathsep+str(ROOT/BOUNDED)+os.pathsep+env.get("PYTHONPATH","")
++    env["ARGGNN_COMPLETED_CREDITS_POLICY_REF"]=json.dumps(POLICY_REF,sort_keys=True)
++    env["OMP_NUM_THREADS"]="1";env["MKL_NUM_THREADS"]="1"
++    spec=dict(spec,bounded_phase_lease_ref=lease_ref)
+     launch_input=save(packet,"launch_input.json",spec)
+-    admitted=dict(admitted,input_ref=launch_input)
+-    # Use the exact original reserve value and initial_ledger_pins. Never rebase.
+-    m.budget_check_v9(storage,boundary=True,required_write_bytes=6*read(spec["refs"]["config"])["log_cap_bytes"]+65536+16384)
+-    auxiliary=ROOT/spec["worker_auxiliary_scope"];auxiliary.mkdir()
+-    env=policy_env();env["PYTHONDONTWRITEBYTECODE"]="1"
+-    for name in ("TMPDIR","TMP","TEMP"):env[name]=str(auxiliary)
+-    # Original pinned launcher imports its scripts-local budget modules.
+-    env["PYTHONPATH"]=str(ROOT/"scripts")+os.pathsep+env.get("PYTHONPATH","")
+-    env["ARGGNN_COMPLETED_CREDITS_POLICY_REF"]=json.dumps(c.POLICY_REF,sort_keys=True)
+-    phase=spec["phase"];worker=c.PREP_SOURCE if phase=="prepare" else c.WORKER_SOURCE
+-    args=["--execute","--input",admitted["input_ref"]["path"],"--expected-input-sha256",admitted["input_ref"]["sha256"]]
+-    if phase=="prepare":
+-        env["CUDA_VISIBLE_DEVICES"]="";env["OMP_NUM_THREADS"]="1";env["MKL_NUM_THREADS"]="1"
+-        cmd=[str(ROOT/".runtime/env/bin/python"),"-B","-m",worker[:-3].replace("src/","").replace("/",".")]+args
+-    else:
+-        cmd=[str(ROOT/".runtime/env/bin/python"),"-B","-m",c.LAUNCHER_REF["path"][:-3].replace("/","."),
+-            "--gpu",str(spec["physical_gpu"]),"--job",spec["job_id"],
+-            "--storage-record",spec["refs"]["storage"]["path"],"--expected-storage-sha256",spec["refs"]["storage"]["sha256"],
+-            "--expected-budget-source-sha256",CORE,"--expected-launcher-sha256",BASE,
+-            worker[:-3].replace("src/","").replace("/",".")]+args
+-    _subreaper();require(not _children(),"Fresh root supervisor without unrelated child processes")
+-    log=_RAMLog(read(spec["refs"]["config"])["log_cap_bytes"]);start=time.monotonic()
+-    proc=subprocess.Popen(cmd,cwd=ROOT,env=env,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,start_new_session=True)
+-    first=_stat(proc.pid);require(first is not None,"Actual launcher identity")
++    args=["--execute","--input",launch_input["path"],"--expected-input-sha256",launch_input["sha256"]]
++    cmd=[str(ROOT/".runtime/env/bin/python"),"-B","-m",PREP_SOURCE[:-3].replace("/",".")]+args
++    _subreaper();require(not _children(),"Original fresh subreaper/root-child condition")
++    log=_RAMLog(cfg["log_cap_bytes"]);start=time.monotonic();proc=None
++    try:
++        proc=subprocess.Popen(cmd,cwd=ROOT,env=env,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,
++            start_new_session=True,pass_fds=(phase_fd,))
++    except BaseException:
++        log.add(traceback.format_exc().encode("utf-8",errors="replace"))
++        os.close(phase_fd)
++        print(json.dumps(dict(event="bounded_prepare_spawn_failed_no_child",stderr=log.record(),
++            original_storage_charge_retained=True)),flush=True)
++        raise
++    first=_stat(proc.pid);require(first is not None,"Actual producer child identity")
+     known={proc.pid:first};groups={first["group"]}
+     launch_record=dict(schema="H049_marker_original_launch_v1",launcher_pid=proc.pid,launcher_start=first["start"],
+-        direct_child=True,phase=phase,physical_gpu=spec["physical_gpu"],input_ref=admitted["input_ref"],
+-        command=cmd,actual_wait_pending=True,created_at_utc=datetime.now(timezone.utc).isoformat())
+-    # Small root metadata only; no active output/log/storage scan.
+-    launch_path=ROOT/admitted_ref["path"];launch_ref=save(launch_path.parent,"launch.json",launch_record)
++        direct_child=True,phase="prepare",physical_gpu=None,input_ref=launch_input,command=cmd,
++        preparation_execution_version=2,bounded_writer_execution_version=3,bounded_phase_plan_ref=spec["bounded_phase_plan_ref"],
++        phase_lease_ref=lease_ref,phase_lease_fd_inherited=True,actual_wait_pending=True,
++        created_at_utc=datetime.now(timezone.utc).isoformat())
++    launch_ref=save(packet,"launch.json",launch_record)
+     selector=selectors.DefaultSelector();selector.register(proc.stdout,selectors.EVENT_READ);eof=False;peak=0;error=None
+     try:
+         while not eof or proc.poll() is None:
+             peak=max(peak,_tree(known,groups))
+-            require(peak<=spec["max_cpu_rss_bytes"],"Owned process-tree RSS cap")
+-            require(time.monotonic()-start<86400,"Root admission time bound")
++            require(peak<=spec["max_cpu_rss_bytes"],"Original owned process-tree RSS cap")
++            require(time.monotonic()-start<86400,"Original root admission time bound")
+             for key,_ in selector.select(timeout=.25):
+                 data=os.read(key.fileobj.fileno(),65536)
+                 if data:log.add(data)
+                 else:selector.unregister(key.fileobj);eof=True
+         rc=proc.wait()
+-    except BaseException as exc:
+-        error=type(exc).__name__+": "+str(exc)
++    except BaseException:
++        error=traceback.format_exc();log.add(error.encode("utf-8",errors="replace"))
+         _tree(known,groups);_signal_owned(known,signal.SIGTERM)
+         deadline=time.monotonic()+10
+         while proc.poll() is None and time.monotonic()<deadline:time.sleep(.1)
+@@ -298,36 +330,64 @@
+             error=error or "Owned descendants did not drain within30seconds"
+             break
+         time.sleep(.1)
+-    require(drained,"No durable log/terminal certificate before complete owned-group drain")
+-    # Direct wait/drain have actually happened. Only now perform storage boundary and durable logging.
+-    m.budget_check_v9(storage,boundary=True,required_write_bytes=6*read(spec["refs"]["config"])["log_cap_bytes"]+65536+16384)
+-    log_ref=save(auxiliary,"launch_log.json",log.record())
+-    completion=ROOT/spec["output_directory"]/"completed.json"
+-    waited=dict(schema="H049_marker_original_direct_wait_v1",launcher_pid=proc.pid,launcher_start=first["start"],
+-        launch_ref=launch_ref,returncode=rc,actual_direct_launcher_wait=True,owned_group_drained=True,
+-        owned_process_identities=[dict(pid=p,start=x["start"],group=x["group"]) for p,x in sorted(known.items())],
+-        historical_owned_groups=sorted(groups),completed_ref=ref(completion) if completion.is_file() else None,
+-        phase=phase,physical_gpu=spec["physical_gpu"],log_ref=log_ref,peak_owned_RSS_bytes=peak,
+-        elapsed_seconds=time.monotonic()-start,error=error,waited_utc=datetime.now(timezone.utc).isoformat())
+-    wait_ref=save(launch_path.parent,"actual_wait.json",waited)
+-    print(json.dumps(dict(actual_wait_ref=wait_ref,returncode=rc,owned_group_drained=True,error=error)),flush=True)
++    require(drained,"No terminal receipt before original complete owned-group drain")
++    # No local counter substitutes for either the lifetime exclusion or full guard.
++    gate=gate_after_actual_wait_and_drain_v1(root=ROOT,phase_lease_ref=lease_ref,lifetime_fd=phase_fd,
++        actual_wait=dict(actual_direct_launcher_wait=True,owned_group_drained=True,returncode=rc))
++    try:
++        full_terminal=m.budget_check_v9(storage,boundary=True,
++            required_write_bytes=6*cfg["log_cap_bytes"]+65536+16384)
++        if root_stderr.kept:log.add(b"\n[ROOT STDERR]\n"+b"".join(root_stderr.parts))
++        auxiliary=ROOT/spec["worker_auxiliary_scope"]
++        log_ref=save(auxiliary,"launch_log.json",log.record())
++        completion=ROOT/spec["output_directory"]/"completed.json"
++        completed_ref=ref(completion) if completion.is_file() else None
++        require(rc!=0 or completed_ref is not None,"Zero exit requires actual all40 completion receipt")
++        if rc==0 and completed_ref is not None:
++            result=read(completed_ref)
++            require(result["input_ref"]==launch_input and result["producer_ref"]==ref(PREP_SOURCE)
++                and result["codec_ref"]==CODEC_REF and result["preparation_execution_version"]==2
++                and result["status"]=="completed_all40_compact_cut_recipes"
++                and set(result["parents"])==set(worker.TRAIN+worker.VAL)
++                and all(p["lossless_roundtrip_verified"] is True for p in result["parents"].values()),"Genuine repaired40parent completion lineage")
++        waited=dict(schema="H049_marker_original_direct_wait_v1",launcher_pid=proc.pid,launcher_start=first["start"],
++            launch_ref=launch_ref,returncode=rc,actual_direct_launcher_wait=True,owned_group_drained=True,
++            owned_process_identities=[dict(pid=p,start=x["start"],group=x["group"]) for p,x in sorted(known.items())],
++            historical_owned_groups=sorted(groups),completed_ref=completed_ref,phase="prepare",physical_gpu=None,
++            log_ref=log_ref,peak_owned_RSS_bytes=peak,elapsed_seconds=time.monotonic()-start,error=error,
++            preparation_execution_version=2,bounded_writer_execution_version=3,phase_lease_ref=lease_ref,
++            independent_phase_lease_exclusion_observed=True,full_terminal_guard_returned=True,
++            original_full_reservation_retained_bytes=242221056,waited_utc=datetime.now(timezone.utc).isoformat())
++        wait_ref=save(packet,"actual_wait.json",waited)
++    finally:os.close(gate)
++    print(json.dumps(dict(actual_wait_ref=wait_ref,returncode=rc,owned_group_drained=True,error=error,
++        phase_lease_ref=lease_ref,full_terminal_guard_returned=True)),flush=True)
+     return rc or (1 if error else 0)
+ 
+ def main(argv=None):
+     p=argparse.ArgumentParser(description=__doc__)
+-    p.add_argument("action",choices=("describe","plan","admit","launch"),nargs="?",default="describe")
++    group=p.add_mutually_exclusive_group()
++    group.add_argument("--admit",choices=["prepare"]);group.add_argument("--launch",choices=["prepare"])
++    group.add_argument("--plan",choices=["prepare"])
+     p.add_argument("--execute",action="store_true");p.add_argument("--record");p.add_argument("--sha256")
+     args=p.parse_args(argv)
+-    if args.action=="describe":
+-        print(json.dumps(dict(status="source_only_no_admission_or_execution",hypothesis_id="H049",
+-            phases=["prepare"],preparation_execution_version=2,passes=30,updates_per_arm=960,
+-            arms=3,checkpoints=18,VAL_seals=144,genuine_resource_caps_pending=True)));return 0
++    if not (args.admit or args.launch or args.plan):
++        print(json.dumps(dict(status="source_only_no_guard_admission_or_execution",
++            phase="prepare",science_version=2,bounded_writer_version=3,reserved_bytes=242221056,
++            actual_repaired_producer_ref=ref(PREP_SOURCE),actual_codec_ref=CODEC_REF)));return 0
+     require(args.record and args.sha256,"Exact root metadata record")
+     record=dict(path=args.record,sha256=args.sha256)
+-    if args.action=="plan":
+-        print(json.dumps(plan_request_v1(read(record)),indent=2));return 0
+-    require(args.execute,"Explicit root execution required for admit or launch")
+-    if args.action=="admit":admit(record);return 0
+-    return launch(record)
++    root_stderr=_RAMLog(262144)
++    try:
++        with contextlib.redirect_stderr(_RAMStderr(root_stderr)):
++            if args.plan:print(json.dumps(plan_request_v1(read(record)),indent=2));return 0
++            require(args.execute,"Explicit root execution")
++            if args.admit:admit(record);return 0
++            return launch(record,root_stderr)
++    except BaseException:
++        detail=traceback.format_exc();root_stderr.add(detail.encode("utf-8",errors="replace"))
++        print(json.dumps(dict(event="root_prepare_v3_error",stderr=root_stderr.record(),
++            accounting_not_closed_or_credited=True)),flush=True)
++        return 1
+ 
+ if __name__=="__main__":raise SystemExit(main())

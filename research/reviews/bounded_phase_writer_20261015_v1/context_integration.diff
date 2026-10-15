@@ -1,0 +1,78 @@
+--- frozen/context_factory_v1.py
++++ new/H049_prepare_context_v1.py
+@@ -1,4 +1,4 @@
+-"""H049 root consumer context. Import performs no guard, payload or CUDA work."""
++"""SOURCE-ONLY bounded CPU prepare context. No default execution or guard import here."""
+ from pathlib import Path
+ import json,os,resource
+ from research.reviews.H049_order2_cut_memory_root_source_20261015_v1.root_common_v1 import (
+@@ -7,7 +7,7 @@
+     validate_eval_train_io_v1,load_guard_v1)
+ from research.reviews.H049_order2_cut_memory_root_source_20261015_v1 import producer_v1 as worker
+ from research.reviews.H049_order2_cut_memory_root_source_20261015_v1 import cut_recipe_codec_v1 as codec
+-SOURCE=HERE+"/context_factory_v1.py"
++SOURCE="research/reviews/bounded_phase_writer_20261015_v1/H049_prepare_context_v1.py"
+ PREP_SOURCE=HERE+"/prepare_v1.py"
+ WORKER_SOURCE=HERE+"/producer_v1.py"
+ 
+@@ -93,21 +93,27 @@
+         and spec.get("hypothesis_id")=="H049" and spec.get("arm")=="joint_three_arm"
+         and spec.get("root_authorizer")=="root_agent" and spec.get("status")=="active"
+         and spec.get("phase") in ("prepare","train","evaluate"),"Active fresh H049 root capability")
+-    phase=spec["phase"];source=PREP_SOURCE if phase=="prepare" else WORKER_SOURCE
++    require(spec["phase"]=="prepare","Bounded successor is prepare only; GPU/native routes are not supported")
++    phase=spec["phase"];source=spec["producer_ref"]["path"]
++    require(source!=PREP_SOURCE and spec.get("preparation_execution_version",0)>=2,
++        "Revoked original prepare_v1 cannot execute; root must bind the actually repaired producer")
+     require(spec["root_context_module_ref"]==ref(SOURCE)
+         and spec["producer_ref"]==spec["main_source_ref"]==spec["worker_cli_ref"]==ref(source),
+         "Canonical actual phase producer/context")
+     require(json.loads(os.environ["ARGGNN_COMPLETED_CREDITS_POLICY_REF"])==POLICY_REF,"Current980 environment")
+     reader=fit.ConsumerReaderV1();fit._check_active_v1(spec)
+     cfg=reader.decode_json(spec["refs"]["config"]);worker.validate_protocol(cfg,phase=phase)
++    require(spec["producer_ref"]==cfg["preparation_producer_ref"]
++        and spec["preparation_execution_version"]==cfg["preparation_execution_version"]
++        and ref(source)==spec["producer_ref"],"Actual repaired root-declared producer and version in exact source closure")
+     worker.bind_registration_v1(cfg,reader)
+     require(spec["max_cpu_rss_bytes"]==cap_v1(cfg,"max_cpu_rss_bytes"),"Reviewed same CPU cap")
+     storage=reader.decode_json(spec["refs"]["storage"]);validate_closure_v1(reader,spec,cfg,storage)
+-    guard_module,memo=load_guard_v1(consumer=True)
+-    guard_module.validate_storage_v9(spec,cfg,storage,source_ref=spec["main_source_ref"],
++    guard_module,memo=load_guard_v1(consumer=False)
++    full_launch_result=guard_module.validate_storage_v9(spec,cfg,storage,source_ref=spec["main_source_ref"],
+         config_ref=spec["refs"]["config"],runtime_ref=spec["refs"]["runtime"])
+     worker.science()
+-    output=guard_module.PilotOutputV9(spec["output_directory"],storage,reader)
++    output=None  # Construct only after the exact complete count plan is checked.
+     runtime=reader.decode_json(spec["refs"]["runtime"])
+     require(runtime["job_id"]==spec["job_id"] and runtime["device"]==spec["device"]
+         and runtime.get("physical_gpu")==spec.get("physical_gpu"),"Exact actual phase runtime")
+@@ -127,6 +133,19 @@
+     plan=count_plan_v1(counts,phase,preparation,cfg)
+     require(plan["total_output_scope_upper_bound_bytes"] is not None
+         and plan["total_output_scope_upper_bound_bytes"]<=cfg["output_cap_bytes"],"Reviewed complete output forecast")
++    # Exact prospective operational source bindings. No production API patch.
++    import sys
++    sys.path.insert(0,str(ROOT/"research/reviews/bounded_phase_writer_20261015_v1"))
++    from bounded_phase_writer_v1 import PhaseOutputV1
++    from H049_prepare_layout_v1 import validate_count_layout_v1
++    phase_plan=reader.decode_json(spec["bounded_phase_plan_ref"])
++    validate_count_layout_v1(phase_plan,plan,cfg,worker.TRAIN+worker.VAL)
++    immutable=[record,spec["refs"]["config"],spec["refs"]["runtime"],spec["consumer_manifest_ref"],
++        cfg["source_manifest_ref"],cfg["count_manifest_ref"],cfg["registration_ref"],
++        spec["preparation_completion_ref"],spec["preparation_actual_wait_ref"]]
++    output=PhaseOutputV1(root=ROOT,plan_ref=spec["bounded_phase_plan_ref"],spec=spec,storage=storage,
++        full_launch_result=full_launch_result,reader=reader,expected_parents=worker.TRAIN+worker.VAL,
++        immutable_metadata_refs=immutable,phase_lease_ref=spec["bounded_phase_lease_ref"])
+     ctx=dict(root_authorizer="root_agent",admitted=True,phase=phase,arm="joint_three_arm",
+         cfg=cfg,reader=reader,output=output,config_ref=spec["refs"]["config"],
+         source_manifest_ref=cfg["source_manifest_ref"],registry=generation["parent_registry"],
+@@ -193,7 +212,7 @@
+             cut_preparation_actual_wait_ref=spec["cut_preparation_actual_wait_ref"])
+         if phase=="evaluate":ctx["train_completion_ref"]=spec["train_completion_ref"]
+     output.save("started.json",dict(schema="H049_order2_started_v1",hypothesis_id="H049",phase=phase,
+-        input_ref=record,output_plan=plan,memo_receipt=memo.receipt,parameters_per_arm=32446,
++        input_ref=record,output_plan=plan,memo_receipt=None,parameters_per_arm=32446,
+         training_passes=30,updates_per_arm=960,updates_total=2880,checkpoint_files=18,
+         all144_evaluation_seals_before_truth=True,VAL_influences_optimization=False,outer_truth_read=False))
+     return ctx

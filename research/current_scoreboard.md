@@ -1,6 +1,6 @@
 # Current scientific scoreboard
 
-Updated UTC: 2026-10-15T19:17:47.238157+00:00
+Updated UTC: 2026-10-15T19:43:58.986443+00:00
 
 [All measured cohort details](#detailed-cohort-metrics) · [Complete historical receipt inventory](all_recorded_metric_receipts.md) · [Fresh H048 novelty/cross-domain audit](../research/reviews/H048_novelty_crossdomain_fresh_20261015_v1/report.md)
 
@@ -21,6 +21,8 @@ Updated UTC: 2026-10-15T19:17:47.238157+00:00
 | H042 exact local-clade flags | 96.5778 ± 0.5954 | 0.100656 ± 0.020069 | 18.0451 ± 1.8423 | H038 warmstart +30 passes /960 updates, seed101 |
 | H043 true_partner | 96.5182 ± 0.6201 | 0.101527 ± 0.019742 | 17.4301 ± 1.3301 | H042 warmstart +30 passes /960 updates per arm, seed101 |
 | H043 own_state | 96.5029 ± 0.6006 | 0.101819 ± 0.019255 | 17.1055 ± 0.7889 | H042 warmstart +30 passes /960 updates per arm, seed101 |
+| H048 graph_to_own_confidence_fixed_distance_chain | 96.3886 ± 0.6098 | 0.137125 ± 0.029011 | 16.7423 ± 1.8672 | H042 warmstart +30passes/960updates per arm, seed101 |
+| H048 graph_to_transition | 96.3800 ± 0.6002 | 0.303922 ± 0.058599 | 16.6695 ± 1.5616 | H042 warmstart +30passes/960updates per arm, seed101 |
 | H040 tensor | 96.2674 ± 0.7493 | 0.109332 ± 0.021073 | 16.1986 ± 2.0270 | H038 warmstart +30 passes /960 updates, seed101 |
 | H040 event_mlp | 96.2007 ± 0.7048 | 0.110014 ± 0.020489 | 16.1312 ± 1.6911 | H038 warmstart +30 passes /960 updates, seed101 |
 | H038 aligned whole-tree PyG | 95.4891 ± 0.8338 | 0.133497 ± 0.026419 | 13.4195 ± 1.4686 | 30 passes / 960 updates, seed101 |
@@ -43,6 +45,8 @@ Updated UTC: 2026-10-15T19:17:47.238157+00:00
 | H042 exact local-clade flags | 1920 | 30 | 1920 |
 | H043 true_partner | 2880 | 30 | 2880 |
 | H043 own_state | 2880 | 30 | 2880 |
+| H048 graph_to_own_confidence_fixed_distance_chain | 2880 | 20 | 2560 |
+| H048 graph_to_transition | 2880 | 5 | 2080 |
 | H040 tensor | 1920 | 30 | 1920 |
 | H040 event_mlp | 1920 | 30 | 1920 |
 | H038 aligned whole-tree PyG | 960 | 30 | 960 |
@@ -65,6 +69,8 @@ Updated UTC: 2026-10-15T19:17:47.238157+00:00
 | H042 exact local-clade flags | 96.5778 ± 0.5954 | 99.0748 ± 0.3242 | 99.0226 ± 1.0723 | 99.5291 ± 0.1771 | 99.8569 ± 0.1871 | 99.3859 ± 0.1560 | 98.6409 ± 0.2641 |
 | H043 true_partner | 96.5182 ± 0.6201 | 98.9949 ± 0.3463 | 99.1731 ± 1.0093 | 99.5198 ± 0.1912 | 99.8251 ± 0.2007 | 99.3572 ± 0.1652 | 98.6040 ± 0.2688 |
 | H043 own_state | 96.5029 ± 0.6006 | 99.0107 ± 0.3257 | 99.1048 ± 0.9583 | 99.5217 ± 0.1935 | 99.8547 ± 0.1785 | 99.3630 ± 0.1737 | 98.6042 ± 0.2691 |
+| H048 graph_to_own_confidence_fixed_distance_chain | 96.3886 ± 0.6098 | 98.8716 ± 0.4962 | 99.0846 ± 1.1561 | 99.6338 ± 0.0734 | 99.6818 ± 0.3024 | 99.3760 ± 0.1971 | 98.5834 ± 0.3006 |
+| H048 graph_to_transition | 96.3800 ± 0.6002 | 98.8686 ± 0.4981 | 99.0791 ± 0.8563 | 99.4847 ± 0.2192 | 99.6233 ± 0.5314 | 99.2826 ± 0.2593 | 98.5125 ± 0.3421 |
 | H040 tensor | 96.2674 ± 0.7493 | 98.8266 ± 0.4696 | 99.1439 ± 0.8901 | 99.5200 ± 0.1579 | 99.7215 ± 0.3045 | 99.2971 ± 0.2073 | 98.4933 ± 0.3390 |
 | H040 event_mlp | 96.2007 ± 0.7048 | 98.8238 ± 0.4377 | 99.1147 ± 0.9216 | 99.5576 ± 0.1232 | 99.7569 ± 0.2389 | 99.3197 ± 0.1707 | 98.4922 ± 0.2948 |
 | H038 aligned whole-tree PyG | 95.4891 ± 0.8338 | 98.1726 ± 0.8000 | 98.9020 ± 0.8854 | 99.4103 ± 0.1271 | 98.9598 ± 1.3143 | 98.9751 ± 0.3226 | 98.0503 ± 0.4312 |
@@ -155,6 +161,20 @@ BronzeAge is not asserted identical to the paper's Post-Neolithic cohort. A dash
 | H043 own_state / Yam26 | 99.8547 ± 0.1785 | 0.005701 ± 0.002890 | 99.9046 ± 0.0978 | 25.2381 ± 40.9994 (n=7) | 0.002385 ± 0.001817 | 0.003336 ± 0.001936 |
 | H043 own_state / Ancient504 | 99.3630 ± 0.1737 | 0.018997 ± 0.004465 | 99.1708 ± 0.2615 | 20.7737 ± 2.3355 | 0.009824 ± 0.002469 | 0.001346 ± 0.000459 |
 | H043 own_state / All686 | 98.6042 ± 0.2691 | 0.040970 ± 0.007892 | 98.3107 ± 0.3231 | 18.3817 ± 1.1955 | 0.021172 ± 0.004065 | 0.002007 ± 0.000657 |
+| H048 graph_to_own_confidence_fixed_distance_chain / Present182 | 96.3886 ± 0.6098 | 0.137125 ± 0.029011 | 96.2050 ± 0.6399 | 16.7423 ± 1.8672 | 0.059686 ± 0.010932 | 0.018190 ± 0.004855 |
+| H048 graph_to_own_confidence_fixed_distance_chain / BronzeAge162 | 98.8716 ± 0.4962 | 0.049362 ± 0.025114 | 98.7838 ± 0.4633 | 19.5244 ± 2.6802 | 0.019217 ± 0.008737 | 0.007666 ± 0.004121 |
+| H048 graph_to_own_confidence_fixed_distance_chain / BAA14 | 99.0846 ± 1.1561 | 0.040000 ± 0.052770 | 98.3304 ± 2.2725 | 10.2083 ± 15.4416 | 0.015939 ± 0.020312 | 0.007361 ± 0.009781 |
+| H048 graph_to_own_confidence_fixed_distance_chain / Neo302 | 99.6338 ± 0.0734 | 0.016523 ± 0.005367 | 99.5604 ± 0.0983 | 24.7771 ± 4.4283 | 0.006359 ± 0.001423 | 0.002259 ± 0.000635 |
+| H048 graph_to_own_confidence_fixed_distance_chain / Yam26 | 99.6818 ± 0.3024 | 0.009790 ± 0.008371 | 99.8243 ± 0.1398 | 23.5622 ± 25.1925 (n=7) | 0.004722 ± 0.004045 | 0.001737 ± 0.001533 |
+| H048 graph_to_own_confidence_fixed_distance_chain / Ancient504 | 99.3760 ± 0.1971 | 0.027383 ± 0.010344 | 99.2027 ± 0.2810 | 22.2527 ± 2.5413 | 0.010673 ± 0.003470 | 0.004039 ± 0.001603 |
+| H048 graph_to_own_confidence_fixed_distance_chain / All686 | 98.5834 ± 0.3006 | 0.056498 ± 0.014694 | 98.2881 ± 0.3653 | 18.7646 ± 1.7659 | 0.023677 ± 0.005314 | 0.007789 ± 0.002377 |
+| H048 graph_to_transition / Present182 | 96.3800 ± 0.6002 | 0.303922 ± 0.058599 | 96.2319 ± 0.6076 | 16.6695 ± 1.5616 | 0.069542 ± 0.011659 | 0.034109 ± 0.005756 |
+| H048 graph_to_transition / BronzeAge162 | 98.8686 ± 0.4981 | 0.100156 ± 0.051061 | 98.7987 ± 0.5097 | 15.3015 ± 3.1225 | 0.021805 ± 0.009740 | 0.010711 ± 0.004806 |
+| H048 graph_to_transition / BAA14 | 99.0791 ± 0.8563 | 0.069580 ± 0.077345 | 98.1684 ± 1.9417 | 8.2341 ± 11.9081 | 0.017473 ± 0.016673 | 0.008578 ± 0.008286 |
+| H048 graph_to_transition / Neo302 | 99.4847 ± 0.2192 | 0.045451 ± 0.020040 | 99.4819 ± 0.1715 | 22.3599 ± 2.1140 | 0.009946 ± 0.004319 | 0.004886 ± 0.002142 |
+| H048 graph_to_transition / Yam26 | 99.6233 ± 0.5314 | 0.033101 ± 0.055590 | 99.6947 ± 0.5189 | 12.3263 ± 24.4074 (n=7) | 0.007153 ± 0.010260 | 0.003517 ± 0.005082 |
+| H048 graph_to_transition / Ancient504 | 99.2826 ± 0.2593 | 0.063068 ± 0.025642 | 99.0529 ± 0.4000 | 18.4662 ± 2.2462 | 0.013823 ± 0.005077 | 0.006789 ± 0.002507 |
+| H048 graph_to_transition / All686 | 98.5125 ± 0.3421 | 0.126968 ± 0.033221 | 98.2126 ± 0.4259 | 17.3526 ± 1.2309 | 0.028605 ± 0.006661 | 0.014037 ± 0.003284 |
 | H040 tensor / Present182 | 96.2674 ± 0.7493 | 0.109332 ± 0.021073 | 96.1525 ± 0.6781 | 16.1986 ± 2.0270 | 0.056491 ± 0.010757 | 0.006276 ± 0.002345 |
 | H040 tensor / BronzeAge162 | 98.8266 ± 0.4696 | 0.036684 ± 0.016532 | 98.7598 ± 0.4704 | 17.8258 ± 4.2678 | 0.017733 ± 0.007130 | 0.003521 ± 0.002801 |
 | H040 tensor / BAA14 | 99.1439 ± 0.8901 | 0.035116 ± 0.036180 | 98.6214 ± 1.7079 | 11.3839 ± 18.6541 | 0.015750 ± 0.016709 | 0.008969 ± 0.007681 |
@@ -279,6 +299,20 @@ BronzeAge is not asserted identical to the paper's Post-Neolithic cohort. A dash
 | H043 own_state / Yam26 | 99.8628 ± 0.1681 | 25.7812 ± 45.8595 | 25.0000 ± 38.1881 (n=7) | 0.001196 ± 0.000909 | 0.004358 ± 0.002312 |
 | H043 own_state / Ancient504 | 99.2166 ± 0.2740 | 17.8092 ± 2.5336 | 25.1774 ± 3.0049 | 0.004901 ± 0.001230 | 0.009382 ± 0.001845 |
 | H043 own_state / All686 | 98.3058 ± 0.4067 | 15.3212 ± 1.1258 | 23.0576 ± 1.9590 | 0.010586 ± 0.002043 | 0.019935 ± 0.003038 |
+| H048 graph_to_own_confidence_fixed_distance_chain / Present182 | 95.9248 ± 0.8399 | 16.4227 ± 1.8251 | 17.0915 ± 1.9968 | 0.029800 ± 0.005545 | 0.042400 ± 0.006314 |
+| H048 graph_to_own_confidence_fixed_distance_chain / BronzeAge162 | 98.7500 ± 0.5887 | 18.6916 ± 2.4881 | 20.4892 ± 3.1004 | 0.009595 ± 0.004369 | 0.012237 ± 0.004985 |
+| H048 graph_to_own_confidence_fixed_distance_chain / BAA14 | 98.3045 ± 2.9844 | 8.2292 ± 12.6807 | 13.5417 ± 19.8893 | 0.007776 ± 0.009760 | 0.009659 ± 0.010837 |
+| H048 graph_to_own_confidence_fixed_distance_chain / Neo302 | 99.5029 ± 0.1401 | 24.7641 ± 4.3980 | 24.7986 ± 4.4842 | 0.003171 ± 0.000711 | 0.004260 ± 0.000780 |
+| H048 graph_to_own_confidence_fixed_distance_chain / Yam26 | 99.7003 ± 0.2783 | 21.2798 ± 34.0094 | 35.7143 ± 37.7964 (n=7) | 0.002362 ± 0.002022 | 0.003623 ± 0.003172 |
+| H048 graph_to_own_confidence_fixed_distance_chain / Ancient504 | 99.1357 ± 0.3788 | 21.6420 ± 2.3888 | 22.9152 ± 2.7871 | 0.005322 ± 0.001737 | 0.006942 ± 0.002001 |
+| H048 graph_to_own_confidence_fixed_distance_chain / All686 | 98.2130 ± 0.4929 | 18.3497 ± 1.7339 | 19.2092 ± 1.8604 | 0.011816 ± 0.002684 | 0.016349 ± 0.003091 |
+| H048 graph_to_transition / Present182 | 95.9895 ± 0.7046 | 14.4252 ± 1.5794 | 19.8034 ± 1.7413 | 0.034765 ± 0.005909 | 0.036004 ± 0.005958 |
+| H048 graph_to_transition / BronzeAge162 | 98.7297 ± 0.6111 | 12.7019 ± 3.4159 | 19.7201 ± 2.9521 | 0.010884 ± 0.004860 | 0.011314 ± 0.004980 |
+| H048 graph_to_transition / BAA14 | 98.9779 ± 0.9688 | 8.7031 ± 17.1507 | 22.9167 ± 34.1420 | 0.008734 ± 0.008336 | 0.009203 ± 0.008545 |
+| H048 graph_to_transition / Neo302 | 99.3163 ± 0.2769 | 20.2742 ± 2.3910 | 25.1522 ± 2.8027 | 0.004960 ± 0.002151 | 0.005147 ± 0.002187 |
+| H048 graph_to_transition / Yam26 | 99.6374 ± 0.5286 | 13.9286 ± 34.8775 | 25.0000 ± 38.1881 (n=7) | 0.003577 ± 0.005130 | 0.003756 ± 0.005296 |
+| H048 graph_to_transition / Ancient504 | 99.1225 ± 0.4443 | 15.6561 ± 2.5419 | 22.7746 ± 2.4358 | 0.006898 ± 0.002537 | 0.007170 ± 0.002598 |
+| H048 graph_to_transition / All686 | 98.2098 ± 0.5154 | 14.8804 ± 1.4277 | 20.9081 ± 1.3795 | 0.014291 ± 0.003352 | 0.014820 ± 0.003411 |
 | H040 tensor / Present182 | 96.1094 ± 0.6684 | 13.3841 ± 1.8866 | 20.5928 ± 2.2946 | 0.028302 ± 0.005547 | 0.054001 ± 0.008337 |
 | H040 tensor / BronzeAge162 | 98.6817 ± 0.5913 | 15.0827 ± 4.6662 | 22.4284 ± 3.5897 | 0.008850 ± 0.003561 | 0.016356 ± 0.004493 |
 | H040 tensor / BAA14 | 98.3048 ± 2.6543 | 10.4167 ± 18.2302 | 13.5417 ± 19.8893 | 0.007696 ± 0.007976 | 0.013352 ± 0.008813 |
@@ -333,21 +367,21 @@ H046 foreign-flank minus own-state Present182 accuracy gain +0.011573 ± 0.06912
 |---|---:|---|---:|---|---:|---|
 | H046 | 5 | False | 30/30 | {'foreign_flank': 960, 'own_state': 960} | 960 | 96.7892 ± 0.6042% foreign_flank; 96.7776 ± 0.6351% own_state |
 | H047 | 4 | False | 30/30 | {'balanced_risk': 960, 'original_risk': 960} | 960 | 96.7777% original-risk, 96.7576% balanced-risk |
-| H048 | 4 | False | 30/30 | {'graph_to_own_confidence_fixed_distance_chain': 960, 'graph_to_transition': 960} | 960 | pending |
+| H048 | 4 | False | 30/30 | {'graph_to_own_confidence_fixed_distance_chain': 960, 'graph_to_transition': 960} | 960 | 96.3800 ± 0.6002% graph_to_transition; 96.3886 ± 0.6098% graph_to_own_confidence_fixed_distance_chain |
 
 Update counts below are verified receipt lower bounds, not live optimizer counters.
 
 - H046: TRAIN and VAL completed. AdamW lr=0.001, weight_decay=0.0001, seed=101, dtype=float32.
 - H047: TRAIN and VAL completed. AdamW lr=0.001, weight_decay=0.0001, seed=101, dtype=float32.
-- H048: TRAIN completed30passes/960updates per arm with actual wait0; registered evaluation launched, score pending. AdamW lr=0.001, weight_decay=0.0001, seed=101, dtype=float32.
+- H048: TRAIN and VAL completed; both registered utility criteria failed. AdamW lr=0.001, weight_decay=0.0001, seed=101, dtype=float32.
 
 ## Registered next architecture experiment
 
-GPU4 TRAIN completed30passes/960updates per arm with actual wait0; registered evaluation launched, score pending. 30/30 completed passes; {'graph_to_own_confidence_fixed_distance_chain': 960, 'graph_to_transition': 960} verified update lower bounds. No validation accuracy yet.
+GPU4 TRAIN and VAL completed; both registered utility criteria failed. 30/30 completed passes; {'graph_to_own_confidence_fixed_distance_chain': 960, 'graph_to_transition': 960} verified update lower bounds. Validation: 96.3800 ± 0.6002% graph_to_transition; 96.3886 ± 0.6098% graph_to_own_confidence_fixed_distance_chain. Both registered utility criteria failed.
 
 [Fresh independent novelty/cross-domain report](../research/reviews/H048_novelty_crossdomain_fresh_20261015_v1/report.md). Fresh independent H048 audit: reset transitions have RFMix precedent; a distinct graph-collection operator is unestablished. GST reaction-center sets have no native chain order, so whole-H048 transfer is not justified. PKU-MMD is only a possible future decoder study after native label-overlap semantics are resolved; no transfer result exists.
 
-H048 retains 31,933 parameters per arm and a fixed 30-pass/960-update schedule. Its matched comparison places the same graph signal into transitions or confidence. The reset-chain components have prior art. No novelty or accuracy claim is established.
+H048 retains 31,933 parameters per arm and a fixed 30-pass/960-update schedule. Its matched comparison places the same graph signal into transitions or confidence. The reset-chain components have prior art. No novelty claim is established. Actual H048 scores are recorded above.
 
 ## American C3 benchmark
 
@@ -356,7 +390,7 @@ H048 retains 31,933 parameters per arm and a fixed 30-pass/960-update schedule. 
 | Native ARGformer | unavailable | Engineering TRAIN000: native author MLM training on GPU5. Checkpoint metadata observed at 2026-10-15T17:39:17.298203+00:00: ep0-ba41000-rank0.pt. Full five-epoch/224775-update budget and final saved-Adam verification remain pending. No native ancestry score. Actual unchanged author console entered epoch3/5, batch90. |
 | Native ARGformer dataset counts | not an accuracy run | completed; actual count producer wait0 and drain verified |
 | Native FLARE | unavailable | Author build and TRAIN000 full-site conversion completed with actual wait0. Native inference: completed; actual wait0 and owned-group drain verified; sealing: completed; actual wait0 and owned-group drain verified. Native completed allowance closed; 8977226240 unused bytes credited with all files preserved. Accuracy pending; TRAIN000 is development, not held-out. |
-| Our C3 GNN | unavailable | TRAIN000 exact native focal/plan preparation: completed with actual wait0; explicit retry after missing-parent directory repair, original failure preserved; 10000 focals, 4897 trees, 14937 sites, 154 blocks. remaining TRAIN001–013 fanout 5/13 completed with actual wait0; terminal failed_or_stopped_partial_preserved; root requested cooperative stop of new additions to relieve GPU training mutex contention, current scientific children drain unchanged. Fresh controlled TRAIN006–015 continuation 10/10 completed with genuine wait0; max2CPU producers; terminal completed_selected_remaining_exact_focal_plan_preparations. run016_017_v1: 2/2 genuine completed waits; completed_selected_remaining_exact_focal_plan_preparations. Shared 30 Mb VAL000 inference completed. Remaining TRAIN parents, checkpoint and full prespecified VAL gate pending |
+| Our C3 GNN | unavailable | TRAIN000 exact native focal/plan preparation: completed with actual wait0; explicit retry after missing-parent directory repair, original failure preserved; 10000 focals, 4897 trees, 14937 sites, 154 blocks. remaining TRAIN001–013 fanout 5/13 completed with actual wait0; terminal failed_or_stopped_partial_preserved; root requested cooperative stop of new additions to relieve GPU training mutex contention, current scientific children drain unchanged. Fresh controlled TRAIN006–015 continuation 10/10 completed with genuine wait0; max2CPU producers; terminal completed_selected_remaining_exact_focal_plan_preparations. run016_017_v1: 2/2 genuine completed waits; completed_selected_remaining_exact_focal_plan_preparations. run018_v1: 1/1 genuine completed waits; completed_selected_remaining_exact_focal_plan_preparations. run019_v1: 0/1 genuine completed waits; active. Shared 30 Mb VAL000 inference completed. Remaining TRAIN parents, checkpoint and full prespecified VAL gate pending |
 
 The TRAIN000 conversion is development evidence. Independent VAL000 inference now has its own actual completion/wait receipts; its method predictions and common-truth scoring remain pending. Original 30 Mb VAL000 simulation: completed; actual wait0 and owned-group drain verified; inferred observation: completed; actual wait0 and owned-group drain verified; shared native-path/10k-focal preparation: completed; actual wait0 and owned-group drain verified. R600/Q1000 identities stay common. No VAL ancestry score. Original full30Mb VAL000 native preparations are ready; method predictions and common-truth scores remain pending. Native FLARE VAL000 target bound: 228477 sites, common R600/Q1000. Fresh memo2 conversion: completed; actual wait0 and owned-group drain verified; predictions/scoring pending. Earlier conversion deliberately stopped to repair scheduler contention, with all artifacts retained. Original-paper simulation assumptions and source versions remain explicitly documented.
 
@@ -403,6 +437,8 @@ H045 empirical probabilities, bp-weighted proportions and original-genotype PCA 
 - H042 exact local-clade flags: [research/reviews/H042_completed_cohort_diagnostics_root_20261015_v1/summary.json](../research/reviews/H042_completed_cohort_diagnostics_root_20261015_v1/summary.json)
 - H043 true_partner: [research/reviews/H043_completed_comparison_root_20261015_v1/summary.json](../research/reviews/H043_completed_comparison_root_20261015_v1/summary.json)
 - H043 own_state: [research/reviews/H043_completed_comparison_root_20261015_v1/summary.json](../research/reviews/H043_completed_comparison_root_20261015_v1/summary.json)
+- H048 graph_to_own_confidence_fixed_distance_chain: [research/reviews/H048_completed_comparison_root_20261015_v1/summary.json](../research/reviews/H048_completed_comparison_root_20261015_v1/summary.json)
+- H048 graph_to_transition: [research/reviews/H048_completed_comparison_root_20261015_v1/summary.json](../research/reviews/H048_completed_comparison_root_20261015_v1/summary.json)
 - H040 tensor: [experiments/results/H040_GPU45_frozen_evaluation_seed101_v3/completed.json](../experiments/results/H040_GPU45_frozen_evaluation_seed101_v3/completed.json)
 - H040 event_mlp: [experiments/results/H040_GPU45_frozen_evaluation_seed101_v3/completed.json](../experiments/results/H040_GPU45_frozen_evaluation_seed101_v3/completed.json)
 - H038 aligned whole-tree PyG: [research/reviews/native_common_cohort_diagnostics_20261015_v1/same_support_comparison.json](../research/reviews/native_common_cohort_diagnostics_20261015_v1/same_support_comparison.json)
