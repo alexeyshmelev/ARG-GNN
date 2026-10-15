@@ -1,0 +1,82 @@
+{
+  "confirmed_cause": "RangeSource.block checks the shared 1800-second RangeSource lifetime before the next BGZF block. The same clock includes HTTP requests, synchronous boundary callbacks, line/record processing and guarded output writes. The label identifies the check site, not a measured zlib bottleneck.",
+  "metadata_only_batch_arithmetic": {
+    "caveat": "This is arithmetic on existing receipt offsets, not a network/decode benchmark. A real run may prefetch later planned windows and may still hit the original limits.",
+    "exact_recorded_VCF_window_union_preserved": true,
+    "index_requests": 1,
+    "observed_prefix_requests_before": 310,
+    "prefix_requests": 1,
+    "regional_batch_requests": 39,
+    "requests_to_cover_the_same_recorded_windows_with_max8MB_batches": 41,
+    "total_recorded_body_bytes_preserved": 309028008
+  },
+  "no_scientific_completion_or_QC_success_claim": true,
+  "observed": {
+    "VCF_duplicate_range_requests": 0,
+    "VCF_requests": 309,
+    "VCF_unique_ranges": 309,
+    "decompressed_bytes_and_last_region_position_available": false,
+    "failure_wall_seconds": 1811.9373698029667,
+    "first_request_utc": "2026-10-15T02:06:57.040470+00:00",
+    "index_requests": 1,
+    "largest_request_start_gap_seconds": 309.295322,
+    "last_request_utc": "2026-10-15T02:37:05.701515+00:00",
+    "median_request_start_gap_seconds": 2.101313,
+    "prefix_VCF_range": [
+      0,
+      999999
+    ],
+    "received_bytes": 309028008,
+    "received_bytes_divided_by_failure_wall_seconds": 170551.15322976327,
+    "recorded_body_bytes_sum": 309028008,
+    "regional_recorded_window_start_max": 489000000,
+    "regional_recorded_window_start_min": 182000000,
+    "request_attempts": 310,
+    "request_start_gap_p90_seconds": 11.757838,
+    "request_start_span_seconds": 1808.661045,
+    "root_actual_wait_elapsed_seconds": 1824.5067008864135,
+    "separate_HTTP_guard_QC_zlib_times_available": false,
+    "successful_206_requests": 310
+  },
+  "original_evidence": {
+    "actual_wait_ref": {
+      "path": "research/reviews/H018_R16_10Mb_extension_root_cohort_order_v3/actual_wait.json",
+      "sha256": "72c2409b83ef7e8608de2771de980836d97d7cf4e94c3d8943e5026201efc27b"
+    },
+    "config_ref": {
+      "path": "research/reviews/H018_R16_10Mb_extension_source_v1/config.json",
+      "sha256": "6fb4572744472c712b55cac05b31a540ff8041ddf2415e7038b22f1701f88c94"
+    },
+    "failure_ref": {
+      "path": "data/H018_R16_20_30Mb_extension_cohort_order_v3/failed.json",
+      "sha256": "1e45a388f5f910d1fb9ba38913c2230136765778abc5c2b19585b58fe55c8441"
+    },
+    "log_ref": {
+      "path": "research/reviews/H018_R16_10Mb_extension_root_cohort_order_v3/worker_aux/launch.log",
+      "sha256": "48bd493a42c02cfcda5f55e9b14799501e9fe7ded44f2a7b1495c4103de0db62"
+    },
+    "operational_driver_ref": {
+      "path": "research/reviews/H018_R16_10Mb_extension_root_cohort_order_v3/root_extension_driver.py",
+      "sha256": "527e865b9ef612e55610813275160e1fb4ea8b78d607da931e73f45339995f38"
+    },
+    "worker_ref": {
+      "path": "src/arggnn/prepare_h018_r16_10mb_extension_v2.py",
+      "sha256": "e152bd3cdd4c50ac31ca40f90286d21b50744d2ddc803245d497f4ce9255193d"
+    }
+  },
+  "proposed_fix": "Group at most eight consecutive missing 1 MB windows already declared by the unchanged TBI plan into one HTTP Range; retain them in a bounded 32 MB process-local compressed cache. Add phase timing without changing scientific transformations.",
+  "schema": "H018_R16_decode_runtime_source_diagnosis_v1",
+  "status": "source_and_original_failure_metadata_only",
+  "structural_costs": [
+    "Each VCF compressed cache miss currently causes one serial 1,000,000-byte HTTP Range/open plus one actual root boundary callback.",
+    "309 distinct VCF windows were fetched; no duplicate-range requests or observed compressed-cache thrash occurred.",
+    "clean_record currently decodes and tab-splits all 3,331 source samples before processing the selected 20. This may contribute CPU/allocation cost, but no phase timings establish its share.",
+    "The four-window cache is sufficient for the observed forward stream. A larger cache is proposed only to hold batched prefetch, not as a demonstrated refetch cure."
+  ],
+  "unavailable_attribution": [
+    "Request timestamps are recorded after the current before_request callback and before urlopen. Their gaps mix the previous HTTP transfer, decode/QC, writes and the next callback.",
+    "HTTP duration, guard callback duration, CPU time, decompressed bytes, candidate progress and last regional position were not retained in failed.json.",
+    "The largest 309.295322-second gap is consistent with several possible stalls and does not identify network, guard or parser as the sole bottleneck.",
+    "The full TBI region plan was not retained in the failure metadata and was not re-executed here. The remaining work and probability of finishing within 1800 seconds cannot be estimated reliably."
+  ]
+}

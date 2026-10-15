@@ -1,0 +1,251 @@
+{
+  "GPU4_availability": "Root-reported free; not queried.",
+  "GPU5_status": "Root-reported H043 active; not queried.",
+  "budgets": {
+    "default_CLI": "hidden64/layers3/equalize none/fullTRAIN differs from saved config",
+    "full_TRAIN_extension": {
+      "TRAIN": "All retained N, not currently counted in metadata",
+      "architecture": "hidden128/layers1/heads4/dropout.1/equalize smaller; unchanged native width search",
+      "batch": 16,
+      "condition": "released_source_full_native_data_saved_architecture",
+      "cosine_T_max": "20*max(1,floor(N/16))",
+      "coverage_change": "max_train1000 -> None",
+      "epochs": 20,
+      "exact_Table3_reproduction": false,
+      "fits": 20,
+      "model_epochs": 400,
+      "models": [
+        "gsc-ca",
+        "gsc-bc",
+        "gcn-ds",
+        "gcn-st"
+      ],
+      "runtime_change": "Separately qualified actual CUDA port",
+      "seeds": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "updates_per_fit": "20*ceil(N/16)"
+    },
+    "paper_LR_branch": {
+      "GCN_DeepSets": 0.001,
+      "GCN_SetTransformer": 0.001,
+      "GST": 0.0001,
+      "per_model_driver_change_must_be_disclosed": true,
+      "separate_from_common_LR": true
+    },
+    "quick_CLI": "2epochs/1seed/TRAIN1500/VALID200/TEST200; reduced condition, not recommended as representative training",
+    "saved1000_actual_updates_per_fit": 1260,
+    "saved1000_cosine_T_max_per_fit": 1240,
+    "saved_author_args": {
+      "batch_size": 16,
+      "data_dir": "data/uspto15k/",
+      "device": "cpu",
+      "dropout": 0.1,
+      "epochs": 20,
+      "equalize_params": "smaller",
+      "hidden": 128,
+      "layers": 1,
+      "lr": 0.001,
+      "max_test": null,
+      "max_train": 1000,
+      "max_val": null,
+      "models": [
+        "gsc-ca",
+        "gsc-bc",
+        "gcn-ds",
+        "gcn-st"
+      ],
+      "num_heads": 4,
+      "out_dir": "results/uspto15k_run",
+      "quick": false,
+      "seed_offset": 0,
+      "seeds": 5,
+      "weight_decay": 0.0001
+    },
+    "saved_suite_actual_updates": 25200,
+    "saved_suite_fits": 20,
+    "saved_suite_model_epochs": 400,
+    "training": {
+      "gradient_clip_norm": 1.0,
+      "optimizer": "AdamW",
+      "positive_BCE_weight": "max(neg/max(pos,1),1) from first min(N,1000) retained TRAIN only",
+      "record_RNG": "Process entry and per-build CPU/CUDA RNG states; source init state not recovered",
+      "released_lr_all_models": 0.001,
+      "seed_order": "Native model-major, seeds0..4; model/equalization builds happen before train_one reseeds",
+      "selection": "Strict improving VALID pooled AP, earliest ties; explicit final-state fallback",
+      "weight_decay": 0.0001
+    }
+  },
+  "dataset": {
+    "acceptance_ref": {
+      "path": "research/reviews/gst_uspto_payload_copy_v2_root/root_acceptance.json",
+      "sha256": "deb3d99c99900b5bd3a0d8679f4cc3b3f5ec72b480ae080512b117aed6995939"
+    },
+    "accepted_payload_bytes": 12710870,
+    "archive_sha256": "66b4f5cb6b5de4bd7c3d72bdb7fa0c5073c4b97984109f0dae0b10997a9aa723",
+    "author_saved_TEST_count_metadata": 2989,
+    "exact_author_used_snapshot_proven": false,
+    "exact_splits": [
+      "data/gst_uspto_native_payload_v2_r001/data/train.txt",
+      "data/gst_uspto_native_payload_v2_r001/data/valid.txt",
+      "data/gst_uspto_native_payload_v2_r001/data/test.txt"
+    ],
+    "full_TRAIN_retained": null,
+    "full_VALID_retained": 1495,
+    "full_raw_row_drop_fatal_limit_tail_accounting": "Unfinished; old fit receipt contains aggregate1000TRAIN/1495VALID audit.",
+    "metric": "Pooled per-atom sigmoid average precision over every native-retained evaluation reaction.",
+    "name": "USPTO-15K reaction-center atom classification",
+    "project_TEST_access_in_existing_fit": false,
+    "provenance": "wengong-jin/nips17-rexgen@fb7dea369b0721b88cd0133a7d66348d244f65d3",
+    "split_rule": "Archive-defined raw order; no resplitting/deduplication.",
+    "task": "Each reaction is a set of reactant molecule graphs; each atom has19 original float32 features and an external binary edit-map label."
+  },
+  "evidence_refs_ref": {
+    "path": "research/reviews/GST_training_readiness_20261015_v1/evidence_refs.json",
+    "sha256": "57d228249a2f65a224b579d214857b1ca6c0c4453e072edd5aa756bc9525e574"
+  },
+  "execution_authorized": false,
+  "existing_observations": {
+    "TEST_withheld": "Original train_one called with VALID in both evaluation slots.",
+    "TRAIN_retained": 1000,
+    "VALID_retained": 1495,
+    "batch": 16,
+    "candidate_evaluated": false,
+    "epochs": 20,
+    "model_epochs": 80,
+    "model_fits": 4,
+    "models": {
+      "gcn-ds": {
+        "hidden": 128,
+        "historical_CPU_train_one_seconds": 27.714401245117188,
+        "parameters": 134913,
+        "selected_VALID_AP": 0.6394512876723991,
+        "selected_epoch": 17
+      },
+      "gcn-st": {
+        "hidden": 128,
+        "historical_CPU_train_one_seconds": 36.11231708526611,
+        "parameters": 267777,
+        "selected_VALID_AP": 0.6382343233309435,
+        "selected_epoch": 16
+      },
+      "gsc-bc": {
+        "hidden": 84,
+        "historical_CPU_train_one_seconds": 35.98291063308716,
+        "parameters": 130622,
+        "selected_VALID_AP": 0.6537832932979444,
+        "selected_epoch": 19
+      },
+      "gsc-ca": {
+        "hidden": 76,
+        "historical_CPU_train_one_seconds": 45.252790689468384,
+        "parameters": 130798,
+        "selected_VALID_AP": 0.6379193900009189,
+        "selected_epoch": 19
+      }
+    },
+    "paper_reproduction": false,
+    "seeds": [
+      0
+    ],
+    "summary_ref": {
+      "path": "experiments/results/gst_uspto_native_TRAIN_VALID_seed0_v1/summary.json",
+      "sha256": "e656f5f59192509fb3c7dc2568f478091cd8570d44378dea665b4d16f4ffccc8"
+    },
+    "total_historical_CPU_train_one_seconds": 145.06241965293884,
+    "unchanged_repeat_recommended": false
+  },
+  "inspection_scope": {
+    "Mac_writes": false,
+    "admissions_or_GPU_launches": false,
+    "guard_or_active_accounting_reads": false,
+    "models_or_installs_or_runs": false,
+    "network_acquisition_or_Git": false,
+    "raw_archive_or_rows_or_arrays_or_checkpoints_read": false,
+    "runtime_GPU_process_queries": false,
+    "source_and_metadata_only": true
+  },
+  "physical_GPUs_allowed": [
+    4,
+    5
+  ],
+  "ready": {
+    "GST_CUDA_runtime_qualified": false,
+    "candidate_molecular_adapter_available": false,
+    "exact_acquired_member_bytes_accepted": true,
+    "existing_CPU_wrapper_can_use_GPU4": false,
+    "existing_saved1000_seed0_CPU_fit_completed": true,
+    "full_TRAIN_row_count_and_denominator_available": false,
+    "genuine_USPTO_runner_and_model_present": true,
+    "new_guard_resource_admission_available": false,
+    "original_author_source_copies_unchanged": 16
+  },
+  "runtime": {
+    "current_GST_GPU_qualification_ref": null,
+    "existing_CPU_wrapper": "Enforces emptyCUDA visibility, cpu device, Python3.14.3/Torch2.10+cpu, TRAIN1000, seed0.",
+    "no_GPU_speed_or_memory_fit_claim": true,
+    "package_requires_python": ">=3.13",
+    "pins": {
+      "numpy": "2.4.1",
+      "rdkit": "2025.9.3",
+      "scikit-learn": "1.8.0",
+      "scipy": "1.17.0",
+      "torch-geometric": "2.7.0"
+    },
+    "possible_existing_GPU_env_reuse": "Requires actual exact dependency/import/UUID/lease/title qualification; different versions are a separate disclosed runtime port.",
+    "prefix": ".runtime/conda/envs/gst_uspto_native_v1",
+    "preserve_CPU_environment": true,
+    "python": "3.14.3",
+    "receipt_ref": {
+      "path": "research/reviews/gst_uspto_native_environment_v1_root/runtime_receipt.json",
+      "sha256": "f7b01f559ad3af0f7f86031d0ea4e71ff5cbd131967a58201b7ddbe11cccf156"
+    },
+    "saved_author": "Python3.14.4/Torch2.10.0+cu128; CUDAfalse/CPU execution.",
+    "torch": "2.10.0+cpu",
+    "torch_GPU_backend": false
+  },
+  "schema": "GST_training_readiness_20261015_v1",
+  "shortest_valid_path": [
+    "Reuse accepted payload/source receipts; do not repeat raw acquisition/inventory/extraction.",
+    "Root registers the unfinished full-TRAIN/runtime-port H022 condition and obtains all native TRAIN counts/row support with original parser parity and unchanged fullVALID, without TEST.",
+    "Root separately qualifies actual CUDA-native imports, forward/backward/optimizer/checkpoint/RNG and GPU4 exact UUID/title/held lease. Preserve CPU prefix and do not assume another environment is ready.",
+    "Create a new guarded invocation wrapper retaining unchanged full author modules/functions, explicit CUDA device/output/runtime port, fullTRAIN and all5seeds20epochs; preserve native build and model-major seed ordering.",
+    "Run one continuous full-budget four-mode five-seed suite. First complete20epoch gsc-ca seed0 is progress within that committed suite, not a reduced-budget final condition.",
+    "Implement/freeze candidate molecular-set adapter with identical input/atom/reaction IDs, labels, splits, objective, selection and tuning budget; define meaningful set/permutation semantics without arbitrary genomic interval/order encodings.",
+    "Freeze choices before separately admitted complete paired TEST evaluation; preserve full retained reaction/atom denominator and failure receipts."
+  ],
+  "source": {
+    "commit": "6469d56aa131463325058b897b1e435c6d2edcd2",
+    "genealogy_GST_adaptation_is_not_this_native_model": true,
+    "genuine_model": "GraphSetConv; source single-set gate and FFN multiplier4 retained",
+    "missing_gst_v2_affects": "BH/synthetic_v2 scripts, not this USPTO runner",
+    "model_ref": {
+      "path": ".runtime/gst_uspto_native_v1/source/src/graph_set_transformer/models/gst.py",
+      "sha256": "bc08c15d55247b32bda98e4b03fcaee988ceb8f654423240a33ca632ce11ef72"
+    },
+    "repository": "daenuprobst/gst-conference",
+    "runner_ref": {
+      "path": ".runtime/gst_uspto_native_v1/source/scripts/eval_rxn_center.py",
+      "sha256": "57fd803410d57c9b05d0719cdb5bd318d9d90b2cdebbc86a1260c37a3c3354b3"
+    },
+    "saved_config_ref": {
+      "path": ".runtime/gst_uspto_native_v1/source/results/uspto15k_run/config.json",
+      "sha256": "ea02c7ab159b569e938a3ca9423287318bb986cc482998a64876d77e6b1eff9b"
+    },
+    "source_receipt_ref": {
+      "path": "research/reviews/gst_uspto_native_environment_v1_root/source_receipt.json",
+      "sha256": "0d5bd9ee51377622066836fc70e544af5b88e5ae831f22eda89cb0483e021506"
+    }
+  },
+  "status": "not_GPU4_launch_ready_from_current_GST_runtime",
+  "unresolved_model_science": [
+    "Candidate molecular adapter absent in bounded native source search.",
+    "Source gate differs from paper two-gate equation; keep native source or name scientific change separately.",
+    "Paper GST LR differs from saved common LR; original single--lr call cannot implement both.",
+    "Original snapshot, entry initialization state and exact Table3 config binding remain unproven."
+  ]
+}

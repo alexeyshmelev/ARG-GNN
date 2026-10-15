@@ -1,0 +1,222 @@
+--- src/arggnn/prepare_h018_r16_10mb_extension_v2.py
++++ research/reviews/H018_R16_decode_performance_source_v1/prospective_worker_v3.py
+@@ -10,7 +10,7 @@
+ from urllib.request import Request,urlopen
+ import argparse,csv,datetime,gzip,hashlib,io,json,math,os,re,resource,struct,subprocess,sys,time,zlib
+ ROOT=Path('/workspace-SR003.nfs2/ARG-GNN')
+-SOURCE='src/arggnn/prepare_h018_r16_10mb_extension_v2.py'
++SOURCE='research/reviews/H018_R16_decode_performance_source_v1/prospective_worker_v3.py'
+ BASE='https://erda.ku.dk/archives/917f1ac64148c3800ab7baa29402d088/neo/genotypes-public/'
+ VCF_URL=BASE+'22.neo_impute_ph.vcf.gz';INDEX_URL=VCF_URL+'.tbi'
+ SOURCE_BYTES=1654398745;INDEX_BYTES=28008
+@@ -21,6 +21,7 @@
+ ALLOWED_FORMAT=('GT','GP','HS','DS')
+ ALLOWED_INFO=('INFO','RAF','MASK_1000G','pan_troglodytes')
+ NET_CAP=500_000_000;OUTPUT_CAP=200_000_000;WINDOW=1_000_000
++MAX_HTTP_RANGE_BYTES=8*WINDOW;MAX_COMPRESSED_CACHE_BYTES=32*WINDOW
+ MAX_LINE=16*1024*1024;MAX_DECOMPRESSED=40_000_000_000;MAX_REQUESTS=640
+ ACQUISITION_SECONDS=1800;ROOT_OUTER_SECONDS=2400
+ CONDITION_ID='H018_R16_20_30Mb_extension_v1'
+@@ -44,37 +45,75 @@
+  def __init__(self,opener=urlopen,before_request=None):
+   self.before_request=before_request;self.started=time.monotonic()
+   self.opener=opener;self.received=0;self.requests=[];self.cache=OrderedDict();self.decompressed=0
++  self.planned_windows=None;self.timings=Counter();self.stats=Counter()
++ def bind_plan_v1(self,keys):
++  require(self.planned_windows is None and type(keys)is list and keys==sorted(set(keys))
++   and keys and keys[0]==0 and all(type(k)is int and 0<=k<(SOURCE_BYTES+WINDOW-1)//WINDOW for k in keys),
++   'Exact bounded compressed-window plan')
++  require(sum(min(WINDOW,SOURCE_BYTES-k*WINDOW) for k in keys)+INDEX_BYTES<NET_CAP,
++   'Planned network bytes remain within original cap')
++  self.planned_windows=frozenset(keys)
+  def fetch(self,url,start,end,total,etag=None):
+   require(time.monotonic()-self.started<=ACQUISITION_SECONDS,'Regional acquisition runtime cap')
++  check_started=time.monotonic()
+   if self.before_request is not None:self.before_request()
+-  require(url in [VCF_URL,INDEX_URL] and 0<=start<=end<total and end-start+1<=WINDOW,'Exact bounded source Range')
++  self.timings['before_request_callback_seconds']+=time.monotonic()-check_started
++  remaining=ACQUISITION_SECONDS-(time.monotonic()-self.started)
++  require(remaining>0,'Regional acquisition runtime cap after boundary check')
++  require(url in [VCF_URL,INDEX_URL] and 0<=start<=end<total and end-start+1<=MAX_HTTP_RANGE_BYTES,'Exact bounded source Range')
+   n=end-start+1
+   require(self.received+n+1<=NET_CAP and len(self.requests)<MAX_REQUESTS,'Network byte/request cap')
+   receipt=dict(url=url,start_byte=start,end_byte=end,total_source_bytes=total,requested_utc=utc(),bytes=0)
+   self.requests.append(receipt)
+   headers={'User-Agent':'ARG-GNN-H018-R16-20-30Mb-extension/1','Range':f'bytes={start}-{end}','Accept-Encoding':'identity'}
+   if etag:headers['If-Match']=etag
+-  with self.opener(Request(url,headers=headers),timeout=30) as r:
+-   receipt.update(status=r.status,ETag=r.headers.get('ETag'),Content_Range=r.headers.get('Content-Range'))
+-   require(r.status==206,'Refuse source that ignores Range (no full-file fallback)')
+-   require(r.url==url and r.headers.get('Content-Range')==f'bytes {start}-{end}/{total}','Source URL/range/total differs')
+-   require(r.headers.get('Content-Length')==str(n),'Exact bounded Content-Length')
+-   require(r.headers.get('Content-Encoding') in [None,'identity'],'No transfer content encoding')
+-   if etag:require(r.headers.get('ETag')==etag,'Source ETag changed')
+-   b=r.read(n+1);self.received+=len(b);receipt.update(bytes=len(b),sha256=sha(b),Last_Modified=r.headers.get('Last-Modified'))
+-   require(len(b)==n and self.received<=NET_CAP,'Range body length/cap differs')
+-  return b
++  http_started=time.monotonic();opened=False
++  try:
++   with self.opener(Request(url,headers=headers),timeout=min(30,remaining)) as r:
++    opened=True;open_seconds=time.monotonic()-http_started
++    self.timings['http_open_seconds']+=open_seconds;receipt['http_open_seconds']=open_seconds
++    receipt.update(status=r.status,ETag=r.headers.get('ETag'),Content_Range=r.headers.get('Content-Range'))
++    require(r.status==206,'Refuse source that ignores Range (no full-file fallback)')
++    require(r.url==url and r.headers.get('Content-Range')==f'bytes {start}-{end}/{total}','Source URL/range/total differs')
++    require(r.headers.get('Content-Length')==str(n),'Exact bounded Content-Length')
++    require(r.headers.get('Content-Encoding') in [None,'identity'],'No transfer content encoding')
++    if etag:require(r.headers.get('ETag')==etag,'Source ETag changed')
++    read_started=time.monotonic()
++    try:b=r.read(n+1)
++    finally:
++     body_seconds=time.monotonic()-read_started
++     self.timings['http_body_read_seconds']+=body_seconds;receipt['http_body_read_seconds']=body_seconds
++    self.received+=len(b);receipt.update(bytes=len(b),sha256=sha(b),Last_Modified=r.headers.get('Last-Modified'))
++    require(len(b)==n and self.received<=NET_CAP,'Range body length/cap differs')
++   return b
++  finally:
++   seconds=time.monotonic()-http_started
++   receipt.update(http_total_seconds=seconds,finished_utc=utc())
++   self.timings['http_total_seconds']+=seconds
++   if not opened:self.timings['http_open_failed_seconds']+=seconds
+  def bytes(self,start,n):
+   require(0<=start<=start+n<=SOURCE_BYTES and n<=65536,'Bounded BGZF read')
+   parts=[];pos=start
+   while pos<start+n:
+    key=pos//WINDOW
++   require(self.planned_windows is not None and key in self.planned_windows,'BGZF read outside frozen TBI window plan')
+    if key not in self.cache:
+-    a=key*WINDOW;b=min(a+WINDOW,SOURCE_BYTES)-1
++    self.stats['compressed_cache_misses']+=1;keys=[key]
++    # Prefix identity remains exactly the frozen original 1 MB window.
++    while key!=0 and len(keys)<MAX_HTTP_RANGE_BYTES//WINDOW:
++     following=keys[-1]+1
++     if following not in self.planned_windows or following in self.cache:break
++     keys.append(following)
++    a=key*WINDOW;b=min((keys[-1]+1)*WINDOW,SOURCE_BYTES)-1
+     chunk=self.fetch(VCF_URL,a,b,SOURCE_BYTES,VCF_ETAG)
+-    if a==0:require(sha(chunk)==PREFIX_SHA,'Frozen received first1MB identity differs')
+-    self.cache[key]=chunk
+-    while len(self.cache)>4:self.cache.popitem(last=False)
++    for cached_key in keys:
++     offset=(cached_key-key)*WINDOW;part=chunk[offset:offset+WINDOW]
++     if cached_key==0:require(sha(part)==PREFIX_SHA,'Frozen received first1MB identity differs')
++     while len(self.cache)>=MAX_COMPRESSED_CACHE_BYTES//WINDOW:self.cache.popitem(last=False)
++     self.cache[cached_key]=part
++    self.stats['prefetched_windows']+=len(keys)
++    self.stats['compressed_cache_peak_windows']=max(self.stats['compressed_cache_peak_windows'],len(self.cache))
++   else:self.stats['compressed_cache_hits']+=1
+    self.cache.move_to_end(key);part=self.cache[key];offset=pos-key*WINDOW
+    take=min(start+n-pos,len(part)-offset);require(take>0,'Empty byte range')
+    parts.append(part[offset:offset+take]);pos+=take
+@@ -89,9 +128,19 @@
+    if tag==b'BC':require(n==2 and size is None,'Unique BGZF BC');size=struct.unpack_from('<H',extra,off+4)[0]+1
+    off+=4+n
+   require(size is not None and 26<=size<=65536,'BGZF block size')
+-  raw=self.bytes(pos,size);data=zlib.decompress(raw,31);require(len(data)<=65536,'BGZF expanded block')
++  raw=self.bytes(pos,size);decode_started=time.monotonic()
++  try:data=zlib.decompress(raw,31)
++  finally:self.timings['zlib_decompress_seconds']+=time.monotonic()-decode_started
++  require(len(data)<=65536,'BGZF expanded block')
++  self.stats['BGZF_blocks_decoded']+=1
+   self.decompressed+=len(data);require(self.decompressed<=MAX_DECOMPRESSED,'Expanded-source cap')
+   return data,pos+size
++ def diagnostics_v1(self):
++  return dict(wall_elapsed_seconds=time.monotonic()-self.started,received_bytes=self.received,
++   request_attempts=len(self.requests),decompressed_bytes=self.decompressed,
++   max_http_range_bytes=MAX_HTTP_RANGE_BYTES,max_compressed_cache_bytes=MAX_COMPRESSED_CACHE_BYTES,
++   live_compressed_cache_windows=len(self.cache),planned_windows=None if self.planned_windows is None else len(self.planned_windows),
++   timings_seconds=dict(self.timings),counts=dict(self.stats),raw_source_bytes_retained_on_disk=False)
+  def lines(self,begin_vo,end_vo=None):
+   pos=begin_vo>>16;first=begin_vo&65535;pending=bytearray();line_vo=begin_vo
+   while True:
+@@ -144,7 +193,7 @@
+  estimate=sum(min(WINDOW,SOURCE_BYTES-key*WINDOW) for key in windows)+INDEX_BYTES
+  require(estimate<NET_CAP,'Region compressed plan exceeds byte bound')
+  return merged,dict(index_raw_bytes=len(data),estimated_network_upper_bytes=estimate,
+-  virtual_chunks=[[int(a),int(b)] for a,b in merged],index_sha256=INDEX_SHA)
++  planned_windows=sorted(windows),virtual_chunks=[[int(a),int(b)] for a,b in merged],index_sha256=INDEX_SHA)
+ def frozen_header(lines,subjects):
+  meta=[];sample_names=None;nmain=None;source_b37=False;source_chr22=False
+  for _,line in lines:
+@@ -282,6 +331,8 @@
+   and cfg['output_byte_cap']==cfg['output_cap_bytes']==OUTPUT_CAP
+   and cfg['max_requests']==MAX_REQUESTS and cfg['max_expanded_source_bytes']==MAX_DECOMPRESSED
+   and cfg['acquisition_decode_seconds']==ACQUISITION_SECONDS
++  and cfg.get('max_http_range_bytes')==MAX_HTTP_RANGE_BYTES
++  and cfg.get('max_compressed_cache_bytes')==MAX_COMPRESSED_CACHE_BYTES
+   and cfg['root_outer_process_group_timeout_seconds']==ROOT_OUTER_SECONDS,
+   'Pinned extension caps')
+  require(cfg['FORMAT_allowlist']==list(ALLOWED_FORMAT) and cfg['INFO_allowlist']==list(ALLOWED_INFO)
+@@ -298,6 +349,8 @@
+   and ad['max_expanded_source_bytes']==MAX_DECOMPRESSED
+   and ad['acquisition_decode_seconds']==ACQUISITION_SECONDS
+   and ad['outer_process_group_timeout_seconds']==ROOT_OUTER_SECONDS
++  and ad.get('max_http_range_bytes')==MAX_HTTP_RANGE_BYTES
++  and ad.get('max_compressed_cache_bytes')==MAX_COMPRESSED_CACHE_BYTES
+   and ad['outer_process_group_timeout_enforced'] is True
+   and ad['prospective_condition_registered'] is True and ad['condition_id']==CONDITION_ID,
+   'Fresh root extension registration, enforced outer deadline and exact caps required')
+@@ -340,7 +393,13 @@
+  read_json(registration['experiment_decisions_ref'])
+  for r in [*manifest['tool_refs'].values(),*manifest['frozen_refs'].values()]:bound(r)
+  runtime=runtime_report_v1(cfg);require(runtime==read_json(ad['runtime_ref']),'Pinned source-only HTS runtime changed')
+- out=Output(outdir,guard);net=RangeSource(before_request=lambda:guard(0));start=time.monotonic()
++ guard_timing=Counter()
++ def measured_guard(planned):
++  guard_started=time.monotonic()
++  try:return guard(planned)
++  finally:
++   guard_timing['seconds']+=time.monotonic()-guard_started;guard_timing['calls']+=1
++ out=Output(outdir,measured_guard);net=RangeSource(before_request=lambda:measured_guard(0));start=time.monotonic()
+  try:
+   out.json('started.json',dict(admission_ref=admission_ref,source_ref=ref(ROOT/SOURCE),config_ref=ad['config_ref'],
+    started_utc=utc(),scope='Prospective H018 20-30 Mb extension observed acquisition/qualification only',runtime=runtime,
+@@ -349,7 +408,7 @@
+   local_index=bound(cfg['frozen_refs']['public_TBI'])
+   remote_index=net.fetch(INDEX_URL,0,INDEX_BYTES-1,INDEX_BYTES)
+   require(sha(remote_index)==sha(local_index)==INDEX_SHA,'Public source/index identity differs')
+-  chunks,plan=tbi_chunks(remote_index)
++  chunks,plan=tbi_chunks(remote_index);net.bind_plan_v1(plan['planned_windows'])
+   header,indexes,hreport=frozen_header(net.lines(0),subjects)
+   # Sanitize in RAM. Only this noAP20-subject header reaches an observed artifact.
+   vcf=Buffered(out,'H018_R16_Q24.chr22_20_30Mb_extension.noAP.vcf');vcf.write(header)
+@@ -360,9 +419,12 @@
+     if vo<=seen_vo:continue
+     seen_vo=vo
+     if line.startswith(b'#'):continue
+-    result=clean_record(line,indexes)
++    net.stats['source_records_scanned']+=1;parse_started=time.monotonic()
++    try:result=clean_record(line,indexes)
++    finally:net.timings['record_decode_and_QC_seconds']+=time.monotonic()-parse_started
+     if result is None:continue
+     data,row,subjectqc=result;pos=row['POS_bp1'];require(pos>=last_pos,'Source regional position order')
++    net.stats['regional_records_processed']+=1;net.stats['last_regional_POS_bp1']=pos
+     duplicate_positions+=int(pos==last_pos);last_pos=pos;vcf.write(data);counters['candidate_sites']+=1
+     counters['H018_fixed_QC_pass_sites']+=int(row['H018_fixed_QC_pass'])
+     for key,v in row.items():
+@@ -419,6 +481,7 @@
+   out.append('subject_metadata.tsv',bound(cfg['frozen_refs']['subject_metadata']))
+   out.json('haplotype_roster.json',roster)
+   out.json('source_download_receipt.json',dict(requests=net.requests,received_bytes=net.received,
++   transport_diagnostics=net.diagnostics_v1(),actual_guard_callback_timing=dict(guard_timing),
+    range_cap_bytes=NET_CAP,plan=plan,source_URL=VCF_URL,source_ETag=VCF_ETAG,
+    source_full_bytes=SOURCE_BYTES,source_full_publisher_checksum_verified=False,
+    public_index_sha256=INDEX_SHA,raw_AP_bearing_bytes_retained=False,first_observed_artifact_AP_free=True))
+@@ -439,6 +502,7 @@
+    observed_VCF_ref=ref(outdir/name),observed_index_ref=ref(outdir/(name+'.tbi')),
+    site_QC_ref=ref(outdir/'regional_site_QC.tsv'),qualification_ref=ref(outdir/'qualification.json'),
+    regional_observation_QC_passed=qualification['region_observation_QC_passed'],network_bytes=net.received,
++   transport_diagnostics=net.diagnostics_v1(),actual_guard_callback_timing=dict(guard_timing),
+    output_bytes_before_completion=out.used,elapsed_seconds=time.monotonic()-start,completed_utc=utc(),
+    actual_bgzip_wait_exit0=True,actual_tabix_wait_exit0=True,native_index_count=native_count,
+    GPU_used=False,condition_id=CONDITION_ID,extension_is_new_pilot=True,
+@@ -453,7 +517,8 @@
+   try:
+    out.json('failed.json',dict(status='failed_partial_preserved',condition_id=CONDITION_ID,original_20_22Mb_gate_passed=False,
+     original_paper_PCA_replication=False,error_type=type(e).__name__,error=str(e),
+-    network_bytes=net.received,HTTP_requests=net.requests,raw_AP_bearing_bytes_retained=False,scientific_completion_claimed=False,elapsed_seconds=time.monotonic()-start))
++    network_bytes=net.received,HTTP_requests=net.requests,transport_diagnostics=net.diagnostics_v1(),
++    actual_guard_callback_timing=dict(guard_timing),raw_AP_bearing_bytes_retained=False,scientific_completion_claimed=False,elapsed_seconds=time.monotonic()-start))
+    out.close()
+   except BaseException:pass
+   raise
