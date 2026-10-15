@@ -728,15 +728,38 @@ def main():
                 actual_optimizer_updates_lower_bound=lower,original_optimizer_count_unknown_not_zero=True)
             c3_device="GPU4"
         if h050_job:
-            h050_execution_status="Four-arm TRAIN "+h050_job["state"]+" on shared GPU4. "+("Verified completed-pass updates: "+str(h050_job["updates_per_arm"]) if h050_job.get("updates_per_arm") else "Optimizer counts not yet verified")
+            h050_execution_status="Four-arm TRAIN "+h050_job["state"]+" on shared GPU4. "+("Verified optimizer-update lower bounds: "+str(h050_job["updates_per_arm"]) if h050_job.get("updates_per_arm") else "Optimizer counts not yet verified")
     if shared_snapshot and shared_snapshot.get("controller_status"):
         c3_status+=". Shared controller: "+shared_snapshot["controller_status"]
         h050_execution_status+=". Shared controller: "+shared_snapshot["controller_status"]
     c3_execution["status"]=c3_status
+    current_gpu_policy_path="research/reviews/GPU0_only_user_transition_root_20261016_v1/GPU0_only_policy.root_active_v1.json"
+    current_gpu_policy=maybe_read(current_gpu_policy_path)
+    if current_gpu_policy and current_gpu_policy.get("allowed_physical_GPUs")==[0]:
+        native_status="Historical GPU5 engineering TRAIN000 stopped at latest user request. Actual native/entry/launcher waits-15, roottool48073exit1 with expired-marker postdrain accounting error. Saved ep4-ba206000 checkpoint preserved, metadata only; full fiveepochs/savedAdam count and ancestry score unverified. Known own roots and GPU4/5contexts absent. Future experiments use onlyGPU0."
+        native_execution.update(current_status=native_status,user_requested_stop=True,running=False,
+            actual_user_stop_ref=ref("research/reviews/GPU0_only_user_transition_root_20261016_v1/actual_stop_and_absence.root_v1.json"),new_GPU0_execution_pending=True)
+    tgb_results_path="experiments/results/H052_TGB_trade_causal_native_baselines_v1/results.json"
+    tgb_terminal_path="research/reviews/TGB_trade_causal_baselines_root_20261016_v1/actual_tool_terminal.root_v1.json"
+    tgb_results=maybe_read(tgb_results_path);tgb_terminal=maybe_read(tgb_terminal_path)
+    tgb_ready=bool(tgb_results and tgb_terminal and tgb_terminal.get("actual_exit_code")==0
+        and tgb_terminal.get("actual_terminal_consumed") is True and tgb_terminal.get("result_ref")==ref(tgb_results_path))
+    tgb_status="Native strictly causal baselines pending"
+    tgb_lines=["", "## TGB annual trade causal diagnostic", ""]
+    if tgb_ready:
+        tgb_status="Native persistence TEST NDCG@10 0.8469±0.0144, EMA-window7 0.8090±0.0049. SD across3 serially dependent target years2014–2016,675country-years. Unchanged native classes with disclosed forecast-before-current-year-edge release and1986initialization. No graph-model score or exact-paper reproduction."
+        tgb_lines += ["255country catalogue,468245edges,1986–2016. Strictly prior-year observations, all255source forecasts sealed before target joining. Fixed author persistence/EMA classes. No model fitting or hyperparameter selection.", "", "| Method | TRAIN NDCG@10 ± year SD | VAL NDCG@10 ± year SD | TEST NDCG@10 ± year SD |", "|---|---:|---:|---:|"]
+        for name,arm in tgb_results["results"].items():
+            values=[f"{arm['splits'][split]['mean_ndcg_at10']:.4f} ± {arm['splits'][split]['sample_SD_over_years']:.4f}" for split in ("TRAIN","VAL","TEST")]
+            tgb_lines.append("| "+name+" | "+" | ".join(values)+" |")
+        tgb_lines += ["", "TRAIN1987–2009/23years, VAL2010–2013/4years, TEST2014–2016/3years and675queriedcountry-years. SD is descriptive across serially dependent years, not training seeds. This causal diagnostic adapts scheduler and1986initialization and is distinct from the published leaderboard. Our ordered graph model remains pending.", "", "[All per-year results](../"+tgb_results_path+") · [Frozen protocol](../research/reviews/TGB_trade_causal_baselines_root_20261016_v1/protocol.root_frozen_v1.json)", ""]
+    else:tgb_lines += [tgb_status, ""]
     result=dict(schema="ARG_GNN_current_scientific_scoreboard_v1",updated_utc=stamp,
         American_C3_GNN_execution=c3_execution,
         GPU4_shared_execution=shared_snapshot,
-        H050_registered_candidate=dict(status=h050["status"],execution_status=h050_execution_status,canonical_metadata_binding_ref=ref(h050_binding_path) if h050_bound else None,training_budget="4arms x30passes x32parents =3840updates",actual_optimizer_updates=None,accuracy=None,parameters_per_arm=h050["parameters_per_arm"],VAL_products_required_before_truth=192,source_handoff_ref=h050["source_handoff_ref"],utility_criteria=h050["prospective_utility_criteria"]) if h050 else None,
+        current_GPU_execution_policy=current_gpu_policy,
+        TGB_trade_causal_diagnostic=dict(status=tgb_status,complete=tgb_ready,results=tgb_results if tgb_ready else None,result_ref=ref(tgb_results_path) if tgb_ready else None,terminal_ref=ref(tgb_terminal_path) if tgb_ready else None,our_GNN_score=None),
+        H050_registered_candidate=dict(status=h050["status"],execution_status=h050_execution_status,canonical_metadata_binding_ref=ref(h050_binding_path) if h050_bound else None,training_budget="4arms x30passes x32parents =3840updates",actual_optimizer_updates=None,verified_optimizer_update_lower_bounds=(shared_snapshot.get("jobs",{}).get("H050-direct-readout-shared-TRAIN-v2",{}).get("updates_per_arm") if shared_snapshot else None),accuracy=None,parameters_per_arm=h050["parameters_per_arm"],VAL_products_required_before_truth=192,source_handoff_ref=h050["source_handoff_ref"],utility_criteria=h050["prospective_utility_criteria"]) if h050 else None,
         H049_registered_candidate=dict(status=h049["status"],parameters_per_arm=32446,
             arms=h049["execution_budget"]["arms"],training_budget="30passes/960updates per arm",
             actual_optimizer_updates=None,actual_optimizer_updates_status="no_training_launch_or_verified_step_receipt",accuracy=None,preparation_status=h049_prepare_status,preparation_completion_wait0_verified=h049_prepare_verified,registered_criteria=h049["prospective_utility_criteria"]) if h049 else None,
@@ -806,6 +829,7 @@ def main():
             lines.append("| "+r["name"]+" / "+label+" | "+" | ".join(fmt(q.get(k),pct) for k,pct in [
                 ("balanced_accuracy",True),("boundary_precision",True),("boundary_recall",True),
                 ("dosage_mse_per_diploid_bp_class",False),("dosage_mae_per_diploid_bp_class",False)])+" |")
+    lines+=tgb_lines
     lines+=["","## H046 matched continuous-flank outcome","",h046_outcome,
         "[Completed H046 comparison and paired effects](../research/reviews/H046_completed_comparison_root_20261015_v1/REPORT.md).","",
         "## Live full-budget training","",
@@ -840,6 +864,9 @@ def main():
     (RESEARCH/"current_scoreboard.md").write_text("\n".join(lines).replace("]("+pilot_source,"](../"+pilot_source)+"\n")
     ledger=read("research/experiment_ledger.json")
     inventory=[r for r in ledger["result_inventory"] if r.get("metrics")]
+    if tgb_ready and not any(r.get("artifact")==tgb_results_path for r in inventory):
+        for name,arm in tgb_results["results"].items():
+            inventory.append(dict(study="H052/"+name,kind="native_cross_domain_predictive_metrics",status="completed_causal_diagnostic",artifact=tgb_results_path,metrics=arm["splits"]))
     (RESEARCH/"all_recorded_metric_receipts.json").write_text(json.dumps(dict(updated_utc=stamp,
         warning="Distinct datasets/conditions are not interchangeable. Engineering measurements are explicitly tagged and are not accuracy results.",records=inventory),indent=2,sort_keys=True)+"\n")
     hist=["# All recorded metric receipts","",
@@ -871,7 +898,7 @@ def main():
         "| Native FLARE | CPU | Author build, TRAIN000 full-site inference and prediction seal completed. Held-out VAL000 conversion: "+flare_val_conversion["status"]+"; native inference: "+flare_val_native["status"]+"; seal: "+flare_val_seal["status"]+". | held-out score pending |",
         "| Our American C3 GNN | "+c3_device+" | "+str(focal_ready)+"/20 exact TRAIN plans completed. "+c3_status+". Original VAL000 full-length GNN block plan: "+gnn_VAL000_plan["status"]+". | no ancestry score |",
         "| H049 cut-memory candidate | CPU preparation | "+h049_prepare_status+". Three matched 32,446-parameter arms. Full 30 passes / 960 updates per arm planned. | no fit or accuracy yet |",
-        "| H050 stronger direct-readout candidate | "+("GPU4" if shared_h050_admitted else "GPU4/5 pending")+" | "+h050_execution_status+". H045 predictor retained initially. Three 32,325-parameter memory arms and an unmodified 31,812-parameter continuation. 960 updates per arm, 192 prediction seals planned. | no fit or accuracy yet |",
+        "| H050 stronger direct-readout candidate | "+("GPU4" if shared_h050_admitted else "GPU4/5 pending")+" | "+h050_execution_status+". H045 predictor retained initially. Three 32,325-parameter memory arms and an unmodified 31,812-parameter continuation. 960 updates per arm, 192 prediction seals planned. Original45run interrupted byGPU0-only instruction, no validation accuracy. | full fit incomplete |",
         "| Empirical data | CPU | H045 probabilities, ancestry proportions and genotype PCA completed for 24 query haplotypes / 12 subjects. Descriptive only, without known ancestry truth. | completed |","",
         "**Completed H048:** "+h048_scores+". Both registered utility criteria failed. [Actual scores, all cohorts and provenance](research/reviews/H048_completed_comparison_root_20261015_v1/REPORT.md)." if h048_ready else "**H048 evaluation:** pending.","",
         "**Current measured development scores:** H045 foreign-episode **96.8270 ± 0.5870%** Present182 span accuracy, matched own-state **96.8175 ± 0.6142%**. H046: "+h046_scores+". "+h046_outcome+" H047 original-risk **96.7777 ± 0.5970%**, balanced-risk **96.7576 ± 0.5287%**. SD is across eight VAL simulations, one optimizer seed. H048: "+h048_scores+". [All "+str(len(models))+" measured setups, all seven cohorts, NLL/F1/boundaries/Brier/ECE and training budgets](research/current_scoreboard.md#detailed-cohort-metrics).","",
@@ -881,7 +908,9 @@ def main():
         "**Comparison contract:** Use the same observed genomes, reference/query identities, truth and scored support. Each method keeps its native representation, such as VCFs, ancestral paths or PyG tensors. Extra inputs, training changes and reconstruction differences are disclosed. Native-format differences do not postpone a shared-data comparison.","",
         "**Next ARGMix comparison, not yet run:** A prospective 1,611-diploid paired panel with explicit reference/query roles. The official HapMapII GRCh37 chr22 map has been acquired and the generator map contract passed. Simulation and model comparison remain pending. This is a new common-data comparison, distinct from the unavailable original-table inputs. [Frozen plan and remaining adapters](research/reviews/ARGMix_published_panel_fair_comparison_source_plan_20261016_v1/HANDOFF.md).","",
         "**Next biological validation, not yet run:** A prespecified Danish earlier-versus-later Neolithic contrast with matched genotype corroboration. [Candidate selection, public assets and limits](research/reviews/empirical_biological_followup_audit_20261016_v1/readiness_report.txt).","",
+        "**Current GPU policy: physical GPU0 only.** Our GPU4/5 jobs have stopped and their contexts/known roots are absent. Parallel jobs onGPU0 are permitted after fresh device-bound admission. [Policy and actual stop evidence](research/reviews/GPU0_only_user_transition_root_20261016_v1/GPU0_only_policy.root_active_v1.json).","",
         "**GST and cross-domain status:** "+gst_status,"",
+        "**TGB ordered cross-domain diagnostic:** "+tgb_status+" [Frozen protocol and actual per-year results](research/current_scoreboard.md#tgb-annual-trade-causal-diagnostic).","",
         "Parallel ownership: worker1 prepares full prospective1611 generation execution, worker2 prepares shared-run evaluation and lineage integration, worker3 assesses operator novelty and scaling. Root owns live GPU4/GPU5 execution, shared data, integration, score reporting and Git.","","<!-- CURRENT_SCOREBOARD_END -->"]
     p=ROOT/"README.md"
     text=p.read_text()
@@ -926,7 +955,7 @@ def main():
             "**Completed H047:** original-risk96.7777±0.5970%, balanced-risk96.7576±0.5287%. Both30passes/960updates. Registered accuracy benefit not met. [Results](research/reviews/H047_completed_comparison_root_20261015_v1/REPORT.md).","",
             "**American GNN preparation:** "+fanout_status+". "+wave_text+" "+c3_status+".","",
             "**Architecture work:** H049 sample-witness order-2 cut memory is implemented and registered with matched null/leaf-memory controls. "+h049_prepare_status+". Predictive utility and a distinct new contribution remain unproved. [Design and prior-art limits](research/reviews/ordered_graph_operator_research_20261015_v1/REPORT.md).","",
-            "Root orchestrates execution and publishing. Three workers handle full prospective1611 generation, shared-run evaluation integration, and operator novelty/scaling in parallel. Only physical GPUs4–5 are eligible, with process title AI Auto Research Pipeline Test.","",""]
+            "Root orchestrates execution and publishing. Three workers handle full prospective1611 generation, shared-run evaluation integration, and operator novelty/scaling in parallel. Only physical GPU0 is eligible for future experiments, with process title AI Auto Research Pipeline Test. Historical GPU4/5 attempts are stopped.","",""]
         text=text[:text.index(section_start)]+"\n".join(running)+text[text.index(section_end):]
     pilot_start="<!-- ADAPTED_ARGFORMER_PILOT_START -->"
     pilot_end="<!-- ADAPTED_ARGFORMER_PILOT_END -->"
@@ -940,7 +969,7 @@ def main():
         rows=[stale_table_start,"| --- | --- | --- |",
             "| European common-input development panel | Native AP, current native ARGMix and our GNN on eight shared VAL simulations, population SDs and confusion/boundary diagnostics | Independent test confirmation and training-seed variation |",
             "| ARGMix published Tables 1 and 2 | Primary-source protocol and published values audited | Published-panel IID and misspecification experiments. Paper-era code and recipe details remain unavailable |",
-            "| ARGformer American Table 1 | Full30Mb TRAIN and VAL000 simulated/inferred inputs and native paths completed. Native MLM is training on "+native_device+". FLARE TRAIN000 calls sealed. | Finish native per-target fits, original remaining VAL001–004, all matched predictions and common EUR/EAS/AFR metrics. Exact Table1 downstream settings remain unresolved |",
+            "| ARGformer American Table 1 | Full30Mb TRAIN and VAL000 simulated/inferred inputs and native paths completed. Native MLM status: "+native_status+". FLARE TRAIN000 calls sealed. | Finish native per-target fits, original remaining VAL001–004, all matched predictions and common EUR/EAS/AFR metrics. Exact Table1 downstream settings remain unresolved |",
             "| Empirical ancestry and PCA | H045 predictions, bp-weighted proportions and original-genotype PCA completed for24query haplotypes/12subjects on the355-tree,2074-site panel | Descriptive biological/domain assessment. No known empirical truth or accuracy |"]
         text,count=re.subn(r"\| Benchmark \| Completed evidence[^\n]*\n\|[^\n]*\n(?:\|[^\n]*\n)+",
             "\n".join(rows)+"\n",text,count=1)

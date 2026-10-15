@@ -1,6 +1,6 @@
 # Current scientific scoreboard
 
-Updated UTC: 2026-10-15T22:49:26.575008+00:00
+Updated UTC: 2026-10-15T23:13:34.446040+00:00
 
 [All measured cohort details](#detailed-cohort-metrics) · [Complete historical receipt inventory](all_recorded_metric_receipts.md) · [Fresh H048 novelty/cross-domain audit](../research/reviews/H048_novelty_crossdomain_fresh_20261015_v1/report.md)
 
@@ -356,6 +356,20 @@ BronzeAge is not asserted identical to the paper's Post-Neolithic cohort. A dash
 | Native AncestralPaths derived C4 / Ancient504 | 95.5283 ± 0.8861 | 1.5510 ± 0.1423 | 35.0191 ± 3.6585 | 0.027955 ± 0.002749 | 0.054775 ± 0.003113 |
 | Native AncestralPaths derived C4 / All686 | 94.9495 ± 0.7906 | 2.4754 ± 0.1926 | 33.3643 ± 2.1785 | 0.033742 ± 0.003703 | 0.062954 ± 0.004715 |
 
+## TGB annual trade causal diagnostic
+
+255country catalogue,468245edges,1986–2016. Strictly prior-year observations, all255source forecasts sealed before target joining. Fixed author persistence/EMA classes. No model fitting or hyperparameter selection.
+
+| Method | TRAIN NDCG@10 ± year SD | VAL NDCG@10 ± year SD | TEST NDCG@10 ± year SD |
+|---|---:|---:|---:|
+| native_persistence | 0.8285 ± 0.0455 | 0.8672 ± 0.0107 | 0.8469 ± 0.0144 |
+| native_EMA_window7 | 0.7879 ± 0.0511 | 0.8429 ± 0.0085 | 0.8090 ± 0.0049 |
+
+TRAIN1987–2009/23years, VAL2010–2013/4years, TEST2014–2016/3years and675queriedcountry-years. SD is descriptive across serially dependent years, not training seeds. This causal diagnostic adapts scheduler and1986initialization and is distinct from the published leaderboard. Our ordered graph model remains pending.
+
+[All per-year results](../experiments/results/H052_TGB_trade_causal_native_baselines_v1/results.json) · [Frozen protocol](../research/reviews/TGB_trade_causal_baselines_root_20261016_v1/protocol.root_frozen_v1.json)
+
+
 ## H046 matched continuous-flank outcome
 
 H046 foreign-flank minus own-state Present182 accuracy gain +0.011573 ± 0.069124 percentage points (sample SD of paired differences across eight VAL parents). Mean boundary F1 difference +0.149225 percentage points. The registered utility rule failed: at least +0.10 accuracy points and at most 1.00 point mean boundary F1 loss. Both selected checkpoints are original pass 30; one optimizer seed. This is reused development validation, not independent test or novelty evidence.
@@ -387,7 +401,7 @@ H048 retains 31,933 parameters per arm and a fixed 30-pass/960-update schedule. 
 
 | Method | Current ancestry scores | Status |
 |---|---|---|
-| Native ARGformer | unavailable | Engineering TRAIN000: native author MLM training on GPU5. Checkpoint metadata observed at 2026-10-15T22:45:26.447454+00:00: ep4-ba201500-rank0.pt. Full five-epoch/224775-update budget and final saved-Adam verification remain pending. No native ancestry score. Actual unchanged author console entered epoch5/5, batch80. |
+| Native ARGformer | unavailable | Historical GPU5 engineering TRAIN000 stopped at latest user request. Actual native/entry/launcher waits-15, roottool48073exit1 with expired-marker postdrain accounting error. Saved ep4-ba206000 checkpoint preserved, metadata only; full fiveepochs/savedAdam count and ancestry score unverified. Known own roots and GPU4/5contexts absent. Future experiments use onlyGPU0. |
 | Native ARGformer dataset counts | not an accuracy run | completed; actual count producer wait0 and drain verified |
 | Native FLARE | unavailable | Author build and TRAIN000 full-site conversion completed with actual wait0. Native inference: completed; actual wait0 and owned-group drain verified; sealing: completed; actual wait0 and owned-group drain verified. Native completed allowance closed; 8977226240 unused bytes credited with all files preserved. Accuracy pending; TRAIN000 is development, not held-out. |
 | Our C3 GNN | unavailable | TRAIN000 exact native focal/plan preparation: completed with actual wait0; explicit retry after missing-parent directory repair, original failure preserved; 10000 focals, 4897 trees, 14937 sites, 154 blocks. remaining TRAIN001–013 fanout 5/13 completed with actual wait0; terminal failed_or_stopped_partial_preserved; root requested cooperative stop of new additions to relieve GPU training mutex contention, current scientific children drain unchanged. Fresh controlled TRAIN006–015 continuation 10/10 completed with genuine wait0; max2CPU producers; terminal completed_selected_remaining_exact_focal_plan_preparations. run016_017_v1: 2/2 genuine completed waits; completed_selected_remaining_exact_focal_plan_preparations. run018_v1: 1/1 genuine completed waits; completed_selected_remaining_exact_focal_plan_preparations. run019_v1: 1/1 genuine completed waits; completed_selected_remaining_exact_focal_plan_preparations. Shared 30 Mb VAL000 inference completed. Remaining TRAIN parents, checkpoint and full prespecified VAL gate pending |

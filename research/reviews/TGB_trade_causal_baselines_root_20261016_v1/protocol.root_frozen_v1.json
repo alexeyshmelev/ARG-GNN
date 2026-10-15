@@ -1,0 +1,95 @@
+{
+  "schema": "TGB_trade_causal_baseline_protocol_v1",
+  "hypothesis_id": "H052",
+  "status": "root_frozen_before_scoring",
+  "dataset": "tgbn-trade-v1",
+  "archive_sha256": "697e9ca432c03aa6d4a998a75a1e49310bc78682dbe8cec2d8452b5a6604c9fe",
+  "archive_bytes": 12780237,
+  "edge_years": [
+    1986,
+    2016
+  ],
+  "label_years": [
+    1987,
+    2016
+  ],
+  "num_nodes": 255,
+  "num_destinations": 255,
+  "query_support": "Official label-source rows, but all255country predictions sealed before label-file parsing or source selection",
+  "forecast_rule": "At year tau use only observed edge years strictly less than tau; predict all255sources, then release complete edges at tau. No within-year row-order information.",
+  "initialization": "Initialize unmodified native baseline classes with fully observed1986edge vectors before1987 forecast; this is a disclosed scheduler/init adaptation versus author examples.",
+  "author_heuristics_ref": {
+    "path": "research/reviews/TGB_trade_crossdomain_readiness_20261016_v1/modules__heuristics.py",
+    "sha256": "4c45345c37c62b7eef3f2fc5c5fbae414e9d73111efdb3df9767e750d380242c"
+  },
+  "baselines": [
+    {
+      "class_name": "PersistantForecaster"
+    },
+    {
+      "class_name": "MovingAverage",
+      "window": 7,
+      "meaning": "EMA6/7old+1/7new, first observation copied"
+    }
+  ],
+  "no_hyperparameter_selection": true,
+  "all_predictions_before_target_join": true,
+  "metric": {
+    "name": "NDCG@10",
+    "implementation": "sklearn.metrics.ndcg_score",
+    "version": "1.9.1",
+    "k": 10,
+    "ignore_ties": false,
+    "aggregation": "Mean queried nations within each target year, then equal mean target years per split",
+    "uncertainty": "Sample SD across target years, descriptive serially dependent periods, not optimizer seeds"
+  },
+  "split": {
+    "q70": 2009,
+    "q85": 2013,
+    "TRAIN": [
+      1987,
+      1988,
+      1989,
+      1990,
+      1991,
+      1992,
+      1993,
+      1994,
+      1995,
+      1996,
+      1997,
+      1998,
+      1999,
+      2000,
+      2001,
+      2002,
+      2003,
+      2004,
+      2005,
+      2006,
+      2007,
+      2008,
+      2009
+    ],
+    "VAL": [
+      2010,
+      2011,
+      2012,
+      2013
+    ],
+    "TEST": [
+      2014,
+      2015,
+      2016
+    ]
+  },
+  "model_fitting": false,
+  "framework_requirement": "Competitor algorithms from exact author code. This stage trains no neural model.",
+  "original_paper_reproduction": false,
+  "prospective_comparison_use": "Fixed causal diagnostic baselines for a later registered Torch/PyG ordered-graph model, no standalone novelty/leaderboard claim",
+  "payload_audit_ref": {
+    "path": "research/reviews/TGB_trade_payload_alignment_root_20261016_v1/actual_payload_alignment_v1.json",
+    "sha256": "1d9bf7196cb1c31375fbdf02447a4f929200ba7b5d4975518e9194fdda5ea21a"
+  },
+  "planned_output_bytes": 33554432
+}
