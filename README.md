@@ -7,18 +7,18 @@ Graph neural networks for ordered collections of whole genealogical trees, with 
 [Persistent research goal and reporting requirements](research/goal_current.json). Current limits: physical GPUs4–5 and1TB, with all project writes inside this server repository.
 
 <!-- CURRENT_SCOREBOARD_START -->
-**Scoreboard updated UTC: 2026-10-15T15:51:35.867152+00:00.** [Every current setup, all cohorts and detailed metrics](research/current_scoreboard.md) · [All recorded historical/engineering metric receipts](research/all_recorded_metric_receipts.md)
+**Scoreboard updated UTC: 2026-10-15T15:54:33.637997+00:00.** [Every current setup, all cohorts and detailed metrics](research/current_scoreboard.md) · [All recorded historical/engineering metric receipts](research/all_recorded_metric_receipts.md)
 
 | Current run | Device | Progress | Validation score |
 |---|---:|---|---|
 | H046 | GPU5 | 29/30 completed passes; 928/960 verified updates per arm (receipt lower bound); training; completed-pass update counts are a lower bound | pending |
 | H047 | GPU4 | 30/30 completed passes; 960/960 verified updates per arm (receipt lower bound); TRAIN and VAL completed | 96.7777% original-risk, 96.7576% balanced-risk |
-| H048 | GPU4 | 1/30 completed passes; 32/960 verified updates per arm (receipt lower bound); training; completed-pass update counts are a lower bound | pending |
-| C3 remaining TRAIN014–019 | CPU | Fourteen original 2 Mb TRAIN parents completed; future pairs are 014/015, 016/017, 018/019, at most two parents. 014/simulate: completed; actual wait0 and owned-group drain verified; 014/infer: not admitted; 015/simulate: completed; actual wait0 and owned-group drain verified; 015/infer: admitted; worker launch pending. Later pairs require actual prior-pair scope closure. | no ancestry score |
+| H048 | GPU4 | 2/30 completed passes; 64/960 verified updates per arm (receipt lower bound); training; completed-pass update counts are a lower bound | pending |
+| C3 remaining TRAIN014–019 | CPU | Fourteen original 2 Mb TRAIN parents completed; future pairs are 014/015, 016/017, 018/019, at most two parents. 014/simulate: completed; actual wait0 and owned-group drain verified; 014/infer: not admitted; 015/simulate: completed; actual wait0 and owned-group drain verified; 015/infer: completed; actual wait0 and owned-group drain verified. Later pairs require actual prior-pair scope closure. | no ancestry score |
 | Original American VAL000 | CPU | Original 30 Mb VAL000 simulation: completed; actual wait0 and owned-group drain verified; inferred observation: completed; actual wait0 and owned-group drain verified; shared native-path/10k-focal preparation: running on CPU. R600/Q1000 identities stay common. No VAL ancestry score. | no ancestry score |
 | Native ARGformer | GPU4/5 pending | V11 failed with actual root exit1; native optimizer updates unknown. V12 operational source reviewed; exact namespace cleanup completed, GPU binding/activation and launch pending. | pending |
-| Native FLARE | CPU | Author build and TRAIN000 full-site conversion completed with actual wait0. Native inference: running on CPU; sealing: not admitted. Accuracy pending; TRAIN000 is development, not held-out. | pending |
-| Our C3 GNN | CPU preparation | TRAIN000 exact native focal/plans: terminal; actual receipt review required. VAL000 inference completed; remaining TRAIN parents, checkpoint and full prespecified VAL gate pending | pending |
+| Native FLARE | CPU | Author build and TRAIN000 full-site conversion completed with actual wait0. Native inference: completed; actual wait0 and owned-group drain verified; sealing: not admitted. Accuracy pending; TRAIN000 is development, not held-out. | pending |
+| Our C3 GNN | CPU preparation | TRAIN000 exact native focal/plans: running on CPU; explicit retry after missing-parent directory repair, original failure preserved. VAL000 inference completed; remaining TRAIN parents, checkpoint and full prespecified VAL gate pending | pending |
 | Empirical data | CPU | H045 empirical probabilities, bp-weighted proportions and original-genotype PCA written. Actual successful wait and completion verified. Descriptive24query haplotypes/12subjects only. No known ancestry truth. | completion verified |
 
 **Current measured development scores:** H045 foreign-episode **96.8270 ± 0.5870%** Present182 span accuracy, matched own-state **96.8175 ± 0.6142%**. SD is across eight VAL simulations, one optimizer seed. H047 original-risk **96.7777 ± 0.5970%**, balanced-risk **96.7576 ± 0.5287%**. H046/H048 accuracy is pending. [All 15 measured setups, all seven cohorts, NLL/F1/boundaries/Brier/ECE and training budgets](research/current_scoreboard.md#detailed-cohort-metrics).

@@ -252,14 +252,16 @@ def main():
     pilot_lines+=["","[Actual summary with all metrics]("+("../" if False else "")+pilot_source+")."]
     focal_packet="research/reviews/C3_next_plan_root_handoff_20261015_v1/admitted_american_c3_short_train_000"
     focal_output="experiments/results/C3_short_TRAIN_focal_plans_v1/american_c3_short_train_000"
-    focal_launch=maybe_read(focal_packet+"/root_actual_launch.json")
-    focal_wait=maybe_read(focal_packet+"/root_actual_wait.json")
+    focal_prefix="root_retry2_" if maybe_read(focal_packet+"/root_retry2_actual_launch.json") else "root_"
+    focal_launch=maybe_read(focal_packet+"/"+focal_prefix+"actual_launch.json")
+    focal_wait=maybe_read(focal_packet+"/"+focal_prefix+"actual_wait.json")
     focal_done=maybe_read(focal_output+"/completed.json")
     focal_status=("completed with actual wait0" if focal_done and focal_wait and focal_wait.get("returncode")==0
         and focal_wait.get("actual_direct_worker_wait") is True and focal_wait.get("owned_process_group_ESRCH") is True else
         "terminal; actual receipt review required" if focal_wait else
         "running on CPU" if focal_launch and (Path("/proc")/str(focal_launch["pid"])).exists() else
         "admitted; launch pending" if (ROOT/focal_packet/"admission.json").exists() else "not admitted")
+    if focal_prefix=="root_retry2_":focal_status+="; explicit retry after missing-parent directory repair, original failure preserved"
     h048=next((r for r in read("research/experiment_decisions.json")["decisions"] if r["id"]=="H048"),None)
     h048_job=next(j for j in jobs if j["hypothesis"]=="H048")
     h048_status=("GPU4 "+h048_job["runtime_status"]+". "+str(h048_job["passes_completed"])+"/30 completed passes; "

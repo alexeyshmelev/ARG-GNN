@@ -1,6 +1,6 @@
 # C3 root handoff: exact native focal registry and PyG plan
 
-**Source ready; root admission and actual preparation remain pending.** The sole new producer is `focal_plan_bridge_v1.py`, SHA256 `b2e7fcfa1d301b01cda62a99408986e89cd75fe14509dc4188bd04d0cf84317e`. Existing producers are unchanged. `source_manifest.json` pins 18 source/authority refs, including the 11-file preparation closure.
+**Source ready; root owns per-parent admission and actual preparation.** The sole new producer is `focal_plan_bridge_v1.py`, SHA256 `b2e7fcfa1d301b01cda62a99408986e89cd75fe14509dc4188bd04d0cf84317e`. Existing producers are unchanged. `source_manifest.json` pins 18 source/authority refs, including the 11-file preparation closure.
 
 The bridge prepares each independent 2 Mb TRAIN parent's exact native focal registry, then calls unchanged `american_c3_gnn_dataset_v1.build_plan` and `american_c3_gnn_stream_train_v1.validate_plan_v1`. It supplies no native MLM corpus or optimizer completion and has no ARGformer-training dependency.
 
@@ -13,9 +13,10 @@ source scripts/project_env.sh
 CUDA_VISIBLE_DEVICES='' .runtime/env/bin/python -B research/reviews/C3_next_plan_root_handoff_20261015_v1/focal_plan_bridge_v1.py --admit american_c3_short_train_000
 ```
 
-Use the actual admission path and SHA printed by that command:
+Use the actual admission path and SHA printed by that command. Ensure the collection parent exists before foreground execution:
 
 ```sh
+mkdir -p experiments/results/C3_short_TRAIN_focal_plans_v1
 CUDA_VISIBLE_DEVICES='' .runtime/env/bin/python -B research/reviews/C3_next_plan_root_handoff_20261015_v1/focal_plan_bridge_v1.py --execute --admission ACTUAL_ADMISSION_PATH --expected-admission-sha256 ACTUAL_ADMISSION_SHA256
 ```
 
@@ -47,8 +48,8 @@ Only root's explicit admission/execution invokes the active prospective 980 GB g
 
 ## Readiness and remaining integration
 
-The saved metadata snapshot verifies actual inference completion and successful direct waits for parents 000–013. Parents 014–019 become eligible individually after their actual inference completions and waits; simulation completion alone is insufficient. Actual bindings use wave_v2. Root's requested 000 admission is not claimed successful here.
+The saved metadata snapshot verifies actual inference completion and successful direct waits for parents 000–013. Parents 014–019 become eligible individually after their actual inference completions and waits; simulation completion alone is insufficient. Actual bindings use wave_v2. Root reports that parent 000 admission succeeded. Its first actual entry failed at common.Writer self.path.mkdir() because the collection parent was missing, before scientific payload access; root retained genuine wait 1 / group ESRCH evidence in root_actual_wait.json (commit 6052eb6). Root created only that directory, recorded a same-admission/no-source-change retry repair, and launched retry 2 (PID 2930787, session 65612) with a genuine Popen wait.
 
-The prior `American_C3_PyG_execution_source_20261015_v1/` packet remains the training handoff: root integrates its target-factory patch as appropriate and supplies all-20 simulation bindings, TRAIN truth resolver, writer/device/current guards and GPU admission. Training remains 20 × 2 Mb, 30 epochs, 600 complete-parent FP32 updates; five original 30 Mb VAL parents and the all-30-seal scoring barrier remain downstream.
+The prior `American_C3_PyG_execution_source_20261015_v1/` packet remains the training handoff: the minimal_train_target_factory.patch is already applied and committed in 70f1c27, with exact trainer SHA256 cce52c9f1776e46c7005509544bfb3743acaf860f256e546e3ac5fc7cb518df2. Root supplies all-20 simulation bindings, TRAIN truth resolver, writer/device/current guards and GPU admission. Training remains 20 × 2 Mb, 30 epochs, 600 complete-parent FP32 updates; five original 30 Mb VAL parents and the all-30-seal scoring barrier remain downstream.
 
 This worker performed no actual payload/truth/checkpoint/model/GPU read, guard/accounting/admission action, installation, Git operation or existing-producer edit. Packet source is stable; root owns execution and lifecycle evidence.

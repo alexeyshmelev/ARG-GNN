@@ -1,6 +1,6 @@
 # Current scientific scoreboard
 
-Updated UTC: 2026-10-15T15:51:35.867152+00:00
+Updated UTC: 2026-10-15T15:54:33.637997+00:00
 
 [All measured cohort details](#detailed-cohort-metrics) · [Complete historical receipt inventory](all_recorded_metric_receipts.md) · [Fresh H048 novelty/cross-domain audit](../research/reviews/H048_novelty_crossdomain_fresh_20261015_v1/report.md)
 
@@ -164,7 +164,7 @@ BronzeAge is not asserted identical to the paper's Post-Neolithic cohort. A dash
 |---|---:|---|---:|---|---:|---|
 | H046 | 5 | True | 29/30 | {'foreign_flank': 928, 'own_state': 928} | 960 | pending |
 | H047 | 4 | False | 30/30 | {'balanced_risk': 960, 'original_risk': 960} | 960 | 96.7777% original-risk, 96.7576% balanced-risk |
-| H048 | 4 | True | 1/30 | {'graph_to_own_confidence_fixed_distance_chain': 32, 'graph_to_transition': 32} | 960 | pending |
+| H048 | 4 | True | 2/30 | {'graph_to_own_confidence_fixed_distance_chain': 64, 'graph_to_transition': 64} | 960 | pending |
 
 Update counts below are verified receipt lower bounds, not live optimizer counters.
 
@@ -174,7 +174,7 @@ Update counts below are verified receipt lower bounds, not live optimizer counte
 
 ## Registered next architecture experiment
 
-GPU4 training; completed-pass update counts are a lower bound. 1/30 completed passes; {'graph_to_own_confidence_fixed_distance_chain': 32, 'graph_to_transition': 32} verified update lower bounds. No validation accuracy yet.
+GPU4 training; completed-pass update counts are a lower bound. 2/30 completed passes; {'graph_to_own_confidence_fixed_distance_chain': 64, 'graph_to_transition': 64} verified update lower bounds. No validation accuracy yet.
 
 [Fresh independent novelty/cross-domain report](../research/reviews/H048_novelty_crossdomain_fresh_20261015_v1/report.md). Fresh independent H048 audit: reset transitions have RFMix precedent; a distinct graph-collection operator is unestablished. GST reaction-center sets have no native chain order, so whole-H048 transfer is not justified. PKU-MMD is only a possible future decoder study after native label-overlap semantics are resolved; no transfer result exists.
 
@@ -185,8 +185,8 @@ H048 retains 31,933 parameters per arm and a fixed 30-pass/960-update schedule. 
 | Method | Current ancestry scores | Status |
 |---|---|---|
 | Native ARGformer | unavailable | V11 failed with actual root exit1; native optimizer updates unknown. V12 operational source reviewed; exact namespace cleanup completed, GPU binding/activation and launch pending. |
-| Native FLARE | unavailable | Author build and TRAIN000 full-site conversion completed with actual wait0. Native inference: running on CPU; sealing: not admitted. Accuracy pending; TRAIN000 is development, not held-out. |
-| Our C3 GNN | unavailable | TRAIN000 exact native focal/plan preparation: terminal; actual receipt review required. Shared 30 Mb VAL000 inference completed. Remaining TRAIN parents, checkpoint and full prespecified VAL gate pending |
+| Native FLARE | unavailable | Author build and TRAIN000 full-site conversion completed with actual wait0. Native inference: completed; actual wait0 and owned-group drain verified; sealing: not admitted. Accuracy pending; TRAIN000 is development, not held-out. |
+| Our C3 GNN | unavailable | TRAIN000 exact native focal/plan preparation: running on CPU; explicit retry after missing-parent directory repair, original failure preserved. Shared 30 Mb VAL000 inference completed. Remaining TRAIN parents, checkpoint and full prespecified VAL gate pending |
 
 The TRAIN000 conversion is development evidence. Independent VAL000 inference now has its own actual completion/wait receipts; its method predictions and common-truth scoring remain pending. Original 30 Mb VAL000 simulation: completed; actual wait0 and owned-group drain verified; inferred observation: completed; actual wait0 and owned-group drain verified; shared native-path/10k-focal preparation: running on CPU. R600/Q1000 identities stay common. No VAL ancestry score. Original-paper simulation assumptions and source versions remain explicitly documented.
 
