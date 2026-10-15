@@ -4,6 +4,17 @@ Graph neural networks for ordered collections of whole genealogical trees, with 
 
 ## Latest status
 
+<!-- CURRENT_SCOREBOARD_START -->
+**Scoreboard updated UTC: 2026-10-15T13:22:34.473775+00:00.** [Every current setup, all cohorts and detailed metrics](research/current_scoreboard.md) · [All recorded historical/engineering metric receipts](research/all_recorded_metric_receipts.md)
+
+| Current run | Device | Progress | Validation score |
+|---|---:|---|---|
+| H046 | GPU5 | 10/30 passes, 320/960 updates per arm, process verified live=True | pending |
+| H047 | GPU4 | 19/30 passes, 608/960 updates per arm, process verified live=True | pending |
+| Native ARGformer / FLARE / our C3 GNN | GPU4 queue / CPU / source | Three parallel worker tasks | no completed C3 comparison yet |
+
+<!-- CURRENT_SCOREBOARD_END -->
+
 [Current 8-page AAAI working PDF](paper/current_full_panel_working.pdf) · [LaTeX source](paper/current_full_panel_working.tex) · [Overleaf working bundle](paper/current_full_panel_overleaf_working.zip). Compiled and visually checked on 2026-10-15. This is a development draft with unfinished scientific validation.
 
 **Latest measured development result:** H045 clade-episode context reaches **96.8270 ± 0.5870% Present182 span accuracy**, versus **96.8175 ± 0.6142%** for its matched own-state arm. Both completed 30 FP32 passes and 960 updates. The gain is only **0.0096 percentage points**, below the registered 0.10 pp threshold. This condition does not establish useful cross-tree exchange or novelty. [Completed comparison and population metrics](research/reviews/H045_completed_comparison_root_20261015_v1/README.md).
@@ -16,20 +27,21 @@ The shared model backbone combines **whole-tree PyTorch Geometric message passin
 
 The panel contains 476 diploids, 686 queries and 266 proxies over 2 Mb. All 32 independent TRAIN and eight VAL simulations, native Relate post-size inference and observation banks completed. Eight reserved outer simulations remain ungenerated and untouched. SD below is across the eight VAL simulations, with one optimizer seed per model. It is not training-seed uncertainty.
 
-| Pipeline | Present182 accuracy, mean ± SD (%) | Mean NLL |
-| --- | ---: | ---: |
-| **H045 clade-episode continuation** | 96.8270 ± 0.5870 | 0.092980 |
-| H045 own-state continuation | 96.8175 ± 0.6142 | 0.092976 |
-| **H044 localized continuation** | **96.7919 ± 0.5967** | **0.094944** |
-| H044 tree-pooled continuation | 96.7866 ± 0.6161 | 0.094962 |
-| H042 exact local-clade flags | 96.5778 ± 0.5954 | 0.100656 |
-| H043 true neighboring-tree states | 96.5182 ± 0.6201 | 0.101527 |
-| H043 matched own-state control | 96.5029 ± 0.6006 | 0.101819 |
-| H040 tensor clade coupling | 96.2674 ± 0.7493 | 0.109332 |
-| H040 matched event MLP | 96.2007 ± 0.7048 | 0.110014 |
-| H038 aligned whole-tree PyG GNN | 95.4891 ± 0.83 | 0.133497 |
-| Current native ARGMix | 94.4461 ± 1.1491 | 0.219695 |
-| Native AncestralPaths, derived C4 endpoint | 93.7830 ± 0.8385 | ∞* |
+| Pipeline | Present182 accuracy, mean ± SD (%) | Mean NLL | Boundary F1 at1kb (%) |
+|---|---:|---:|---:|
+| H045 foreign_episode | 96.8270 ± 0.5870 | 0.092980 ± 0.020423 | 18.1558 ± 1.3790 |
+| H045 own_state | 96.8175 ± 0.6142 | 0.092976 ± 0.020230 | 18.0557 ± 1.7761 |
+| H044 localized | 96.7919 ± 0.5967 | 0.094944 | 15.5374 ± 1.1777 |
+| H044 tree_pooled | 96.7866 ± 0.6161 | 0.094962 | 18.6750 ± 1.2687 |
+| H042 exact local-clade flags | 96.5778 ± 0.5954 | 0.100656 ± 0.020069 | 18.0451 ± 1.8423 |
+| H043 true_partner | 96.5182 ± 0.6201 | 0.101527 ± 0.019742 | 17.4301 ± 1.3301 |
+| H043 own_state | 96.5029 ± 0.6006 | 0.101819 ± 0.019255 | 17.1055 ± 0.7889 |
+| H040 tensor | 96.2674 ± 0.7493 | 0.109332 | — |
+| H040 event_mlp | 96.2007 ± 0.7048 | 0.110014 | — |
+| H038 aligned whole-tree PyG | 95.4891 ± 0.8338 | 0.133497 ± 0.026419 | 13.4195 ± 1.4686 |
+| H038 zero-concordance control | 94.9252 ± 0.7917 | 0.147232 ± 0.023024 | 11.7904 ± 1.3304 |
+| Current native ARGMix | 94.4461 ± 1.1491 | 0.219695 ± 0.023975 | 11.7372 ± 1.7328 |
+| Native AncestralPaths derived C4 | 93.7830 ± 0.8385 | ∞ | 7.0281 ± 0.7779 |
 
 H040 and H042 start from the same H038 checkpoint and each complete 30 additional FP32 passes/960 whole-parent updates. H042 beats the tensor layer by 0.3104 pp at the same added budget and parameter count. Tensor coupling beats its matched event MLP by only 0.0667 pp, positive in 6/8 simulations. The local-clade control is strongest among these H040/H042 variants. These results do not establish new-layer novelty.
 
@@ -41,15 +53,21 @@ ARGMix retains the current author implementation and native early stopping, endi
 
 ### Population and tract-boundary metrics
 
-| Cohort | Native AP accuracy (%) | Current native ARGMix (%) | H038 aligned (%) | H042 local-clade flags (%) | H044 localized (%) | H044 tree pooled (%) |
-|---|---:|---:|---:|---:|---:|---:|
-| Present (182) | 93.78±0.84 | 94.45±1.15 | 95.49±0.83 | 96.58±0.60 | 96.79±0.60 | 96.79±0.62 |
-| Bronze Age (162) | 94.76±1.18 | 97.71±0.75 | 98.17±0.80 | 99.07±0.32 | 99.19±0.34 | 99.19±0.34 |
-| BAA (14) | 96.94±1.32 | 98.44±1.02 | 98.90±0.89 | 99.02±1.07 | 99.23±1.19 | 99.27±1.07 |
-| Neo (302) | 97.57±0.27 | 99.30±0.26 | 99.41±0.13 | 99.53±0.18 | 99.63±0.09 | 99.63±0.10 |
-| Yam (26) | 95.43±1.41 | 99.22±0.90 | 98.96±1.31 | 99.86±0.19 | 99.87±0.21 | 99.86±0.23 |
-| Ancient (504) | 96.54±0.32 | 98.76±0.31 | 98.98±0.32 | 99.39±0.16 | 99.49±0.14 | 99.49±0.14 |
-| All (686) | 95.81±0.45 | 97.61±0.50 | 98.05±0.43 | 98.64±0.26 | 98.77±0.25 | 98.77±0.26 |
+| Setup | Present182 | BronzeAge162 | BAA14 | Neo302 | Yam26 | Ancient504 | All686 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| H045 foreign_episode | 96.8270 ± 0.5870 | 99.2047 ± 0.3199 | 99.1511 ± 1.2545 | 99.6063 ± 0.0850 | 99.9039 ± 0.1292 | 99.4799 ± 0.1347 | 98.7761 ± 0.2486 |
+| H045 own_state | 96.8175 ± 0.6142 | 99.1658 ± 0.3983 | 99.2765 ± 1.1385 | 99.6424 ± 0.0859 | 99.8687 ± 0.1833 | 99.4907 ± 0.1501 | 98.7815 ± 0.2566 |
+| H044 localized | 96.7919 ± 0.5967 | 99.1895 ± 0.3391 | 99.2328 ± 1.1873 | 99.6288 ± 0.0928 | 99.8685 ± 0.2092 | 99.4889 ± 0.1358 | 98.7734 ± 0.2475 |
+| H044 tree_pooled | 96.7866 ± 0.6161 | 99.1900 ± 0.3386 | 99.2662 ± 1.0684 | 99.6324 ± 0.0993 | 99.8593 ± 0.2264 | 99.4917 ± 0.1384 | 98.7740 ± 0.2550 |
+| H042 exact local-clade flags | 96.5778 ± 0.5954 | 99.0748 ± 0.3242 | 99.0226 ± 1.0723 | 99.5291 ± 0.1771 | 99.8569 ± 0.1871 | 99.3859 ± 0.1560 | 98.6409 ± 0.2641 |
+| H043 true_partner | 96.5182 ± 0.6201 | 98.9949 ± 0.3463 | 99.1731 ± 1.0093 | 99.5198 ± 0.1912 | 99.8251 ± 0.2007 | 99.3572 ± 0.1652 | 98.6040 ± 0.2688 |
+| H043 own_state | 96.5029 ± 0.6006 | 99.0107 ± 0.3257 | 99.1048 ± 0.9583 | 99.5217 ± 0.1935 | 99.8547 ± 0.1785 | 99.3630 ± 0.1737 | 98.6042 ± 0.2691 |
+| H040 tensor | 96.2674 ± 0.7493 | 98.8266 ± 0.4696 | 99.1439 ± 0.8901 | 99.5200 ± 0.1579 | 99.7215 ± 0.3045 | 99.2971 ± 0.2073 | 98.4933 ± 0.3390 |
+| H040 event_mlp | 96.2007 ± 0.7048 | 98.8238 ± 0.4377 | 99.1147 ± 0.9216 | 99.5576 ± 0.1232 | 99.7569 ± 0.2389 | 99.3197 ± 0.1707 | 98.4922 ± 0.2948 |
+| H038 aligned whole-tree PyG | 95.4891 ± 0.8338 | 98.1726 ± 0.8000 | 98.9020 ± 0.8854 | 99.4103 ± 0.1271 | 98.9598 ± 1.3143 | 98.9751 ± 0.3226 | 98.0503 ± 0.4312 |
+| H038 zero-concordance control | 94.9252 ± 0.7917 | 98.4120 ± 0.5405 | 98.6137 ± 0.9470 | 99.1716 ± 0.2703 | 99.4215 ± 0.8073 | 98.9248 ± 0.2837 | 97.8637 ± 0.3727 |
+| Current native ARGMix | 94.4461 ± 1.1491 | 97.7051 ± 0.7466 | 98.4370 ± 1.0186 | 99.2955 ± 0.2623 | 99.2218 ± 0.8966 | 98.7566 ± 0.3114 | 97.6130 ± 0.4975 |
+| Native AncestralPaths derived C4 | 93.7830 ± 0.8385 | 94.7589 ± 1.1847 | 96.9352 ± 1.3195 | 97.5693 ± 0.2748 | 95.4303 ± 1.4096 | 96.5380 ± 0.3194 | 95.8071 ± 0.4473 |
 
 H042 has higher mean span accuracy than native AP and current native ARGMix in all seven cohorts. This does not imply a win on every simulation or metric. Bronze Age is an approximate correspondence to the paper's Post-Neolithic category, not a verified identical panel. These rows cannot be compared directly with its published Tables 1/2.
 
@@ -61,10 +79,12 @@ Present182 boundary F1 at 1 kb tolerance is **18.05 ± 1.84%** for H042, **13.42
 
 ### Running and next experiments
 
+The four modules work in parallel: root owns execution, integration and score reporting. Worker1 owns the native FLARE build/inference route, Worker2 owns our GNN's shared American-data adapter, and Worker3 owns original full30Mb VAL preparation and the native ARGformer protocol audit. Native ARGformer's execution repair has passed independent source review. Both current GPU runs continue.
+
 - **H045 completed on GPU 5:** 30 passes and 960 updates per arm. Episode context gains 0.0096 pp accuracy and 0.1001 pp boundary F1 over own-state, below the accuracy criterion. Pooling has prior art, and identical-hold splitting can change context. [Results](research/reviews/H045_completed_comparison_root_20261015_v1/README.md).
 - **H046 launched on GPU 5:** distance-weighted clade flanks and local reference-only SNP evidence, with matched own-state control. Canonical v2 entry point corrects the preserved preworker exit-2 failure. Both arms have entered continuous FP32 optimizer training, retaining whole trees and the complete original panel. The fixed budget remains 30 passes and 960 updates per arm. No accuracy result yet. The proof concerns fixed-field integration only.
 - **H047 launched on GPU 4:** same H042 architecture and initialization, with matched original-risk and equal present/ancient-risk objectives. Both arms retain the full panel and a fixed 30-pass/960-update FP32 budget. This tests loss allocation and extra optimization, with no new architecture claim. All 32 observation recipes are prepared, and both arms have entered continuous whole-parent FP32 training. No accuracy result yet. [Frozen protocol](research/reviews/H047_GPU45_cohort_risk_root_source_v1/registration_root_v1.json).
-- **Native ARGformer, queued for GPU 4 after H047:** the three-step synthetic BF16/batch-512 engineering check passed. The full five-epoch fit launched but did not produce verified completion. Its wrapper returned 1 while trying to record the native outcome because eight dead multiprocessing socket files failed its namespace check. Native update counts remain unknown. The operational repair is being prepared, with author science preserved. [Actual outer wait](research/reviews/American_C3_native_MLM_full_fit_v8/admitted_mlm_v1/actual_outer_direct_wait_root_v1.json).
+- **Native ARGformer, queued for GPU 4 after H047:** the three-step synthetic BF16/batch-512 engineering check passed. The full five-epoch fit launched but did not produce verified completion. Its wrapper returned 1 while trying to record the native outcome because eight dead multiprocessing socket files failed its namespace check. Native update counts remain unknown. The operational repair passed independent source review, with author science preserved. Supervised relaunch remains pending. [Actual outer wait](research/reviews/American_C3_native_MLM_full_fit_v8/admitted_mlm_v1/actual_outer_direct_wait_root_v1.json).
 - **H043 completed:** neighboring-tree states reach 96.5182 ± 0.6201%, versus 96.5029 ± 0.6006% for the matched own-state control. The 0.0153 pp difference is below the registered practical threshold and both trail H042. This condition does not establish useful foreign-state transfer. [Completed paired comparison](research/reviews/H043_completed_comparison_root_20261015_v1/README.md).
 - **H044 completed:** both arms finished 30 passes and 960 updates each on physical GPU 4. Evaluation on physical GPU 5 produced all 96 prespecified predictions and complete selected diagnostics. Localization gains 0.0053 pp accuracy and loses 3.14 pp boundary F1 versus its matched control. This condition does not establish useful localization. [Measured comparison](research/reviews/H044_completed_comparison_root_20261015_v1/README.md).
 - **H044 evaluation execution:** eight immutable feature pairs supported the same 96 predictions, with one 2.634 GB pair cached at a time. Total supervised execution took 702.1 seconds, with 27.4 GB peak owned RSS. No comparison against an uncached runtime was run. A post-completion CLI return-type bug caused genuine exit 1, preserved with the scores and process drain. [Independent audit](research/reviews/H044_terminal_exit_and_metrics_independent_20261015_v1/review.md).
@@ -85,6 +105,8 @@ A fresh H043 priority audit identifies prior cross-graph message exchange in Gra
 | ARGformer American Table 1 | Full 30 Mb simulated and inferred TRAIN input completed. Fourteen independent 2 Mb TRAIN preparations completed with actual supervisor wait 0. Complete native corpus preparation finished with actual wait 0. Native ARGformer and FLARE fits remain downstream | Remaining independent data, native fits and common EUR/EAS/AFR precision, recall and F1 |
 | Empirical ancestry and PCA | All eight native commands returned 0. 355 inferred trees cover 9,996,712 bp. All 2,074 sites have graph support, with all 277 constants retained. Exported genotype equivalence failed | Separate graph-only/original-genotype interface verified against the simulation TRAIN dataflow. A source-only variable-panel adapter passed 24 tiny CPU checks. The empirical reader is under implementation, with panel/domain assessment still required. No ancestry or PCA result |
 
+ARGformer uses node tokens specific to each ARG. Each independent target ARG needs its own native vocabulary, unsupervised pretraining and reference-only fit, with query ancestry truth withheld. Our GNN uses a separate supervised TRAIN split. Evaluation must use the same target observations, reference/query identities and scoring support for both pipelines.
+
 The American data are a disclosed reconstruction with 1,600 explicitly haploid samples and a 12-generation pulse, not an exact ARGformer Table 1 reproduction. Fourteen independent 2 Mb TRAIN preparations are complete. The complete label-blind count found 25,574,587 unique paths, 316,672,003 tokens and maximum raw path length 29. The independently reviewed v3 preparation completed in 18.6 minutes with genuine wait 0 and all native paths, six raw corpus files, vocabulary, seed-42 splits and original focal identities retained. Its peak owned RSS was 42.2 GB. Preparation is not model training or a C3 accuracy result. Native model fits and C3 scores remain unfinished. [Full-corpus completion](experiments/results/American_C3_native_paths_train000_full30mb_seed92001_v3/completed.json) · [Genuine supervisor wait](research/reviews/American_C3_native_paths_root_v3/admitted_native_paths_train000_full30mb_v3/actual_wait.json) · [Independent review](research/reviews/American_C3_native_paths_v3_independent_review_20261015_v1/assessment.md).
 
 The original real-data region failed its fixed 1,000-site gate with 217/13,312 passing sites. The prospectively registered 10 Mb extension now passes unchanged QC with **2,074/94,892 sites**, and acquisition completed with actual wait 0. No genealogy inference, model application, real-data ancestry accuracy or PCA result is claimed from acquisition alone. Its timing records attribute 1,632 of 1,669 worker seconds to repeated storage checks, motivating batched artifacts in the next pipeline.
@@ -93,7 +115,7 @@ An audit of the actual frozen QC tables corrected a doubled upstream counter: th
 
 The real-data regional map is now qualified: 12,280 rows preserve all 12,278 interior public-map knots and span 23.12908 cM. Forty sample-date entries retain the original calibrated BP1950/28 convention. All output hashes and dates were verified after an outer controller logging failure, whose unknown child exit remains recorded without a wait-0 claim. No empirical genealogy or model result follows from these metadata. [Qualified map and dates](research/reviews/H018_genealogy_next_source_v1/root_metadata_stage_basis_v1/completed.json) · [Controller caveat and output verification](research/reviews/H018_metadata_root_execution_20261015_v1/root_result_validation_after_control_failure.json).
 
-The author-code GST TRAIN1000 pilot completed. Full CUDA runtime, full-data training and our molecular graph-collection adapter remain outstanding. [GST readiness](research/reviews/GST_training_readiness_20261015_v1/READINESS.md)
+The author-code GST TRAIN1000 pilot completed. Full native TRAIN parsing now retains **10,439/10,500 reactions**, containing **364,213 atoms**, with the original 61 drops and no fatal errors. The full native 20-epoch budget is **13,060 updates per fit**. The existing CPU runtime supports a future full-data/five-seed extension. No new full-data GST fit has started. Our molecular graph-collection adapter and paired TEST comparison remain unfinished. [Full TRAIN coverage](research/reviews/GST_full_TRAIN_count_root_v1/README.md) · [Earlier readiness assessment](research/reviews/GST_training_readiness_20261015_v1/READINESS.md)
 
 [ARGMix protocol audit](docs/argmix_published_benchmark_audit_v1.md) · [ARGformer protocol audit](docs/argformer_published_benchmark_audit_v1.md) · [Real-data contract](docs/real_data_validation_plan_v1.md)
 

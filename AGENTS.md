@@ -52,3 +52,11 @@ Use the official AAAI LaTeX template and provide an Overleaf-ready source bundle
 Aim for about 20 pages total or less and respect tighter limits of the selected venue.
 Avoid semicolons in manuscript prose.
 All tables and figures must trace to actual recorded experiment outputs.
+
+## Required progress reporting and parallel work
+
+The user requires current scores and experiment status both in chat and the main README, without needing repeated reminders. After each meaningful completed evaluation, training milestone, failure or repaired execution, run scripts/update_research_ledger.py and scripts/update_current_scoreboard.py, inspect the report, commit and push. Report the measured result and practical implication in chat. Include every current setup, its dataset/cohort/support, accuracy and other available metrics, sample SD with its unit, optimizer/training budget, and explicit pending/running/failed states. Do not report training loss or engineering checks as ancestry accuracy. Keep current-score details and the complete historical metric receipt inventory linked prominently in README.
+
+Use all available independent workers in parallel when useful. Root orchestrates actual resource admissions/execution, integration, Git and reporting. Give workers disjoint source/repair tasks and keep other work moving while one repair is under review. Do not serialize independent work merely because one benchmark remains unfinished. Retain the two-physical-GPU limit and existing execution guards.
+
+For shared-data comparisons, derive each native method's required representation from the same frozen observed data and reference/query split, then score the same held-out queries against the same truth/support. Preserve author algorithms/settings and disclose adaptations. Internal tensor/path/VCF formats can differ. Method-specific representations do not justify postponing native comparisons. Distinguish pipeline performance from architecture-only attribution and exact original-paper reproduction.
