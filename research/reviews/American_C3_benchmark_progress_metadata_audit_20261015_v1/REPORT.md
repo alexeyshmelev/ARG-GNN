@@ -1,0 +1,19 @@
+# American C3 benchmark evidence audit
+
+FLARE VAL000 has native completion and10000 sealed common-focal records, with unchanged native calls and preserved raw posteriors. Seal completion SHA71967126b892dfab60761994eacc8f72ec91b02e9729387f6b262e21bc8677bc. Its actual direct worker wait is4228b4685de805020a7d7df27493c455e4bfa4b629947146e9ba8a428b8780e7; outer wait is6fe013b7e8c3c46a3438d8ae4d314c03686e9faac86e2168f5053ef311572b04, both return0, outer errornull and owned groups observedESRCH. These files are under research/reviews/FLARE_val000_seal_namespace_980_root_v1/worker_aux. The lost91162 tool handle supplies no terminal result. Source writes outer_wait before its final guard, so artifact wait0 is not a fabricated outer-tool terminal0 or completed-scope close. Root can reconcile/close using genuine evidence without rerunning the seal. Accuracy/F1 remain unscored.
+
+Native ARGformer GPU5 is TRAIN000 engineering: actual admission is at American_C3_native_MLM_full_fit_v8/admitted_mlm_v1/worker_aux/amended_v12_attempt1/admitted.json. Its required budget is224775MLM updates/5epochs, followed by2105contrastive updates, tokenizer106773. Parent/attempt/child completions and root/native waits remain absent at this audit snapshot. Their exact expected paths are in benchmark_evidence_v1.json. The no-truth next step is genuine completion/wait/drain review; then the separate VAL000 route must use its own ARG vocabulary107144 and227990/2135updates, fresh allocation and fresh initialization. TRAIN000 engineering is never held-out evidence.
+
+An explicitly authorized targeted20:13:06UTC snapshot followed the exact GPU5 lease launcher and validated direct-child links only. Launcher2944351 wasD/rpc_wait_bit_killable, supervisor2944830 S/ep_poll, native2946584 R/wchan0; sampled precharged tail head/end werezero. Cumulative counters and process presence establish no optimizer progress, epochs or completed updates. No host scan, signal or GPU probe was performed.
+
+Common-support scores still wait for completed20TRAIN/600update GNN training, six fixed checkpoints, the full5VAL×6checkpoint=30 SHA-bound pretruth prediction matrix, required same-parent native seals on identical observations/R600-Q1000/10k focals, and separate external-scoring authority. The original scorer verifies every exact identity and unmodified probabilities/native calls before opening truth. FLARE native/sealing can finish independently; it does not waive the joint barrier. No interim truth opening is authorized.
+
+VAL002's first unchanged-shell attempt returned1 before any exact simulate packet/reserve files appeared. Registry and frozen metadata pins pass; module-path-only resolution confirms the filesystem invocation cannot find scripts without project-root PYTHONPATH. The prior VAL001 receipt records the same import defect. Sealed diagnosis: VAL002_diagnosis_sealed_v1.json. No guard/admission was rerun. Root has now launched the unchanged script once in corrected environment, session92429; do not duplicate it:
+
+~~~bash
+PYTHONPATH=/workspace-SR003.nfs2/ARG-GNN:/workspace-SR003.nfs2/ARG-GNN/src bash research/reviews/American_C3_remaining_VAL_namespace_memo_root_20261015_v1/run_parent_v1.sh --execute-parent american_c3_val_002
+~~~
+
+Unchanged caps: simulate6.5GB, infer12.5GB, native_paths16GB; owned RSS64GiB, private work128MiB, RAM stdout16MiB; deadlines3600/10800/7200s. VAL001 native_paths prerequisite close is genuine. Reporting must check the new namespace packet's admitted_valNNN_STAGE_v1 and closed_valNNN_STAGE_v1 for002–004 while retaining the old001 packet. Output identities remain American_C3_valNNN_full30mb_shared_v1/{simulation,inference,native_paths}. Source caps still fail-stop on excess; admission performs the actual capacity check.
+
+No truth, checkpoint or scientific payload was opened, and no source, guard, job, GPU state, Git or shared-pool activation was changed by this audit.

@@ -1,0 +1,22 @@
+# H050 direct-readout cut memory — source only
+
+H050 was unused in current decisions/ledger. This packet implements the root-approved prospective condition and drafts its preregistration. It does not register or run it. FrozenH049 is unchanged.
+
+The common predictor is the actual completed H045own_statepass30 architecture/checkpoint. Three models inherit its complete tree/SNP/PyGbody, trained own-state episode adapter, genomic BiGRU and direct classifier. The only new encoder splice adds the unchanged H049CutMemoryV1 output at cut representatives before the second full-tree sweep. Zero newO preserves the original predictor initially. Memoryarms have32325parameters, while the fourth continuation arm is the exact unmodified H045class with31812parameters and no unused memory weights.
+
+`direct_readout_cut_memory_v1.py` supplies the memory subclass, immutable observation/episode/cut bundle, correctedcodec_v2 binding and supplied-payload warmstart validator. Production `make_matched_family_v1` requires exact H045own_statepass30 checkpoint/completion metadata. Its puretensor constructor exists for focused handmade checks; it supplies no execution authority. Root authenticates actual checkpoint bytes and resource capabilities.
+
+`integration_hooks_v1.py` supplies freshAdamW family construction, a thin call to H045’s original full-parent FP32 train_one, prediction logits, the native-hold RAMmatrix/all192 barrier and the exact utility contrasts. It retains inherited original-grid probability mapping for the external evaluator. The per-parent step sets qualification only when completed_steps=0. No discardable update or FP64 qualification stage exists. This packet deliberately has no launcher, admission, source-cloned fullscientificrunner or resourcepolicy. Root integrates these small APIs into its existing guarded phase orchestration.
+
+The fixed budget is32TRAIN/8VAL,30passes/960updates for each of4arms,3840total updates, six checkpoints perarm/24files, all192pretruthVALproducts. Parent order is shuffle_seed101_plus_pass. All weights trainable, independent freshFP32AdamW, exact originalH045spanloss, sameSNP/readout/support. Primary: triple gains≥0.10ppPresent accuracy versus EACH otherarm with no1kbF1loss. Secondary: gains≥1ppF1 versus EACH with accuracy loss≤.05pp, boundaryutilityonly. Full NLL/calibration and historicalH045comparison remain descriptive.
+
+For root integration:
+
+1. Register the draft and approve exact source/runtime/caps. Bind the future genuine successful correctedall40cutrecipe completion+directwait. Preserve every failed scope. No recipe arrays or checkpoint payload were read here.
+2. Supply the authenticated CPUH045own_statepayload/completion to build_family_v1. Build/reuse originalH045episode recipes, then bind_compact_recipe_v1 using the exact already-prepared correctedrecipe bytes/receipt for the same CPUbank. Move the bound bundle through its to(device) method. Root controls bank/cache/target lifetimes and current guards.
+3. Schedule every complete parent/arm update with train_step_v1 and completed_steps counters, then write24actualH050checkpoint products and complete960updates/arm before scoring. Use the existing root loop structure; the hooks themselves are not a phase dispatcher.
+4. predict_holds_v1 returns logits. Softmax and seal all192native-hold probability products with H050RAMMatrixV1 and exact checkpoint groups. Its verify() must succeed before truth capability; inheritedgrid() expands through original readout_hold. Root then reuses the original external scorer.
+
+One focused handmadeFP32source check passed with no optimizersteps: correctedcodec roundtrip, exact four-way initial-function identity with nonzero syntheticcommonadapter, correct31812/32325counts, independentparameters, connectedmemorygradients, immutablebundle mutation rejection, wrongarm rejection and the191/192barrier/checkpoint gate. This is not actual checkpoint authentication, scientific training qualification, ancestry accuracy or GPU/runtime fit evidence. The first receipt is preserved; v2 records the final narrowarm-validation check.
+
+Novelty remains domainutility of established memory/incidence machinery. No priority, biological ancestry identity or independent-test claim. [Preregistration draft](preregistration.draft.json), [inactive science config](scientific_config.inactive.json), [final focused check](handmade_FP32_check_receipt_v2.json), [source manifest](source_manifest.v1.json).

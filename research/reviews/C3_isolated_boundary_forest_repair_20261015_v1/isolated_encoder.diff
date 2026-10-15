@@ -1,0 +1,57 @@
+--- src/arggnn/american_c3_gnn_observations_v1.py
++++ src/arggnn/american_c3_gnn_observations_isolated_v2.py
+@@ -1,6 +1,7 @@
+ """Generic cardinality observation encoding for the fresh American C3 GNN.
+ 
+-Whole-tree layout and mutation-concordance sweeps use the original functions.
++Connected-tree layout and mutation-concordance sweeps use the original functions.
++Zero-edge observed sample forests retain every isolated sample without fake edges.
+ No target, ancestry annotation or mutation placement record is accepted.
+ """
+ from __future__ import annotations
+@@ -53,6 +54,24 @@
+     return NativeObservedTreeV1(parent,age,sample,np.arange(len(sample),dtype=np.int64))
+ 
+ 
++def _layout_with_isolated_samples(tree):
++    """C3-only zero-edge sampled forest; delegate every other native topology."""
++    p=np.asarray(tree.parent)
++    if p.ndim!=1 or p.dtype.kind not in 'iu' or len(p)<=1 or not np.all(p==-1):
++        return _layout(tree)
++    clock=np.asarray(tree.node_time,dtype=np.float64)
++    sn=np.asarray(tree.sample_node);sid=np.asarray(tree.sample_id);n=len(p)
++    require(clock.shape==(n,) and np.isfinite(clock).all() and (clock>=0).all()
++        and sn.ndim==sid.ndim==1 and sn.dtype.kind in 'iu' and sid.dtype.kind in 'iu'
++        and sn.shape==sid.shape==(n,) and np.array_equal(np.sort(sn),np.arange(n))
++        and (sid>=0).all() and len(set(sid.tolist()))==n,
++        'An isolated observed forest must retain all and only unique sampled nodes/identities')
++    return (p.astype(np.int64,copy=False),clock,sn.astype(np.int64,copy=False),
++        sid.astype(np.int64,copy=False),np.arange(n,dtype=np.int64),
++        np.zeros(n,dtype=np.int64),np.zeros(n,dtype=np.int64),
++        np.ones(n,dtype=np.int64),np.zeros(n,dtype=np.float64))
++
++
+ def encode_block(trees,intervals,genotype,allele_count,site_positions,reference_class,sample_age,*,
+         num_classes,age_split=350.,query_columns=None):
+     """Bounded complete forest, no hidden pruning or genotype/site sampling."""
+@@ -73,14 +92,18 @@
+     parents=[];times=[];samples=[];supports=[];heights=[];depths=[];descendants=[];durations=[];offset=0
+     identity=np.arange(h,dtype=np.int64)
+     for hold,tree in enumerate(trees):
+-        p,clock,sn,sid,post,depth,height,descendant,duration=_layout(tree)
++        p,clock,sn,sid,post,depth,height,descendant,duration=_layout_with_isolated_samples(tree)
+         require(np.array_equal(sid,identity) and np.array_equal(clock[sn],age),'Every original sample/date retained in its exact column')
+         children=np.bincount(p[p>=0],minlength=len(p))
+         require(not children[sn].any() and np.count_nonzero(children==0)==h,'All active leaves must be original observed samples')
+         global_parent=p.copy();global_parent[p>=0]+=offset
+         parents.append(global_parent);times.append(clock);samples.append(sn+offset)
+         lo,hi=np.searchsorted(site_hold,[hold,hold+1])
+-        supports.append(branch_concordance_support_v1(tree,g[lo:hi],k[lo:hi],identity))
++        if len(p)>1 and np.all(p==-1):
++            support=np.zeros((len(p),5),dtype=np.float32);support[:,4]=1.
++            supports.append(support)
++        else:
++            supports.append(branch_concordance_support_v1(tree,g[lo:hi],k[lo:hi],identity))
+         heights.append(height);depths.append(depth);descendants.append(descendant);durations.append(duration);offset+=len(p)
+     parent=np.concatenate(parents);clock=np.concatenate(times);height=np.concatenate(heights)
+     depth=np.concatenate(depths);descendant=np.concatenate(descendants);duration=np.concatenate(durations)

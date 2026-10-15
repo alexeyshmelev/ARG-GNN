@@ -336,7 +336,7 @@ def main():
     for index in range(1,5):
         for stage,dirname in (("simulate","simulation"),("infer","inference"),("native_paths","native_paths")):
             state=cpu_stage("experiments/results/American_C3_val%03d_full30mb_shared_v1/"%index+dirname,
-                remaining_val_root+"/admitted_val%03d_"%index+stage+"_v1")
+                (remaining_val_root if index==1 else "research/reviews/American_C3_remaining_VAL_namespace_memo_root_20261015_v1")+"/admitted_val%03d_"%index+stage+"_v1")
             remaining_val_phases.append(dict(parent_id="american_c3_val_%03d"%index,stage=stage,**state))
     remaining_val_status="; ".join(r["parent_id"][-3:]+"/"+r["stage"]+": "+r["status"] for r in remaining_val_phases if r["status"]!="not admitted")
     remaining_val_status=remaining_val_status or "Original remaining VAL001–004 source ready; actual execution pending."
@@ -617,7 +617,49 @@ def main():
             "corrected bounded CPU preparation terminal requires review" if h049v3_wait else
             "corrected bounded CPU preparation launched; original failed attempt preserved" if h049v3_launch else
             "corrected bounded CPU preparation admitted, startup pending; inactive-config admission mistake preserved and corrected")
+    h049v4="research/reviews/H049_bounded_actual_metadata_allocation_repair_20261015_v1/admitted_prepare"
+    h049v4_launch=maybe_read(h049v4+"/launch.json")
+    h049v4_admit=maybe_read(h049v4+"/admitted.json")
+    h049v4_wait=maybe_read(h049v4+"/actual_wait.json")
+    h049v4_done=maybe_read("experiments/results/H049_CPU_order2_cut_memory_prepare_bounded_v4/completed.json")
+    if h049v3_wait and h049v3_wait.get("returncode")==1:
+        h049_prepare_status="bounded-v3 CPU preparation failed before any parent recipe at the NFS metadata-allocation bound; no fit or accuracy"
+    if h049v4_admit:
+        h049_prepare_verified=bool(h049v4_wait and h049v4_done and h049v4_wait.get("returncode")==0 and h049v4_wait.get("owned_group_drained") is True and h049v4_wait.get("error") is None and h049v4_wait.get("completed_ref")==ref("experiments/results/H049_CPU_order2_cut_memory_prepare_bounded_v4/completed.json"))
+        h049_prepare_status=("fresh bounded-v4 CPU preparation completed with genuine wait0/drain" if h049_prepare_verified else
+            "fresh bounded-v4 CPU preparation failed; original artifacts preserved" if h049v4_wait and h049v4_wait.get("returncode")!=0 else
+            "fresh bounded-v4 CPU preparation launched; corrected allocation allowance, unchanged science" if h049v4_launch else
+            "fresh bounded-v4 CPU preparation admitted, launch pending; prior failure retained")
+    elif maybe_read("research/reviews/H049_bounded_actual_metadata_allocation_repair_20261015_v1/root_source_cap_approval_v1.json"):
+        h049_prepare_status+=". Fresh bounded-v4 allocation repair approved, admission pending"
+    c3_failed_output="experiments/results/C3_GNN_prefetch_current980_train_v1/failed_training.json"
+    c3_wait_path="research/reviews/C3_GNN_prefetch_current980_root_20261015_v1/admitted_train_v1/actual_wait.json"
+    c3_failed=maybe_read(c3_failed_output)
+    c3_wait=maybe_read(c3_wait_path)
+    c3_status=("TRAIN failed before the first optimizer update on all-isolated samples at chromosome flanks. Full20-parent observation inventory found only boundary forests. Scoped encoder repair in progress, unchanged full600-update budget" if c3_failed and c3_wait and c3_wait.get("returncode")==1 else "full600-update training route ready, ancestry score pending")
+    c3_execution=dict(status=c3_status,actual_optimizer_updates=0 if c3_failed else None,ancestry_score=None,failed_training_ref=ref(c3_failed_output) if c3_failed else None,actual_wait_ref=ref(c3_wait_path) if c3_wait else None)
+    c3_new_packet="research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2"
+    c3_new_admit=maybe_read(c3_new_packet+"/admitted_train_v1/admitted.json")
+    c3_new_launch=maybe_read(c3_new_packet+"/root_train_exec_launch_actual_v1.json")
+    if c3_new_admit:
+        c3_status="Isolated-boundary encoder repair installed. Fresh full600-update campaign admitted for GPU4; prior before-update failure and charge preserved"
+        if c3_new_launch:
+            c3_status+=". Root launch issued, completed optimizer updates not yet verified"
+        c3_execution.update(status=c3_status,actual_optimizer_updates=None,prior_failed_campaign_verified_updates=0,new_admitted_ref=ref(c3_new_packet+"/admitted_train_v1/admitted.json"),new_root_launch_ref=ref(c3_new_packet+"/root_train_exec_launch_actual_v1.json") if c3_new_launch else None)
+    elif maybe_read(c3_new_packet+"/root_source_resource_approval_v1.json"):
+        c3_status="Isolated-boundary encoder repair installed and root source/caps approved; fresh full600-update GPU4 admission in progress, prior failure preserved"
+        c3_execution["status"]=c3_status
+    flare_val_seal["outer_tool_terminal_or_final_guard_success_claimed"]=False
+    if flare_val_seal["completed_and_wait0_verified"]:
+        flare_val_seal["status"]="prediction worker completed; direct wait0 and owned-group drain verified, outer tool terminal/final guard unconfirmed"
+    val002_attempt_path="research/reviews/American_C3_remaining_VAL_namespace_memo_root_20261015_v1/root_val002_exec_attempt_actual_v1.json"
+    if maybe_read(val002_attempt_path):
+        correction=maybe_read("research/reviews/American_C3_remaining_VAL_namespace_memo_root_20261015_v1/root_val002_environment_correction_active_v1.json")
+        remaining_val_status+=(". Original VAL002 pre-admission import failure preserved; corrected project-root import environment authorized and root launch issued" if correction else ". VAL002 parent launcher returned1 before useful output; preserved attempt, early cause under investigation, no replay")
+    h050=next((d for d in read("research/experiment_decisions.json")["decisions"] if d["id"]=="H050"),None)
     result=dict(schema="ARG_GNN_current_scientific_scoreboard_v1",updated_utc=stamp,
+        American_C3_GNN_execution=c3_execution,
+        H050_registered_candidate=dict(status=h050["status"],training_budget="4arms x30passes x32parents =3840updates",actual_optimizer_updates=None,accuracy=None,parameters_per_arm=h050["parameters_per_arm"],VAL_products_required_before_truth=192,source_handoff_ref=h050["source_handoff_ref"],utility_criteria=h050["prospective_utility_criteria"]) if h050 else None,
         H049_registered_candidate=dict(status=h049["status"],parameters_per_arm=32446,
             arms=h049["execution_budget"]["arms"],training_budget="30passes/960updates per arm",
             actual_optimizer_updates=None,actual_optimizer_updates_status="no_training_launch_or_verified_step_receipt",accuracy=None,preparation_status=h049_prepare_status,preparation_completion_wait0_verified=h049_prepare_verified,registered_criteria=h049["prospective_utility_criteria"]) if h049 else None,
@@ -750,8 +792,9 @@ def main():
         "| Native ARGformer | "+native_device+" | "+native_brief+" | pending |",
         "| Native ARGformer held-out VAL000 | CPU | Original per-ARG six-dataset counts: "+val000_native_counts["status"]+". Separate native fit follows actual counts. | no ancestry score |",
         "| Native FLARE | CPU | Author build, TRAIN000 full-site inference and prediction seal completed. Held-out VAL000 conversion: "+flare_val_conversion["status"]+"; native inference: "+flare_val_native["status"]+"; seal: "+flare_val_seal["status"]+". | held-out score pending |",
-        "| Our American C3 GNN | CPU preparation | "+str(focal_ready)+"/20 exact TRAIN plans completed. Executable 30-epoch / 600-update route integrated. Original VAL000 full-length GNN block plan: "+gnn_VAL000_plan["status"]+". | pending |",
+        "| Our American C3 GNN | GPU4 planned, repair on CPU | "+str(focal_ready)+"/20 exact TRAIN plans completed. "+c3_status+". Original VAL000 full-length GNN block plan: "+gnn_VAL000_plan["status"]+". | no ancestry score |",
         "| H049 cut-memory candidate | CPU preparation | "+h049_prepare_status+". Three matched 32,446-parameter arms. Full 30 passes / 960 updates per arm planned. | no fit or accuracy yet |",
+        "| H050 stronger direct-readout candidate | Source integration | Registered. H045 predictor retained initially. Three 32,325-parameter memory arms and an unmodified 31,812-parameter continuation. 960 updates per arm, 192 prediction seals planned. | no fit or accuracy yet |",
         "| Empirical data | CPU | H045 probabilities, ancestry proportions and genotype PCA completed for 24 query haplotypes / 12 subjects. Descriptive only, without known ancestry truth. | completed |","",
         "**Completed H048:** "+h048_scores+". Both registered utility criteria failed. [Actual scores, all cohorts and provenance](research/reviews/H048_completed_comparison_root_20261015_v1/REPORT.md)." if h048_ready else "**H048 evaluation:** pending.","",
         "**Current measured development scores:** H045 foreign-episode **96.8270 ± 0.5870%** Present182 span accuracy, matched own-state **96.8175 ± 0.6142%**. H046: "+h046_scores+". "+h046_outcome+" H047 original-risk **96.7777 ± 0.5970%**, balanced-risk **96.7576 ± 0.5287%**. SD is across eight VAL simulations, one optimizer seed. H048: "+h048_scores+". [All "+str(len(models))+" measured setups, all seven cohorts, NLL/F1/boundaries/Brier/ECE and training budgets](research/current_scoreboard.md#detailed-cohort-metrics).","",
@@ -760,7 +803,7 @@ def main():
         "**Remaining biological error:** H045 recovers22.59% of true Present182 changes at1kb tolerance despite96.827% span accuracy. Across8VAL parents its selected predictions match905 changes, miss3103 and add5063extra calls. [Audited residual-error table and scope limits](research/reviews/residual_biological_errors_20261015_v1/REPORT.md).", "",
         "**Comparison contract:** Use the same observed genomes, reference/query identities, truth and scored support. Each method keeps its native representation, such as VCFs, ancestral paths or PyG tensors. Extra inputs, training changes and reconstruction differences are disclosed. Native-format differences do not postpone a shared-data comparison.","",
         "**GST and cross-domain status:** "+gst_status,"",
-        "Parallel ownership: worker1 prepares final C3 training bindings and completed H049 preparation integration, worker2 handles recovered native benchmark closes and reviews shared GPU scheduling, worker3 prepares genuine held-out ARGformer training and completed the independent writer review. Root owns actual execution, integration, full score reporting and Git. Independent work continues in parallel.","","<!-- CURRENT_SCOREBOARD_END -->"]
+        "Parallel ownership: worker1 develops the stronger H050 readout with matched controls, worker2 repairs the C3 boundary-forest encoder and stages fresh execution sources, worker3 audits held-out native benchmark evidence and common-support score gates. Root owns actual execution, H049 preparation, integration, full score reporting and Git. Independent work continues in parallel.","","<!-- CURRENT_SCOREBOARD_END -->"]
     p=ROOT/"README.md"
     text=p.read_text()
     a="<!-- CURRENT_SCOREBOARD_START -->"
@@ -802,9 +845,9 @@ def main():
             "**Original remaining American VAL:** "+remaining_val_status+".","",
             "**Completed H046:** "+h046_outcome+" [Results](research/reviews/H046_completed_comparison_root_20261015_v1/REPORT.md).","",
             "**Completed H047:** original-risk96.7777±0.5970%, balanced-risk96.7576±0.5287%. Both30passes/960updates. Registered accuracy benefit not met. [Results](research/reviews/H047_completed_comparison_root_20261015_v1/REPORT.md).","",
-            "**American GNN preparation:** "+fanout_status+". "+wave_text,"",
+            "**American GNN preparation:** "+fanout_status+". "+wave_text+" "+c3_status+".","",
             "**Architecture work:** H049 sample-witness order-2 cut memory is implemented and registered with matched null/leaf-memory controls. "+h049_prepare_status+". Predictive utility and a distinct new contribution remain unproved. [Design and prior-art limits](research/reviews/ordered_graph_operator_research_20261015_v1/REPORT.md).","",
-            "Root orchestrates execution and publishing. Three workers handle C3 GNN multiworker integration, native benchmark execution and scoring and H049 preparation in parallel. Only physical GPUs4–5 are eligible, with process title AI Auto Research Pipeline Test.","",""]
+            "Root orchestrates execution and publishing. Three workers handle H050 architecture, the C3 encoder repair and native benchmark evidence in parallel. Only physical GPUs4–5 are eligible, with process title AI Auto Research Pipeline Test.","",""]
         text=text[:text.index(section_start)]+"\n".join(running)+text[text.index(section_end):]
     pilot_start="<!-- ADAPTED_ARGFORMER_PILOT_START -->"
     pilot_end="<!-- ADAPTED_ARGFORMER_PILOT_END -->"
@@ -826,7 +869,7 @@ def main():
     text=text.replace("Fourteen independent 2 Mb TRAIN preparations are complete.",
         "TRAIN000–015 independent2Mb preparations are complete; TRAIN016/017 are running and018/019 remain pending.")
     text=text.replace("TRAIN000–015 independent2Mb preparations are complete; TRAIN016/017 are running and018/019 remain pending.",
-        str(short_ready)+"/20 independent2Mb TRAIN inferred inputs and"+str(focal_ready)+"/20 exact focal plans are complete. Final TRAIN019 inference admission is under repair after actual parent supervisor terminal1.")
+        str(short_ready)+"/20 independent2Mb TRAIN inferred inputs and"+str(focal_ready)+"/20 exact focal plans are complete. Original TRAIN019 inference recovery completed with genuine remote wait0, preserving the earlier supervisor/transport failures.")
     text=text.replace("The 40-haplotype panel and pre-size/domain differences still need an explicit adapter and assessment. No ancestry or PCA result.",
         "The variable-panel adapter and H045 empirical application have completed, with ancestry probabilities, bp-weighted proportions and genotype PCA for24query haplotypes/12subjects. These are descriptive outputs without known ancestry truth. Panel/domain assessment remains necessary. [Completed application](experiments/results/H018_H045_empirical_application_root_v1/completed.json).")
     p.write_text(text)

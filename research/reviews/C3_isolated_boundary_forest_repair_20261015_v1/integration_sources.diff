@@ -1,0 +1,635 @@
+--- src/arggnn/american_c3_gnn_observations_v1.py
++++ src/arggnn/american_c3_gnn_observations_isolated_v2.py
+@@ -1,6 +1,7 @@
+ """Generic cardinality observation encoding for the fresh American C3 GNN.
+ 
+-Whole-tree layout and mutation-concordance sweeps use the original functions.
++Connected-tree layout and mutation-concordance sweeps use the original functions.
++Zero-edge observed sample forests retain every isolated sample without fake edges.
+ No target, ancestry annotation or mutation placement record is accepted.
+ """
+ from __future__ import annotations
+@@ -53,6 +54,24 @@
+     return NativeObservedTreeV1(parent,age,sample,np.arange(len(sample),dtype=np.int64))
+ 
+ 
++def _layout_with_isolated_samples(tree):
++    """C3-only zero-edge sampled forest; delegate every other native topology."""
++    p=np.asarray(tree.parent)
++    if p.ndim!=1 or p.dtype.kind not in 'iu' or len(p)<=1 or not np.all(p==-1):
++        return _layout(tree)
++    clock=np.asarray(tree.node_time,dtype=np.float64)
++    sn=np.asarray(tree.sample_node);sid=np.asarray(tree.sample_id);n=len(p)
++    require(clock.shape==(n,) and np.isfinite(clock).all() and (clock>=0).all()
++        and sn.ndim==sid.ndim==1 and sn.dtype.kind in 'iu' and sid.dtype.kind in 'iu'
++        and sn.shape==sid.shape==(n,) and np.array_equal(np.sort(sn),np.arange(n))
++        and (sid>=0).all() and len(set(sid.tolist()))==n,
++        'An isolated observed forest must retain all and only unique sampled nodes/identities')
++    return (p.astype(np.int64,copy=False),clock,sn.astype(np.int64,copy=False),
++        sid.astype(np.int64,copy=False),np.arange(n,dtype=np.int64),
++        np.zeros(n,dtype=np.int64),np.zeros(n,dtype=np.int64),
++        np.ones(n,dtype=np.int64),np.zeros(n,dtype=np.float64))
++
++
+ def encode_block(trees,intervals,genotype,allele_count,site_positions,reference_class,sample_age,*,
+         num_classes,age_split=350.,query_columns=None):
+     """Bounded complete forest, no hidden pruning or genotype/site sampling."""
+@@ -73,14 +92,18 @@
+     parents=[];times=[];samples=[];supports=[];heights=[];depths=[];descendants=[];durations=[];offset=0
+     identity=np.arange(h,dtype=np.int64)
+     for hold,tree in enumerate(trees):
+-        p,clock,sn,sid,post,depth,height,descendant,duration=_layout(tree)
++        p,clock,sn,sid,post,depth,height,descendant,duration=_layout_with_isolated_samples(tree)
+         require(np.array_equal(sid,identity) and np.array_equal(clock[sn],age),'Every original sample/date retained in its exact column')
+         children=np.bincount(p[p>=0],minlength=len(p))
+         require(not children[sn].any() and np.count_nonzero(children==0)==h,'All active leaves must be original observed samples')
+         global_parent=p.copy();global_parent[p>=0]+=offset
+         parents.append(global_parent);times.append(clock);samples.append(sn+offset)
+         lo,hi=np.searchsorted(site_hold,[hold,hold+1])
+-        supports.append(branch_concordance_support_v1(tree,g[lo:hi],k[lo:hi],identity))
++        if len(p)>1 and np.all(p==-1):
++            support=np.zeros((len(p),5),dtype=np.float32);support[:,4]=1.
++            supports.append(support)
++        else:
++            supports.append(branch_concordance_support_v1(tree,g[lo:hi],k[lo:hi],identity))
+         heights.append(height);depths.append(depth);descendants.append(descendant);durations.append(duration);offset+=len(p)
+     parent=np.concatenate(parents);clock=np.concatenate(times);height=np.concatenate(heights)
+     depth=np.concatenate(depths);descendant=np.concatenate(descendants);duration=np.concatenate(durations)
+--- src/arggnn/american_c3_gnn_dataset_v1.py
++++ src/arggnn/american_c3_gnn_dataset_isolated_v2.py
+@@ -13,9 +13,9 @@
+ from torch_geometric.data import Data
+ from .american_c3_common_v1 import ROOT,CLASSES,require,local,read,bound,ref,cli
+ from .american_c3_evaluate_v1 import registry
+-from .american_c3_gnn_observations_v1 import native_tree,encode_block
++from .american_c3_gnn_observations_isolated_v2 import native_tree,encode_block
+ from .mutation_routed_whole_tree_gnn_v1 import MutationRoutedWholeTreeInputsV1,_LEVEL_FIELDS
+-SOURCE='src/arggnn/american_c3_gnn_dataset_v1.py'
++SOURCE='src/arggnn/american_c3_gnn_dataset_isolated_v2.py'
+ GENEALOGY='inferred_tsinfer_tsdate_CURRENT_RECONSTRUCTION_not_simulated_true_ARG'
+ BANK_FIELDS=tuple(f.name for f in fields(MutationRoutedWholeTreeInputsV1))
+ BLOCK_TENSORS=('genomic_geometry','focal_rows','focal_hold','focal_sample_column')
+@@ -203,6 +203,6 @@
+     return writer.json('completed.json',dict(status='completed_C3_observation_only_block_plan',block_index_ref=plan_ref,
+         parent_id=plan['parent_id'],blocks=len(plan['blocks']),trees=plan['trees'],sites=plan['sites'],targets_opened=False))
+ 
+-DEPENDENCIES=('src/arggnn/american_c3_evaluate_v1.py','src/arggnn/american_c3_gnn_observations_v1.py',
++DEPENDENCIES=('src/arggnn/american_c3_evaluate_v1.py','src/arggnn/american_c3_gnn_observations_isolated_v2.py',
+     'src/arggnn/mutation_routed_tree_observations_v1.py','src/arggnn/mutation_routed_whole_tree_gnn_v1.py')
+ if __name__=='__main__':cli(SOURCE,DEFAULTS,execute,dependencies=DEPENDENCIES)
+--- src/arggnn/american_c3_gnn_stream_train_v1.py
++++ src/arggnn/american_c3_gnn_stream_train_isolated_v2.py
+@@ -15,7 +15,7 @@
+ from torch.utils.checkpoint import checkpoint
+ from .american_c3_common_v1 import require,CLASSES
+ from .american_c3_evaluate_v1 import registry
+-from .american_c3_gnn_dataset_v1 import AmericanC3WholeTreeDatasetV1,BANK_FIELDS,BLOCK_TENSORS
++from .american_c3_gnn_dataset_isolated_v2 import AmericanC3WholeTreeDatasetV1,BANK_FIELDS,BLOCK_TENSORS
+ from .american_c3_gnn_model_v1 import AmericanC3WholeTreeGNNV1
+ from .american_c3_gnn_targets_v1 import TRAIN,TrainFocalTargetVectorV1,identity_sha
+ 
+--- src/arggnn/american_c3_gnn_run_v1.py
++++ src/arggnn/american_c3_gnn_run_isolated_v2.py
+@@ -10,7 +10,7 @@
+ from .american_c3_common_v1 import require,bound
+ from .american_c3_evaluate_v1 import registry,verify_prediction
+ from .american_c3_gnn_model_v1 import AmericanC3WholeTreeGNNV1
+-from .american_c3_gnn_dataset_v1 import AmericanC3WholeTreeDatasetV1,shutdown_dataloader
++from .american_c3_gnn_dataset_isolated_v2 import AmericanC3WholeTreeDatasetV1,shutdown_dataloader
+ 
+ 
+ @torch.inference_mode()
+@@ -150,8 +150,8 @@
+ def qualify_handmade_c3_cpu(*,seed=70001,atol=1e-5):
+     """One tiny ROOT-authorized CPU qualifier, without scientific data/targets."""
+     import math,os
+-    from .american_c3_gnn_observations_v1 import encode_block
+-    from .american_c3_gnn_dataset_v1 import AmericanC3BlockV1
++    from .american_c3_gnn_observations_isolated_v2 import encode_block
++    from .american_c3_gnn_dataset_isolated_v2 import AmericanC3BlockV1
+     from .mutation_routed_tree_observations_v1 import NativeObservedTreeV1
+     require(os.environ.get('CUDA_VISIBLE_DEVICES')=='','Qualifier requires explicit CPU-only environment')
+     with torch.random.fork_rng(devices=[]):
+--- src/arggnn/american_c3_gnn_predict_v1.py
++++ src/arggnn/american_c3_gnn_predict_isolated_v2.py
+@@ -9,10 +9,10 @@
+ from .american_c3_common_v1 import require,read,bound,CLASSES
+ from .american_c3_evaluate_v1 import registry,verify_prediction
+ from .american_c3_gnn_targets_v1 import REGISTRY_REF,TRAIN,VAL,TEST,identity_sha
+-from .american_c3_gnn_stream_train_v1 import validate_plan_v1,require_baseline_v1
++from .american_c3_gnn_stream_train_isolated_v2 import validate_plan_v1,require_baseline_v1
+ from .american_c3_gnn_train_v1 import CHECKPOINT_EPOCHS,SCHEMA,scheduled_checkpoint_metadata_v1
+-from .american_c3_gnn_run_v1 import streamed_focal_predictions
+-from .american_c3_gnn_dataset_v1 import shutdown_dataloader
++from .american_c3_gnn_run_isolated_v2 import streamed_focal_predictions
++from .american_c3_gnn_dataset_isolated_v2 import shutdown_dataloader
+ 
+ def completed_training_v1(record):
+     value=read(record)
+--- src/arggnn/american_c3_gnn_shared30mb_v1.py
++++ src/arggnn/american_c3_gnn_shared30mb_isolated_v2.py
+@@ -8,12 +8,12 @@
+ import torch
+ from .american_c3_common_v1 import CLASSES,require,read
+ from .american_c3_gnn_model_v1 import AmericanC3WholeTreeGNNV1
+-from .american_c3_gnn_dataset_v1 import DEFAULTS as PLAN_DEFAULTS,build_plan
+-from .american_c3_gnn_stream_train_v1 import validate_plan_v1
++from .american_c3_gnn_dataset_isolated_v2 import DEFAULTS as PLAN_DEFAULTS,build_plan
++from .american_c3_gnn_stream_train_isolated_v2 import validate_plan_v1
+ from .american_c3_gnn_train_v1 import (
+     DEFAULTS as DEVELOPMENT_TRAIN_DEFAULTS,run_train_v1 as run_development_train_v1)
+-from .american_c3_gnn_predict_v1 import eligible_checkpoint_v1,seal_prediction_v1
+-SOURCE="src/arggnn/american_c3_gnn_shared30mb_v1.py"
++from .american_c3_gnn_predict_isolated_v2 import eligible_checkpoint_v1,seal_prediction_v1
++SOURCE="src/arggnn/american_c3_gnn_shared30mb_isolated_v2.py"
+ REGISTRY_REF={"path":"research/reviews/ARGformer_American_C3_implementation_20261015_v1/parent_seed_registry_inactive.json",
+  "sha256":"608da56508757646a0584cb653f7f6af4c910f05d560d6da1b99c0c1ea691f9a"}
+ TRAIN=tuple("american_c3_train_%03d"%i for i in range(20))
+--- src/arggnn/american_c3_gnn_selection_v1.py
++++ src/arggnn/american_c3_gnn_selection_isolated_v2.py
+@@ -11,7 +11,7 @@
+ from .american_c3_evaluate_v1 import DEFAULTS as EVALUATOR_DEFAULTS,execute as original_score,metrics
+ from .american_c3_gnn_targets_v1 import VAL
+ from .american_c3_gnn_train_v1 import CHECKPOINT_EPOCHS
+-from .american_c3_gnn_predict_v1 import completed_training_v1
++from .american_c3_gnn_predict_isolated_v2 import completed_training_v1
+ METHOD="AmericanC3_typed_backbone_GNN_v1"
+ 
+ def validation_matrix_v1(record):
+--- research/reviews/C3_GNN_prefetch_provider_20261015_v1/prefetch_provider_v1.py
++++ research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2/prefetch_provider_isolated_v2.py
+@@ -9,7 +9,7 @@
+ import tempfile
+ import time
+ 
+-from .abstract_ipc_bootstrap_v1 import ensure_abstract_ipc_before_torch_v1
++from research.reviews.C3_GNN_prefetch_provider_20261015_v1.abstract_ipc_bootstrap_v1 import ensure_abstract_ipc_before_torch_v1
+ 
+ # Spawn imports this module while unpickling the CPU opener. Install here before
+ # Torch/PyG imports. The GPU parent must already have bootstrapped at its entry.
+@@ -18,16 +18,13 @@
+     os.environ["CUDA_VISIBLE_DEVICES"] = ""
+ import torch
+ from arggnn.american_c3_common_v1 import require, ref, local
+-from arggnn.american_c3_gnn_dataset_v1 import BANK_FIELDS, BLOCK_TENSORS
+-from arggnn.american_c3_gnn_stream_train_v1 import SealedObservationProviderV1, _tensors
+-from .bounded_workers_v1 import BoundedOrderedWorkersV1, _start_ticks
++from arggnn.american_c3_gnn_dataset_isolated_v2 import BANK_FIELDS, BLOCK_TENSORS
++from arggnn.american_c3_gnn_stream_train_isolated_v2 import SealedObservationProviderV1, _tensors
++from research.reviews.C3_GNN_prefetch_provider_20261015_v1.bounded_workers_v1 import BoundedOrderedWorkersV1, _start_ticks
+ 
+ HERE = Path(__file__).resolve().parent
+ ROOT = HERE.parents[2]
+-PINS = {
+-    "src/arggnn/american_c3_gnn_stream_train_v1.py": "4a403ba9f5205d8ff38a3509d767daee3d71bd58651c1840fa636b994b37fe9b",
+-    "src/arggnn/american_c3_gnn_dataset_v1.py": "8a7451b78603fbd8c390402977607fb822cd362c65e475f85d98bcb91205efc8",
+-}
++PINS={'src/arggnn/american_c3_gnn_stream_train_isolated_v2.py': '09394390199ceee020e4123d25a4cfcdcee38229450abc3ddd24dde55773b912', 'src/arggnn/american_c3_gnn_dataset_isolated_v2.py': '6e4f32fcec9e6af0c6aa2c81cdbcc4ef1bf7ff83da04b233f0064b6a65c33cb2', 'src/arggnn/american_c3_gnn_observations_isolated_v2.py': 'adf1be0aab14e54b0d48c8cb577b3df541bed2ee88ac846f16bab8a75d56f781'}
+ 
+ 
+ 
+--- research/reviews/C3_GNN_prefetch_current980_root_20261015_v1/persistent_provider_v1.py
++++ research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2/persistent_provider_v1.py
+@@ -7,12 +7,12 @@
+ if mp.current_process().name!="MainProcess":os.environ["CUDA_VISIBLE_DEVICES"]=""
+ import torch
+ from arggnn.american_c3_common_v1 import require,ref,local
+-from arggnn.american_c3_gnn_stream_train_v1 import SealedObservationProviderV1
+-from research.reviews.C3_GNN_prefetch_provider_20261015_v1.prefetch_provider_v1 import (
++from arggnn.american_c3_gnn_stream_train_isolated_v2 import SealedObservationProviderV1
++from research.reviews.C3_GNN_prefetch_isolated980_root_20261015_v2.prefetch_provider_isolated_v2 import (
+     PrefetchSealedObservationProviderV1,_check_pins,_rss,PINS)
+ from .persistent_workers_v1 import PersistentOrderedWorkersV1,context_sha
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-REL="research/reviews/C3_GNN_prefetch_current980_root_20261015_v1"
++REL="research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2"
+ TRAIN=tuple("american_c3_short_train_%03d"%i for i in range(20))
+ 
+ class _PersistentCPUReader:
+@@ -124,7 +124,7 @@
+         self.options=copy.deepcopy(operational_caps);self.resource_check=resource_check
+         self.manager=_PersistentManager(self.options,resource_check);self.providers={}
+         paths=[REL+"/persistent_provider_v1.py",REL+"/persistent_workers_v1.py",
+-            "research/reviews/C3_GNN_prefetch_provider_20261015_v1/prefetch_provider_v1.py",
++            "research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2/prefetch_provider_isolated_v2.py",
+             "research/reviews/C3_GNN_prefetch_provider_20261015_v1/bounded_workers_v1.py",
+             "research/reviews/C3_GNN_prefetch_provider_20261015_v1/abstract_ipc_bootstrap_v1.py",
+             "research/reviews/C3_GNN_prefetch_provider_20261015_v1/worker_entry_integration_api_v1.py",*PINS]
+--- research/reviews/C3_GNN_prefetch_current980_root_20261015_v1/tracking_factory_v1.py
++++ research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2/tracking_factory_v1.py
+@@ -1,7 +1,7 @@
+ """Bind tracking source while delegating the separately reviewed persistent factory."""
+ import copy
+ from arggnn.american_c3_common_v1 import ref
+-SOURCE="research/reviews/C3_GNN_prefetch_current980_root_20261015_v1/tracking_factory_v1.py"
++SOURCE="research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2/tracking_factory_v1.py"
+ 
+ class TrackingObservationProviderFactoryV1:
+     def __init__(self,*,operational_caps,resource_check):
+--- research/reviews/C3_GNN_prefetch_current980_root_20261015_v1/trainer_prefetch_v1.py
++++ research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2/trainer_prefetch_v1.py
+@@ -11,18 +11,18 @@
+ import torch
+ from arggnn.american_c3_common_v1 import require,ref,bound,CLASSES
+ from arggnn.american_c3_gnn_model_v1 import AmericanC3WholeTreeGNNV1
+-from arggnn.american_c3_gnn_run_v1 import checkpoint_payload
++from arggnn.american_c3_gnn_run_isolated_v2 import checkpoint_payload
+ from arggnn.american_c3_gnn_targets_v1 import REGISTRY_REF,TRAIN,TrainTargetJoinV1,authoritative_registry_v1
+-from arggnn.american_c3_gnn_stream_train_v1 import (
++from arggnn.american_c3_gnn_stream_train_isolated_v2 import (
+     BASELINE,json_sha,SealedObservationProviderV1,checkpointed_complete_parent_step_v1)
+ 
+ CONDITION="fresh_C3_supervised_short_independent_complete_parents"
+ SCHEMA="american_c3_checkpointed_complete_parent_training_v1"
+ CHECKPOINT_EPOCHS=(5,10,15,20,25,30)
+ SOURCES=("src/arggnn/american_c3_common_v1.py","src/arggnn/american_c3_gnn_targets_v1.py",
+-    "src/arggnn/american_c3_gnn_stream_train_v1.py","research/reviews/C3_GNN_prefetch_current980_root_20261015_v1/trainer_prefetch_v1.py",
+-    "src/arggnn/american_c3_gnn_model_v1.py","src/arggnn/american_c3_gnn_run_v1.py",
+-    "src/arggnn/american_c3_gnn_dataset_v1.py","src/arggnn/american_c3_gnn_observations_v1.py",
++    "src/arggnn/american_c3_gnn_stream_train_isolated_v2.py","research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2/trainer_prefetch_v1.py",
++    "src/arggnn/american_c3_gnn_model_v1.py","src/arggnn/american_c3_gnn_run_isolated_v2.py",
++    "src/arggnn/american_c3_gnn_dataset_isolated_v2.py","src/arggnn/american_c3_gnn_observations_isolated_v2.py",
+     "src/arggnn/american_c3_evaluate_v1.py","src/arggnn/mutation_routed_whole_tree_gnn_v1.py",
+     "src/arggnn/mutation_routed_tree_observations_v1.py","src/arggnn/mutation_routed_pyg_gnn_v1.py")
+ DEFAULTS=dict(schema=SCHEMA,execution_enabled=False,registry_ref=REGISTRY_REF,
+--- research/reviews/C3_GNN_prefetch_current980_root_20261015_v1/execution_hooks_prefetch_v1.py
++++ research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2/execution_hooks_prefetch_v1.py
+@@ -9,7 +9,7 @@
+ import argparse,copy,dataclasses,inspect,json,sys
+ from arggnn.american_c3_common_v1 import CLASSES,require,read,ref
+ 
+-SOURCE="research/reviews/C3_GNN_prefetch_current980_root_20261015_v1/execution_hooks_prefetch_v1.py"
++SOURCE="research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2/execution_hooks_prefetch_v1.py"
+ TRAIN=tuple("american_c3_short_train_%03d"%i for i in range(20))
+ VAL=tuple("american_c3_val_%03d"%i for i in range(5))
+ BINDING_SCHEMA="C3_actual_TRAIN_simulation_binding_operational_v1"
+@@ -28,7 +28,7 @@
+ 
+ def actual_train_metadata_v1(bindings):
+     """Only JSON metadata reads. Never bind/hash/open a private/scientific payload."""
+-    from research.reviews.C3_GNN_prefetch_current980_root_20261015_v1.metadata_contract_v1 import authoritative_registry_v1,REGISTRY_REF
++    from research.reviews.C3_GNN_prefetch_isolated980_root_20261015_v2.metadata_contract_v1 import authoritative_registry_v1,REGISTRY_REF
+     rows=authoritative_registry_v1()
+     require(isinstance(bindings,dict) and set(bindings)==set(TRAIN),"All20 original short TRAIN identities")
+     result={}
+@@ -109,7 +109,7 @@
+     """Canonical20x2Mb/600-update training; requires the supplied narrow patch."""
+     require(callable(runtime_guard),"Root-owned current runtime boundary")
+     runtime_guard("before_C3_TRAIN_scientific_import")
+-    from research.reviews.C3_GNN_prefetch_current980_root_20261015_v1 import trainer_prefetch_v1 as train
++    from research.reviews.C3_GNN_prefetch_isolated980_root_20261015_v2 import trainer_prefetch_v1 as train
+     require("train_target_joiner_factory" in inspect.signature(train.run_train_v1).parameters,
+         "Root must first review/integrate minimal_train_target_factory.patch; no monkeypatch or old-path fallback")
+     if observation_provider_factory is not None:
+@@ -128,12 +128,12 @@
+     require(parent_id in TRAIN+VAL and cfg["execution_enabled"] is True
+         and callable(runtime_guard) and callable(getattr(writer,"save",None)),"Activated root plan stage")
+     runtime_guard("before_C3_observed_plan_payload")
+-    from arggnn.american_c3_gnn_dataset_v1 import build_plan
+-    from arggnn.american_c3_gnn_stream_train_v1 import validate_plan_v1
++    from arggnn.american_c3_gnn_dataset_isolated_v2 import build_plan
++    from arggnn.american_c3_gnn_stream_train_isolated_v2 import validate_plan_v1
+     plan=build_plan(cfg)
+     validate_plan_v1(plan,parent_id=parent_id,length_bp=2000000 if parent_id in TRAIN else 30000000)
+     if parent_id in VAL:
+-        from arggnn.american_c3_gnn_shared30mb_v1 import validate_shared_plan_v1,validate_shared_metadata_v1
++        from arggnn.american_c3_gnn_shared30mb_isolated_v2 import validate_shared_plan_v1,validate_shared_metadata_v1
+         validate_shared_plan_v1(plan,parent_id=parent_id)
+         validate_shared_metadata_v1(cfg,parent_id=parent_id)
+     runtime_guard("before_C3_observed_plan_write")
+@@ -154,11 +154,11 @@
+     require(parent_id in VAL and callable(runtime_guard),"Original VAL only; TEST deferred")
+     runtime_guard("before_C3_VAL_scientific_import")
+     import torch
+-    from arggnn.american_c3_gnn_shared30mb_v1 import (
++    from arggnn.american_c3_gnn_shared30mb_isolated_v2 import (
+         MODEL_KWARGS,validate_shared_plan_v1,validate_shared_metadata_v1,seal_shared_val_prediction_v1)
+-    from arggnn.american_c3_gnn_predict_v1 import completed_training_v1
++    from arggnn.american_c3_gnn_predict_isolated_v2 import completed_training_v1
+     from arggnn.american_c3_gnn_model_v1 import AmericanC3WholeTreeGNNV1
+-    from arggnn.american_c3_gnn_dataset_v1 import AmericanC3WholeTreeDatasetV1,make_dataloader
++    from arggnn.american_c3_gnn_dataset_isolated_v2 import AmericanC3WholeTreeDatasetV1,make_dataloader
+     plan=read(plan_ref);validate_shared_plan_v1(plan,parent_id=parent_id)
+     validate_shared_metadata_v1(plan["config"],parent_id=parent_id)
+     training=completed_training_v1(training_completion_ref)
+@@ -196,7 +196,7 @@
+ def seal_original_VAL_matrix_stage_v1(prediction_seal_refs,*,training_completion_ref,writer,runtime_guard):
+     require(callable(runtime_guard),"Root current boundary")
+     runtime_guard("before_C3_all30_VAL_matrix")
+-    from arggnn.american_c3_gnn_predict_v1 import seal_validation_matrix_v1
++    from arggnn.american_c3_gnn_predict_isolated_v2 import seal_validation_matrix_v1
+     return seal_validation_matrix_v1(prediction_seal_refs,
+         training_completion_ref=training_completion_ref,writer=writer)
+ 
+@@ -205,7 +205,7 @@
+     """Separate held-out resolver capability, reachable after the existing30-cell barrier."""
+     require(callable(runtime_guard),"Root current boundary")
+     runtime_guard("before_C3_external_VAL_scoring_import")
+-    from arggnn.american_c3_gnn_selection_v1 import (
++    from arggnn.american_c3_gnn_selection_isolated_v2 import (
+         score_validation_matrix_v1,select_original_val_checkpoint_v1)
+     score_ref=score_validation_matrix_v1(matrix_ref,writer=writer,
+         resolve_val_truth=resolve_val_truth,runtime_guard=runtime_guard)
+--- research/reviews/C3_GNN_prefetch_current980_root_20261015_v1/worker_entry_v1.py
++++ research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2/worker_entry_v1.py
+@@ -2,7 +2,7 @@
+ from pathlib import Path
+ import argparse,hashlib,importlib.util,json,os,resource,sys,time
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-REL="research/reviews/C3_GNN_prefetch_current980_root_20261015_v1"
++REL="research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2"
+ sys.path[:0]=[str(ROOT),str(ROOT/"src"),str(ROOT/"scripts"),str(ROOT/REL)]
+ import root_contract_v1 as c
+ def execute(record):
+@@ -62,14 +62,14 @@
+   def json(self,name,value):return self.save(name,value)
+   def npz(self,name,**arrays):return self.save(name,arrays,kind="npz")
+  w=Writer();h=c.hooks();b=req["bindings"]
+- fast();w.save("started.json",dict(status="started_C3_GNN_prefetch_current980",stage=stage,input_ref=record,
++ fast();w.save("started.json",dict(status="started_C3_GNN_prefetch_isolated980",stage=stage,input_ref=record,
+   runtime=runtime,IPC_bootstrap=ipc_receipt,native_MLM_dependency=False,TEST_deferred=True,root_driver_ref=c.ref(c.DRIVER)))
+  if stage=="train":
+   config=c.read(cfg["scientific_training_config_ref"]);config["execution_enabled"]=True
+   meta=h.actual_train_metadata_v1(b["actual_train_bindings"])
+   def train_truth(parent):
+    c.require(parent in c.TRAIN,"Only all20 short TRAIN truth");return meta[parent]["private_truth_ref"]
+-  from research.reviews.C3_GNN_prefetch_current980_root_20261015_v1.tracking_factory_v1 import TrackingObservationProviderFactoryV1
++  from research.reviews.C3_GNN_prefetch_isolated980_root_20261015_v2.tracking_factory_v1 import TrackingObservationProviderFactoryV1
+   factory=TrackingObservationProviderFactoryV1(operational_caps=cfg["observation_prefetch"],resource_check=fast)
+   training_failure=None
+   try:
+--- research/reviews/C3_GNN_prefetch_current980_root_20261015_v1/root_driver_v1.py
++++ research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2/root_driver_v1.py
+@@ -3,7 +3,7 @@
+ from datetime import datetime,timezone,timedelta
+ import argparse,collections,hashlib,importlib.util,json,os,selectors,signal,subprocess,sys,time
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-REL="research/reviews/C3_GNN_prefetch_current980_root_20261015_v1"
++REL="research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2"
+ sys.path[:0]=[str(ROOT),str(ROOT/"src"),str(ROOT/"scripts"),str(ROOT/REL),str(ROOT/"research/reviews/American_C3_native_MLM_full_source_v5"),str(ROOT/"research/reviews/American_C3_native_MLM_amendment_v12")]
+ import root_contract_v1 as c
+ SOURCE=c.DRIVER
+@@ -26,7 +26,7 @@
+     c.require(not tmp.exists(),"Fresh separately reserved TMP")
+     sources={p:c.ref(p)["sha256"] for p in c.source_paths()}
+     packet.mkdir();config_ref=c.save(packet,"config.json",config)
+-    closure_ref=c.save(packet,"source_and_input_closure.json",dict(schema="C3_GNN_prefetch_current980_transitive_closure_v1",
++    closure_ref=c.save(packet,"source_and_input_closure.json",dict(schema="C3_GNN_prefetch_isolated980_transitive_closure_v1",
+         source_sha256=sources,root_stage_request_ref=request_ref,bindings=req["bindings"],
+         scientific_train_source_ref=c.TRAIN_SOURCE_REF,hook_ref=c.HOOK_REF,native_MLM_dependency=False))
+     guard=c.original_guard()
+@@ -44,7 +44,7 @@
+     if phase=="train":mandatory.append(req["scientific_training_config_ref"])
+     consumers=unique([*bindings.values(),*mandatory])
+     now=datetime.now(timezone.utc);expiry=now+timedelta(seconds=caps["operational_deadline_seconds"])
+-    job="American-C3-GNN-prefetch-current980-"+phase+"-v1";aux=packet/"worker_aux"
++    job="American-C3-GNN-prefetch-isolated980-"+phase+"-v1";aux=packet/"worker_aux"
+     reserve_request=dict(key="H041/"+job,output=str(ROOT/output),auxiliary_scopes=[str(aux),str(tmp)],
+         reserved_bytes=caps["reservation_cap_bytes"],consumer_bindings=consumers)
+     authority=guard.operation_draft_v1("reserve",reserve_request,expected_before=guard._pins(view),bindings=bindings)
+@@ -57,7 +57,7 @@
+         initial_ledger_pins=reserved["initial_ledger_pins"],expires_at_utc=expiry.isoformat(),completed_overlay_policy_ref=c.POLICY_REF,
+         budget_components=dict(implementation=c.ref(guard.budget.SOURCE_REL),launcher=c.ref(guard.budget.LAUNCHER_REL),consumer_adapter=c.GUARD_REF))
+     refs=dict(config=config_ref,runtime=c.RUNTIME_REF,storage=c.save(packet,"storage.json",storage))
+-    spec=dict(schema="C3_GNN_prefetch_current980_active_input_v1",status="active",root_authorizer="root_agent",
++    spec=dict(schema="C3_GNN_prefetch_isolated980_active_input_v1",status="active",root_authorizer="root_agent",
+         execution_authorized=True,GPU_authorized=(phase in c.GPU_PHASES),parent_id=c.PARENT,phase=phase,job_id=job,
+         output_directory=output,root_stage_request_ref=request_ref,caps_ref=req["caps_ref"],root_driver_ref=c.ref(SOURCE),
+         main_source_ref=main,actual_launcher_ref=c.LAUNCHER_REF if phase in c.GPU_PHASES else None,
+@@ -217,7 +217,7 @@
+                     actual_direct_launcher_wait=True,phase=phase,parent_id=c.PARENT,
+                     input_ref=admitted["input_ref"],driver_ref=c.ref(SOURCE),
+                     drain_state="not_yet_certified",finished_utc=datetime.now(timezone.utc).isoformat()))
+-                print(json.dumps(dict(event="genuine_C3_GNN_prefetch_current980_direct_wait",pid=proc.pid,returncode=rc,
++                print(json.dumps(dict(event="genuine_C3_GNN_prefetch_isolated980_direct_wait",pid=proc.pid,returncode=rc,
+                     actual_wait_minimal_ref=minimal_ref)),flush=True)
+             except BaseException as error:
+                 failure=failure or "Genuine wait capture: "+type(error).__name__+": "+str(error)[:1000]
+@@ -268,7 +268,7 @@
+     packet,_=c.phase_paths(phase);admitted=c.read(c.ref(packet/"admitted.json"));spec=c.read(admitted["input_ref"])
+     launch_ref=c.ref(packet/"launch.json");wait_ref=c.ref(packet/"actual_wait.json")
+     launch=c.read(launch_ref);wait=c.read(wait_ref);approval=c.read(approval_ref)
+-    c.require(approval.get("schema")=="C3_GNN_prefetch_current980_root_close_approval_v1"
++    c.require(approval.get("schema")=="C3_GNN_prefetch_isolated980_root_close_approval_v1"
+         and approval.get("root_authorizer")=="root_agent" and approval.get("active") is True
+         and approval.get("driver_ref")==c.ref(SOURCE) and approval.get("input_ref")==admitted["input_ref"]
+         and approval.get("actual_wait_ref")==wait_ref and approval.get("root_actually_consumed_supervisor_terminal_wait0") is True
+@@ -335,6 +335,6 @@
+  if a.close:
+   c.require(a.root_approval and a.expected_root_approval_sha256,"Actual root terminal/revocation certificate")
+   close(a.close,dict(path=a.root_approval,sha256=a.expected_root_approval_sha256));return 0
+- print(json.dumps(dict(status="source_only_C3_GNN_prefetch_current980",phases=list(c.PHASES),
++ print(json.dumps(dict(status="source_only_C3_GNN_prefetch_isolated980",phases=list(c.PHASES),
+   actual_execution=False,actual_admission=False,native_MLM_dependency=False)));return 0
+ if __name__=="__main__":raise SystemExit(main())
+--- research/reviews/C3_GNN_prefetch_current980_root_20261015_v1/canonical_dispatch.staged.py
++++ research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2/canonical_dispatch.staged.py
+@@ -4,7 +4,7 @@
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+ def main(argv=None):
+     sys.path[:0]=[str(ROOT),str(ROOT/"src"),str(ROOT/"scripts"),
+-        str(ROOT/"research/reviews/C3_GNN_prefetch_current980_root_20261015_v1")]
++        str(ROOT/"research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2")]
+     from worker_entry_v1 import main as execute
+     return execute(argv)
+ if __name__=="__main__":raise SystemExit(main())
+--- research/reviews/C3_GNN_prefetch_current980_root_20261015_v1/root_contract_v1.py
++++ research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2/root_contract_v1.py
+@@ -2,10 +2,10 @@
+ from pathlib import Path
+ import copy,hashlib,importlib.util,json,os,sys
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-REL="research/reviews/C3_GNN_prefetch_current980_root_20261015_v1"
++REL="research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2"
+ SOURCE=REL+"/root_contract_v1.py";DRIVER=REL+"/root_driver_v1.py";ENTRY=REL+"/worker_entry_v1.py"
+-CANONICAL="src/arggnn/american_c3_gnn_prefetch_current980_exec_v1.py"
+-GPU_MODULE="arggnn.american_c3_gnn_prefetch_current980_exec_v1"
++CANONICAL="src/arggnn/american_c3_gnn_prefetch_isolated980_exec_v2.py"
++GPU_MODULE="arggnn.american_c3_gnn_prefetch_isolated980_exec_v2"
+ GPU_MAIN=CANONICAL;CPU_MAIN=ENTRY
+ BASE_HELPER=dict(path="research/reviews/C3_native_postMLM980_root_source_20261015_v1/root_native_contract_v1.py",
+  sha256="aeb992d49d632003cbd971432afa607cc8e8ba2b0658f57501fcc435c8d74b69")
+@@ -20,10 +20,10 @@
+ LAUNCHER_REF=dict(path="scripts/launch_reserved_gpu_authorized_GPU45_980_v1.py",sha256="0ca3c59e49f5fd55f5a798c99a4a8a6613e71a90bcb3f89a04eb66e7555046ca")
+ BASE_CONFIG_REF=dict(path="configs/census_tsinfer_fit_v1.json",sha256="7c2436d5479e68beb1a8f3edb04ca0ee729a23be35ca2d7893827c0db68e3b00")
+ RUNTIME_REF=dict(path="research/reviews/ARGformer_American_C3_implementation_20261015_v1/shared_cpu_runtime_metadata.json",sha256="e0944a1c2c4b2a26d2edfe68fad11db691b4b6853ebeddd8e3b79692b43fa602")
+-HOOK_REF={'path': 'research/reviews/C3_GNN_prefetch_current980_root_20261015_v1/execution_hooks_prefetch_v1.py', 'sha256': 'ae0a4e0db2132293d36df47a677dcf20fffb78bb3a5a747d44a2e02b9c2a637f'}
+-TRAIN_SOURCE_REF={'path': 'research/reviews/C3_GNN_prefetch_current980_root_20261015_v1/trainer_prefetch_v1.py', 'sha256': 'aa4f59501a002713b2445f5e18dff4421a6fa651cf1613441fea6bf5d7545dff'}
+-
+-PREFETCH_SOURCE_PINS={'research/reviews/C3_GNN_prefetch_provider_20261015_v1/prefetch_provider_v1.py': 'd4a29905b6b7d1f4daff9946557e8967ab51665a0c5648603e25f028d782b4a9', 'research/reviews/C3_GNN_prefetch_provider_20261015_v1/bounded_workers_v1.py': '66f541e7e10bf0c86f1b28b39cfa69924a31b46974548d4a1f9fbf1d0aa6c21a', 'research/reviews/C3_GNN_prefetch_provider_20261015_v1/abstract_ipc_bootstrap_v1.py': '1d8f11ff88481ae5fabb4794cdd25aeafd377d253b308cb026f020c966989ad4', 'research/reviews/C3_GNN_prefetch_provider_20261015_v1/worker_entry_integration_api_v1.py': 'aebb1f2d75277f5311dadbdbfdad98be3906dbb0a25db92cee1060ce64b52f4b', 'research/reviews/C3_GNN_prefetch_provider_20261015_v1/transport_handoff.v1.json': '8338194f068d3dcc5cedb9648e74a6cd3f01126d3ac8aa185a1ce7b68bb78495', 'research/reviews/C3_GNN_prefetch_provider_20261015_v1/source_handoff.v1.json': 'b267322dccd07f480163240ae7755fcebbeab69c5bc6b4b7080759d22666b161', 'research/reviews/C3_GNN_prefetch_provider_20261015_v1/torch_pyg_transport_receipt.v1.json': '6164ccd1975a9ffdc75acd53f3f4bfccadc1c29c4bb6e89fc56cf1a6b5c215c6', 'research/reviews/C3_GNN_prefetch_provider_20261015_v1/torch_pyg_transport_actual_wait.v1.json': '48555568895376ee270c4613342f5ee4a0bb57c5cf788eb9b127db7eb52d2b16'}
++HOOK_REF={'path': 'research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2/execution_hooks_prefetch_v1.py', 'sha256': 'b7418267d329b0d83df45c5f5d053ffd034db0e88c794d5a59c7b59ca52900d1'}
++TRAIN_SOURCE_REF={'path': 'research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2/trainer_prefetch_v1.py', 'sha256': 'b2f08a3e84bd5fb65c5f3d95566ab082fb71a2dd0a826180a10aa518aa35025c'}
++
++PREFETCH_SOURCE_PINS={'research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2/prefetch_provider_isolated_v2.py': '64fdb94c4cdf16163d2443b1aea8d2afde8f389d6f6690628ec622e13c98c057', 'research/reviews/C3_GNN_prefetch_provider_20261015_v1/bounded_workers_v1.py': '66f541e7e10bf0c86f1b28b39cfa69924a31b46974548d4a1f9fbf1d0aa6c21a', 'research/reviews/C3_GNN_prefetch_provider_20261015_v1/abstract_ipc_bootstrap_v1.py': '1d8f11ff88481ae5fabb4794cdd25aeafd377d253b308cb026f020c966989ad4', 'research/reviews/C3_GNN_prefetch_provider_20261015_v1/worker_entry_integration_api_v1.py': 'aebb1f2d75277f5311dadbdbfdad98be3906dbb0a25db92cee1060ce64b52f4b', 'research/reviews/C3_GNN_prefetch_provider_20261015_v1/transport_handoff.v1.json': '8338194f068d3dcc5cedb9648e74a6cd3f01126d3ac8aa185a1ce7b68bb78495', 'research/reviews/C3_GNN_prefetch_provider_20261015_v1/source_handoff.v1.json': 'b267322dccd07f480163240ae7755fcebbeab69c5bc6b4b7080759d22666b161', 'research/reviews/C3_GNN_prefetch_provider_20261015_v1/torch_pyg_transport_receipt.v1.json': '6164ccd1975a9ffdc75acd53f3f4bfccadc1c29c4bb6e89fc56cf1a6b5c215c6', 'research/reviews/C3_GNN_prefetch_provider_20261015_v1/torch_pyg_transport_actual_wait.v1.json': '48555568895376ee270c4613342f5ee4a0bb57c5cf788eb9b127db7eb52d2b16', 'src/arggnn/american_c3_gnn_stream_train_isolated_v2.py': '09394390199ceee020e4123d25a4cfcdcee38229450abc3ddd24dde55773b912', 'src/arggnn/american_c3_gnn_dataset_isolated_v2.py': '6e4f32fcec9e6af0c6aa2c81cdbcc4ef1bf7ff83da04b233f0064b6a65c33cb2', 'src/arggnn/american_c3_gnn_observations_isolated_v2.py': 'adf1be0aab14e54b0d48c8cb577b3df541bed2ee88ac846f16bab8a75d56f781', 'research/reviews/C3_GNN_prefetch_provider_20261015_v1/prefetch_provider_v1.py': 'd4a29905b6b7d1f4daff9946557e8967ab51665a0c5648603e25f028d782b4a9'}
+ LEGACY_DRIVER_REF={'path': 'research/reviews/C3_GNN_current980_executable_root_20261015_v1/root_driver_v1.py', 'sha256': '95f5c8fcbf096f9f648f6ff293152cc81b5adb36586b129c80e4e6dd1326015c'}
+ LEGACY_REL='research/reviews/C3_GNN_current980_executable_root_20261015_v1'
+ FROZEN_TRAIN_CONFIG_REF={'path': 'research/reviews/C3_GNN_current980_executable_root_20261015_v1/training_config.inactive.json', 'sha256': '7c04aa9274ee091f7677287df68f74c5419d5b611a5672c69ae4095d0cdf7d26'}
+@@ -37,27 +37,30 @@
+ PARENT="American_C3_short20_TRAIN_original5VAL"
+ CONTEXT=ENTRY;RUNTIME_HELPER=ENTRY
+ PROC_HELPER=_base.PROC_HELPER
+-STATUSES={p:"completed_C3_GNN_prefetch_current980_"+p for p in PHASES}
++STATUSES={p:"completed_C3_GNN_prefetch_isolated980_"+p for p in PHASES}
+ def launcher_ref_v1():return LAUNCHER_REF
+ def phase_paths(stage):
+  require(stage in PHASES,"Registered independent GNN stage")
+- return ROOT/REL/("admitted_"+stage+"_v1"),"experiments/results/C3_GNN_prefetch_current980_"+stage+"_v1"
++ return ROOT/REL/("admitted_"+stage+"_v1"),"experiments/results/C3_GNN_prefetch_isolated980_"+stage+"_v1"
+ def verify_shim():
+  target=dict(path=CANONICAL,sha256=ref(REL+"/canonical_dispatch.staged.py")["sha256"])
+  require(ref(CANONICAL)==target,"Root must first integrate the exact additive canonical shim")
+  return target
+ def hooks():
+  return load(HOOK_REF,"_C3_GNN_existing_execution_hooks")
++ORIGINAL_METADATA_IMPORT_SOURCE_PATHS=('src/arggnn/american_c3_gnn_dataset_v1.py', 'src/arggnn/american_c3_gnn_stream_train_v1.py', 'src/arggnn/american_c3_gnn_observations_v1.py', 'src/arggnn/american_c3_gnn_run_v1.py', 'src/arggnn/american_c3_gnn_train_v1.py')
++PRIOR_PREFETCH_REL='research/reviews/C3_GNN_prefetch_current980_root_20261015_v1'
++PRIOR_PREFETCH_DRIVER_REF={'path': 'research/reviews/C3_GNN_prefetch_current980_root_20261015_v1/root_driver_v1.py', 'sha256': '69a21fc2b8ef0d2a165fd6139c2348537f6920db082483dd296c23db02dbc29a'}
+ def source_paths():
+- scientific=("american_c3_common_v1","american_c3_gnn_targets_v1","american_c3_gnn_stream_train_v1","american_c3_gnn_train_v1",
+- "american_c3_gnn_model_v1","american_c3_gnn_run_v1","american_c3_gnn_dataset_v1","american_c3_gnn_observations_v1",
++ scientific=("american_c3_common_v1","american_c3_gnn_targets_v1","american_c3_gnn_stream_train_isolated_v2","american_c3_gnn_train_v1",
++ "american_c3_gnn_model_v1","american_c3_gnn_run_isolated_v2","american_c3_gnn_dataset_isolated_v2","american_c3_gnn_observations_isolated_v2",
+  "american_c3_evaluate_v1","mutation_routed_whole_tree_gnn_v1","mutation_routed_tree_observations_v1","mutation_routed_pyg_gnn_v1",
+- "american_c3_gnn_predict_v1","american_c3_gnn_selection_v1","american_c3_gnn_shared30mb_v1",
++ "american_c3_gnn_predict_isolated_v2","american_c3_gnn_selection_isolated_v2","american_c3_gnn_shared30mb_isolated_v2",
+  "native_argformer_exec","biological_candidate","development_execution","census_tsinfer_fit_v1","project_budget_v9_consumer","resources")
+  cfg=read(BASE_CONFIG_REF)
+  return tuple(dict.fromkeys((*(("src/arggnn/"+x+".py") for x in scientific),
+   SOURCE,DRIVER,ENTRY,CANONICAL,HOOK_REF["path"],TRAIN_SOURCE_REF["path"],BASE_HELPER["path"],LAUNCHER_REF["path"],
+-  REL+"/metadata_contract_v1.py",REL+"/tracking_factory_v1.py",REL+"/persistent_provider_v1.py",REL+"/persistent_workers_v1.py",*PREFETCH_SOURCE_PINS,LEGACY_DRIVER_REF["path"],FROZEN_TRAIN_CONFIG_REF["path"],
++  REL+"/metadata_contract_v1.py",REL+"/tracking_factory_v1.py",REL+"/persistent_provider_v1.py",REL+"/persistent_workers_v1.py",*PREFETCH_SOURCE_PINS,LEGACY_DRIVER_REF["path"],FROZEN_TRAIN_CONFIG_REF["path"],*ORIGINAL_METADATA_IMPORT_SOURCE_PATHS,PRIOR_PREFETCH_DRIVER_REF["path"],
+   "scripts/launch_reserved_gpu_full_storage_v1.py","scripts/launch_reserved_gpu_terminal_retired_scopes_v1.py",
+   "scripts/project_budget_v9.py",cfg["gpu_runtime"]["nvtop_helper"],PROC_HELPER,
+   "research/reviews/American_C3_native_MLM_amendment_v12/owned_lifecycle_v2.py",
+@@ -129,11 +132,12 @@
+ def validate_closed_plan_stage(evidence,plan_ref,parent):
+  require(isinstance(evidence,dict) and set(evidence)=={"route","completion_ref","actual_wait_ref","close_receipt_ref"},"Actual closed observation-plan evidence")
+  stage="plan_val_"+parent[-3:]
+- require(evidence["route"] in ("current980_zero_worker","prefetch_current980"),"Known immutable plan route")
++ require(evidence["route"] in ("current980_zero_worker","prefetch_current980","prefetch_isolated980"),"Known immutable plan route")
+  legacy=evidence["route"]=="current980_zero_worker"
+- rel=LEGACY_REL if legacy else REL
+- prefix="C3_GNN_current980_" if legacy else "C3_GNN_prefetch_current980_"
+- driver=LEGACY_DRIVER_REF if legacy else ref(DRIVER)
++ prior_prefetch=evidence["route"]=="prefetch_current980"
++ rel=LEGACY_REL if legacy else (PRIOR_PREFETCH_REL if prior_prefetch else REL)
++ prefix="C3_GNN_current980_" if legacy else ("C3_GNN_prefetch_current980_" if prior_prefetch else "C3_GNN_prefetch_isolated980_")
++ driver=LEGACY_DRIVER_REF if legacy else (PRIOR_PREFETCH_DRIVER_REF if prior_prefetch else ref(DRIVER))
+  folder=rel+"/admitted_"+stage+"_v1"
+  require(evidence["completion_ref"]["path"]=="experiments/results/"+prefix+stage+"_v1/completed.json"
+   and evidence["actual_wait_ref"]["path"]==folder+"/actual_wait.json"
+@@ -159,7 +163,7 @@
+ 
+ def validate_caps(req,caps,*,activated):
+  stage=req["phase"]
+- require(caps.get("schema")=="C3_GNN_prefetch_current980_operational_caps_v1"
++ require(caps.get("schema")=="C3_GNN_prefetch_isolated980_operational_caps_v1"
+   and caps.get("active") is activated and caps.get("phase") in (None,stage)
+   and caps.get("bound_method")=="operational_fail_stop_not_measured_fit_or_timing","Actual explicit operational caps")
+  for key in ("reservation_cap_bytes","phase_write_budget_bytes","temp_allowance_bytes","outer_auxiliary_cap_bytes",
+@@ -189,15 +193,15 @@
+ 
+ def make_config(req,caps):
+  stage=req["phase"]
+- return dict(schema="C3_GNN_prefetch_current980_operational_config_v1",execution_enabled=True,phase=stage,
+-  output_cap_bytes=caps["reservation_cap_bytes"],short_tmp_directory=".runtime/tmp/c3gnnprefetch980/"+stage,
++ return dict(schema="C3_GNN_prefetch_isolated980_operational_config_v1",execution_enabled=True,phase=stage,
++  output_cap_bytes=caps["reservation_cap_bytes"],short_tmp_directory=".runtime/tmp/c3gnnprefetchisolated980/"+stage,
+   scientific_training_config_ref=req.get("scientific_training_config_ref"),
+   observation_prefetch=copy.deepcopy(caps.get("observation_prefetch")),
+   child_log_ram_bytes=caps["child_log_ram_bytes"])
+ 
+ def validate_request(record):
+  req=read(record,cap=33554432);stage=req["phase"]
+- require(req.get("schema")=="C3_GNN_prefetch_current980_request_v1" and req.get("active") is True
++ require(req.get("schema")=="C3_GNN_prefetch_isolated980_request_v1" and req.get("active") is True
+   and req.get("root_authorizer")=="root_agent" and stage in PHASES and req.get("native_MLM_dependency") is False,"Fresh explicit successor GNN authority")
+  require(req["runtime_ref"]==RUNTIME_REF and req["base_fit_config_ref"]==BASE_CONFIG_REF
+   and req["scientific_train_source_ref"]==TRAIN_SOURCE_REF and req["hook_ref"]==HOOK_REF,"Exact copied science/hooks/runtime")
+@@ -213,7 +217,7 @@
+ 
+ def bind(template_ref):
+  req=read(template_ref,cap=33554432);stage=req["phase"]
+- require(req.get("schema")=="C3_GNN_prefetch_current980_request_v1" and req.get("active") is False
++ require(req.get("schema")=="C3_GNN_prefetch_isolated980_request_v1" and req.get("active") is False
+   and req.get("root_authorizer")=="root_agent" and stage in PHASES,"Inactive explicit root successor request")
+  require(req["runtime_ref"]==RUNTIME_REF and req["base_fit_config_ref"]==BASE_CONFIG_REF
+   and req["scientific_train_source_ref"]==TRAIN_SOURCE_REF and req["hook_ref"]==HOOK_REF
+--- src/arggnn/american_c3_gnn_prefetch_current980_exec_v1.py
++++ src/arggnn/american_c3_gnn_prefetch_isolated980_exec_v2.py
+@@ -4,7 +4,7 @@
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+ def main(argv=None):
+     sys.path[:0]=[str(ROOT),str(ROOT/"src"),str(ROOT/"scripts"),
+-        str(ROOT/"research/reviews/C3_GNN_prefetch_current980_root_20261015_v1")]
++        str(ROOT/"research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2")]
+     from worker_entry_v1 import main as execute
+     return execute(argv)
+ if __name__=="__main__":raise SystemExit(main())
+--- research/reviews/C3_GNN_prefetch_current980_root_20261015_v1/caps_train.root_active_v1.json
++++ research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2/caps_train.proposed.inactive.json
+@@ -1,5 +1,5 @@
+ {
+-  "active": true,
++  "active": false,
+   "bound_method": "operational_fail_stop_not_measured_fit_or_timing",
+   "child_log_ram_bytes": 4194304,
+   "max_cpu_rss_bytes": 137438953472,
+@@ -19,6 +19,6 @@
+   "phase_write_budget_bytes": 1073741824,
+   "reservation_cap_bytes": 2147483648,
+   "root_packet_overhead_cap_bytes": 4194304,
+-  "schema": "C3_GNN_prefetch_current980_operational_caps_v1",
++  "schema": "C3_GNN_prefetch_isolated980_operational_caps_v1",
+   "temp_allowance_bytes": 536870912
+ }
+--- research/reviews/C3_GNN_prefetch_current980_root_20261015_v1/request_train.root_active_v1.json
++++ research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2/request_train.proposed.inactive.json
+@@ -1,6 +1,6 @@
+ {
+   "GPU_UUID": "GPU-6cf64ff3-d8c2-9201-b2b8-683029625d71",
+-  "active": true,
++  "active": false,
+   "base_fit_config_ref": {
+     "path": "configs/census_tsinfer_fit_v1.json",
+     "sha256": "7c2436d5479e68beb1a8f3edb04ca0ee729a23be35ca2d7893827c0db68e3b00"
+@@ -535,17 +535,13 @@
+       }
+     }
+   },
+-  "caps_ref": {
+-    "path": "research/reviews/C3_GNN_prefetch_current980_root_20261015_v1/caps_train.root_active_v1.json",
+-    "sha256": "4438afe3ca0a765a87a0178bc93f8e0a0c3dc1ea284bb44d71c241009bb8e8d8"
+-  },
+   "caps_template_ref": {
+-    "path": "research/reviews/C3_GNN_prefetch_current980_root_20261015_v1/root_final_activation_metadata_v1/caps.train.proposed.inactive.json",
+-    "sha256": "74e6123190f517a4212ce7ea9b9e42cf2874589d8608ac6e18ac6bf7b9b57381"
++    "path": "research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2/caps_train.proposed.inactive.json",
++    "sha256": "e75c69fd8953094d324102d561876c896a55e8136d09d1af51b5bc289ee1f52f"
+   },
+   "hook_ref": {
+-    "path": "research/reviews/C3_GNN_prefetch_current980_root_20261015_v1/execution_hooks_prefetch_v1.py",
+-    "sha256": "ae0a4e0db2132293d36df47a677dcf20fffb78bb3a5a747d44a2e02b9c2a637f"
++    "path": "research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2/execution_hooks_prefetch_v1.py",
++    "sha256": "b7418267d329b0d83df45c5f5d053ffd034db0e88c794d5a59c7b59ca52900d1"
+   },
+   "native_MLM_dependency": false,
+   "phase": "train",
+@@ -555,13 +551,13 @@
+     "path": "research/reviews/ARGformer_American_C3_implementation_20261015_v1/shared_cpu_runtime_metadata.json",
+     "sha256": "e0944a1c2c4b2a26d2edfe68fad11db691b4b6853ebeddd8e3b79692b43fa602"
+   },
+-  "schema": "C3_GNN_prefetch_current980_request_v1",
++  "schema": "C3_GNN_prefetch_isolated980_request_v1",
+   "scientific_train_source_ref": {
+-    "path": "research/reviews/C3_GNN_prefetch_current980_root_20261015_v1/trainer_prefetch_v1.py",
+-    "sha256": "aa4f59501a002713b2445f5e18dff4421a6fa651cf1613441fea6bf5d7545dff"
++    "path": "research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2/trainer_prefetch_v1.py",
++    "sha256": "b2f08a3e84bd5fb65c5f3d95566ab082fb71a2dd0a826180a10aa518aa35025c"
+   },
+   "scientific_training_config_ref": {
+-    "path": "research/reviews/C3_GNN_prefetch_current980_root_20261015_v1/training_config.inactive.json",
++    "path": "research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2/training_config.inactive.json",
+     "sha256": "7c04aa9274ee091f7677287df68f74c5419d5b611a5672c69ae4095d0cdf7d26"
+   }
+ }
