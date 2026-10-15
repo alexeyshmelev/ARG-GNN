@@ -344,7 +344,7 @@ def main():
         prepared=bool(cleanup and cleanup.get("active") is True and cleanup.get("cleanup_failure") is None and len(cleanup.get("per_node_events",[]))==16)
         native_status=("V11 failed with actual root exit1; native optimizer updates unknown. V12 operational source reviewed; "
             +("exact namespace cleanup completed, GPU binding/activation and launch pending." if prepared else "root preparation/activation pending, no actual v12 launch receipt."))
-    native_latest_path="research/reviews/H048_boundary_contention_root_20261015_v1/native_MLM_progress_metadata_actual_v2.json"
+    native_latest_path="research/reviews/H048_boundary_contention_root_20261015_v1/native_MLM_progress_metadata_actual_v3.json"
     native_latest=maybe_read(native_latest_path)
     if native_latest and v12_launch and not v12_wait:
         latest_checkpoints=[r for r in native_latest["checkpoints"] if not r["symlink"]]
@@ -602,14 +602,21 @@ def main():
     table=["<!-- CURRENT_SCOREBOARD_START -->",f"**Scoreboard updated UTC: {stamp}.** [Every current setup, all cohorts and detailed metrics](research/current_scoreboard.md) · [All recorded historical/engineering metric receipts](research/all_recorded_metric_receipts.md)","",
         "| Current run | Device | Progress | Validation score |","|---|---:|---|---|"]
     for j in jobs:
+        if j["evaluation_completed"]:continue
         updates=str(min(j["updates_per_arm"].values()))+"/960 verified updates per arm (receipt lower bound)" if j["updates_per_arm"] else "optimizer updates not yet verified"
         table.append(f"| {j['hypothesis']} | GPU{j['GPU']} | {j['passes_completed']}/30 completed passes; {updates}; {j['runtime_status']} | {j['validation_score']} |")
-    table+=["| C3 remaining TRAIN014–019 | CPU | "+wave_text+" | no ancestry score |","| Original American VAL000 | CPU | "+val_status+" | no ancestry score |","| Native ARGformer | "+native_device+" | "+native_status+" | pending |",
-        "| Native ARGformer dataset counts | CPU | "+counts_status+" | no ancestry score |",
+    short_ready=14+sum(r["stage"]=="infer" and r["completed_and_wait0_verified"] for r in wave_status)
+    focal_ready=1+len(fanout_completed)+len(continuation_completed)
+    checkpoints=native_execution.get("checkpoint_metadata_only",[])
+    native_brief=("Author full-corpus MLM training. Latest observed checkpoint: "+", ".join(r["name"] for r in checkpoints)+
+        ". Five epochs / 224,775 planned updates. Final completion pending." if checkpoints and not v12_wait else native_status)
+    table+=["| American TRAIN preparation | CPU | "+str(short_ready)+"/20 inferred 2 Mb TRAIN parents ready. Exact 10k-focal plans: "+str(focal_ready)+"/20 completed; controlled continuation uses at most two CPU producers. | no ancestry score |",
+        "| Original American VAL000 | CPU | Full 30 Mb simulation, inference and 10k-focal/native-path preparation completed. Same 600 references and 1,000 queries. | predictions pending |",
         "| Original American VAL001–004 | CPU | "+remaining_val_status+" | no ancestry score |",
-        "| Native FLARE | CPU | "+flare_status+" | pending |",
-        "| Our C3 GNN | CPU preparation | TRAIN000 exact native focal/plans: "+focal_status+". "+fanout_status+". VAL000 inference completed; remaining TRAIN parents, checkpoint and full prespecified VAL gate pending | pending |",
-        "| Empirical data | CPU | "+real_status+" | completion "+("verified" if empirical_verified else "pending")+" |","",
+        "| Native ARGformer | "+native_device+" | "+native_brief+" | pending |",
+        "| Native FLARE | CPU | Author build, TRAIN000 full-site inference and prediction seal completed. Held-out VAL000 conversion: "+flare_val_conversion["status"]+". | held-out score pending |",
+        "| Our American C3 GNN | CPU preparation | "+str(focal_ready)+"/20 exact TRAIN plans completed. Fixed fit: 30 epochs / 600 complete-parent FP32 updates, then five original 30 Mb VAL parents. Executable integration underway. | pending |",
+        "| Empirical data | CPU | H045 probabilities, ancestry proportions and genotype PCA completed for 24 query haplotypes / 12 subjects. Descriptive only, without known ancestry truth. | completed |","",
         "**Current measured development scores:** H045 foreign-episode **96.8270 ± 0.5870%** Present182 span accuracy, matched own-state **96.8175 ± 0.6142%**. H046: "+h046_scores+". "+h046_outcome+" H047 original-risk **96.7777 ± 0.5970%**, balanced-risk **96.7576 ± 0.5287%**. SD is across eight VAL simulations, one optimizer seed. H048 accuracy remains pending. [All "+str(len(models))+" measured setups, all seven cohorts, NLL/F1/boundaries/Brier/ECE and training budgets](research/current_scoreboard.md#detailed-cohort-metrics).","",
         "[Fresh independent H048 novelty/cross-domain assessment]("+novelty_path+"). "+novelty_status,"",
         "**ARGformer paper fidelity:** "+table1_fidelity+" [Audit]("+table1_audit_path+").","",
