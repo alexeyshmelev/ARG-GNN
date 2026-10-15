@@ -1,0 +1,92 @@
+{
+  "CPU_join_contract": [
+    "Admit a separate bounded CPU serialization stage. No truth refs are accepted.",
+    "For each view, verify each single-split output metadata.splits==[split], all row counts, pooling/layer/dimension, CPU tensor dtypes, extant IDs, labels for reference only and absence of query labels.",
+    "Associate rows only with that exact split row_order_metadata.npz from preparation. Bind actual raw-path datasets, checkpoint, configs and native producer completions.",
+    "Preserve every output tensor value bit-for-bit and concatenate train then val with no sort/filter/normalization/cap. Require compatible tensor key sets and trailing shapes. Preserve row sidecars and full raw-path IDs.",
+    "Write combined native-format output with num_samples=sum, splits=[train,val], same embedding_dim/pooling_strategy/layer_index and unchanged labels/mapping when present. Record all four unmodified input refs and combined row-ID order.",
+    "Invoke unchanged native retrieve.py against complete combined reference corpus and all10000 combined query focal rows; topk1,q_batch1024,e_chunk100000.",
+    "Invoke existing native_top1_seal with combined outputs and original preparation/focals. Only external score opens private truth after sealing."
+  ],
+  "all_source_outputs_and_failed_products_preserved": true,
+  "author_training_code_or_numerical_YAML_changes": false,
+  "embedding_calls": [
+    {
+      "batch_size": 256,
+      "include_splits": "train",
+      "max_samples": 0,
+      "output_name": "query_paths_train_embeddings.pt",
+      "pooling": "head_norm",
+      "use_split_labels": false,
+      "view": "query_paths"
+    },
+    {
+      "batch_size": 256,
+      "include_splits": "val",
+      "max_samples": 0,
+      "output_name": "query_paths_val_embeddings.pt",
+      "pooling": "head_norm",
+      "use_split_labels": false,
+      "view": "query_paths"
+    },
+    {
+      "batch_size": 256,
+      "include_splits": "train",
+      "max_samples": 0,
+      "output_name": "contrastive_train_embeddings.pt",
+      "pooling": "head_norm",
+      "use_split_labels": true,
+      "view": "contrastive"
+    },
+    {
+      "batch_size": 256,
+      "include_splits": "val",
+      "max_samples": 0,
+      "output_name": "contrastive_val_embeddings.pt",
+      "pooling": "head_norm",
+      "use_split_labels": true,
+      "view": "contrastive"
+    }
+  ],
+  "execution_enabled": false,
+  "invocation": "Use existing native embeddings.py argv template, but exactly one split per invocation, actual per-parent I/O YAML and same final contrastive checkpoint for all four calls.",
+  "prohibited_identity_methods": [
+    "truncated_input_token_matching",
+    "embedding_value_matching",
+    "extant_node_ID_alone",
+    "query_truth"
+  ],
+  "schema": "american_c3_native_serialization_adaptation_proposal_v1",
+  "source_findings": [
+    {
+      "file": ".runtime/author_sources/argformer_f7545be7bca0/embeddings.py",
+      "finding": "Multiple requested splits are randomly interleaved by batch; output does not carry raw full-path IDs. Existing seal assumes train then val.",
+      "lines": [
+        233,
+        283,
+        321,
+        335,
+        398
+      ]
+    },
+    {
+      "file": "src/arggnn/american_c3_evaluate_v1.py",
+      "finding": "ordered() concatenates complete sidecar rows in expected_splits order train,val.",
+      "lines": [
+        54,
+        64
+      ]
+    },
+    {
+      "file": ".runtime/author_sources/argformer_f7545be7bca0/sequence_contrastive.py",
+      "finding": "train passes cfg.model but class-weight setup accesses cfg.train_loader. Missing config is caught and uniform weighting remains. Preserve this primary comparator behavior and disclose it.",
+      "lines": [
+        600,
+        604,
+        621,
+        832
+      ]
+    }
+  ],
+  "status": "requires_new_guarded_C3_consumer_and_CPU_joiner_before_run"
+}

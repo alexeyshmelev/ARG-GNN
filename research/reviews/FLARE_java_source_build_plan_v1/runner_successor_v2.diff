@@ -1,0 +1,169 @@
+--- src/arggnn/american_c3_flare_run_v1.py
++++ src/arggnn/american_c3_flare_run_v2.py
+@@ -3,6 +3,9 @@
+ import hashlib
+ import os
+ import re
++import json
++import resource
++import signal
+ import subprocess
+ import time
+ 
+@@ -11,7 +14,7 @@
+     PIN_REPOSITORY, PIN_TAG, PIN_COMMIT, EXPECTED_VERSION, NATIVE_OPTIONS, PROJECTION,
+     stage_completion, native_mac_threshold, native_file_hash, gzip_bound,
+ )
+-SOURCE = "src/arggnn/american_c3_flare_run_v1.py"
++SOURCE = "src/arggnn/american_c3_flare_run_v2.py"
+ DEFAULTS = dict(
+     schema="american_c3_flare_native_run_v1", execution_enabled=False,
+     conversion_ref=None, jar_ref=None, binary_provenance_ref=None, external_truth_ref=None,
+@@ -67,8 +70,22 @@
+     require(all(not os.environ.get(name) for name in
+                 ("JAVA_TOOL_OPTIONS", "_JAVA_OPTIONS", "JDK_JAVA_OPTIONS")),
+             "Unrecorded JVM option injection rejected")
+-    version = subprocess.run([str(java), "-version"], check=True, stdout=subprocess.PIPE,
+-                             stderr=subprocess.STDOUT, timeout=20).stdout
++    # Resource/placement flags only. Native FLARE/application options remain unchanged.
++    qualified_tmp = w.prepare("java_tmp/.unwritten_directory_marker", 0).parent
++    qualified_home = w.prepare("java_home/.unwritten_directory_marker", 0).parent
++    jvm_operational_flags = [
++        "-XX:-UsePerfData", "-XX:ActiveProcessorCount=4",
++        "-Djava.io.tmpdir="+str(qualified_tmp), "-Duser.home="+str(qualified_home),
++        "-XX:ErrorFile="+str(qualified_home/"hs_err_pid%p.log"),
++    ]
++    version_probe_argv = [str(java), *jvm_operational_flags, "-version"]
++    def no_core_dump():
++        resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
++    version_process = subprocess.run(version_probe_argv, check=True, stdout=subprocess.PIPE,
++        stderr=subprocess.STDOUT, timeout=20, cwd=w.path, preexec_fn=no_core_dump,
++        start_new_session=True)
++    version = version_process.stdout
++    require(len(version) <= 65536, "Bounded actual Java version output")
+     major = re.search(rb'(?:version\s+"?|openjdk\s+)([0-9]+)', version)
+     require(major and int(major.group(1)) >= 11
+             and hashlib.sha256(version).hexdigest() == cfg["java_version_output_sha256"],
+@@ -91,7 +108,7 @@
+     require(planned <= cfg["output_cap_bytes"], "Total native output/tmp bound exceeds admitted cap")
+     expected = {suffix: w.prepare("native/flare"+suffix, cap) for suffix, cap in caps.items()}
+     prefix = w.path/"native/flare"
+-    tmp = w.prepare("java_tmp/.unwritten_directory_marker", 0).parent
++    tmp = qualified_tmp
+     stdout_path = w.prepare("native_stdout.txt", stdout_cap)
+     argv = [
+         str(java), "-Xmx16g", "-XX:ActiveProcessorCount=4",
+@@ -104,39 +121,82 @@
+     ]
+     argv += [key+"="+(str(value).lower() if isinstance(value, bool) else str(value))
+              for key, value in NATIVE_OPTIONS.items()]
++    argv[1:1] = jvm_operational_flags
+     argv_ref = w.json("native_argv.json", dict(
+         argv=argv, conversion_ref=cfg["conversion_ref"], jar_ref=cfg["jar_ref"],
+         binary_provenance_ref=cfg["binary_provenance_ref"], java_version_ref=java_version_ref,
+         source_commit=PIN_COMMIT, expected_version=EXPECTED_VERSION,
+         native_options=NATIVE_OPTIONS, no_model_or_gt_ancestries_supplied=True,
++        JVM_operational_flags=jvm_operational_flags, version_probe_argv=version_probe_argv,
++        version_probe_returncode=version_process.returncode,
+         CPU_only=True, planned_output_and_tmp_bytes=planned, native_output_caps=caps,
+     ))
+     w.adapter.budget_check_v9(w.storage, boundary=True, required_write_bytes=planned)
+     child = None
+     start = time.monotonic()
++    operation_error = None
++    actual_rc = None
++    group_absent = True
+     try:
+         with stdout_path.open("xb") as stream:
+-            child = subprocess.Popen(argv, cwd=w.path, stdout=stream, stderr=subprocess.STDOUT)
+-            while child.poll() is None:
+-                require(time.monotonic()-start <= cfg["timeout_seconds"],
+-                        "Native CPU time limit exceeded; preserve partial output")
+-                require(stdout_path.stat().st_size <= stdout_cap, "Native stdout cap exceeded")
+-                for suffix, path in expected.items():
+-                    require(not path.exists() or path.stat().st_size <= caps[suffix],
+-                            "Native file output cap exceeded: "+suffix)
+-                require(sum(p.stat().st_size for p in tmp.rglob("*") if p.is_file())
+-                        <= cfg["max_java_tmp_bytes"], "JVM temporary-file cap exceeded")
+-                w.adapter.budget_check_v9(w.storage, boundary=True)
+-                time.sleep(1)
+-            require(child.returncode == 0, "Official native FLARE failed; no fallback/options change")
+-    except BaseException:
+-        if child is not None and child.poll() is None:
+-            child.terminate()
+-            try: child.wait(timeout=10)
+-            except subprocess.TimeoutExpired:
+-                child.kill()
+-                child.wait(timeout=5)
+-        raise
++            try:
++                child = subprocess.Popen(argv, cwd=w.path, stdout=stream, stderr=subprocess.STDOUT,
++                    start_new_session=True, preexec_fn=no_core_dump)
++                while child.poll() is None:
++                    require(time.monotonic()-start <= cfg["timeout_seconds"],
++                            "Native CPU time limit exceeded; preserve partial output")
++                    require(stdout_path.stat().st_size <= stdout_cap, "Native stdout cap exceeded")
++                    for suffix, path in expected.items():
++                        require(not path.exists() or path.stat().st_size <= caps[suffix],
++                                "Native file output cap exceeded: "+suffix)
++                    temporary_bytes = 0
++                    for item in tmp.rglob("*"):
++                        try:
++                            if item.is_file(): temporary_bytes += item.stat().st_size
++                        except FileNotFoundError:
++                            continue
++                    require(temporary_bytes <= cfg["max_java_tmp_bytes"], "JVM temporary-file cap exceeded")
++                    # No global storage mutex or stable-scope scan while native files grow.
++                    # Entire declared growth was checked immediately before Popen.
++                    time.sleep(1)
++            except BaseException as error:
++                operation_error = error
++            finally:
++                if child is not None:
++                    def signal_owned_group(signum):
++                        try: os.killpg(child.pid, signum)
++                        except ProcessLookupError: pass
++                    if operation_error is not None: signal_owned_group(signal.SIGTERM)
++                    try:
++                        actual_rc = child.wait(timeout=10 if operation_error is not None else 5)
++                    except BaseException as error:
++                        operation_error = operation_error or error
++                        signal_owned_group(signal.SIGKILL)
++                        actual_rc = child.wait()
++                    group_absent = False
++                    for _ in range(100):
++                        try: os.killpg(child.pid, 0)
++                        except ProcessLookupError:
++                            group_absent = True
++                            break
++                        signal_owned_group(signal.SIGKILL)
++                        time.sleep(.1)
++    except BaseException as error:
++        operation_error = operation_error or error
++    wait = dict(
++        schema="C3_native_FLARE_actual_wait_v1", returncode=actual_rc,
++        actual_direct_native_wait=child is not None, owned_process_group_ESRCH=group_absent,
++        operational_failure=None if operation_error is None else dict(
++            type=type(operation_error).__name__, message=str(operation_error)[:4096]),
++        native_argv_ref=argv_ref, seconds=time.monotonic()-start,
++    )
++    try: print(json.dumps(dict(native_actual_wait=wait), sort_keys=True), flush=True)
++    except BaseException: pass
++    require(group_absent, "Native group remains live; defer scope boundary/writes to root")
++    # This original guarded writer is reached only after all owned writers are terminal.
++    native_wait_ref = w.json("native_actual_wait.json", wait)
++    require(operation_error is None and actual_rc == 0,
++            "Official native FLARE failed; preserve partial outputs, no fallback/options change")
+     require(set(p.name for p in (w.path/"native").iterdir())
+             == {"flare"+suffix for suffix in expected}, "Unexpected or missing native products")
+     refs = {suffix: w.finish(path, caps[suffix]) for suffix, path in expected.items()}
+@@ -150,7 +210,8 @@
+         native_output_refs=refs, native_stdout_ref=stdout_ref, native_argv_ref=argv_ref,
+         jar_ref=cfg["jar_ref"], binary_provenance_ref=cfg["binary_provenance_ref"],
+         java_version_ref=java_version_ref, source_commit=PIN_COMMIT, native_version=EXPECTED_VERSION,
+-        native_options=NATIVE_OPTIONS, seconds=time.monotonic()-start,
++        native_options=NATIVE_OPTIONS, native_actual_wait_ref=native_wait_ref,
++        JVM_operational_flags=jvm_operational_flags, seconds=time.monotonic()-start,
+         query_ancestry_truth_opened=False, native_outputs_modified=False,
+         author_Table1_exact_reproduction=False,
+     ))

@@ -1,0 +1,250 @@
+--- research/reviews/American_C3_short_train2mb_wave_source_v1/root_wave_driver.py
++++ research/reviews/American_C3_short_train2mb_wave_supervision_v2/root_wave_driver.py
+@@ -10,8 +10,9 @@
+ import argparse,errno,fcntl,hashlib,importlib.util,json,os,selectors,subprocess,sys,time
+ 
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-REL="research/reviews/American_C3_short_train2mb_wave_source_v1"
++REL="research/reviews/American_C3_short_train2mb_wave_supervision_v2"
+ HERE=ROOT/REL
++SCHEDULER=ROOT/"research/reviews/American_C3_short_train2mb_wave_source_v1/scheduler"
+ SOURCE=REL+"/root_wave_driver.py"
+ CONDITION="C3_independent20x2Mb_TRAIN_1600haps_inferred_unary_v1"
+ STAGES=("simulate","infer")
+@@ -82,8 +83,8 @@
+ 
+ def stage_identity(parent,stage,row):
+     require(stage in STAGES,"Exact simulate/infer stage required")
+-    output=row["simulation_output_directory" if stage=="simulate" else "inference_output_directory"]
+-    job="American-C3-short2mb-"+parent+"-"+stage+"-v1"
++    output="experiments/results/American_C3_short_train2mb_wave_v2/"+parent+("/simulation" if stage=="simulate" else "/inference")
++    job="American-C3-short2mb-"+parent+"-"+stage+"-v2"
+     return HERE/"admitted"/parent/stage,output,job,"H041/"+job
+ 
+ 
+@@ -119,7 +120,7 @@
+ 
+ @contextmanager
+ def root_lock(name,nonblocking=False):
+-    folder=HERE/"scheduler";folder.mkdir(exist_ok=True)
++    folder=SCHEDULER;folder.mkdir(exist_ok=True)
+     fd=os.open(folder/name,os.O_RDWR|os.O_CREAT|os.O_NOFOLLOW,0o600)
+     try:
+         fcntl.flock(fd,fcntl.LOCK_EX|(fcntl.LOCK_NB if nonblocking else 0))
+@@ -130,7 +131,7 @@
+ 
+ @contextmanager
+ def parent_slot(parent):
+-    folder=HERE/"scheduler";folder.mkdir(exist_ok=True)
++    folder=SCHEDULER;folder.mkdir(exist_ok=True)
+     for index in range(4):
+         fd=os.open(folder/("parent_slot_%d.lock"%index),os.O_RDWR|os.O_CREAT|os.O_NOFOLLOW,0o600)
+         try:fcntl.flock(fd,fcntl.LOCK_EX|fcntl.LOCK_NB)
+@@ -142,7 +143,7 @@
+ 
+ def slot_valid(slot,parent):
+     require(slot["parent_id"]==parent and slot["index"] in range(4),"Exact owned parent slot required")
+-    named=HERE/"scheduler"/("parent_slot_%d.lock"%slot["index"])
++    named=SCHEDULER/("parent_slot_%d.lock"%slot["index"])
+     a,b=os.fstat(slot["fd"]),named.stat()
+     require((a.st_dev,a.st_ino)==(b.st_dev,b.st_ino),"Inherited live parent-slot identity required")
+ 
+@@ -183,6 +184,12 @@
+             for which in STAGES:
+                 own_key=stage_identity(registered["parent_id"],which,registered)[3]
+                 if own_key in state[0] and own_key not in state[1]:open_parents.add(registered["parent_id"])
++        for registered in read(pins["registry"])["parents"]:
++            for which in STAGES:
++                old_key="H041/American-C3-short2mb-"+registered["parent_id"]+"-"+which+"-v1"
++                if old_key in state[0] and old_key not in state[1]:open_parents.add(registered["parent_id"])
++                require(registered["parent_id"]!=parent or old_key not in state[0],
++                    "Earlier v1 parent admission exists; root must audit migration, never duplicate a registered parent")
+         require(parent in open_parents or len(open_parents)<4,"Root must credit/drain completed parents before a fifth allocation")
+         consumers=[*closure,config_ref,runtime,ref(SOURCE),pins["v5_driver"],pins["v3_driver"],
+             frozen_ref,pins["registry"],cfg_template,policy_ref,*state[3].values(),*evidence.values(),*dependencies.values()]
+@@ -221,6 +228,71 @@
+     return False
+ 
+ 
++
++def sampled_work_bytes_v2(path):
++    """Best-effort bounded live cache sample; tolerate entries removed mid-sample."""
++    total=count=0;stack=[path]
++    while stack:
++        folder=stack.pop()
++        try:
++            with os.scandir(folder) as entries:
++                for entry in entries:
++                    count+=1
++                    require(count<=50000 and not entry.is_symlink(),"Bounded private work directory required")
++                    try:
++                        if entry.is_dir(follow_symlinks=False):stack.append(Path(entry.path))
++                        else:total+=entry.stat(follow_symlinks=False).st_size
++                    except FileNotFoundError:continue
++        except FileNotFoundError:continue
++    return total
++
++
++def capture_worker_v2(command,env,slot,work,packet,parent,stage,admission_ref):
++    """No scope-boundary check or worker-scope write while the child can write."""
++    started=time.monotonic();failure=None;terminate_at=None;buffer=bytearray();dropped=0
++    proc=subprocess.Popen(command,cwd=ROOT,env=env,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,
++        start_new_session=True,pass_fds=(slot["fd"],))
++    roster=[dict(pid=os.getpid(),role="root_parent_stage_supervisor"),
++            dict(pid=proc.pid,role="direct_scientific_worker",process_group=proc.pid)]
++    selector=None;supervisor_error=None
++    try:
++        # Charged compact packet metadata is outside all worker scopes.
++        save(packet,"launch.json",dict(parent_id=parent,stage=stage,pid=proc.pid,worker_pid=proc.pid,
++            worker_process_group=proc.pid,supervisor_pid=os.getpid(),owned_process_roster=roster,
++            command=command,admission_ref=admission_ref,parent_slot=slot["index"],
++            slot_fd_inherited=True,actual_wait_pending=True,no_helper_launcher=True,
++            log_capture="bounded_RAM_until_direct_wait_and_process_group_drain"))
++        selector=selectors.DefaultSelector();selector.register(proc.stdout,selectors.EVENT_READ)
++        while selector.get_map():
++            if failure is None:
++                if time.monotonic()-started>(3600 if stage=="simulate" else 10800):failure="Stage operational walltime exceeded"
++                elif sampled_work_bytes_v2(work)>WORK_CAP:failure="Private work allowance exceeded"
++                elif datetime.now(timezone.utc)>=datetime.fromisoformat(env["ARGGNN_WAVE_STORAGE_EXPIRES"]):failure="Root admission expired"
++                if failure is not None:proc.terminate();terminate_at=time.monotonic()
++            if terminate_at is not None and proc.poll() is None and time.monotonic()-terminate_at>30:proc.kill()
++            for ready,_ in selector.select(timeout=1):
++                data=os.read(ready.fileobj.fileno(),65536)
++                if not data:selector.unregister(ready.fileobj);continue
++                amount=min(len(data),LOG_CAP-len(buffer));buffer.extend(data[:amount]);dropped+=len(data)-amount
++                if amount<len(data) and failure is None:
++                    failure="Retained log cap exceeded";proc.terminate();terminate_at=time.monotonic()
++        rc=proc.wait()
++    except BaseException as exc:
++        supervisor_error=dict(error_type=type(exc).__name__,error=str(exc))
++        failure=failure or "Supervisor capture failed; worker terminated and waited"
++        if proc.poll() is None:
++            proc.terminate()
++            try:proc.wait(timeout=30)
++            except subprocess.TimeoutExpired:proc.kill();proc.wait()
++        rc=proc.wait()
++    finally:
++        if selector is not None:selector.close()
++        proc.stdout.close()
++    return dict(pid=proc.pid,returncode=rc,operational_failure=failure,owned_process_roster=roster,
++        worker_process_group_drained=group_drained(proc.pid),buffer=buffer,dropped_log_bytes=dropped,
++        elapsed_seconds=time.monotonic()-started,supervisor_error=supervisor_error)
++
++
+ def _launch(parent,stage,policy_ref,slot):
+     slot_valid(slot,parent)
+     _,pins=frozen();row=registry_parent(parent,pins);qualifier(pins)
+@@ -247,61 +319,63 @@
+     module="arggnn.american_c3_simulate_v1" if stage=="simulate" else "arggnn.american_c3_observe_v3"
+     command=[str(executable),"-B","-m",module,"--execute","--admission",admitted["admission_ref"]["path"],
+              "--expected-admission-sha256",admitted["admission_ref"]["sha256"]]
+-    v3=v5.helper(read(pins["v5_frozen"])["refs"])
+-    log_path=auxiliary/"launch.log";started=time.monotonic();failure=None;retained=0;terminate_at=None
++    # One prelaunch owned-scope check covers the declared bounded retained log.
++    log_path=auxiliary/"launch.log"
+     guard.budget_check_v9(storage,boundary=True,required_write_bytes=LOG_CAP+8192)
+-    with log_path.open("xb") as log:
+-        proc=subprocess.Popen(command,cwd=ROOT,env=env,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,
+-            start_new_session=True,pass_fds=(slot["fd"],))
+-        roster=[dict(pid=os.getpid(),role="root_parent_stage_supervisor"),
+-                dict(pid=proc.pid,role="direct_scientific_worker",process_group=proc.pid)]
+-        launch=dict(parent_id=parent,stage=stage,pid=proc.pid,worker_pid=proc.pid,worker_process_group=proc.pid,
+-            supervisor_pid=os.getpid(),owned_process_roster=roster,command=command,admission_ref=admitted["admission_ref"],
+-            parent_slot=slot["index"],slot_fd_inherited=True,actual_wait_pending=True,no_helper_launcher=True)
+-        save(packet,"launch.json",launch,guard,storage)
+-        selector=selectors.DefaultSelector();selector.register(proc.stdout,selectors.EVENT_READ)
++    env["ARGGNN_WAVE_STORAGE_EXPIRES"]=spec["expires_at_utc"]
++    captured=capture_worker_v2(command,env,slot,work,packet,parent,stage,admitted["admission_ref"])
++    pid,rc=captured["pid"],captured["returncode"]
++    drained=captured["worker_process_group_drained"];failure=captured["operational_failure"]
++    log_ref=None;log_error=None
++    if drained:
++        # Direct worker is reaped and its process group is absent: no writer is
++        # active in this reservation, so stat-stable boundary checks are safe.
+         try:
+-            while selector.get_map():
+-                if failure is None:
+-                    if time.monotonic()-started>(3600 if stage=="simulate" else 10800):failure="Stage operational walltime exceeded"
+-                    elif v3.work_bytes(work)>WORK_CAP:failure="Private work allowance exceeded"
+-                    elif datetime.now(timezone.utc)>=datetime.fromisoformat(spec["expires_at_utc"]):failure="Root admission expired"
+-                    if failure is not None:proc.terminate();terminate_at=time.monotonic()
+-                if terminate_at is not None and proc.poll() is None and time.monotonic()-terminate_at>30:proc.kill()
+-                for ready,_ in selector.select(timeout=1):
+-                    data=os.read(ready.fileobj.fileno(),65536)
+-                    if not data:selector.unregister(ready.fileobj);continue
+-                    if failure is None and retained+len(data)>LOG_CAP:
+-                        failure="Retained log cap exceeded";proc.terminate();terminate_at=time.monotonic()
+-                    if failure is None:
+-                        guard.budget_check_v9(storage,boundary=True,required_write_bytes=len(data)+8192)
+-                        log.write(data);log.flush();retained+=len(data)
+-            rc=proc.wait()
+-        except BaseException:
+-            if proc.poll() is None:
+-                proc.terminate()
+-                try:proc.wait(timeout=30)
+-                except subprocess.TimeoutExpired:proc.kill();proc.wait()
+-            raise
+-        finally:selector.close();proc.stdout.close()
+-    drained=group_drained(proc.pid)
+-    if not drained:failure="Root-owned worker process group not fully drained; no completion credit"
+-    path=local(output)/"completed.json";completed_ref=ref(path) if path.exists() else None
+-    if rc==0 and completed_ref is None:failure="Exit0 without producer completion"
+-    wait=dict(parent_id=parent,stage=stage,pid=proc.pid,worker_pid=proc.pid,worker_process_group=proc.pid,
+-        supervisor_pid=os.getpid(),owned_process_roster=roster,returncode=rc,operational_failure=failure,
+-        worker_process_group_drained=drained,group_drain_check="killpg0_ESRCH_after_direct_wait",
+-        actual_direct_worker_wait=True,admission_ref=admitted["admission_ref"],driver_ref=ref(SOURCE),
+-        completed_ref=completed_ref,log_ref=ref(log_path),elapsed_seconds=time.monotonic()-started,
+-        parent_slot=slot["index"],retained_log_bytes=retained,finished_utc=datetime.now(timezone.utc).isoformat(),
++            guard.budget_check_v9(storage,boundary=True,required_write_bytes=len(captured["buffer"])+8192)
++            with log_path.open("xb") as stream:stream.write(captured["buffer"]);stream.flush();os.fsync(stream.fileno())
++            guard.budget_check_v9(storage,boundary=True)
++            log_ref=ref(log_path)
++        except Exception as exc:
++            log_error=dict(error_type=type(exc).__name__,error=str(exc))
++            failure=failure or "Post-terminal log materialization failed; preserve actual worker wait"
++            if log_path.exists():log_ref=ref(log_path)
++            import base64
++            save(packet,"terminal_log_materialization_failure.json",dict(
++                worker_pid=pid,returncode=rc,worker_process_group_drained=True,error=log_error,
++                first_32768_log_bytes_base64=base64.b64encode(captured["buffer"][:32768]).decode(),
++                root_followup_required=True))
++    else:
++        failure="Root-owned worker group not drained; no scope scan/log write/credit"
++        # Preserve compact triage outside active worker scopes; retain no false
++        # full-log claim. Root must drain the exact roster before recovery.
++        import base64
++        save(packet,"undrained_group_log_prefix.json",dict(
++            worker_pid=pid,worker_process_group=pid,
++            first_32768_log_bytes_base64=base64.b64encode(captured["buffer"][:32768]).decode(),
++            full_log_not_materialized=True,root_followup_required=True))
++    path=local(output)/"completed.json";completed_ref=ref(path) if path.exists() and drained else None
++    if rc==0 and completed_ref is None:failure=failure or "Exit0 without terminal producer completion"
++    wait=dict(parent_id=parent,stage=stage,pid=pid,worker_pid=pid,worker_process_group=pid,
++        supervisor_pid=os.getpid(),owned_process_roster=captured["owned_process_roster"],
++        returncode=rc,operational_failure=failure,worker_process_group_drained=drained,
++        group_drain_check="killpg0_ESRCH_after_direct_wait",actual_direct_worker_wait=True,
++        admission_ref=admitted["admission_ref"],driver_ref=ref(SOURCE),completed_ref=completed_ref,
++        log_ref=log_ref,elapsed_seconds=captured["elapsed_seconds"],parent_slot=slot["index"],
++        retained_log_bytes=len(captured["buffer"]),dropped_log_bytes=captured["dropped_log_bytes"],
++        supervisor_capture_error=captured["supervisor_error"],
++        log_materialized_only_after_worker_group_drain=drained,
++        terminal_log_materialization_error=log_error,
++        supervisor_owned_scope_checks_while_worker_live=0,
++        finished_utc=datetime.now(timezone.utc).isoformat(),
+         root_must_observe_supervisor_exit_before_credit=True)
+-    try:save(packet,"actual_wait.json",wait,guard,storage)
+-    except Exception as exc:
+-        save(packet,"actual_wait_guard_failure.json",dict(wait=wait,error_type=type(exc).__name__,error=str(exc)));raise
+-    require(rc==0 and failure is None,"Stage failed; preserve all partial artifacts and stop this parent")
++    if drained:
++        try:save(packet,"actual_wait.json",wait,guard,storage)
++        except Exception as exc:
++            save(packet,"actual_wait_guard_failure.json",dict(wait=wait,error_type=type(exc).__name__,error=str(exc)));raise
++    else:save(packet,"actual_wait.json",wait)
++    require(rc==0 and failure is None,"Stage failed; preserve partial artifacts and stop this parent")
+     successful_stage(parent,stage,pins)
+     return wait
+-
+ 
+ def launch_stage_v1(parent,stage,policy_ref):
+     with parent_slot(parent) as slot:return _launch(parent,stage,policy_ref,slot)

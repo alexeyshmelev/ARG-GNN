@@ -1,0 +1,245 @@
+{
+  "comparison": {
+    "architecture_only_claim_supported": false,
+    "gnn_information": "independent TRAIN query-ancestry labels plus known reference inputs",
+    "inferential_unit": "independent parent, not10000 correlated focal records",
+    "native_information": "unlabelled target-ARG paths plus known reference labels",
+    "primary": "matched-observation matched-focal complete pipeline comparison"
+  },
+  "execution_enabled": false,
+  "gnn": {
+    "actual_single_block_full_forward_backward_optimizer_memory_qualification_required": true,
+    "ancestry_seeds": [
+      22001,
+      22002,
+      22003,
+      22004,
+      22005,
+      22006,
+      22007,
+      22008,
+      22009,
+      22010,
+      22011,
+      22012,
+      22013,
+      22014,
+      22015,
+      22016,
+      22017,
+      22018,
+      22019,
+      22020
+    ],
+    "budget_origin": "New fixed-budget proposal, not an author setting, trained result, runtime estimate or guarantee of convergence.",
+    "checkpoint_epochs": [
+      5,
+      10,
+      15,
+      20,
+      25,
+      30
+    ],
+    "complete_parent_plan_rejection_caps": {
+      "max_nodes_per_block": 16000000,
+      "max_sites_per_block": 200000,
+      "max_trees_per_block": 16384
+    },
+    "complete_parent_steps_per_epoch": 20,
+    "epochs": 30,
+    "focal_target_exposures": 6000000,
+    "forbidden_fallbacks": [
+      "truncated_BPTT",
+      "detached_history",
+      "hidden_block_reset",
+      "tree_or_sample_pruning",
+      "C4_weight_transfer",
+      "silently_shorter_parent_replacement"
+    ],
+    "gradient_clip": 1.0,
+    "independent_runs": 1,
+    "limitations": "2Mb parents undersample the approximately8.3Mb recombination scale at12 generations/r1e-8; 30Mb evaluation is length transfer.",
+    "max_training_length_bp": 2000000,
+    "model_kwargs": {
+      "checkpoint_sites": true,
+      "class_order": [
+        "EUR",
+        "EAS",
+        "AFR"
+      ],
+      "donor_cohorts": 2,
+      "expected_haplotypes": 1600,
+      "hidden_dim": 32,
+      "site_chunk_size": 256
+    },
+    "model_seed": 70001,
+    "model_selection": "Once original five 30Mb VAL parents are prepared, choose largest mean per-parent macro-F1 among six frozen checkpoints, ties earlier epoch; no TEST selection. Until then training has no selected held-out checkpoint.",
+    "no_early_stopping_or_budget_increase_from_TEST": true,
+    "number_of_TRAIN_parents": 20,
+    "optimizer": {
+      "betas": [
+        0.9,
+        0.999
+      ],
+      "eps": 1e-08,
+      "lr": 0.001,
+      "name": "torch.optim.AdamW",
+      "weight_decay": 0.0001
+    },
+    "optimizer_updates": 600,
+    "parent_ids": [
+      "american_c3_short_train_000",
+      "american_c3_short_train_001",
+      "american_c3_short_train_002",
+      "american_c3_short_train_003",
+      "american_c3_short_train_004",
+      "american_c3_short_train_005",
+      "american_c3_short_train_006",
+      "american_c3_short_train_007",
+      "american_c3_short_train_008",
+      "american_c3_short_train_009",
+      "american_c3_short_train_010",
+      "american_c3_short_train_011",
+      "american_c3_short_train_012",
+      "american_c3_short_train_013",
+      "american_c3_short_train_014",
+      "american_c3_short_train_015",
+      "american_c3_short_train_016",
+      "american_c3_short_train_017",
+      "american_c3_short_train_018",
+      "american_c3_short_train_019"
+    ],
+    "parent_order_seed": 70002,
+    "path_sampling_seeds": [
+      92201,
+      92202,
+      92203,
+      92204,
+      92205,
+      92206,
+      92207,
+      92208,
+      92209,
+      92210,
+      92211,
+      92212,
+      92213,
+      92214,
+      92215,
+      92216,
+      92217,
+      92218,
+      92219,
+      92220
+    ],
+    "precision": "fp32",
+    "prespecified_query_focals_per_parent": 10000,
+    "regime": "fresh_C3_supervised_short_independent_complete_parents",
+    "registry_ref": {
+      "path": "research/reviews/American_C3_short_train2mb_wave_source_v1/parent_registry.inactive.json",
+      "sha256": "c75c111bc48f94d164fe9d6dfe4f8796290b03d1093aca88602049ed47f80e37"
+    },
+    "scheduler": {
+      "name": "constant_learning_rate",
+      "step_unit": "one_complete_parent"
+    },
+    "seed_uncertainty_not_established": true,
+    "sequence_length_bp": 2000000,
+    "smoke_budget_is_not_main_training": true,
+    "total_independent_TRAIN_bp": 40000000
+  },
+  "native": {
+    "MLM": {
+      "checkpoint_interval": "500ba",
+      "checkpoints_to_keep": 1,
+      "device_microbatch_size": 512,
+      "drop_last_train": true,
+      "epochs": 5,
+      "eval_interval": "500ba",
+      "eval_subset_num_batches": 10,
+      "global_batch_size": 512,
+      "gradient_clip": 1.0,
+      "mlm_probability_train": 0.3,
+      "mlm_probability_validation": 0.15,
+      "optimizer": {
+        "betas": [
+          0.9,
+          0.98
+        ],
+        "eps": 1e-06,
+        "filter_bias_norm_wd": true,
+        "lr": 0.0005,
+        "name": "decoupled_adamw",
+        "weight_decay": 1e-05
+      },
+      "optimizer_updates_one_GPU": "5 * floor(actual_MLM_train_path_count/512)",
+      "precision": "amp_bf16",
+      "scheduler": {
+        "alpha_f": 0.02,
+        "name": "linear_decay_with_warmup",
+        "t_warmup": "0.06dur"
+      },
+      "seed": 17
+    },
+    "architecture": {
+      "heads": 12,
+      "hidden_size": 768,
+      "intermediate_size": 3072,
+      "layers": 12,
+      "max_seq_len": 128
+    },
+    "author_commit": "f7545be7bca0200fb39aeb7f94a8e5f0b6bf5596",
+    "checkpoint_rule": "Prespecified final completed release checkpoint, with actual Composer checkpoint existence/timestamp and state verified; do not assume MaxMetricTracker saves its reported maximum.",
+    "class_weights": "uniform_fallback_in_current_author_code_despite_use_class_weights_true",
+    "contrastive": {
+      "balanced_sampling": false,
+      "checkpoint_interval": "20ba",
+      "checkpoints_to_keep": -1,
+      "device_microbatch_size": 4096,
+      "drop_last_train": true,
+      "epochs": 1,
+      "eval_interval": "20ba",
+      "eval_subset_num_batches": 200,
+      "global_batch_size": 4096,
+      "gradient_accumulation_is_not_equivalent_microbatch_fallback": true,
+      "normalize": true,
+      "optimizer": {
+        "betas": [
+          0.9,
+          0.999
+        ],
+        "eps": 1e-06,
+        "lr": 2e-05,
+        "name": "decoupled_adamw",
+        "weight_decay": 1e-06
+      },
+      "optimizer_updates_one_GPU": "floor(actual_contrastive_train_path_count/4096)",
+      "paper_default_temperature": 0.05,
+      "precision": "fp32",
+      "preserve_full_in_batch_pair_loss": true,
+      "scheduler": {
+        "alpha_f": 0.02,
+        "name": "linear_decay_with_warmup",
+        "t_warmup": "0.1dur"
+      },
+      "seed": 36,
+      "similarity": "dot",
+      "temperature": 0.3
+    },
+    "counts_and_vocabulary_needed_before_storage_or_GPU_admission": true,
+    "fitted_parent_count": "One fresh native pipeline per evaluated ARG; never pool distinct per-ARG vocabularies or reuse a model across held-out parents.",
+    "minimum_data_requirement": "Nonzero complete training batches under exact release drop_last; reject rather than reduce native batch or corpus.",
+    "regime": "fresh_per_ARG_transductive_MLM_then_known_reference_supervised_contrastive",
+    "training_config_plumbing_correction": false,
+    "unchanged_author_algorithm": true
+  },
+  "schema": "american_c3_model_training_budget_proposal_v1",
+  "splits": {
+    "VAL_TEST_length_bp": 30000000,
+    "VAL_TEST_status": "preserved_deferred_not_prepared_or_admitted_by_this_document",
+    "existing_30Mb_american_c3_train_000": "TRAIN only; excluded from this20-parent2Mb condition",
+    "original_TEST_parents": 10,
+    "original_VAL_parents": 5
+  },
+  "status": "unadmitted_source_proposal_no_measured_fit_or_timing"
+}
