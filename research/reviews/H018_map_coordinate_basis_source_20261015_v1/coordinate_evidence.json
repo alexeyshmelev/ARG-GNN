@@ -1,0 +1,132 @@
+{
+  "Morgans_conversion": "M = cM / 100",
+  "actual_VCF_tree_model_checkpoint_target_read": false,
+  "actual_map_header": [
+    "pos",
+    "chr",
+    "cM"
+  ],
+  "all_prior_source_records_preserved": true,
+  "assembly_evidence": "Pinned GLIMPSE release path maps/genetic_maps.b37/chr22.b37.gmap.gz; compatible with frozen H018 GRCh37/b37 contract, no liftover applied.",
+  "cumulative_distance_units": "cM",
+  "network_retries": 0,
+  "newly_fetched_source_bytes": 8610,
+  "recommended_position_basis": "absolute_bp1",
+  "schema": "H018_GLIMPSE_map_coordinate_evidence_v1",
+  "scope_limit": "This establishes the pinned GLIMPSE consumer interface and retained map-source metadata. It is not an independent historical-map calibration, empirical site join, Relate runtime or ancestry validation.",
+  "second_column": "chromosome22, not a rate",
+  "source_code_or_helper_executed": false,
+  "source_commit": "103ca071ea9e4e648192916142e5ed353ac94e27",
+  "source_interface_chain": [
+    {
+      "exact_source": "int pos = line_main->pos + 1;",
+      "interpretation": "BCF internal position is zero-based; adding1 recovers VCF text POS, a one-based absolute base position.",
+      "line": 119,
+      "source_ref": {
+        "path": "research/reviews/H018_map_coordinate_basis_source_20261015_v1/genotype_reader.cpp",
+        "sha256": "02ee2237a35b5495a29a8f2c345aa488bac13275ee418381c1647078fb7c56dd"
+      }
+    },
+    {
+      "exact_source": "variant * newV = new variant (chr, pos, id, ref, alt, V.size());",
+      "interpretation": "The resulting VCF POS is passed as the variant bp constructor argument.",
+      "line": 123,
+      "source_ref": {
+        "path": "research/reviews/H018_map_coordinate_basis_source_20261015_v1/genotype_reader.cpp",
+        "sha256": "02ee2237a35b5495a29a8f2c345aa488bac13275ee418381c1647078fb7c56dd"
+      }
+    },
+    {
+      "exact_source": "this->bp = bp;",
+      "interpretation": "The constructor preserves that absolute one-based bp argument without an offset.",
+      "line": 29,
+      "source_ref": {
+        "path": "research/reviews/H018_map_coordinate_basis_source_20261015_v1/variant.cpp",
+        "sha256": "72d88a596fc5739ec73ce79cbe6bb6fd8c536f4ad19eff39507df976402e5fee"
+      }
+    },
+    {
+      "exact_source": "map_pos.insert(pair < int , variant * > (v->bp, v));",
+      "interpretation": "Variants are indexed by the preserved one-based bp value.",
+      "line": 61,
+      "source_ref": {
+        "path": "research/reviews/H018_map_acquisition_root_source_v1/acquired_v1/variant_map.cpp",
+        "sha256": "544e35c9e76a2fb2885f71b494b73b222d725c296963840cbd0284ddf3516a91"
+      }
+    },
+    {
+      "exact_source": "int curr_bp = atoi(tokens[0].c_str());",
+      "interpretation": "The genetic-map first column is read as integer bp unchanged; no plus/minus1 conversion.",
+      "line": 46,
+      "source_ref": {
+        "path": "research/reviews/H018_map_acquisition_root_source_v1/acquired_v1/gmap_reader.cpp",
+        "sha256": "95a3032f219fc997d40f766e70ae5c356f4692f6c8454528bdfbee58626b0c63"
+      }
+    },
+    {
+      "exact_source": "double curr_cm = atof(tokens[2].c_str());",
+      "interpretation": "The third source column is cumulative cM, consistent with the actual pos/chr/cM header and function names.",
+      "line": 47,
+      "source_ref": {
+        "path": "research/reviews/H018_map_acquisition_root_source_v1/acquired_v1/gmap_reader.cpp",
+        "sha256": "95a3032f219fc997d40f766e70ae5c356f4692f6c8454528bdfbee58626b0c63"
+      }
+    },
+    {
+      "exact_source": "vector  < variant * > vecS = getByPos(pos_bp[l]);",
+      "interpretation": "Source map positions are matched directly to the one-based variant index.",
+      "line": 67,
+      "source_ref": {
+        "path": "research/reviews/H018_map_acquisition_root_source_v1/acquired_v1/variant_map.cpp",
+        "sha256": "544e35c9e76a2fb2885f71b494b73b222d725c296963840cbd0284ddf3516a91"
+      }
+    },
+    {
+      "interpretation": "Interpolation subtracts the same variant.bp and source pos_bp coordinates directly, with no coordinate offset.",
+      "line": 89,
+      "source_ref": {
+        "path": "research/reviews/H018_map_acquisition_root_source_v1/acquired_v1/variant_map.cpp",
+        "sha256": "544e35c9e76a2fb2885f71b494b73b222d725c296963840cbd0284ddf3516a91"
+      }
+    }
+  ],
+  "source_refs": {
+    "acquisition_completion": {
+      "path": "research/reviews/H018_map_acquisition_root_source_v1/acquired_v1/completed.json",
+      "sha256": "58f7772cf4f17d4905c760be46b762cdbfe8970a2fbec09ea3f01987e6c8dc23"
+    },
+    "extension_endpoint": {
+      "path": "research/reviews/H018_R16_10Mb_extension_source_v1/frozen_endpoint.json",
+      "sha256": "8a84d4c02f44e2a264ffa8504a7eb4c4f899230f700def5c06cc1ccdb109badd"
+    },
+    "genotype_reader": {
+      "path": "research/reviews/H018_map_coordinate_basis_source_20261015_v1/genotype_reader.cpp",
+      "sha256": "02ee2237a35b5495a29a8f2c345aa488bac13275ee418381c1647078fb7c56dd"
+    },
+    "gmap_reader": {
+      "path": "research/reviews/H018_map_acquisition_root_source_v1/acquired_v1/gmap_reader.cpp",
+      "sha256": "95a3032f219fc997d40f766e70ae5c356f4692f6c8454528bdfbee58626b0c63"
+    },
+    "qualification_helper": {
+      "path": "research/reviews/H018_genealogy_next_source_v1/qualification_source.py",
+      "sha256": "8ca31c108ebc99b2eb1cd363e3ebb29e3173697521076edf0ef4c7c4304f82b0"
+    },
+    "retained_GLIMPSE_tree": {
+      "path": ".runtime/author_sources/public_realdata_metadata_join_v1/GLIMPSE_v1_tree.json",
+      "sha256": "b27b3729108b32e5be99d43f26dfa7e6486a3ebf237bb58b92346771d3b4e5f7"
+    },
+    "source_map": {
+      "path": "research/reviews/H018_map_acquisition_root_source_v1/acquired_v1/chr22.b37.gmap.gz",
+      "sha256": "75b0026033139f7c2515eda80c330d93d1eb728374a31e0a713589c0d413b24f"
+    },
+    "variant_constructor": {
+      "path": "research/reviews/H018_map_coordinate_basis_source_20261015_v1/variant.cpp",
+      "sha256": "72d88a596fc5739ec73ce79cbe6bb6fd8c536f4ad19eff39507df976402e5fee"
+    },
+    "variant_map": {
+      "path": "research/reviews/H018_map_acquisition_root_source_v1/acquired_v1/variant_map.cpp",
+      "sha256": "544e35c9e76a2fb2885f71b494b73b222d725c296963840cbd0284ddf3516a91"
+    }
+  },
+  "status": "source_review_complete_root_semantic_activation_required"
+}

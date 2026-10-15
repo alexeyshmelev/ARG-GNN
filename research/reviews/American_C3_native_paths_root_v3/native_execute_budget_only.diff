@@ -1,0 +1,85 @@
+--- original native execute
++++ v3 budget/assertion execute
+@@ -1,27 +1,42 @@
+ def execute(cfg,w):
+     import numpy as np,tskit
++    from .american_c3_common_v1 import require,ref,bound,read,CLASSES
+     m=read(cfg['observation_ref']);roster=read(m['roster_ref']);rows=roster['samples'];ts=tskit.load(str(bound(m['tree_ref'])))
+     require(roster['parent_id']==m['parent_id'] and roster['class_order']==list(CLASSES)
+         and [r['sample_index'] for r in rows]==list(range(len(rows))),'Stable original genotype-column/parent identity required')
+     require(m['schema']=='american_c3_observed_v1' and m['class_order']==list(CLASSES)
+         and m['genealogy_kind']==cfg['genealogy_kind'] and m['query_ancestry_truth_in_inputs'] is False,'Declared C3 observation/genealogy kind required')
++    require(len(rows)==1600 and [r['observed_node_id'] for r in rows]==list(range(1600))
++        and [r['role'] for r in rows]==['pure_source_reference']*600+['query']*1000,
++        'Exact original first600 reference / last1000 query role partition required; no fallback')
++    require((ts.num_samples,ts.num_trees,ts.num_nodes)==(1600,76863,106769),
++        'Exact full original tree dimensions for occurrence serialization required')
+     require(ts.num_migrations==0 and (ts.tables.nodes.population==-1).all() and ts.num_populations==0,
+             'No migration/internal source labels in model genealogy')
+     require(list(map(int,ts.samples()))==[r['observed_node_id'] for r in rows],'Original ordered sampled identity required')
+     require(ts.num_nodes<2**31 and ts.num_samples*ts.num_trees<=cfg['max_path_occurrences']
+         and storage_bound(cfg)<=cfg['output_cap_bytes'],'Full corpus occurrence/32bit/production bound exceeded')
+     f=author_functions();keys={};seqs=[];mapping={};tokens=0;first=[]
++    reference_paths=reference_tokens=max_raw=0
+     for sample in ts.samples():
+         for tree in ts.trees():
+             key=f['get_path_key'](tree,int(sample))
+             require(len(key)<=cfg['max_raw_path_nodes'],'Complete raw path length cap exceeded; no truncated deduplication')
++            max_raw=max(max_raw,len(key))
++            require(len(key)<=29,'Exact full-count maximum29 required for serialization proof')
+             if key not in keys:
+                 require(len(seqs)<cfg['max_unique_paths'],'Unique-path cap exceeded; no sampling/subset fallback')
+                 tokens+=len(key);require(tokens<=cfg['max_path_tokens'],'Complete path-token cap exceeded')
+                 keys[key]=len(seqs);seqs.append(list(key));mapping[key]=set();first.append(tree.index)
++                if key[0]<600:
++                    reference_paths+=1;reference_tokens+=len(key)
+             mapping[key].add(tree.index)
++    require((len(seqs),tokens,reference_paths,reference_tokens,max_raw)==
++        (25574587,316672003,9583977,116080787,29),
++        'Exact complete corpus/reference counts required before durable products; no subset fallback')
+     vocabulary=f['build_vocab_from_sequences'](seqs)
+     v=len(vocabulary['node_id_tokens']);require(v<=cfg['max_vocabulary_nodes'],'Observed vocabulary cap exceeded')
++    require(v==106769,'Exact original complete vocabulary required')
+     # Exact release: shuffle ALL unique raw full paths with seed42 and90/10.
+     train,val=f['split_unique_sequences'](seqs.copy(),train_frac=.9)
+     sample_meta={r['observed_node_id']:r for r in rows};trees=list(ts.breakpoints())
+@@ -34,7 +49,7 @@
+     right=np.asarray([trees[first[int(i)]+1] for i in chosen],dtype=np.float64)
+     positions=(left+right)/2
+     chosen_set=set(map(int,chosen))
+-    focal_ref=w.npz('focals.npz',record_ids=chosen,sample_nodes=samples,
++    focal_ref=npz_save_v3(w,'focals.npz',record_ids=chosen,sample_nodes=samples,
+         sample_indices=np.asarray([sample_meta[int(u)]['sample_index'] for u in samples],dtype=np.int64),
+         parent_id=np.asarray(m['parent_id']),class_order=np.asarray(CLASSES),positions_bp0=positions,
+         first_occurrence_intervals_bp=np.column_stack((left,right)))
+@@ -46,24 +61,27 @@
+         for view,selected in views.items():
+             require(selected,'Every registered native view/split must be nonempty')
+             ids=[keys[tuple(s)] for s in selected]
+-            planned=5*sum(map(len,selected))+32*len(selected)+64*v+pickle_margin
++            planned=native_dataset_bound_v3(len(selected),sum(map(len,selected)),v)
+             dataset_refs[f'{view}/{split}']=w.pickle(f'{view}/{split}/raw_{split}_sequences_and_vocab.pkl',
+                 dict(raw_sequences=selected,vocab=vocabulary),planned)
+             meta=dict(record_ids=np.asarray(ids,dtype=np.int64),sample_nodes=np.asarray([s[0] for s in selected],dtype=np.int64),
+                 sample_indices=np.asarray([sample_meta[s[0]]['sample_index'] for s in selected],dtype=np.int64),
+                 parent_id=np.asarray(m['parent_id']),class_order=np.asarray(CLASSES))
+             if view=='contrastive':meta['reference_classes_0based']=np.asarray([sample_meta[s[0]]['observed_reference_class'] for s in selected],dtype=np.int64)
+-            view_refs[f'{view}/{split}']=w.npz(f'{view}/{split}/row_order_metadata.npz',**meta)
++            view_refs[f'{view}/{split}']=npz_save_v3(w,f'{view}/{split}/row_order_metadata.npz',**meta)
+             if view=='contrastive':
+                 labels=[sample_meta[s[0]]['observed_reference_class'] for s in selected]
+                 require(set(labels)<=set(range(3)),'Only known reference classes enter native contrastive labels')
+                 w.pickle(f'{view}/{split}/labels.pkl',labels,5*len(labels)+pickle_margin)
+     vocab_ref=w.pickle('vocab.pkl',vocabulary,64*v+pickle_margin)
+-    map_ref=w.pickle('sequence_to_tree_indices.pkl',mapping,5*tokens+64*len(seqs)+5*ts.num_samples*ts.num_trees+pickle_margin)
++    map_ref=w.pickle('sequence_to_tree_indices.pkl',mapping,mapping_bound_v3(tokens,len(seqs),ts.num_samples,ts.num_trees))
+     return w.json('completed.json',dict(status='completed_native_C3_path_preparation',source_author_function_ref=ref(AUTHOR),
+         observation_ref=cfg['observation_ref'],parent_id=m['parent_id'],genealogy_kind=m['genealogy_kind'],class_order=list(CLASSES),
+         native_dataset_refs=dataset_refs,full_path_id_order_refs=view_refs,vocab_ref=vocab_ref,sequence_to_tree_indices_ref=map_ref,
+         focals_ref=focal_ref,focal_coordinate_rule='label-blind first-occurrence midpoint: reconstruction assumption, not recovered Table1 rule',
+         unique_paths=len(seqs),path_tokens=tokens,path_occurrences=ts.num_samples*ts.num_trees,vocabulary_nodes=v,
+         native_split_seed=42,native_train_fraction=.9,query_focal_count=len(chosen),
+-        contrastive_labels_reference_only=True,query_embedding_view_prespecified_focals_only=True,query_ancestry_truth_opened=False,author_Table1_exact_reproduction=False))+        contrastive_labels_reference_only=True,query_embedding_view_prespecified_focals_only=True,query_ancestry_truth_opened=False,author_Table1_exact_reproduction=False,
++        reference_unique_paths=reference_paths,reference_path_tokens=reference_tokens,max_raw_path_nodes=max_raw,
++        budget_successor_source_ref=ref(SOURCE),scientific_preparation_original_source_ref=ORIGINAL_PATHS_REF,
++        exact_per_sample_counts_ref=PER_SAMPLE_REF,native_serialization_bound_bytes=storage_bound(cfg)))

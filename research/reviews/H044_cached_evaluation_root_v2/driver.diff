@@ -1,0 +1,188 @@
+--- original/root_driver_v4.py
++++ cached/root_driver_v2.py
+@@ -1,4 +1,4 @@
+-"""H044 root-only minimal admission/launch driver. Default is inert.
++"""H044 cached-evaluation-only immutable root admission/launch driver. Default is inert.
+ 
+ Uses current completed-credit guard without memo wrappers, preserves reserve pins,
+ and buffers logs in RAM through original direct wait and owned-group drain.
+@@ -7,8 +7,8 @@
+ import argparse,collections,ctypes,hashlib,importlib.util,json,os,selectors,signal,subprocess,time
+ from datetime import datetime,timedelta,timezone
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-SOURCE="research/reviews/H044_marker_resolution_root_v1/root_driver_v4.py"
+-CONTEXT="research/reviews/H044_marker_resolution_root_v1/context_factory_v2.py"
++SOURCE="research/reviews/H044_cached_evaluation_root_v2/root_driver_v2.py"
++CONTEXT="research/reviews/H044_cached_evaluation_root_v2/context_factory_v2.py"
+ CORE="483d78bf2ef3c917d65ecf1dde5a7809bfadc21194c9f9a90394ce5c532fdd5e"
+ BASE="a8049bc103afb1cbbbce6f8fc3707a21de9613b23034599641b688994fc5caa3"
+ 
+@@ -37,53 +37,74 @@
+     m.configure_v2(c.REPAIR_REF,policy_ref=c.POLICY_REF);return m
+ def admit(request_ref):
+     r=read(request_ref);c=context();phase=r["phase"]
+-    require(r["schema"]=="H044_marker_root_admission_request_v1" and r["status"]=="active"
+-        and r["root_authorizer"]=="root_agent" and phase in ("prepare","train","evaluate"),"Active exact root request")
+-    require(r["physical_gpu"] is None if phase=="prepare" else r["physical_gpu"] in (4,5),"CPU or physicalGPU4/5")
++    require(r["schema"]=="H044_cached_evaluation_admission_request_v2" and r["status"]=="active"
++        and r["root_authorizer"]=="root_agent" and phase=="evaluate","Active evaluation-only root request required")
++    require(r["physical_gpu"] in (4,5) and r["reserved_bytes"]==c.OUTPUT_RESERVATION
++        and r["max_cpu_rss_bytes"]==c.CPU_PLANNING_CAP
++        and r["max_cuda_reserved_bytes"]==50_000_000_000,
++        "Original GPU4/5,100MB output,256GB CPU and50GB CUDA caps required")
+     packet=ROOT/r["packet_directory"];output=r["output_directory"];aux=r["worker_auxiliary_scope"]
+     require(not packet.exists() and not (ROOT/output).exists() and not (ROOT/aux).exists(),"Fresh packet/output/aux, no replay")
+     require(packet.resolve()==packet and (ROOT/output).resolve()==ROOT/output and (ROOT/aux).resolve()==ROOT/aux,"Canonical root-owned paths")
+-    cfg=read(r["config_ref"]);sources=read(cfg["source_manifest_ref"])["source_sha256"]
+-    require(cfg["schema"]=="H044_marker_execution_config_v1" and cfg["hypothesis_id"]=="H044","H044 config")
+-    for path,digest in sources.items():require(ref(path)["sha256"]==digest,"Frozen source differs")
+-    require(sources[CONTEXT]==ref(CONTEXT)["sha256"] and sources[SOURCE]==ref(SOURCE)["sha256"],"Actual context/driver closure")
++    cfg=read(r["config_ref"]);require(r["config_ref"]==c.ORIGINAL_CONFIG_REF,"Original immutable H044 config required")
++    frozen=read(cfg["source_manifest_ref"]);sources=read(r["source_manifest_ref"])
++    require(cfg["schema"]=="H044_marker_execution_config_v1" and cfg["hypothesis_id"]=="H044"
++        and frozen["schema"]=="H044_marker_root_source_manifest_v1"
++        and sources["schema"]=="H044_cached_evaluation_root_source_manifest_v2"
++        and sources["frozen_source_manifest_ref"]==cfg["source_manifest_ref"]
++        and all(sources["source_sha256"].get(p)==d for p,d in frozen["source_sha256"].items()),
++        "Complete unchanged original source closure plus immutable successor sources required")
++    sources=sources["source_sha256"]
++    for path,digest in sources.items():require(ref(path)["sha256"]==digest,"Frozen/successor source differs")
++    for path in (CONTEXT,SOURCE,c.WORKER_SOURCE,c.PRODUCER_SOURCE,c.CACHE_SOURCE):
++        require(sources.get(path)==ref(path)["sha256"],"Actual context/driver/worker/producer/cache closure required")
++    require(ref(c.PRODUCER_SOURCE)==c.PRODUCER_SOURCE_REF and ref(c.CACHE_SOURCE)==c.CACHE_SOURCE_REF,
++        "Producer/cache source refs differ")
+     metadata=read(r["observation_template_ref"])
+     entries=metadata["observation_entry_refs"];cache_sources=metadata["observation_cache_source_refs"]
+     require(len(entries)==40 and cache_sources==cfg["observation_cache_source_refs"],"Original40 observed entries")
+-    source=c.PREP_SOURCE if phase=="prepare" else c.WORKER_SOURCE
++    bindings=read(r["phase_target_bindings_ref"])
++    require(bindings["outer_included"] is False and set(bindings["parents"])==set(c.VAL),"Exact original eight VAL-only bindings")
++    class MetadataReader:
++        def decode_json(self,record):return read(record)
++    metadata_reader=MetadataReader()
++    # Before packet creation, guard loading, reserve drafting or CUDA launch.
++    c.validate_original_train_v2(metadata_reader,r["train_completion_ref"],r["train_actual_wait_ref"],r["config_ref"],cfg)
++    source=c.WORKER_SOURCE
++    cache_spec=dict(main_source_ref=ref(source),root_driver_ref=ref(SOURCE),
++        cache_policy_ref=r["cache_policy_ref"],cache_source_ref=ref(c.CACHE_SOURCE),
++        cache_producer_source_ref=ref(c.PRODUCER_SOURCE),memory_envelope_ref=r["memory_envelope_ref"],
++        max_cpu_rss_bytes=r["max_cpu_rss_bytes"])
++    c.validate_cache_metadata_v2(metadata_reader,cache_spec,cfg)
++    terminal={k:r[k] for k in ("preparation_completion_ref","preparation_actual_wait_ref","train_completion_ref","train_actual_wait_ref")}
++    for value in terminal.values():read(value)
+     require(type(r["reserved_bytes"]) is int and 0<r["reserved_bytes"]<=cfg["output_cap_bytes"],"Reviewed reserve cap")
+     packet.mkdir()
+     now=datetime.now(timezone.utc);expiry=(now+timedelta(hours=24)).isoformat()
+-    runtime=save(packet,"runtime.json",dict(status="active",device="cpu" if phase=="prepare" else "cuda",
++    runtime=save(packet,"runtime.json",dict(status="active",device="cuda",
+         physical_gpu=r["physical_gpu"],job_id=r["job_id"],output_directory=output,
+-        process_title=None if phase=="prepare" else "AI Auto Research Pipeline Test",
+-        created_at_utc=now.isoformat(),expires_at_utc=expiry,completed_overlay_policy_ref=c.POLICY_REF))
++        process_title="AI Auto Research Pipeline Test",created_at_utc=now.isoformat(),
++        expires_at_utc=expiry,completed_overlay_policy_ref=c.POLICY_REF))
+     refs={k:metadata["refs"][k] for k in ("registration","generation_config","observation_cache")}
+-    refs.update(config=r["config_ref"],runtime=runtime)
+-    terminal={}
+-    if phase!="prepare":
+-        for k in ("preparation_completion_ref","preparation_actual_wait_ref"):terminal[k]=r[k];read(r[k])
+-        require(r.get("phase_target_bindings_ref") is not None,"Explicit phase-only target metadata")
+-        bindings=read(r["phase_target_bindings_ref"])
+-        require(bindings["outer_included"] is False and len(bindings["parents"])==(32 if phase=="train" else 8),"Exact phase-only truth metadata")
+-        refs["target_bindings"]=r["phase_target_bindings_ref"]
+-    if phase=="evaluate":
+-        for k in ("train_completion_ref","train_actual_wait_ref"):terminal[k]=r[k];read(r[k])
+-    closure=dict(schema="H044_marker_exact_consumer_closure_v1",hypothesis_id="H044",phase=phase,
+-        source_manifest_ref=cfg["source_manifest_ref"],source_sha256=sources,refs=dict(refs),
+-        observation_entry_refs=entries,observation_cache_source_refs=cache_sources,**terminal)
++    refs.update(config=r["config_ref"],runtime=runtime,target_bindings=r["phase_target_bindings_ref"],
++        source_manifest=r["source_manifest_ref"],cache_policy=r["cache_policy_ref"],memory_envelope=r["memory_envelope_ref"])
++    closure=dict(schema="H044_cached_evaluation_exact_consumer_closure_v2",hypothesis_id="H044",phase=phase,
++        source_manifest_ref=r["source_manifest_ref"],frozen_source_manifest_ref=cfg["source_manifest_ref"],
++        source_sha256=sources,refs=dict(refs),observation_entry_refs=entries,
++        observation_cache_source_refs=cache_sources,**terminal)
+     closure_ref=save(packet,"consumer_manifest.json",closure)
+     m=load_guard(c)
+     with m.budget.v4.mutex(ROOT):state=m._state_locked(CORE,BASE,fresh=True)
+     view,budget_bindings=state[2],state[3]
+-    mandatory=[ref(source),r["config_ref"],runtime,ref(CONTEXT),ref(SOURCE),cfg["source_manifest_ref"],closure_ref,
++    mandatory=[ref(source),ref(c.PRODUCER_SOURCE),ref(c.CACHE_SOURCE),r["config_ref"],runtime,
++        ref(CONTEXT),ref(SOURCE),r["source_manifest_ref"],cfg["source_manifest_ref"],closure_ref,
++        r["cache_policy_ref"],r["memory_envelope_ref"],c.ORIGINAL_WORKER_REF,c.ORIGINAL_CORE_REF,
+         c.GUARD_REF,c.POLICY_REF,c.REPAIR_REF,c.MEMO_REF,c.V4_REF,
+-        ref("src/arggnn/marker_resolution_readout_v1.py"),
+         ref("src/arggnn/project_budget_v9_consumer.py"),
+         ref("research/reviews/H039_missing_marker_repair_v1/marker_repair_v1.py"),
+         ref("research/reviews/H039_failed_scope_capacity_v1/failed_scope_capacity_v1.py"),
+-        ref("research/reviews/H039_failed_scope_capacity_v2/failed_scope_capacity_v2.py")]
+-    if phase!="prepare":mandatory += [c.LAUNCHER_REF,c.AUTH_REF,cfg["base_fit_config"],
++        ref("research/reviews/H039_failed_scope_capacity_v2/failed_scope_capacity_v2.py"),
++        c.LAUNCHER_REF,c.AUTH_REF,cfg["base_fit_config"],
+         ref("scripts/launch_reserved_gpu_terminal_retired_scopes_v1.py"),
+         ref("scripts/launch_reserved_gpu_full_storage_v1.py"),
+         ref("scripts/launch_reserved_gpu_v6.py"),ref("scripts/project_budget_v9.py")]
+@@ -102,18 +123,21 @@
+         completed_overlay_policy_ref=c.POLICY_REF,budget_components=dict(
+             implementation=ref(m.budget.SOURCE_REL),launcher=ref(m.budget.LAUNCHER_REL),consumer_adapter=c.GUARD_REF))
+     refs["storage"]=save(packet,"storage.json",storage)
+-    spec=dict(schema="H044_marker_root_execution_input_v1",hypothesis_id="H044",root_authorizer="root_agent",
+-        status="active",phase=phase,seed=101,device="cpu" if phase=="prepare" else "cuda",physical_gpu=r["physical_gpu"],
+-        fit_authorized=phase!="prepare",pyg_authorized=True,job_id=r["job_id"],output_directory=output,
++    spec=dict(schema="H044_cached_evaluation_root_input_v2",hypothesis_id="H044",root_authorizer="root_agent",
++        status="active",phase="evaluate",seed=101,device="cuda",physical_gpu=r["physical_gpu"],
++        fit_authorized=False,evaluation_authorized=True,pyg_authorized=True,job_id=r["job_id"],output_directory=output,
+         worker_auxiliary_scope=aux,created_at_utc=now.isoformat(),expires_at_utc=expiry,refs=refs,source_sha256=sources,
+         root_context_module_ref=ref(CONTEXT),root_driver_ref=ref(SOURCE),main_source_ref=ref(source),
++        cache_producer_source_ref=ref(c.PRODUCER_SOURCE),cache_source_ref=ref(c.CACHE_SOURCE),
++        frozen_source_refs=[c.ORIGINAL_CORE_REF,c.ORIGINAL_WORKER_REF],cache_policy_ref=r["cache_policy_ref"],
++        source_manifest_ref=r["source_manifest_ref"],memory_envelope_ref=r["memory_envelope_ref"],
+         consumer_manifest_ref=closure_ref,observation_entry_refs=entries,observation_cache_source_refs=cache_sources,
+-        max_cpu_rss_bytes=r["max_cpu_rss_bytes"],max_cuda_reserved_bytes=r.get("max_cuda_reserved_bytes",0),
++        max_cpu_rss_bytes=r["max_cpu_rss_bytes"],max_cuda_reserved_bytes=r["max_cuda_reserved_bytes"],
+         GPU45_authorization_ref=c.AUTH_REF,completed_overlay_policy_ref=c.POLICY_REF,**terminal)
+     input_ref=save(packet,"input.json",spec)
+-    admitted=dict(schema="H044_marker_root_admitted_v1",input_ref=input_ref,driver_ref=ref(SOURCE),
+-        request_ref=request_ref,consumer_binding_count=len(consumers),phase=phase,physical_gpu=r["physical_gpu"],
+-        auxiliary_scope=aux,scientific_execution_started=False)
++    admitted=dict(schema="H044_cached_evaluation_root_admitted_v2",input_ref=input_ref,driver_ref=ref(SOURCE),
++        request_ref=request_ref,consumer_binding_count=len(consumers),phase="evaluate",physical_gpu=r["physical_gpu"],
++        auxiliary_scope=aux,scientific_execution_started=False,optimization_authorized=False)
+     save(packet,"admitted.json",admitted)
+     print(json.dumps(admitted),flush=True)
+     return admitted
+@@ -189,7 +213,11 @@
+ 
+ def launch(admitted_ref):
+     admitted=read(admitted_ref);spec=read(admitted["input_ref"]);c=context()
+-    require(admitted["driver_ref"]==ref(SOURCE) and spec["root_driver_ref"]==ref(SOURCE),"Exact admitted root driver")
++    require(admitted["schema"]=="H044_cached_evaluation_root_admitted_v2"
++        and spec["schema"]=="H044_cached_evaluation_root_input_v2" and spec["phase"]=="evaluate"
++        and spec["evaluation_authorized"] is True and spec["fit_authorized"] is False
++        and admitted["driver_ref"]==ref(SOURCE) and spec["root_driver_ref"]==ref(SOURCE)
++        and spec["main_source_ref"]==ref(c.WORKER_SOURCE),"Actual evaluation-only admitted root driver/worker required")
+     require(not (ROOT/spec["output_directory"]).exists(),"No execution replay")
+     m=load_guard(c);storage=read(spec["refs"]["storage"])
+     # Use the exact original reserve value and initial_ledger_pins. Never rebase.
+@@ -199,17 +227,13 @@
+     # Original pinned launcher imports its scripts-local budget modules.
+     env["PYTHONPATH"]=str(ROOT/"scripts")+os.pathsep+env.get("PYTHONPATH","")
+     env["ARGGNN_COMPLETED_CREDITS_POLICY_REF"]=json.dumps(c.POLICY_REF,sort_keys=True)
+-    phase=spec["phase"];worker=c.PREP_SOURCE if phase=="prepare" else c.WORKER_SOURCE
++    phase="evaluate";worker=c.WORKER_SOURCE
+     args=["--execute","--input",admitted["input_ref"]["path"],"--expected-input-sha256",admitted["input_ref"]["sha256"]]
+-    if phase=="prepare":
+-        env["CUDA_VISIBLE_DEVICES"]="";env["OMP_NUM_THREADS"]="1";env["MKL_NUM_THREADS"]="1"
+-        cmd=[str(ROOT/".runtime/env/bin/python"),"-B","-m",worker[:-3].replace("src/","").replace("/",".")]+args
+-    else:
+-        cmd=[str(ROOT/".runtime/env/bin/python"),"-B","-m",c.LAUNCHER_REF["path"][:-3].replace("/","."),
+-            "--gpu",str(spec["physical_gpu"]),"--job",spec["job_id"],
+-            "--storage-record",spec["refs"]["storage"]["path"],"--expected-storage-sha256",spec["refs"]["storage"]["sha256"],
+-            "--expected-budget-source-sha256",CORE,"--expected-launcher-sha256",BASE,
+-            worker[:-3].replace("src/","").replace("/",".")]+args
++    cmd=[str(ROOT/".runtime/env/bin/python"),"-B","-m",c.LAUNCHER_REF["path"][:-3].replace("/","."),
++        "--gpu",str(spec["physical_gpu"]),"--job",spec["job_id"],
++        "--storage-record",spec["refs"]["storage"]["path"],"--expected-storage-sha256",spec["refs"]["storage"]["sha256"],
++        "--expected-budget-source-sha256",CORE,"--expected-launcher-sha256",BASE,
++        worker[:-3].replace("src/","").replace("/",".")]+args
+     _subreaper();require(not _children(),"Fresh root supervisor without unrelated child processes")
+     log=_RAMLog(2000000);start=time.monotonic()
+     proc=subprocess.Popen(cmd,cwd=ROOT,env=env,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,start_new_session=True)

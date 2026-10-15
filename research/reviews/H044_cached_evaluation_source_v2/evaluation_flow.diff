@@ -1,0 +1,46 @@
+--- frozen/run_evaluate_v1
++++ successor/run_evaluate_cached_v2
+@@ -1,5 +1,14 @@
+-def run_evaluate_v1(ctx,input_ref):
+-    from .mutation_routed_full_panel_primary_v1 import FullPanelPrimaryValidationV1
++def run_evaluate_cached_v2(ctx,input_ref):
++    from arggnn import train_marker_resolution_readout_v1 as frozen
++    from arggnn.marker_resolution_input_cache_v2 import EvaluationMarkerBlockStoreV2,bind_cached_bundle_v2
++    torch,core,h42,h038,fit=frozen.torch,frozen.core,frozen.h42,frozen.h038,frozen.fit
++    ARMS,VAL,PASSES,SELECTION,CORE_REF=frozen.ARMS,frozen.VAL,frozen.PASSES,frozen.SELECTION,frozen.CORE_REF
++    H044PhaseReaderV1=frozen.H044PhaseReaderV1
++    DenseRAMMatrixV1=frozen.DenseRAMMatrixV1
++    load_observations_v1=frozen.load_observations_v1
++    device_parent_v1=frozen.device_parent_v1
++    cache=EvaluationMarkerBlockStoreV2(**ctx["cache_policy"]["limits"])
++    from arggnn.mutation_routed_full_panel_primary_v1 import FullPanelPrimaryValidationV1
+     reader=H044PhaseReaderV1(ctx["reader"],"evaluate",ctx["bindings"],
+         virtual_prefix=str(ctx["output"].path.relative_to(ROOT)/"H044_RAM_probability_packets"))
+     cfg,output,guard=ctx["cfg"],ctx["output"],ctx["guard"]
+@@ -36,6 +45,8 @@
+     for pid in VAL:
+         cpu_bundle=markers.get(pid,banks[pid],parents[pid]);flags_cpu=flags.get(pid,banks[pid],keys[pid])
+         bundle,device_flags,_=device_parent_v1(ctx,cpu_bundle,flags_cpu)
++        blocks=cache.get(pid,cpu_bundle)
++        bundle=bind_cached_bundle_v2(bundle,blocks)
+         for arm in ARMS:
+             for at in PASSES:
+                 guard();models[arm].load_state_dict(states[arm,at],strict=True)
+@@ -43,7 +54,8 @@
+                     probabilities=models[arm](bundle,flags=device_flags).softmax(-1)
+                 ram.seal(arm,at,pid,probabilities.cpu().numpy(),checkpoints[arm,at]);del probabilities
+                 print(json.dumps(dict(stage="H044_VAL_prediction",sealed_products=len(ram.values),total_products=96)),flush=True)
+-        del bundle,device_flags,cpu_bundle,flags_cpu
++        del bundle,device_flags,cpu_bundle,flags_cpu,blocks
++        cache.release(pid)
+     del models,states
+     ram.verify();reader.truth_gate=True;ctx["VAL_truth_gate_opened"]=True
+     selected,histories,full,metric_receipts={},{},{},{}
+@@ -67,4 +79,7 @@
+         all96_RAM_seals_before_any_VAL_truth=True,RAM_dense_probability_bytes=ram.bytes,
+         complete_probability_matrix_manifest_ref=ram.barrier_ref,virtual_seals_durable_in_matrix_manifest=True,
+         dense_prediction_arrays_saved=False,outer_truth_read=False,same_VAL_is_development_evidence=True)
++    result["immutable_input_cache_v2"]=dict(execution_ref=ctx["cached_execution_ref"],
++        cache_policy_ref=ctx["cache_policy_ref"],cache=cache.receipt(),
++        same_original_probability_products=True,extra_fits=False)
+     output.save("completed.json",result);return result
