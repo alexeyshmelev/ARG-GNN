@@ -1,0 +1,173 @@
+{
+  "schema": "H040_latent_clade_execution_config_v1",
+  "status": "source_only_root_activation_required",
+  "hypothesis_id": "H040",
+  "linked_hypothesis_id": "H038",
+  "arms": [
+    "tensor",
+    "event_mlp"
+  ],
+  "invocation_policy": "Exactly one arm per TRAIN worker/output, paired frozen evaluation",
+  "seed": 101,
+  "dtype": "float32",
+  "passes": 30,
+  "updates_per_pass": 32,
+  "updates_per_arm": 960,
+  "checkpoint_passes": [
+    5,
+    10,
+    15,
+    20,
+    25,
+    30
+  ],
+  "model": {
+    "hidden_dim": 32,
+    "expected_haplotypes": 952,
+    "site_chunk_size": 256,
+    "checkpoint_sites": true
+  },
+  "parameters_per_arm": 30788,
+  "base_parameters": 29764,
+  "added_parameters": 1024,
+  "learning_rate": 0.001,
+  "weight_decay": 0.0001,
+  "gradient_clip_norm": 1.0,
+  "AdamW_betas": [
+    0.9,
+    0.999
+  ],
+  "AdamW_epsilon": 1e-08,
+  "early_stopping": false,
+  "VAL_influences_optimization": false,
+  "selection": "earliest_maximum_equal_parent_Present182_exact_span_accuracy_then_lower_NLL_then_earlier_pass",
+  "dense_event_sidecars": false,
+  "dense_prediction_arrays_saved": false,
+  "warmstart_completion_ref": {
+    "path": "experiments/results/mutation_routed_full_panel_pyg_v1_aligned_seed101_GPU2/completed.json",
+    "sha256": "a36e449a5ec3042993419eaf1a61628122fa24f15de320f0ad02f94a2b087567"
+  },
+  "warmstart_checkpoint_ref": {
+    "path": "experiments/results/mutation_routed_full_panel_pyg_v1_aligned_seed101_GPU2/aligned.pass_30.pt",
+    "sha256": "7fb53005867077b4b113097df2b5903e99c74f96f88e8e7c1a43ecef97947eb6"
+  },
+  "mechanism_refs": [
+    {
+      "path": "src/arggnn/anonymous_clade_witness_v1.py",
+      "sha256": "0cdb438132e11c86fb61306a02244af0471f468c2ff2a57324644cafb97b6310"
+    },
+    {
+      "path": "src/arggnn/anonymous_clade_gnn_v1.py",
+      "sha256": "2f878e6334079cff083f67b6da8eda129dd30e7beebc62ae2a93d51796c3f137"
+    }
+  ],
+  "CPU_bank_cap_bytes": 34359738368,
+  "CPU_target_cap_bytes": 4294967296,
+  "witness_cache_cap_bytes": 4294967296,
+  "witness_preparation_cap_bytes": 8589934592,
+  "GPU_residency_cap_bytes": 8589934592,
+  "GPU_event_cap_bytes": 1073741824,
+  "RAM_prediction_cap_bytes": 8589934592,
+  "training_output_reservation_proposal_bytes_per_arm": 32000000,
+  "evaluation_output_reservation_proposal_bytes": 32000000,
+  "resource_caps_are_proposals": "Root must bind actual RSS/allocator/storage lease limits and source closure before execution.",
+  "runtime": {
+    "torch": "2.6.0+cu124",
+    "torch_cuda": "12.4",
+    "torch_geometric": "2.7.0"
+  },
+  "metrics": {
+    "aggregation": "unweighted_parent_mean_one_seed_no_probability_ensemble",
+    "boundary_tolerance_bp": 1000.0,
+    "calibration_bins": 15,
+    "normalization_length_bp": 2000000,
+    "posthoc_renormalization": false,
+    "primary": "present_day182",
+    "probability_floor": false,
+    "purity_filter": false,
+    "secondary": [
+      "all686",
+      "ancient504",
+      "Bronze_Age162",
+      "BAA14",
+      "Neo302",
+      "Yam26"
+    ],
+    "short_tract_cutoff_bp": 10000.0,
+    "support": "same_ARGMix_original100bp_center_bins_clipped_to_coverage_no_missing_bins_no_tail_extrapolation"
+  },
+  "base_fit_config": {
+    "path": "configs/census_tsinfer_fit_v1.json",
+    "sha256": "7c2436d5479e68beb1a8f3edb04ca0ee729a23be35ca2d7893827c0db68e3b00"
+  },
+  "observation_cache_source_refs": {
+    "src/arggnn/census_tsinfer_fit_v1.py": {
+      "path": "src/arggnn/census_tsinfer_fit_v1.py",
+      "sha256": "fd55aaa6b8f88983514ff6888ad2efbadca4ee8b2e3acabd09fbd4a361b5acf3"
+    },
+    "src/arggnn/census_tsinfer_observation_v1.py": {
+      "path": "src/arggnn/census_tsinfer_observation_v1.py",
+      "sha256": "c32a0ed65500d6ea4a3f9ea9373463dbc7bda88eedace84a2d6538a3b3c8980a"
+    },
+    "src/arggnn/full_panel_native_baseline_contracts_v1.py": {
+      "path": "src/arggnn/full_panel_native_baseline_contracts_v1.py",
+      "sha256": "b7ea16a43c93dca04663ebd99261e98b445cb08190e738d627ac8e0c948fe477"
+    },
+    "src/arggnn/mutation_routed_full_panel_cache_v1.py": {
+      "path": "src/arggnn/mutation_routed_full_panel_cache_v1.py",
+      "sha256": "1c1f1e5222df0e09e83b470d5375b8946cb3a89db1bc55e9d2c293a09037cb38"
+    },
+    "src/arggnn/mutation_routed_full_panel_observations_v1.py": {
+      "path": "src/arggnn/mutation_routed_full_panel_observations_v1.py",
+      "sha256": "a7184be9a735d95b80975f68666d51e9ed0316cc535d9f7b54baafea532a1107"
+    },
+    "src/arggnn/mutation_routed_observation_cache_v1.py": {
+      "path": "src/arggnn/mutation_routed_observation_cache_v1.py",
+      "sha256": "f4adf6832b6d80bdf3233083e0aacc87ae27818314ca185021a9f4c8b0e97150"
+    },
+    "src/arggnn/mutation_routed_parent_loader_v1.py": {
+      "path": "src/arggnn/mutation_routed_parent_loader_v1.py",
+      "sha256": "bd9a55d1a7b40e5e643433238f84a32c8390ac0fe4a653cb12144a7137aaee48"
+    },
+    "src/arggnn/mutation_routed_pyg_dataset_v1.py": {
+      "path": "src/arggnn/mutation_routed_pyg_dataset_v1.py",
+      "sha256": "f7488ae9794c301d47ad66bab9caed5ff87ef09afcf96c5e48c9c00d350706ca"
+    },
+    "src/arggnn/mutation_routed_tree_observations_v1.py": {
+      "path": "src/arggnn/mutation_routed_tree_observations_v1.py",
+      "sha256": "922df286e595370ade23595420a325014e4df64aac88060e8a1a846684eab068"
+    },
+    "src/arggnn/mutation_routed_whole_tree_gnn_v1.py": {
+      "path": "src/arggnn/mutation_routed_whole_tree_gnn_v1.py",
+      "sha256": "254f5155e31f81ae675e2bd08d38c97c9bf130d47e98efa2deea4c7344d9e073"
+    },
+    "src/arggnn/observed_variant_residual_v1.py": {
+      "path": "src/arggnn/observed_variant_residual_v1.py",
+      "sha256": "695a78d266d8dc4cf226f6e8ff54669979eaf94f30e5cc8cb3062f14ec02c904"
+    },
+    "src/arggnn/prepare_expanded_pyg_observations_v4.py": {
+      "path": "src/arggnn/prepare_expanded_pyg_observations_v4.py",
+      "sha256": "ee977bbc56f3c1b1fb71b74928ae3f065c1f7baca261fbf96fe5bdcefa3f7719"
+    }
+  },
+  "output_cap_bytes": 20000000,
+  "qualification_allowance_bytes": 2000000,
+  "marker_repair_authority_ref": {
+    "path": "research/reviews/H039_missing_marker_repair_v1/repair_authority_20261015.json",
+    "sha256": "f6f2d628199e8be73db8b5d90d428570d8afdefeab9dc5cd94bb5eafb39247db"
+  },
+  "helper_refs": {
+    "full_reservation_adapter": {
+      "path": "research/reviews/H039_failed_scope_capacity_v2/failed_scope_capacity_v2.py",
+      "sha256": "40c3e45fc148ffd07119bb0c90e5c7182c7fb84829f9df2b4bb4fa978af42281"
+    },
+    "actual_full_storage_launcher": {
+      "path": "scripts/launch_reserved_gpu_authorized_GPU45_v1.py",
+      "sha256": "ad381a1dcca4dda9a167a5a003023d9561b73c3d1c386cf7ea0701554db518d8"
+    },
+    "v9_consumer_marker": {
+      "path": "src/arggnn/project_budget_v9_consumer.py",
+      "sha256": "c11a5543746899c8a387508e9877ce6ae2bf80fe4d3076c1dbe1cb8f7a43b859"
+    }
+  }
+}

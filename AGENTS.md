@@ -17,8 +17,8 @@ The user explicitly allows multiple model worker processes to share those device
 Use an audited shared-lease pool with memory reservations, separate logical job records and prescribed GPU process titles for concurrent workers.
 Preserve existing pinned model/runtime guards while introducing scheduling changes.
 New resource admissions use research/reviews/H039_failed_scope_capacity_v2/failed_scope_capacity_v2.py configured with the bound root marker-repair authority. The successor preserves every historical guard and journal, rejects the malformed historical reservation and the retired original failed H039 scope, and retains all failed artifacts. All previous-guard future launches are revoked. Fresh reservations must bind the actual project_budget_v9_consumer.py marker, repair helper and repair authority, capacity-v1 and capacity-v2 sources, and actual runtime/producer/launcher sources. Root owns admissions and execution.
-Only physical GPUs 2, 3, 4 and 5 are eligible. The user authorized sharing with other projects on 2026-10-12. Verify available memory and preserve all external processes. The current project scheduler uses physical GPUs 2 and 3, with at most two project GPUs at once.
-GPU 0, GPU 1 and GPU 6 are excluded.
+Only physical GPUs 4 and 5 are eligible under the latest user instruction on 2026-10-15. The user authorized sharing with other projects on 2026-10-12. Verify available memory and preserve all external processes. The current project scheduler uses physical GPUs 4 and 5, with at most two project GPUs at once. Previous assignments to GPUs 2 and 3 are revoked.
+GPU 0, GPU 1, GPU 2, GPU 3 and GPU 6 are excluded.
 GPU jobs must set the process title AI Auto Research Pipeline Test before creating CUDA contexts.
 Use the project GPU launcher, record physical GPU assignment and verify the process name in NVTOP.
 Do not terminate or change other users' processes.

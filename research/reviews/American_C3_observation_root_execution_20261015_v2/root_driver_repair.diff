@@ -1,0 +1,165 @@
+--- research/reviews/American_C3_observation_root_execution_20261015_v1/root_observation_driver.py
++++ research/reviews/American_C3_observation_root_execution_20261015_v2/root_observation_driver.py
+@@ -9,7 +9,7 @@
+ import subprocess, sys, time
+ 
+ ROOT = Path("/workspace-SR003.nfs2/ARG-GNN")
+-REL = "research/reviews/American_C3_observation_root_execution_20261015_v1"
++REL = "research/reviews/American_C3_observation_root_execution_20261015_v2"
+ HERE = ROOT / REL
+ SOURCE = REL + "/root_observation_driver.py"
+ WORKER = "src/arggnn/american_c3_observe_v1.py"
+@@ -88,7 +88,7 @@
+ 
+ 
+ def qualification_ready():
+-    packet = HERE / "admitted_qualification100kb_v1"
++    packet = HERE / "admitted_qualification100kb_v2"
+     wait_path = packet / "actual_wait.json"
+     if not wait_path.exists():
+         return False, "Root must run the short 100kb observation inference and obtain direct exit 0"
+@@ -111,7 +111,7 @@
+     return True, "Short observation inference completed and verified all original sites/samples"
+ 
+ 
+-def preflight_v1(stage):
++def preflight_v2(stage):
+     require(stage in STAGES, "Exact registered stage required")
+     frozen_ref, pins = frozen()
+     cfg_ref = pins["config_" + stage]
+@@ -188,7 +188,7 @@
+     return json.loads(result.stdout)
+ 
+ 
+-def guard_v1(pins):
++def guard_v2(pins):
+     require(ref(GUARD) == pins["guard"] and ref(REPAIR) == pins["repair_authority"],
+             "Exact current capacity-v2/repair authority required")
+     spec = importlib.util.spec_from_file_location("root_C3_observation_capacity_v2", local(GUARD))
+@@ -198,26 +198,27 @@
+     return module
+ 
+ 
+-def admit_v1(stage):
++def admit_v2(stage):
+     require(Path.cwd().resolve() == ROOT, "Root must execute in repository")
+-    plan = preflight_v1(stage)
++    plan = preflight_v2(stage)
+     require(plan["ready_for_root_admission"], plan["prerequisite"])
+     _, pins = frozen()
+     report = runtime_report()
+     runtime = read(pins["runtime"])
+     require(report["runtime"] == runtime and report["source_closure_refs"] == plan["source_closure_refs"],
+             "Existing runtime or worker closure changed")
+-    packet = HERE / ("admitted_" + stage + "_v1")
++    packet = HERE / ("admitted_" + stage + "_v2")
+     require(not packet.exists(), "Fresh root packet required; preserve failed/previous packets")
+     packet.mkdir()
++    require(not (packet / "worker_aux").exists(), "Auxiliary worker scope must remain absent until reservation")
+     cfg = read(plan["inactive_config_ref"])
+     cfg["execution_enabled"] = True
+     config_ref = save(packet, "config.json", cfg)
+     runtime_ref = save(packet, "runtime.json", runtime)
+     now = datetime.now(timezone.utc)
+     expiry = (now + timedelta(hours=22)).isoformat()
+-    job = "American-C3-observe-" + stage + "-20261015-v1"
+-    m = guard_v1(pins)
++    job = "American-C3-observe-" + stage + "-20261015-v2"
++    m = guard_v2(pins)
+     with m.budget.v4.mutex(ROOT):
+         _, _, view, bindings, _ = m._state_locked(
+             pins["budget"]["sha256"], pins["launcher"]["sha256"], fresh=True)
+@@ -239,7 +240,7 @@
+         historical_records_mutation_authorized=False, global_rebase_authorized=False,
+         scientific_execution_authorized=False, GPU_authorized=False,
+         reservation=dict(key="H041/" + job, output=str(ROOT / plan["output_directory"]),
+-                         auxiliary_scopes=[str(packet)], reserved_bytes=cfg["output_cap_bytes"],
++                         auxiliary_scopes=[str(packet / "worker_aux")], reserved_bytes=cfg["output_cap_bytes"],
+                          consumer_bindings=consumers))
+     reserve_ref = save(packet, "reserve_authority.json", authority)
+     receipt = m.apply_reserve_v1(reserve_ref, expected_source_sha256=pins["budget"]["sha256"],
+@@ -283,11 +284,11 @@
+     return total
+ 
+ 
+-def launch_v1(stage):
+-    plan = preflight_v1(stage)
++def launch_v2(stage):
++    plan = preflight_v2(stage)
+     require(plan["ready_for_root_admission"], plan["prerequisite"])
+     _, pins = frozen()
+-    packet = HERE / ("admitted_" + stage + "_v1")
++    packet = HERE / ("admitted_" + stage + "_v2")
+     admitted = read(ref(packet / "admitted.json"))
+     require(admitted["driver_ref"] == ref(SOURCE), "Exact admitted root driver required")
+     spec = read(admitted["admission_ref"])
+@@ -296,15 +297,19 @@
+             and read(spec["runtime_ref"]) == read(pins["runtime"]), "Exact activated config/runtime/input required")
+     require(datetime.fromisoformat(spec["expires_at_utc"]) > datetime.now(timezone.utc),
+             "Fresh root admission required")
+-    m = guard_v1(pins)
++    m = guard_v2(pins)
+     storage = spec["storage"]
+     # Root must serialize launches/admissions. Refresh pins immediately before
+     # first worker validation; never edit or replay an existing admission.
+     storage["initial_ledger_pins"] = m._pins(m.inspect_v1(
+         expected_source_sha256=pins["budget"]["sha256"], expected_launcher_sha256=pins["launcher"]["sha256"]))
+     admission_ref = save(packet, "launch_admission.json", spec, m, storage)
++    worker_aux = packet / "worker_aux"
++    require(storage["reservation"]["auxiliary_scopes"] == [str(worker_aux)]
++            and not worker_aux.exists(), "Fresh exact admitted worker auxiliary scope required")
+     m.budget_check_v9(storage, boundary=True, required_write_bytes=32768)
+-    work = packet / "work"
++    worker_aux.mkdir()
++    work = worker_aux / "work"
+     (work / "tmp").mkdir(parents=True)
+     (work / "numba_cache").mkdir()
+     env = os.environ.copy()
+@@ -314,7 +319,7 @@
+                NUMBA_CACHE_DIR=str(work / "numba_cache"), XDG_CACHE_HOME=str(work / "cache"))
+     cmd = [str(PYTHON), "-B", "-m", "arggnn.american_c3_observe_v1", "--execute",
+            "--admission", admission_ref["path"], "--expected-admission-sha256", admission_ref["sha256"]]
+-    log_path = packet / "launch.log"
++    log_path = worker_aux / "launch.log"
+     m.budget_check_v9(storage, boundary=True, required_write_bytes=LOG_CAP + 8192)
+     started = time.monotonic()
+     failure = None
+@@ -323,7 +328,8 @@
+     with log_path.open("xb") as log:
+         proc = subprocess.Popen(cmd, cwd=ROOT, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+         save(packet, "launch.json", dict(stage=stage, pid=proc.pid, command=cmd,
+-             admission_ref=admission_ref, driver_ref=ref(SOURCE), actual_wait_pending=True), m, storage)
++             admission_ref=admission_ref, driver_ref=ref(SOURCE),
++             worker_auxiliary_scope=str(worker_aux), actual_wait_pending=True), m, storage)
+         selector = selectors.DefaultSelector()
+         selector.register(proc.stdout, selectors.EVENT_READ)
+         try:
+@@ -374,10 +380,12 @@
+     wait = dict(stage=stage, pid=proc.pid, returncode=rc, operational_failure=failure,
+                 actual_direct_worker_wait=True, driver_ref=ref(SOURCE), admission_ref=admission_ref,
+                 completed_ref=completed_ref, log_ref=ref(log_path), retained_log_bytes=retained,
++                worker_auxiliary_scope=str(worker_aux),
+                 elapsed_seconds=time.monotonic() - started, private_work_bytes=work_bytes(work),
+                 finished_utc=datetime.now(timezone.utc).isoformat())
+     # A post-exit guard failure must not erase the actual wait. Preserve compact
+-    # evidence in the already reserved auxiliary root packet, then re-raise.
++    # root evidence in the compact packet, with bulk worker files retained
++    # in the exact reserved worker_aux scope, then re-raise.
+     try:
+         save(packet, "actual_wait.json", wait, m, storage)
+     except Exception as exc:
+@@ -396,11 +404,11 @@
+     mode.add_argument("--launch", choices=STAGES)
+     args = parser.parse_args()
+     if args.preflight:
+-        result = preflight_v1(args.preflight)
++        result = preflight_v2(args.preflight)
+     elif args.admit:
+-        result = admit_v1(args.admit)
++        result = admit_v2(args.admit)
+     elif args.launch:
+-        result = launch_v1(args.launch)
++        result = launch_v2(args.launch)
+     else:
+         frozen_ref, pins = frozen()
+         result = dict(status="source_only_inactive_root_review_required", driver_ref=ref(SOURCE),
