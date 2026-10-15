@@ -739,6 +739,24 @@ def main():
         native_status="Historical GPU5 engineering TRAIN000 stopped at latest user request. Actual native/entry/launcher waits-15, roottool48073exit1 with expired-marker postdrain accounting error. Saved ep4-ba206000 checkpoint preserved, metadata only; full fiveepochs/savedAdam count and ancestry score unverified. Known own roots and GPU4/5contexts absent. Future experiments use onlyGPU0."
         native_execution.update(current_status=native_status,user_requested_stop=True,running=False,
             actual_user_stop_ref=ref("research/reviews/GPU0_only_user_transition_root_20261016_v1/actual_stop_and_absence.root_v1.json"),new_GPU0_execution_pending=True)
+        native_device="GPU0 pending"
+        c3_device="GPU0 pending"
+        c3_status="Historical GPU4 cache run failed with mmap allocation error before a verified optimizer update. Private-owned cache repair passed its CPU fixture. Fresh GPU0 full600-update run pending."
+        h050_execution_status="Historical GPU4 run interrupted by GPU0-only instruction after genuine first scheduled FP32 steps in all four arms. Fresh GPU0 full960-updates-per-arm run pending. No validation score."
+        c3_execution.update(status=c3_status,running=False,new_GPU0_execution_pending=True)
+        gpu0_snapshot_path="research/reviews/GPU0_shared_root_integration_20261016_v1/runtime_status.root_latest.json"
+        gpu0_snapshot=maybe_read(gpu0_snapshot_path)
+        if gpu0_snapshot:
+            for kind,entry in gpu0_snapshot.get("jobs",{}).items():
+                if kind=="H050":h050_execution_status=entry["summary"]
+                elif kind=="native_ARGformer":
+                    native_status=entry["summary"]
+                    native_device="GPU0"
+                    native_execution.update(current_status=native_status,GPU0_runtime_snapshot_ref=ref(gpu0_snapshot_path),running=entry.get("state")=="running")
+                elif kind=="C3":
+                    c3_status=entry["summary"]
+                    c3_execution.update(status=c3_status,GPU0_runtime_snapshot_ref=ref(gpu0_snapshot_path),running=entry.get("state")=="running")
+                    c3_device="GPU0"
     tgb_results_path="experiments/results/H052_TGB_trade_causal_native_baselines_v1/results.json"
     tgb_terminal_path="research/reviews/TGB_trade_causal_baselines_root_20261016_v1/actual_tool_terminal.root_v1.json"
     tgb_results=maybe_read(tgb_results_path);tgb_terminal=maybe_read(tgb_terminal_path)
@@ -896,9 +914,9 @@ def main():
         "| Native ARGformer | "+native_device+" | "+native_brief+" | pending |",
         "| Native ARGformer held-out VAL000 | CPU | Original per-ARG six-dataset counts: "+val000_native_counts["status"]+". Separate native fit follows actual counts. | no ancestry score |",
         "| Native FLARE | CPU | Author build, TRAIN000 full-site inference and prediction seal completed. Held-out VAL000 conversion: "+flare_val_conversion["status"]+"; native inference: "+flare_val_native["status"]+"; seal: "+flare_val_seal["status"]+". | held-out score pending |",
-        "| Our American C3 GNN | "+c3_device+" | "+str(focal_ready)+"/20 exact TRAIN plans completed. "+c3_status+". Original VAL000 full-length GNN block plan: "+gnn_VAL000_plan["status"]+". | no ancestry score |",
+        "| Our American C3 GNN | "+c3_device+" | "+str(focal_ready)+"/20 exact TRAIN plans completed. "+c3_status.rstrip(".")+". Original VAL000 full-length GNN block plan: "+gnn_VAL000_plan["status"]+". | no ancestry score |",
         "| H049 cut-memory candidate | CPU preparation | "+h049_prepare_status+". Three matched 32,446-parameter arms. Full 30 passes / 960 updates per arm planned. | no fit or accuracy yet |",
-        "| H050 stronger direct-readout candidate | "+("GPU4" if shared_h050_admitted else "GPU4/5 pending")+" | "+h050_execution_status+". H045 predictor retained initially. Three 32,325-parameter memory arms and an unmodified 31,812-parameter continuation. 960 updates per arm, 192 prediction seals planned. Original45run interrupted byGPU0-only instruction, no validation accuracy. | full fit incomplete |",
+        "| H050 stronger direct-readout candidate | "+"GPU0"+" | "+h050_execution_status.rstrip(".")+". H045 predictor retained initially. Three 32,325-parameter memory arms and an unmodified 31,812-parameter continuation. 960 updates per arm, 192 prediction seals planned. Original45run interrupted byGPU0-only instruction, no validation accuracy. | full fit incomplete |",
         "| Empirical data | CPU | H045 probabilities, ancestry proportions and genotype PCA completed for 24 query haplotypes / 12 subjects. Descriptive only, without known ancestry truth. | completed |","",
         "**Completed H048:** "+h048_scores+". Both registered utility criteria failed. [Actual scores, all cohorts and provenance](research/reviews/H048_completed_comparison_root_20261015_v1/REPORT.md)." if h048_ready else "**H048 evaluation:** pending.","",
         "**Current measured development scores:** H045 foreign-episode **96.8270 ± 0.5870%** Present182 span accuracy, matched own-state **96.8175 ± 0.6142%**. H046: "+h046_scores+". "+h046_outcome+" H047 original-risk **96.7777 ± 0.5970%**, balanced-risk **96.7576 ± 0.5287%**. SD is across eight VAL simulations, one optimizer seed. H048: "+h048_scores+". [All "+str(len(models))+" measured setups, all seven cohorts, NLL/F1/boundaries/Brier/ECE and training budgets](research/current_scoreboard.md#detailed-cohort-metrics).","",
@@ -911,7 +929,7 @@ def main():
         "**Current GPU policy: physical GPU0 only.** Our GPU4/5 jobs have stopped and their contexts/known roots are absent. Parallel jobs onGPU0 are permitted after fresh device-bound admission. [Policy and actual stop evidence](research/reviews/GPU0_only_user_transition_root_20261016_v1/GPU0_only_policy.root_active_v1.json).","",
         "**GST and cross-domain status:** "+gst_status,"",
         "**TGB ordered cross-domain diagnostic:** "+tgb_status+" [Frozen protocol and actual per-year results](research/current_scoreboard.md#tgb-annual-trade-causal-diagnostic).","",
-        "Parallel ownership: worker1 prepares full prospective1611 generation execution, worker2 prepares shared-run evaluation and lineage integration, worker3 assesses operator novelty and scaling. Root owns live GPU4/GPU5 execution, shared data, integration, score reporting and Git.","","<!-- CURRENT_SCOREBOARD_END -->"]
+        "Parallel ownership: workers prepare the causal trade PyG model, the native ARGformer GPU0 adapter and fresh H050/C3 GPU0 admissions. Root owns GPU0 execution, shared data, integration, score reporting and Git.","","<!-- CURRENT_SCOREBOARD_END -->"]
     p=ROOT/"README.md"
     text=p.read_text()
     a="<!-- CURRENT_SCOREBOARD_START -->"

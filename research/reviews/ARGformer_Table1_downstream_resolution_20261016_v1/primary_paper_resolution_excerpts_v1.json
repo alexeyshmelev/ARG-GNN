@@ -1,0 +1,43 @@
+{
+  "PMCID": "PMC13501305",
+  "article": "ARGformer: learning on ancestral recombination graphs with transformers",
+  "doi": "10.1093/bioinformatics/btag438",
+  "excerpts": [
+    {
+      "section": "2.1 BERT model for encoding paths in ancestral recombination graphs",
+      "text": "Although the resulting model after pretraining is already infused with global population structure, we finetune the pretrained encoder for downstream tasks with a supervised contrastive objective that pulls together embeddings of sequences sharing the same reference population label while pushing apart embeddings from different labels within each minibatch. Given a batch of B labeled sequences {(xi,yi)}i=1B with labels yi\u2208{1,\u2026,C}, we encode each sequence with the transformer backbone followed by a learned pooling head, and use the unit-normalized head output as the contrastive path embedding:"
+    },
+    {
+      "section": "2.1 BERT model for encoding paths in ancestral recombination graphs",
+      "text": "Where f\u03b8 is the transformer encoder, g\u03d5 is the pooling head, and the resulting path embeddings are normalized to unit \u21132 norm before computing similarities. For each anchor i, define the in-batch positive set P(i)={j\u2260i:yj=yi}. We minimize the supervised contrastive (InfoNCE-style) loss (Oord et al. 2018)"
+    },
+    {
+      "section": "2.1 BERT model for encoding paths in ancestral recombination graphs",
+      "text": "Where \u03c4>0 is a temperature hyperparameter (default \u03c4=0.05). The denominator sums over all in-batch samples except the anchor, providing implicit hard negatives from other classes. Anchors with no same-class partners in the batch (|P(i)|=0) are excluded from the loss. To mitigate class imbalance, we apply inverse-frequency weighting:"
+    },
+    {
+      "section": "3.1 Capturing population structure",
+      "text": "We benchmarked local ancestry inference (LAI) in admixed individuals against FLARE (Browning et al. 2023). Because FLARE is a specialized local-ancestry method, we use it here as a task-specific baseline, while ARGformer is intended as a general representation model for multiple downstream analyses on inferred genealogies. Using $10 000$ unique marginal paths sampled from admixed individuals, we considered two inference strategies based solely on ARGformer embeddings. First, performing PCA on embeddings of unadmixed reference individuals and retaining the top 10 principal components. Second, project each path embedding into a 10-dimensional PC space and assign an ancestry label based on its cluster membership (PCA clustering)."
+    },
+    {
+      "section": "3.1 Capturing population structure",
+      "text": "The second strategy treats each admixed marginal path as a query and retrieves its nearest neighbors among embeddings of reference haplotypes in embedding space, assigning ancestry labels based on the labels of the retrieved neighbors. In both cases we compare the resulting three-way local ancestry calls with those from FLARE, providing a quantitative benchmark for how well the contrastively trained ARGformer embeddings capture population structure at the level of individual genomic segments. ARGformer achieved comparable accuracy to FLARE, a state-of-the-art local ancestry inference method, and obtained higher accuracy on AFR ancestry with the nearest-neighbor retrieval (Table 1)."
+    },
+    {
+      "section": "3.2 Identifying Denisovan ancestry in Oceania",
+      "text": "To test whether ARGformer embeddings capture archaic introgression signals without using genotype matrices, we framed archaic ancestry detection as a nearest-neighbor retrieval problem in embedding space. For each held-out population, we retrieved the top-5 closest haplotype-path embeddings and summarized the retrieved reference labels as a row-normalized distribution over reference populations, reporting both the raw vote share and a chance-corrected enrichment (Fig. 4)."
+    },
+    {
+      "section": "3.2 Identifying Denisovan ancestry in Oceania",
+      "text": "Papuan Highlands stands out with a Denisovan neighbor fraction of 3.60% among its top-5 neighbors, significantly greater than that of the comparison populations under permutation testing (p<0.001), compared with non-Oceanian populations 1.44% (Chinese Dai), 0.94% (Utah Residents (CEPH) with Northern and Western European ancestry), and 0.71% (Mandinka) in the same analysis. This enrichment is reflected by the positive log-lift coloring in the Denisovan column (Fig. 4, Panel A), where Mandinka is the only query population with a negative lift. In contrast, all query populations predominantly retrieve Yoruba-labeled neighbors (between 95.7% and 99.1% across rows), consistent with most genomic segments being closest to modern human variation. We also note that some non-Oceanian samples (e.g. Utah Residents (CEPH) with Northern and Western European ancestry) can retrieve a slightly higher fraction of Denisovan-labeled neighbors than Neanderthal-labeled neighbors. Because the archaic genomes were computationally phased without reference panels or imputation, and because contrastive finetuning can be sensitive to such technical artifacts, we treat these retrieval shares as relative enrichment signals rather than admixture proportions."
+    }
+  ],
+  "source_ref": {
+    "bytes": 109433,
+    "path": "research/reviews/ARGformer_published_benchmark_audit_20261015_v1/paper.fulltext.xml",
+    "sha256": "53ab26710804f0b9ca6f355095893b365413caf56cf7bb722b39907f6db0619f"
+  },
+  "supplement_supplies_American_cluster_rule": false,
+  "supplement_text_inspected_complete_three_pages": true,
+  "table1_complete_text": "Table 1LAI precision and recall on simulated American admixture.EUREASAFRMethodPrec.Rec.Prec.Rec.Prec.Rec.FLARE 98.41 98.54 98.85 99.74 99.70 96.70ARGformer PCA 98.47 97.9198.81 99.07 97.46 97.81 ARGformer retr. 98.47 98.00 98.88 99.04 97.46 97.90 FLARE is run on simulated genotypes, ARGformer is run on the inferred ARG. Bold indicates the best performance, and underline indicates the second best."
+}

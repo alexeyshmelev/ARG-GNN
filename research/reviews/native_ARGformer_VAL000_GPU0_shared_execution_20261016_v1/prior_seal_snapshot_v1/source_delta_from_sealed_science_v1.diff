@@ -1,0 +1,668 @@
+--- research/reviews/native_ARGformer_VAL000_execution_readiness_20261016_v1/consumer_contract_v1.py
++++ research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/consumer_contract_v1.py
+@@ -3,7 +3,7 @@
+ from pathlib import Path
+ import hashlib,importlib.util,json,os,sys
+ from arggnn.american_c3_common_v1 import ROOT,CLASSES,require,local,ref,bound
+-REL='research/reviews/native_ARGformer_VAL000_execution_readiness_20261016_v1'
++REL='research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1'
+ SOURCE=REL+"/consumer_contract_v1.py"
+ MAIN=REL+"/entry_postMLM_v1.py"
+ AUTHOR_ROOT=".runtime/author_sources/argformer_f7545be7bca0"
+@@ -41,7 +41,7 @@
+     child_log_ram_bytes=4194304,guard_poll_seconds=1.,termination_grace_seconds=20.,
+     phase_write_budget_bytes=None,short_tmp_directory=None,max_preparation_file_bytes=None,
+     max_checkpoint_files=None,max_checkpoint_bytes=None,max_embedding_input_bytes=None)
+-PROJECT_SOURCES=tuple(dict.fromkeys((*PROJECT_SOURCES,"src/arggnn/american_c3_native_contract_v1.py",MAIN,SOURCE,REL+"/supervisor_v1.py",REL+"/native_child_v1.py",'research/reviews/native_ARGformer_VAL000_execution_readiness_20261016_v1/post_mlm_bridge_v1.py','research/reviews/C3_native_post_MLM_root_handoff_20261015_v1/ram_downstream_v1.py')))
++PROJECT_SOURCES=tuple(dict.fromkeys((*PROJECT_SOURCES,'research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/shared_native_runtime_entry_v1.py',"src/arggnn/american_c3_native_contract_v1.py",MAIN,SOURCE,REL+"/supervisor_v1.py",REL+"/native_child_v1.py",'research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/post_mlm_bridge_v1.py','research/reviews/C3_native_post_MLM_root_handoff_20261015_v1/ram_downstream_v1.py')))
+ DEFAULTS["checkpoint_retention_IO_override"]=1
+ 
+ def metadata(record,*,cap=1048576):
+--- research/reviews/native_ARGformer_VAL000_execution_readiness_20261016_v1/context_factory_v1.py
++++ research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/context_factory_v1.py
+@@ -7,7 +7,7 @@
+ from pathlib import Path
+ import ast,hashlib,importlib.util,json,os,resource,stat,subprocess,sys,time
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-REL="research/reviews/native_ARGformer_VAL000_execution_readiness_20261016_v1"
++REL="research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1"
+ def contract():
+     path=ROOT/REL/"root_native_contract_v1.py"
+     ms=importlib.util.spec_from_file_location("_C3_native_factory_contract",path)
+--- research/reviews/native_ARGformer_VAL000_execution_readiness_20261016_v1/entry_postMLM_v1.py
++++ research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/entry_postMLM_v1.py
+@@ -3,7 +3,7 @@
+ import sys
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+ def main(argv=None):
+-    sys.path[:0]=[str(ROOT/'research/reviews/native_ARGformer_VAL000_execution_readiness_20261016_v1'),str(ROOT/"research/reviews/C3_native_post_MLM_root_handoff_20261015_v1"),
++    sys.path[:0]=[str(ROOT/'research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1'),str(ROOT/"research/reviews/C3_native_post_MLM_root_handoff_20261015_v1"),
+         str(ROOT/"research/reviews/American_C3_native_MLM_full_fit_v8"),
+         str(ROOT/"research/reviews/American_C3_native_MLM_full_source_v5"),
+         str(ROOT/"research/reviews/American_C3_native_MLM_amendment_v12"),
+--- research/reviews/native_ARGformer_VAL000_execution_readiness_20261016_v1/launcher_postMLM980_v1.py
++++ research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/launcher_postMLM980_v1.py
+@@ -12,8 +12,7 @@
+ 
+ from pathlib import Path
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-sys.path[:0]=[str(ROOT/'research/reviews/native_ARGformer_VAL000_execution_readiness_20261016_v1'),str(ROOT/"research/reviews/American_C3_native_MLM_full_fit_v8"),str(ROOT/"research/reviews/American_C3_native_MLM_full_source_v5"),str(ROOT/"research/reviews/American_C3_native_MLM_amendment_v12"),str(ROOT),str(ROOT/"src"),str(ROOT/"scripts")]
+-from arggnn.resources import gpu_inventory
++sys.path[:0]=[str(ROOT/'research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1'),str(ROOT/"research/reviews/American_C3_native_MLM_full_fit_v8"),str(ROOT/"research/reviews/American_C3_native_MLM_full_source_v5"),str(ROOT/"research/reviews/American_C3_native_MLM_amendment_v12"),str(ROOT),str(ROOT/"src"),str(ROOT/"scripts")]
+ ALLOWED_GPUS=(0,)
+ import root_native_contract_v1 as contract
+ from owned_lifecycle_v2 import OwnedTree
+@@ -29,7 +28,7 @@
+ import project_budget_v9 as budget
+ 
+ SCHEDULABLE_GPUS = (0,)
+-SOURCE = 'research/reviews/native_ARGformer_VAL000_execution_readiness_20261016_v1/launcher_postMLM980_v1.py'
++SOURCE = 'research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/launcher_postMLM980_v1.py'
+ BASE_LAUNCHER = "scripts/launch_reserved_gpu_v6.py"
+ 
+ 
+@@ -106,48 +105,25 @@
+     selected = None
+     lock_dir = ROOT / ".runtime/locks"
+     try:
++        # Root-owned shared pool already holds gpu_0.lock; never acquire or rewrite it.
++        guard=contract.load(contract.GPU0_NATIVE_GUARD_REF,"_shared_native_inherited_GPU0_guard")
++        guard.install_before_torch_v1()
++        inherited=guard.validate_lease();guard.apply_and_validate_title()
++        if (inherited["physical_gpu"]!=0 or inherited["visible_gpu_uuid"]!=contract.GPU0_UUID
++                or not inherited["launcher_metadata"]["job"].startswith("gpu0_shared_v1:")
++                or os.environ.get("ARGGNN_LOGICAL_JOB_NAME")!=args.job):
++            raise ValueError("Exact inherited canonical pool0 lease and separate native logical job required")
+         with budget.v4.mutex(ROOT):
+-            record, account = admitted_storage_locked(
+-                args.storage_record, args.expected_storage_sha256, args.job,
+-                args.expected_budget_source_sha256, args.expected_launcher_sha256)
++            record,account=admitted_storage_locked(args.storage_record,args.expected_storage_sha256,
++                args.job,args.expected_budget_source_sha256,args.expected_launcher_sha256)
+             if _SPEC["main_source_ref"]!=contract.ref(args.module):
+-                raise ValueError("Actual producer must match the current admitted source")
+-            contract.active(_SPEC)
+-            candidates = {r["index"]: r for r in gpu_inventory()}
+-            held, free_handles = [], {}
+-            try:
+-                for idx in ALLOWED_GPUS:
+-                    path = budget.v4.canonical(ROOT, lock_dir / f"gpu_{idx}.lock")
+-                    fd = os.open(path, os.O_RDWR | os.O_NOFOLLOW)
+-                    handle = os.fdopen(fd, "r+")
+-                    try:
+-                        fcntl.flock(handle, fcntl.LOCK_EX | fcntl.LOCK_NB)
+-                        free_handles[idx] = handle
+-                    except BlockingIOError:
+-                        held.append(idx)
+-                        handle.close()
+-                if held:
+-                    raise RuntimeError("GPU0 canonical lease is held; preserve the existing pool/native owner")
+-                requested = [args.gpu] if args.gpu is not None else list(SCHEDULABLE_GPUS)
+-                selected = next((idx for idx in requested if idx in free_handles
+-                                 and eligible_free(candidates[idx])), None)
+-                if selected is None:
+-                    raise RuntimeError("No requested eligible GPU is free")
+-                lease = free_handles.pop(selected)
+-                lease.seek(0)
+-                lease.truncate()
+-                lease.write(json.dumps({"launcher_pid": os.getpid(), "gpu": selected,
+-                    "uuid": candidates[selected]["uuid"], "job": args.job,
+-                    "started_unix": time.time(), "storage_bytes": account["projected_bytes"],
+-                    "storage_accounting": "prospective_980gb_v1",
+-                    "storage_journal_tail_sha256": account["journal_tail_sha256"]}))
+-                lease.flush()
+-            finally:
+-                for handle in free_handles.values():
+-                    handle.close()
++                raise ValueError("Exact separately admitted native producer")
++        selected=0
++        candidates={0:dict(uuid=contract.GPU0_UUID)}
++        lease=os.fdopen(os.dup(inherited["lease_fd"]),"r+")
+         env = os.environ.copy()
+         env.update({"CUDA_VISIBLE_DEVICES": candidates[selected]["uuid"],
+-            "ARGGNN_PHYSICAL_GPU": str(selected), "ARGGNN_JOB_NAME": args.job,
++            "ARGGNN_PHYSICAL_GPU": str(selected), "ARGGNN_JOB_NAME": inherited["launcher_metadata"]["job"],
+             "ARGGNN_LOGICAL_JOB_NAME": args.job,
+             "ARGGNN_GPU_LEASE": str(lock_dir / f"gpu_{selected}.lock"),
+             "ARGGNN_GPU_LEASE_FD": str(lease.fileno()),
+--- research/reviews/native_ARGformer_VAL000_execution_readiness_20261016_v1/mlm_v1/consumer_contract_v1.py
++++ research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/mlm_v1/consumer_contract_v1.py
+@@ -3,7 +3,7 @@
+ from pathlib import Path
+ import hashlib,importlib.util,json,os,sys
+ from arggnn.american_c3_common_v1 import ROOT,CLASSES,require,local,ref,bound
+-REL='research/reviews/native_ARGformer_VAL000_execution_readiness_20261016_v1/mlm_v1'
++REL='research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/mlm_v1'
+ SOURCE=REL+"/consumer_contract_v1.py"
+ MAIN=REL+"/entry_mlm980_v1.py"
+ AUTHOR_ROOT=".runtime/author_sources/argformer_f7545be7bca0"
+@@ -36,7 +36,7 @@
+     child_log_ram_bytes=4194304,guard_poll_seconds=1.,termination_grace_seconds=20.,
+     phase_write_budget_bytes=None,short_tmp_directory=None,max_preparation_file_bytes=None,
+     max_checkpoint_files=None,max_checkpoint_bytes=None,max_embedding_input_bytes=None)
+-PROJECT_SOURCES=tuple(dict.fromkeys((*PROJECT_SOURCES,MAIN,SOURCE,REL+"/supervisor_v1.py",REL+"/native_child_v1.py")))
++PROJECT_SOURCES=tuple(dict.fromkeys((*PROJECT_SOURCES,'research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/shared_native_runtime_entry_v1.py',MAIN,SOURCE,REL+"/supervisor_v1.py",REL+"/native_child_v1.py")))
+ DEFAULTS["author_checkpoint_retention"]=1
+ 
+ def metadata(record,*,cap=1048576):
+--- research/reviews/native_ARGformer_VAL000_execution_readiness_20261016_v1/mlm_v1/context_factory_v1.py
++++ research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/mlm_v1/context_factory_v1.py
+@@ -7,7 +7,7 @@
+ from pathlib import Path
+ import ast,hashlib,importlib.util,json,os,resource,stat,subprocess,sys,time
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-REL="research/reviews/native_ARGformer_VAL000_execution_readiness_20261016_v1/mlm_v1"
++REL="research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/mlm_v1"
+ def contract():
+     path=ROOT/REL/"root_native_contract_v1.py"
+     ms=importlib.util.spec_from_file_location("_C3_native_factory_contract",path)
+--- research/reviews/native_ARGformer_VAL000_execution_readiness_20261016_v1/mlm_v1/entry_mlm980_v1.py
++++ research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/mlm_v1/entry_mlm980_v1.py
+@@ -3,7 +3,7 @@
+ import sys
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+ def main(argv=None):
+-    sys.path[:0]=[str(ROOT/'research/reviews/native_ARGformer_VAL000_execution_readiness_20261016_v1/mlm_v1'),
++    sys.path[:0]=[str(ROOT/'research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/mlm_v1'),
+         str(ROOT/"research/reviews/American_C3_native_MLM_full_fit_v8"),
+         str(ROOT/"research/reviews/American_C3_native_MLM_full_source_v5"),
+         str(ROOT/"research/reviews/American_C3_native_MLM_amendment_v12"),
+--- research/reviews/native_ARGformer_VAL000_execution_readiness_20261016_v1/mlm_v1/launcher_mlm980_v1.py
++++ research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/mlm_v1/launcher_mlm980_v1.py
+@@ -12,8 +12,7 @@
+ 
+ from pathlib import Path
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-sys.path[:0]=[str(ROOT/'research/reviews/native_ARGformer_VAL000_execution_readiness_20261016_v1/mlm_v1'),str(ROOT/"research/reviews/American_C3_native_MLM_full_fit_v8"),str(ROOT/"research/reviews/American_C3_native_MLM_full_source_v5"),str(ROOT/"research/reviews/American_C3_native_MLM_amendment_v12"),str(ROOT),str(ROOT/"src"),str(ROOT/"scripts")]
+-from arggnn.resources import gpu_inventory
++sys.path[:0]=[str(ROOT/'research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/mlm_v1'),str(ROOT/"research/reviews/American_C3_native_MLM_full_fit_v8"),str(ROOT/"research/reviews/American_C3_native_MLM_full_source_v5"),str(ROOT/"research/reviews/American_C3_native_MLM_amendment_v12"),str(ROOT),str(ROOT/"src"),str(ROOT/"scripts")]
+ ALLOWED_GPUS=(0,)
+ import root_native_contract_v1 as contract
+ from owned_lifecycle_v2 import OwnedTree
+@@ -29,7 +28,7 @@
+ import project_budget_v9 as budget
+ 
+ SCHEDULABLE_GPUS = (0,)
+-SOURCE = 'research/reviews/native_ARGformer_VAL000_execution_readiness_20261016_v1/mlm_v1/launcher_mlm980_v1.py'
++SOURCE = 'research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/mlm_v1/launcher_mlm980_v1.py'
+ BASE_LAUNCHER = "scripts/launch_reserved_gpu_v6.py"
+ 
+ 
+@@ -106,48 +105,25 @@
+     selected = None
+     lock_dir = ROOT / ".runtime/locks"
+     try:
++        # Root-owned shared pool already holds gpu_0.lock; never acquire or rewrite it.
++        guard=contract.load(contract.GPU0_NATIVE_GUARD_REF,"_shared_native_inherited_GPU0_guard")
++        guard.install_before_torch_v1()
++        inherited=guard.validate_lease();guard.apply_and_validate_title()
++        if (inherited["physical_gpu"]!=0 or inherited["visible_gpu_uuid"]!=contract.GPU0_UUID
++                or not inherited["launcher_metadata"]["job"].startswith("gpu0_shared_v1:")
++                or os.environ.get("ARGGNN_LOGICAL_JOB_NAME")!=args.job):
++            raise ValueError("Exact inherited canonical pool0 lease and separate native logical job required")
+         with budget.v4.mutex(ROOT):
+-            record, account = admitted_storage_locked(
+-                args.storage_record, args.expected_storage_sha256, args.job,
+-                args.expected_budget_source_sha256, args.expected_launcher_sha256)
++            record,account=admitted_storage_locked(args.storage_record,args.expected_storage_sha256,
++                args.job,args.expected_budget_source_sha256,args.expected_launcher_sha256)
+             if _SPEC["main_source_ref"]!=contract.ref(args.module):
+-                raise ValueError("Actual producer must match the current admitted source")
+-            contract.active(_SPEC)
+-            candidates = {r["index"]: r for r in gpu_inventory()}
+-            held, free_handles = [], {}
+-            try:
+-                for idx in ALLOWED_GPUS:
+-                    path = budget.v4.canonical(ROOT, lock_dir / f"gpu_{idx}.lock")
+-                    fd = os.open(path, os.O_RDWR | os.O_NOFOLLOW)
+-                    handle = os.fdopen(fd, "r+")
+-                    try:
+-                        fcntl.flock(handle, fcntl.LOCK_EX | fcntl.LOCK_NB)
+-                        free_handles[idx] = handle
+-                    except BlockingIOError:
+-                        held.append(idx)
+-                        handle.close()
+-                if held:
+-                    raise RuntimeError("GPU0 canonical lease is held; preserve the existing pool/native owner")
+-                requested = [args.gpu] if args.gpu is not None else list(SCHEDULABLE_GPUS)
+-                selected = next((idx for idx in requested if idx in free_handles
+-                                 and eligible_free(candidates[idx])), None)
+-                if selected is None:
+-                    raise RuntimeError("No requested eligible GPU is free")
+-                lease = free_handles.pop(selected)
+-                lease.seek(0)
+-                lease.truncate()
+-                lease.write(json.dumps({"launcher_pid": os.getpid(), "gpu": selected,
+-                    "uuid": candidates[selected]["uuid"], "job": args.job,
+-                    "started_unix": time.time(), "storage_bytes": account["projected_bytes"],
+-                    "storage_accounting": "prospective_980gb_v1",
+-                    "storage_journal_tail_sha256": account["journal_tail_sha256"]}))
+-                lease.flush()
+-            finally:
+-                for handle in free_handles.values():
+-                    handle.close()
++                raise ValueError("Exact separately admitted native producer")
++        selected=0
++        candidates={0:dict(uuid=contract.GPU0_UUID)}
++        lease=os.fdopen(os.dup(inherited["lease_fd"]),"r+")
+         env = os.environ.copy()
+         env.update({"CUDA_VISIBLE_DEVICES": candidates[selected]["uuid"],
+-            "ARGGNN_PHYSICAL_GPU": str(selected), "ARGGNN_JOB_NAME": args.job,
++            "ARGGNN_PHYSICAL_GPU": str(selected), "ARGGNN_JOB_NAME": inherited["launcher_metadata"]["job"],
+             "ARGGNN_LOGICAL_JOB_NAME": args.job,
+             "ARGGNN_GPU_LEASE": str(lock_dir / f"gpu_{selected}.lock"),
+             "ARGGNN_GPU_LEASE_FD": str(lease.fileno()),
+--- research/reviews/native_ARGformer_VAL000_execution_readiness_20261016_v1/mlm_v1/native_child_v1.py
++++ research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/mlm_v1/native_child_v1.py
+@@ -9,7 +9,7 @@
+ from pathlib import Path
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+ sys.path[1:1]=[str(ROOT/"research/reviews/American_C3_native_MLM_amendment_v12"),str(ROOT/"research/reviews/American_C3_native_MLM_full_fit_v8"),str(ROOT/"research/reviews/American_C3_native_MLM_full_source_v5")]
+-SOURCE="research/reviews/native_ARGformer_VAL000_execution_readiness_20261016_v1/mlm_v1/native_child_v1.py"
++SOURCE="research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/mlm_v1/native_child_v1.py"
+ GUARD='research/reviews/GPU0_shared_execution_source_20261016_v1/gpu0_native_guard_v1.py'
+ GUARD_SHA='3a08d3bd84adc95aafd332bc224fdb7aa38730d6c2f48dee8108944251b7ee69'
+ def _early_read(record):
+--- research/reviews/native_ARGformer_VAL000_execution_readiness_20261016_v1/mlm_v1/native_runtime_v1.py
++++ research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/mlm_v1/native_runtime_v1.py
+@@ -2,7 +2,7 @@
+ from pathlib import Path
+ import ast,copy,hashlib,importlib,importlib.machinery,importlib.util,json,os,re,stat,sys
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-REL="research/reviews/native_ARGformer_VAL000_execution_readiness_20261016_v1/mlm_v1"
++REL="research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/mlm_v1"
+ def _contract():
+     path=ROOT/REL/"root_native_contract_v1.py"
+     spec=importlib.util.spec_from_file_location("_C3_native_runtime_contract",path)
+--- research/reviews/native_ARGformer_VAL000_execution_readiness_20261016_v1/mlm_v1/root_native_contract_v1.py
++++ research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/mlm_v1/root_native_contract_v1.py
+@@ -3,7 +3,7 @@
+ from datetime import datetime,timezone,timedelta
+ import copy,hashlib,importlib.util,json,os,sys
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-REL="research/reviews/native_ARGformer_VAL000_execution_readiness_20261016_v1/mlm_v1"
++REL="research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/mlm_v1"
+ SOURCE=REL+"/root_native_contract_v1.py"
+ DRIVER=REL+"/root_native_driver_v1.py"
+ CONTEXT=REL+"/context_factory_v1.py"
+@@ -71,7 +71,7 @@
+ RENEWAL_CERTIFICATE_REF={'path': 'research/reviews/H039_marker_repair_renewal_source_20261016_v1/renewal_certificate.root_active_v1.json', 'sha256': '66006202094d7a3ef2b29cbec28eb93f334505b72589f09d86e4b57498162db7'}
+ def install_marker_renewal_v1():
+     require(ref(RENEWAL_SOURCE_REF["path"])==RENEWAL_SOURCE_REF,"Exact reviewed additive marker renewal")
+-    module=load(RENEWAL_SOURCE_REF,"_VAL000_prediction_route_marker_renewal_v1")
++    module=load(RENEWAL_SOURCE_REF,"_VAL000_prediction_route_sharedGPU0_marker_renewal_v1")
+     return module.install_renewal_v1(RENEWAL_CERTIFICATE_REF)
+ 
+ 
+@@ -79,8 +79,14 @@
+ GPU0_POLICY_REF={'path': 'research/reviews/GPU0_only_user_transition_root_20261016_v1/GPU0_only_policy.root_active_v1.json', 'sha256': 'bba84cecf416b2d284126bd31b72cff26ef9c46ee24dae375721d3f57240ed24'}
+ GPU0_STOP_REF={'path': 'research/reviews/GPU0_only_user_transition_root_20261016_v1/actual_stop_and_absence.root_v1.json', 'sha256': 'dd47aa8483c6d03ce5c45213c9ead33e0faee999103ba2db926b0f5b25384de1'}
+ GPU0_NATIVE_GUARD_REF={"path":'research/reviews/GPU0_shared_execution_source_20261016_v1/gpu0_native_guard_v1.py',"sha256":'3a08d3bd84adc95aafd332bc224fdb7aa38730d6c2f48dee8108944251b7ee69'}
+-GPU0_SOURCE_ROOT="research/reviews/native_ARGformer_VAL000_execution_readiness_20261016_v1"
+-GPU0_REVIEWED_SOURCE_PATHS=('consumer_contract_v1.py', 'context_factory_v1.py', 'entry_postMLM_v1.py', 'launcher_postMLM980_v1.py', 'mlm_v1/consumer_contract_v1.py', 'mlm_v1/context_factory_v1.py', 'mlm_v1/entry_mlm980_v1.py', 'mlm_v1/launcher_mlm980_v1.py', 'mlm_v1/native_child_v1.py', 'mlm_v1/native_runtime_v1.py', 'mlm_v1/root_native_contract_v1.py', 'mlm_v1/root_native_driver_v1.py', 'mlm_v1/supervisor_v1.py', 'native_child_v1.py', 'native_runtime_v1.py', 'post_mlm_bridge_v1.py', 'root_native_contract_v1.py', 'root_native_driver_v1.py', 'supervisor_v1.py')
++SHARED_POOL_SOURCE="research/reviews/GPU0_shared_execution_source_20261016_v1/gpu0_shared_pool_v1.py"
++SHARED_POOL_LAUNCHER="research/reviews/GPU0_shared_execution_source_20261016_v1/launch_gpu0_shared_v1.py"
++SHARED_POOL_BASE="src/arggnn/gpu_pool_v1.py"
++SHARED_NATIVE_RUNTIME='research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/shared_native_runtime_entry_v1.py'
++STORAGE_MONITOR='research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/owned_storage_profile_v1.py'
++GPU0_SHARED_SOURCE_REFS={'research/reviews/GPU0_only_user_transition_root_20261016_v1/GPU0_only_policy.root_active_v1.json': {'path': 'research/reviews/GPU0_only_user_transition_root_20261016_v1/GPU0_only_policy.root_active_v1.json', 'sha256': 'bba84cecf416b2d284126bd31b72cff26ef9c46ee24dae375721d3f57240ed24'}, 'research/reviews/GPU0_only_user_transition_root_20261016_v1/actual_stop_and_absence.root_v1.json': {'path': 'research/reviews/GPU0_only_user_transition_root_20261016_v1/actual_stop_and_absence.root_v1.json', 'sha256': 'dd47aa8483c6d03ce5c45213c9ead33e0faee999103ba2db926b0f5b25384de1'}, 'research/reviews/GPU0_shared_execution_source_20261016_v1/gpu0_bootstrap_renewal_v1.py': {'path': 'research/reviews/GPU0_shared_execution_source_20261016_v1/gpu0_bootstrap_renewal_v1.py', 'sha256': '58fc5e27f5cdc02f70463314068160299981778cf0196d1e77c0577ca27cfcc1'}, 'research/reviews/GPU0_shared_execution_source_20261016_v1/gpu0_native_guard_v1.py': {'path': 'research/reviews/GPU0_shared_execution_source_20261016_v1/gpu0_native_guard_v1.py', 'sha256': '3a08d3bd84adc95aafd332bc224fdb7aa38730d6c2f48dee8108944251b7ee69'}, 'research/reviews/GPU0_shared_execution_source_20261016_v1/gpu0_runtime_adapter_v1.py': {'path': 'research/reviews/GPU0_shared_execution_source_20261016_v1/gpu0_runtime_adapter_v1.py', 'sha256': '957ec724bb345a76932d5ea43b0df527bc9d12b068815db91cf17da1b0c85896'}, 'research/reviews/GPU0_shared_execution_source_20261016_v1/gpu0_shared_pool_v1.py': {'path': 'research/reviews/GPU0_shared_execution_source_20261016_v1/gpu0_shared_pool_v1.py', 'sha256': '4c12869c22078f257aa247210fe21dec3c6a3702dec75116c0ff5dc2ac0db297'}, 'research/reviews/GPU0_shared_execution_source_20261016_v1/launch_gpu0_shared_v1.py': {'path': 'research/reviews/GPU0_shared_execution_source_20261016_v1/launch_gpu0_shared_v1.py', 'sha256': '9bf5df4b964dfb537bd5e534de2a5a4b4c19e2d3e7b5857c92c64db376ee5b40'}, 'research/reviews/H039_marker_repair_renewal_source_20261016_v1/marker_repair_renewal_v1.py': {'path': 'research/reviews/H039_marker_repair_renewal_source_20261016_v1/marker_repair_renewal_v1.py', 'sha256': '491236877e8d71cae8bd7619880858ac501c57dd93e59479ca32dacacab20468'}, 'research/reviews/H039_marker_repair_renewal_source_20261016_v1/renewal_certificate.root_active_v1.json': {'path': 'research/reviews/H039_marker_repair_renewal_source_20261016_v1/renewal_certificate.root_active_v1.json', 'sha256': '66006202094d7a3ef2b29cbec28eb93f334505b72589f09d86e4b57498162db7'}, 'src/arggnn/gpu45_c3cache_h050_pool_v1.py': {'path': 'src/arggnn/gpu45_c3cache_h050_pool_v1.py', 'sha256': 'd3279c6208737371031330f4bef9325199ba20c86f0f7d8e930c134b128d29fb'}, 'src/arggnn/gpu_pool_v1.py': {'path': 'src/arggnn/gpu_pool_v1.py', 'sha256': 'ae1e0494ab672cfa3017759460eb06a4b4789eaef54928496c3c80314adcc0e1'}}
++GPU0_SOURCE_ROOT="research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1"
++GPU0_REVIEWED_SOURCE_PATHS=('consumer_contract_v1.py', 'context_factory_v1.py', 'entry_postMLM_v1.py', 'launcher_postMLM980_v1.py', 'mlm_v1/consumer_contract_v1.py', 'mlm_v1/context_factory_v1.py', 'mlm_v1/entry_mlm980_v1.py', 'mlm_v1/launcher_mlm980_v1.py', 'mlm_v1/native_child_v1.py', 'mlm_v1/native_runtime_v1.py', 'mlm_v1/root_native_contract_v1.py', 'mlm_v1/root_native_driver_v1.py', 'mlm_v1/supervisor_v1.py', 'native_child_v1.py', 'native_runtime_v1.py', 'owned_storage_profile_v1.py', 'post_mlm_bridge_v1.py', 'root_native_contract_v1.py', 'root_native_driver_v1.py', 'shared_native_runtime_entry_v1.py', 'supervisor_v1.py')
+ GPU0_EXECUTION_APPROVAL_PATH=GPU0_SOURCE_ROOT+"/GPU0_execution_approval.root_active_v1.json"
+ def require_gpu0_execution_route_v1():
+     # Explicit bounded metadata only; no guard configure, mutation or probe here.
+@@ -110,11 +116,15 @@
+         and approval.get("new_GPU0_native_guard_ref")==GPU0_NATIVE_GUARD_REF
+         and approval.get("GPU0_source_route_reviewed") is True
+         and approval.get("root_resource_review_completed") is True
+-        and approval.get("canonical_gpu0_lock_exclusion_reviewed") is True
++        and approval.get("shared_pool_inherited_lease_route_reviewed") is True
++        and approval.get("smaller_7GiB_operational_profile_reviewed") is True
++        and approval.get("periodic_overshoot_and_unmeasured_cache_risk_accepted") is True
++        and approval.get("reviewed_shared_pool_source_refs")==GPU0_SHARED_SOURCE_REFS
+         and approval.get("preserve_external_jobs") is True
+         and approval.get("reuse_old_GPU45_authority") is False,
+         "Root must issue NEW exact-source GPU0 route/resource approval before bind/admit/launch")
+     expected={GPU0_SOURCE_ROOT+"/"+r:ref(GPU0_SOURCE_ROOT+"/"+r)["sha256"] for r in GPU0_REVIEWED_SOURCE_PATHS}
++    require(all(ref(r["path"])==r for r in GPU0_SHARED_SOURCE_REFS.values()),"Exact sealed shared pool/guard/bootstrap/policy/stop/renewal refs")
+     require(approval.get("reviewed_source_sha256")==expected
+         and ref(GPU0_NATIVE_GUARD_REF["path"])==GPU0_NATIVE_GUARD_REF,
+         "Exact reviewed native source route and dedicated GPU0 adapter")
+@@ -138,7 +148,7 @@
+     return guard,adapter
+ def phase_paths(phase):
+     require(phase=="mlm","Fresh VAL000 native MLM only")
+-    return ROOT/REL/"admitted_mlm_v1","experiments/results/American_C3_native_val000_full30mb_MLM_prediction_route_v1"
++    return ROOT/REL/"admitted_mlm_v1","experiments/results/American_C3_native_val000_full30mb_MLM_prediction_route_sharedGPU0_v1"
+ def validate_upstream(completed_ref,wait_ref,*,preparation=False):
+     completed=read(completed_ref);wait=read(wait_ref)
+     if preparation:
+@@ -186,7 +196,7 @@
+     cfg=copy.deepcopy(native_contract().DEFAULTS)
+     cfg.update(execution_enabled=True,parent_id=PARENT,phase="mlm",
+         phase_write_budget_bytes=caps["phase_write_budget_bytes"],
+-        short_tmp_directory=".runtime/tmp/c3valpredmlm/m",child_log_ram_bytes=caps["child_log_ram_bytes"])
++        short_tmp_directory=".runtime/tmp/c3val0shm/m",child_log_ram_bytes=caps["child_log_ram_bytes"])
+     for key in ("max_preparation_file_bytes","max_checkpoint_files","max_checkpoint_bytes","max_embedding_input_bytes"):
+         cfg[key]=caps[key]
+     return cfg
+@@ -197,7 +207,7 @@
+     return load(ref(REL+"/consumer_contract_v1.py"),"_VAL000_MLM980_native_contract")
+ def source_paths():
+     native=native_contract()
+-    return tuple(dict.fromkeys((GPU0_POLICY_REF['path'],GPU0_STOP_REF['path'],GPU0_EXECUTION_APPROVAL_PATH,RENEWAL_SOURCE_REF['path'],RENEWAL_CERTIFICATE_REF['path'],*native.PROJECT_SOURCES,SOURCE,DRIVER,CONTEXT,RUNTIME_HELPER,
++    return tuple(dict.fromkeys((SHARED_NATIVE_RUNTIME,STORAGE_MONITOR,SHARED_POOL_SOURCE,SHARED_POOL_LAUNCHER,SHARED_POOL_BASE,'research/reviews/GPU0_shared_execution_source_20261016_v1/gpu0_runtime_adapter_v1.py','src/arggnn/gpu45_c3cache_h050_pool_v1.py','research/reviews/GPU0_shared_execution_source_20261016_v1/gpu0_bootstrap_renewal_v1.py',GPU0_POLICY_REF['path'],GPU0_STOP_REF['path'],GPU0_EXECUTION_APPROVAL_PATH,RENEWAL_SOURCE_REF['path'],RENEWAL_CERTIFICATE_REF['path'],*native.PROJECT_SOURCES,SOURCE,DRIVER,CONTEXT,RUNTIME_HELPER,
+         "src/arggnn/census_tsinfer_fit_v1.py","src/arggnn/census_tsinfer_observation_v1.py",
+         "src/arggnn/biological_candidate.py","src/arggnn/project_budget_v9_consumer.py",
+         "scripts/launch_reserved_gpu_full_storage_v1.py","scripts/launch_reserved_gpu_terminal_retired_scopes_v1.py",
+@@ -292,10 +302,10 @@
+     require(acceptance.get("active") is True and acceptance.get("root_accepts_actual_UUID_memory_comparison") is True,
+         "Prior ABI compatibility evidence only; no prior execution authority")
+     gpu0_readiness_approval_v1(refs["native_gpu0_readiness"],runtime)
+-    require(caps["checkpoint_live_allowance_bytes"]==8*2**30+65536 and caps["cache_allowance_bytes"]==4*2**30
+-        and caps["temp_allowance_bytes"]==256*2**20 and caps["child_artifact_allowance_bytes"]==256*2**20
+-        and caps["max_checkpoint_files"]==2 and caps["max_checkpoint_bytes"]==4*2**30,
+-        "Explicit source-derived retention1/max2 checkpoint/cache/TMP policy; no fit guarantee")
++    require(caps["checkpoint_live_allowance_bytes"]==6*2**30+65536 and caps["cache_allowance_bytes"]==512*2**20
++        and caps["temp_allowance_bytes"]==128*2**20 and caps["child_artifact_allowance_bytes"]==128*2**20
++        and caps["max_checkpoint_files"]==2 and caps["max_checkpoint_bytes"]==3*2**30,
++        "Explicit smaller operational profile; full science unchanged; monitored failstop without fit/OS quota claim")
+     return req,caps,runtime
+ 
+ def launcher_ref_v1():return ref(LAUNCHER_REF["path"])
+--- research/reviews/native_ARGformer_VAL000_execution_readiness_20261016_v1/mlm_v1/root_native_driver_v1.py
++++ research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/mlm_v1/root_native_driver_v1.py
+@@ -3,7 +3,7 @@
+ from datetime import datetime,timezone,timedelta
+ import argparse,collections,hashlib,importlib.util,json,os,selectors,signal,subprocess,sys,time
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-REL='research/reviews/native_ARGformer_VAL000_execution_readiness_20261016_v1/mlm_v1'
++REL='research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/mlm_v1'
+ sys.path[:0]=[str(ROOT/REL),str(ROOT),str(ROOT/"src"),str(ROOT/"scripts"),str(ROOT/"research/reviews/American_C3_native_MLM_full_source_v5"),str(ROOT/"research/reviews/American_C3_native_MLM_amendment_v12")]
+ _ms=importlib.util.spec_from_file_location("_C3_counts980_contract",ROOT/REL/"root_native_contract_v1.py")
+ c=importlib.util.module_from_spec(_ms);_ms.loader.exec_module(c)
+@@ -50,7 +50,7 @@
+     consumers=unique([*bindings.values(),*direct,c.RENEWAL_SOURCE_REF,c.RENEWAL_CERTIFICATE_REF])
+     c.require(len(consumers)<=64,"Original64 direct metadata binding ceiling")
+     now=datetime.now(timezone.utc);expiry=now+timedelta(seconds=min(259200,caps["operational_deadline_seconds"]+300))
+-    job="American-C3-native-val000-MLM-prediction-route-"+phase+"-v1";aux=packet/"worker_aux"
++    job="American-C3-native-val000-MLM-prediction-route-sharedGPU0-"+phase+"-v1";aux=packet/"worker_aux"
+     request=dict(key="H041/"+job,output=str(ROOT/output),auxiliary_scopes=[str(aux),str(cfg_tmp)],
+         reserved_bytes=caps["reservation_cap_bytes"],consumer_bindings=consumers)
+     authority=m.operation_draft_v1("reserve",request,expected_before=m._pins(view),bindings=bindings)
+@@ -75,6 +75,10 @@
+         transitive_source_closure_ref=closure_ref,author_source_manifest_ref=native.AUTHOR_MANIFEST_REF,
+         input_binding_mode="actual_SHA_input_through_root_context",refs=refs,
+         physical_gpu=req["physical_gpu"],execution_gpu_uuid=req["GPU_UUID"],
++        operational_pool_source_ref=c.ref(c.SHARED_POOL_SOURCE),operational_launcher_ref=c.ref(c.SHARED_POOL_LAUNCHER),
++        operational_pool_base_ref=c.ref(c.SHARED_POOL_BASE),operational_GPU0_runtime_ref=c.ref(c.SHARED_NATIVE_RUNTIME),
++        operational_GPU0_guard_ref=c.GPU0_NATIVE_GUARD_REF,operational_GPU0_policy_ref=c.GPU0_POLICY_REF,
++        marker_repair_renewal_ref=c.RENEWAL_CERTIFICATE_REF,
+         root_auxiliary_directory=str(aux.relative_to(ROOT)),
+         created_at_utc=now.isoformat(),expires_at_utc=expiry.isoformat(),completed_overlay_policy_ref=c.POLICY_REF,
+         max_cpu_rss_bytes=caps["max_cpu_rss_bytes"],
+@@ -196,17 +200,20 @@
+     c.require(not _children(),"Root supervisor has no unrelated children")
+     _subreaper();logs=_RAMLog(caps["outer_log_cap_bytes"]);known={};observed_groups=set();proc=None;failure=None;peak=0;interrupted=None
+     selector=selectors.DefaultSelector();started=time.monotonic();stop_at=None;original_handlers={};reaped=[]
++    storage_monitor=c.load(c.ref(c.STORAGE_MONITOR),"_native_owned_storage_monitor")
+     def stop(signum,_frame):
+         nonlocal interrupted
+         interrupted=signum
+     try:
+         for sig in (signal.SIGTERM,signal.SIGINT):original_handlers[sig]=signal.signal(sig,stop)
+         proc=subprocess.Popen(command,cwd=ROOT,env=env,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,
+-            bufsize=0,start_new_session=True)
++            bufsize=0,start_new_session=True,pass_fds=(int(os.environ["ARGGNN_GPU_LEASE_FD"]),))
+         known[proc.pid]=_stat(proc.pid);os.set_blocking(proc.stdout.fileno(),False)
+         selector.register(proc.stdout,selectors.EVENT_READ)
+         while proc.poll() is None or selector.get_map():
+-            try:peak=max(peak,_tree(known,observed_groups))
++            try:
++                peak=max(peak,_tree(known,observed_groups))
++                storage_monitor.check_profile_v1(packet,output,caps)
+             except BaseException as error:failure=failure or str(error)
+             now=time.monotonic()
+             if now-started>caps["operational_deadline_seconds"]:failure=failure or "Root actual operational deadline exceeded"
+--- research/reviews/native_ARGformer_VAL000_execution_readiness_20261016_v1/mlm_v1/supervisor_v1.py
++++ research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/mlm_v1/supervisor_v1.py
+@@ -13,8 +13,8 @@
+ from consumer_contract_v1 import (
+     SOURCE as CONTRACT_SOURCE,AUTHOR_MANIFEST_REF,NATIVE_GUARD_REF,DEFAULTS,GPU_PHASES,
+     metadata,validate_active_input,load_root_context,preparation_v1,counts_v1)
+-SOURCE='research/reviews/native_ARGformer_VAL000_execution_readiness_20261016_v1/mlm_v1/entry_mlm980_v1.py'
+-CHILD='research/reviews/native_ARGformer_VAL000_execution_readiness_20261016_v1/mlm_v1/native_child_v1.py'
++SOURCE='research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/mlm_v1/entry_mlm980_v1.py'
++CHILD='research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/mlm_v1/native_child_v1.py'
+ CACHE_VARS=("XDG_CACHE_HOME","XDG_CONFIG_HOME","XDG_DATA_HOME","HF_HOME","TORCH_HOME",
+     "TRITON_CACHE_DIR","CUDA_CACHE_PATH","TORCHINDUCTOR_CACHE_DIR","NUMBA_CACHE_DIR",
+     "MPLCONFIGDIR","WANDB_DIR","WANDB_CACHE_DIR","WANDB_CONFIG_DIR","HF_HUB_CACHE",
+@@ -60,7 +60,7 @@
+     env.update(PYTHONPATH="",PYTHONNOUSERSITE="1",PYTHONDONTWRITEBYTECODE="1",
+         HF_HUB_OFFLINE="1",TRANSFORMERS_OFFLINE="1",HF_HUB_DISABLE_TELEMETRY="1",WANDB_MODE="disabled",
+         CONDA_PREFIX=runtime["native_prefix"],TMPDIR=str(tmp),TMP=str(tmp),TEMP=str(tmp))
+-    env.update(HF_DATASETS_OFFLINE="1",PIP_NO_INDEX="1",PIP_DISABLE_PIP_VERSION_CHECK="1",CUDA_CACHE_MAXSIZE=str(2**30))
++    env.update(HF_DATASETS_OFFLINE="1",PIP_NO_INDEX="1",PIP_DISABLE_PIP_VERSION_CHECK="1",CUDA_CACHE_MAXSIZE=str(256*2**20))
+     env["PATH"]=str(local(runtime["native_prefix"])/"bin")+os.pathsep+env.get("PATH","")
+     for name in CACHE_VARS:
+         folder=directory/"write_scopes"/name.lower();folder.mkdir(parents=True,exist_ok=False);env[name]=str(folder)
+--- research/reviews/native_ARGformer_VAL000_execution_readiness_20261016_v1/native_child_v1.py
++++ research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/native_child_v1.py
+@@ -3,7 +3,7 @@
+ import argparse,hashlib,importlib,importlib.util,io,json,os,resource,stat,sys,traceback
+ from pathlib import Path
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-REL='research/reviews/native_ARGformer_VAL000_execution_readiness_20261016_v1'
++REL='research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1'
+ sys.path[:0]=[str(ROOT/REL),str(ROOT/"research/reviews/C3_native_post_MLM_root_handoff_20261015_v1"),
+  str(ROOT/"research/reviews/American_C3_native_MLM_full_fit_v8"),
+  str(ROOT/"research/reviews/American_C3_native_MLM_full_source_v5"),
+--- research/reviews/native_ARGformer_VAL000_execution_readiness_20261016_v1/native_runtime_v1.py
++++ research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/native_runtime_v1.py
+@@ -2,7 +2,7 @@
+ from pathlib import Path
+ import ast,copy,hashlib,importlib,importlib.machinery,importlib.util,json,os,re,stat,sys
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-REL="research/reviews/native_ARGformer_VAL000_execution_readiness_20261016_v1"
++REL="research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1"
+ def _contract():
+     path=ROOT/REL/"root_native_contract_v1.py"
+     spec=importlib.util.spec_from_file_location("_C3_native_runtime_contract",path)
+--- research/reviews/native_ARGformer_VAL000_execution_readiness_20261016_v1/post_mlm_bridge_v1.py
++++ research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/post_mlm_bridge_v1.py
+@@ -10,11 +10,11 @@
+ from pathlib import Path
+ from arggnn.american_c3_common_v1 import ROOT,CLASSES,require,ref
+ from arggnn.american_c3_native_contract_v1 import AUTHOR_MANIFEST_REF,metadata
+-SOURCE="research/reviews/native_ARGformer_VAL000_execution_readiness_20261016_v1/post_mlm_bridge_v1.py"
++SOURCE="research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/post_mlm_bridge_v1.py"
+ PREP_REF={'path': 'experiments/results/American_C3_val000_full30mb_shared_v1/native_paths/completed.json', 'sha256': '40a3b588d0aa2b474c3f4aab492e34feb0a753a0f8cb73c20d9c0059d8a8c16b'}
+-MLM_PARENT="experiments/results/American_C3_native_val000_full30mb_MLM_prediction_route_v1"
++MLM_PARENT="experiments/results/American_C3_native_val000_full30mb_MLM_prediction_route_sharedGPU0_v1"
+ MLM_NAMESPACE=MLM_PARENT
+-MLM_ROOT='research/reviews/native_ARGformer_VAL000_execution_readiness_20261016_v1/mlm_v1'
++MLM_ROOT='research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/mlm_v1'
+ COUNTS_REF={'path': 'experiments/results/American_C3_native_val000_full30mb_counts980_namespace_v1/completed.json', 'sha256': '502c111b443c46eea789dc03ee3ff8b6454546ce6e86e3f9fcddba25e82489a7'}
+ 
+ def _counters(value):
+--- research/reviews/native_ARGformer_VAL000_execution_readiness_20261016_v1/root_native_contract_v1.py
++++ research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/root_native_contract_v1.py
+@@ -3,7 +3,7 @@
+ from datetime import datetime,timezone,timedelta
+ import copy,hashlib,importlib.util,json,os,sys
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-REL="research/reviews/native_ARGformer_VAL000_execution_readiness_20261016_v1"
++REL="research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1"
+ SOURCE=REL+"/root_native_contract_v1.py"
+ DRIVER=REL+"/root_native_driver_v1.py"
+ CONTEXT=REL+"/context_factory_v1.py"
+@@ -73,7 +73,7 @@
+ RENEWAL_CERTIFICATE_REF={'path': 'research/reviews/H039_marker_repair_renewal_source_20261016_v1/renewal_certificate.root_active_v1.json', 'sha256': '66006202094d7a3ef2b29cbec28eb93f334505b72589f09d86e4b57498162db7'}
+ def install_marker_renewal_v1():
+     require(ref(RENEWAL_SOURCE_REF["path"])==RENEWAL_SOURCE_REF,"Exact reviewed additive marker renewal")
+-    module=load(RENEWAL_SOURCE_REF,"_VAL000_prediction_route_marker_renewal_v1")
++    module=load(RENEWAL_SOURCE_REF,"_VAL000_prediction_route_sharedGPU0_marker_renewal_v1")
+     return module.install_renewal_v1(RENEWAL_CERTIFICATE_REF)
+ 
+ 
+@@ -81,8 +81,14 @@
+ GPU0_POLICY_REF={'path': 'research/reviews/GPU0_only_user_transition_root_20261016_v1/GPU0_only_policy.root_active_v1.json', 'sha256': 'bba84cecf416b2d284126bd31b72cff26ef9c46ee24dae375721d3f57240ed24'}
+ GPU0_STOP_REF={'path': 'research/reviews/GPU0_only_user_transition_root_20261016_v1/actual_stop_and_absence.root_v1.json', 'sha256': 'dd47aa8483c6d03ce5c45213c9ead33e0faee999103ba2db926b0f5b25384de1'}
+ GPU0_NATIVE_GUARD_REF={"path":'research/reviews/GPU0_shared_execution_source_20261016_v1/gpu0_native_guard_v1.py',"sha256":'3a08d3bd84adc95aafd332bc224fdb7aa38730d6c2f48dee8108944251b7ee69'}
+-GPU0_SOURCE_ROOT="research/reviews/native_ARGformer_VAL000_execution_readiness_20261016_v1"
+-GPU0_REVIEWED_SOURCE_PATHS=('consumer_contract_v1.py', 'context_factory_v1.py', 'entry_postMLM_v1.py', 'launcher_postMLM980_v1.py', 'mlm_v1/consumer_contract_v1.py', 'mlm_v1/context_factory_v1.py', 'mlm_v1/entry_mlm980_v1.py', 'mlm_v1/launcher_mlm980_v1.py', 'mlm_v1/native_child_v1.py', 'mlm_v1/native_runtime_v1.py', 'mlm_v1/root_native_contract_v1.py', 'mlm_v1/root_native_driver_v1.py', 'mlm_v1/supervisor_v1.py', 'native_child_v1.py', 'native_runtime_v1.py', 'post_mlm_bridge_v1.py', 'root_native_contract_v1.py', 'root_native_driver_v1.py', 'supervisor_v1.py')
++SHARED_POOL_SOURCE="research/reviews/GPU0_shared_execution_source_20261016_v1/gpu0_shared_pool_v1.py"
++SHARED_POOL_LAUNCHER="research/reviews/GPU0_shared_execution_source_20261016_v1/launch_gpu0_shared_v1.py"
++SHARED_POOL_BASE="src/arggnn/gpu_pool_v1.py"
++SHARED_NATIVE_RUNTIME='research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/shared_native_runtime_entry_v1.py'
++STORAGE_MONITOR='research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/owned_storage_profile_v1.py'
++GPU0_SHARED_SOURCE_REFS={'research/reviews/GPU0_only_user_transition_root_20261016_v1/GPU0_only_policy.root_active_v1.json': {'path': 'research/reviews/GPU0_only_user_transition_root_20261016_v1/GPU0_only_policy.root_active_v1.json', 'sha256': 'bba84cecf416b2d284126bd31b72cff26ef9c46ee24dae375721d3f57240ed24'}, 'research/reviews/GPU0_only_user_transition_root_20261016_v1/actual_stop_and_absence.root_v1.json': {'path': 'research/reviews/GPU0_only_user_transition_root_20261016_v1/actual_stop_and_absence.root_v1.json', 'sha256': 'dd47aa8483c6d03ce5c45213c9ead33e0faee999103ba2db926b0f5b25384de1'}, 'research/reviews/GPU0_shared_execution_source_20261016_v1/gpu0_bootstrap_renewal_v1.py': {'path': 'research/reviews/GPU0_shared_execution_source_20261016_v1/gpu0_bootstrap_renewal_v1.py', 'sha256': '58fc5e27f5cdc02f70463314068160299981778cf0196d1e77c0577ca27cfcc1'}, 'research/reviews/GPU0_shared_execution_source_20261016_v1/gpu0_native_guard_v1.py': {'path': 'research/reviews/GPU0_shared_execution_source_20261016_v1/gpu0_native_guard_v1.py', 'sha256': '3a08d3bd84adc95aafd332bc224fdb7aa38730d6c2f48dee8108944251b7ee69'}, 'research/reviews/GPU0_shared_execution_source_20261016_v1/gpu0_runtime_adapter_v1.py': {'path': 'research/reviews/GPU0_shared_execution_source_20261016_v1/gpu0_runtime_adapter_v1.py', 'sha256': '957ec724bb345a76932d5ea43b0df527bc9d12b068815db91cf17da1b0c85896'}, 'research/reviews/GPU0_shared_execution_source_20261016_v1/gpu0_shared_pool_v1.py': {'path': 'research/reviews/GPU0_shared_execution_source_20261016_v1/gpu0_shared_pool_v1.py', 'sha256': '4c12869c22078f257aa247210fe21dec3c6a3702dec75116c0ff5dc2ac0db297'}, 'research/reviews/GPU0_shared_execution_source_20261016_v1/launch_gpu0_shared_v1.py': {'path': 'research/reviews/GPU0_shared_execution_source_20261016_v1/launch_gpu0_shared_v1.py', 'sha256': '9bf5df4b964dfb537bd5e534de2a5a4b4c19e2d3e7b5857c92c64db376ee5b40'}, 'research/reviews/H039_marker_repair_renewal_source_20261016_v1/marker_repair_renewal_v1.py': {'path': 'research/reviews/H039_marker_repair_renewal_source_20261016_v1/marker_repair_renewal_v1.py', 'sha256': '491236877e8d71cae8bd7619880858ac501c57dd93e59479ca32dacacab20468'}, 'research/reviews/H039_marker_repair_renewal_source_20261016_v1/renewal_certificate.root_active_v1.json': {'path': 'research/reviews/H039_marker_repair_renewal_source_20261016_v1/renewal_certificate.root_active_v1.json', 'sha256': '66006202094d7a3ef2b29cbec28eb93f334505b72589f09d86e4b57498162db7'}, 'src/arggnn/gpu45_c3cache_h050_pool_v1.py': {'path': 'src/arggnn/gpu45_c3cache_h050_pool_v1.py', 'sha256': 'd3279c6208737371031330f4bef9325199ba20c86f0f7d8e930c134b128d29fb'}, 'src/arggnn/gpu_pool_v1.py': {'path': 'src/arggnn/gpu_pool_v1.py', 'sha256': 'ae1e0494ab672cfa3017759460eb06a4b4789eaef54928496c3c80314adcc0e1'}}
++GPU0_SOURCE_ROOT="research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1"
++GPU0_REVIEWED_SOURCE_PATHS=('consumer_contract_v1.py', 'context_factory_v1.py', 'entry_postMLM_v1.py', 'launcher_postMLM980_v1.py', 'mlm_v1/consumer_contract_v1.py', 'mlm_v1/context_factory_v1.py', 'mlm_v1/entry_mlm980_v1.py', 'mlm_v1/launcher_mlm980_v1.py', 'mlm_v1/native_child_v1.py', 'mlm_v1/native_runtime_v1.py', 'mlm_v1/root_native_contract_v1.py', 'mlm_v1/root_native_driver_v1.py', 'mlm_v1/supervisor_v1.py', 'native_child_v1.py', 'native_runtime_v1.py', 'owned_storage_profile_v1.py', 'post_mlm_bridge_v1.py', 'root_native_contract_v1.py', 'root_native_driver_v1.py', 'shared_native_runtime_entry_v1.py', 'supervisor_v1.py')
+ GPU0_EXECUTION_APPROVAL_PATH=GPU0_SOURCE_ROOT+"/GPU0_execution_approval.root_active_v1.json"
+ def require_gpu0_execution_route_v1():
+     # Explicit bounded metadata only; no guard configure, mutation or probe here.
+@@ -112,11 +118,15 @@
+         and approval.get("new_GPU0_native_guard_ref")==GPU0_NATIVE_GUARD_REF
+         and approval.get("GPU0_source_route_reviewed") is True
+         and approval.get("root_resource_review_completed") is True
+-        and approval.get("canonical_gpu0_lock_exclusion_reviewed") is True
++        and approval.get("shared_pool_inherited_lease_route_reviewed") is True
++        and approval.get("smaller_7GiB_operational_profile_reviewed") is True
++        and approval.get("periodic_overshoot_and_unmeasured_cache_risk_accepted") is True
++        and approval.get("reviewed_shared_pool_source_refs")==GPU0_SHARED_SOURCE_REFS
+         and approval.get("preserve_external_jobs") is True
+         and approval.get("reuse_old_GPU45_authority") is False,
+         "Root must issue NEW exact-source GPU0 route/resource approval before bind/admit/launch")
+     expected={GPU0_SOURCE_ROOT+"/"+r:ref(GPU0_SOURCE_ROOT+"/"+r)["sha256"] for r in GPU0_REVIEWED_SOURCE_PATHS}
++    require(all(ref(r["path"])==r for r in GPU0_SHARED_SOURCE_REFS.values()),"Exact sealed shared pool/guard/bootstrap/policy/stop/renewal refs")
+     require(approval.get("reviewed_source_sha256")==expected
+         and ref(GPU0_NATIVE_GUARD_REF["path"])==GPU0_NATIVE_GUARD_REF,
+         "Exact reviewed native source route and dedicated GPU0 adapter")
+@@ -141,7 +151,7 @@
+ def phase_paths(phase):
+     require(phase in PHASES,"Specific registered native stage")
+     return (ROOT/REL/("admitted_"+phase+"_v1"),
+-        "experiments/results/American_C3_native_val000_postMLM_prediction_route_"+phase+"_v1")
++        "experiments/results/American_C3_native_val000_postMLM_prediction_route_sharedGPU0_"+phase+"_v1")
+ def validate_upstream(completed_ref,wait_ref,*,preparation=False):
+     completed=read(completed_ref);wait=read(wait_ref)
+     if preparation:
+@@ -190,13 +200,13 @@
+     cfg=copy.deepcopy(DEFAULTS);phase=req["phase"]
+     cfg.update(execution_enabled=True,parent_id=PARENT,phase=phase,
+         phase_write_budget_bytes=caps["phase_write_budget_bytes"],
+-        short_tmp_directory=".runtime/tmp/c3valpostpred/"+("f" if phase=="fit" else "r"),
++        short_tmp_directory=".runtime/tmp/c3val0shpost/"+("f" if phase=="fit" else "r"),
+         child_log_ram_bytes=caps["child_log_ram_bytes"])
+     for key in ("max_preparation_file_bytes","max_checkpoint_files","max_checkpoint_bytes","max_embedding_input_bytes"):
+         cfg[key]=caps[key]
+     return cfg
+ 
+-BRIDGE="research/reviews/native_ARGformer_VAL000_execution_readiness_20261016_v1/post_mlm_bridge_v1.py"
++BRIDGE="research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/post_mlm_bridge_v1.py"
+ RAM="research/reviews/C3_native_post_MLM_root_handoff_20261015_v1/ram_downstream_v1.py"
+ NVML_ACCEPTANCE_REF=dict(path="research/reviews/American_C3_native_MLM_full_fit_v8/nvml_abi_acceptance.root_active_v1.json",
+  sha256="69b13084c5275629e194651b71a9db2b233f0ef924e6c12394b2971aa70e195b")
+@@ -204,7 +214,7 @@
+     return load(ref(REL+"/consumer_contract_v1.py"),"_postMLM980_native_contract")
+ def source_paths():
+     native=native_contract()
+-    return tuple(dict.fromkeys((GPU0_POLICY_REF['path'],GPU0_STOP_REF['path'],GPU0_EXECUTION_APPROVAL_PATH,RENEWAL_SOURCE_REF['path'],RENEWAL_CERTIFICATE_REF['path'],*native.PROJECT_SOURCES,SOURCE,DRIVER,CONTEXT,RUNTIME_HELPER,
++    return tuple(dict.fromkeys((SHARED_NATIVE_RUNTIME,STORAGE_MONITOR,SHARED_POOL_SOURCE,SHARED_POOL_LAUNCHER,SHARED_POOL_BASE,'research/reviews/GPU0_shared_execution_source_20261016_v1/gpu0_runtime_adapter_v1.py','src/arggnn/gpu45_c3cache_h050_pool_v1.py','research/reviews/GPU0_shared_execution_source_20261016_v1/gpu0_bootstrap_renewal_v1.py',GPU0_POLICY_REF['path'],GPU0_STOP_REF['path'],GPU0_EXECUTION_APPROVAL_PATH,RENEWAL_SOURCE_REF['path'],RENEWAL_CERTIFICATE_REF['path'],*native.PROJECT_SOURCES,SOURCE,DRIVER,CONTEXT,RUNTIME_HELPER,
+         "src/arggnn/census_tsinfer_fit_v1.py","src/arggnn/census_tsinfer_observation_v1.py",
+         "src/arggnn/biological_candidate.py","src/arggnn/project_budget_v9_consumer.py",
+         "scripts/launch_reserved_gpu_full_storage_v1.py","scripts/launch_reserved_gpu_terminal_retired_scopes_v1.py",
+@@ -299,11 +309,11 @@
+     acceptance=read(NVML_ACCEPTANCE_REF)
+     require(acceptance.get("active") is True and acceptance.get("root_accepts_actual_UUID_memory_comparison") is True,
+         "Existing reviewed NVML ABI/device memory monitor acceptance")
+-    require(caps["checkpoint_live_allowance_bytes"]==(8*2**30+65536 if phase=="fit" else 0)
+-        and caps["cache_allowance_bytes"]==4*2**30 and caps["temp_allowance_bytes"]==256*2**20
+-        and caps["child_artifact_allowance_bytes"]==256*2**20
+-        and caps["max_checkpoint_files"]==2 and caps["max_checkpoint_bytes"]==4*2**30,
+-        "Fixed retention1/max2-file operational checkpoint/cache/TMP caps")
++    require(caps["checkpoint_live_allowance_bytes"]==(6*2**30+65536 if phase=="fit" else 0)
++        and caps["cache_allowance_bytes"]==512*2**20 and caps["temp_allowance_bytes"]==128*2**20
++        and caps["child_artifact_allowance_bytes"]==128*2**20
++        and caps["max_checkpoint_files"]==2 and caps["max_checkpoint_bytes"]==3*2**30,
++        "Explicit smaller operational profile; full science unchanged; monitored failstop without fit/OS quota claim")
+     return req,caps,runtime
+ 
+ def launcher_ref_v1():return ref(LAUNCHER_REF["path"])
+--- research/reviews/native_ARGformer_VAL000_execution_readiness_20261016_v1/root_native_driver_v1.py
++++ research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/root_native_driver_v1.py
+@@ -3,7 +3,7 @@
+ from datetime import datetime,timezone,timedelta
+ import argparse,collections,hashlib,importlib.util,json,os,selectors,signal,subprocess,sys,time
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-REL='research/reviews/native_ARGformer_VAL000_execution_readiness_20261016_v1'
++REL='research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1'
+ sys.path[:0]=[str(ROOT),str(ROOT/"src"),str(ROOT/"scripts"),str(ROOT/"research/reviews/American_C3_native_MLM_full_source_v5"),str(ROOT/"research/reviews/American_C3_native_MLM_amendment_v12")]
+ _ms=importlib.util.spec_from_file_location("_C3_counts980_contract",ROOT/REL/"root_native_contract_v1.py")
+ c=importlib.util.module_from_spec(_ms);_ms.loader.exec_module(c)
+@@ -50,7 +50,7 @@
+     consumers=unique([*bindings.values(),*direct,c.RENEWAL_SOURCE_REF,c.RENEWAL_CERTIFICATE_REF])
+     c.require(len(consumers)<=64,"Original64 direct metadata binding ceiling")
+     now=datetime.now(timezone.utc);expiry=now+timedelta(seconds=min(86400,caps["operational_deadline_seconds"]+300))
+-    job="American-C3-native-val000-postMLM-prediction-route-"+phase+"-v1";aux=packet/"worker_aux"
++    job="American-C3-native-val000-postMLM-prediction-route-sharedGPU0-"+phase+"-v1";aux=packet/"worker_aux"
+     request=dict(key="H041/"+job,output=str(ROOT/output),auxiliary_scopes=[str(aux),str(cfg_tmp)],
+         reserved_bytes=caps["reservation_cap_bytes"],consumer_bindings=consumers)
+     authority=m.operation_draft_v1("reserve",request,expected_before=m._pins(view),bindings=bindings)
+@@ -75,6 +75,10 @@
+         transitive_source_closure_ref=closure_ref,author_source_manifest_ref=native.AUTHOR_MANIFEST_REF,
+         input_binding_mode="actual_SHA_input_through_root_context",refs=refs,
+         physical_gpu=req["physical_gpu"],execution_gpu_uuid=req["GPU_UUID"],
++        operational_pool_source_ref=c.ref(c.SHARED_POOL_SOURCE),operational_launcher_ref=c.ref(c.SHARED_POOL_LAUNCHER),
++        operational_pool_base_ref=c.ref(c.SHARED_POOL_BASE),operational_GPU0_runtime_ref=c.ref(c.SHARED_NATIVE_RUNTIME),
++        operational_GPU0_guard_ref=c.GPU0_NATIVE_GUARD_REF,operational_GPU0_policy_ref=c.GPU0_POLICY_REF,
++        marker_repair_renewal_ref=c.RENEWAL_CERTIFICATE_REF,
+         root_auxiliary_directory=str(aux.relative_to(ROOT)),
+         created_at_utc=now.isoformat(),expires_at_utc=expiry.isoformat(),completed_overlay_policy_ref=c.POLICY_REF,
+         max_cpu_rss_bytes=caps["max_cpu_rss_bytes"],
+@@ -196,17 +200,20 @@
+     c.require(not _children(),"Root supervisor has no unrelated children")
+     _subreaper();logs=_RAMLog(caps["outer_log_cap_bytes"]);known={};observed_groups=set();proc=None;failure=None;peak=0;interrupted=None
+     selector=selectors.DefaultSelector();started=time.monotonic();stop_at=None;original_handlers={};reaped=[]
++    storage_monitor=c.load(c.ref(c.STORAGE_MONITOR),"_native_owned_storage_monitor")
+     def stop(signum,_frame):
+         nonlocal interrupted
+         interrupted=signum
+     try:
+         for sig in (signal.SIGTERM,signal.SIGINT):original_handlers[sig]=signal.signal(sig,stop)
+         proc=subprocess.Popen(command,cwd=ROOT,env=env,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,
+-            bufsize=0,start_new_session=True)
++            bufsize=0,start_new_session=True,pass_fds=(int(os.environ["ARGGNN_GPU_LEASE_FD"]),))
+         known[proc.pid]=_stat(proc.pid);os.set_blocking(proc.stdout.fileno(),False)
+         selector.register(proc.stdout,selectors.EVENT_READ)
+         while proc.poll() is None or selector.get_map():
+-            try:peak=max(peak,_tree(known,observed_groups))
++            try:
++                peak=max(peak,_tree(known,observed_groups))
++                storage_monitor.check_profile_v1(packet,output,caps)
+             except BaseException as error:failure=failure or str(error)
+             now=time.monotonic()
+             if now-started>caps["operational_deadline_seconds"]:failure=failure or "Root actual operational deadline exceeded"
+--- research/reviews/native_ARGformer_VAL000_execution_readiness_20261016_v1/supervisor_v1.py
++++ research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/supervisor_v1.py
+@@ -13,8 +13,8 @@
+ from consumer_contract_v1 import (
+     SOURCE as CONTRACT_SOURCE,AUTHOR_MANIFEST_REF,NATIVE_GUARD_REF,DEFAULTS,GPU_PHASES,
+     metadata,validate_active_input,load_root_context,preparation_v1,counts_v1,fit_completion_v1)
+-SOURCE='research/reviews/native_ARGformer_VAL000_execution_readiness_20261016_v1/entry_postMLM_v1.py'
+-CHILD='research/reviews/native_ARGformer_VAL000_execution_readiness_20261016_v1/native_child_v1.py'
++SOURCE='research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/entry_postMLM_v1.py'
++CHILD='research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/native_child_v1.py'
+ CACHE_VARS=("XDG_CACHE_HOME","XDG_CONFIG_HOME","XDG_DATA_HOME","HF_HOME","TORCH_HOME",
+     "TRITON_CACHE_DIR","CUDA_CACHE_PATH","TORCHINDUCTOR_CACHE_DIR","NUMBA_CACHE_DIR",
+     "MPLCONFIGDIR","WANDB_DIR","WANDB_CACHE_DIR","WANDB_CONFIG_DIR","HF_HUB_CACHE",
+@@ -60,7 +60,7 @@
+     env.update(PYTHONPATH="",PYTHONNOUSERSITE="1",PYTHONDONTWRITEBYTECODE="1",
+         HF_HUB_OFFLINE="1",TRANSFORMERS_OFFLINE="1",HF_HUB_DISABLE_TELEMETRY="1",WANDB_MODE="disabled",
+         CONDA_PREFIX=runtime["native_prefix"],TMPDIR=str(tmp),TMP=str(tmp),TEMP=str(tmp))
+-    env.update(HF_DATASETS_OFFLINE="1",PIP_NO_INDEX="1",PIP_DISABLE_PIP_VERSION_CHECK="1",CUDA_CACHE_MAXSIZE=str(2**30))
++    env.update(HF_DATASETS_OFFLINE="1",PIP_NO_INDEX="1",PIP_DISABLE_PIP_VERSION_CHECK="1",CUDA_CACHE_MAXSIZE=str(256*2**20))
+     env["PATH"]=str(local(runtime["native_prefix"])/"bin")+os.pathsep+env.get("PATH","")
+     for name in CACHE_VARS:
+         folder=directory/"write_scopes"/name.lower();folder.mkdir(parents=True,exist_ok=False);env[name]=str(folder)

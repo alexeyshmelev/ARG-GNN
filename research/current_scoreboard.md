@@ -1,6 +1,6 @@
 # Current scientific scoreboard
 
-Updated UTC: 2026-10-15T23:13:34.446040+00:00
+Updated UTC: 2026-10-15T23:56:03.847453+00:00
 
 [All measured cohort details](#detailed-cohort-metrics) · [Complete historical receipt inventory](all_recorded_metric_receipts.md) · [Fresh H048 novelty/cross-domain audit](../research/reviews/H048_novelty_crossdomain_fresh_20261015_v1/report.md)
 
@@ -401,7 +401,7 @@ H048 retains 31,933 parameters per arm and a fixed 30-pass/960-update schedule. 
 
 | Method | Current ancestry scores | Status |
 |---|---|---|
-| Native ARGformer | unavailable | Historical GPU5 engineering TRAIN000 stopped at latest user request. Actual native/entry/launcher waits-15, roottool48073exit1 with expired-marker postdrain accounting error. Saved ep4-ba206000 checkpoint preserved, metadata only; full fiveepochs/savedAdam count and ancestry score unverified. Known own roots and GPU4/5contexts absent. Future experiments use onlyGPU0. |
+| Native ARGformer | unavailable | Fresh native VAL000 MLM admitted but not started. Held for the next controller so evaluation can run alongside the long fit. Original input, 7 GiB charge and expiry preserved. Five epochs and 227,990 updates planned. No ancestry score. |
 | Native ARGformer dataset counts | not an accuracy run | completed; actual count producer wait0 and drain verified |
 | Native FLARE | unavailable | Author build and TRAIN000 full-site conversion completed with actual wait0. Native inference: completed; actual wait0 and owned-group drain verified; sealing: completed; actual wait0 and owned-group drain verified. Native completed allowance closed; 8977226240 unused bytes credited with all files preserved. Accuracy pending; TRAIN000 is development, not held-out. |
 | Our C3 GNN | unavailable | TRAIN000 exact native focal/plan preparation: completed with actual wait0; explicit retry after missing-parent directory repair, original failure preserved; 10000 focals, 4897 trees, 14937 sites, 154 blocks. remaining TRAIN001–013 fanout 5/13 completed with actual wait0; terminal failed_or_stopped_partial_preserved; root requested cooperative stop of new additions to relieve GPU training mutex contention, current scientific children drain unchanged. Fresh controlled TRAIN006–015 continuation 10/10 completed with genuine wait0; max2CPU producers; terminal completed_selected_remaining_exact_focal_plan_preparations. run016_017_v1: 2/2 genuine completed waits; completed_selected_remaining_exact_focal_plan_preparations. run018_v1: 1/1 genuine completed waits; completed_selected_remaining_exact_focal_plan_preparations. run019_v1: 1/1 genuine completed waits; completed_selected_remaining_exact_focal_plan_preparations. Shared 30 Mb VAL000 inference completed. Remaining TRAIN parents, checkpoint and full prespecified VAL gate pending |

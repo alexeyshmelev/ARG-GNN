@@ -1,0 +1,116 @@
+{
+  "commands": [
+    {
+      "args": [
+        "--bind",
+        "--gpu",
+        "0",
+        "--gpu-uuid",
+        "GPU-ff06ca1f-403a-f2d0-b584-71e177452667",
+        "--caps-review",
+        "ACTUAL_REVIEW_PATH",
+        "--caps-review-sha256",
+        "ACTUAL_SHA",
+        "--gpu0-readiness",
+        "ACTUAL_READY_PATH",
+        "--gpu0-readiness-sha256",
+        "ACTUAL_SHA"
+      ],
+      "driver": "research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/mlm_v1/root_native_driver_v1.py",
+      "stage": "MLM_bind"
+    },
+    {
+      "args": [
+        "--admit",
+        "mlm"
+      ],
+      "driver": "research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/mlm_v1/root_native_driver_v1.py",
+      "stage": "MLM_admit"
+    },
+    {
+      "job_template": "research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/pool_native_job.proposed.inactive.json",
+      "stage": "NEW_native_pool_plan_capability_after_actual_admission"
+    },
+    {
+      "args": [
+        "run",
+        "--execute",
+        "--capability",
+        "ACTUAL_POOL_CAP_PATH",
+        "--sha256",
+        "ACTUAL_SHA",
+        "--job",
+        "ACTUAL_NATIVE_LOGICAL_JOB"
+      ],
+      "driver": "research/reviews/GPU0_shared_execution_source_20261016_v1/launch_gpu0_shared_v1.py",
+      "stage": "pool_submit"
+    },
+    {
+      "args": [
+        "--bind",
+        "fit",
+        "--gpu",
+        "0",
+        "--gpu-uuid",
+        "GPU-ff06ca1f-403a-f2d0-b584-71e177452667",
+        "--MLM",
+        "ACTUAL_OWN_COMPLETION",
+        "--MLM-sha256",
+        "ACTUAL_SHA",
+        "--MLM-wait",
+        "ACTUAL_WAIT",
+        "--MLM-wait-sha256",
+        "ACTUAL_SHA"
+      ],
+      "driver": "research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/root_native_driver_v1.py",
+      "stage": "fit_after_genuine_own_MLM227990_and_wait0_drain"
+    },
+    {
+      "args": [
+        "--admit",
+        "fit"
+      ],
+      "stage": "fit_separate_admit_and_NEW_pool_declaration_then_submit"
+    },
+    {
+      "args": [
+        "--bind",
+        "embeddings",
+        "--gpu",
+        "0",
+        "--gpu-uuid",
+        "GPU-ff06ca1f-403a-f2d0-b584-71e177452667",
+        "--MLM",
+        "ACTUAL_OWN_MLM",
+        "--MLM-sha256",
+        "ACTUAL_SHA",
+        "--MLM-wait",
+        "ACTUAL_OWN_MLM_WAIT",
+        "--MLM-wait-sha256",
+        "ACTUAL_SHA",
+        "--fit",
+        "ACTUAL_OWN_FIT",
+        "--fit-sha256",
+        "ACTUAL_SHA",
+        "--fit-wait",
+        "ACTUAL_OWN_FIT_WAIT",
+        "--fit-wait-sha256",
+        "ACTUAL_SHA"
+      ],
+      "driver": "research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/root_native_driver_v1.py",
+      "stage": "prediction_after_genuine_own_fit2135_wait0_drain"
+    },
+    {
+      "args": [
+        "--admit",
+        "embeddings"
+      ],
+      "stage": "prediction_separate_admit_and_NEW_pool_declaration_then_submit"
+    }
+  ],
+  "no_direct_manual_launch": true,
+  "physical_gpu": 0,
+  "query_truth_allowed_before_all10000_prediction_seal": false,
+  "schema": "native_VAL000_shared_GPU0_stage_arguments_proposed_v1",
+  "status": "inactive_NEW_root_source_resource_smaller_profile_approval_and_separate_pool_admission_required"
+}
