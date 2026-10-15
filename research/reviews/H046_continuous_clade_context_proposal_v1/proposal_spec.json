@@ -1,0 +1,103 @@
+{
+  "schema": "H046_continuous_clade_context_source_proposal_v1",
+  "status": "proposal_only_requires_root_registration",
+  "hypothesis_id": "H046",
+  "implementation_authorized": false,
+  "admission_authorized": false,
+  "arms": [
+    "foreign_flank",
+    "own_state"
+  ],
+  "backbone": "complete_H042_pass30_with_learned_flags_two_full_PyG_sweeps_SNP_encoder_genomic_BiGRU",
+  "context_states": "first_sweep_proper_clade_states_before_genomic_recurrence",
+  "clade_matching": "exact_sampled_descendant_set_maximal_consecutive_source_native_holds",
+  "focal_support": "entire_original_source_native_hold_immutable_under_integration_mesh_refinement",
+  "invariance_scope": "fixed_field_fixed_source_support_integration_mesh_only_exact_arithmetic_and_derivatives",
+  "not_claimed": [
+    "end_to_end_source_hold_subdivision_invariance",
+    "ancestor_homology",
+    "new_temporal_kernel",
+    "better_accuracy",
+    "calibrated_uncertainty"
+  ],
+  "operator": "two_sided_exponential_integrals_over_episode_excluding_focal_source_native_support_divided_by_tau_not_by_foreign_mass",
+  "own_control": "v_left=c_left*A*h_current; v_right=c_right*A*h_current; same foreign integrals computed",
+  "learned_scale": {
+    "minimum_bp": 100,
+    "maximum_bp": 100000,
+    "initial_bp": 5000,
+    "parameterization": "bounded_sigmoid",
+    "training": "TRAIN_only_one_scalar_per_arm"
+  },
+  "local_evidence": {
+    "window_each_side_bp": 1000,
+    "restrict_to_focal_native_hold": true,
+    "reference_only_frequencies": true,
+    "jeffreys_pseudocount_per_allele": 0.5,
+    "requires_query_call_and_each_reference_class_callable": true,
+    "missing_sites": "omit",
+    "vectors": "centered_4class_mean_log_compatibility",
+    "query_ancestry_truth_used": false
+  },
+  "gate": "0_if_either_side_empty_else_norm_squared(ell_right-ell_left)/(norm_squared(ell_right-ell_left)+1)",
+  "readout": {
+    "A": [
+      4,
+      32
+    ],
+    "H": [
+      8,
+      27
+    ],
+    "O": [
+      4,
+      8
+    ],
+    "biases": false,
+    "output_projection_initialization": "exact_zero",
+    "hidden": "average_tanh_shared_H_over_original_and_left_right_swapped_features",
+    "logit_correction": "gate*tanh(O*hidden)",
+    "correction_linf_bound": "<=gate",
+    "callability_feature": "log1p(min(n_left,n_right))/log(100001)",
+    "deepest_eligible_proper_clade_per_query": true
+  },
+  "added_parameter_count": 377,
+  "total_parameter_count": 31165,
+  "training": {
+    "seed": 101,
+    "dtype": "float32",
+    "lr": 0.001,
+    "weight_decay": 0.0001,
+    "gradient_clip_norm": 1,
+    "independent_reset_AdamW": true,
+    "identical_initial_states": true,
+    "body_trainable": true,
+    "loss": "original_100bp_grid_exact_span_NLL_H044_streamed_target_mass",
+    "auxiliary_boundary_target": false,
+    "passes": 30,
+    "updates_per_pass": 32,
+    "updates_per_arm": 960,
+    "checkpoints_per_arm": 6,
+    "VAL_products_sealed_before_truth": 96,
+    "outer_access": false
+  },
+  "prospective_practical_criteria": {
+    "mean_present182_accuracy_gain": 0.001,
+    "maximum_boundary_f1_loss": 0.01,
+    "development_not_confirmatory": true
+  },
+  "complexity": {
+    "context_scan": "O(4*M) arithmetic; work-efficient segmented affine scan; no dense tree-pair matrix",
+    "working_tables": "O(4*M+E)",
+    "local_evidence": "O(4*S*Q) prefix work",
+    "readout": "O(P*Q) fixed-width head, blocked",
+    "clade_preparation_bit_complexity": "depends on panel bitset width and hashing",
+    "GPU_and_peak_memory_qualified": false,
+    "output_budget_certified": false
+  },
+  "root_registration_decisions": [
+    "Confirm stricter source-native support contract, not arbitrary redefinition of native holds",
+    "Freeze numerical defaults, exact H042 warm refs and inherited H044 evidence/target/scoring contracts",
+    "Qualify segmented scan/autograd implementation and actual bounded grid-memory behavior before any admission"
+  ]
+}

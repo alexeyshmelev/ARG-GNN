@@ -1,0 +1,19 @@
+# H018 Relate qualifier operational v2
+
+Inactive source successor in the existing folder. V1 driver/config/request, its original admission/reservation and actual failed controller evidence are preserved. V1 actual controller wait was exit1 with its group drained; controller_result recorded "Only generated wheel records may omit hash" and no native wait observations. No native success, credit, replay or scientific result is inferred. The old charge remains unchanged.
+
+The sole runtime-authentication fix recognizes blank-hash generated .pyc entries from the already-resolved canonical Path strictly under `/workspace-SR003.nfs2/ARG-GNN/.runtime/cache/pycache`. It requires the exact .pyc suffix, rejects lexical escapes/prefix collisions and does not use an arbitrary /__pycache__/ substring. Existing project containment/regular-file checks, SHA-bound wheel RECORD refs, SHA256 algorithm, every hashed file/size check and source bindings remain. Hashed .pyc entries are authenticated like any hashed entry. Blank generated .pyc contents are explicitly excluded from authentication; no whole-wheel/all-files authentication claim is made. The existing blank RECORD-row policy is preserved.
+
+Same512-site/40-haplotype fixture and exact bytes, binaries/licence, helper/date/scientific policy, CPU-only limits, native supervision/waits,50MB combined cap and all original guards are unchanged. The scientific condition_id remains v1; only fresh operational job/key/output/packet/auxiliary namespaces use v2. New files are root_qualifier_v2.py, config_v2.json, source_manifest_v2.json and root_request_inactive_v2.json. No execution directories or active authority were created. Root owns genuine H018 registration and any new admission.
+
+ROOT must run the actual read-only package preflight before considering admission, using the existing pinned project Python from the repository root:
+
+```sh
+.runtime/env/bin/python3.11 -B research/reviews/H018_native_Relate_qualification_source_v1/root_qualifier_v2.py preflight-runtime --execute
+```
+
+That explicit entry calls verify_runtime_packages(common()) using standard-library source helpers. It imports no guard, NumPy, tskit or native code and performs no admission or native execution. It streams the actual pinned wheel files referenced by the two exact RECORDs and returns honest checked/skipped counts. With no --execute (including no arguments) the v2 driver is inert. The source author did NOT run this real preflight. ROOT should retain its actual result as new evidence. Admit also calls verify_runtime_packages before creating its packet or invoking a guard/accounting operation; launch retains its original runtime validation.
+
+After a successful actual preflight and independent capacity review, ROOT may register job H018-native-Relate-synthetic-qualification-v2 under the existing H018 condition and prepare its own activated exact request using root_request_inactive_v2.json. Retain the inactive template. Use only new admission_v2, data/H018_native_Relate_synthetic_qualification_v2 and worker_aux_v2. Explicit admit/launch still require --execute --record --sha256; no retry/resume action exists. This handoff performs none of them. The failed v1 admitted scope is never reused, deleted, modified or credited.
+
+73 focused source/pure checks passed: unchanged original operational/scientific function ASTs, only four config namespaces changed,73 exact source/binding/policy/path/hash/size/default-inert and preservation cases. Verifier behavior uses an in-memory RECORD and fake canonical paths/files, including hashed-pyc authentication and rejection of wrong hashes/sizes/algorithms, escaped files and blank real source. No actual runtime wheel preflight, driver/guard/native/package import, process/GPU/admission or fixture/native run was performed. These source checks do not qualify Relate or prove actual installed runtime acceptance.
