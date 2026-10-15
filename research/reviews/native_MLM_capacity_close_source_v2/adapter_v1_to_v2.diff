@@ -1,0 +1,85 @@
+--- research/reviews/native_MLM_capacity_close_source_v1/root_close_adapter.py
++++ research/reviews/native_MLM_capacity_close_source_v2/root_close_adapter.py
+@@ -15,9 +15,8 @@
+ import sys
+ 
+ ROOT = Path('/workspace-SR003.nfs2/ARG-GNN')
+-SOURCE = 'research/reviews/native_MLM_capacity_close_source_v1/root_close_adapter.py'
+-AUDIT_REF = dict(path='research/reviews/native_MLM_capacity_close_source_v1/candidate_audit.json',
+-                 sha256='c10e99fe23ed9358c2d3aa87d793c553a27e14bd9c1a0964c6114cbc9a91c3c3')
++SOURCE = 'research/reviews/research/reviews/native_MLM_capacity_close_source_v2/root_close_adapter.py'
++AUDIT_REF = {'path': 'research/reviews/native_MLM_capacity_close_source_v2/candidate_audit.json', 'sha256': 'cdb63add032796fc741f2ed17a05471af8fd1c724252615e4a719e42d40b5669'}
+ MAX_JSON = 65536
+ MAX_ROOT_OBSERVATION_AGE_SECONDS = 120
+ REQUEST_FIELDS = frozenset(('key','reservation_sha256','storage_ref','storage_locator',
+@@ -100,8 +99,17 @@
+     require(pointer(wait,c['wait_pid_locator']) == pid and type(code) is int and code == 0,
+             'Keep exact original successful owned-child status')
+     bound_v1(item['wait_provenance']['writer_ref'])
+-    require(item['wait_provenance']['status'] == 'source_backed_owned_direct_child_status' and
+-            item['wait_provenance']['explicit_flag_added'] is False, 'Source-backed wait provenance required')
++    provenance = item['wait_provenance']
++    require(provenance['explicit_flag_added'] is False, 'Never add an original wait flag')
++    if provenance['status'] == 'original_explicit_owned_direct_child_status':
++        require(provenance['writer_identity_proven'] is False
++                and provenance['original_explicit_wait_flag'] in ('actual_direct_worker_wait','actual_direct_launcher_wait','actual_direct_wait_observed')
++                and wait[provenance['original_explicit_wait_flag']] is True
++                and c['wait_identity'][provenance['original_explicit_wait_flag']] is True,
++                'Exact original explicit direct wait flag; no invented writer identity')
++    else:
++        require(provenance['status'] == 'source_backed_owned_direct_child_status',
++                'Source-backed wait provenance required')
+     if item['inner_direct_worker_wait_ref'] is not None:
+         inner = json_v1(item['inner_direct_worker_wait_ref'])
+         require(inner['launcher_pid'] == pid and inner['returncode'] == 0 and inner['wait_status_known'] is True and
+@@ -129,10 +137,13 @@
+ 
+ def observation_v1(item, observation, adapter_ref, now):
+     c = item['candidate']
++    launcher_pid = json_v1(c['launch_ref'])
++    for field in c['launch_pid_locator']:
++        launcher_pid = launcher_pid[field]
+     expected = dict(schema='concurrent_completed_scope_targeted_root_observation_v1',root_authorizer='root_agent',active=True,
+         key=c['key'],reservation_sha256=item['reservation_sha256'],storage_ref=c['storage_ref'],
+         launch_ref=c['launch_ref'],direct_wait_ref=c['direct_wait_ref'],completed_ref=c['completed_ref'],
+-        launcher_pid=c['launch_identity']['pid'],all_root_owned_launcher_supervisor_worker_pids_listed=True,
++        launcher_pid=launcher_pid,all_root_owned_launcher_supervisor_worker_pids_listed=True,
+         direct_wait_observed=True,completed_scope_all_old_original_resume_write_capabilities_revoked=True,
+         preserve_all_files=True,external_NFS_writers_outside_observation=True,
+         source_roster_audit_ref=AUDIT_REF,root_close_adapter_ref=adapter_ref,
+@@ -140,8 +151,16 @@
+         revoked_original_entrypoint_refs=item['revocation_target_refs'])
+     require(all(observation.get(k) == v for k,v in expected.items()), 'Exact resolved root roster/revocation certificate required')
+     pids = observation.get('pids'); groups = observation.get('process_group_ids')
++    unrecorded_c3 = (c['key'] in (
++        'H041/American-C3-observe-qualification100kb-20261015-v5',
++        'H041/American-C3-qualification100kb-20261015')
++        and item.get('historical_group_ids_unrecorded') is True
++        and item['known_process_group_ids'] == [])
++    if unrecorded_c3:
++        require(observation.get('historical_group_ids_unrecorded') is True,
++                'Exact C3 historical group IDs remain unrecorded; no invented PGID')
+     for values, known, label in ((pids,item['known_pids'],'PID'),(groups,item['known_process_group_ids'],'group')):
+-        require(isinstance(values,list) and 1 <= len(values) <= 256 and len(set(values)) == len(values) and
++        require(isinstance(values,list) and (0 if label == 'group' and unrecorded_c3 else 1) <= len(values) <= 256 and len(set(values)) == len(values) and
+                 all(type(x) is int and x >= 2 for x in values) and set(known) <= set(values),
+                 'Complete explicit known/recovered '+label+' roster required')
+     for values, rows, key, method in ((pids,observation.get('observations'),'pid','targeted os.kill(pid,0) ESRCH'),
+@@ -205,6 +224,17 @@
+         require(value.get('root_authorizer') == 'root_agent' and value.get('key') == item['candidate']['key'] and
+                 value.get('roster_reconstruction_complete') is True and value.get('unresolved_roster_items') == [],
+                 'Actual root full-roster resolution required')
++        if item.get('historical_group_ids_unrecorded') is True:
++            require(item['candidate']['key'] in (
++                'H041/American-C3-observe-qualification100kb-20261015-v5',
++                'H041/American-C3-qualification100kb-20261015')
++                and value.get('historical_group_ids_unrecorded') is True
++                and value.get('current_cooperative_writer_roster_complete') is True
++                and type(value.get('actual_current_process_observation')) is dict
++                and value['actual_current_process_observation'].get('matched_live_completed_scope_writers') == []
++                and type(value['actual_current_process_observation'].get('project_processes')) is list
++                and bool(value['actual_current_process_observation'].get('targeting_rules')),
++                'C3 empty historical groups require actual complete current-writer certificate')
+     request = request_v1(item,observation_ref)
+     absent_groups_root_v1(observation['process_group_ids'])
+     primitive = load_primitive_root_v1(audit)

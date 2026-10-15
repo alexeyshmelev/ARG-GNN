@@ -1,0 +1,40 @@
+{
+  "findings": [
+    {
+      "evidence": "Independent source-extracted mocked call returned original start100 from _stat, then replaced the numeric PID with start999 before fake os.kill; the replacement received signal15. No real syscall or process was used. This outer function is AST-identical to v1.",
+      "file": "research/reviews/American_C3_native_MLM_full_source_v2/root_native_driver_v1.py",
+      "id": "C3-MLM-03",
+      "line_end": 123,
+      "line_start": 118,
+      "priority": 2,
+      "problem": "The outer _signal_owned observes a matching PID/start then calls numeric os.kill. A tracked descendant may exit and be reaped by its still-running parent between those operations, letting the numeric PID identify an unrelated replacement at signal time. A PID/start precheck does not pin signal ownership.",
+      "remediation": "Use the existing owned_lifecycle_v2.signal_identity pidfd helper for each non-null original outer identity, require pidfd API availability before outer spawn, and preserve actual waits/adopted reaping/group absence gates.",
+      "scope": "Residual unchanged outer driver; inner v1 numeric process-group reuse defect is remediated in v2.",
+      "status": "open_in_v2",
+      "title": "Use pidfds for outer positive PID signals as well"
+    }
+  ],
+  "no_actual_model_guard_payload_process_or_accounting_execution": true,
+  "resolved_v1_findings": [
+    {
+      "evidence": "corpus_auth_v2.py8\u201356; native_child_v1.py148\u2013156; supervisor_v1.py195\u2013203",
+      "id": "C3-MLM-01",
+      "status": "remediated_in_v2"
+    },
+    {
+      "evidence": "owned_lifecycle_v2.py20\u201377; supervisor_v1.py91\u2013154",
+      "id": "C3-MLM-02",
+      "status": "remediated_in_inner_v2"
+    }
+  ],
+  "reviewed_canonical_ref": {
+    "path": "src/arggnn/american_c3_native_mlm_full_v2.py",
+    "sha256": "e8575df16d3f8712e042de930fbb87075450eca224a0f627cc177f6c8a405312"
+  },
+  "reviewed_source_receipt_ref": {
+    "path": "research/reviews/American_C3_native_MLM_full_source_v2/source_receipt.json",
+    "sha256": "6aaf027f62ab2e61fc85949b2ed93b5acb98489daa4e9ddf7e986ee95141ecb0"
+  },
+  "schema": "american_C3_MLM_v2_independent_findings_v1",
+  "source_and_mock_checks": 62
+}

@@ -1,0 +1,415 @@
+{
+  "binary_pins_from_metadata_only": {
+    "Relate": {
+      "help_returncode": 0,
+      "path": "/workspace-SR003.nfs2/ARG-GNN/.runtime/tools/relate/relate_v1.2.4_x86_64_static/bin/Relate",
+      "sha256": "71ce82f469dd99749a3eb1847e0704be8785a26be94eae2cb8e1ed80881c7ce8"
+    },
+    "RelateFileFormats": {
+      "help_returncode": 0,
+      "path": "/workspace-SR003.nfs2/ARG-GNN/.runtime/tools/relate/relate_v1.2.4_x86_64_static/bin/RelateFileFormats",
+      "sha256": "cb19cb6e277c27704de506f0e8155f8f53d9c3dc8d0f52615a059caa253332ee"
+    }
+  },
+  "evidence": [
+    {
+      "file": "data.cpp",
+      "finding": "Reads every haps row, counts derived carriers for memory accounting, and advances every SNP. This inspected ingestion loop has no zero/N carrier filter.",
+      "id": "ingest_no_allele_count_filter",
+      "lines": [
+        208,
+        235
+      ],
+      "source_ref": {
+        "path": "research/reviews/H018_native_Relate_support_readiness_v1/sources/data.cpp",
+        "sha256": "ab9b70b695540499f5454cec67041549745297a8070eda0c31c2cbc045583a2d"
+      },
+      "url": "https://github.com/MyersGroup/relate/blob/b54ede259cbb0be095bc9c9a8bd18cdaf7e88b74/include/src/data.cpp#L208-L235"
+    },
+    {
+      "file": "anc_builder.cpp",
+      "finding": "All-derived pattern maps to root 2*N-2 with flipped=false. Equivalent handling exists at969-975.",
+      "id": "constant_derived_root",
+      "lines": [
+        1051,
+        1057
+      ],
+      "source_ref": {
+        "path": "research/reviews/relate_ancestral_identity_source_audit_v1/anc_builder.cpp",
+        "sha256": "2b929b31de232d5ab0bde0fc0346b76a07822d1f4de23d3dd8872bd4933f53b5"
+      },
+      "url": "https://github.com/MyersGroup/relate/blob/b54ede259cbb0be095bc9c9a8bd18cdaf7e88b74/include/src/anc_builder.cpp#L1051-L1057"
+    },
+    {
+      "file": "anc_builder.cpp",
+      "finding": "All-ancestral pattern keeps zero mutation branches with flipped=false. Equivalent handling exists at978-982.",
+      "id": "constant_ancestral_empty_mutation",
+      "lines": [
+        1060,
+        1064
+      ],
+      "source_ref": {
+        "path": "research/reviews/relate_ancestral_identity_source_audit_v1/anc_builder.cpp",
+        "sha256": "2b929b31de232d5ab0bde0fc0346b76a07822d1f4de23d3dd8872bd4933f53b5"
+      },
+      "url": "https://github.com/MyersGroup/relate/blob/b54ede259cbb0be095bc9c9a8bd18cdaf7e88b74/include/src/anc_builder.cpp#L1060-L1064"
+    },
+    {
+      "file": "ConvertToTreeSequence.pinned.cpp",
+      "finding": "One unique-position .mut record adds one ancestral site. Duplicate coordinates are redistributed, so duplicates must fail the H018 proof.",
+      "id": "every_row_exported_as_site",
+      "lines": [
+        289,
+        336
+      ],
+      "source_ref": {
+        "path": "research/reviews/relate_ancestral_identity_source_audit_v1/ConvertToTreeSequence.pinned.cpp",
+        "sha256": "452298c9a5ad60159d9f86dd402f71798e8a88108f2bb217fcb941d28778bfc4"
+      },
+      "url": "https://github.com/MyersGroup/relate/blob/b54ede259cbb0be095bc9c9a8bd18cdaf7e88b74/include/file_formats/ConvertToTreeSequence.cpp#L289-L336"
+    },
+    {
+      "file": "ConvertToTreeSequence.pinned.cpp",
+      "finding": "Only single-branch mutations are exported. All-ancestral rows can remain constant sites and all-derived root mutations can yield all-derived vectors. Multiple-branch/flip behavior requires independent nucleotide proof.",
+      "id": "mutation_branch_export_limit",
+      "lines": [
+        386,
+        405
+      ],
+      "source_ref": {
+        "path": "research/reviews/relate_ancestral_identity_source_audit_v1/ConvertToTreeSequence.pinned.cpp",
+        "sha256": "452298c9a5ad60159d9f86dd402f71798e8a88108f2bb217fcb941d28778bfc4"
+      },
+      "url": "https://github.com/MyersGroup/relate/blob/b54ede259cbb0be095bc9c9a8bd18cdaf7e88b74/include/file_formats/ConvertToTreeSequence.cpp#L386-L405"
+    },
+    {
+      "file": "mutations.cpp",
+      "finding": "Parser records flipped separately and stores literal mutation_type. Converter selects mutation_type[0]/[2], so flags alone do not establish exact biological vectors.",
+      "id": "separate_flip_flag",
+      "lines": [
+        340,
+        382
+      ],
+      "source_ref": {
+        "path": "research/reviews/H018_native_Relate_support_readiness_v1/sources/mutations.cpp",
+        "sha256": "c660d55a6baeefd6dcef25ae2e20b00a3a5e60fcdf76f70886925dfe6ee54db4"
+      },
+      "url": "https://github.com/MyersGroup/relate/blob/b54ede259cbb0be095bc9c9a8bd18cdaf7e88b74/include/src/mutations.cpp#L340-L382"
+    },
+    {
+      "file": "MakeChunks.cpp",
+      "finding": "Reads N ages into vector<double>; count mismatch can clear ages. No implicit no-age fallback is acceptable.",
+      "id": "date_input_double",
+      "lines": [
+        81,
+        101
+      ],
+      "source_ref": {
+        "path": "research/reviews/H018_native_Relate_support_readiness_v1/sources/MakeChunks.cpp",
+        "sha256": "fced5124c07e25346d6cebf701c2c6635c8f21bc1c01e9536934fee490d45bda"
+      },
+      "url": "https://github.com/MyersGroup/relate/blob/b54ede259cbb0be095bc9c9a8bd18cdaf7e88b74/include/pipeline/MakeChunks.cpp#L81-L101"
+    },
+    {
+      "file": "Finalize.cpp",
+      "finding": "Final .anc header writes each double age with %f, default six fractional digits.",
+      "id": "finalize_six_decimal_dates",
+      "lines": [
+        199,
+        208
+      ],
+      "source_ref": {
+        "path": "research/reviews/H018_native_Relate_support_readiness_v1/sources/Finalize.cpp",
+        "sha256": "da41df79e7938098d67c6bc0b3386bfee8db8690c6b0cdc31e0aa4a41395ffc7"
+      },
+      "url": "https://github.com/MyersGroup/relate/blob/b54ede259cbb0be095bc9c9a8bd18cdaf7e88b74/include/pipeline/Finalize.cpp#L199-L208"
+    },
+    {
+      "file": "anc.cpp",
+      "finding": "Dump also uses %f; DumpStream uses ordinary ostream precision. The chosen actual path must be identified and qualified.",
+      "id": "other_anc_serializations",
+      "lines": [
+        1050,
+        1094
+      ],
+      "source_ref": {
+        "path": "research/reviews/relate_ancestral_identity_source_audit_v1/anc.cpp",
+        "sha256": "dd6130c538968c8c321ba46d221b2121f88e1148bdcb6d382518672fe92ebae6"
+      },
+      "url": "https://github.com/MyersGroup/relate/blob/b54ede259cbb0be095bc9c9a8bd18cdaf7e88b74/include/src/anc.cpp#L1050-L1094"
+    },
+    {
+      "file": "ConvertToTreeSequence.pinned.cpp",
+      "finding": "Binary converter sample nodes get parsed sample_ages doubles directly, or zero when ages absent.",
+      "id": "binary_tip_times_from_double",
+      "lines": [
+        338,
+        347
+      ],
+      "source_ref": {
+        "path": "research/reviews/relate_ancestral_identity_source_audit_v1/ConvertToTreeSequence.pinned.cpp",
+        "sha256": "452298c9a5ad60159d9f86dd402f71798e8a88108f2bb217fcb941d28778bfc4"
+      },
+      "url": "https://github.com/MyersGroup/relate/blob/b54ede259cbb0be095bc9c9a8bd18cdaf7e88b74/include/file_formats/ConvertToTreeSequence.cpp#L338-L347"
+    },
+    {
+      "file": "anc.cpp",
+      "finding": "Internal coordinates and leaf reconstruction use vector<float>; this is separate from binary sample node insertion.",
+      "id": "float_internal_coordinates",
+      "lines": [
+        540,
+        561
+      ],
+      "source_ref": {
+        "path": "research/reviews/relate_ancestral_identity_source_audit_v1/anc.cpp",
+        "sha256": "dd6130c538968c8c321ba46d221b2121f88e1148bdcb6d382518672fe92ebae6"
+      },
+      "url": "https://github.com/MyersGroup/relate/blob/b54ede259cbb0be095bc9c9a8bd18cdaf7e88b74/include/src/anc.cpp#L540-L561"
+    },
+    {
+      "file": "ConvertToTreeSequence.pinned.cpp",
+      "finding": "Converter adjusts internal coordinates on nonpositive branches. Do not certify original chronology by only validating post-converter tskit tables.",
+      "id": "converter_chronology_adjustment",
+      "lines": [
+        359,
+        374
+      ],
+      "source_ref": {
+        "path": "research/reviews/relate_ancestral_identity_source_audit_v1/ConvertToTreeSequence.pinned.cpp",
+        "sha256": "452298c9a5ad60159d9f86dd402f71798e8a88108f2bb217fcb941d28778bfc4"
+      },
+      "url": "https://github.com/MyersGroup/relate/blob/b54ede259cbb0be095bc9c9a8bd18cdaf7e88b74/include/file_formats/ConvertToTreeSequence.cpp#L359-L374"
+    },
+    {
+      "file": "ConvertToTreeSequence.pinned.cpp",
+      "finding": "Raw sequence length is last .mut position +1 and unique sites retain haps local bp1 numbers.",
+      "id": "coordinate_support",
+      "lines": [
+        273,
+        304
+      ],
+      "source_ref": {
+        "path": "research/reviews/relate_ancestral_identity_source_audit_v1/ConvertToTreeSequence.pinned.cpp",
+        "sha256": "452298c9a5ad60159d9f86dd402f71798e8a88108f2bb217fcb941d28778bfc4"
+      },
+      "url": "https://github.com/MyersGroup/relate/blob/b54ede259cbb0be095bc9c9a8bd18cdaf7e88b74/include/file_formats/ConvertToTreeSequence.cpp#L273-L304"
+    },
+    {
+      "file": "ConvertToTreeSequence.pinned.cpp",
+      "finding": "First raw tree begins0; internal breakpoints use adjacent-site midpoints; final edge endpoint is last site +1. This does not establish complete10Mb support.",
+      "id": "edge_support",
+      "lines": [
+        376,
+        434
+      ],
+      "source_ref": {
+        "path": "research/reviews/relate_ancestral_identity_source_audit_v1/ConvertToTreeSequence.pinned.cpp",
+        "sha256": "452298c9a5ad60159d9f86dd402f71798e8a88108f2bb217fcb941d28778bfc4"
+      },
+      "url": "https://github.com/MyersGroup/relate/blob/b54ede259cbb0be095bc9c9a8bd18cdaf7e88b74/include/file_formats/ConvertToTreeSequence.cpp#L376-L434"
+    },
+    {
+      "file": "data.cpp",
+      "finding": "Inspected parser requires three header tokens and reads physical/cM columns; preserve all12280 qualified knots and numeric entries.",
+      "id": "native_map_curve",
+      "lines": [
+        598,
+        645
+      ],
+      "source_ref": {
+        "path": "research/reviews/H018_native_Relate_support_readiness_v1/sources/data.cpp",
+        "sha256": "ab9b70b695540499f5454cec67041549745297a8070eda0c31c2cbc045583a2d"
+      },
+      "url": "https://github.com/MyersGroup/relate/blob/b54ede259cbb0be095bc9c9a8bd18cdaf7e88b74/include/src/data.cpp#L598-L645"
+    }
+  ],
+  "exact_same_site_and_allele_proof_plan": [
+    "Before any observed native work, root separately registers a tiny CPU native qualification using the exact pinned Relate and RelateFileFormats binaries, guards and source-bound caps. No commands are run by this audit.",
+    "Synthetic input must contain all-ancestral and all-derived40-haplotype rows at first, interior and last sites, heterozygous phase, ancestral-ALT orientation, several polymorphic vectors, fractional tip ages, nonuniform map knots, and duplicate-coordinate negative control. An all-constant separate case tests algorithm edge behavior.",
+    "Do not alter v2 inputs. Require2074 .haps rows, same2074 native .mut identities/positions/order, no duplicates/rescue/drop/intersection. Count both constant classes and retain all277 actual monomorphic rows. Native input sample/age/map files must match admitted v2 bytes.",
+    "Require40 flagged sample nodes in exact qualified haplotype insertion order. Verify IDs/roster, exact source calBP/28 age join and the frozen serialization policy. Parse every .anc age and reject missing/zero fallback, not merely a plausible range.",
+    "Require2074 tskit sites at exact raw local bp1 positions. Decode every variant for all40 sample nodes without allele-index assumptions, reject missing values, and compare all82960 biological nucleotides in site/haplotype order to the independently verified v2 haps/source vectors. Require each of277 constant vectors, ancestry orientation and phase order exactly. Inspect every flipped/multiple-branch row.",
+    "Record raw .anc/.mut/.trees hashes, all site/vector/order digests and a complete raw edge-interval union. Every one of2074 sites must be covered by a finite chronological tree carrying all40 samples. Do not silently repair converter time changes.",
+    "Keep exact affine coordinate identity x0=absolute_POS_bp1-20000001=haps_POS_bp1-1. Raw converter sites use x0+1. Report native first0 and last+1 support separately from requested raw interval[1,10000001), including the artificial left1bp and any terminal unsupported flank. No claim of full10Mb coverage follows from map endpoints or last retained site.",
+    "Do not reuse the generic 280-haplotype/2Mb runner: it filters monomorphic rows, assumes uniform map and strict1e-9 dates, then clips/rebases support. Any later coordinate adapter must preserve all2074 site vectors and native edge support, expose unsupported span, keep fixed normalization caveats and obtain a separate frozen policy.",
+    "Only after tiny exact-binary qualification and an all-sites observed proof may root consider lifting the monomorphic-specific blocker. Other native/admission/date/chronology gates remain separate."
+  ],
+  "fractional_tip_age_policy": {
+    "additional_native_tip_rule": "Each binary sample node must equal the corresponding parsed .anc age, with at most1 double ULP for qualified parser differences. Never widen tolerance from observed mismatch.",
+    "chosen_path": "Finalize .anc %f then direct binary ConvertToTreeSequence; avoid text-table export and DumpStream",
+    "expected_native_tip": "parse_double(format(original_age_generations, .6f)) under C locale and qualified round-to-nearest",
+    "input_basis": "Original source calBP1950 /28, exact .17g bytes, no rounding/recent-date offset/clamp",
+    "lineage_chronology_rule": "Compare parsed .anc branch-derived times and converter output, report every converter adjustment, require strict parent>child and no unreviewed repair. Do not overwrite tip dates after inference.",
+    "old_1e_minus9_absolute_rule": "Not source-compatible with arbitrary six-decimal age export",
+    "scope": "Tip serialization only; no universal tolerance for float internal-node dates or tree chronology",
+    "source_to_native_bound_generations": "0.5e-6 + 8*ulp(original_age_generations), rtol=0",
+    "status": "proposed_source_derived_policy_requires_root_freeze_and_actual_native_qualification"
+  },
+  "installation_metadata_ref": {
+    "path": ".runtime/tools/relate/installation.json",
+    "sha256": "c7cf58b9b366bc7a90e1320b17be781a0ad257c9b6cbe464b41451888e391b94"
+  },
+  "installed_parallel_script_ref": {
+    "path": ".runtime/tools/relate/relate_v1.2.4_x86_64_static/scripts/RelateParallel/RelateParallel.sh",
+    "sha256": "a4558aaffbcb73899bc5a3d87fbb253c80d06160995e10c40e013a7122644315"
+  },
+  "monomorphic_conclusion": "Explicit upstream source branches support a preservation hypothesis for both constant patterns. End-to-end support for all277 actual monomorphic rows is unqualified, and the existing native blocker remains active.",
+  "options": [
+    {
+      "meaning": "Run all2074 rows unchanged only after separate root qualification/admission; require exact sites/alleles/ages/coverage. Recommended next evidence.",
+      "option": "Unchanged exact binary qualification"
+    },
+    {
+      "meaning": "If a concrete parser/converter defect occurs, separately pin/register the minimal correction and new build. Retain every site/vector and report method difference; rerun the full proof. No patch is implemented here.",
+      "option": "Minimal disclosed lossless source correction"
+    },
+    {
+      "meaning": "If lossless preservation or chronology cannot be proven, keep preparation intact and record native unsupported. No constant-site filtering, inferred genotype rescue, site restoration from a reduced native run, fake flanking trees or silent time edits.",
+      "option": "Preserved unsupported result"
+    }
+  ],
+  "prepared_output": "data/H018_R16_observed_bridge_v2",
+  "qc_count_erratum_ref": {
+    "path": "research/reviews/H018_QC_count_erratum_root_20261015_v1/actual_QC_site_count_erratum_v2.json",
+    "sha256": "47db1404927848d2dfa836f5760ded106fe50f868e699616ff339ccc493b1f78"
+  },
+  "root_preparation_observation": {
+    "actual40_monomorphic_sites": 277,
+    "all_ancestral_vs_all_derived_split": "not read here",
+    "candidate_sites": 94892,
+    "completed_ref": {
+      "path": "data/H018_R16_observed_bridge_v2/completed.json",
+      "sha256": "b25d3f587dc5669b85410c7fca9bafd80f2f22ef7532e1c374538b7f2e339672"
+    },
+    "direct_wait_and_drain": "root reports actual wait0/root0/drain; not independently inspected here",
+    "incorrect_historical_reports": {
+      "extension": 4148,
+      "original_2Mb": 434
+    },
+    "independent_serialized_readback_status": "running at last root message",
+    "nonmonomorphic_sites_arithmetic": 1797,
+    "original_2Mb_actual_retained": 217,
+    "retained_sites": 2074,
+    "sites_dropped": 0,
+    "source": "root message; no output payload read in this source task"
+  },
+  "schema": "H018_native_Relate_support_readiness_v1",
+  "scope_limits": {
+    "GPU_or_model_execution": false,
+    "guard_or_admission_execution": false,
+    "native_process_or_runtime_execution": false,
+    "new_wrapper_created": false,
+    "original_payloads_read": false
+  },
+  "source_build_identity_proven": false,
+  "source_commit": "b54ede259cbb0be095bc9c9a8bd18cdaf7e88b74",
+  "source_evidence_is_not_runtime_validation": true,
+  "source_only": true,
+  "sources": [
+    {
+      "bytes": 4424,
+      "commit": "b54ede259cbb0be095bc9c9a8bd18cdaf7e88b74",
+      "path": "research/reviews/H018_native_Relate_support_readiness_v1/sources/MakeChunks.cpp",
+      "sha256": "fced5124c07e25346d6cebf701c2c6635c8f21bc1c01e9536934fee490d45bda",
+      "upstream_path": "include/pipeline/MakeChunks.cpp",
+      "url": "https://raw.githubusercontent.com/MyersGroup/relate/b54ede259cbb0be095bc9c9a8bd18cdaf7e88b74/include/pipeline/MakeChunks.cpp"
+    },
+    {
+      "bytes": 9248,
+      "commit": "b54ede259cbb0be095bc9c9a8bd18cdaf7e88b74",
+      "path": "research/reviews/H018_native_Relate_support_readiness_v1/sources/Finalize.cpp",
+      "sha256": "da41df79e7938098d67c6bc0b3386bfee8db8690c6b0cdc31e0aa4a41395ffc7",
+      "upstream_path": "include/pipeline/Finalize.cpp",
+      "url": "https://raw.githubusercontent.com/MyersGroup/relate/b54ede259cbb0be095bc9c9a8bd18cdaf7e88b74/include/pipeline/Finalize.cpp"
+    },
+    {
+      "bytes": 13833,
+      "commit": "b54ede259cbb0be095bc9c9a8bd18cdaf7e88b74",
+      "path": "research/reviews/H018_native_Relate_support_readiness_v1/sources/Relate.cpp",
+      "sha256": "5cff8e9b3cb921581b6cb0fbcf7b3198de1d9f0b690a07dd83e6091b8e268dc6",
+      "upstream_path": "include/pipeline/Relate.cpp",
+      "url": "https://raw.githubusercontent.com/MyersGroup/relate/b54ede259cbb0be095bc9c9a8bd18cdaf7e88b74/include/pipeline/Relate.cpp"
+    },
+    {
+      "bytes": 20967,
+      "commit": "b54ede259cbb0be095bc9c9a8bd18cdaf7e88b74",
+      "path": "research/reviews/H018_native_Relate_support_readiness_v1/sources/data.cpp",
+      "sha256": "ab9b70b695540499f5454cec67041549745297a8070eda0c31c2cbc045583a2d",
+      "upstream_path": "include/src/data.cpp",
+      "url": "https://raw.githubusercontent.com/MyersGroup/relate/b54ede259cbb0be095bc9c9a8bd18cdaf7e88b74/include/src/data.cpp"
+    },
+    {
+      "bytes": 4959,
+      "commit": "b54ede259cbb0be095bc9c9a8bd18cdaf7e88b74",
+      "path": "research/reviews/H018_native_Relate_support_readiness_v1/sources/data.hpp",
+      "sha256": "eb5f2142224ce647e58c2f02e651a2ba28b56149e8a3c09f01aa42922c7336fe",
+      "upstream_path": "include/src/data.hpp",
+      "url": "https://raw.githubusercontent.com/MyersGroup/relate/b54ede259cbb0be095bc9c9a8bd18cdaf7e88b74/include/src/data.hpp"
+    },
+    {
+      "bytes": 21930,
+      "commit": "b54ede259cbb0be095bc9c9a8bd18cdaf7e88b74",
+      "path": "research/reviews/H018_native_Relate_support_readiness_v1/sources/mutations.cpp",
+      "sha256": "c660d55a6baeefd6dcef25ae2e20b00a3a5e60fcdf76f70886925dfe6ee54db4",
+      "upstream_path": "include/src/mutations.cpp",
+      "url": "https://raw.githubusercontent.com/MyersGroup/relate/b54ede259cbb0be095bc9c9a8bd18cdaf7e88b74/include/src/mutations.cpp"
+    },
+    {
+      "bytes": 2995,
+      "commit": "b54ede259cbb0be095bc9c9a8bd18cdaf7e88b74",
+      "path": "research/reviews/H018_native_Relate_support_readiness_v1/sources/mutations.hpp",
+      "sha256": "c487aaa0645d55bea810494c08c335672485feda6295ffe64c18a83db512f93e",
+      "upstream_path": "include/src/mutations.hpp",
+      "url": "https://raw.githubusercontent.com/MyersGroup/relate/b54ede259cbb0be095bc9c9a8bd18cdaf7e88b74/include/src/mutations.hpp"
+    },
+    {
+      "bytes": 5603,
+      "commit": "b54ede259cbb0be095bc9c9a8bd18cdaf7e88b74",
+      "path": "research/reviews/H018_native_Relate_support_readiness_v1/sources/BuildTopology.cpp",
+      "sha256": "21c090cc68f4e408a622e8a939c2b2a9edbd7783b14c2ee87962cede1a193e2f",
+      "upstream_path": "include/pipeline/BuildTopology.cpp",
+      "url": "https://raw.githubusercontent.com/MyersGroup/relate/b54ede259cbb0be095bc9c9a8bd18cdaf7e88b74/include/pipeline/BuildTopology.cpp"
+    },
+    {
+      "bytes": 9909,
+      "commit": "b54ede259cbb0be095bc9c9a8bd18cdaf7e88b74",
+      "path": "research/reviews/H018_native_Relate_support_readiness_v1/sources/InferBranchLengths.cpp",
+      "sha256": "daf1466945a69bc28cd643f831c81e07bd6b1a2a339b711b78d7708ea2c9003a",
+      "upstream_path": "include/pipeline/InferBranchLengths.cpp",
+      "url": "https://raw.githubusercontent.com/MyersGroup/relate/b54ede259cbb0be095bc9c9a8bd18cdaf7e88b74/include/pipeline/InferBranchLengths.cpp"
+    },
+    {
+      "bytes": 4433,
+      "commit": "b54ede259cbb0be095bc9c9a8bd18cdaf7e88b74",
+      "path": "research/reviews/H018_native_Relate_support_readiness_v1/sources/CombineSections.cpp",
+      "sha256": "9a7f226d9fe6ecb7e1592e624413e98dcba9a9b995528e0d475b72d4fe502950",
+      "upstream_path": "include/pipeline/CombineSections.cpp",
+      "url": "https://raw.githubusercontent.com/MyersGroup/relate/b54ede259cbb0be095bc9c9a8bd18cdaf7e88b74/include/pipeline/CombineSections.cpp"
+    },
+    {
+      "bytes": 57262,
+      "commit": "b54ede259cbb0be095bc9c9a8bd18cdaf7e88b74",
+      "path": "research/reviews/relate_ancestral_identity_source_audit_v1/anc_builder.cpp",
+      "sha256": "2b929b31de232d5ab0bde0fc0346b76a07822d1f4de23d3dd8872bd4933f53b5",
+      "upstream_path": "include/src/anc_builder.cpp",
+      "url": "https://raw.githubusercontent.com/MyersGroup/relate/b54ede259cbb0be095bc9c9a8bd18cdaf7e88b74/include/src/anc_builder.cpp"
+    },
+    {
+      "bytes": 57654,
+      "commit": "b54ede259cbb0be095bc9c9a8bd18cdaf7e88b74",
+      "path": "research/reviews/relate_ancestral_identity_source_audit_v1/anc.cpp",
+      "sha256": "dd6130c538968c8c321ba46d221b2121f88e1148bdcb6d382518672fe92ebae6",
+      "upstream_path": "include/src/anc.cpp",
+      "url": "https://raw.githubusercontent.com/MyersGroup/relate/b54ede259cbb0be095bc9c9a8bd18cdaf7e88b74/include/src/anc.cpp"
+    },
+    {
+      "bytes": 16135,
+      "commit": "b54ede259cbb0be095bc9c9a8bd18cdaf7e88b74",
+      "path": "research/reviews/relate_ancestral_identity_source_audit_v1/ConvertToTreeSequence.pinned.cpp",
+      "sha256": "452298c9a5ad60159d9f86dd402f71798e8a88108f2bb217fcb941d28778bfc4",
+      "upstream_path": "include/file_formats/ConvertToTreeSequence.cpp",
+      "url": "https://raw.githubusercontent.com/MyersGroup/relate/b54ede259cbb0be095bc9c9a8bd18cdaf7e88b74/include/file_formats/ConvertToTreeSequence.cpp"
+    }
+  ],
+  "status": "source_audit_only_native_unqualified"
+}

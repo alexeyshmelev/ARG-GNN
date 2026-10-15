@@ -1,0 +1,53 @@
+{
+  "chosen_path": "Original .17g age file -> Finalize reads vector<double> -> %f six-decimal .anc -> AncMutIterators vector<double> -> direct binary converter sample nodes",
+  "combined_source_to_node_bound": "abs(node_time-a) <= abs(a0-a) + 0.5e-6 + B64. With exact .17g input roundtrip and exact .anc-to-node identity, this is 0.5e-6 + B64 generations, rtol=0.",
+  "exact_required_checks": [
+    "Require exactly40 finite original ages and40 .anc age tokens, exact roster order and no missing-age fallback.",
+    "Require a0==a exactly for every .17g input token under the qualified actual parser.",
+    "Require the actual .anc decimal token to have the qualified %f D6(a0) value. Identify round-to-nearest and C locale; do not infer a looser policy from output differences.",
+    "Parse each actual .anc token to b using the qualified correctly rounded binary64 parser.",
+    "Require exact binary64 numerical equality of the corresponding binary sample-node time to b. No ULP slack, overwrite or clamp."
+  ],
+  "new_checks_or_native_runtime_executed": false,
+  "no_float32_term": "The inspected chosen header/sample-node path has no float32 cast. Do not add a float32 ULP tolerance. If the exact installed binary exposes one, this policy fails and requires a new source explanation and root-frozen condition.",
+  "numeric_types": {
+    "anc_header_parse": "double, mutations.hpp83 and mutations.cpp604-613",
+    "binary_sample_node_insertion": "double passed directly, ConvertToTreeSequence.pinned.cpp338-341",
+    "independent_float32_path": "vector<float> coordinates for tree/internal chronology in anc.cpp540-561 and converter260,359. Not used to populate sample-node times.",
+    "original_file_parse": "double, Finalize.cpp55-65",
+    "percent_f_argument": "double from vector<double>; %f is decimal formatting, not float32 conversion",
+    "source_age": "IEEE-754 binary64 / C++ double"
+  },
+  "parser_condition": "Bound assumes qualified correctly rounded binary64 parsing and round-to-nearest six-decimal output. If these assumptions cannot be verified for exact pinned binaries, no combined bound is certified.",
+  "root_readback_observation": {
+    "monomorphic_sites": 277,
+    "native_support_dates_coverage_qualified": false,
+    "ref": {
+      "path": "research/reviews/H018_QC_boolean_serialization_repair_source_v1/worker_aux_v2/serialized_readback_root_v2.json",
+      "sha256": "4a565de4db1350a5195f83fd39e7238201befbce9c48eb0b8ae7be0bf693432a"
+    },
+    "source": "root message, receipt not opened in this source task",
+    "source_serialized_vectors_dates_map_order_verified": true,
+    "verified_sites": 2074
+  },
+  "schema": "H018_Relate_tip_age_precision_chain_v2",
+  "scope": "The bound compares to frozen source binary64 ages, not an unrounded hypothetical true calendar date. It does not certify internal float chronology or converter time adjustments.",
+  "source_only": true,
+  "status": "source_derived_proposal_native_unqualified",
+  "supersedes_only": {
+    "field": "fractional_tip_age_policy",
+    "reason": "Replace unsupported eight-ULP allowance and one-ULP node slack with an explicit binary64 rounding chain and exact node identity.",
+    "ref": {
+      "path": "research/reviews/H018_native_Relate_support_readiness_v1/readiness.json",
+      "sha256": "9e38a4fa27ffebb899c2be8ced1a80b22726719f5e3b75de75333b7b86cf9920"
+    }
+  },
+  "symbols": {
+    "B64": "0.5 * max(b-nextafter64(b,-infinity), nextafter64(b,+infinity)-b), in generations",
+    "a": "Frozen source age_generations binary64 value, already source calBP1950/28; units generations",
+    "a0": "Correctly rounded binary64 parse RN64(s0), required to equal a exactly",
+    "b": "Correctly rounded binary64 parse RN64(q) of the actual .anc token",
+    "q": "Exact decimal value of C-locale round-to-nearest six-decimal %f token D6(a0)",
+    "s0": "Original .17g decimal token"
+  }
+}
