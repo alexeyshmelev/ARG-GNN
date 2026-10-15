@@ -1,0 +1,244 @@
+--- before/context_factory_v1.py
++++ after/context_factory_v1.py
+@@ -8,6 +8,7 @@
+ LAUNCHER_REF=dict(path="scripts/launch_reserved_gpu_authorized_GPU45_completed_v1.py",sha256="d4cc990e430625e9cc7d02739e7e8012f5c8b3bdc78f048f801febacea64583d")
+ REPAIR_REF=dict(path="research/reviews/H039_missing_marker_repair_v1/repair_authority_20261015.json",sha256="f6f2d628199e8be73db8b5d90d428570d8afdefeab9dc5cd94bb5eafb39247db")
+ AUTH_REF=dict(path="research/reviews/H040_GPU45_migration_root_20261015_v1/GPU45_authorization.json",sha256="0231ae8edb05f8dd34ce127a0de0b97c1dd64fa461ad081e7a83bb92c558d26c")
++PREDECESSOR_COMPLETION_REF={'path': 'experiments/results/H040_GPU45_resume_tensor_seed101_v1/completed.json', 'sha256': '3e2f656f8657edc722a3223f8a6827f7ba3e2f626f997c90966846baffe13d29'}
+ def require(ok,msg):
+     if not ok:raise ValueError(msg)
+ def actual(path):
+@@ -33,8 +34,9 @@
+     launch=reader.decode_json(spec["GPU4_predecessor_launch_ref"])
+     waited=reader.decode_json(spec["GPU4_predecessor_wait_ref"])
+     require(launch["arm"]=="tensor" and launch["physical_gpu"]==4
+-        and waited["actual_direct_launcher_wait"] is True and type(waited["returncode"])is int
+-        and waited["launcher_pid"]==launch["launcher_pid"],"H040 GPU4 tensor actual wait required")
++        and waited["actual_direct_launcher_wait"] is True and waited["returncode"]==0
++        and waited["completed_ref"]==PREDECESSOR_COMPLETION_REF
++        and waited["launcher_pid"]==launch["launcher_pid"],"Successful exact H040 GPU4 tensor completion and actual wait required")
+     required=[spec["root_context_module_ref"],spec["root_driver_ref"],cfg["source_manifest_ref"],
+         spec["consumer_manifest_ref"],LAUNCHER_REF,GUARD_REF,POLICY_REF,AUTH_REF,REPAIR_REF]
+     require(all(r in storage["reservation"]["consumer_bindings"] for r in required),
+--- before/root_driver.py
++++ after/root_driver.py
+@@ -14,6 +14,7 @@
+ REPAIR_REF=dict(path="research/reviews/H039_missing_marker_repair_v1/repair_authority_20261015.json",sha256="f6f2d628199e8be73db8b5d90d428570d8afdefeab9dc5cd94bb5eafb39247db")
+ AUTH_REF=dict(path="research/reviews/H040_GPU45_migration_root_20261015_v1/GPU45_authorization.json",sha256="0231ae8edb05f8dd34ce127a0de0b97c1dd64fa461ad081e7a83bb92c558d26c")
+ 
++PREDECESSOR_COMPLETION_REF={'path': 'experiments/results/H040_GPU45_resume_tensor_seed101_v1/completed.json', 'sha256': '3e2f656f8657edc722a3223f8a6827f7ba3e2f626f997c90966846baffe13d29'}
+ TEMPLATE_REF=dict(path="research/reviews/expanded_full_panel_v1_root/full_panel_pyg_fits_v4/aligned/input.json",sha256="72b200f5bcfbba13d04517b4f139b22097d1944ae4d855aa6c55ccf50c64d7e6")
+ PREDECESSOR="research/reviews/H040_GPU45_migration_root_20261015_v1/admitted_tensor"
+ CORE="483d78bf2ef3c917d65ecf1dde5a7809bfadc21194c9f9a90394ce5c532fdd5e"
+@@ -50,8 +51,9 @@
+     launch_ref=ref(PREDECESSOR+"/launch.json");wait_ref=ref(PREDECESSOR+"/actual_wait.json")
+     launch=read(launch_ref);wait=read(wait_ref)
+     require(launch["arm"]=="tensor" and launch["physical_gpu"]==4 and wait["actual_direct_launcher_wait"] is True
+-        and type(wait["returncode"])is int and launch["launcher_pid"]==wait["launcher_pid"],
+-        "Root must actually wait for H040tensor on GPU4 to terminate before H042")
++        and wait["returncode"]==0 and wait["completed_ref"]==PREDECESSOR_COMPLETION_REF
++        and launch["launcher_pid"]==wait["launcher_pid"],
++        "Root must actually wait for the exact successful H040tensor GPU4 completion before H042")
+     return launch_ref,wait_ref
+ def admit(phase,train_completion_ref=None):
+     from arggnn import train_anonymous_clade_flag_control_v1 as worker
+@@ -159,7 +161,7 @@
+         proc=subprocess.Popen(cmd,cwd=ROOT,env=policy_env(),stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+         save(packet,"launch.json",dict(launcher_pid=proc.pid,phase=phase,physical_gpu=4,input_ref=input_ref,
+             command=cmd,actual_wait_pending=True,completed_overlay_policy_ref=POLICY_REF))
+-        for data in iter(lambda:proc.stdout.read(65536),b""):
++        for data in iter(lambda:proc.stdout.read1(65536),b""):
+             received+=len(data)
+             piece=data[:max(0,LOG_CAP-retained)]
+             if piece and logging_error is None:
+--- before/source_manifest.json
++++ after/source_manifest.json
+@@ -34,8 +34,8 @@
+   "schema": "H042_clade_flags_frozen_source_manifest_v1",
+   "source_only": true,
+   "source_sha256": {
+-    "research/reviews/H042_GPU45_clade_flags_root_source_v1/context_factory_v1.py": "cdb8e6541fe1dbcf19fbba32b11d8b21d5867aa75e9d9ca604b6cca98aef4209",
+-    "research/reviews/H042_GPU45_clade_flags_root_source_v1/root_driver.py": "500076043e8d4b866710e9c42178b2e6fb503fcbf22916df4f9cdb899cd067b2",
++    "research/reviews/H042_GPU45_clade_flags_root_source_v1/context_factory_v1.py": "0c8559045139b56026cab44ee48478a9e59e15bc22886d7206de4e232c97b309",
++    "research/reviews/H042_GPU45_clade_flags_root_source_v1/root_driver.py": "5b87957f3667187b97172b00871f3cc5c85981810179554578e9779bcca9d0b0",
+     "research/reviews/concurrent_completed_scope_credits_v3/completed_scope_credits_v3.py": "ea14c12c41b9385a86182aa9c24058f7b1276107fc5706c70e47828e8b2c31ef",
+     "scripts/launch_reserved_gpu_authorized_GPU45_completed_v1.py": "d4cc990e430625e9cc7d02739e7e8012f5c8b3bdc78f048f801febacea64583d",
+     "scripts/launch_reserved_gpu_full_storage_v1.py": "d7e5b2bcb464b9d3863b4f644e69aaa1c73c18aaa2550e44ecd021e2199f6dff",
+--- before/config.json
++++ after/config.json
+@@ -222,7 +222,7 @@
+   "selection": "earliest_maximum_equal_parent_Present182_exact_span_accuracy_then_lower_NLL_then_earlier_pass",
+   "source_manifest_ref": {
+     "path": "research/reviews/H042_GPU45_clade_flags_root_source_v1/source_manifest.json",
+-    "sha256": "3b1ea8e6307be172d75a30bdd9db1882ab3a1477cb663bb35728a2a18c949568"
++    "sha256": "e2254b99565ca655430e951aa132fc1716d0581f73a75b581d503b8e8e0b4fc5"
+   },
+   "status": "source_only_root_admission_and_GPU4_schedule_required",
+   "training_output_reservation_proposal_bytes": 32000000,
+--- before/train_input.inactive.json
++++ after/train_input.inactive.json
+@@ -23,7 +23,7 @@
+   "refs": {
+     "config": {
+       "path": "research/reviews/H042_GPU45_clade_flags_root_source_v1/config.json",
+-      "sha256": "d1d4258a2894ee4a9f77f2af5263b1f69c11a1eea1668bc3bd916a4e530d9036"
++      "sha256": "8e213d577abd8acd79fbcbbbda5947c1f0793b59d40bcf85dbb41b8da145b78b"
+     },
+     "runtime": null,
+     "storage": null
+@@ -31,16 +31,16 @@
+   "root_authorizer": "root_agent",
+   "root_context_module_ref": {
+     "path": "research/reviews/H042_GPU45_clade_flags_root_source_v1/context_factory_v1.py",
+-    "sha256": "cdb8e6541fe1dbcf19fbba32b11d8b21d5867aa75e9d9ca604b6cca98aef4209"
++    "sha256": "0c8559045139b56026cab44ee48478a9e59e15bc22886d7206de4e232c97b309"
+   },
+   "root_driver_ref": {
+     "path": "research/reviews/H042_GPU45_clade_flags_root_source_v1/root_driver.py",
+-    "sha256": "500076043e8d4b866710e9c42178b2e6fb503fcbf22916df4f9cdb899cd067b2"
++    "sha256": "5b87957f3667187b97172b00871f3cc5c85981810179554578e9779bcca9d0b0"
+   },
+   "schema": "anonymous_clade_flag_root_execution_input_v1",
+   "source_manifest_ref": {
+     "path": "research/reviews/H042_GPU45_clade_flags_root_source_v1/source_manifest.json",
+-    "sha256": "3b1ea8e6307be172d75a30bdd9db1882ab3a1477cb663bb35728a2a18c949568"
++    "sha256": "e2254b99565ca655430e951aa132fc1716d0581f73a75b581d503b8e8e0b4fc5"
+   },
+   "status": "inactive"
+ }
+--- before/evaluation_input.inactive.json
++++ after/evaluation_input.inactive.json
+@@ -23,7 +23,7 @@
+   "refs": {
+     "config": {
+       "path": "research/reviews/H042_GPU45_clade_flags_root_source_v1/config.json",
+-      "sha256": "d1d4258a2894ee4a9f77f2af5263b1f69c11a1eea1668bc3bd916a4e530d9036"
++      "sha256": "8e213d577abd8acd79fbcbbbda5947c1f0793b59d40bcf85dbb41b8da145b78b"
+     },
+     "runtime": null,
+     "storage": null
+@@ -31,16 +31,16 @@
+   "root_authorizer": "root_agent",
+   "root_context_module_ref": {
+     "path": "research/reviews/H042_GPU45_clade_flags_root_source_v1/context_factory_v1.py",
+-    "sha256": "cdb8e6541fe1dbcf19fbba32b11d8b21d5867aa75e9d9ca604b6cca98aef4209"
++    "sha256": "0c8559045139b56026cab44ee48478a9e59e15bc22886d7206de4e232c97b309"
+   },
+   "root_driver_ref": {
+     "path": "research/reviews/H042_GPU45_clade_flags_root_source_v1/root_driver.py",
+-    "sha256": "500076043e8d4b866710e9c42178b2e6fb503fcbf22916df4f9cdb899cd067b2"
++    "sha256": "5b87957f3667187b97172b00871f3cc5c85981810179554578e9779bcca9d0b0"
+   },
+   "schema": "anonymous_clade_flag_root_execution_input_v1",
+   "source_manifest_ref": {
+     "path": "research/reviews/H042_GPU45_clade_flags_root_source_v1/source_manifest.json",
+-    "sha256": "3b1ea8e6307be172d75a30bdd9db1882ab3a1477cb663bb35728a2a18c949568"
++    "sha256": "e2254b99565ca655430e951aa132fc1716d0581f73a75b581d503b8e8e0b4fc5"
+   },
+   "status": "inactive",
+   "train_completion_ref": null
+--- before/source_qualification_receipt.json
++++ after/source_qualification_receipt.json
+@@ -29,8 +29,18 @@
+   "scientific_config_fields_unchanged": true,
+   "source_manifest_ref": {
+     "path": "research/reviews/H042_GPU45_clade_flags_root_source_v1/source_manifest.json",
+-    "sha256": "3b1ea8e6307be172d75a30bdd9db1882ab3a1477cb663bb35728a2a18c949568"
++    "sha256": "e2254b99565ca655430e951aa132fc1716d0581f73a75b581d503b8e8e0b4fc5"
+   },
+   "source_only": true,
+-  "source_ref_count": 46
++  "source_ref_count": 46,
++  "source_review_fix": {
++    "compile_passed": true,
++    "exact_predecessor_completed_ref": {
++      "path": "experiments/results/H040_GPU45_resume_tensor_seed101_v1/completed.json",
++      "sha256": "3e2f656f8657edc722a3223f8a6827f7ba3e2f626f997c90966846baffe13d29"
++    },
++    "log_reader": "BufferedReader.read1(65536)",
++    "requires_predecessor_returncode_zero": true,
++    "worker_or_guard_execution": false
++  }
+ }
+--- before/handoff.json
++++ after/handoff.json
+@@ -6,15 +6,15 @@
+   "GPU5_untouched": true,
+   "HANDOFF_ref": {
+     "path": "research/reviews/H042_GPU45_clade_flags_root_source_v1/HANDOFF.md",
+-    "sha256": "077b27aaa2bdffa53d823bd5630ab87cb48b52d284f4aa51be697a958ce36f69"
++    "sha256": "d1605c4c0725405aaf05435c38e92e24e9cb90e62a73e47649c7bc33d2b48314"
+   },
+   "config_ref": {
+     "path": "research/reviews/H042_GPU45_clade_flags_root_source_v1/config.json",
+-    "sha256": "d1d4258a2894ee4a9f77f2af5263b1f69c11a1eea1668bc3bd916a4e530d9036"
++    "sha256": "8e213d577abd8acd79fbcbbbda5947c1f0793b59d40bcf85dbb41b8da145b78b"
+   },
+   "context_ref": {
+     "path": "research/reviews/H042_GPU45_clade_flags_root_source_v1/context_factory_v1.py",
+-    "sha256": "cdb8e6541fe1dbcf19fbba32b11d8b21d5867aa75e9d9ca604b6cca98aef4209"
++    "sha256": "0c8559045139b56026cab44ee48478a9e59e15bc22886d7206de4e232c97b309"
+   },
+   "guard_ref": {
+     "path": "research/reviews/concurrent_completed_scope_credits_v3/completed_scope_credits_v3.py",
+@@ -22,11 +22,11 @@
+   },
+   "inactive_evaluation_ref": {
+     "path": "research/reviews/H042_GPU45_clade_flags_root_source_v1/evaluation_input.inactive.json",
+-    "sha256": "31c971d1f63dcf0bc31d0417ba2ae69ebdeabeca9d34a52dcde8e790ec0ae555"
++    "sha256": "95452b8e29339cb5fa00833a7dd46639e34d088b091c20a9f766dcae07910d0d"
+   },
+   "inactive_train_ref": {
+     "path": "research/reviews/H042_GPU45_clade_flags_root_source_v1/train_input.inactive.json",
+-    "sha256": "1412094ff976c20abcda72583af6aebade80cd93814db9d3d81e3bfdeb756155"
++    "sha256": "90dd61432d33ed3f61cf638eaf8b0e908d99e5aff6b81150218ab41aac06f2b0"
+   },
+   "launcher_ref": {
+     "path": "scripts/launch_reserved_gpu_authorized_GPU45_completed_v1.py",
+@@ -43,17 +43,26 @@
+   "root_admission_and_GPU4_after_tensor_schedule_required": true,
+   "root_driver_ref": {
+     "path": "research/reviews/H042_GPU45_clade_flags_root_source_v1/root_driver.py",
+-    "sha256": "500076043e8d4b866710e9c42178b2e6fb503fcbf22916df4f9cdb899cd067b2"
++    "sha256": "5b87957f3667187b97172b00871f3cc5c85981810179554578e9779bcca9d0b0"
+   },
+   "schema": "H042_GPU45_clade_flags_root_source_handoff_v1",
+   "source_count": 46,
+   "source_manifest_ref": {
+     "path": "research/reviews/H042_GPU45_clade_flags_root_source_v1/source_manifest.json",
+-    "sha256": "3b1ea8e6307be172d75a30bdd9db1882ab3a1477cb663bb35728a2a18c949568"
++    "sha256": "e2254b99565ca655430e951aa132fc1716d0581f73a75b581d503b8e8e0b4fc5"
+   },
+   "source_qualification_ref": {
+     "path": "research/reviews/H042_GPU45_clade_flags_root_source_v1/source_qualification_receipt.json",
+-    "sha256": "f9b4f994ae051bb342da24148f64d41ebf06483c353e96f06dc3d12b9a2b6116"
++    "sha256": "5b20dcaf7c24df159f98eba28e7fd08e1b505f51d8d4854f54bd267f74e94187"
++  },
++  "source_review_fix": {
++    "expected_completed_ref": {
++      "path": "experiments/results/H040_GPU45_resume_tensor_seed101_v1/completed.json",
++      "sha256": "3e2f656f8657edc722a3223f8a6827f7ba3e2f626f997c90966846baffe13d29"
++    },
++    "log_reader": "read1",
++    "prior_unadmitted_source_preserved_in": "pre_admission_review_fix.diff",
++    "successful_exact_tensor_predecessor_required": true
+   },
+   "status": "source_only_ready_for_root_review"
+ }
+--- before/HANDOFF.md
++++ after/HANDOFF.md
+@@ -15,7 +15,7 @@
+ 
+ Root owns every operation below. Default invocation only prints source status. This task has not imported/configured the live guard, obtained reservations/admissions, run the driver/context/science, built CUDA, installed anything or used Git.
+ 
+-After root actually waits for H040tensor on GPU4, the driver checks its exact launch.json/actual_wait.json launcher identity and physicalGPU4. It does not inspect tensor scores or any H040VALoutcome. It never stops or changes the otherGPU5job. Root can review and run:
++After root actually waits for H040tensor on GPU4, the driver requires actual_wait returncode0 and its exact pinned H040tensor completed.json reference, plus launch.json/actual_wait.json launcher identity and physicalGPU4. It does not inspect tensor scores or any H040VALoutcome. It never stops or changes the otherGPU5job. Root can review and run:
+ 
+     .runtime/env/bin/python -B research/reviews/H042_GPU45_clade_flags_root_source_v1/root_driver.py --admit train
+     .runtime/env/bin/python -B research/reviews/H042_GPU45_clade_flags_root_source_v1/root_driver.py --launch train
+@@ -29,3 +29,5 @@
+ Then root invokes --launch evaluate. Context supplies singular train_completion_ref. The frozen worker's48cell RAM seal before eightVALtargets and selection protocol are unchanged. Evaluation is a separate fresh guarded phase and has not run here.
+ 
+ Compilation and mechanical hash/config/source-closure checks are the only qualification. Runtime/lease/guard behavior is preserved by source reuse but remains unexecuted in this package.
++
++Pre-admission review repair: read1(65536) streams flushed worker progress without waiting for a full64KB buffer. Both root driver and context require the exact successful tensor completion. pre_admission_review_fix.diff preserves the prior unadmitted source/metadata changes. Compilation was the only additional check; no driver, worker, guard or GPU execution occurred.

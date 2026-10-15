@@ -1,0 +1,144 @@
+--- research/reviews/American_C3_observation_root_execution_20261015_v2/root_observation_driver.py
++++ research/reviews/American_C3_observation_root_execution_20261015_v3/root_observation_driver.py
+@@ -9,10 +9,10 @@
+ import subprocess, sys, time
+ 
+ ROOT = Path("/workspace-SR003.nfs2/ARG-GNN")
+-REL = "research/reviews/American_C3_observation_root_execution_20261015_v2"
++REL = "research/reviews/American_C3_observation_root_execution_20261015_v3"
+ HERE = ROOT / REL
+ SOURCE = REL + "/root_observation_driver.py"
+-WORKER = "src/arggnn/american_c3_observe_v1.py"
++WORKER = "src/arggnn/american_c3_observe_v2.py"
+ CLOSURE = ["src/arggnn/american_c3_common_v1.py", WORKER,
+            "src/arggnn/american_c3_simulate_v1.py"]
+ GUARD = "research/reviews/H039_failed_scope_capacity_v2/failed_scope_capacity_v2.py"
+@@ -88,7 +88,7 @@
+ 
+ 
+ def qualification_ready():
+-    packet = HERE / "admitted_qualification100kb_v2"
++    packet = HERE / "admitted_qualification100kb_v3"
+     wait_path = packet / "actual_wait.json"
+     if not wait_path.exists():
+         return False, "Root must run the short 100kb observation inference and obtain direct exit 0"
+@@ -106,18 +106,22 @@
+             and observed["sequence_length_bp"] == 100000
+             and observed["counts_haploid"] == {"AFR": 8, "EUR": 8, "ASIA": 8, "ADMIX": 40}
+             and observed["sites_and_sample_identities_verified"] is True
+-            and observed["query_ancestry_truth_in_inputs"] is False,
++            and observed["query_ancestry_truth_in_inputs"] is False
++            and observed["inference_runtime_settings"]["tsinfer_num_threads"] == 8
++            and completed["tsinfer_num_threads"] == 8,
+             "Complete original short qualification identity required")
+     return True, "Short observation inference completed and verified all original sites/samples"
+ 
+ 
+-def preflight_v2(stage):
++def preflight_v3(stage):
+     require(stage in STAGES, "Exact registered stage required")
+     frozen_ref, pins = frozen()
+     cfg_ref = pins["config_" + stage]
+     cfg = read(cfg_ref)
+     input_closure_ref = pins["inputs_" + stage]
+     inputs = read(input_closure_ref)
++    require(type(cfg.get("num_threads")) is int and cfg["num_threads"] == 8,
++            "Exact explicit tsinfer eight-thread runtime setting required")
+     require(cfg["execution_enabled"] is False and cfg["observation_ref"] == inputs["observation_ref"],
+             "Only inactive exact observation config may be activated")
+     m = read(cfg["observation_ref"])
+@@ -182,13 +186,13 @@
+ def runtime_report():
+     env = os.environ.copy()
+     env.update(CUDA_VISIBLE_DEVICES="", PYTHONPATH=str(ROOT / "src"), PYTHONDONTWRITEBYTECODE="1")
+-    cmd = [str(PYTHON), "-B", "-m", "arggnn.american_c3_observe_v1", "--runtime-report"]
++    cmd = [str(PYTHON), "-B", "-m", "arggnn.american_c3_observe_v2", "--runtime-report"]
+     result = subprocess.run(cmd, cwd=ROOT, env=env, capture_output=True, text=True, timeout=60, check=True)
+     require(len(result.stdout) <= 65536, "Bounded metadata-only runtime report required")
+     return json.loads(result.stdout)
+ 
+ 
+-def guard_v2(pins):
++def guard_v3(pins):
+     require(ref(GUARD) == pins["guard"] and ref(REPAIR) == pins["repair_authority"],
+             "Exact current capacity-v2/repair authority required")
+     spec = importlib.util.spec_from_file_location("root_C3_observation_capacity_v2", local(GUARD))
+@@ -198,16 +202,16 @@
+     return module
+ 
+ 
+-def admit_v2(stage):
++def admit_v3(stage):
+     require(Path.cwd().resolve() == ROOT, "Root must execute in repository")
+-    plan = preflight_v2(stage)
++    plan = preflight_v3(stage)
+     require(plan["ready_for_root_admission"], plan["prerequisite"])
+     _, pins = frozen()
+     report = runtime_report()
+     runtime = read(pins["runtime"])
+     require(report["runtime"] == runtime and report["source_closure_refs"] == plan["source_closure_refs"],
+             "Existing runtime or worker closure changed")
+-    packet = HERE / ("admitted_" + stage + "_v2")
++    packet = HERE / ("admitted_" + stage + "_v3")
+     require(not packet.exists(), "Fresh root packet required; preserve failed/previous packets")
+     packet.mkdir()
+     require(not (packet / "worker_aux").exists(), "Auxiliary worker scope must remain absent until reservation")
+@@ -217,8 +221,8 @@
+     runtime_ref = save(packet, "runtime.json", runtime)
+     now = datetime.now(timezone.utc)
+     expiry = (now + timedelta(hours=22)).isoformat()
+-    job = "American-C3-observe-" + stage + "-20261015-v2"
+-    m = guard_v2(pins)
++    job = "American-C3-observe-" + stage + "-20261015-v3"
++    m = guard_v3(pins)
+     with m.budget.v4.mutex(ROOT):
+         _, _, view, bindings, _ = m._state_locked(
+             pins["budget"]["sha256"], pins["launcher"]["sha256"], fresh=True)
+@@ -284,11 +288,11 @@
+     return total
+ 
+ 
+-def launch_v2(stage):
+-    plan = preflight_v2(stage)
++def launch_v3(stage):
++    plan = preflight_v3(stage)
+     require(plan["ready_for_root_admission"], plan["prerequisite"])
+     _, pins = frozen()
+-    packet = HERE / ("admitted_" + stage + "_v2")
++    packet = HERE / ("admitted_" + stage + "_v3")
+     admitted = read(ref(packet / "admitted.json"))
+     require(admitted["driver_ref"] == ref(SOURCE), "Exact admitted root driver required")
+     spec = read(admitted["admission_ref"])
+@@ -297,7 +301,7 @@
+             and read(spec["runtime_ref"]) == read(pins["runtime"]), "Exact activated config/runtime/input required")
+     require(datetime.fromisoformat(spec["expires_at_utc"]) > datetime.now(timezone.utc),
+             "Fresh root admission required")
+-    m = guard_v2(pins)
++    m = guard_v3(pins)
+     storage = spec["storage"]
+     # Root must serialize launches/admissions. Refresh pins immediately before
+     # first worker validation; never edit or replay an existing admission.
+@@ -317,7 +321,7 @@
+                OMP_NUM_THREADS="1", OPENBLAS_NUM_THREADS="1", MKL_NUM_THREADS="1", NUMBA_NUM_THREADS="1",
+                TMPDIR=str(work / "tmp"), TMP=str(work / "tmp"), TEMP=str(work / "tmp"),
+                NUMBA_CACHE_DIR=str(work / "numba_cache"), XDG_CACHE_HOME=str(work / "cache"))
+-    cmd = [str(PYTHON), "-B", "-m", "arggnn.american_c3_observe_v1", "--execute",
++    cmd = [str(PYTHON), "-B", "-m", "arggnn.american_c3_observe_v2", "--execute",
+            "--admission", admission_ref["path"], "--expected-admission-sha256", admission_ref["sha256"]]
+     log_path = worker_aux / "launch.log"
+     m.budget_check_v9(storage, boundary=True, required_write_bytes=LOG_CAP + 8192)
+@@ -404,11 +408,11 @@
+     mode.add_argument("--launch", choices=STAGES)
+     args = parser.parse_args()
+     if args.preflight:
+-        result = preflight_v2(args.preflight)
++        result = preflight_v3(args.preflight)
+     elif args.admit:
+-        result = admit_v2(args.admit)
++        result = admit_v3(args.admit)
+     elif args.launch:
+-        result = launch_v2(args.launch)
++        result = launch_v3(args.launch)
+     else:
+         frozen_ref, pins = frozen()
+         result = dict(status="source_only_inactive_root_review_required", driver_ref=ref(SOURCE),

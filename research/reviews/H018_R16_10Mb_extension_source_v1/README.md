@@ -1,0 +1,22 @@
+# Prospective H018 R16/Q24 20–30 Mb extension pilot
+
+This is an inactive, source-only package for a new GRCh37 chromosome 22 interval [20,000,000, 30,000,000) bp0. It extends the original 2 Mb region after its fixed gate failed: 434 of 13,312 candidate sites passed, below the unchanged minimum of 1,000. The original endpoint, configuration, actual qualification and predecessor v2 source are SHA-pinned. None is overwritten or reclassified.
+
+The exact same ordered 20 subjects, R16/Q24 condition, cohort selection, FORMAT/INFO allowlists, AP policy and site QC apply. The clean_record source and AST are identical to the predecessor. In particular, external RAF determines MAF; all 20 subjects must satisfy the same phased-GT, GP and HS rules; transversions, MASK_1000G, INFO and source ancestral-state requirements remain fixed. Source FILTER is preserved without introducing a PASS-only rule. All selected-subject candidate rows are retained with QC annotations. No genotype or HS draw is modified or sampled.
+
+The new region has its own observation gate. Passing it would qualify only this extension's observed-input criterion. It cannot pass the original 20–22 Mb gate, admit an R16 model, establish proxy purity or biological accuracy, or replicate the original paper's PCA. The real genetic map and all later scientific/runtime gates remain separate. The 0.05-nat sensitivity endpoint and the eight coherent HS draws are retained prospectively, not executed.
+
+Exact caps are 500,000,000 received network bytes, 640 HTTP requests of at most 1,000,000 bytes, 40,000,000,000 cumulative expanded bytes and 200,000,000 aggregate retained output bytes. The 200 MB includes the uncompressed sanitized VCF, compressed VCF, QC TSV, index and metadata; native index space is reserved before launch. The four-window cache is at most 4 MB and a source line at most 16 MiB. All raw AP-bearing source stays in bounded processing memory. HTTP206, URL/range/length identity, ETag, prefix SHA, TBI SHA and BGZF checks are inherited.
+
+Acquisition/decode progress has a 1,800-second cap. Root must enforce a 2,400-second outer process-group walltime limit, including native children; admission requires its explicit enforcement attestation. The inherited streaming bgzip stdout reader does not itself enforce a whole-command timeout. A 2 GB host-RAM scheduling allowance is proposed, not a measured peak or a proved memory bound. GPU use is forbidden.
+
+There is no exact 10 Mb TBI forecast or QC-yield estimate in this package because source preparation did not open the TBI, source genotype bytes or any existing genotype/QC TSV. The naive 5x density scale is 66,560 candidates and 370,140,040 bytes using the old 2 Mb planning upper bound. Those are heuristics, not a 10 Mb upper bound or a passing-site prediction. Future admitted execution computes a fresh TBI plan and fails before VCF acquisition if the plan exceeds the cap. Re-fetches remain counted. Overflow fails with partial sanitized files preserved and no narrowed-region or filter fallback.
+
+Root preparation before execution:
+
+1. Register this independent condition in the scientific decisions and ledger, preserving the original failed result. Seal a fresh registration JSON from registration.draft.json, binding the actual experiment_decisions JSON reference.
+2. Fill registration_ref in a fresh final consumer manifest based on consumer_manifest.draft.json and freeze its hash. Raw tools, TBI, text and TSV files remain transitively bound by JSON.
+3. Obtain a fresh current root guarded reservation for data/H018_R16_20_30Mb_extension_v1, at least 200,000,000 bytes. The worker's direct reservation consumer bindings are its exact source, config, runtime and final manifest JSON refs. Preserve all root launcher/guard bindings required by the current capacity-v2 authority.
+4. Seal a fresh admission from admission.draft.json with the registration, final manifest, actual storage ref, expiry, execution authority and enforced 2,400-second outer deadline. Call execute_v1 with the actual guard callback under that root launcher.
+
+No registration, admission, reservation, download, scientific execution, install or Git operation has been performed. Verification is compile-only plus mechanical metadata/source comparison; no new synthetic campaign was run. The runtime JSON is copied byte-for-byte from the existing pinned extraction runtime without rerunning tool versions.
