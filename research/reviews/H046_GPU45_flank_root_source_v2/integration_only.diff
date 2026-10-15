@@ -1,0 +1,74 @@
+--- research/reviews/H046_GPU45_flank_root_source_v1/root_common_v1.py
++++ research/reviews/H046_GPU45_flank_root_source_v2/root_common_v1.py
+@@ -2,7 +2,7 @@
+ from pathlib import Path
+ import hashlib,importlib.util,json,os
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-HERE="research/reviews/H046_GPU45_flank_root_source_v1"
++HERE="research/reviews/H046_GPU45_flank_root_source_v2"
+ PREVIOUS="research/reviews/H042_GPU45_clade_flags_root_source_v1/root_driver.py"
+ PREVIOUS_SHA="5b87957f3667187b97172b00871f3cc5c85981810179554578e9779bcca9d0b0"
+ if hashlib.sha256((ROOT/PREVIOUS).read_bytes()).hexdigest()!=PREVIOUS_SHA:
+--- research/reviews/H046_GPU45_flank_root_source_v1/context_factory_v1.py
++++ research/reviews/H046_GPU45_flank_root_source_v2/context_factory_v1.py
+@@ -1,7 +1,7 @@
+ """H046 future root context. No import-time guard, data or CUDA execution."""
+ from pathlib import Path
+ import json,os
+-from research.reviews.H046_GPU45_flank_root_source_v1.root_common_v1 import (
++from research.reviews.H046_GPU45_flank_root_source_v2.root_common_v1 import (
+     ROOT,HERE,require,ref,GUARD_REF,POLICY_REF,LAUNCHER_REF,REPAIR_REF,AUTH_REF,MEMO_REF,V4_REF,
+     RSS_CAP,CUDA_CAP,count_plan_v1,preparation_check_v1,validate_train_lineage_v1,load_guard_v1)
+ SOURCE=HERE+"/context_factory_v1.py"
+--- research/reviews/H046_GPU45_flank_root_source_v1/root_driver.py
++++ research/reviews/H046_GPU45_flank_root_source_v2/root_driver.py
+@@ -4,15 +4,15 @@
+ import argparse,json,os,subprocess,sys
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+ sys.path[:0]=[str(ROOT),str(ROOT/"src")]
+-from research.reviews.H046_GPU45_flank_root_source_v1.root_common_v1 import (
++from research.reviews.H046_GPU45_flank_root_source_v2.root_common_v1 import (
+     HERE as HERE_REL,require,ref,read,save,unique,policy_env,load_guard_v1,count_plan_v1,
+     validate_train_lineage_v1,GUARD_REF,POLICY_REF,LAUNCHER_REF,REPAIR_REF,AUTH_REF,TEMPLATE_REF,
+     MEMO_REF,V4_REF,CORE,BASE,OUTPUT_CAP,LOG_CAP)
+ HERE=ROOT/HERE_REL
+ SOURCE=HERE_REL+"/root_driver.py"
+ CONTEXT=HERE_REL+"/context_factory_v1.py"
+-CLI_MODULE="research.reviews.H046_GPU45_flank_root_source_v1.worker_cli"
+-CLI=HERE_REL+"/worker_cli.py"
++CLI_MODULE="arggnn.H046_GPU45_flank_worker_v2"
++CLI="src/"+CLI_MODULE.replace(".","/")+".py"
+ MAIN="src/arggnn/train_continuous_clade_flank_v1.py"
+ CAP=OUTPUT_CAP
+ def admit(phase,gpu,train_completion_ref=None,train_launch_ref=None,train_actual_wait_ref=None):
+@@ -20,7 +20,7 @@
+     require(phase in ("train","evaluate"),"Single paired phase")
+     require(gpu in (4,5),"Root must explicitly choose one eligible GPU4/5")
+     packet=HERE/("admitted_"+phase);require(not packet.exists(),"No admission replay")
+-    output="experiments/results/H046_GPU%d_flank_%s_seed101_v1"%(gpu,phase)
++    output="experiments/results/H046_GPU%d_flank_%s_seed101_v2"%(gpu,phase)
+     auxiliary=str(packet.relative_to(ROOT)/"worker_aux")
+     require(not (ROOT/output).exists() and not (ROOT/auxiliary).exists(),"Fresh exclusive output and auxiliary")
+     old=read(TEMPLATE_REF);cfg=read(ref(HERE/"config_inactive.json"));worker.validate_protocol(cfg)
+@@ -56,7 +56,7 @@
+         TRAIN_included=phase=="train",VAL_included=phase=="evaluate",outer_included=False)
+     packet.mkdir()
+     now=datetime.now(timezone.utc);expiry=(now+timedelta(hours=24)).isoformat()
+-    job="H046-flank-%s-seed101-GPU%d"%(phase,gpu)
++    job="H046-flank-%s-seed101-v2-GPU%d"%(phase,gpu)
+     config_ref=ref(HERE/"config_inactive.json")
+     runtime_ref=save(packet,"runtime.json",dict(status="active",device="cuda",job_id=job,output_directory=output,
+         physical_gpu=gpu,process_title="AI Auto Research Pipeline Test",created_at_utc=now.isoformat(),expires_at_utc=expiry,
+--- research/reviews/H046_GPU45_flank_root_source_v1/worker_cli.py
++++ src/arggnn/H046_GPU45_flank_worker_v2.py
+@@ -3,8 +3,8 @@
+ import argparse,hashlib,importlib.util,json,sys
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+ sys.path[:0]=[str(ROOT),str(ROOT/"src")]
+-from research.reviews.H046_GPU45_flank_root_source_v1 import root_common_v1 as common
+-SOURCE="research/reviews/H046_GPU45_flank_root_source_v1/worker_cli.py"
++from research.reviews.H046_GPU45_flank_root_source_v2 import root_common_v1 as common
++SOURCE="src/arggnn/H046_GPU45_flank_worker_v2.py"
+ def main(argv=None):
+     parser=argparse.ArgumentParser(description=__doc__)
+     parser.add_argument("--execute",action="store_true");parser.add_argument("--input")
