@@ -1,6 +1,6 @@
 # Current scientific scoreboard
 
-Updated UTC: 2026-10-15T19:14:04.592719+00:00
+Updated UTC: 2026-10-15T19:17:47.238157+00:00
 
 [All measured cohort details](#detailed-cohort-metrics) · [Complete historical receipt inventory](all_recorded_metric_receipts.md) · [Fresh H048 novelty/cross-domain audit](../research/reviews/H048_novelty_crossdomain_fresh_20261015_v1/report.md)
 
@@ -27,6 +27,28 @@ Updated UTC: 2026-10-15T19:14:04.592719+00:00
 | H038 zero-concordance control | 94.9252 ± 0.7917 | 0.147232 ± 0.023024 | 11.7904 ± 1.3304 | 30 passes / 960 updates, seed101 |
 | Current native ARGMix | 94.4461 ± 1.1491 | 0.219695 ± 0.023975 | 11.7372 ± 1.7328 | 11 epochs, native early stopping |
 | Native AncestralPaths derived C4 | 93.7830 ± 0.8385 | ∞ | 7.0281 ± 0.7779 | 5 epochs, native fixed schedule |
+
+## Selected training lineage
+
+| Setup | Completed cumulative updates | Selected pass | Selected cumulative updates |
+|---|---:|---:|---:|
+| H045 foreign_episode | 2880 | 30 | 2880 |
+| H045 own_state | 2880 | 30 | 2880 |
+| H044 localized | 2880 | 30 | 2880 |
+| H046 foreign_flank | 2880 | 30 | 2880 |
+| H044 tree_pooled | 2880 | 30 | 2880 |
+| H047 original_risk | 2880 | 30 | 2880 |
+| H046 own_state | 2880 | 30 | 2880 |
+| H047 balanced_risk | 2880 | 30 | 2880 |
+| H042 exact local-clade flags | 1920 | 30 | 1920 |
+| H043 true_partner | 2880 | 30 | 2880 |
+| H043 own_state | 2880 | 30 | 2880 |
+| H040 tensor | 1920 | 30 | 1920 |
+| H040 event_mlp | 1920 | 30 | 1920 |
+| H038 aligned whole-tree PyG | 960 | 30 | 960 |
+| H038 zero-concordance control | 960 | 25 | 800 |
+| Current native ARGMix | None | None | None |
+| Native AncestralPaths derived C4 | None | None | None |
 
 ## All measured cohort accuracies
 

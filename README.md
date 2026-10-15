@@ -7,15 +7,16 @@ Graph neural networks for ordered collections of whole genealogical trees, with 
 [Persistent research goal and reporting requirements](research/goal_current.json). Current limits: physical GPUs4–5 and1TB, with all project writes inside this server repository.
 
 <!-- CURRENT_SCOREBOARD_START -->
-**Scoreboard updated UTC: 2026-10-15T19:14:04.592719+00:00.** [Every current setup, all cohorts and detailed metrics](research/current_scoreboard.md) · [All recorded historical/engineering metric receipts](research/all_recorded_metric_receipts.md)
+**Scoreboard updated UTC: 2026-10-15T19:17:47.238157+00:00.** [Every current setup, all cohorts and detailed metrics](research/current_scoreboard.md) · [Full scored comparison, native class metrics and training lineage](research/reviews/root_score_report_20261015_v1/REPORT.md) · [All recorded historical/engineering metric receipts](research/all_recorded_metric_receipts.md)
 
 | Current run | Device | Progress | Validation score |
 |---|---:|---|---|
 | H048 | GPU4 | 30/30 completed passes; 960/960 verified updates per arm; TRAIN completed30passes/960updates per arm with actual wait0; registered evaluation launched, score pending | pending |
 | American TRAIN preparation | CPU | 19/20 inferred 2 Mb TRAIN parents ready. Exact 10k-focal plans: 18/20 completed; controlled continuation uses at most two CPU producers. | no ancestry score |
 | Original American VAL000 | CPU | Full 30 Mb simulation, inference and 10k-focal/native-path preparation completed. Same 600 references and 1,000 queries. | predictions pending |
-| Original American VAL001–004 | CPU | 001/simulate: completed; actual wait0 and owned-group drain verified; 001/infer: completed; actual wait0 and owned-group drain verified; 001/native_paths: running on CPU | no ancestry score |
+| Original American VAL001–004 | CPU | 001/simulate: completed; actual wait0 and owned-group drain verified; 001/infer: completed; actual wait0 and owned-group drain verified; 001/native_paths: completed; actual wait0 and owned-group drain verified | no ancestry score |
 | Native ARGformer | GPU5 | Engineering TRAIN000 full-corpus MLM training. Latest observed checkpoint: ep0-ba41000-rank0.pt. Five epochs / 224,775 planned updates. Final completion pending. This is engineering TRAIN000, with held-out per-ARG models still pending. Actual author console entered epoch 3/5. | pending |
+| Native ARGformer held-out VAL000 | CPU | Original per-ARG six-dataset counts: completed; actual wait0 and owned drain verified. Separate native fit follows actual counts. | no ancestry score |
 | Native FLARE | CPU | Author build, TRAIN000 full-site inference and prediction seal completed. Held-out VAL000 conversion: completed; actual wait0 and owned-group drain verified. | held-out score pending |
 | Our American C3 GNN | CPU preparation | 18/20 exact TRAIN plans completed. Executable 30-epoch / 600-update route integrated. Original VAL000 full-length GNN block plan: completed; actual wait0 and owned drain verified. | pending |
 | H049 cut-memory candidate | CPU preparation | first CPU preparation failed before any recipe, codec property-call repair pending. Three matched 32,446-parameter arms. Full 30 passes / 960 updates per arm planned. | no fit or accuracy yet |
@@ -123,7 +124,7 @@ Present182 boundary F1 at 1 kb tolerance is **18.05 ± 1.84%** for H042, **13.42
 
 **Native FLARE:** Author build and TRAIN000 full-site conversion completed with actual wait0. Native inference: completed; actual wait0 and owned-group drain verified; sealing: completed; actual wait0 and owned-group drain verified. Native completed allowance closed; 8977226240 unused bytes credited with all files preserved. Accuracy pending; TRAIN000 is development, not held-out. Held-out VAL000 conversion: completed; actual wait0 and owned-group drain verified.
 
-**Original remaining American VAL:** 001/simulate: completed; actual wait0 and owned-group drain verified; 001/infer: completed; actual wait0 and owned-group drain verified; 001/native_paths: running on CPU.
+**Original remaining American VAL:** 001/simulate: completed; actual wait0 and owned-group drain verified; 001/infer: completed; actual wait0 and owned-group drain verified; 001/native_paths: completed; actual wait0 and owned-group drain verified.
 
 **Completed H046:** H046 foreign-flank minus own-state Present182 accuracy gain +0.011573 ± 0.069124 percentage points (sample SD of paired differences across eight VAL parents). Mean boundary F1 difference +0.149225 percentage points. The registered utility rule failed: at least +0.10 accuracy points and at most 1.00 point mean boundary F1 loss. Both selected checkpoints are original pass 30; one optimizer seed. This is reused development validation, not independent test or novelty evidence. [Results](research/reviews/H046_completed_comparison_root_20261015_v1/REPORT.md).
 

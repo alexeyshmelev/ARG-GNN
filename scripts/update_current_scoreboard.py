@@ -399,7 +399,10 @@ def main():
     counts_launch=maybe_read(counts_packet+"/launch.json")
     counts_ready=bool(counts_wait and counts_done and counts_wait.get("returncode")==0 and counts_wait.get("actual_direct_launcher_wait") is True and counts_wait.get("all_owned_processes_and_groups_drained") is True and counts_wait.get("operational_failure") is None and counts_wait.get("completed_ref")==ref(counts_output+"/completed.json"))
     counts_status=("completed; actual count producer wait0 and drain verified" if counts_ready else "terminal receipt requires review" if counts_wait else "CPU count producer launched; completion pending" if counts_launch else "admitted; root CPU launch started, scientific child startup pending" if (ROOT/counts_packet/"admitted.json").exists() else "source ready")
-    counts_execution=dict(status=counts_status,MLM_dependency=False,ancestry_score=None,completion_ref=ref(counts_output+"/completed.json") if counts_done else None,actual_wait_ref=ref(counts_packet+"/actual_wait.json") if counts_wait else None)
+    counts_execution=dict(status=counts_status,parent_id="american_c3_train_000",split="train",scientific_role="engineering_only_not_held_out",MLM_dependency=False,ancestry_score=None,completion_ref=ref(counts_output+"/completed.json") if counts_done else None,actual_wait_ref=ref(counts_packet+"/actual_wait.json") if counts_wait else None)
+    val000_native_counts=root_CPU_stage("experiments/results/American_C3_native_val000_full30mb_counts980_namespace_v1",
+        "research/reviews/C3_native_VAL000_counts_namespace_root_20261015_v1/admitted_counts980_v1")
+    val000_native_counts.update(parent_id="american_c3_val_000",split="val",scientific_role="held_out_per_ARG_input_readiness",ancestry_score=None)
     empirical_output=ROOT/"experiments/results/H018_H045_empirical_application_root_v1"
     empirical_aux=ROOT/"research/reviews/H018_H045_empirical_CPU_root_v1/worker_aux"
     empirical_products=all((empirical_output/n).exists() for n in ["probabilities_all355_holds.npz","query_bpweighted_proportions_and_PCA.tsv","query_genotype_PCA.svg"])
@@ -575,7 +578,7 @@ def main():
     result=dict(schema="ARG_GNN_current_scientific_scoreboard_v1",updated_utc=stamp,
         H049_registered_candidate=dict(status=h049["status"],parameters_per_arm=32446,
             arms=h049["execution_budget"]["arms"],training_budget="30passes/960updates per arm",
-            actual_optimizer_updates=0,accuracy=None,preparation_status=h049_prepare_status,preparation_completion_wait0_verified=h049_prepare_verified,registered_criteria=h049["prospective_utility_criteria"]) if h049 else None,
+            actual_optimizer_updates=None,actual_optimizer_updates_status="no_training_launch_or_verified_step_receipt",accuracy=None,preparation_status=h049_prepare_status,preparation_completion_wait0_verified=h049_prepare_verified,registered_criteria=h049["prospective_utility_criteria"]) if h049 else None,
         dataset=dict(name="European C4 shared development",length_bp=2000000,haplotypes=952,queries=686,
             TRAIN_simulations=32,VAL_simulations=8,SD_unit="eight VAL simulations, one optimizer seed per model",
             original_paper_reproduction=False,untouched_outer_test_completed=False),
@@ -600,7 +603,7 @@ def main():
         American_remaining_VAL_preparation=dict(status=remaining_val_status,phases=remaining_val_phases),
         American_short_TRAIN_remaining_preparation=wave_status,
         American_short_TRAIN014_recovery=recovery,C3_focal_plan_preparation=focal_preparation,
-        native_ARGformer_execution=native_execution,native_ARGformer_counts_execution=counts_execution,ARGformer_Table1_fidelity=dict(status=table1_fidelity,report_ref=ref(table1_audit_path)),VAL000_FLARE_target_binding=val_flare_binding,
+        native_ARGformer_execution=native_execution,native_ARGformer_counts_execution=counts_execution,native_ARGformer_VAL000_counts=val000_native_counts,ARGformer_Table1_fidelity=dict(status=table1_fidelity,report_ref=ref(table1_audit_path)),VAL000_FLARE_target_binding=val_flare_binding,
         FLARE_native_completion_close=dict(receipt_ref=ref(flare_close_path),credit_bytes=flare_close["credit_bytes"],retained_bytes=flare_close["retained_bytes"]) if flare_close else None,
         native_FLARE_build_status=flare_status,
         source_only_or_engineering_checks_are_not_training_results=True)
@@ -614,6 +617,13 @@ def main():
     for r in models:
         q=r["cohorts"][PRIMARY]
         lines.append("| "+r["name"]+" | "+fmt(q.get("accuracy"),True)+" | "+fmt(q.get("nll"))+" | "+fmt(q.get("boundary_f1"),True)+" | "+r["training"]+" |")
+    lines+=["","## Selected training lineage","",
+        "| Setup | Completed cumulative updates | Selected pass | Selected cumulative updates |",
+        "|---|---:|---:|---:|"]
+    for r in models:
+        lineage=r.get("training_budget_lineage",{})
+        if lineage:
+            lines.append("| "+r["name"]+" | "+str(lineage.get("cumulative_model_lineage_updates","—"))+" | "+str(lineage.get("selected_pass","—"))+" | "+str(lineage.get("selected_model_lineage_updates","—"))+" |")
     lines+=["","## All measured cohort accuracies","",
         "| Setup | "+" | ".join(LABELS)+" |","|---|"+"---:|"*len(COHORTS)]
     for r in models:
@@ -679,7 +689,7 @@ def main():
         metrics=json.dumps(r["metrics"],sort_keys=True,ensure_ascii=False).replace("|","\\|")
         hist.append(f"| {r['study']} | {r['kind']} | {r.get('status','')} | {metrics} | [{Path(p).name}](../{p}) |")
     (RESEARCH/"all_recorded_metric_receipts.md").write_text("\n".join(hist)+"\n")
-    table=["<!-- CURRENT_SCOREBOARD_START -->",f"**Scoreboard updated UTC: {stamp}.** [Every current setup, all cohorts and detailed metrics](research/current_scoreboard.md) · [All recorded historical/engineering metric receipts](research/all_recorded_metric_receipts.md)","",
+    table=["<!-- CURRENT_SCOREBOARD_START -->",f"**Scoreboard updated UTC: {stamp}.** [Every current setup, all cohorts and detailed metrics](research/current_scoreboard.md) · [Full scored comparison, native class metrics and training lineage](research/reviews/root_score_report_20261015_v1/REPORT.md) · [All recorded historical/engineering metric receipts](research/all_recorded_metric_receipts.md)","",
         "| Current run | Device | Progress | Validation score |","|---|---:|---|---|"]
     for j in jobs:
         if j["evaluation_completed"]:continue
@@ -696,6 +706,7 @@ def main():
         "| Original American VAL000 | CPU | Full 30 Mb simulation, inference and 10k-focal/native-path preparation completed. Same 600 references and 1,000 queries. | predictions pending |",
         "| Original American VAL001–004 | CPU | "+remaining_val_status+" | no ancestry score |",
         "| Native ARGformer | "+native_device+" | "+native_brief+" | pending |",
+        "| Native ARGformer held-out VAL000 | CPU | Original per-ARG six-dataset counts: "+val000_native_counts["status"]+". Separate native fit follows actual counts. | no ancestry score |",
         "| Native FLARE | CPU | Author build, TRAIN000 full-site inference and prediction seal completed. Held-out VAL000 conversion: "+flare_val_conversion["status"]+". | held-out score pending |",
         "| Our American C3 GNN | CPU preparation | "+str(focal_ready)+"/20 exact TRAIN plans completed. Executable 30-epoch / 600-update route integrated. Original VAL000 full-length GNN block plan: "+gnn_VAL000_plan["status"]+". | pending |",
         "| H049 cut-memory candidate | CPU preparation | "+h049_prepare_status+". Three matched 32,446-parameter arms. Full 30 passes / 960 updates per arm planned. | no fit or accuracy yet |",
