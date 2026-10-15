@@ -1,0 +1,25 @@
+Run only on anogena from /workspace-SR003.nfs2/ARG-GNN after source scripts/project_env.sh.
+
+1. Review resource_cap_review.proposed.v2.json and the exact source handoff. The existing registration snapshot is derived from root's already registered H050 decision. Caps, actual successful v5 wait and all three canonical operational refs are populated.
+
+2. Create a NEW root-approved copy of root_metadata_activation_request.proposed.inactive.v2.json with status="active" and authorize_metadata_activation=true. Leave the original inactive proposal untouched. No other field is null. If root selects GPU5 after its genuine release, change physical_gpu_train to5 in that new reviewed request; do not touch either live job.
+
+3. Bind metadata, using the exact new request path and hash:
+
+"$ARGGNN_PYTHON" -B -m research.reviews.H050_direct_readout_cut_memory_source_20261015_v1.producer_integration_v1.root_bridge_v1.canonical_activation_v2.root_canonical_driver_v2 bind --execute --record ROOT_APPROVED_REQUEST --sha256 EXACT_SHA256
+
+This only writes original metadata binding plus the canonical successor. Use the returned config_train_evaluate.canonical.root_active.json and admission_request.train.canonical.root_active.json refs. It does not reserve or launch.
+
+4. Wait for an original eligible exclusive GPU4/5 lease to release. Current C3GPU4/nativeGPU5 cannot be shared by this route. Root's original live resource/storage checks remain mandatory; this source task queried none.
+
+5. Admit the exact returned canonical TRAIN request:
+
+"$ARGGNN_PYTHON" -B -m research.reviews.H050_direct_readout_cut_memory_source_20261015_v1.producer_integration_v1.root_bridge_v1.canonical_activation_v2.root_canonical_driver_v2 admit --execute --record RETURNED_CANONICAL_TRAIN_REQUEST --sha256 EXACT_SHA256
+
+6. Launch with the returned original admitted.json ref through this same operational entry:
+
+"$ARGGNN_PYTHON" -B -m research.reviews.H050_direct_readout_cut_memory_source_20261015_v1.producer_integration_v1.root_bridge_v1.canonical_activation_v2.root_canonical_driver_v2 launch --execute --record RETURNED_ADMITTED_JSON --sha256 EXACT_SHA256
+
+Root owns the supervisor session, genuine direct wait/drain and original terminal/close accounting. Legacy H049_marker_original_launch_v1/H049_marker_original_direct_wait_v1 labels remain operational receipt formats, not H049 scientific results. Actual canonical worker is arggnn.H050_direct_readout_cut_memory_exec_v1, and its frozen scientific producer remains separately pinned.
+
+7. Only after genuine H050 TRAIN success, create a new active H050_root_evaluation_binding_request_v1 with the canonical config ref, actual TRAIN wait ref, root-selected eligible physical_gpu4or5 and reserved_bytes=134217728. Invoke the same new driver with bind-evaluate --execute against that exact request. Admit/launch its returned EVALUATE request through this driver. Never use the original binder's base-config evaluate route for canonical config.

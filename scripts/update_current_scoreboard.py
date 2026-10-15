@@ -398,7 +398,7 @@ def main():
         prepared=bool(cleanup and cleanup.get("active") is True and cleanup.get("cleanup_failure") is None and len(cleanup.get("per_node_events",[]))==16)
         native_status=("V11 failed with actual root exit1; native optimizer updates unknown. V12 operational source reviewed; "
             +("exact namespace cleanup completed, GPU binding/activation and launch pending." if prepared else "root preparation/activation pending, no actual v12 launch receipt."))
-    native_latest_path="research/reviews/H048_boundary_contention_root_20261015_v1/native_MLM_progress_metadata_actual_v3.json"
+    native_latest_path=("research/reviews/native_ARGformer_checkpoint_metadata_20261016_v1.json" if (ROOT/"research/reviews/native_ARGformer_checkpoint_metadata_20261016_v1.json").is_file() else "research/reviews/H048_boundary_contention_root_20261015_v1/native_MLM_progress_metadata_actual_v3.json")
     native_latest=maybe_read(native_latest_path)
     if native_latest and v12_launch and not v12_wait:
         latest_checkpoints=[r for r in native_latest["checkpoints"] if not r["symlink"]]
@@ -690,13 +690,16 @@ def main():
         remaining_val_status+=(". Original VAL002 pre-admission import failure preserved; corrected project-root import environment authorized and root launch issued" if correction else ". VAL002 parent launcher returned1 before useful output; preserved attempt, early cause under investigation, no replay")
     val002_infer_attempt_path="research/reviews/American_C3_remaining_VAL_namespace_memo_root_20261015_v1/root_val002_parent_terminal_actual_v1.json"
     if maybe_read(val002_infer_attempt_path):
-        recovery_path="research/reviews/VAL002_infer_unconsumed_admission_recovery_20261015_v1/root_recovery_admit_actual_terminal_v1.json"
+        recovery_path=("research/reviews/VAL002_infer_unconsumed_admission_recovery_20261015_v2/root_recovery_admit_actual_terminal_v1.json" if (ROOT/"research/reviews/VAL002_infer_unconsumed_admission_recovery_20261015_v2/root_recovery_admit_actual_terminal_v1.json").is_file() else "research/reviews/VAL002_infer_unconsumed_admission_recovery_20261015_v1/root_recovery_admit_actual_terminal_v1.json")
         recovery=maybe_read(recovery_path)
         remaining_val_status+=(". Original parent session92429 returned1 after successful simulate/close; fresh same-science inference admission recovered, original failure preserved" if recovery and recovery.get("returncode")==0 else ". Parent session92429 returned1 after successful simulate/close, next inference admission stopped before a worker; capacity recovery in progress")
     h050=next((d for d in read("research/experiment_decisions.json")["decisions"] if d["id"]=="H050"),None)
+    h050_binding_path="research/reviews/H050_direct_readout_cut_memory_source_20261015_v1/producer_integration_v1/root_bridge_v1/bound_root_v1/canonical_metadata_binding.json"
+    h050_bound=maybe_read(h050_binding_path)
+    h050_execution_status=("Root-bound canonical config and full caps reviewed. GPU admission/launch pending; current route requires an exclusive lease" if h050_bound else "Registered; source integration pending")
     result=dict(schema="ARG_GNN_current_scientific_scoreboard_v1",updated_utc=stamp,
         American_C3_GNN_execution=c3_execution,
-        H050_registered_candidate=dict(status=h050["status"],training_budget="4arms x30passes x32parents =3840updates",actual_optimizer_updates=None,accuracy=None,parameters_per_arm=h050["parameters_per_arm"],VAL_products_required_before_truth=192,source_handoff_ref=h050["source_handoff_ref"],utility_criteria=h050["prospective_utility_criteria"]) if h050 else None,
+        H050_registered_candidate=dict(status=h050["status"],execution_status=h050_execution_status,canonical_metadata_binding_ref=ref(h050_binding_path) if h050_bound else None,training_budget="4arms x30passes x32parents =3840updates",actual_optimizer_updates=None,accuracy=None,parameters_per_arm=h050["parameters_per_arm"],VAL_products_required_before_truth=192,source_handoff_ref=h050["source_handoff_ref"],utility_criteria=h050["prospective_utility_criteria"]) if h050 else None,
         H049_registered_candidate=dict(status=h049["status"],parameters_per_arm=32446,
             arms=h049["execution_budget"]["arms"],training_budget="30passes/960updates per arm",
             actual_optimizer_updates=None,actual_optimizer_updates_status="no_training_launch_or_verified_step_receipt",accuracy=None,preparation_status=h049_prepare_status,preparation_completion_wait0_verified=h049_prepare_verified,registered_criteria=h049["prospective_utility_criteria"]) if h049 else None,
@@ -831,7 +834,7 @@ def main():
         "| Native FLARE | CPU | Author build, TRAIN000 full-site inference and prediction seal completed. Held-out VAL000 conversion: "+flare_val_conversion["status"]+"; native inference: "+flare_val_native["status"]+"; seal: "+flare_val_seal["status"]+". | held-out score pending |",
         "| Our American C3 GNN | "+c3_device+" | "+str(focal_ready)+"/20 exact TRAIN plans completed. "+c3_status+". Original VAL000 full-length GNN block plan: "+gnn_VAL000_plan["status"]+". | no ancestry score |",
         "| H049 cut-memory candidate | CPU preparation | "+h049_prepare_status+". Three matched 32,446-parameter arms. Full 30 passes / 960 updates per arm planned. | no fit or accuracy yet |",
-        "| H050 stronger direct-readout candidate | Source integration | Registered. H045 predictor retained initially. Three 32,325-parameter memory arms and an unmodified 31,812-parameter continuation. 960 updates per arm, 192 prediction seals planned. | no fit or accuracy yet |",
+        "| H050 stronger direct-readout candidate | GPU4/5 pending | "+h050_execution_status+". H045 predictor retained initially. Three 32,325-parameter memory arms and an unmodified 31,812-parameter continuation. 960 updates per arm, 192 prediction seals planned. | no fit or accuracy yet |",
         "| Empirical data | CPU | H045 probabilities, ancestry proportions and genotype PCA completed for 24 query haplotypes / 12 subjects. Descriptive only, without known ancestry truth. | completed |","",
         "**Completed H048:** "+h048_scores+". Both registered utility criteria failed. [Actual scores, all cohorts and provenance](research/reviews/H048_completed_comparison_root_20261015_v1/REPORT.md)." if h048_ready else "**H048 evaluation:** pending.","",
         "**Current measured development scores:** H045 foreign-episode **96.8270 ± 0.5870%** Present182 span accuracy, matched own-state **96.8175 ± 0.6142%**. H046: "+h046_scores+". "+h046_outcome+" H047 original-risk **96.7777 ± 0.5970%**, balanced-risk **96.7576 ± 0.5287%**. SD is across eight VAL simulations, one optimizer seed. H048: "+h048_scores+". [All "+str(len(models))+" measured setups, all seven cohorts, NLL/F1/boundaries/Brier/ECE and training budgets](research/current_scoreboard.md#detailed-cohort-metrics).","",
@@ -839,6 +842,8 @@ def main():
         "**ARGformer paper fidelity:** "+table1_fidelity+" [Audit]("+table1_audit_path+").","",
         "**Remaining biological error:** H045 recovers22.59% of true Present182 changes at1kb tolerance despite96.827% span accuracy. Across8VAL parents its selected predictions match905 changes, miss3103 and add5063extra calls. [Audited residual-error table and scope limits](research/reviews/residual_biological_errors_20261015_v1/REPORT.md).", "",
         "**Comparison contract:** Use the same observed genomes, reference/query identities, truth and scored support. Each method keeps its native representation, such as VCFs, ancestral paths or PyG tensors. Extra inputs, training changes and reconstruction differences are disclosed. Native-format differences do not postpone a shared-data comparison.","",
+        "**Next ARGMix comparison, not yet run:** A prospective 1,611-diploid paired panel with explicit reference/query roles. This is a new common-data comparison, distinct from the unavailable original-table inputs. [Frozen plan and remaining adapters](research/reviews/ARGMix_published_panel_fair_comparison_source_plan_20261016_v1/HANDOFF.md).","",
+        "**Next biological validation, not yet run:** A prespecified Danish earlier-versus-later Neolithic contrast with matched genotype corroboration. [Candidate selection, public assets and limits](research/reviews/empirical_biological_followup_audit_20261016_v1/readiness_report.txt).","",
         "**GST and cross-domain status:** "+gst_status,"",
         "Parallel ownership: worker1 prepares biological validation and H050 execution, worker2 advances the held-out native ARGformer route, worker3 resolves the next fair ARGMix panel. Root owns live GPU4/GPU5 execution, shared American data, integration, score reporting and Git.","","<!-- CURRENT_SCOREBOARD_END -->"]
     p=ROOT/"README.md"
