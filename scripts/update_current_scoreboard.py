@@ -153,6 +153,10 @@ def main():
             native_live=False
         native_status=("Full5epoch fit launched on GPU4. Startup/storage checks active. No native optimizer progress verified yet."
             if native_live else "Native full-fit root terminal. Actual wait and counters need inspection.")
+    native_wait="research/reviews/American_C3_native_MLM_amendment_v10/root_execution_admin_v2/worker_metadata/v11_root_outer_actual_wait.json"
+    if (ROOT/native_wait).exists():
+        native_rc=read(native_wait)["returncode"]
+        native_status=f"Full5epoch fit attempt terminal, actual root exit{native_rc}. No native optimizer progress verified. Execution repair pending."
     empirical_output=ROOT/"experiments/results/H018_H045_empirical_application_root_v1"
     empirical_aux=ROOT/"research/reviews/H018_H045_empirical_CPU_root_v1/worker_aux"
     empirical_products=all((empirical_output/n).exists() for n in ["probabilities_all355_holds.npz","query_bpweighted_proportions_and_PCA.tsv","query_genotype_PCA.svg"])
@@ -184,6 +188,13 @@ def main():
     flare_convert=ROOT/"research/reviews/FLARE_train000_convert_980_root_v1"
     if (flare_convert/"admission.json").exists():
         flare_status="Native author build completed. Original30Mb TRAIN000 conversion admitted and execution requested. Not a held-out accuracy result."
+    infer_packet=ROOT/"research/reviews/prospective_980GB_capacity_source_v1/admitted_infer_v1"
+    if (infer_packet/"launch.json").exists():
+        infer_launch=json.loads((infer_packet/"launch.json").read_text())
+        if (Path("/proc")/str(infer_launch["pid"])).exists():
+            val_status="Original30Mb independent VAL000 simulation completed. Genealogy inference running on CPU."
+    elif (infer_packet/"admission.json").exists():
+        val_status="Original30Mb independent VAL000 simulation completed. Genealogy inference admitted, startup checks active."
     stamp=datetime.now(timezone.utc).isoformat()
     result=dict(schema="ARG_GNN_current_scientific_scoreboard_v1",updated_utc=stamp,
         dataset=dict(name="European C4 shared development",length_bp=2000000,haplotypes=952,queries=686,
@@ -262,7 +273,7 @@ def main():
     table+=["| Original American VAL000 | CPU | "+val_status+" | no ancestry score |","| Native ARGformer | GPU4 | "+native_status+" | pending |",
         "| Native FLARE | CPU | "+flare_status+" | pending |",
         "| Our C3 GNN | source ready | Actual shared VAL observations and completed training checkpoint required | pending |",
-        "| Empirical data | CPU | "+real_status+" | completion "+("verified" if empirical_verified else "pending")+" |","","Parallel ownership: worker1 handles native FLARE execution sources, worker2 handles matched cohort/confusion figures, worker3 handles the next Torch/PyG decoder prototype. Root owns live runs, integration, Git and score publication. Independent work proceeds concurrently.","","<!-- CURRENT_SCOREBOARD_END -->"]
+        "| Empirical data | CPU | "+real_status+" | completion "+("verified" if empirical_verified else "pending")+" |","","Parallel ownership: worker1 handles benchmark/evaluation execution sources, worker2 handles comparison figures and runtime bottlenecks, worker3 handles architecture and the American C3 PyG adapter. Root owns live runs, integration, Git and score publication. Independent work proceeds concurrently.","","<!-- CURRENT_SCOREBOARD_END -->"]
     p=ROOT/"README.md"
     text=p.read_text()
     a="<!-- CURRENT_SCOREBOARD_START -->"

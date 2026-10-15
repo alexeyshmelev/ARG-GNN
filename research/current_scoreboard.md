@@ -1,6 +1,6 @@
 # Current scientific scoreboard
 
-Updated UTC: 2026-10-15T14:42:55.564249+00:00
+Updated UTC: 2026-10-15T14:47:29.547520+00:00
 
 ## European C4 shared development
 
@@ -160,18 +160,18 @@ BronzeAge is not asserted identical to the paper's Post-Neolithic cohort. A dash
 
 | Run | GPU | Verified process present | Passes | Actual updates per arm | Planned updates per arm | Validation accuracy |
 |---|---:|---|---:|---|---:|---|
-| H046 | 5 | True | 20/30 | {'foreign_flank': 640, 'own_state': 640} | 960 | pending |
+| H046 | 5 | True | 21/30 | {'foreign_flank': 672, 'own_state': 672} | 960 | pending |
 | H047 | 4 | False | 30/30 | {'balanced_risk': 960, 'original_risk': 960} | 960 | 96.7777% original-risk, 96.7576% balanced-risk |
 
 ## American C3 benchmark
 
 | Method | Current ancestry scores | Status |
 |---|---|---|
-| Native ARGformer | unavailable | Full5epoch fit launched on GPU4. Startup/storage checks active. No native optimizer progress verified yet. |
+| Native ARGformer | unavailable | Full5epoch fit attempt terminal, actual root exit1. No native optimizer progress verified. Execution repair pending. |
 | Native FLARE | unavailable | Native author build completed. Original30Mb TRAIN000 conversion admitted and execution requested. Not a held-out accuracy result. |
 | Our C3 GNN | unavailable | Shared30Mb adapter source ready. Completed training checkpoint and actual VAL observation required |
 
-The complete 30 Mb observation currently available is a TRAIN parent. It must not be presented as a held-out performance comparison. Original30Mb independent VAL000 simulation completed. Inferred observations and comparisons pending. Original-paper simulation assumptions and source versions remain explicitly documented.
+The complete 30 Mb observation currently available is a TRAIN parent. It must not be presented as a held-out performance comparison. Original30Mb independent VAL000 simulation completed. Genealogy inference running on CPU. Original-paper simulation assumptions and source versions remain explicitly documented.
 
 ## GST molecular graph-set pilot
 

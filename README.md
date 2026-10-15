@@ -7,19 +7,19 @@ Graph neural networks for ordered collections of whole genealogical trees, with 
 [Persistent research goal and reporting requirements](research/goal_current.json). Current limits: physical GPUs4–5 and1TB, with all project writes inside this server repository.
 
 <!-- CURRENT_SCOREBOARD_START -->
-**Scoreboard updated UTC: 2026-10-15T14:42:55.564249+00:00.** [Every current setup, all cohorts and detailed metrics](research/current_scoreboard.md) · [All recorded historical/engineering metric receipts](research/all_recorded_metric_receipts.md)
+**Scoreboard updated UTC: 2026-10-15T14:47:29.547520+00:00.** [Every current setup, all cohorts and detailed metrics](research/current_scoreboard.md) · [All recorded historical/engineering metric receipts](research/all_recorded_metric_receipts.md)
 
 | Current run | Device | Progress | Validation score |
 |---|---:|---|---|
-| H046 | GPU5 | 20/30 passes, 640/960 updates per arm, TRAIN complete=False, VAL complete=False | pending |
+| H046 | GPU5 | 21/30 passes, 672/960 updates per arm, TRAIN complete=False, VAL complete=False | pending |
 | H047 | GPU4 | 30/30 passes, 960/960 updates per arm, TRAIN complete=True, VAL complete=True | 96.7777% original-risk, 96.7576% balanced-risk |
-| Original American VAL000 | CPU | Original30Mb independent VAL000 simulation completed. Inferred observations and comparisons pending. | no ancestry score |
-| Native ARGformer | GPU4 | Full5epoch fit launched on GPU4. Startup/storage checks active. No native optimizer progress verified yet. | pending |
+| Original American VAL000 | CPU | Original30Mb independent VAL000 simulation completed. Genealogy inference running on CPU. | no ancestry score |
+| Native ARGformer | GPU4 | Full5epoch fit attempt terminal, actual root exit1. No native optimizer progress verified. Execution repair pending. | pending |
 | Native FLARE | CPU | Native author build completed. Original30Mb TRAIN000 conversion admitted and execution requested. Not a held-out accuracy result. | pending |
 | Our C3 GNN | source ready | Actual shared VAL observations and completed training checkpoint required | pending |
 | Empirical data | CPU | H045 empirical probabilities, bp-weighted proportions and original-genotype PCA written. Actual successful wait and completion verified. Descriptive24query haplotypes/12subjects only. No known ancestry truth. | completion verified |
 
-Parallel ownership: worker1 handles native FLARE execution sources, worker2 handles matched cohort/confusion figures, worker3 handles the next Torch/PyG decoder prototype. Root owns live runs, integration, Git and score publication. Independent work proceeds concurrently.
+Parallel ownership: worker1 handles benchmark/evaluation execution sources, worker2 handles comparison figures and runtime bottlenecks, worker3 handles architecture and the American C3 PyG adapter. Root owns live runs, integration, Git and score publication. Independent work proceeds concurrently.
 
 <!-- CURRENT_SCOREBOARD_END -->
 
