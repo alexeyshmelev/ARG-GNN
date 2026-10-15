@@ -1,0 +1,25 @@
+# Prospective1611 CPU generation and private census truth source
+
+Implemented additive source, not a gap audit or a live run. Original AP and reviewed adapter files are unchanged. This is the new prospective synthetic1,611-diploid condition, not an exact paper reproduction.
+
+`generation.py` implements:
+
+- Explicit registered fiveTRAIN/oneVAL/threeIID parent lookup; reuse existing ancestry/mutation/genotype_error seeds. OOD IDs stop until realized parameter dictionaries are separately frozen.
+- Original retained AP demography with the unused terminal BAA population/event omitted, fixed prospective counts/dates, standard coalescent, diploid SampleSets, discrete genome and exact census350. No simplification removes census or sample IDs. Marginal-law scope does not promise identical seeded realizations.
+- Explicit binary finite-sites mutation rate1.25e-8 and common all-cohort Bernoulli(.001) haploid flips using fixed PCG64. Error draws precede filtering at every simulated mutation site, in stable roster order; known phase is retained. Filter only observed invariant sites.
+- Actual individual/population/date-based synthetic ID allocation, explicit phase and independent simulation node mapping, no guessed node offsets. Full population metadata name mapping and immutable source/seed/sample/coordinate receipts.
+- One shared observed phased VCF/Oxford haps/sample export plus variants/haplotype metadata, full roster, native map binding and observed generation receipt. No true genealogy or founder labels appear in the public observed bank. Full census genealogy, true genotypes and error realization diagnostics remain private.
+- Official map archive/member authentication and exact cumulative-map clip/rebase checks. Raw four-column chr22 source and native three-column output layouts are checked separately. Simulation uses cumulative-cM slopes; no uniform or endpoint-extrapolation fallback exists.
+- Separate later `external-truth` command, requiring actual inferred bank/targets and ID/coordinate receipts. It invokes the unchanged reviewed exact-census constructor and validator, emits identical labels/contracts for both methods, and binds actual generation/inference identities. No founder label is made from sampled cohort identity.
+
+The root-selected primary map is the supported GRCh37 chr22 arm[16051347,51229805], L35178458, an explicit new common-data protocol. Actual map persistence/authentication is root-owned and was not performed by this worker. The executable requires a complete root-approved receipt at the supplied path; the included template is inactive. Expected future path: `data/ARGMix_prospective1611_HapMapII_GRCh37_chr22_v1/derivation_receipt.json`.
+
+Internal mutation/map/truth/target coordinates are normalized0-based[0,L); VCF and standard Oxford haps encode POS=x+1. The later Relate stage must bind its explicit map/input coordinate transform back to normalized[0,L), with an actual transform-receipt hash. The external truth stage refuses an omitted offset/transform declaration. It also checks the actual observed-node mapping against the bound roster and refuses a direct true-tree hash as the inferred bank. This is a future inference contract, not an implemented/qualified Relate stage.
+
+`INPUT_OUTPUT_CONTRACTS.md` describes every input/output, identity and coordinate rule; `ROOT_COMMANDS.md` gives source-only validation and deferred entrypoint shapes. Inactive request/runtime/resource/inference/map templates refuse missing bindings rather than choosing defaults. Existing numerical interpreter/dependencies require root qualification; none were imported here.
+
+Validation:17 deterministic injected metadata tests passed, three syntax compiles and25 frozen upstream source pins authenticated. Tests exercise the actual observed export with fake tiny arrays/RNG: exact column/node joins, phase, draw-before-filter behavior,0/1 flips, coordinates, filtering and budget stops; native demography receives injected capture objects. Tests also verify tiny archive-member/rebase lineage and refuse absent/changed map bindings, unbound OOD and coordinate shifts. Earlier pre-coordinate-guard validation is retained transparently; final receipt binds the final source.
+
+Proposed, inactive per-parent allowances:1CPU,32GiB RSS,21,600s wall,8GiB public observations,24GiB private truth,64MiB receipts. These are unmeasured fail-stop caps, not a resource-fit claim. Root must enforce RSS/wall/disk quotas, including quota during native dump; full native ancestry/mutation tables remain resident although observed genotypes stream one row at a time. No simulation-site count is guessed from a real dataset.
+
+No actual simulation, numerical/native-library import, genotype/tree/checkpoint payload read, model, guard/admission, job, install, download, Git or process/GPU probe was performed. No scheduler or install source is supplied. Root owns map persistence, numerical/API qualification, independent source review, resource admission, actual generation/Relate/sampling/truth-stage execution, scoring and integration.

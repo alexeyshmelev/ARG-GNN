@@ -1,0 +1,170 @@
+{
+  "ap": {
+    "adam": {
+      "amsgrad": false,
+      "beta_1": 0.9,
+      "beta_2": 0.999,
+      "epsilon": 1e-07,
+      "learning_rate": 0.001
+    },
+    "batch_size": 32,
+    "checkpoint_selection": "minimum external VAL categorical crossentropy over five epochs",
+    "decoding": "Sum p0+p4 to Ana and p1+p5 to CHG, retain p2 WHG/p3 EHG, then apply four-way argmax. This may differ from native six-way argmax.",
+    "dense_hidden": 512,
+    "dropout": 0.2,
+    "epochs": 5,
+    "input_shape": [
+      5,
+      9
+    ],
+    "loss": "categorical_crossentropy",
+    "method_label": "AncestralPaths-derived C4 adapter",
+    "no_positive_target_indices_native_BAA_paths": [
+      4,
+      5
+    ],
+    "num_ancestors": 5,
+    "output_classes": 6,
+    "positive_target_indices": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "projection": {
+      "Ana": [
+        0,
+        4
+      ],
+      "CHG": [
+        1,
+        5
+      ],
+      "EHG": [
+        3
+      ],
+      "WHG": [
+        2
+      ]
+    },
+    "seed": 1798000734,
+    "shuffle": true,
+    "target_semantics": "Biological four-founder population at exact simulation census350; native BAA-specific paths receive no positive labels."
+  },
+  "argmix": {
+    "joint_model": {
+      "base_encoder": "tmrca_transformer",
+      "chunk_rows": 1024,
+      "chunk_stride": 512,
+      "cm_features": {
+        "include_delta_cm_prev": false,
+        "row_span_transform": {
+          "clamp_max": 10,
+          "clamp_min": 1e-06,
+          "median_span_cM": null,
+          "mode": "raw"
+        }
+      },
+      "enabled": true,
+      "gru": {
+        "bidirectional": true,
+        "dropout": 0.1,
+        "hidden_size": 128,
+        "num_layers": 1
+      },
+      "train": {
+        "batch_size": 16,
+        "early_stop_patience": 2,
+        "label_smoothing": 0.1,
+        "learning_rate": 0.0002,
+        "loss_weighting": {
+          "mode": "none"
+        },
+        "max_train_subgraphs": null,
+        "max_val_subgraphs": null,
+        "num_epochs": 20,
+        "reference_selection_augmentation": {
+          "train": {
+            "drop_top_m_nearest": 0,
+            "enabled": false
+          },
+          "val": {
+            "drop_top_m_nearest": 0,
+            "enabled": false
+          }
+        },
+        "sample_seed": 0,
+        "weight_decay": 0.0001
+      }
+    },
+    "model": {
+      "attn_dropout_prob": 0.1,
+      "dim_feedforward_mult": 4,
+      "dropout_prob": 0.25,
+      "gt_output_dim": 16,
+      "hidden_size": 128,
+      "log_scale_tmrca": true,
+      "max_rel_distance": 14,
+      "num_classes": 4,
+      "num_heads": 4,
+      "num_layers": 4,
+      "num_refs": 15,
+      "type": "tmrca"
+    },
+    "populations": {
+      "class_labels": {
+        "0": "Ana",
+        "1": "CHG",
+        "2": "WHG",
+        "3": "EHG"
+      },
+      "predict": [
+        "NF",
+        "Yam",
+        "PostNeolithic",
+        "Present"
+      ],
+      "reference": [
+        "Ana",
+        "CHG",
+        "EHG",
+        "WHG",
+        "NF",
+        "Yam"
+      ]
+    },
+    "processing": {
+      "backend_name": "fast",
+      "exclude_edge_trees": false,
+      "subgraph_merge": {
+        "enabled": false,
+        "signature_mode": "ids_only"
+      }
+    },
+    "prospective_adapter_supervision": "Runtime adapter joins explicit external midpoint labels only; native built-in NPZ/first-SNP resolver is not invoked.",
+    "supervision": {
+      "label_source": "npz_truth"
+    }
+  },
+  "argmix_seed": 2144125403,
+  "dependencies": {
+    "ap_existing_native_python": ".runtime/conda/envs/ancestralpaths_cpu_v1/bin/python",
+    "ap_runtime": "Existing source-qualified CPU prefix from expanded_native_ancestralpaths_v1.py:144 and run_expanded_native_ancestralpaths_v2.py:193-197 (TensorFlow-cpu2.15.1/Keras2.15.0). Runtime not imported/probed in this source task.",
+    "argmix_existing_native_python": ".runtime/official_argmix_abi210_v1/cu129/env/bin/python",
+    "native_ABI": "No compiled library or model is loaded in this review; existing runtime must expose the pinned current-release SampleBatchIterator/next_flat ABI.",
+    "source_only_python": ".runtime/env/bin/python"
+  },
+  "native_settings_changes": [
+    "Explicit four-founder output labels and cohort roles; NF/Yam donor vocabulary is distinct from ancestry output classes.",
+    "Per-query identity exclusion removes both focal haplotypes before native Rust nearest-reference selection.",
+    "Disable release-template train drop-nearest augmentation; keep nearest 15 allowed donors in both TRAIN/VAL.",
+    "Include edge trees and keep native subgraph merging disabled to preserve exact shared target intervals.",
+    "Use existing registered fit seeds instead of native hardcoded ARGMix seed50/unset Keras seed.",
+    "ARGMix native model/loss/AdamW/chunking/early-stop algorithms retained, with explicit midpoint external labels and unlabeled observed context; wholly unlabeled chunks are omitted from loss iterations.",
+    "AP feature eligibility is replaced by the shared donor set and exact sample mapping; age=int(ancestor time)/1500 consistently uses released training behavior, while native paint.py uses floating time.",
+    "AP released six-head architecture and five epochs retained; explicit Adam defaults/batch32 and external validation selection are new frozen choices.",
+    "AP no-BAA four-founder supervision means heads4/5 (zero-based native BAA paths) receive no positive targets; this is an AncestralPaths-derived C4 adapter, not the unchanged published/native task."
+  ],
+  "published_table_reproduction": false,
+  "schema": "prospective1611_finite_native_fit_v1"
+}

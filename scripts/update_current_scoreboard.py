@@ -845,7 +845,7 @@ def main():
         "**Next ARGMix comparison, not yet run:** A prospective 1,611-diploid paired panel with explicit reference/query roles. This is a new common-data comparison, distinct from the unavailable original-table inputs. [Frozen plan and remaining adapters](research/reviews/ARGMix_published_panel_fair_comparison_source_plan_20261016_v1/HANDOFF.md).","",
         "**Next biological validation, not yet run:** A prespecified Danish earlier-versus-later Neolithic contrast with matched genotype corroboration. [Candidate selection, public assets and limits](research/reviews/empirical_biological_followup_audit_20261016_v1/readiness_report.txt).","",
         "**GST and cross-domain status:** "+gst_status,"",
-        "Parallel ownership: worker1 prepares biological validation and H050 execution, worker2 advances the held-out native ARGformer route, worker3 resolves the next fair ARGMix panel. Root owns live GPU4/GPU5 execution, shared American data, integration, score reporting and Git.","","<!-- CURRENT_SCOREBOARD_END -->"]
+        "Parallel ownership: worker1 prepares prospective1611 generation and native comparison readiness, worker2 prepares the shared GPU4 cache-C3/H050 route, worker3 independently reviews the execution changes. Root owns live GPU4/GPU5 execution, shared data, integration, score reporting and Git.","","<!-- CURRENT_SCOREBOARD_END -->"]
     p=ROOT/"README.md"
     text=p.read_text()
     a="<!-- CURRENT_SCOREBOARD_START -->"
@@ -889,7 +889,7 @@ def main():
             "**Completed H047:** original-risk96.7777±0.5970%, balanced-risk96.7576±0.5287%. Both30passes/960updates. Registered accuracy benefit not met. [Results](research/reviews/H047_completed_comparison_root_20261015_v1/REPORT.md).","",
             "**American GNN preparation:** "+fanout_status+". "+wave_text+" "+c3_status+".","",
             "**Architecture work:** H049 sample-witness order-2 cut memory is implemented and registered with matched null/leaf-memory controls. "+h049_prepare_status+". Predictive utility and a distinct new contribution remain unproved. [Design and prior-art limits](research/reviews/ordered_graph_operator_research_20261015_v1/REPORT.md).","",
-            "Root orchestrates execution and publishing. Three workers handle biological/H050 readiness, held-out native ARGformer and the next ARGMix panel in parallel. Only physical GPUs4–5 are eligible, with process title AI Auto Research Pipeline Test.","",""]
+            "Root orchestrates execution and publishing. Three workers handle prospective1611 generation/native comparison readiness, shared GPU4 cache-C3/H050 execution, and independent source review in parallel. Only physical GPUs4–5 are eligible, with process title AI Auto Research Pipeline Test.","",""]
         text=text[:text.index(section_start)]+"\n".join(running)+text[text.index(section_end):]
     pilot_start="<!-- ADAPTED_ARGFORMER_PILOT_START -->"
     pilot_end="<!-- ADAPTED_ARGFORMER_PILOT_END -->"
