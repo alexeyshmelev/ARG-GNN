@@ -373,7 +373,7 @@ def main():
         "**Current measured development scores:** H045 foreign-episode **96.8270 ± 0.5870%** Present182 span accuracy, matched own-state **96.8175 ± 0.6142%**. SD is across eight VAL simulations, one optimizer seed. H047 original-risk **96.7777 ± 0.5970%**, balanced-risk **96.7576 ± 0.5287%**. H046/H048 accuracy is pending. [All 15 measured setups, all seven cohorts, NLL/F1/boundaries/Brier/ECE and training budgets](research/current_scoreboard.md#detailed-cohort-metrics).","",
         "[Fresh independent H048 novelty/cross-domain assessment]("+novelty_path+"). "+novelty_status,"",
         "**GST and cross-domain status:** "+gst_status,"",
-        "Parallel ownership: worker1 handles training startup and throughput, worker2 handles scores and reporting, and worker3 handles architecture plus C3 focal/plan integration. Root owns executions and Git. All three worker tracks are active concurrently.","","<!-- CURRENT_SCOREBOARD_END -->"]
+        "Parallel ownership: worker1 handles training startup and throughput, worker2 handles scores and reporting, and worker3 handles architecture plus C3 focal/plan integration. Root owns executions and Git. Independent worker tasks proceed in parallel, with completed handoffs integrated by root.","","<!-- CURRENT_SCOREBOARD_END -->"]
     p=ROOT/"README.md"
     text=p.read_text()
     a="<!-- CURRENT_SCOREBOARD_START -->"

@@ -1,6 +1,6 @@
 # Current scientific scoreboard
 
-Updated UTC: 2026-10-15T15:45:18.317380+00:00
+Updated UTC: 2026-10-15T15:49:07.079269+00:00
 
 [All measured cohort details](#detailed-cohort-metrics) · [Complete historical receipt inventory](all_recorded_metric_receipts.md) · [Fresh H048 novelty/cross-domain audit](../research/reviews/H048_novelty_crossdomain_fresh_20261015_v1/report.md)
 
@@ -164,7 +164,7 @@ BronzeAge is not asserted identical to the paper's Post-Neolithic cohort. A dash
 |---|---:|---|---:|---|---:|---|
 | H046 | 5 | True | 28/30 | {'foreign_flank': 896, 'own_state': 896} | 960 | pending |
 | H047 | 4 | False | 30/30 | {'balanced_risk': 960, 'original_risk': 960} | 960 | 96.7777% original-risk, 96.7576% balanced-risk |
-| H048 | 4 | True | 0/30 | {'graph_to_own_confidence_fixed_distance_chain': 1, 'graph_to_transition': 1} | 960 | pending |
+| H048 | 4 | True | 1/30 | {'graph_to_own_confidence_fixed_distance_chain': 32, 'graph_to_transition': 32} | 960 | pending |
 
 Update counts below are verified receipt lower bounds, not live optimizer counters.
 
@@ -174,7 +174,7 @@ Update counts below are verified receipt lower bounds, not live optimizer counte
 
 ## Registered next architecture experiment
 
-GPU4 training; completed-pass update counts are a lower bound. 0/30 completed passes; {'graph_to_own_confidence_fixed_distance_chain': 1, 'graph_to_transition': 1} verified update lower bounds. No validation accuracy yet.
+GPU4 training; completed-pass update counts are a lower bound. 1/30 completed passes; {'graph_to_own_confidence_fixed_distance_chain': 32, 'graph_to_transition': 32} verified update lower bounds. No validation accuracy yet.
 
 [Fresh independent novelty/cross-domain report](../research/reviews/H048_novelty_crossdomain_fresh_20261015_v1/report.md). Fresh independent H048 audit: reset transitions have RFMix precedent; a distinct graph-collection operator is unestablished. GST reaction-center sets have no native chain order, so whole-H048 transfer is not justified. PKU-MMD is only a possible future decoder study after native label-overlap semantics are resolved; no transfer result exists.
 

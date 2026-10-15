@@ -7,13 +7,13 @@ Graph neural networks for ordered collections of whole genealogical trees, with 
 [Persistent research goal and reporting requirements](research/goal_current.json). Current limits: physical GPUs4–5 and1TB, with all project writes inside this server repository.
 
 <!-- CURRENT_SCOREBOARD_START -->
-**Scoreboard updated UTC: 2026-10-15T15:45:18.317380+00:00.** [Every current setup, all cohorts and detailed metrics](research/current_scoreboard.md) · [All recorded historical/engineering metric receipts](research/all_recorded_metric_receipts.md)
+**Scoreboard updated UTC: 2026-10-15T15:49:07.079269+00:00.** [Every current setup, all cohorts and detailed metrics](research/current_scoreboard.md) · [All recorded historical/engineering metric receipts](research/all_recorded_metric_receipts.md)
 
 | Current run | Device | Progress | Validation score |
 |---|---:|---|---|
 | H046 | GPU5 | 28/30 completed passes; 896/960 verified updates per arm (receipt lower bound); training; completed-pass update counts are a lower bound | pending |
 | H047 | GPU4 | 30/30 completed passes; 960/960 verified updates per arm (receipt lower bound); TRAIN and VAL completed | 96.7777% original-risk, 96.7576% balanced-risk |
-| H048 | GPU4 | 0/30 completed passes; 1/960 verified updates per arm (receipt lower bound); training; completed-pass update counts are a lower bound | pending |
+| H048 | GPU4 | 1/30 completed passes; 32/960 verified updates per arm (receipt lower bound); training; completed-pass update counts are a lower bound | pending |
 | C3 remaining TRAIN014–019 | CPU | Fourteen original 2 Mb TRAIN parents completed; future pairs are 014/015, 016/017, 018/019, at most two parents. 014/simulate: completed; actual wait0 and owned-group drain verified; 014/infer: not admitted; 015/simulate: completed; actual wait0 and owned-group drain verified; 015/infer: running on CPU. Later pairs require actual prior-pair scope closure. | no ancestry score |
 | Original American VAL000 | CPU | Original 30 Mb VAL000 simulation: completed; actual wait0 and owned-group drain verified; inferred observation: completed; actual wait0 and owned-group drain verified; shared native-path/10k-focal preparation: running on CPU. R600/Q1000 identities stay common. No VAL ancestry score. | no ancestry score |
 | Native ARGformer | GPU4/5 pending | V11 failed with actual root exit1; native optimizer updates unknown. V12 operational source reviewed; exact namespace cleanup completed, GPU binding/activation and launch pending. | pending |
@@ -27,7 +27,7 @@ Graph neural networks for ordered collections of whole genealogical trees, with 
 
 **GST and cross-domain status:** Only the saved TRAIN 1000/VALID 1495, seed 0 CPU pilot is scored: four models, AdamW lr=0.001, weight_decay=0.0001, batch=16, 20 epochs/1260 updates per fit. Full TRAIN has 10439/10500 retained reactions; this count is data readiness, not a fit. The full-data multi-seed fit is inactive and unfinished. Our molecular adapter and native paired TEST comparison remain unfinished; TEST withheld. GST inputs are unordered reactant sets with no native chain order, so whole-H048 transfer is not justified.
 
-Parallel ownership: worker1 handles training startup and throughput, worker2 handles scores and reporting, and worker3 handles architecture plus C3 focal/plan integration. Root owns executions and Git. All three worker tracks are active concurrently.
+Parallel ownership: worker1 handles training startup and throughput, worker2 handles scores and reporting, and worker3 handles architecture plus C3 focal/plan integration. Root owns executions and Git. Independent worker tasks proceed in parallel, with completed handoffs integrated by root.
 
 <!-- CURRENT_SCOREBOARD_END -->
 
