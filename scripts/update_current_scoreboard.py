@@ -261,6 +261,46 @@ def root_CPU_stage(output,packet):
     return dict(status=status,completed_and_wait0_verified=success,
         completion_ref=ref(output+"/completed.json") if done else None,
         actual_wait_ref=ref(packet+"/actual_wait.json") if wait else None)
+
+def native_flare_val000_completed_score():
+    """Expose the fixed first-parent score only after its new actual tool terminal."""
+    packet="research/reviews/FLARE_VAL000_score_H020980_root_20261016_v1"
+    terminal_path=packet+"/actual_tool_terminal.root_v1.json"
+    terminal=maybe_read(terminal_path)
+    if terminal is None:
+        return dict(ready=False,status="Fresh FLARE VAL000 score pending actual new tool completion.")
+    if not (terminal.get("actual_terminal_consumed") is True and terminal.get("actual_tool_exit_code")==0
+            and terminal.get("final_storage_guard_passed") is True):
+        raise ValueError("FLARE score requires actual consumed new terminal0 and final guard")
+    completion_ref=terminal["completed_ref"];wait_ref=terminal["actual_direct_wait_ref"]
+    if ref(completion_ref["path"])!=completion_ref or ref(wait_ref["path"])!=wait_ref:
+        raise ValueError("FLARE completion/direct-wait reference changed")
+    waited=read(wait_ref["path"])
+    if not (waited["actual_direct_wait"] is True and waited["returncode"]==0 and waited["owned_group_ESRCH"] is True):
+        raise ValueError("FLARE fresh score lacks genuine direct wait0/group drain")
+    data=read(completion_ref["path"])
+    expected_prediction=dict(path="data/FLARE_val000_seal_namespace_980_root_v1/predictions.npz",
+        sha256="118efa1a079c72525513ad1ec49c7b6b8ac33dc8e2feb50ff335dfad287ed5c0")
+    expected_focals=dict(path="experiments/results/American_C3_val000_full30mb_shared_v1/native_paths/focals.npz",
+        sha256="220ab48127b41b9a47fdaf831d0c9e4b8b4449eed6e99a5ae14f26234bd36ab4")
+    if not (data["status"]=="completed_external_C3_score" and data["records"]==10000
+            and data["parent_id"]=="american_c3_val_000" and data["class_order"]==["EUR","EAS","AFR"]
+            and data["prediction_ref"]==expected_prediction and data["focal_registry_ref"]==expected_focals
+            and data["method"]=="FLARE_native_v0.6.0_tag_CURRENT_RECONSTRUCTION"
+            and data["author_Table1_exact_reproduction"] is False and data["probabilities_modified"] is False
+            and data["probability_floor"] is False):
+        raise ValueError("Exact fixed native FLARE/common-support score required")
+    scored=data["result"];confusion=scored["confusion"]
+    if (len(confusion)!=3 or any(len(row)!=3 for row in confusion)
+            or sum(sum(row) for row in confusion)!=10000
+            or abs(scored["accuracy"]-sum(confusion[i][i] for i in range(3))/10000)>1e-12):
+        raise ValueError("FLARE score confusion/count/accuracy mismatch")
+    return dict(ready=True,parent_id=data["parent_id"],parent_count=1,records=10000,result=scored,
+        source_ref=completion_ref,actual_tool_terminal_ref=ref(terminal_path),actual_direct_wait_ref=wait_ref,
+        original_paper_reproduction=False,span_accuracy=False,between_parent_SD=None,
+        status="Completed fixed native-call score on one VAL parent, not a multi-parent paper-table reproduction.")
+
+
 def main():
     import importlib.util
     normalization_path=ROOT/"research/reviews/current_score_reporting_audit_20261015_v1/normalization_reference_v1.py"
@@ -490,9 +530,9 @@ def main():
         "research/reviews/FLARE_val000_convert_memo2_980_root_v2",True)
     flare_val_old_stop="research/reviews/FLARE_VAL000_consumer_IO_repair_root_20261015_v1/original68464_actual_terminal_v1.json"
     val_status=("Original 30 Mb VAL000 simulation: "+val_simulation["status"]+"; inferred observation: "+val_inference["status"]
-        +"; shared native-path/10k-focal preparation: "+val_native_paths["status"]+". R600/Q1000 identities stay common. No VAL ancestry score.")
+        +"; shared native-path/10k-focal preparation: "+val_native_paths["status"]+". R600/Q1000 identities stay common. GNN and ARGformer ancestry scores remain pending.")
     if all(stage["completed_and_wait0_verified"] for stage in (val_simulation,val_inference,val_native_paths)):
-        val_status+=" Original full30Mb VAL000 native preparations are ready; method predictions and common-truth scores remain pending."
+        val_status+=" Original full30Mb VAL000 native preparations are ready. The completed native FLARE focal score is reported separately. GNN/ARGformer predictions and common scores remain pending."
     val_flare_target_path="research/reviews/FLARE_VAL000_bridge_source_20261015_v1/bound_target_v1/target.json"
     val_flare_target=maybe_read(val_flare_target_path)
     val_flare_binding=None
@@ -500,7 +540,7 @@ def main():
         val_flare_counts=read(val_flare_target["count_manifest_ref"]["path"])
         val_flare_binding=dict(target_ref=ref(val_flare_target_path),count_manifest_ref=val_flare_target["count_manifest_ref"],
             sites=val_flare_counts["num_sites"],reference_haplotypes=600,query_haplotypes=1000,score_status=val_flare_target["score_status"])
-        val_status+=" Native FLARE VAL000 target bound: "+str(val_flare_counts["num_sites"])+" sites, common R600/Q1000. Fresh memo2 conversion: "+flare_val_conversion["status"]+"; predictions/scoring pending. Earlier conversion deliberately stopped to repair scheduler contention, with all artifacts retained."
+        val_status+=" Native FLARE VAL000 target bound: "+str(val_flare_counts["num_sites"])+" sites, common R600/Q1000. Fresh memo2 conversion: "+flare_val_conversion["status"]+"; current native focal score is reported separately. Earlier conversion deliberately stopped to repair scheduler contention, with all artifacts retained."
     flare_val_native=cpu_stage("data/FLARE_val000_native_namespace_980_root_v1","research/reviews/FLARE_val000_native_namespace_980_root_v1",True)
     flare_val_seal=cpu_stage("data/FLARE_val000_seal_namespace_980_root_v1","research/reviews/FLARE_val000_seal_namespace_980_root_v1",True)
     remaining_val_phases=[]
@@ -1023,6 +1063,19 @@ def main():
         terminal_ref=ref(h055_root+"/actual_supervisor_tool_terminal.root_v1.json") if h055_terminal else None,
         protocol_ref=ref("research/reviews/Danish_genotype_corroboration_source_20261016_v2/protocol.source_frozen.inactive.v2.json"),
         genotype_corroboration_is_not_model_validation=True,model_accuracy=None)
+    flare_val_score=native_flare_val000_completed_score()
+    flare_val_score_label=(f"{100*flare_val_score['result']['accuracy']:.4f}% focal accuracy" if flare_val_score["ready"] else "unavailable")
+    flare_val_score_status=(flare_val_score["status"]+" Macro F1 "+f"{100*flare_val_score['result']['macro_F1']:.4f}%." if flare_val_score["ready"] else flare_val_score["status"])
+    flare_val_score_lines=[]
+    if flare_val_score["ready"]:
+        flare_val_score_lines=["","## American C3 first native FLARE score","",
+            flare_val_score_status+" All 10,000 fixed focal records from american_c3_val_000. Native calls and nearest-marker projection unchanged. No between-parent SD is available.","",
+            "| Population | Precision % | Recall % | F1 % | True focal records |",
+            "|---|---:|---:|---:|---:|"]
+        for population in ("EUR","EAS","AFR"):
+            metric=flare_val_score["result"]["per_class"][population]
+            flare_val_score_lines.append(f"| {population} | {100*metric['precision']:.4f} | {100*metric['recall']:.4f} | {100*metric['F1']:.4f} | {metric['actual_count']} |")
+        flare_val_score_lines+=["","[Actual score, confusion and new terminal evidence](../research/reviews/FLARE_VAL000_score_H020980_root_20261016_v1/REPORT.md). Our GNN and native ARGformer scores remain pending. The C3 training schedule is unchanged by this baseline result.",""]
     result=dict(schema="ARG_GNN_current_scientific_scoreboard_v1",updated_utc=stamp,
         H055_biological_corroboration=h055_evidence,
         GPU0_current_execution=gpu0_snapshot,
@@ -1054,7 +1107,7 @@ def main():
             original_paper_reproduction=False,untouched_outer_test_completed=False),
         models=models,live_jobs=jobs,GST_TRAIN1000_seed0_VALID_AP=gst,
         H046_completed_comparison=dict(summary_ref=ref(h046_summary),paired_effects=h046["paired_effects"],status=h046_outcome) if h046_ready else None,
-        original_American_C3=dict(our_GNN_score=None,native_ARGformer_score=None,native_FLARE_score=None,
+        original_American_C3=dict(our_GNN_score=None,native_ARGformer_score=None,native_FLARE_score=flare_val_score if flare_val_score["ready"] else None,
             status=val_status+" Native ARGformer, FLARE and our C3 adapter proceed in parallel.",shared_VAL_preparation_status=val_status,native_ARGformer_execution_status=native_status),
         real_data=dict(predictions_available=empirical_verified,PCA_available=empirical_verified,products_written=empirical_products,completion_verified=empirical_verified,observed_bank_prepared=empirical is not None,
             prepared_bank_completion_ref=ref(empirical_path) if empirical else None,status=real_status),
@@ -1116,6 +1169,7 @@ def main():
                 ("balanced_accuracy",True),("boundary_precision",True),("boundary_recall",True),
                 ("dosage_mse_per_diploid_bp_class",False),("dosage_mae_per_diploid_bp_class",False)])+" |")
     lines+=h050_utility_lines
+    lines+=flare_val_score_lines
     lines+=tgb_lines
     lines += ["", "## Danish registered genotype corroboration", "", h055_status, ""]
     if h055_summary:
@@ -1142,9 +1196,9 @@ def main():
         "| Method | Current ancestry scores | Status |","|---|---|---|",
         "| Native ARGformer | unavailable | "+native_status+" |",
         "| Native ARGformer dataset counts | not an accuracy run | "+counts_status+" |",
-        "| Native FLARE | unavailable | Held-out VAL000 conversion: "+flare_val_conversion["status"]+". Inference: "+flare_val_native["status"]+". Prediction seal: "+flare_val_seal["status"]+". Common-method scoring remains pending. |",
+        "| Native FLARE | "+flare_val_score_label+" | "+flare_val_score_status+" Held-out VAL000 conversion: "+flare_val_conversion["status"]+". Inference: "+flare_val_native["status"]+". Prediction seal: "+flare_val_seal["status"]+". The GNN/ARGformer comparison remains pending. |",
         "| Our C3 GNN | unavailable | "+c3_status+" Original full 30 Mb VAL000 observation preparation is complete. Full prespecified prediction/scoring gate pending. |",
-        "","The TRAIN000 conversion is development evidence. Independent VAL000 inference now has its own actual completion/wait receipts; its method predictions and common-truth scoring remain pending. "+val_status+" Original-paper simulation assumptions and source versions remain explicitly documented.","",
+        "","The TRAIN000 conversion is development evidence. Independent VAL000 inference now has its own actual completion/wait receipts; GNN/ARGformer predictions and their common-truth scoring remain pending. "+val_status+" Original-paper simulation assumptions and source versions remain explicitly documented.","",
         table1_fidelity+" [Exact fidelity audit](../"+table1_audit_path+").","",
         "## GST molecular graph-set pilot","",
         gst_status+" AP is pooled per-atom average precision. One seed supplies no training-seed SD.","",
@@ -1178,6 +1232,10 @@ def main():
         if not any(r.get("artifact")==artifact for r in inventory):
             for name,arm in scored["models"].items():
                 inventory.append(dict(study="H051/"+name+"/"+split,kind="learned_cross_domain_causal_diagnostic",status="completed_one_seed_no_mechanism_benefit",artifact=artifact,metrics=arm["summary"]))
+    if flare_val_score["ready"] and not any(row.get("artifact")==flare_val_score["source_ref"]["path"] for row in inventory):
+        inventory.append(dict(study="American_C3/FLARE/VAL000",kind="native_common_focal_ancestry_score",
+            status="completed_one_validation_parent_no_paper_table_reproduction",
+            artifact=flare_val_score["source_ref"]["path"],metrics=flare_val_score["result"]))
     (RESEARCH/"all_recorded_metric_receipts.json").write_text(json.dumps(dict(updated_utc=stamp,
         warning="Distinct datasets/conditions are not interchangeable. Engineering measurements are explicitly tagged and are not accuracy results.",records=inventory),indent=2,sort_keys=True)+"\n")
     hist=["# All recorded metric receipts","",
@@ -1206,7 +1264,7 @@ def main():
         "| Original American VAL001–004 | CPU | "+remaining_val_status+" | no ancestry score |",
         "| Native ARGformer | "+native_device+" | "+native_brief+" | pending |",
         "| Native ARGformer held-out VAL000 | CPU | Original per-ARG six-dataset counts: "+val000_native_counts["status"]+". Separate native fit follows actual counts. | no ancestry score |",
-        "| Native FLARE | CPU | Author build, TRAIN000 full-site inference and prediction seal completed. Held-out VAL000 conversion: "+flare_val_conversion["status"]+"; native inference: "+flare_val_native["status"]+"; seal: "+flare_val_seal["status"]+". | held-out score pending |",
+        "| Native FLARE | CPU | "+flare_val_score_status+" Author build, TRAIN000 full-site inference and prediction seal completed. Held-out VAL000 conversion: "+flare_val_conversion["status"]+"; native inference: "+flare_val_native["status"]+"; seal: "+flare_val_seal["status"]+". | "+flare_val_score_label+" |",
         "| Our American C3 GNN | "+c3_device+" | "+str(focal_ready)+"/20 exact TRAIN plans completed. "+c3_status.rstrip(".")+". Original VAL000 full-length GNN block plan: "+gnn_VAL000_plan["status"]+". | no ancestry score |",
         "| H049 cut-memory candidate | CPU preparation | "+h049_prepare_status+". Three matched 32,446-parameter arms. Full 30 passes / 960 updates per arm planned. | no fit or accuracy yet |",
         "| H050 stronger direct-readout candidate | "+h050_device+" | "+h050_execution_status.rstrip(".")+". H045 own-state predictor retained initially, three 32,325-parameter memory arms and a 31,812-parameter continuation. "+("192 prediction seals verified, original GPU0 TRAIN CLI exit 1 preserved." if h050_evaluation["ready"] else "192 prediction seals required before scoring, ancestry metrics pending.")+" | "+h050_scores+" |",
@@ -1219,7 +1277,7 @@ def main():
         "**Remaining biological error:** H045 recovers22.59% of true Present182 changes at1kb tolerance despite96.827% span accuracy. Across8VAL parents its selected predictions match905 changes, miss3103 and add5063extra calls. [Audited residual-error table and scope limits](research/reviews/residual_biological_errors_20261015_v1/REPORT.md).", "",
         "**Comparison contract:** Use the same observed genomes, reference/query identities, truth and scored support. Each method keeps its native representation, such as VCFs, ancestral paths or PyG tensors. Extra inputs, training changes and reconstruction differences are disclosed. Native-format differences do not postpone a shared-data comparison.","",
         "**Next ARGMix comparison, not yet run:** A prospective 1,611-diploid paired panel with explicit reference/query roles. The official HapMapII GRCh37 chr22 map has been acquired and the generator map contract passed. Simulation and model comparison remain pending. This is a new common-data comparison, distinct from the unavailable original-table inputs. [Frozen plan and remaining adapters](research/reviews/ARGMix_published_panel_fair_comparison_source_plan_20261016_v1/HANDOFF.md).","",
-        "**Paper readiness:** The compiled ten-page AAAI draft now includes H050 and its matched controls. It is not submission-ready. American ARGformer/FLARE scores, a larger ARGMix comparison, independent held-out confirmation, useful operator novelty and stronger biological corroboration remain unfinished. The completed learned TGB comparison found no higher-order benefit. [Current H050 results and remaining scope](research/reviews/H050_completed_comparison_root_20261016_v1/REPORT.md) · [Draft scope](paper/README.md).", "",
+        "**Paper readiness:** The compiled eleven-page AAAI draft now includes H050, its matched controls and the first native American FLARE score. It is not submission-ready. Complete American ARGformer/FLARE/GNN comparisons, a larger ARGMix comparison, independent held-out confirmation, useful operator novelty and stronger biological corroboration remain unfinished. The completed learned TGB comparison found no higher-order benefit. [Current H050 results and remaining scope](research/reviews/H050_completed_comparison_root_20261016_v1/REPORT.md) · [Draft scope](paper/README.md).", "",
         "**Danish biological corroboration:** "+h055_status+" [Actual results and limits](research/reviews/H055_root_actual_CPU_20261016_v1/REPORT.md).","",
         "**Current GPU policy: physical GPU0 only.** Our GPU4/5 jobs have stopped and their contexts/known roots are absent. Parallel jobs onGPU0 are permitted after fresh device-bound admission. [Policy and actual stop evidence](research/reviews/GPU0_only_user_transition_root_20261016_v1/GPU0_only_policy.root_active_v1.json).","",
         "**GST and cross-domain status:** "+gst_status,"",

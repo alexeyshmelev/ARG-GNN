@@ -341,6 +341,25 @@ A separate fixed-output H038 diagnostic clarifies two limitations. Of 4,008 true
 False internal ancestry islands of at most 10\,kb account for $35.46\pm2.71\%$ of H038's extra boundaries, while all predicted tracts of that length contain only $3.83\pm0.73\%$ of wrong query-base pairs. Event counts and wrong physical mass emphasize different errors. This diagnostic concerns the frozen H038 outputs and is not an H042 island analysis. It motivates prospective continuity and finer-readout comparisons without selecting a smoothing rule on these VAL results.
 
 
+\subsection{Native FLARE on the American Panel}
+A separate American three-source validation simulation supplies a first native baseline for the common-data comparison. The 30\,Mb panel has 1,600 observed haplotypes, comprising 600 references and 1,000 queries. We score released FLARE v0.6.0 calls~\citep{flare2023} at all 10,000 predetermined focal records, using the nearest native marker with midpoint boundaries. Original AN1/AN2 calls are retained. Prediction identities, coordinates and class order pass validation before external ancestry truth is opened. Accuracy is $98.01\%$ and macro F1 is $97.7151\%$ (Table~\ref{tab:americanflare}). This endpoint counts focal records rather than physical spans. One validation simulation supplies no between-simulation SD, and these values do not reproduce the published ARGformer Table~1 experiment. Provenance: E18.
+
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+Source & Prec. & Recall & F1 & Records \\
+\midrule
+EUR & 97.32 & 97.68 & 97.50 & 3,274 \\
+EAS & 98.53 & 98.64 & 98.58 & 5,287 \\
+AFR & 97.68 & 96.46 & 97.06 & 1,439 \\
+\bottomrule
+\end{tabular}
+\caption{Native FLARE on the first American validation simulation. Precision, recall and F1 are percentages. Records counts true focal labels. These are fixed native calls on common focal support, without probability modification. Provenance: E18.}
+\label{tab:americanflare}
+\end{table}
+
 \subsection{Frozen Application to Ancient Danish Genomes}
 We applied the selected H045 foreign-episode checkpoint to a fixed panel of 18 ancient Danish individuals from published imputed genomes \citep{eurasians2024}. Eight proxy individuals provide 16 labelled reference haplotypes. Ten query people comprise five earlier individuals, dated 5.44--5.67\,ka cal BP, and five later individuals, dated 3.97--4.26\,ka cal BP. Three fixed windows on chromosomes 20--22, each at $[20,30)$\,Mb, yield 1,158 native Relate trees and 8,587 qualified site records. Features use original phased genotype calls. The original 31,812 learned parameters, feature equations and normalizations are retained without optimization, calibration or checkpoint reselection. Panel size, window length and the pre-population-size Relate stage differ from training. Provenance: E15.
 
@@ -361,7 +380,7 @@ The results distinguish fitted-pipeline performance from architectural invention
 
 Several limitations determine how the scores should be used. The VAL simulations have informed model selection and architecture development. A single optimizer seed cannot quantify training instability. The native comparators preserve their released methods but differ in input evidence, training units, reference choices and selection objectives. The simulated roster and the derived C4 endpoint also differ from the published ARGMix benchmark, which uses different panel, reference and evaluation conditions. Numerical comparisons with its published tables would require a separately verified recipe.
 
-The task is conditional on one demographic simulation family and inferred observation pipeline. High cohort means do not establish robustness to genotype errors, demographic misspecification, a different reference panel or real genomes. Full-panel ARGformer and broader external comparisons remain incomplete. Separate American three-class comparisons with native ARGformer and FLARE are also unfinished, and no independent outer TEST result is reported. A literature assessment must distinguish established components from any defensible contribution before a novelty claim is formulated.
+The task is conditional on one demographic simulation family and inferred observation pipeline. High cohort means do not establish robustness to genotype errors, demographic misspecification, a different reference panel or real genomes. Full-panel ARGformer and broader external comparisons remain incomplete. The first American native FLARE score is complete, while the full three-class comparison with our GNN and native ARGformer is unfinished. No independent outer TEST result is reported. A literature assessment must distinguish established components from any defensible contribution before a novelty claim is formulated.
 
 Boundary performance is a substantive remaining weakness. Improving the ability to express a transition inside a native hold addresses a geometric restriction, while improving transition recognition addresses failures where a suitable edge already exists. Neither follows automatically from higher span accuracy. Future evaluation should preserve the fixed physical-support scorer, count real short tracts, and use independent simulations for confirmation rather than tune a post-processing rule on the current boundary errors.
 
@@ -434,7 +453,7 @@ The architecture description follows the exact source files listed below. The co
 
 \section{Evidence Provenance}
 \label{app:provenance}
-Tables and Figure~\ref{fig:architecture} identify evidence keys below. Exact code versions, result files and full SHA256 values for E1--E15 are indexed in the companion \path{paper/current_full_panel_provenance.json}. E16--E17 identify the subsequent completed H050 evidence and source.
+Tables and Figure~\ref{fig:architecture} identify evidence keys below. Exact code versions, result files and full SHA256 values for E1--E15 are indexed in the companion \path{paper/current_full_panel_provenance.json}. E16--E17 identify the subsequent completed H050 evidence and source. E18 records the first American native FLARE score.
 
 \paragraph{E1: H038 completed base/control scores.}
 \noindent\path{experiments/results/mutation_routed_full_panel_pyg_v1_summary_root/summary.json}\par
@@ -497,4 +516,9 @@ The complete saved training budget and 24 checkpoints were scored by a separate 
 \noindent\path{research/reviews/H050_direct_readout_cut_memory_source_20261015_v1/direct_readout_cut_memory_v1.py}\par
 \noindent\path{research/reviews/H050_direct_readout_cut_memory_source_20261015_v1/integration_hooks_v1.py}\par
 \noindent\path{research/reviews/order2_cut_memory_implementation_20261015_v1/order2_cut_memory_v1.py}\par
+
+\paragraph{E18: First native FLARE score on the common American panel.}
+\noindent\path{experiments/results/FLARE_C3_VAL000_common_score_H020980_20261016_v1/completed.json}\par
+\noindent\path{research/reviews/FLARE_VAL000_score_H020980_root_20261016_v1/actual_tool_terminal.root_v1.json}\par
+All 10,000 original focal records retain native calls. The new CPU scoring command returns 0 after its final storage check. This is one validation parent and a distinct focal-record endpoint.
 \end{document}

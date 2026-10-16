@@ -1,0 +1,73 @@
+--- research/reviews/C3_efficient_query_GPU_cache_successor_source_20261016_v1/single_parent_device_cache_v1.py
++++ research/reviews/C3_raw_cache_transfer_diagnosis_source_20261016_v1/single_parent_device_cache_v2.staged.py
+@@ -1,7 +1,8 @@
+ """Owned single-parent device cache. Source-only, no numerical imports.
+ Only immutable raw observations survive within one complete-parent update.
++Staged v2: independent PyG container CUDA copy, unchanged CPU hash assurance.
+ """
+-import time
++import copy,time
+ 
+ def require(ok,message):
+     if not ok:raise ValueError(message)
+@@ -10,6 +11,23 @@
+     if torch.is_tensor(value):yield value
+     elif isinstance(value,(tuple,list)):
+         for item in value:yield from tensors(item,torch)
++
++def _owned_device_copy_v2(cpu,device):
++    """Drop only the redundant host clone on an explicit CUDA transfer.
++
++    PyG2.7.0 Data.__copy__ copies its store and mapping. Data.to then replaces
++    values only in that new store, allocating CUDA storage for CPU tensors.
++    CPU fallback still clones because a CPU-to-CPU .to may alias its input.
++    Full canonical CPU hashing in provider.get remains unchanged.
++    """
++    if device.type!="cuda":
++        return cpu.clone().to(device)
++    require(device.index is not None,"Explicit already-admitted CUDA device")
++    bank=copy.copy(cpu)
++    require(bank is not cpu and bank._store is not cpu._store
++            and bank._store._mapping is not cpu._store._mapping,
++            "Pinned PyG independent container/store before device conversion")
++    return bank.to(device)
+ 
+ class SingleParentDeviceFeatureCacheV1:
+     def __init__(self,provider,*,torch,device,fields,max_bytes,max_block_bytes,check):
+@@ -37,7 +55,7 @@
+                     "Prospective whole-parent device feature cache cap")
+             meta={k:cpu[k].clone() for k in
+                   ("focal_rows","focal_hold","focal_sample_column","query_column","reference_class")}
+-            start=time.perf_counter();bank=cpu.clone().to(self.device)
++            start=time.perf_counter();bank=_owned_device_copy_v2(cpu,self.device)
+             self.copy_seconds+=time.perf_counter()-start
+             require(all(t.device==self.device and not t.requires_grad
+                         for key in self.fields for t in tensors(bank[key],torch)),
+--- research/reviews/C3_efficient_query_GPU_cache_successor_source_20261016_v1/efficient_step_v1.py
++++ research/reviews/C3_raw_cache_transfer_diagnosis_source_20261016_v1/efficient_step_v2.staged.py
+@@ -5,11 +5,11 @@
+ from pathlib import Path
+ import hashlib,importlib.util,json,resource,time
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-HERE="research/reviews/C3_efficient_query_GPU_cache_successor_source_20261016_v1"
+-SOURCE=HERE+"/efficient_step_v1.py"
++HERE="research/reviews/C3_raw_cache_transfer_diagnosis_source_20261016_v1"
++SOURCE=HERE+"/efficient_step_v2.staged.py"
+ BASE_REF=dict(path="research/reviews/C3_shared_context_training_source_20261016_v1/shared_context_step_v1.py",
+  sha256="bfea21ea1f18d01aa0b01644295b539c25ac80e42928a471cf1a8e3d922ab786")
+-CACHE_REF={'path': 'research/reviews/C3_efficient_query_GPU_cache_successor_source_20261016_v1/single_parent_device_cache_v1.py', 'sha256': 'd19879458474883e125b7efc7cbd649839f25c3db22ecb876ba3f7f5ab9b49b6'}
++CACHE_REF={'path': 'research/reviews/C3_raw_cache_transfer_diagnosis_source_20261016_v1/single_parent_device_cache_v2.staged.py', 'sha256': '98c4dc26d1703ba2b871638b3a8cd6f66a0aa659a3dc9c216f464888f7328242'}
+ CAP_KEYS=("max_parent_trees","max_parent_blocks","max_active_device_feature_bytes","max_block_feature_bytes",
+  "max_query_context_device_bytes","max_recurrent_metadata_device_bytes","max_progress_record_bytes",
+  "max_successor_cuda_reserved_bytes")
+@@ -113,6 +113,10 @@
+     started=time.perf_counter()
+     try:
+         t0=time.perf_counter();cache.prepare();timings["raw_feature_cache_seconds"]=time.perf_counter()-t0
++        # Export existing host-call timers through the unchanged progress hook.
++        # provider.get includes hashing/context work, not only hash throughput.
++        timings["raw_feature_provider_get_seconds"]=cache.hash_get_seconds
++        timings["raw_feature_copy_call_seconds"]=cache.copy_seconds
+         query_columns=None;query_device=None
+         t0=time.perf_counter()
+         for index,spec in enumerate(provider.plan["blocks"]):

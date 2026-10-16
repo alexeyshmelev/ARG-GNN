@@ -65,8 +65,14 @@ Root integrated the completed H045 method, matched control, population metrics, 
 
 Latest source SHA256: 185ae3f64e0b5f8bd249edc8c6dc99f356065797122501e4195de1cd324fcfb7.
 
-## Current H050 integration,2026-10-16
+## Historical H050 integration,2026-10-16
 
 Root compiled and visually reviewed all10pages,including the four-arm matched ablation and evidenceE16-E17. Each arm completed960newupdates,3840newtotal. Selected memorypasses30,continuationpass20. Both higher-order utility criteria failed. The PDF and Overleaf bundle include current sources. All earlier8/9page receipts above are historical.
 
 [Current compile and visual review](build/current_full_panel_H050_20261016_v1/compile_and_visual_review.root_v1.json).
+
+## Current American FLARE integration, 2026-10-16
+
+Root compiled and visually inspected all 11 pages. The current PDF and byte-verified Overleaf bundle include the first native FLARE American result and evidence E18. On VAL000, FLARE reaches 98.0100% focal accuracy and 97.7151% macro F1 across 10,000 fixed focal records. This single-parent result has no between-parent SD. Our American GNN and native ARGformer scores remain pending, so no head-to-head winner is established. Prior page-count records above are historical.
+
+[Current compilation and visual review](build/current_full_panel_FLARE_20261016_v1/compile_and_visual_review.root_v1.json).

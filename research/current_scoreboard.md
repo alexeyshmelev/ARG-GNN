@@ -1,6 +1,6 @@
 # Current scientific scoreboard
 
-Updated UTC: 2026-10-16T08:59:27.263413+00:00
+Updated UTC: 2026-10-16T09:55:03.101207+00:00
 
 [All measured cohort details](#detailed-cohort-metrics) · [Complete historical receipt inventory](all_recorded_metric_receipts.md) · [Fresh H048 novelty/cross-domain audit](../research/reviews/H048_novelty_crossdomain_fresh_20261015_v1/report.md)
 
@@ -439,6 +439,19 @@ Primary utility requires at least +0.10 accuracy percentage points with no mean 
 [Actual four-arm scored completion](../experiments/results/H050_CPU_full192_savedfit_failedCLI_root_v1/completed.json) · [Consumed CPU outer terminal0](../research/reviews/H050_CPU_evaluation_failed_CLI_successor_source_20261016_v1/root_actual_metadata_v1/actual_tool_terminal.root_v1.json)
 
 
+## American C3 first native FLARE score
+
+Completed fixed native-call score on one VAL parent, not a multi-parent paper-table reproduction. Macro F1 97.7151%. All 10,000 fixed focal records from american_c3_val_000. Native calls and nearest-marker projection unchanged. No between-parent SD is available.
+
+| Population | Precision % | Recall % | F1 % | True focal records |
+|---|---:|---:|---:|---:|
+| EUR | 97.3220 | 97.6787 | 97.5000 | 3274 |
+| EAS | 98.5264 | 98.6382 | 98.5822 | 5287 |
+| AFR | 97.6777 | 96.4559 | 97.0629 | 1439 |
+
+[Actual score, confusion and new terminal evidence](../research/reviews/FLARE_VAL000_score_H020980_root_20261016_v1/REPORT.md). Our GNN and native ARGformer scores remain pending. The C3 training schedule is unchanged by this baseline result.
+
+
 ## TGB annual trade causal diagnostic
 
 255country catalogue,468245edges,1986–2016. Strictly prior-year observations, all255source forecasts sealed before target joining. Fixed author persistence/EMA classes. No model fitting or hyperparameter selection.
@@ -514,12 +527,12 @@ H048 retains 31,933 parameters per arm and a fixed 30-pass/960-update schedule. 
 
 | Method | Current ancestry scores | Status |
 |---|---|---|
-| Native ARGformer | unavailable | Corrected native route reached its scientific supervisor but failed before training: inherited OwnedGpuMemory monitor accepted only GPUs4/5 and rejected physicalGPU0. Actual direct entry/launcher wait1 and owned drain recorded. No native optimizer update or CUDA context observed. Preparing a GPU0-only operational monitor correction while C3 continues. Original7GiB charge,science and expiry retained. No ancestry score. |
+| Native ARGformer | unavailable | Native American ARGformer has no completed optimizer update or ancestry score. The prior GPU0 route failed before training because of inherited GPU eligibility checks. A fresh operational successor fixes the source route and is under independent review. It will run after the current C3 controller finishes, within GPU0 memory limits. Author numerical training and the original failure remain unchanged. |
 | Native ARGformer dataset counts | not an accuracy run | completed; actual count producer wait0 and drain verified |
-| Native FLARE | unavailable | Held-out VAL000 conversion: completed; actual wait0 and owned-group drain verified. Inference: completed; actual wait0 and owned-group drain verified. Prediction seal: prediction worker completed; direct wait0 and owned-group drain verified, outer tool terminal/final guard unconfirmed. Common-method scoring remains pending. |
-| Our C3 GNN | unavailable | C3 finished all 20 TRAIN observation banks and resumed optimizer training on physical GPU 0. Completed update 103/600 is verified, including 3 new updates after retained checkpoint 100. The latest progress receipt is not a new durable optimizer checkpoint. Model, AdamW, cursor and RNG restoration is intact. No American ancestry score. Original full 30 Mb VAL000 observation preparation is complete. Full prespecified prediction/scoring gate pending. |
+| Native FLARE | 98.0100% focal accuracy | Completed fixed native-call score on one VAL parent, not a multi-parent paper-table reproduction. Macro F1 97.7151%. Held-out VAL000 conversion: completed; actual wait0 and owned-group drain verified. Inference: completed; actual wait0 and owned-group drain verified. Prediction seal: prediction worker completed; direct wait0 and owned-group drain verified, outer tool terminal/final guard unconfirmed. The GNN/ARGformer comparison remains pending. |
+| Our C3 GNN | unavailable | C3 is training on physical GPU 0 after all 20 TRAIN observation banks completed. At least 147/600 optimizer updates are verified, including 47 after retained checkpoint 100. Latest progress receipts do not assert a new durable optimizer checkpoint. No American GNN ancestry score. Original full 30 Mb VAL000 observation preparation is complete. Full prespecified prediction/scoring gate pending. |
 
-The TRAIN000 conversion is development evidence. Independent VAL000 inference now has its own actual completion/wait receipts; its method predictions and common-truth scoring remain pending. Original 30 Mb VAL000 simulation: completed; actual wait0 and owned-group drain verified; inferred observation: completed; actual wait0 and owned-group drain verified; shared native-path/10k-focal preparation: completed; actual wait0 and owned-group drain verified. R600/Q1000 identities stay common. No VAL ancestry score. Original full30Mb VAL000 native preparations are ready; method predictions and common-truth scores remain pending. Native FLARE VAL000 target bound: 228477 sites, common R600/Q1000. Fresh memo2 conversion: completed; actual wait0 and owned-group drain verified; predictions/scoring pending. Earlier conversion deliberately stopped to repair scheduler contention, with all artifacts retained. Original-paper simulation assumptions and source versions remain explicitly documented.
+The TRAIN000 conversion is development evidence. Independent VAL000 inference now has its own actual completion/wait receipts; GNN/ARGformer predictions and their common-truth scoring remain pending. Original 30 Mb VAL000 simulation: completed; actual wait0 and owned-group drain verified; inferred observation: completed; actual wait0 and owned-group drain verified; shared native-path/10k-focal preparation: completed; actual wait0 and owned-group drain verified. R600/Q1000 identities stay common. GNN and ARGformer ancestry scores remain pending. Original full30Mb VAL000 native preparations are ready. The completed native FLARE focal score is reported separately. GNN/ARGformer predictions and common scores remain pending. Native FLARE VAL000 target bound: 228477 sites, common R600/Q1000. Fresh memo2 conversion: completed; actual wait0 and owned-group drain verified; current native focal score is reported separately. Earlier conversion deliberately stopped to repair scheduler contention, with all artifacts retained. Original-paper simulation assumptions and source versions remain explicitly documented.
 
 ARGformer Table1 reports PCA10/clustering and nearest-reference retrieval as separate classifiers. The exact PCA cluster/mapping evaluator remains unavailable. We retain the unchanged author-release head_norm/top1 retrieval as a disclosed common-data reconstruction. No native ancestry score is available yet. [Exact fidelity audit](../research/reviews/ARGformer_Table1_downstream_resolution_20261016_v1/RESOLUTION.md).
 

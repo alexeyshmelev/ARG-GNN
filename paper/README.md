@@ -1,4 +1,4 @@
-Current compiled development manuscript: [PDF](current_full_panel_working.pdf), [LaTeX source](current_full_panel_working.tex), [Overleaf source bundle](current_full_panel_overleaf_working.zip). Root compiled and visually checked all ten pages on2026-10-16. This draft now includes completed H050 four-arm results and training lineage, H045, earlier H038-H043 evidence and the frozen Danish application. Native American comparisons and scientific novelty remain unfinished. [Latest scores and remaining benchmarks](../README.md#latest-status).
+Current compiled development manuscript: [PDF](current_full_panel_working.pdf), [LaTeX source](current_full_panel_working.tex), [Overleaf source bundle](current_full_panel_overleaf_working.zip). Root compiled and visually checked all eleven pages on2026-10-16. This draft now includes the first American native FLARE score, completed H050 four-arm results and training lineage, H045, earlier H038-H043 evidence and the frozen Danish application. Native American comparisons and scientific novelty remain unfinished. [Latest scores and remaining benchmarks](../README.md#latest-status).
 
 # Manuscript sources
 
