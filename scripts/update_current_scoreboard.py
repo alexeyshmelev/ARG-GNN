@@ -1010,11 +1010,13 @@ def main():
                     if entry.get("CPU_evaluation",{}).get("state")=="running":h050_device="CPU validation"
                 elif kind=="native_ARGformer":
                     native_status=entry["summary"]
-                    native_device="GPU0" if entry.get("state")=="running" else "GPU0 stopped"
+                    native_device=entry.get("reporting_device", "GPU0" if entry.get("state")=="running" else "GPU0 stopped")
                     native_execution.update(current_status=native_status,GPU0_runtime_snapshot_ref=ref(gpu0_snapshot_path),running=entry.get("state")=="running",
                         verified_optimizer_updates=entry.get("verified_optimizer_updates"),
                         full_update_budget=entry.get("full_update_budget"),
                         latest_saved_checkpoint_audit_ref=entry.get("latest_saved_checkpoint_audit_ref"))
+                elif kind in ("VAL003_native_paths_down8","VAL003_GNN_plan"):
+                    remaining_val_status+="; "+("003/native_paths: " if kind=="VAL003_native_paths_down8" else "003/GNN_plan: ")+entry["summary"]
                 elif kind=="C3":
                     c3_status=entry["summary"]
                     c3_execution.update(status=c3_status,GPU0_runtime_snapshot_ref=ref(gpu0_snapshot_path),running=entry.get("state")=="running",new_GPU0_execution_pending=entry.get("GPU_training_pending",entry.get("state")!="running"),actual_optimizer_updates_lower_bound=entry.get("optimizer_steps_verified"),latest_optimizer_progress_ref=entry.get("latest_optimizer_progress_ref"))

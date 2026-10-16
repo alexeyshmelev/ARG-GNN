@@ -1,0 +1,152 @@
+--- research/reviews/native_VAL000_full_state_resume_source_20261016_v11/amendment_contract_v1.py
++++ research/reviews/native_VAL000_full_state_resume_source_20261016_v12/amendment_contract_v1.py
+@@ -7,7 +7,7 @@
+ import ast,copy,hashlib,importlib.util,json,os,stat,sys,time
+ from research.reviews.native_VAL000_GPU0_borrowed32_source_20261016_v2.common_v1 import *
+ from research.reviews.native_VAL000_GPU0_borrowed32_source_20261016_v2 import common_v1 as original
+-HERE="research/reviews/native_VAL000_full_state_resume_source_20261016_v11"
++HERE="research/reviews/native_VAL000_full_state_resume_source_20261016_v12"
+ SOURCE=HERE+"/amendment_contract_v1.py"
+ ACTUAL_DRIVER=HERE+"/execution_only_v1.py"
+ DIRECT=HERE+"/direct_gpu0_v1.py"
+@@ -26,7 +26,7 @@
+ MINIMAL_WAIT_CAP_BYTES=65536
+ TERMINAL_RECEIPT_CAP_BYTES=8*2**20
+ OWNED_ROSTER_POLICY_REF={'path': 'research/reviews/native_VAL000_GPU0_owned_roster_source_20261016_v4/owned_roster_policy.INACTIVE.v4.json', 'sha256': 'ea1ddb59ab4248b8ba95dbbe77d25db30636cc318a4fdaebde1e1ae6e5a7344f'}
+-CHILD="same_charge_full_state_resume_v11"
++CHILD="same_charge_full_state_resume_v12"
+ AMENDMENT_REF=None
+ ORIGINAL_STATE=None
+ RESUME_STATE=None
+@@ -38,7 +38,7 @@
+ RESUME_CHECKPOINT_REF={'path': 'experiments/results/native_VAL000_full30mb_borrowed32_GPU0_v2/same_charge_owned_roster_v4/checkpoints/ep0-ba6500-rank0.pt', 'sha256': '17e266f77b9a91f6a72fcf50a4bb6551e794da86fdbe8ca382da7fccb180bce0'}
+ ROOT_PRESERVED_METADATA_REF={'path': 'research/reviews/native_v4_preserved_checkpoint_resume_root_metadata_20261016_v1/preserved_checkpoint_metadata.root_v2.json', 'sha256': '15a68643d5d940ee3b6304bc691e8aede1ac223d68b9a61581633805c0f3c7da'}
+ V4_MANIFEST_REF={'path': 'research/reviews/native_VAL000_GPU0_owned_roster_source_20261016_v4/source_manifest.v1.json', 'sha256': '4fc7f605f36d18b82ed155c24b0095a83b4b8b3a9649d8d65f81b23bc8cfae37'}
+-RESUME_POLICY_REF={'path': 'research/reviews/native_VAL000_full_state_resume_source_20261016_v11/resume_policy.INACTIVE.v5.json', 'sha256': '142f457431ed58d8f8e6b133ca2b92b2b0b1bc2a356aeb9d459fbc2a502d846c'}
++RESUME_POLICY_REF={'path': 'research/reviews/native_VAL000_full_state_resume_source_20261016_v12/resume_policy.INACTIVE.v5.json', 'sha256': '142f457431ed58d8f8e6b133ca2b92b2b0b1bc2a356aeb9d459fbc2a502d846c'}
+ ORIGINAL_CAPS=copy.deepcopy(CAPS)
+ CAPS=dict(CAPS,reservation_bytes=5*2**30,scientific_output_bytes=CAPS["scientific_output_bytes"]-2*2**30)
+ DRIVER=ACTUAL_DRIVER
+@@ -220,8 +220,8 @@
+ def guard_v1(q,*,consumer=True):
+     require(consumer is True and ORIGINAL_STATE is not None and FRESH_STATE is not None,
+         "Only separately admitted fresh continuation with fully retained original scope")
+-    return FreshContinuationGuardV11(original.guard_v1(ORIGINAL_STATE[1],consumer=True),
+-        fresh_guard_runtime_v11(consumer=True))
++    retained,fresh=_consumer_guards_v12()
++    return FreshContinuationGuardV11(retained,fresh)
+ 
+ def charged_census_v1(spec,*,required_write_bytes=0):
+     require(ORIGINAL_STATE is not None and RESUME_STATE is not None and FRESH_STATE is not None,
+@@ -260,7 +260,7 @@
+         and totals[spec["output_directory"]]-checkpoint+prospective+totals[spec["worker_auxiliary_scope"]]+required_write_bytes<=selected,
+         "Actual whole fresh scope and both unchanged prospective2GiB products fit selected accounting failstop")
+     # Old guard is read/check only. Neither allocation is retired, rebased or credited.
+-    original.guard_v1(ORIGINAL_STATE[1],consumer=True).budget_check_v9(ORIGINAL_STATE[2],boundary=True,required_write_bytes=0)
++    _consumer_guards_v12()[0].budget_check_v9(ORIGINAL_STATE[2],boundary=True,required_write_bytes=0)
+     return dict(old_totals,**totals)
+ 
+ def compact_v1(spec,name,value,g,storage,*,cap=2**20):
+@@ -841,23 +841,75 @@
+     return qualified
+ 
+ 
++# Module/factory reuse only. Guard results, namespace observations and accounting
++# checks are never cached. The pinned memo clears its state at every operation.
++_FRESH_GUARD_V12=None
++_CONSUMER_GUARDS_V12=None
++
++def _consumer_guard_integrity_v12():
++    require(_CONSUMER_GUARDS_V12 is not None,"Both authenticated consumer guards initialized")
++    old,fresh,handle,functions,parents,request=_CONSUMER_GUARDS_V12
++    require(ORIGINAL_STATE is not None and ORIGINAL_STATE[1]==request,
++        "No original request/policy swap inside cached guard interpreter")
++    require(old.budget is fresh.budget and old.budget.v4 is fresh.budget.v4,
++        "Both original and current guards share the exact authenticated singleton")
++    v4=old.budget.v4
++    require(handle.module is v4 and handle.receipt.get("installed") is True
++        and handle.receipt.get("cross_operation_cache") is False
++        and handle.receipt.get("consumer_role")=="read_only_consumer"
++        and handle.receipt.get("namespace_extension_ref")==NAMESPACE_MEMO
++        and handle.receipt.get("original_memo2_ref")==MEMO
++        and handle.receipt.get("original_budget_v9_ref")==dict(path="scripts/project_budget_v9.py",sha256=CORE),
++        "One exact pinned consumer-only memo lifecycle, no cross-operation cache")
++    for name,wrapper in (("canonical",handle.canonical_wrapper),("file_bytes",handle.file_bytes_wrapper),("mutex",handle.mutex_wrapper)):
++        require(getattr(v4,name) is wrapper and handle.original[name] is functions[name]
++            and functions[name].__module__==v4.__name__,"Authenticated original/wrapper function identity drift")
++    require(v4.scope_spec is parents[0] and old.budget.successor_paths is parents[1],
++        "Exact memo namespace parent functions remain unchanged")
++    return old,fresh
++
++def _consumer_guards_v12():
++    global _CONSUMER_GUARDS_V12
++    require(ORIGINAL_STATE is not None and FRESH_STATE is not None,
++        "Original and fresh actual admitted states precede consumer initialization")
++    if _CONSUMER_GUARDS_V12 is None:
++        # Both exact real factories must validate their original unwrapped
++        # functions before the one shared consumer-only memo is installed.
++        old=original.guard_v1(ORIGINAL_STATE[1],consumer=False)
++        fresh=fresh_guard_runtime_v11(consumer=False)
++        require(old.budget is fresh.budget and old.budget.v4 is fresh.budget.v4,
++            "Only one exact shared original budget/v4 runtime")
++        v4=old.budget.v4
++        require(all(getattr(v4,n).__module__==v4.__name__ for n in ("canonical","file_bytes","mutex")),
++            "Original unwrapped dual-guard runtime before memo installation")
++        functions={n:getattr(v4,n) for n in ("canonical","file_bytes","mutex")}
++        parents=(v4.scope_spec,old.budget.successor_paths)
++        namespace=load(NAMESPACE_MEMO,"_native12_shared_consumer_memo")
++        handle=namespace.install_consumer_v1(v4,old.budget,consumer_role="read_only_consumer",
++            expected_source_path=ROOT/V4["path"],expected_source_sha256=V4["sha256"])
++        _CONSUMER_GUARDS_V12=(old,fresh,handle,functions,parents,copy.deepcopy(ORIGINAL_STATE[1]))
++    return _consumer_guard_integrity_v12()
++
+ def fresh_guard_runtime_v11(*,consumer):
++    global _FRESH_GUARD_V12
+     require(type(consumer) is bool,"Explicit fresh current-child mutation/read role")
+-    load(RENEWAL,"_native11_preserved_renewal").install_renewal_v1(CERT)
+-    real=load(FRESH_GUARD_REF,"_native11_actual_native14v3_guard")
+-    real.configure_v2(REPAIR,policy_ref=FRESH_POLICY_REF)
++    if consumer:return _consumer_guards_v12()[1]
++    require(_CONSUMER_GUARDS_V12 is None,
++        "ROOT mutation factory remains unwrapped and precedes consumer-only lifecycle")
++    if _FRESH_GUARD_V12 is None:
++        load(RENEWAL,"_native12_preserved_renewal").install_renewal_v1(CERT)
++        real=load(FRESH_GUARD_REF,"_native12_actual_native14v3_guard")
++        real.configure_v2(REPAIR,policy_ref=FRESH_POLICY_REF)
++        _FRESH_GUARD_V12=real
++    real=_FRESH_GUARD_V12
+     require(all(getattr(real.budget.v4,n).__module__==real.budget.v4.__name__
+         for n in ("canonical","file_bytes","mutex")),"Original unwrapped native14v3 guard")
+-    if consumer:
+-        namespace=load(NAMESPACE_MEMO,"_native11_fresh_consumer_memo")
+-        real._native11_readonly_memo=namespace.install_consumer_v1(real.budget.v4,real.budget,
+-            consumer_role="read_only_consumer",expected_source_path=ROOT/V4["path"],expected_source_sha256=V4["sha256"])
+     return real
+ 
+ def fresh_required_roles_v11(request_ref,request,closure_ref):
+     rows=[ref(MANIFEST),*[ref(HERE+"/"+name) for name in ("__init__.py","amendment_contract_v1.py","direct_gpu0_v1.py",
+         "execution_only_v1.py","corpus_metadata_bridge_v1.py","resume_scientific_bridge_v5.py","alias_namespace_v7.py","fresh_entry_v9.py")],
+-        ref(HERE+"/prepare_continuation_root_v11.py"),request_ref,closure_ref,request["ROOT_directive_ref"],
++        ref(HERE+"/prepare_continuation_root_v12.py"),request_ref,closure_ref,request["ROOT_directive_ref"],
+         request["independent_source_review_ref"],ORIGINAL_INPUT,request["config_ref"],request["runtime_ref"],
+         FRESH_GUARD_REF,FRESH_POLICY_REF,V11_SAVED22000_AUDIT_REF,V10_OUTER_TERMINAL_REF,
+         request["direct_attachment_authority_ref"],read(ORIGINAL_INPUT)["refs"]["storage"]]
+@@ -959,9 +1011,16 @@
+     require(manifest.get("liveness_component_manifest_ref")==LIVENESS_COMPONENT_MANIFEST_REF,
+         "Final integration pins independently reviewed sealed liveness component")
+     component=read(LIVENESS_COMPONENT_MANIFEST_REF)
+-    require(component["direct_source_ref"]["sha256"]==ref(DIRECT)["sha256"]
++    raw(component["direct_source_ref"])
++    frozen=ast.parse(local(component["direct_source_ref"]["path"]).read_text())
++    current=ast.parse(local(DIRECT).read_text())
++    imports=[n for n in current.body if isinstance(n,ast.ImportFrom)
++        and n.module==HERE.replace("/",".")+".amendment_contract_v1"]
++    require(len(imports)==1,"Exactly one current contract namespace import")
++    imports[0].module="research.reviews.native_VAL000_full_state_resume_source_20261016_v11.amendment_contract_v1"
++    require(ast.dump(current,include_attributes=False)==ast.dump(frozen,include_attributes=False)
+         and component["terminal_authority_AST_sha256"]==LIVENESS_COMPONENT_AUTHORITY_AST_SHA256,
+-        "Exact frozen direct source and terminal-snapshot authority predicate")
++        "Frozen direct source AST unchanged except exact v12 contract import namespace")
+     if not _COMPONENT_CHECKED_V11:
+         tree=ast.parse(local(SOURCE).read_text())
+         node=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=="terminal_snapshot_authority_v11")

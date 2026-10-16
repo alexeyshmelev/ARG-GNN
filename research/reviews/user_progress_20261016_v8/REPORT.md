@@ -6,9 +6,9 @@ The ten-page AAAI manuscript and Figure 1 have been rewritten, compiled and visu
 
 ## Experimental movement
 
-- All five original American 30 Mb validation genealogies are inferred. Native ancestral paths are complete for VAL000–003. VAL003 has genuine worker wait0, owned drain and consumed outer0. Its ordinary close succeeded. VAL004 paths and VAL003/004 GNN plans remain unfinished.
+- All five original American 30 Mb validation genealogies are inferred. Native ancestral paths are complete for VAL000–003. VAL003 has genuine worker wait0, owned drain and consumed outer0. Its ordinary close succeeded. The VAL003 GNN plan has now completed with genuine wait0/drain and consumed outer0, and ordinary successful close. VAL004 paths and its GNN plan remain unfinished.
 - Our saved American GNN completed 600 updates over 30 epochs on twenty independent 2 Mb training parents. All six saved candidate states are accepted. Independent full30Mb prediction stages for VAL000, VAL001 and VAL002 have been admitted and launched. No complete prediction or ancestry score is claimed. All five parents and all thirty candidate products must be sealed before scoring.
-- Native ARGformer retains a verified 22,000/227,990-update checkpoint. Training stopped on a controller timeout. An independent source review found a deterministic guard initialization blocker in the proposed continuation before execution. A narrow repair is in progress.
+- Native ARGformer retains a verified 22,000/227,990-update checkpoint. Training stopped on a controller timeout. An independent source review found a deterministic guard initialization blocker before execution. Its narrow repair passed complete independent review. Actual preparation71425 completed0 and the exact one-shot continuation was launched70445. Worker startup, current GPU title/context, actual full-state restore and new updates remain unverified.
 - The 1,611-diploid Relate run stopped at its runtime cap after 21,695 seconds. Its inner native wait-15, aggregate worker-9, consumed outer1 and owned drain are recorded. There is no complete inferred bank or ancestry score. Completed-stage continuation is being assessed from the actual records.
 
 ## Measured European development comparison
