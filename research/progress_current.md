@@ -13,7 +13,7 @@ Current focus is complete faithful comparisons and independent testing, with one
 
 Eight reused2Mb validation simulations,952haplotypes/686queries,one optimizer seed. Inputs, training and selection differ across pipelines. This is not an exact published-table reproduction or architecture-only attribution. Stable-leaf memory adds0.0778percentagepoints over the matched control, with boundaryF1 lower at18.3807% versus19.0488%.
 
-- American C3 GNN: at least324/600 actual completed optimizer updates, durable checkpoint200 independently verified, physicalGPU0. No ancestry score yet.
+- American C3 GNN: at least336/600 actual completed optimizer updates, durable checkpoint200 independently verified, physicalGPU0. No ancestry score yet.
 - Native American ARGformer: native32v2 initialized418MiB CUDA, then failed a controller-registry freshness check. Worker-15/outer241 and owned drain are verified. No optimizer progress or ancestry score. A same-charge source amendment is being prepared, preserving full science and original7GiB charge.
 - Native FLARE: one American VAL000 score is complete,98.0100% focal accuracy and97.7151%macroF1 over10,000fixed focals. No multi-parent SD or GNN/ARGformer head-to-head table yet.
 - Larger ARGMix condition: full1,611-diploid observed dataset accepted after all7 observed products were independently stream-hashed and the final original storage guard passed. Original child0/parentouter1 monitor failure and original16GiB charge remain preserved. Full64GiB Relate pipeline is now admitted and running (tool41415), preserving all samples/sites/map. No inferred-bank completion or ancestry score yet.

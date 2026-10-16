@@ -1,0 +1,65 @@
+--- research/reviews/prospective1611_Relate_accepted_observed_root_source_20261016_v3/root_relate_v3.py
++++ research/reviews/prospective1611_Relate_accepted_observed_root_source_20261016_v4/root_relate_v4.py
+@@ -7,12 +7,12 @@
+ from datetime import datetime, timezone
+ import argparse, ctypes, hashlib, importlib.util, json, os, resource, selectors, signal, stat, subprocess, sys, tempfile, time
+ ROOT = Path('/workspace-SR003.nfs2/ARG-GNN')
+-HERE = 'research/reviews/prospective1611_Relate_accepted_observed_root_source_20261016_v3'
+-SOURCE = HERE + '/root_relate_v3.py'
+-MANIFEST = HERE + '/source_manifest.v3.json'
+-PACKET = HERE + '/admitted_train000_v3'
+-OUTPUT = 'data/ARGMix_prospective1611_Relate_accepted_train000_v3'
+-JOB = 'prospective1611-accepted-TRAIN000-Relate-v3'
++HERE = 'research/reviews/prospective1611_Relate_accepted_observed_root_source_20261016_v4'
++SOURCE = HERE + '/root_relate_v4.py'
++MANIFEST = HERE + '/source_manifest.v4.json'
++PACKET = HERE + '/admitted_train000_v4'
++OUTPUT = 'data/ARGMix_prospective1611_Relate_accepted_train000_v4'
++JOB = 'prospective1611-accepted-TRAIN000-Relate-v4'
+ PARENT = 'published_recon_train_000'
+ ACCEPTANCE = dict(path='research/reviews/prospective1611_observed_data_acceptance_root_20261016_v1/acceptance.root_v1.json', sha256='4ae9614b201f5866be3a23874941404056b0609608b7125bbdae0f3816208e21')
+ ADAPTER = dict(path='research/reviews/ARGMix_prospective1611_Relate_adapter_20261016_v1/relate_adapter_v1.py', sha256='66b2f0f56746530af0c7473dbf014f0f8483cdd0c101cb777e2340901f07ca1f')
+@@ -24,6 +24,7 @@
+ OWNED = dict(path='research/reviews/American_C3_native_MLM_amendment_v12/owned_lifecycle_v2.py', sha256='93d71acc40f1037d0b37acb2ca0859300ea4bd9741409e9bd00ca21bf100d633')
+ CURRENT_GUARD = dict(path='research/reviews/prospective980_Census_fit2_retention_source_20261016_v1/prospective_980gb_Census_fit2_v1.py', sha256='fab6bb67bc1f4be989df9bb16e7a3a17d24652ca8238617ca060a56cb8c89d43')
+ CURRENT_POLICY = dict(path='research/reviews/prospective980_Census_fit2_root_activation_20261016_v1/activation_policy.root_active_v1.json', sha256='72ff346c43f96ba8430411cfe6b2250480a3aa66fa8e3b8c904a625a0399932a')
++NATIVE_SOURCE_PROVENANCE = [{'path': 'research/reviews/H018_native_Relate_support_readiness_v1/sources/Finalize.cpp', 'sha256': 'da41df79e7938098d67c6bc0b3386bfee8db8690c6b0cdc31e0aa4a41395ffc7'}, {'path': 'research/reviews/H018_native_Relate_support_readiness_v1/sources/data.cpp', 'sha256': 'ab9b70b695540499f5454cec67041549745297a8070eda0c31c2cbc045583a2d'}, {'path': 'research/reviews/H018_native_Relate_support_readiness_v1/sources/data.hpp', 'sha256': 'eb5f2142224ce647e58c2f02e651a2ba28b56149e8a3c09f01aa42922c7336fe'}, {'path': 'research/reviews/relate_ancestral_identity_source_audit_v1/ConvertToTreeSequence.pinned.cpp', 'sha256': '452298c9a5ad60159d9f86dd402f71798e8a88108f2bb217fcb941d28778bfc4'}]
+ CAPS = dict(schema='prospective1611_Relate_operational_caps_v1', active=True, cpu_threads=1,
+     rss_bytes=32*2**30, wall_seconds=21600, scope_bytes=64*2**30,
+     input_bytes=8*2**30, native_bytes=40*2**30, export_bytes=12*2**30,
+@@ -75,6 +76,17 @@
+     rows = manifest['refs']
+     need(ref(SOURCE) in rows and all(ref(r['path']) == r for r in rows), 'Full fixed source/metadata closure')
+     return rows
++
++def consumer_source_metadata():
++    # All sources, including the four original compiled-code provenance files,
++    # remain authenticated by sources() and the directly bound JSON manifest.
++    # The unchanged resource guard accepts only .py/.sh/.json direct metadata.
++    rows = sources()
++    expected = NATIVE_SOURCE_PROVENANCE
++    actual = [r for r in rows if Path(r['path']).suffix not in {'.py', '.sh', '.json'}]
++    need(actual == expected and len(expected) == 4, 'Exact original compiled-source provenance, no omitted role')
++    need(all(ref(r['path']) == r for r in expected), 'Original compiled-source bytes remain authenticated')
++    return [r for r in rows if r not in expected]
+ 
+ def acceptance():
+     a = read(ACCEPTANCE)
+@@ -159,7 +171,7 @@
+     implementation, launcher = ref(g.budget.SOURCE_REL), ref(g.budget.LAUNCHER_REL)
+     with g.budget.v4.mutex(ROOT):
+         state = g._state_locked(implementation['sha256'], launcher['sha256'], fresh=True)
+-    bindings = unique([*state[3].values(), *sources(), ref(MANIFEST), record, caps_ref, config_ref])
++    bindings = unique([*state[3].values(), *consumer_source_metadata(), ref(MANIFEST), record, caps_ref, config_ref])
+     authority = g.operation_draft_v1('reserve', dict(key='ARGMix/'+JOB, output=str(local(OUTPUT)),
+         auxiliary_scopes=[str(local(PACKET+'/worker_aux'))], reserved_bytes=CAPS['scope_bytes'], consumer_bindings=bindings),
+         expected_before=g._pins(state[2]), bindings=state[3])
+@@ -202,7 +214,7 @@
+     need(storage['accounting_mode'] == 'prospective_980gb_Census_fit2_v1'
+         and storage['completed_overlay_policy_ref'] == CURRENT_POLICY
+         and storage['budget_components']['consumer_adapter'] == CURRENT_GUARD, 'Actual active successor guard and policy')
+-    needed = unique([*sources(), ref(MANIFEST), s['root_request_ref'], s['caps_ref'], s['refs']['config']])
++    needed = unique([*consumer_source_metadata(), ref(MANIFEST), s['root_request_ref'], s['caps_ref'], s['refs']['config']])
+     need(all(r in storage['reservation']['consumer_bindings'] for r in needed), 'Every exact role directly bound')
+     need(read(s['original_infer_request_ref'])['observed_receipt_ref'] == a['observed_receipt_ref'], 'Same accepted observed receipt, no wrapper success fiction')
+     return s, q, storage

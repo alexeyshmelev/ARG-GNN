@@ -1,0 +1,9 @@
+# Full accepted-data Relate v4 ROOT recipe
+
+Source-only pending independent delta review. Original v3 failure and packet remain immutable and all future v3 execution is cooperatively revoked. V3 admission exited1 before reservation append. A separate read-only replay isolated the unchanged resource guard's direct-metadata suffix check: four historical C++/header provenance files were incorrectly passed as direct metadata. The child journal still had only the two actual retirement events.
+
+V4 preserves every original source reference. The directly SHA-bound JSON source manifest contains all four exact C++/header refs, and the new consumer_source_metadata function authenticates all full source rows and exactly those four original refs before returning the legal .py/.sh/.json direct metadata rows. No source role is dropped, no compiled/native source or binary is changed, and no guard or direct-reference limit is weakened. Admit/context each directly bind that full manifest. Any unexpected disallowed role or modified C++ bytes blocks.
+
+All accepted genomes, map, seed, Relate commands, original adapter, CPU/RSS/wall/storage limits, Census child policy and v3 bounded lifecycle remain unchanged. The new output/admin namespace is fresh. Planned direct metadata envelope55, with full55-row source closure retained in JSON. Actual root union is recomputed before reserve and must fit64.
+
+After independent PASS, root creates a fresh actual request from the inactive template with real timestamps/CPU/active authorization, then runs --admit-request-ref in a fresh Python process. Consume the actual terminal before --execute-input-ref using its real returned input. Preserve any failure, do not retry blindly or launch smaller data. No new reservation or native execution exists in this source packet.
