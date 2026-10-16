@@ -1,0 +1,38 @@
+{
+  "schema": "H054_mathematical_rule_and_bound_v1",
+  "implemented": false,
+  "executed": false,
+  "carrier": "Hard partition of authenticated persistent leaf witnesses, refining observed last-two-distinct-cut joint R_t",
+  "hard_slot_capacity": "K fixed; occupancy at most K; symmetric ties may underfill",
+  "infeasibility": "|R_t|>K blocks this event/condition",
+  "update_order": "z_t=U_t(h_hat_prev; observed_prefix); select S_t; h_hat_t=P_St z_t; predictions from compressed state",
+  "split": "Maximum-variance fixed feature channel; threshold at that cell mean",
+  "selection": "Largest positive normalized total-feature SSE reduction; all equal-score frontier ties split together if capacity permits, else stop",
+  "residual": "delta_t^2=(1/H)sum_i ||z_t(i)-cell_mean(i)||_2^2",
+  "equivariance": "Exact arithmetic, simultaneous leaf permutation and anonymous cell renaming, no leaf-ID tie breaks",
+  "floating_limit": "FP64 estimates alone are diagnostics, not rigorous upper certificates",
+  "gradient_convention_if_implemented": "Discrete memberships stop-gradient; conditional averages differentiable; needs source review",
+  "bound": {
+    "assumptions": [
+      "Same weights, observed forcing and initialization for reference and compressed recurrence",
+      "U_t uniformly L_t-Lipschitz on stated forward-invariant domain containing both trajectories",
+      "Actual after-update projection residual upper bounds, with numerical discrepancy separately bounded"
+    ],
+    "one_step": "e_t <= L_t e_(t-1)+delta_t",
+    "finite_horizon": "e_T <= (prod_j=1..T L_j)e_0 + sum_s=1..T delta_s(prod_j=s+1..T L_j)",
+    "no_contraction_assumption": true,
+    "vacuity_risk": "Products may grow exponentially; valid does not imply useful or predictive"
+  },
+  "accounting": {
+    "persistent": "K*F features plus H memberships, K counts, last-two-cut vectors and explicit witness mapping",
+    "temporary": "Leaf decode, forcing, candidate and GRU/encoder intermediates; selection scratch",
+    "training": "Saved activations can remain O(T*H*F), memberships O(T*H); checkpointing not assumed",
+    "cost": "Naive greedy worst-case repeated feature scans O(K*H*F); no linear-time claim"
+  },
+  "diagnostics": [
+    "A-B-A: alpha1 success control, alpha0 loss control",
+    "A-B-C-A with transverse C: older-mode loss; equal-slot fixed carriers can also preserve if capacity suffices",
+    "Many orientations/H>>K held-out recurrence families against strong fixed/adaptive Haar/generic compression and full-leaf controls"
+  ],
+  "scientific_claim_status": "Unimplemented, untested, not a novelty verdict."
+}

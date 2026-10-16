@@ -599,8 +599,8 @@ def main():
     if recovered019_wait and recovered019_wait.get("actual_remote_direct_Popen_wait_observed") is True and recovered019_wait.get("actual_remote_direct_Popen_returncode")==0:
         wave_text="All20/20 original inferred2Mb TRAIN inputs completed with genuine workerwait0/drain. Final019 recovery has genuine durable remotePopenwait0 and helpercompletion0. Original parent terminal1 and independentSSH255 transportfailure remain recorded. Exact focalplan readiness is reported separately."
     wave_text+=" At most two wave parents."
-    table1_audit_path="research/reviews/ARGformer_Table1_downstream_fidelity_20261015_v1/REPORT.md"
-    table1_fidelity="Original ARGformer Table1 specifies reference-fitted PCA with10components, but the exact clustering/label-mapping rule was not recovered from published text and public author history. Current native release top1 retrieval remains a separate disclosed comparison. PCA10/KMeans3 is only an inactive reconstruction proposal."
+    table1_audit_path="research/reviews/ARGformer_Table1_downstream_resolution_20261016_v1/RESOLUTION.md"
+    table1_fidelity="ARGformer Table1 reports PCA10/clustering and nearest-reference retrieval as separate classifiers. The exact PCA cluster/mapping evaluator remains unavailable. We retain the unchanged author-release head_norm/top1 retrieval as a disclosed common-data reconstruction. No native ancestry score is available yet."
     stamp=datetime.now(timezone.utc).isoformat()
     h049=next((r for r in read("research/experiment_decisions.json")["decisions"] if r["id"]=="H049"),None)
     h049_base="research/reviews/H049_order2_cut_memory_root_source_20261015_v1"
@@ -772,6 +772,19 @@ def main():
             tgb_lines.append("| "+name+" | "+" | ".join(values)+" |")
         tgb_lines += ["", "TRAIN1987–2009/23years, VAL2010–2013/4years, TEST2014–2016/3years and675queriedcountry-years. SD is descriptive across serially dependent years, not training seeds. This causal diagnostic adapts scheduler and1986initialization and is distinct from the published leaderboard. Our ordered graph model remains pending.", "", "[All per-year results](../"+tgb_results_path+") · [Frozen protocol](../research/reviews/TGB_trade_causal_baselines_root_20261016_v1/protocol.root_frozen_v1.json)", ""]
     else:tgb_lines += [tgb_status, ""]
+    support_path="research/reviews/TGB_trade_H051_data_integration_root_20261016_v1/actual_TRAIN_operator_support.root_v1.json"
+    support=maybe_read(support_path)
+    ordered_support_note=""
+    if support and support.get("schema")=="H053_actual_TRAIN_observation_operator_support_v1":
+        assert support["target_label_member_opened"] is False and support["GPU_context_created"] is False
+        ordered_support_note=("**Ordered-tree mechanism status:** The frozen TRAIN-only trade audit found "
+            +str(support["cut_change_count"])+" partition changes and "
+            +str(support["nonzero_conditional_increment_years"])+" nonzero conditional-innovation years. "
+            "This establishes active input support, without a predictive-accuracy result. "
+            "[Actual audit]("+support_path+"). "
+            "A [fresh independent literature review](research/reviews/H051_independent_priority_audit_20261016_v2/REPORT.md) "
+            "identifies established conditional-mean and higher-order constructions. Generic operator novelty remains unestablished.")
+        tgb_lines += [ordered_support_note.replace("](research/","](../research/"), ""]
     result=dict(schema="ARG_GNN_current_scientific_scoreboard_v1",updated_utc=stamp,
         American_C3_GNN_execution=c3_execution,
         GPU4_shared_execution=shared_snapshot,
@@ -929,7 +942,8 @@ def main():
         "**Current GPU policy: physical GPU0 only.** Our GPU4/5 jobs have stopped and their contexts/known roots are absent. Parallel jobs onGPU0 are permitted after fresh device-bound admission. [Policy and actual stop evidence](research/reviews/GPU0_only_user_transition_root_20261016_v1/GPU0_only_policy.root_active_v1.json).","",
         "**GST and cross-domain status:** "+gst_status,"",
         "**TGB ordered cross-domain diagnostic:** "+tgb_status+" [Frozen protocol and actual per-year results](research/current_scoreboard.md#tgb-annual-trade-causal-diagnostic).","",
-        "Parallel ownership: workers prepare the causal trade PyG model, the native ARGformer GPU0 adapter and fresh H050/C3 GPU0 admissions. Root owns GPU0 execution, shared data, integration, score reporting and Git.","","<!-- CURRENT_SCOREBOARD_END -->"]
+        ordered_support_note,"",
+        "Parallel ownership: workers handle the next GPU0 experiment scheduler, frozen trade training/evaluation integration and the AncestralPaths biological protocol audit. Root owns execution, metrics and Git.","","<!-- CURRENT_SCOREBOARD_END -->"]
     p=ROOT/"README.md"
     text=p.read_text()
     a="<!-- CURRENT_SCOREBOARD_START -->"

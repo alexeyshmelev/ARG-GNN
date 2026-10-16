@@ -1,6 +1,6 @@
 # Current scientific scoreboard
 
-Updated UTC: 2026-10-15T23:56:03.847453+00:00
+Updated UTC: 2026-10-16T00:22:34.854931+00:00
 
 [All measured cohort details](#detailed-cohort-metrics) · [Complete historical receipt inventory](all_recorded_metric_receipts.md) · [Fresh H048 novelty/cross-domain audit](../research/reviews/H048_novelty_crossdomain_fresh_20261015_v1/report.md)
 
@@ -369,6 +369,8 @@ TRAIN1987–2009/23years, VAL2010–2013/4years, TEST2014–2016/3years and675qu
 
 [All per-year results](../experiments/results/H052_TGB_trade_causal_native_baselines_v1/results.json) · [Frozen protocol](../research/reviews/TGB_trade_causal_baselines_root_20261016_v1/protocol.root_frozen_v1.json)
 
+**Ordered-tree mechanism status:** The frozen TRAIN-only trade audit found 22 partition changes and 21 nonzero conditional-innovation years. This establishes active input support, without a predictive-accuracy result. [Actual audit](../research/reviews/TGB_trade_H051_data_integration_root_20261016_v1/actual_TRAIN_operator_support.root_v1.json). A [fresh independent literature review](../research/reviews/H051_independent_priority_audit_20261016_v2/REPORT.md) identifies established conditional-mean and higher-order constructions. Generic operator novelty remains unestablished.
+
 
 ## H046 matched continuous-flank outcome
 
@@ -408,7 +410,7 @@ H048 retains 31,933 parameters per arm and a fixed 30-pass/960-update schedule. 
 
 The TRAIN000 conversion is development evidence. Independent VAL000 inference now has its own actual completion/wait receipts; its method predictions and common-truth scoring remain pending. Original 30 Mb VAL000 simulation: completed; actual wait0 and owned-group drain verified; inferred observation: completed; actual wait0 and owned-group drain verified; shared native-path/10k-focal preparation: completed; actual wait0 and owned-group drain verified. R600/Q1000 identities stay common. No VAL ancestry score. Original full30Mb VAL000 native preparations are ready; method predictions and common-truth scores remain pending. Native FLARE VAL000 target bound: 228477 sites, common R600/Q1000. Fresh memo2 conversion: completed; actual wait0 and owned-group drain verified; predictions/scoring pending. Earlier conversion deliberately stopped to repair scheduler contention, with all artifacts retained. Original-paper simulation assumptions and source versions remain explicitly documented.
 
-Original ARGformer Table1 specifies reference-fitted PCA with10components, but the exact clustering/label-mapping rule was not recovered from published text and public author history. Current native release top1 retrieval remains a separate disclosed comparison. PCA10/KMeans3 is only an inactive reconstruction proposal. [Exact fidelity audit](../research/reviews/ARGformer_Table1_downstream_fidelity_20261015_v1/REPORT.md).
+ARGformer Table1 reports PCA10/clustering and nearest-reference retrieval as separate classifiers. The exact PCA cluster/mapping evaluator remains unavailable. We retain the unchanged author-release head_norm/top1 retrieval as a disclosed common-data reconstruction. No native ancestry score is available yet. [Exact fidelity audit](../research/reviews/ARGformer_Table1_downstream_resolution_20261016_v1/RESOLUTION.md).
 
 ## GST molecular graph-set pilot
 

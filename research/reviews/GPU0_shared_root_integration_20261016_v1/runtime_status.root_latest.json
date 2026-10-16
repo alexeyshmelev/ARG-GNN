@@ -1,6 +1,6 @@
 {
   "schema": "root_GPU0_shared_runtime_status_v1",
-  "updated_utc": "2026-10-15T23:54:02.075481+00:00",
+  "updated_utc": "2026-10-16T00:20:02.229608+00:00",
   "controller_identity": {
     "pgid": 3118924,
     "pid": 3118924,
@@ -19,7 +19,7 @@
   "jobs": {
     "H050": {
       "state": "running",
-      "summary": "Running on physical GPU 0. All four arms completed their first scheduled FP32 optimizer step and continue toward 960 updates each (3,840 total). CUDA UUID and process title verified in NVTOP. No validation score yet.",
+      "summary": "Training on physical GPU 0. Completed 2/30 full TRAIN passes and 64/960 FP32 optimizer updates per arm (256/3,840 total). These are completed-pass lower bounds. CUDA UUID and process title verified in NVTOP. No validation score yet.",
       "worker_pid": 3119593,
       "worker_start_ticks": 478204526,
       "cuda_ref": {
@@ -32,16 +32,22 @@
         "sha256": "1100941aaf8b1431cb0c4ea963daf568843ed1b76caa397c98bedb0fe3e57576"
       },
       "optimizer_steps_verified": {
-        "adjacent_marginal_null": 1,
-        "h045_continued_training": 1,
-        "stable_leaf_memory": 1,
-        "triple_support_pair_memory": 1
+        "adjacent_marginal_null": 64,
+        "h045_continued_training": 64,
+        "stable_leaf_memory": 64,
+        "triple_support_pair_memory": 64
       },
       "first_step_receipt_present": true,
       "first_step_ref": {
         "path": "experiments/results/H050_GPU0_direct_readout_train_seed101_v1/first_real_parent_step_qualification.json",
         "sha256": "893bc2c2c26e1ccaa24a3177b40b6b7101e91ba721ffdf6bfc0f8111fffc8ab7"
-      }
+      },
+      "passes_completed": 2,
+      "last_pass_ref": {
+        "path": "experiments/results/H050_GPU0_direct_readout_train_seed101_v1/TRAIN_pass_02.json",
+        "sha256": "6c3a387ce28cb419f5cc0a5caec40eae0ead175bc4a877ff225f6c83a5b6bec4"
+      },
+      "counts_are_completed_pass_lower_bounds": true
     },
     "C3": {
       "state": "running",
@@ -78,5 +84,45 @@
       }
     }
   },
-  "scope": "PhysicalGPU0 only. Two actualCUDA contexts verified inNVTOP. CPU observation preparation is not optimizer progress. HistoricalGPU4/5attempts remain stopped."
+  "scope": "Physical GPU0 only. Running jobs and completed-pass optimizer counts from actual controller/output receipts. CPU cache preparation is not optimizer progress. No new ancestry score.",
+  "latest_registry_observation": {
+    "updated_unix": 1792110001.856102,
+    "lifecycle": "running",
+    "physical_gpu": 0,
+    "memory_observation": {
+      "active_peak_mib": 73728,
+      "actual_free_required_mib": 51698,
+      "blocked_by": [],
+      "external_compute": [],
+      "incoming_peak_mib": 0,
+      "observed": {
+        "compute": [
+          {
+            "name": "AI Auto Research Pipeline Test",
+            "pid": 3119593,
+            "used_mib": 24310
+          },
+          {
+            "name": "AI Auto Research Pipeline Test",
+            "pid": 3120098,
+            "used_mib": 1816
+          }
+        ],
+        "index": 0,
+        "total_mib": 81920,
+        "used_mib": 26143,
+        "utilization": 100,
+        "uuid": "GPU-ff06ca1f-403a-f2d0-b584-71e177452667"
+      },
+      "overrun_jobs": [],
+      "owned_compute_jobs": [
+        "C3-GNN-cachev3-GPU0-TRAIN-v1",
+        "H050-direct-readout-GPU0-TRAIN-v1"
+      ],
+      "projected_mib": 77841,
+      "stale_historical_compute": [],
+      "unattributed_mib": 17
+    },
+    "safety_error": null
+  }
 }

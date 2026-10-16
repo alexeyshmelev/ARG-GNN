@@ -4,10 +4,10 @@ Graph neural networks for ordered collections of whole genealogical trees, with 
 
 ## Latest status
 
-[Persistent research goal and reporting requirements](research/goal_current.json). Current limits: physical GPUs4–5 and1TB, with all project writes inside this server repository.
+[Persistent research goal and reporting requirements](research/goal_current.json). Current limits: **physical GPU 0 only**, parallel jobs allowed, and **1 TB** of storage. All project writes stay inside this server repository. GPUs 4–5 are excluded.
 
 <!-- CURRENT_SCOREBOARD_START -->
-**Scoreboard updated UTC: 2026-10-15T23:56:03.847453+00:00.** [Every current setup, all cohorts and detailed metrics](research/current_scoreboard.md) · [Native class metrics and training-lineage audit, frozen17-setup snapshot](research/reviews/root_score_report_20261015_v1/REPORT.md) · [All recorded historical/engineering metric receipts](research/all_recorded_metric_receipts.md)
+**Scoreboard updated UTC: 2026-10-16T00:22:34.854931+00:00.** [Every current setup, all cohorts and detailed metrics](research/current_scoreboard.md) · [Native class metrics and training-lineage audit, frozen17-setup snapshot](research/reviews/root_score_report_20261015_v1/REPORT.md) · [All recorded historical/engineering metric receipts](research/all_recorded_metric_receipts.md)
 
 | Current run | Device | Progress | Validation score |
 |---|---:|---|---|
@@ -19,7 +19,7 @@ Graph neural networks for ordered collections of whole genealogical trees, with 
 | Native FLARE | CPU | Author build, TRAIN000 full-site inference and prediction seal completed. Held-out VAL000 conversion: completed; actual wait0 and owned-group drain verified; native inference: completed; actual wait0 and owned-group drain verified; seal: prediction worker completed; direct wait0 and owned-group drain verified, outer tool terminal/final guard unconfirmed. | held-out score pending |
 | Our American C3 GNN | GPU0 | 20/20 exact TRAIN plans completed. Running on physical GPU 0. CUDA UUID and process title verified in NVTOP. Preparing the repaired observation cache for the full 600-update campaign. Optimizer progress not yet verified. No ancestry score yet. Original VAL000 full-length GNN block plan: completed; actual wait0 and owned drain verified. | no ancestry score |
 | H049 cut-memory candidate | CPU preparation | bounded-v5 CPU preparation completed with genuine wait0/drain. Three matched 32,446-parameter arms. Full 30 passes / 960 updates per arm planned. | no fit or accuracy yet |
-| H050 stronger direct-readout candidate | GPU0 | Running on physical GPU 0. All four arms completed their first scheduled FP32 optimizer step and continue toward 960 updates each (3,840 total). CUDA UUID and process title verified in NVTOP. No validation score yet. H045 predictor retained initially. Three 32,325-parameter memory arms and an unmodified 31,812-parameter continuation. 960 updates per arm, 192 prediction seals planned. Original45run interrupted byGPU0-only instruction, no validation accuracy. | full fit incomplete |
+| H050 stronger direct-readout candidate | GPU0 | Training on physical GPU 0. Completed 2/30 full TRAIN passes and 64/960 FP32 optimizer updates per arm (256/3,840 total). These are completed-pass lower bounds. CUDA UUID and process title verified in NVTOP. No validation score yet. H045 predictor retained initially. Three 32,325-parameter memory arms and an unmodified 31,812-parameter continuation. 960 updates per arm, 192 prediction seals planned. Original45run interrupted byGPU0-only instruction, no validation accuracy. | full fit incomplete |
 | Empirical data | CPU | H045 probabilities, ancestry proportions and genotype PCA completed for 24 query haplotypes / 12 subjects. Descriptive only, without known ancestry truth. | completed |
 
 **Completed H048:** 96.3800 ± 0.6002% graph_to_transition; 96.3886 ± 0.6098% graph_to_own_confidence_fixed_distance_chain. Both registered utility criteria failed. [Actual scores, all cohorts and provenance](research/reviews/H048_completed_comparison_root_20261015_v1/REPORT.md).
@@ -28,7 +28,7 @@ Graph neural networks for ordered collections of whole genealogical trees, with 
 
 [Fresh independent H048 novelty/cross-domain assessment](research/reviews/H048_novelty_crossdomain_fresh_20261015_v1/report.md). Fresh independent H048 audit: reset transitions have RFMix precedent; a distinct graph-collection operator is unestablished. GST reaction-center sets have no native chain order, so whole-H048 transfer is not justified. PKU-MMD is only a possible future decoder study after native label-overlap semantics are resolved; no transfer result exists.
 
-**ARGformer paper fidelity:** Original ARGformer Table1 specifies reference-fitted PCA with10components, but the exact clustering/label-mapping rule was not recovered from published text and public author history. Current native release top1 retrieval remains a separate disclosed comparison. PCA10/KMeans3 is only an inactive reconstruction proposal. [Audit](research/reviews/ARGformer_Table1_downstream_fidelity_20261015_v1/REPORT.md).
+**ARGformer paper fidelity:** ARGformer Table1 reports PCA10/clustering and nearest-reference retrieval as separate classifiers. The exact PCA cluster/mapping evaluator remains unavailable. We retain the unchanged author-release head_norm/top1 retrieval as a disclosed common-data reconstruction. No native ancestry score is available yet. [Audit](research/reviews/ARGformer_Table1_downstream_resolution_20261016_v1/RESOLUTION.md).
 
 **Remaining biological error:** H045 recovers22.59% of true Present182 changes at1kb tolerance despite96.827% span accuracy. Across8VAL parents its selected predictions match905 changes, miss3103 and add5063extra calls. [Audited residual-error table and scope limits](research/reviews/residual_biological_errors_20261015_v1/REPORT.md).
 
@@ -44,7 +44,9 @@ Graph neural networks for ordered collections of whole genealogical trees, with 
 
 **TGB ordered cross-domain diagnostic:** Native persistence TEST NDCG@10 0.8469±0.0144, EMA-window7 0.8090±0.0049. SD across3 serially dependent target years2014–2016,675country-years. Unchanged native classes with disclosed forecast-before-current-year-edge release and1986initialization. No graph-model score or exact-paper reproduction. [Frozen protocol and actual per-year results](research/current_scoreboard.md#tgb-annual-trade-causal-diagnostic).
 
-Parallel ownership: workers prepare the causal trade PyG model, the native ARGformer GPU0 adapter and fresh H050/C3 GPU0 admissions. Root owns GPU0 execution, shared data, integration, score reporting and Git.
+**Ordered-tree mechanism status:** The frozen TRAIN-only trade audit found 22 partition changes and 21 nonzero conditional-innovation years. This establishes active input support, without a predictive-accuracy result. [Actual audit](research/reviews/TGB_trade_H051_data_integration_root_20261016_v1/actual_TRAIN_operator_support.root_v1.json). A [fresh independent literature review](research/reviews/H051_independent_priority_audit_20261016_v2/REPORT.md) identifies established conditional-mean and higher-order constructions. Generic operator novelty remains unestablished.
+
+Parallel ownership: workers handle the next GPU0 experiment scheduler, frozen trade training/evaluation integration and the AncestralPaths biological protocol audit. Root owns execution, metrics and Git.
 
 <!-- CURRENT_SCOREBOARD_END -->
 
