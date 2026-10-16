@@ -1,28 +1,20 @@
-# Current benchmark work
+# Scientific manuscript rewrite and benchmark status
 
-Updated UTC:2026-10-16T12:26:12.786994+00:00.
+The nine-page AAAI working draft was rewritten around the biological problem, field gap, related work, conceptual and mathematical methods, and measured findings. The main text omits software/runtime trivia. An original editable ARG-to-ancestry schematic replaces the prior figure. The supplement covers scientific simulation parameters and sources, training schedules and comparisons. E1-E18 evidence-path appendices were removed. Best comparable table entries are bold, including baseline wins. Missing material author-method details are visible Research TODOs.
 
-Current focus is complete faithful comparisons and independent testing, with one registered architecture experiment retained. The full research objective and novelty requirement remain unchanged.
+Both the integrated LaTeX and independently extracted Overleaf sources compiled cleanly. All nine final pages were rendered and visually inspected. This editorial revision does not change any experiment, score or baseline.
 
-| Completed European development pipeline | Present182 span accuracy, mean ± simulation SD (%) |
+| European shared development pipeline | Present182 span accuracy, mean ± simulation SD (%) |
 |---|---:|
-| Our stable-leaf candidate |97.0778 ±0.5674|
-| Our same-budget continued-training control |97.0000 ±0.4978|
-| Current author ARGMix release |94.4461 ±1.1491|
-| Released AncestralPaths, derived four-source output |93.7830 ±0.8385|
+| Stable-leaf candidate | **97.0778 ± 0.5674** |
+| Same-budget continuation | 97.0000 ± 0.4978 |
+| Current author ARGMix release | 94.4461 ± 1.1491 |
+| Released AncestralPaths, derived C4 | 93.7830 ± 0.8385 |
 
-Eight reused2Mb validation simulations,952haplotypes/686queries,one optimizer seed. Inputs, training and selection differ across pipelines. This is not an exact published-table reproduction or architecture-only attribution. Stable-leaf memory adds0.0778percentagepoints over the matched control, with boundaryF1 lower at18.3807% versus19.0488%.
+Eight reused 2 Mb development simulations, one optimizer seed. The stable-leaf minus continuation difference is 0.0778 percentage points, with lower boundary F1, 18.3807% versus 19.0488%. This does not establish useful higher-order novelty. Current ARGMix uses 15 references and no ancestors, compared with the preprint's 25 references and three ancestors. The public release rejects ancestor inputs. The released AncestralPaths dense model differs from the published convolutional description. Its six-to-four-source collapse is a derived endpoint. Input, exposure and model-selection differences prevent architecture-only or original-table reproduction claims.
 
-- American C3 GNN: at least257/600 actual completed FP32 updates, durable checkpoint200, on physicalGPU0. No ancestry score yet.
-- Native American ARGformer: no completed ancestry score. Source work is preparing unchanged native training under a32GiB operational ceiling to shareGPU0 with C3. Memory fit and execution remain unproved.
-- Native FLARE: one American VAL000 score is complete,98.0100% focal accuracy and97.7151%macroF1 over10,000fixed focals. No multi-parent SD or GNN/ARGformer head-to-head table yet.
-- Larger ARGMix condition: full1,611-diploid observed dataset accepted after all7 observed products were independently stream-hashed and the final original storage guard passed. Original child0/parentouter1 monitor failure and original16GiB charge remain preserved. Relate driver source is concrete, bounded-cleanup successor awaits review, and its64GiB reservation needs legitimate unused-allowance recovery.
-- New H058 route: actual one-hold FP32 arithmetic PASS,37checks,worker0/outer0/drain. Full scientific sourcev2 passes independent review. No full-parent training or accuracy yet. One30pass/960-update-per-arm trial is planned, without a broad architecture search.
-- Independent European outer tests: eight reserved simulations remain ungenerated and untouched.
-- Cross-domain: completed TGB experiment is negative. Full paired GST comparison remains unfinished.
-- Real data: Danish application remains descriptive, without ancestry truth. Independent genotype contrasts did not support registered directions.
-- Paper: compiled11-page AAAI working draft and Overleaf bundle. Final primary tables, independent evidence, useful novelty and final fresh manuscript review remain.
+American C3 training has at least 324/600 completed optimizer updates recorded, with checkpoint200 independently verified. No ancestry score yet. Native FLARE on one American VAL000 has 98.0100% focal accuracy and 97.7151% macro F1 over 10,000 fixed focal records, without a multi-parent SD or completed GNN/ARGformer head-to-head. Native ARGformer initialized a 418 MiB CUDA context then failed a controller-registry freshness check, with verified worker -15/outer241 and owned drain. Optimizer progress remains unverified. Its same-charge operational amendment is under independent review.
 
-The next result milestones are the American common-data ancestry table, larger native ARGMix comparison, and independent confirmation of the frozen European candidate. Training loss and arithmetic checks are never ancestry scores.
+Full 1,611-diploid/3,222-haplotype Relate inference is running over all 311,599 observed SNPs and the full 35,178,458 bp map. No inferred-bank completion or ancestry score is claimed. Eight reserved European outer simulations remain ungenerated and untouched. Their source-only preparation workflow is under independent review. The paper remains a working draft, not a completed submission or an overall top-1 result.
 
-[Actual H058 arithmetic result](../H058_actual_one_hold_ROOTv4_qualification_20261016_v1/REPORT.md) · [Accepted larger data](../prospective1611_observed_data_acceptance_root_20261016_v1/acceptance.root_v1.json) · [Current detailed scores](../../current_scoreboard.md) · [Working PDF](../../../paper/current_full_panel_working.pdf)
+[Current PDF](../../../paper/current_full_panel_working.pdf) · [Overleaf bundle](../../../paper/current_full_panel_overleaf_working.zip) · [Competitor-fidelity matrix](../competitor_fidelity_user_audit_20261016_v1/comparison_matrix.md) · [Build and visual check](../paper_root_integration_20261016_v1/integration_build_receipt.root_v1.json) · [Detailed current scores](../../current_scoreboard.md)

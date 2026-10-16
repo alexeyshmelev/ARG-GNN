@@ -1,6 +1,4 @@
-% Root working draft: completed H045/H050 development and frozen H056 descriptive application.
-% Scientific validation and useful operator novelty remain incomplete.
-% Official AAAI27 draft style, total manuscript limit20pages.
+% Scientific rewrite, October 16, 2026. Results remain development evidence.
 \documentclass[letterpaper]{article}
 \usepackage[draft]{aaai2027}
 \usepackage[hyphens]{url}
@@ -13,512 +11,456 @@
 \usepackage{amssymb}
 \usepackage{booktabs}
 \usepackage{tikz}
-\usetikzlibrary{arrows.meta,positioning}
+\usetikzlibrary{arrows.meta,positioning,calc,fit,backgrounds}
 \frenchspacing
 \pdfinfo{/TemplateVersion (2027.1)}
 \setcounter{secnumdepth}{2}
-\title{Whole-Tree Message Passing with Local Clade-Change Features\\
-for Ancestry Inference}
+\newcommand{\best}[1]{\mathbf{#1}}
+\newcommand{\todo}[1]{\par\noindent\textbf{Research TODO.} #1\par}
+\title{Whole-Tree Learning over Ordered Genealogies\\for Local Ancestry Inference}
 \author{Anonymous Authors}
 \affiliations{}
 \begin{document}
 \maketitle
+
 \begin{abstract}
-Changing inferred genealogies provide a structured representation for local ancestry prediction, but high span accuracy can conceal poor tract boundaries. We study a whole-tree graph neural pipeline on 476 diploids, with 32 training and eight development validation simulations. The model combines observed SNP features, complete PyTorch Geometric tree sweeps and a bidirectional genomic GRU. We compare local clade-change features, contiguous clade episodes and three ordered cut-memory rules. In the completed four-arm memory comparison, stable-leaf memory reaches $97.0778\pm0.5674\%$ present-day span accuracy, versus $97.0000\pm0.4978\%$ for continued training without added memory. Pair-cell memory reaches $97.0640\pm0.5595\%$ and fails both registered utility criteria against its controls. Stable-leaf boundary F1 is $18.3807\pm1.3141\%$, below continuation's $19.0488\pm1.4275\%$ at 1\,kb tolerance. Current native ARGMix reaches $94.4461\pm1.1491\%$, with different input evidence, training and checkpoint rules. These reused-validation results distinguish span improvement from boundary quality and higher-order memory utility. They do not establish a new operator or overall benchmark superiority.
+A person's genome contains segments inherited from different ancestral populations. Identifying these segments helps reconstruct population history, but their boundaries can be difficult to recover from genetic data. Inferred genealogies offer a natural representation of shared ancestry: each local tree connects sampled genomes, and the trees change along the chromosome. Learning from this representation requires combining evidence within each tree with continuity across trees. We develop a whole-tree neural model that propagates genetic and reference-panel information through complete genealogies and follows sampled haplotypes along the genome. Structural conditioning marks changes in descendant groups, while recurrent context connects local predictions. On eight European development simulations, the strongest span-accuracy candidate reaches $97.08\pm0.57\%$, compared with $94.45\pm1.15\%$ for the evaluated ARGMix release. Matched controls show that much of the improvement within our model family also follows from continued training. The highest span accuracy and the best boundary score occur in different variants. These findings support whole-tree learning as a promising ancestry framework and identify boundary recovery as a distinct target for model design.
 \end{abstract}
 
 \section{Introduction}
-Local ancestry inference assigns source-population labels along a sampled genome. A genealogy can organize evidence from many reference and query haplotypes, while its changes along the genome describe a second source of structure. These two axes pose different modeling problems. Within a marginal tree, information must travel between known references and queries through anonymous inferred ancestors. Across trees, sampled haplotypes persist while internal nodes and descendant clades change.
+Local ancestry inference identifies the ancestral source of each segment of a genome. It can reveal how populations mixed, how ancestry changed through time and how genetic variants moved between populations. In ancient genomics, dated samples provide observations from different stages of this history. A useful predictor must distinguish reference ancestries while respecting both the genealogical relationships between samples and the spatial continuity of ancestry along a chromosome.
 
-Recent ancestry systems motivate learning from genealogical structure. AncestralPaths accompanies a demographic analysis of ancient Eurasians \citep{eurasians2024}. ARGMix uses graph-transformer representations and genomic sequence modeling \citep{ancientancestry2026}. ARGformer learns path representations and performs native retrieval \citep{argformer2026}. Their released representations, supervision and prediction rules differ. A comparison on common observations therefore needs both a common scoring endpoint and an explicit account of the remaining pipeline differences.
+An ancestral recombination graph (ARG) represents the changing genealogy of sampled genomes. At any genomic position, a marginal tree connects the sampled haplotypes through common ancestors. Recombination changes this tree along the chromosome. The resulting data have two linked forms of structure: relationships within a tree and correspondence between successive trees. Sampled haplotypes retain their identities, even when their inferred ancestral relationships change.
 
-We investigate a compact whole-tree model that retains all 952 observed haplotypes and every inferred marginal tree. Its graph computation uses PyTorch Geometric \citep{pyg2019}. A bidirectional GRU \citep{gru2014} models the complete sequence of tree contexts for each sampled haplotype. Observed SNP features and reference annotations enter the graph encoder directly. Predictions do not consume another ancestry model's outputs.
+Recent ancestry methods exploit these genealogical representations. AncestralPaths uses ancestral-path features in the study of ancient Eurasian genomes \citep{eurasians2024}. ARGMix combines genealogical graph representations with genomic sequence modeling \citep{ancientancestry2026}. ARGformer learns representations of genealogical paths \citep{argformer2026}. These approaches motivate a complementary question: how much ancestry information can a compact model recover by processing complete marginal trees and maintaining a continuous sampled-haplotype representation?
 
-The empirical question is whether coupling learned states across changing trees is useful beyond simpler structural features. We first compare tensor clade-event interactions with matched event-MLP and node-local flag controls. A later completed H045 comparison pools states across consecutive occurrences of the same proper clade and compares this foreign context with an equal-parameter own-state arm. The latter computes the same episode pool but uses its own state in the residual. This matched comparison separates a foreign-state effect from the capacity and additional training shared by the two arms.
+A generic sequence of graph embeddings does not directly preserve every sample's relationship to all other samples. Conversely, a set-based graph model does not by itself encode genomic order or physical distance. For genealogies, treating internal-node identifiers as persistent can also introduce a false correspondence. The reliable shared interface is the sampled haplotype. Descendant sets provide an additional structural comparison, but an equal descendant set does not prove that two inferred internal nodes represent the same biological ancestor.
 
-The completed comparisons distinguish three effects. H045 improves the development mean over earlier conditions, but its foreign-episode arm exceeds own-state by only 0.0096 percentage points. A further H050 four-arm continuation reaches higher span scores, with stable-leaf memory ahead of pair-cell memory and the continued-training control strongest on boundary F1. Pair-cell memory fails its registered utility criteria against all three controls. High span accuracy therefore neither establishes a higher-order memory advantage nor resolves tract-boundary prediction. A fixed-output diagnostic separates missing candidate boundaries from errors at boundaries the decoder could express.
+We therefore build a whole-tree model with two complementary computations. Upward and downward messages connect reference and query haplotypes through every node in each local genealogy. A genomic recurrent network then follows each sampled haplotype through the ordered tree sequence. Local changes in descendant groups condition a second tree traversal. We examine whether additional cross-tree context improves this representation using matched episode and memory controls.
 
-The study uses independent simulations as the unit of partitioning and reporting. Its eight validation simulations also support checkpoint selection and architecture development. The reported variation is across those simulations from one optimizer seed per condition. Independent confirmation, broader comparators and a completed novelty assessment remain necessary before stronger claims.
+The present results support three scientific observations. First, the evaluated whole-tree pipelines exceed the evaluated native ARGMix and AncestralPaths pipelines on the shared European development endpoint. Second, simple local structural features are competitive with the examined cross-tree interactions. Third, span accuracy and tract-boundary recovery favor different variants. This analysis identifies which design choices improve fitted ancestry prediction and which metrics expose remaining errors. The completed comparisons use eight development simulations that have also informed model selection. Independent testing and the remaining native benchmarks are explicit completion items in this working manuscript.
 
-\section{Task and Evaluation Protocol}
-\subsection{Observed Panel and Simulation Split}
-The common panel contains 476 diploids, or 952 phased haplotypes. There are 686 query haplotypes and 266 pure-reference haplotypes. Queries comprise present-day individuals (182 haplotypes), Bronze Age (162), BAA (14), Neo (302) and Yam (26). The reference panel comprises WHG (102), EHG (86), Ana (50) and CHG (28). Cohort names follow the released roster. In particular, Bronze Age is only an approximate correspondence to the ARGMix paper's Post-Neolithic category.
+\section{Related Work}
+\paragraph{Genealogy-based ancestry inference.}
+AncestralPaths accompanies an analysis of the selection landscape and genetic legacy of ancient Eurasians \citep{eurasians2024}. Its ancestral-path formulation distinguishes historical routes that can share the same broad source ancestry. This distinction matters when aligning its output with a four-source classifier. Our comparison uses the released dense classifier and collapses its six path probabilities to four source probabilities. The original study describes a convolutional classifier, whereas the archived executable model is dense. We label the comparison by the executed archive.
 
-Each independent simulation spans 2\,Mb. The completed development data contain 32 TRAIN and eight VAL simulations. Simulation identity is assigned before downstream windows, sampled rows or genomic chunks are constructed. Thus nearby trees from a single simulation do not enter different partitions. An independent outer assessment is outside the results reported here.
+ARGMix learns ancestry from genealogical graph representations and genomic context \citep{ancientancestry2026}. We evaluate a current author release with its native model and selection rule, using a disclosed panel adaptation. ARGformer instead learns genealogical path representations with a transformer and supports ancestry assignment by retrieval \citep{argformer2026}. Its American admixture benchmark motivates our separate three-source comparison. A completed ARGformer head-to-head score is not yet available. FLARE uses a haplotype-based local ancestry framework \citep{flare2023} and provides a comparator that does not require the same neural genealogy representation.
 
-The simulation condition follows the released ancient-European demographic and sample-panel definition, with a uniform recombination rate of $10^{-8}$ and mutation rate of $1.25\times10^{-8}$ per base per generation. Current msprime \citep{msprime2022} settings use the Hudson ancestry model, discrete coordinates and JC69 mutations. Genealogies used by the present full-panel models are native Relate post-population-size reconstructions \citep{relate2019}. Reused source-module names containing \emph{tsinfer} do not identify the topology actually read in this experiment.
+These methods differ in what they encode, how they obtain supervision and how they select predictions. A shared observed panel and a common scorer make their ancestry outputs comparable on that endpoint. They do not make the comparison a controlled test of architecture alone.
 
-Observed inputs include phased genotypes, inferred topology and branch ages, sample ages and roles, and known reference-source classes. Query ancestry annotations are external supervision. Census labels, truth breakpoints and query-source labels do not define the model's observed feature bank, genomic holds or evaluation coordinates. Reference labels are available to every applicable native adapter as observed panel annotations.
+\paragraph{Learning from collections of graphs.}
+Graph Set Transformer interleaves node-level propagation and set-wide contextual modeling rather than first reducing each graph to a fixed embedding \citep{gst2026}. This provides a relevant motivation for exchanging information before final graph readout. Our setting adds genomic order, unequal interval lengths and persistent sampled entities. These properties determine which cross-tree correspondences have a biological interpretation.
 
-\subsection{Common Four-Class Endpoint}
-The shared endpoint has class order Ana, CHG, WHG and EHG, denoted C4. The native AncestralPaths classifier produces six path probabilities. For the common endpoint we collapse them before choosing a class,
+Temporal graph state-space models study recurrent state on changing graphs \citep{graphssm2024}. Gated recurrent units provide an established sequence mechanism \citep{gru2014}. Our graph sweeps, gated recurrence, pooling and residual conditioning use established ingredients. The empirical question is whether their genealogical organization improves ancestry inference, and whether a proposed cross-tree interaction adds value beyond matched local and continued-training controls.
+
+\section{Whole-Tree Ancestry Model}
+\subsection{Inputs and Prediction Target}
+Let $T_t=(V_t,E_t)$ be the inferred marginal tree on interval $I_t$ of length $w_t$. The same sampled haplotypes appear in every tree. Let $v_t(q)$ denote the node of sampled haplotype $q$ in tree $t$. Inferred internal nodes need not correspond across trees.
+
+The observed inputs are phased genetic variants, inferred topology and branch ages, sample ages, and source labels for the reference panel. The source labels of query haplotypes are masked. The model predicts a probability vector $p_{tq}$ over Anatolian farmer (Ana), Caucasus hunter-gatherer (CHG), western hunter-gatherer (WHG) and eastern hunter-gatherer (EHG) ancestry. Training uses simulated ancestry labels as external supervision. These labels do not define input features, inferred trees or genomic intervals.
+
+Figure~\ref{fig:architecture} shows the data representation and the strongest span-accuracy variant. The central design preserves the complete genealogy during graph propagation and the complete sequence of marginal-tree contexts during genomic recurrence.
+
+\begin{figure*}[t]
+\centering
+\input{figures/whole_tree_architecture.tex}
+\caption{Whole-tree ancestry inference. \textbf{A:} An inferred ARG describes genealogical change along the genome. \textbf{B:} Its ordered marginal trees retain the same sampled haplotypes, shown by repeated colors. Internal ancestors can change. \textbf{C:} Observed alleles, sample ages and reference labels supply features. Two shared whole-tree sweeps propagate information upward and downward. Structural residuals mark clade changes and provide local conditioning. In the stable-leaf variant, cut-level context is carried along persistent sampled haplotypes and added before the second sweep. A bidirectional recurrent network follows each sampled haplotype through the genomic sequence. Its history is concatenated with local tree context to predict ancestry probabilities and tracts. The drawing is schematic, with four sampled haplotypes for clarity.}
+\label{fig:architecture}
+\end{figure*}
+
+\subsection{Genetic Evidence and Whole-Tree Propagation}
+The genetic encoder summarizes each haplotype's called alleles relative to observed donor and panel allele frequencies. Mean and maximum pooling within a tree interval produce a local genetic representation. This representation is combined with sample age and the known reference label, where available. Inferred node ages and node roles provide features for internal ancestors. These quantities produce an initial node state $b_v$. Branch geometry and mutation-concordance summaries determine message gates.
+
+The first traversal propagates information from sampled leaves toward the root. For parent $v$ and child $u$,
+\begin{align}
+m_{u\to v}
+ &=\frac{g_u^\uparrow\odot W_\uparrow h_u}{\max(1,d_v)},\\
+s_v&=\sum_{u\in\operatorname{child}(v)}m_{u\to v},\\
+h_v&=\operatorname{LN}\!\left(
+ b_v+\tanh(A_\uparrow[b_v,s_v]+a_\uparrow)\right),
+\end{align}
+where $d_v$ is the number of children, $g_u^\uparrow$ is an observed-feature gate and brackets denote concatenation.
+
+The downward traversal supplies the context outside each child's branch. Its parent context excludes the recipient's own upward message,
+\begin{equation}
+c_{v\setminus u}=o_v+b_v+s_v-m_{u\to v}.
+\label{eq:cavity}
+\end{equation}
+A gated learned transformation maps this context to the child's outside state $o_u$. Root outside states are zero. Excluding the recipient contribution prevents its immediate return as outside evidence. A learned projection of the sampled node's upward and outside states gives its local tree representation. Both traversals visit every native node.
+
+\subsection{Structural Conditioning}
+For a node $v$, let $C_t(v)$ be the set of its descendant sampled haplotypes. We compare proper clades between adjacent trees. A proper clade contains at least two sampled haplotypes and excludes the full panel. Equal clades along a unary chain use the deepest structural representative.
+
+A node receives a gained flag $g_v$ when its clade is absent from the preceding tree and a lost flag $\ell_v$ when it is absent from the following tree. End-of-sequence missing-neighbor flags are zero. These flags describe observed topology changes rather than ancestral identity. They condition a local residual,
+\begin{equation}
+\Delta_v^{\mathrm{clade}}=
+O\!\left[
+g_v(Uh_v\odot Vh_v)
+-\ell_v(Uh_v\odot Wh_v)
+\right].
+\label{eq:clade}
+\end{equation}
+The projections use a low-rank intermediate representation. A second whole-tree sweep receives $b_v+\Delta_v$ and reuses the first sweep's learned weights and observed gates.
+
+We also examine contiguous episodes of the same proper clade. For episode member $i$, a span-weighted context excludes its own tree,
+\begin{equation}
+\bar h_{-i}=
+\frac{\sum_{j\in E(i)}w_jh_j-w_ih_i}
+     {\sum_{j\in E(i)}w_j-w_i}.
+\label{eq:episode}
+\end{equation}
+Episodes with at least two members receive the residual
+\begin{equation}
+\Delta_i^{\mathrm{episode}}
+ =O_e\!\left[(U_eh_i)\odot(V_e\bar h_{-i})+W_eh_i\right].
+\end{equation}
+The matched local control substitutes $h_i$ for $\bar h_{-i}$ on the same eligible nodes. It retains the same parameter count, initialization and training budget. This control asks whether foreign-tree states help beyond the additional local transformation.
+
+\subsection{Memory along Persistent Samples}
+The strongest span-accuracy candidate adds stable-leaf memory to the local-control model. A time cut at 350 generations groups sampled haplotypes by their observed ancestor at that cut. A sample older than the cut retains its sampled node. This cut is computed from inferred node ages, without ancestry labels.
+
+For cut group $k$ in tree $t$, a learned projection of upward and outside context gives a forcing vector $f_{tk}$. Let $k_t(q)$ denote haplotype $q$'s group. A forward memory follows the same sampled haplotype across trees,
+\begin{equation}
+z^\rightarrow_{tq}
+=\rho_t z^\rightarrow_{t-1,q}
+ +(1-\rho_t)f_{t,k_t(q)},
+\qquad
+\rho_t=\exp(-w_t/\lambda).
+\label{eq:memory}
+\end{equation}
+The first state is initialized by its forcing. A reverse scan uses the corresponding reverse order. The positive learned distance scale $\lambda$ lets physical span determine the amount of retained history.
+
+The two directions are averaged, pooled over the current cut group, and centered by subtracting the current forcing. A learned output projection injects this residual at that group's representative before the second tree sweep. This mechanism preserves sample identity even when cut groups change. The shared framework also permits pair-cell memory, which transports history through intersections of adjacent cut groups, and an adjacent-marginal control that discards the additional intersection conditioning. We compare these rules with continued training without added memory.
+
+\subsection{Genomic Context and Ancestry Readout}
+The second tree sweep produces a local representation $e_{tq}$ for every sampled haplotype. A bidirectional recurrent network receives this representation together with interval length and neighboring interval distances,
+\begin{equation}
+r_{1:T,q}=\operatorname{BiGRU}
+ \bigl([e_{tq},\operatorname{geometry}(I_t)]_{t=1}^T\bigr).
+\end{equation}
+The classifier uses both local and genomic information,
+\begin{equation}
+p_{tq}=\operatorname{softmax}
+ \left(\operatorname{MLP}([e_{tq},r_{tq}])\right).
+\end{equation}
+The recurrent computation retains all tree intervals and all sampled haplotypes. Query selection occurs only at readout. Predictions are constant within each native tree interval, which limits the possible positions of ancestry transitions.
+
+\section{Experimental Design}
+\subsection{European Ancestry Panel}
+The shared European development panel contains 476 diploid individuals, comprising 952 phased haplotypes. Of these, 266 are reference haplotypes and 686 are queries. The query cohorts include present-day individuals, Bronze Age individuals, Bronze Age Anatolians (BAA), Neolithic farmers (Neo) and Yamnaya (Yam). The released cohort names are retained. Bronze Age is an approximate correspondence to the preprint's Post-Neolithic category, rather than a verified identical panel.
+
+We generated 32 training and eight development-validation simulations, each spanning 2\,Mb, from the released ancient-European demographic formulation. Relate inferred the genealogies from observed variants \citep{relate2019}. The simulation and inference parameters are given in the supplement, including demographic admixture events and sample-panel sizes. Simulation identity determines the split before any rows, tree intervals or sequence chunks are constructed.
+
+The four-source endpoint uses Ana, CHG, WHG and EHG. AncestralPaths' six path probabilities are collapsed before class assignment,
 \begin{equation}
 (p_{\mathrm{Ana}},p_{\mathrm{CHG}},p_{\mathrm{WHG}},p_{\mathrm{EHG}})
 =(p_1+p_5,p_2+p_6,p_3,p_4).
 \end{equation}
-Its native six-path SNP-focal endpoint remains separate. This mapping defines the present comparison and does not reconstruct a separately trained model from a published table.
+The native six-path task is distinct from this derived four-source endpoint.
 
-Scoring uses the same original 100\,bp center-bin support for every pipeline. Bins are clipped to inferred coverage. Missing support is not filled and uncovered tails are not extrapolated. Truth intervals are intersected with these fixed bins to obtain exact class-specific physical mass. Let $m_{iqc}$ be the represented base-pair mass of class $c$ for bin $i$ and query $q$, and let $p_{iqc}$ be a model probability. For a cohort $Q$,
-\begin{align}
-A_Q&=\frac{\sum_{i,q\in Q,c}m_{iqc}
- \mathbf{1}\{c=\arg\max_k p_{iqk}\}}
- {\sum_{i,q\in Q,c}m_{iqc}},\\
-\mathrm{NLL}_Q&=-\frac{\sum_{i,q\in Q,c}m_{iqc}\log p_{iqc}}
- {\sum_{i,q\in Q,c}m_{iqc}}.
-\end{align}
-Zero probability on positive true-class mass yields infinite NLL. We apply no probability floor, post-hoc renormalization, purity filter or fitted calibration.
-
-The primary endpoint is equal-simulation mean accuracy for the 182 present-day query haplotypes. All-query, ancient-query and individual-cohort results are secondary. We report sample SD with divisor $8-1$ across the eight independent VAL simulations. These SDs describe simulation variation for the fitted models, rather than optimizer-seed uncertainty or confidence intervals. Primary selection scores retain their registered FP32 arithmetic. Broader diagnostics integrate physical spans in FP64 and agree at the displayed precision.
-
-\section{Whole-Tree Model with Local Clade Flags}
-Let $T_t$ denote the inferred tree on genomic hold $I_t$, with the same ordered set of sampled haplotypes in every tree. Internal-node indexes are local to a tree. The model makes a C4 probability vector for every query on each native hold. Figure~\ref{fig:architecture} shows the implemented data flow.
-
-\subsection{Observed SNP and Node Encoding}
-For each SNP and sampled haplotype, the site encoder receives 19 observed channels: eight logged donor allele-frequency values for its called allele, eight availability masks, the log panel frequency of that allele, site entropy and a call indicator. Missing calls are masked. A $19\to32\to32$ MLP with GELU and tanh transforms each tuple. Within each native hold, the encoder pools the mean and coordinatewise maximum, then appends log call count, an empty-pool indicator and log hold span. A $67\to32$ projection produces a sampled-leaf SNP representation.
-
-Known donor labels enter as a four-class one-hot vector. Query labels are masked and accompanied by an unknown-label indicator. The leaf representation also receives normalized log sample age. A $38\to32$ projection combines these six annotations with the SNP encoding. Every graph node receives a separate projection of normalized log node age, root status and sampled-node status. The sampled-leaf feature is added only at its own native node.
-
-Two sigmoid gates, one for each message direction, are computed from nine observed edge channels. These combine inferred edge geometry with mutation-concordance summaries. All graph states have width 32. This encoding keeps known reference annotations distinct from the query targets used by the external loss.
-
-\subsection{Upward Messages and Recipient Exclusion}
-Each tree sweep uses actual PyG \texttt{MessagePassing} and \texttt{SumAggregation} calls. Let $b_v$ be a node's encoded base feature, $g^\uparrow_u$ its upward gate and $d_v$ the number of children of $v$. The upward messages and state have the form
-\begin{align}
-m_{u\to v}&=\frac{g^\uparrow_u\odot W_\uparrow h_u}{\max(1,d_v)},\\
-s_v&=\sum_{u\in\mathrm{child}(v)}m_{u\to v},\\
-h_v&=\mathrm{LN}\!\left(b_v+
- \tanh\!\left(A_\uparrow[b_v,s_v]+a_\uparrow\right)\right).
-\end{align}
-Native topological levels determine evaluation order. The exact transformed upward contribution of every child is retained for the downward sweep.
-
-For a nonroot node $u$ with parent $v$, the downward context excludes that child's own upward contribution,
+\subsection{Metrics and Statistical Unit}
+All European pipelines are scored on the same fixed 100\,bp bins, clipped to inferred coverage. Ancestry truth is intersected with these bins to obtain the true physical mass $m_{iqc}$ of source $c$ for query $q$ in bin $i$. Span accuracy is
 \begin{equation}
-c_{v\setminus u}=o_v+b_v+s_v-m_{u\to v}.
+A=\frac{\sum_{iqc}m_{iqc}
+  \mathbf{1}\{c=\arg\max_k p_{iqk}\}}
+ {\sum_{iqc}m_{iqc}}.
 \end{equation}
-A gated linear transformation, learned downward update, tanh and layer normalization map this context to $o_u$. Roots start with zero outside state. The sampled-leaf context is a learned width-32 projection of the concatenated upward and outside states. Both sweeps traverse every native node. They neither select a fixed ancestor depth nor replace the tree with a query-reference subgraph.
+The primary endpoint gives each simulation equal weight and considers the 182 present-day query haplotypes. Cohort and all-query results are secondary. Negative log-likelihood (NLL) weights true-class log probabilities by the same physical mass.
 
-\begin{figure*}[t]
-\centering
-\begin{tikzpicture}[
- block/.style={draw,rounded corners=2pt,align=center,text width=2.55cm,
- minimum height=1.05cm,inner sep=3pt,font=\footnotesize},
- flow/.style={-{Latex[length=2mm]},line width=.65pt},
- observed/.style={flow,dashed}]
-\node[block] (obs) at (0,0) {Observed SNPs,\\inferred trees,\\ages and donor labels};
-\node[block] (base) at (3.35,0) {Site pooling and\\node features\\base $b$, edge gates};
-\node[block] (first) at (6.7,0) {First complete\\upward/downward\\PyG tree sweep};
-\node[block] (local) at (10.05,0) {Node-local rank-8\\flag adapter\\residual $\Delta$};
-\node[block] (second) at (13.4,0) {Second shared\\PyG tree sweep\\with base $b+\Delta$};
-\node[block] (flags) at (10.05,1.65) {Exact adjacent-tree\\leaf-clade comparison\\gained/lost flags};
-\node[block] (leaves) at (13.4,-1.85) {Gather sampled-leaf\\upward and outside\\contexts, width 32};
-\node[block] (gru) at (10.05,-1.85) {Bidirectional GRU\\all native holds\\all 952 haplotypes};
-\node[block] (head) at (6.7,-1.85) {Local context +\\64-channel history\\$96\to32\to4$ head};
-\node[block] (queries) at (3.35,-1.85) {Select 686 queries\\and original\\hold-to-bin mapping};
-\node[block] (prob) at (0,-1.85) {C4 probabilities\\constant on each\\native hold};
-\node[block] (loss) at (3.35,-3.35) {External exact-span\\TRAIN loss};
-\node[block] (truth) at (6.7,-3.35) {TRAIN class-span\\mass only};
-\draw[flow] (obs)--(base);
-\draw[flow] (base)--(first);
-\draw[flow] (first)--node[above,font=\footnotesize] {$h^{(1)}$}(local);
-\draw[flow] (local)--(second);
-\draw[observed] (obs.north)--(0,1.65)--(flags.west);
-\draw[observed] (flags)--(local);
-\draw[flow] (base.north)--(3.35,.85)--node[above,pos=.22,font=\footnotesize] {same base and gates}(13.4,.85)--(second.north);
-\draw[flow] (second)--(leaves);
-\draw[flow] (leaves)--(gru);
-\draw[flow] (gru)--(head);
-\draw[flow] (head)--(queries);
-\draw[flow] (queries)--(prob);
-\draw[flow] (prob.south)--(0,-3.35)--(loss.west);
-\draw[observed] (truth)--(loss);
-\end{tikzpicture}
-\caption{The inherited H042 computation. The two full-tree sweeps share learned weights. Only first upward states feed the local adapter. Dashed arrows supply structural flags or external training supervision. The H045 comparison adds the episode residual in Section~\ref{sec:episodes} before the same second sweep, while retaining the full genomic GRU. Query truth never enters the forward feature path. Architecture provenance is E6--E7 and E14 in Appendix~\ref{app:provenance}.}
-\label{fig:architecture}
-\end{figure*}
+Span accuracy emphasizes genomic extent. Boundary precision, recall and F1 instead evaluate transitions using one-to-one positional matching within 1\,kb. This matcher ignores source-transition identity. We report mean and sample SD across the eight simulations. These SDs quantify variation among simulations for one fitted model per condition, rather than variability across training seeds or a confidence interval.
 
-\subsection{Exact Local Clade-Change Flags}
-For an internal node $v$, let $C_t(v)$ be its set of descendant sampled haplotypes. A proper clade contains more than one and fewer than 952 sampled leaves. The structural preparation compares these sets exactly between adjacent trees using temporary integer bitsets. Equal proper clades on unary chains use the deepest structural representative. Leaf and root clades are excluded.
+\subsection{Native Comparators and Matched Controls}
+AncestralPaths retains the released dense classifier, six outputs and five-epoch fit. Its bounded sampler has a shortfall in BAA path-six rows, as detailed in the supplement. ARGMix retains the current author's released model, its 15-reference representation without ancestor nodes, genomic sequence modeling and native early stopping. A full-panel slot and metadata adaptation lets it process the common observed roster. The preprint instead specifies 25 references and three ancestor nodes, and the public release does not support ancestor inputs. We label the evaluated release condition explicitly. The model's inner selection rule remains unchanged.
 
-A representative receives a gained flag $g_v$ if its proper clade is absent from the preceding tree and a lost flag $\ell_v$ if absent from the following tree. The corresponding missing-neighbor flags at sequence ends remain zero. Only two compact flags per native node are retained. Exact bitsets are not neural features and no ancestral-node correspondence is asserted. In particular, an identical sampled-leaf clade is a structural statement, rather than proof that two inferred internal nodes are the same biological ancestor.
+Our model also receives observed SNP features. The native pipelines differ in representations, row sampling, supervision units, training exposure and checkpoint selection. The common endpoint therefore compares fitted ancestry pipelines. It does not assign their entire difference to the neural architecture.
 
-The H042 adapter operates on a node's own first upward state $h_v^{(1)}$,
-\begin{equation}
-\Delta_v=O\!\left[
-g_v(Uh_v^{(1)}\odot Vh_v^{(1)})
--\ell_v(Uh_v^{(1)}\odot Wh_v^{(1)})\right].
-\label{eq:local}
-\end{equation}
-Here $U,V,W:\mathbb{R}^{32}\to\mathbb{R}^{8}$ and
-$O:\mathbb{R}^{8}\to\mathbb{R}^{32}$ are bias-free. Their 1,024 weights increase the body from 29,764 to 30,788 parameters. The output projection $O$ starts at zero. A second complete tree sweep uses $b_v+\Delta_v$ with the original gates and the same sweep weights. Fresh state buffers are used for this second traversal.
+Within our model family, matched controls isolate narrower questions. Clade-event tensor and event-MLP models share added capacity and training. Local flags use the same added parameter count and continuation budget. Episode models differ only in foreign versus own-state conditioning. The final four-arm memory comparison starts from the same local-control checkpoint and gives every arm the same additional training budget. All model weights remain trainable. Training details and cumulative exposure are in the supplement.
 
-Equation~\ref{eq:local} contains no other node's or tree's latent state. It is a local structural-feature control for the more elaborate clade-event interactions, not a claimed novel message-passing primitive.
-
-\subsection{Matched Clade-Episode Context}
-\label{sec:episodes}
-H045 retains the complete learned H042 model and adds a paired episode adapter. A maximal consecutive run of the same exact proper sampled-leaf clade is an episode. Reappearance after an absent tree starts a new episode. The same unary representative rule applies, without asserting biological ancestor identity. For a member $i$ with first-sweep state $h_i$ and physical span $w_i$, the foreign context excludes its own tree,
-\begin{equation}
-m_i=\frac{\sum_{j\in E(i)}w_jh_j-w_ih_i}
-           {\sum_{j\in E(i)}w_j-w_i}.
-\end{equation}
-Only episodes containing at least two trees receive an extra residual,
-\begin{equation}
-\Delta_i^{\mathrm{ep}}=
-O_e\!\left[(U_eh_i)\odot(V_em_i)+W_eh_i\right].
-\end{equation}
-The own-state arm substitutes $m_i=h_i$ on the same eligible nodes while computing the same pool. Three bias-free $32\to8$ projections and one $8\to32$ projection add 1,024 weights, for 31,812 per arm. The output projection starts at zero. The second shared tree sweep receives $b+\Delta+\Delta^{\mathrm{ep}}$. PyG sums implement the span-weighted pool, and gradients remain connected across episode members. This is an implemented conditioning comparison, not a claim of a new pooling or message-passing operator. Provenance: E13--E14.
-
-\subsection{Ordered Cut-Memory Comparison}
-H050 starts from H045 own-state and adds memory at observed tree cuts 350 generations before the present. Samples older than the cut retain their actual sampled-node singleton. At each cut representative, a bias-free $32\to8$ projection receives the sum of first-sweep upward and outside states. Forward and reverse memory scans use physical-span decay $\rho_t=\exp(-w_t/\ell)$ with a learned positive length scale initialized to 5\,kb. The pair-cell arm transports histories through sample-witness intersections of successive cut groups. Its adjacent-marginal null retains only the corresponding middle-group marginal. A stable-leaf control instead carries memory along persistent sampled haplotypes. Each arm projects the bidirectional history minus the current forcing through an $8\to32$ map and injects the result at cut representatives before the second tree sweep. The output map starts at zero. The three arms add 513 parameters, for 32,325 each, and retain the original genomic GRU and direct classifier. A fourth arm continues the 31,812-parameter H045 model without adding memory. This comparison tests these specific memory rules using established aggregation and recurrence. Provenance: E16--E17.
-
-\subsection{Complete Genomic History and Readout}
-The second-sweep leaf contexts are concatenated with three observed geometry channels: log hold span and log distances to the preceding and following hold midpoints. The normalization denominator is $\log(2{,}000{,}001)$. A single-layer bidirectional GRU receives the resulting 35-channel sequence, with hidden width 32 in each direction. It processes all native holds for all 952 sampled haplotypes.
-
-The classifier concatenates the local 32-channel context and 64-channel recurrent history. A $96\to32\to4$ MLP with GELU yields C4 logits. Only afterward does the readout select the 686 queries and map each original scored bin to its native hold. Consequently the current prediction is constant within a hold. SNP chunks of 256 are a memory strategy for exact pooling, not truncated recurrent histories or independent genomic training examples.
-
-This construction combines established graph propagation, local structural features and recurrent sequence modeling. Temporal graph state-space methods provide a related perspective on persistent sampled interfaces \citep{graphssm2024}. The present empirical comparisons evaluate these concrete implementations and do not resolve priority across the broader literature.
-
-\section{Training and Comparator Conditions}
-\subsection{Whole-Parent Optimization}
-The training objective uses all 686 query haplotypes. Because logits are constant on a native hold, class-specific target spans from every original scored bin can be summed by hold without changing the physical-span cross-entropy objective. For hold $t$,
-\begin{equation}
-M_{tqc}=\sum_{i:\,r(i)=t}m_{iqc},
-\qquad
-\mathcal{L}=-\frac{\sum_{tqc}M_{tqc}\log p_{tqc}}{\sum_{tqc}M_{tqc}}.
-\end{equation}
-This aggregation preserves every represented target span. It does not sample trees or discard query states. Targets remain external to the observed bank.
-
-The H038 aligned body and its zero-concordance control each complete 30 FP32 passes, or 960 whole-simulation optimizer updates. The zero-concordance arm sets the first three branch-support channels to zero. It retains SNP inputs, topology, remaining support summaries and the complete GRU. Thus it is a particular routing-feature ablation, not an SNP-free or genealogy-free comparator.
-
-H040 tensor and event-MLP conditions and H042 flags begin from the same selected H038 aligned checkpoint. Each completes 30 additional passes and 960 additional updates. AdamW is reset with learning rate $10^{-3}$, weight decay $10^{-4}$, betas $(0.9,0.999)$ and epsilon $10^{-8}$. Gradient norm is clipped at 1. These extensions have 30,788 parameters and use optimizer seed 101. The same added budget does not make their total exposure equal to the unextended H038 body.
-
-H045 begins from the same selected H042 pass-30 checkpoint in both arms, preserves its complete flag adapter and trains all body weights. Its new episode weights are identical at initialization, and each arm independently resets the same AdamW settings and completes 30 FP32 passes, or 960 further whole-simulation updates, with seed 101. Each arm therefore has 1,920 continuation updates beyond the selected H038 base. This extra exposure and its 31,812 parameters must be distinguished from H042's 30,788 parameters. Provenance: E13--E14.
-
-H050 initializes every arm from the completed H045 own-state pass-30 model, whose lineage contains 2,880 prior updates. Each arm resets AdamW, trains all weights and completes another 30 FP32 passes, or 960 updates, with seed 101. The four-arm experiment therefore adds 3,840 optimizer updates in total, and each completed model lineage reaches 3,840 updates. Memory arms select added pass 30, while continuation selects added pass 20, corresponding to 3,520 updates in that selected checkpoint's lineage. All arms finish the same training budget despite their different selected passes. All 192 checkpoint-parent prediction products are sealed before any VAL truth is opened. Provenance: E16.
-
-Checkpoints at five-pass intervals are evaluated using equal-simulation present-day VAL accuracy, with lower NLL and earlier-pass tie breaks. The aligned H038 checkpoint is pass 30, while zero concordance selects pass 25 although both finish pass 30. H040 and H042 select additional pass 30. Both H045 arms also select their additional pass 30. All 96 H045 checkpoint-parent products are sealed before validation truth is opened for scoring. VAL supplies no optimization gradients, but repeated development and selection on this split limit confirmatory interpretation.
-
-\subsection{Matched Interactions and Native Baselines}
-The H040 comparison holds its clade-event inputs, initialization protocol, 1,024 added weights and additional update budget fixed between a tensor interaction and an event MLP. Both route signed residuals through changed-clade event incidences, followed by the second shared tree sweep. The local H042 control uses the same size and added budget but substitutes the two exact local flags in Equation~\ref{eq:local}. It therefore asks whether those event interactions are needed beyond local topology-change information.
-
-Native AncestralPaths retains the released Keras Dense512 classifier, six path outputs and fixed five-epoch training. Its actual fit uses 5,190,874 sampled rows from the 32 TRAIN simulations and selects final epoch 5. This is the executable released Dense model, not a reconstruction of a published CNN. Its derived C4 probabilities are scored without changing the native model.
-
-Current native ARGMix retains its author implementation, with disclosed full-panel slot and metadata adaptation. It uses the released 15-reference representation without ancestor features and the native genomic sequence model. Its fit uses source seed 50 and selects epoch 9 by the original smoothed, masked, unweighted VAL batch-mean loss. Native patience is 2 with a 20-epoch cap. External full-support scoring does not replace that inner selection rule.
-
-These conditions share simulation observations and physical scoring support, but they do not isolate architecture. The whole-tree models additionally consume observed SNP features. Native row sampling, reference representations, sequence chunks, supervision, training exposure and checkpoint objectives remain method-specific. H040 and H042 receive 960 additional updates after H038. H045 receives another 960 after H042, and H050 another 960 per arm after H045 own-state. Comparisons with native pipelines are therefore development pipeline comparisons, rather than matched-input or matched-budget operator tests.
+\todo{Complete the untouched European assessment and common-data native ARGformer comparison. For a comparison with the ARGMix preprint's numerical tables, verify the original sample roster, reference eligibility, genomic map, observation pipeline and scoring protocol. The available author release postdates the preprint and does not support its ancestor inputs. Recover the original paper-era model, training specification and checkpoint. A 25-reference release sensitivity would still have zero ancestors and must be named separately. The completed 476-diploid condition remains a shared development comparison.}
 
 \section{Results}
-\subsection{Primary Span Accuracy}
-Table~\ref{tab:primary} gives the completed present-day development results. H045 foreign-episode context reaches $96.8270\pm0.5870\%$, while its matched own-state control reaches $96.8175\pm0.6142\%$. Current native ARGMix reaches $94.4461\pm1.1491\%$ and the AP-derived C4 endpoint reaches $93.7830\pm0.8385\%$. The H045--ARGMix difference is 2.3809 percentage points between the specified fitted pipelines. Extra SNP inputs, continued training and different native checkpoint rules prevent attributing that gap to cross-tree exchange. The relevant matched H045 effect is only 0.0096 points.
+\subsection{Shared European Development Performance}
+Table~\ref{tab:pipeline} summarizes the evaluated pipelines. Stable-leaf memory reaches $97.0778\pm0.5674\%$ present-day span accuracy, compared with $94.4461\pm1.1491\%$ for current native ARGMix and $93.7830\pm0.8385\%$ for the derived AncestralPaths output. The stable-leaf--ARGMix difference is 2.63 percentage points for these fitted pipelines.
 
 \begin{table}[t]
 \centering
 \small
-\begin{tabular}{lrr}
+\begin{tabular}{@{}lr@{}}
 \toprule
-Condition & Accuracy (\%) & Mean NLL \\
+Pipeline & Span accuracy (\%) $\uparrow$\\
 \midrule
-Native AP (C4) & $93.7830\pm0.8385$ & $\infty$ \\
-Current native ARGMix & $94.4461\pm1.1491$ & 0.219695 \\
-H038 zero concordance & $94.9252\pm0.7917$ & 0.147232 \\
-H038 aligned & $95.4891\pm0.8338$ & 0.133497 \\
-H040 event MLP & $96.2007\pm0.7048$ & 0.110014 \\
-H040 tensor & $96.2674\pm0.7493$ & 0.109332 \\
-H042 local flags & $96.5778\pm0.5954$ & 0.100656 \\
-H045 own-state & $96.8175\pm0.6142$ & 0.092976 \\
-H045 foreign episode & $96.8270\pm0.5870$ & 0.092980 \\
+Released AncestralPaths, derived C4 & $93.78\pm0.84$\\
+Current native ARGMix & $94.45\pm1.15$\\
+Whole-tree base & $95.49\pm0.83$\\
+Local clade flags & $96.58\pm0.60$\\
+Episode local control & $96.82\pm0.61$\\
+Foreign-episode context & $96.83\pm0.59$\\
+Continued-training control & $97.00\pm0.50$\\
+Stable-leaf memory & $\best{97.08\pm0.57}$\\
 \bottomrule
 \end{tabular}
-\caption{Present-day development span accuracy, mean$\pm$sample SD across eight simulations and one optimizer seed per condition. NLL has no probability floor. Native AP is the derived C4 endpoint. H040/H042 add 960 updates after H038, and H045 adds another 960 after H042. Provenance: E1--E5, E11 and E13, Appendix~\ref{app:provenance}.}
-\label{tab:primary}
+\caption{Shared European development endpoint on 182 present-day query haplotypes. Values are mean$\pm$simulation SD across eight 2\,Mb simulations. The best observed mean is bold. Inputs, training exposure and model selection differ between pipeline families. This is not a reproduction of published table values.}
+\label{tab:pipeline}
 \end{table}
 
+The progression within the neural family also increases training exposure. The continued-training control reaches $97.00\%$ without adding memory. Stable leaves exceed that control by only $0.0778$ points, and the paired episode comparison adds only $0.0096$ points for foreign states. Thus the larger pipeline gain does not establish that cross-tree message exchange is its cause.
 
-The aligned H038 body exceeds zero concordance by 0.5639 percentage points at the selected checkpoints. Both runs complete 960 updates, but their selected passes differ. This result supports retaining the observed concordance features in this development condition. It does not identify an effect of all SNP information, all genealogy information, or PyG software alone.
+The source cohorts have different prediction difficulty (Table~\ref{tab:cohorts}). The local-flag model exceeds the native comparators in every listed cohort under this condition. Scores are highest for the ancient aggregate. This does not demonstrate equal performance on empirical ancient DNA, since source mixtures, sampling ages and tract structures differ between cohorts.
 
-The same caution applies to improvements over the H038 body. H042 changes capacity, performs two shared tree sweeps and trains for another 960 updates. H045 increases capacity again and continues the selected H042 model. These score differences cannot be assigned entirely to a structural mechanism. The closer controls match both added capacity and training within each extension family.
-
-Native AncestralPaths has finite accuracy but infinite strict raw FP32 NLL on the primary cohort. One simulation places zero probability on the true class over 800 query-base pairs. We preserve this result rather than floor probabilities, exclude the simulation or silently average only finite NLLs. Accuracy and NLL measure different aspects of a prediction distribution.
-
-\subsection{Local Flags Versus Clade-Event Interactions}
-Table~\ref{tab:paired} reports paired present-day differences across the same eight simulations. Tensor coupling exceeds its event MLP by 0.0667 percentage points. H042 local flags exceed tensor coupling by 0.3104 points and the event MLP by 0.3771 points. In the later H045 family, foreign episode context exceeds own-state by $0.0096\pm0.1527$ points, positive in six of eight simulations. This fails the registered practical accuracy-gain criterion of at least 0.10 points. The gate is a development utility criterion, not a significance test.
-
-\begin{table}[t]
+\begin{table*}[t]
 \centering
 \small
-\begin{tabular}{lrr}
+\begin{tabular}{@{}lrrrrr@{}}
 \toprule
-Paired comparison & Difference (pp) & Positive \\
+Cohort & Query haplotypes & AncestralPaths, C4 & ARGMix & Whole-tree base & Local flags\\
 \midrule
-Tensor $-$ event MLP & $0.0667\pm0.0886$ & 6/8 \\
-Flags $-$ tensor & $0.3104\pm0.2588$ & 8/8 \\
-Flags $-$ event MLP & $0.3771\pm0.2165$ & 8/8 \\
-H045 foreign $-$ own & $0.0096\pm0.1527$ & 6/8 \\
+Present-day &182&$93.78\pm0.84$&$94.45\pm1.15$&$95.49\pm0.83$&$\best{96.58\pm0.60}$\\
+Bronze Age &162&$94.76\pm1.18$&$97.71\pm0.75$&$98.17\pm0.80$&$\best{99.07\pm0.32}$\\
+BAA &14&$96.94\pm1.32$&$98.44\pm1.02$&$98.90\pm0.89$&$\best{99.02\pm1.07}$\\
+Neo &302&$97.57\pm0.27$&$99.30\pm0.26$&$99.41\pm0.13$&$\best{99.53\pm0.18}$\\
+Yam &26&$95.43\pm1.41$&$99.22\pm0.90$&$98.96\pm1.31$&$\best{99.86\pm0.19}$\\
+Ancient &504&$96.54\pm0.32$&$98.76\pm0.31$&$98.98\pm0.32$&$\best{99.39\pm0.16}$\\
+All queries &686&$95.81\pm0.45$&$97.61\pm0.50$&$98.05\pm0.43$&$\best{98.64\pm0.26}$\\
 \bottomrule
 \end{tabular}
-\caption{Equal-simulation paired accuracy differences, mean$\pm$sample SD. Positive counts are descriptive. Each comparison matches added parameter count and training within its family. H045 continues H042 and is a separate paired comparison. Provenance: E2--E3 and E13.}
-\label{tab:paired}
-\end{table}
+\caption{Cohort span accuracy (\%), mean$\pm$simulation SD. Bold identifies the best mean within each row. Ancient and all-query rows aggregate the cohorts above them. This completed cohort comparison concerns the local-flag model, rather than the later stable-leaf model. Bronze Age has not been established as identical to the published Post-Neolithic panel.}
+\label{tab:cohorts}
+\end{table*}
 
+\subsection{What Does Cross-Tree Context Add?}
+Local clade flags outperform the examined clade-event tensor interaction by $0.3104\pm0.2588$ accuracy points and the matched event MLP by $0.3771\pm0.2165$ points. The simpler structural control therefore captures useful information that these interactions need not exchange explicitly. In a later matched comparison, foreign-episode context exceeds own-state conditioning by $0.0096\pm0.1527$ points. This falls below the registered practical-gain threshold of 0.10 points.
 
-The earlier comparisons favor local flags over the examined clade-event interactions. The later episode comparison does not establish a useful foreign-state advantage over its own-state control. Different incidence definitions, objectives or independent simulations could change these results. Neither the tensor interaction nor the episode pool is supported here as a distinct new neural operator.
-
-\subsection{Matched Ordered-Memory Ablation}
-Table~\ref{tab:H050} reports the completed H050 comparison on the same eight development simulations. Stable-leaf memory has the highest present-day accuracy of the four arms, but continuation has the highest boundary F1. Pair-cell memory exceeds the adjacent-marginal null by $0.0137\pm0.0243$ accuracy points and falls below stable leaves by $0.0138\pm0.0384$ points. Its gain over continuation is $0.0640\pm0.1453$ points. These are means and sample SDs of paired differences, distinct from the per-arm SDs in the table.
+The ordered-memory comparison tests whether a richer transport rule improves over stable samples and continued training (Table~\ref{tab:memory}). Pair-cell memory exceeds its adjacent-marginal control by $0.0137\pm0.0243$ accuracy points. It is below stable-leaf memory by $0.0138\pm0.0384$ points. Neither registered utility criterion is met: a gain of at least 0.10 accuracy points without a boundary-F1 decrease, or a gain of at least 1.00 boundary-F1 point with no more than 0.05 accuracy points lost, against every control. These thresholds are practical development criteria.
 
 \begin{table}[t]
 \centering
 \small
 \begin{tabular}{@{}lrr@{}}
 \toprule
-H050 arm & Accuracy (\%) & Boundary F1 (\%) \\
+Memory condition & Accuracy $\uparrow$ & Boundary F1 $\uparrow$\\
 \midrule
-Pair-cell memory & $97.0640\pm0.5595$ & $18.93\pm1.42$ \\
-Marginal null & $97.0504\pm0.5796$ & $18.85\pm1.05$ \\
-Stable leaves & $97.0778\pm0.5674$ & $18.38\pm1.31$ \\
-Continuation & $97.0000\pm0.4978$ & $19.05\pm1.43$ \\
+Pair-cell & $97.064\pm0.560$ & $18.93\pm1.42$\\
+Adjacent marginal & $97.050\pm0.580$ & $18.85\pm1.05$\\
+Stable leaves & $\best{97.078\pm0.567}$ & $18.38\pm1.31$\\
+Continued training & $97.000\pm0.498$ & $\best{19.05\pm1.43}$\\
 \bottomrule
 \end{tabular}
-\caption{H050 present-day results, mean$\pm$sample SD across eight reused VAL simulations and optimizer seed 101. Boundary tolerance is 1\,kb. All arms complete 960 new updates from the same H045 own-state model. The memory arms have 32,325 parameters and select pass 30. Continuation has 31,812 parameters and selects pass 20. Provenance: E16.}
-\label{tab:H050}
+\caption{Matched ordered-memory comparison, mean$\pm$simulation SD in percent. All arms finish the same additional training budget. Checkpoint selection is individual to each arm. Bold identifies the largest mean in each metric. Boundary tolerance is 1\,kb.}
+\label{tab:memory}
 \end{table}
 
-The registered primary criterion requires pair-cell memory to gain at least 0.10 accuracy points without reducing boundary F1 against each of the three controls. The secondary criterion requires at least 1.00 boundary-F1 point without losing more than 0.05 accuracy points against each control. Both criteria fail. Pair-cell memory's mean boundary F1 is 0.1224 points below continuation. Stable leaves gain 0.0778 accuracy points over continuation but lose 0.6682 boundary-F1 points. Thus this completed ablation does not support a useful higher-order memory advantage, despite the larger span scores than the earlier H045 checkpoints. These remain one-seed development results.
+Stable leaves have the highest span accuracy, while continued training has the highest boundary F1. Their paired differences are $+0.0778$ accuracy points and $-0.6682$ boundary-F1 points. This tradeoff is central to evaluating a method intended to recover ancestry tracts.
 
-\subsection{Cohort Dependence}
-Table~\ref{tab:cohorts} retains the earlier native and H042 cohort comparison, including the small BAA and Yam groups. Appendix Table~\ref{tab:episodecohorts} adds both completed H045 arms. Foreign-episode context reaches $98.7761\%$ across all 686 queries, compared with $98.7815\%$ for own-state. Its present-day score is $96.8270\%$. These aggregate and primary endpoints are not interchangeable, and the foreign condition does not uniformly exceed its matched control.
-
-\begin{table*}[t]
-\centering
-\small
-\begin{tabular}{lrrrrr}
-\toprule
-Cohort & Queries & Native AP (C4) & Current native ARGMix & H038 aligned & H042 local flags \\
-\midrule
-Present & 182 & $93.78\pm0.84$ & $94.45\pm1.15$ & $95.49\pm0.83$ & $96.58\pm0.60$ \\
-Bronze Age & 162 & $94.76\pm1.18$ & $97.71\pm0.75$ & $98.17\pm0.80$ & $99.07\pm0.32$ \\
-BAA & 14 & $96.94\pm1.32$ & $98.44\pm1.02$ & $98.90\pm0.89$ & $99.02\pm1.07$ \\
-Neo & 302 & $97.57\pm0.27$ & $99.30\pm0.26$ & $99.41\pm0.13$ & $99.53\pm0.18$ \\
-Yam & 26 & $95.43\pm1.41$ & $99.22\pm0.90$ & $98.96\pm1.31$ & $99.86\pm0.19$ \\
-Ancient & 504 & $96.54\pm0.32$ & $98.76\pm0.31$ & $98.98\pm0.32$ & $99.39\pm0.16$ \\
-All queries & 686 & $95.81\pm0.45$ & $97.61\pm0.50$ & $98.05\pm0.43$ & $98.64\pm0.26$ \\
-\bottomrule
-\end{tabular}
-\caption{Cohort span accuracy (\%), mean$\pm$sample SD over eight independent development simulations. Queries counts haplotypes. Ancient and all-query rows are aggregates of the preceding cohorts. BAA and Yam remain explicit despite small sizes. Bronze Age is not asserted to be identical to the published Post-Neolithic panel. Provenance: E1, E4--E5.}
-\label{tab:cohorts}
-\end{table*}
-
-
-The contemporary-versus-ancient contrast reflects different query distributions under this demographic condition. Query cohorts differ in ages, source mixtures, tract structure and numbers of haplotypes. These results do not measure performance on an empirical ancient-DNA collection or establish robustness to observation error. Small cohorts also have sparse transition counts, so a high span score does not guarantee a stable boundary estimate.
-
-Advantages are not uniform within the extended neural family. H040 tensor has BAA accuracy $99.14\%$, compared with H042's $99.02\%$. The event MLP has Neo accuracy $99.56\%$, compared with H042's $99.53\%$. Appendix~\ref{app:matched} gives their simulation SDs. The primary ranking thus summarizes a particular registered endpoint rather than dominance on every cohort and metric.
-
-\subsection{High Span Accuracy, Weak Boundaries}
-Table~\ref{tab:boundaries} uses the unchanged one-to-one positional boundary matcher at 1\,kb tolerance. H042 improves mean F1 to $18.05\pm1.84\%$, but its recall is only $22.30\pm1.86\%$ and precision is $15.21\pm2.01\%$. Accurate long tracts can dominate physical-span accuracy while numerous missed and extra transitions remain.
+\subsection{Tract Boundaries Remain Difficult}
+Table~\ref{tab:boundaries} shows that improvements in span accuracy can accompany better boundary F1 relative to native pipelines, while still leaving most true transitions unrecovered. Local flags reach $18.05\pm1.84\%$ F1. AncestralPaths has the highest recall in this comparison, at a much lower precision.
 
 \begin{table}[t]
 \centering
 \small
 \begin{tabular}{@{}lrrr@{}}
 \toprule
-Condition & Prec. & Recall & F1 \\
+Pipeline & Prec. $\uparrow$ & Recall $\uparrow$ & F1 $\uparrow$\\
 \midrule
-Native AP (C4) & $3.95\pm0.48$ & $32.36\pm2.06$ & $7.03\pm0.78$ \\
-ARGMix & $9.16\pm1.49$ & $16.41\pm2.22$ & $11.74\pm1.73$ \\
-H038 aligned & $10.71\pm1.21$ & $17.99\pm2.01$ & $13.42\pm1.47$ \\
-H042 flags & $15.21\pm2.01$ & $22.30\pm1.86$ & $18.05\pm1.84$ \\
+AP (C4)&$3.95\pm0.48$&$\best{32.36\pm2.06}$&$7.03\pm0.78$\\
+ARGMix&$9.16\pm1.49$&$16.41\pm2.22$&$11.74\pm1.73$\\
+Tree base&$10.71\pm1.21$&$17.99\pm2.01$&$13.42\pm1.47$\\
+Local flags&$\best{15.21\pm2.01}$&$22.30\pm1.86$&$\best{18.05\pm1.84}$\\
 \bottomrule
 \end{tabular}
-\caption{Present-day boundaries at 1\,kb tolerance (\%), mean$\pm$sample SD across eight simulations. The positional matcher ignores transition class identity. Provenance: E1, E4--E5 and E8.}
+\caption{Present-day boundary metrics (\%), with AP denoting AncestralPaths. Values are mean$\pm$simulation SD at 1\,kb tolerance. The best mean in each column is bold, including the native comparator's recall. Matching is positional and does not require the correct source-transition identity.}
 \label{tab:boundaries}
 \end{table}
 
+A diagnostic of frozen whole-tree-base predictions separates representation from recognition. Of 4,008 true changes, 1,094 have no native interval edge within 1\,kb. Yet 2,195 of the model's 3,289 missed changes do have a nearby candidate. Finer readout alone would therefore address only part of the problem. Short false ancestry islands also contribute disproportionately to extra boundaries: islands of at most 10\,kb account for $35.46\pm2.71\%$ of extra boundaries but only $3.83\pm0.73\%$ of erroneous physical mass. This explains why a span-based ranking can understate fragmentation.
 
-H045 foreign-episode boundary F1 is $18.1558\pm1.3790\%$, compared with $18.0557\pm1.7761\%$ for own-state. The paired difference is $0.1001\pm0.9632$ percentage points. It does not resolve the boundary weakness, and the failed accuracy-gain criterion means that H045 does not meet both registered utility criteria. These H045 results do not replace the separate H042 event counts or the H038 fixed-output diagnostic. Provenance: E13.
+\subsection{American Admixture Benchmark}
+A separate 30\,Mb American simulation contains 600 reference and 1,000 query haplotypes with EUR, EAS and AFR source classes. Released FLARE calls reach $98.0100\%$ accuracy and $97.7151\%$ macro F1 on 10,000 predetermined focal records. This is one validation simulation, so no between-simulation SD is available. The endpoint counts focal records rather than physical span.
 
-Native AP has higher boundary recall than H042 in this comparison, accompanied by much lower precision. H042's larger F1 consequently should not be read as an improvement in every transition metric. For H042 the pooled counts are 4,008 true changes, 5,920 predicted changes and 892 positional matches. These pooled event counts are distinct from the equal-simulation means and SDs in the table.
+\todo{Complete our model and native ARGformer on the same American observations, reference/query identities and focal support. Add multi-simulation uncertainty and verify the published demographic and prediction settings before comparing with its Table~1. The current FLARE score alone establishes no head-to-head ranking.}
 
-A separate fixed-output H038 diagnostic clarifies two limitations. Of 4,008 true changes, 1,094, or 27.30\%, have no allowed native-hold readout edge within 1\,kb. Its class-agnostic hold-edge oracle recall is $72.70\pm2.80\%$. Yet 2,195 of the aligned model's 3,289 missed boundaries still have a nearby candidate. Missing readout resolution therefore explains only part of the recognition deficit.
+\subsection{Application to Ancient Danish Genomes}
+We applied a frozen foreign-episode model to ten ancient Danish query individuals and eight proxy-reference individuals from the imputed genomes analyzed by \citet{eurasians2024}. Five earlier individuals date to 5.44--5.67\,ka cal BP and five later individuals to 3.97--4.26\,ka cal BP. Three fixed 10\,Mb windows on chromosomes 20--22 contain 1,158 inferred trees and 8,587 qualified site records.
 
-False internal ancestry islands of at most 10\,kb account for $35.46\pm2.71\%$ of H038's extra boundaries, while all predicted tracts of that length contain only $3.83\pm0.73\%$ of wrong query-base pairs. Event counts and wrong physical mass emphasize different errors. This diagnostic concerns the frozen H038 outputs and is not an H042 island analysis. It motivates prospective continuity and finer-readout comparisons without selecting a smoothing rule on these VAL results.
+The model received original phased genotypes and was not fitted again. Person-weighted, span-integrated assignments are 14.27 percentage points higher for EHG and 5.52 points higher for CHG in the later group. The EHG contrast is positive on each chromosome. The pooled CHG contrast depends on chromosome 21, and becomes $-0.68$ points when that chromosome is omitted. Independent genotype-affinity contrasts using the shared imputation resource do not support the registered directions. These model assignments are descriptive outputs, without local ancestry truth or calibrated mixture fractions. The application illustrates behavior on empirical genealogies rather than confirming a population-history hypothesis.
 
+\section{Discussion}
+Whole-tree learning provides a direct way to combine reference ancestry, genetic variation and genealogical structure. Its sampled-haplotype interface preserves correspondence along the genome without assuming persistent inferred ancestors. The shared European development comparison is encouraging for this representation. Its biological value must nevertheless be judged by both the amount of correctly assigned sequence and the placement of transitions.
 
-\subsection{Native FLARE on the American Panel}
-A separate American three-source validation simulation supplies a first native baseline for the common-data comparison. The 30\,Mb panel has 1,600 observed haplotypes, comprising 600 references and 1,000 queries. We score released FLARE v0.6.0 calls~\citep{flare2023} at all 10,000 predetermined focal records, using the nearest native marker with midpoint boundaries. Original AN1/AN2 calls are retained. Prediction identities, coordinates and class order pass validation before external ancestry truth is opened. Accuracy is $98.01\%$ and macro F1 is $97.7151\%$ (Table~\ref{tab:americanflare}). This endpoint counts focal records rather than physical spans. One validation simulation supplies no between-simulation SD, and these values do not reproduce the published ARGformer Table~1 experiment. Provenance: E18.
+The matched controls constrain the architectural interpretation. Local structural conditioning is competitive with the examined event interactions, foreign-episode context provides little added accuracy over local conditioning, and richer pair-cell memory does not outperform the simpler controls under the registered criteria. Continued training explains much of the later improvement. The present evidence supports this ancestry framework and its comparative analysis, while the contribution of a distinct cross-tree operator remains an open research question.
+
+The external evaluations also have specific scope. Development validation has been reused, native models retain different training and input choices, and the completed panel is not a verified recreation of the published tables. The Danish application has no ancestry ground truth. A separate trade-network diagnostic finds persistence stronger than the tested learned memory models (Supplement), so that experiment does not support a broad generality claim. Independent ancestry tests and completed native benchmarks are the next basis for a stronger conclusion.
+
+\section{Conclusion}
+We study local ancestry through complete inferred genealogies linked by persistent sampled haplotypes. Whole-tree propagation, structural conditioning and genomic recurrence achieve promising development span accuracy. Matched controls show that additional cross-tree memory yields small gains and can reduce boundary quality. These results motivate ancestry models that recover tract structure as well as genomic mass, with final claims tied to independent tests and faithful native comparisons.
+
+\paragraph{Code availability.}
+Source code, experiment configurations and full results are available at \url{https://github.com/alexeyshmelev/ARG-GNN}.
+
+\bibliography{current_full_panel_refs}
+
+\clearpage
+\appendix
+\section*{Supplementary Material}
+\suppressfloats[t]
+\section{Simulation Design and Biological Parameters}
+\label{app:simulation}
+The European condition follows the released AncestralPaths formulation associated with \citet{eurasians2024}. Table~\ref{tab:demography} gives its backward-time events. The census at 350 generations defines ancestry supervision before the older source-population mergers. It is separate from the model's observed tree cut.
+
+The panel contains 91 diploids sampled at age zero, together with the released ancient age roster: 81 Bronze Age, seven BAA, 151 Neo and 13 Yam diploids. Pure-reference diploids comprise 51 WHG, 43 EHG, 25 Ana and 14 CHG. This totals 343 query and 133 reference diploids.
+
+Simulations use the Hudson coalescent, discrete genomic coordinates, a uniform recombination rate of $10^{-8}$ per base per generation and JC69 mutations at $1.25\times10^{-8}$ per base per generation \citep{msprime2022}. The released formulation supplies the demographic events and ancient roster. The 2\,Mb sequence length and simulation split define our development condition.
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{@{}rll@{}}
+\toprule
+Time (gen.) & Descendant & Ancestral sources\\
+\midrule
+166 & Present/Bronze & $0.5$ Neo, $0.5$ Yam\\
+169 & BAA & $0.25$ CHG, $0.75$ Ana\\
+177 & Yam & $0.5$ CHG, $0.5$ EHG\\
+259 & Neo & $0.25$ WHG, $0.75$ Ana\\
+600 & WHG, EHG & Shared NE ancestor\\
+800 & CHG, Ana & Shared WA ancestor\\
+1,500 & NE, WA & Common trunk\\
+\bottomrule
+\end{tabular}
+\caption{Executed European demographic events, following the released formulation associated with AncestralPaths. Mixture coefficients are backward-time ancestral proportions. This is a simulation-design table, so no performance winner is applicable.}
+\label{tab:demography}
+\end{table}
+
+Population sizes are 50,000 for Present/Bronze and Neo, 20,000 for Yam and BAA, 3,000 for EHG and CHG, 2,000 for WHG, and 5,000 for Ana. The older NE, WA and trunk populations each have size 15,000. Growth and between-event migration rates are zero. The original ancient sampling dates are retained in generations.
+
+Relate uses the observed biallelic variant panel and sample ages. Its initial effective haploid size is 30,000, its mutation rate is $1.25\times10^{-8}$, and years are converted using 28 years per generation. The European condition includes five population-size estimation iterations and final branch-length re-estimation. All applicable European model adapters consume the same post-estimation tree reconstruction. Mutation-concordance features are computed from observed alleles on these inferred trees.
+
+\todo{Before describing any benchmark as a published-paper reproduction, resolve the original ARGMix panel and map configuration and the correspondence between its Post-Neolithic samples and the executed Bronze Age roster. For the American comparison, finalize a source-cited demographic table and focal-sampling protocol alongside the native results.}
+
+\section{Training and Model Hyperparameters}
+\label{app:training}
+The genetic site encoder has two hidden layers of width 32. It receives donor log-frequency features for the called allele, corresponding availability indicators, the panel frequency of that allele, site entropy and a call indicator. The eight donor groups combine the four reference ancestries with sample ages below or at least 350 generations. Allele-frequency estimates use additive pseudocount 0.5. If any source class represented in a reference age group has no called alleles at a site, all represented classes in that age group are masked for that site. Mean and maximum pooling are combined with call count, missing-pool status and interval span. Leaf features also include the known four-source reference annotation, unknown-label status and sample age. Internal-node features include inferred age, root status and sampled-node status.
+
+Tree hidden states have width 32, residual projections have rank eight, and the bidirectional genomic recurrent network has width 32 per direction. The classifier combines a 32-dimensional local representation and 64-dimensional recurrent history, then maps through width 32 to four ancestry scores. Memory adds 513 parameters and initializes its length scale to 5\,kb, constrained to 100\,bp--100\,kb. Residual output projections start at zero.
+
+The loss is physical-span cross-entropy over all 686 query haplotypes,
+\begin{equation}
+\mathcal L=-\frac{\sum_{tqc} M_{tqc}\log p_{tqc}}
+                  {\sum_{tqc} M_{tqc}},
+\qquad
+M_{tqc}=\sum_{i:r(i)=t}m_{iqc}.
+\end{equation}
+Here $r(i)$ maps an original scored bin to its native tree interval. Since predictions are constant within an interval, summing its target masses preserves the original objective. A whole simulated chromosome is one optimization example.
+
+Each development stage completes 30 passes over 32 training simulations, or 960 optimizer updates. AdamW uses learning rate $10^{-3}$, weight decay $10^{-4}$, betas $(0.9,0.999)$ and epsilon $10^{-8}$, with gradient norm clipped at one. Optimizer state is reset for each continuation stage. The reported model family uses training seed 101. Checkpoints every five passes are selected by equal-simulation present-day validation accuracy, followed by lower NLL and then earlier pass.
+
+Table~\ref{tab:budget} separates capacity and cumulative training. Memory arms select added pass 30. The continuation control selects added pass 20, or 640 new updates and 3,520 cumulative updates, while completing the same 960-update run.
+
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Stage & Parameters & New updates & Total\\
+\midrule
+Whole-tree base &29,764&960&960\\
+Local flags &30,788&960&1,920\\
+Episode model &31,812&960&2,880\\
+Memory comparison &32,325&960&3,840\\
+Continuation control &31,812&960&3,840\\
+\bottomrule
+\end{tabular}
+\caption{Completed training budgets for the lineage used by the memory comparison. Cumulative counts describe final trained models, rather than all selected checkpoints. The final two rows share the episode local-control initialization. No metric winner is applicable.}
+\label{tab:budget}
+\end{table}
+
+The archived dense AncestralPaths classifier uses 5,190,874 of 5,200,000 requested training rows, sampled with replacement, and completes five epochs. All 9,126 missing rows are BAA path-six examples across three simulations: 2.2815\% of requested BAA rows and 0.1755\% of all requested rows. Other cohort quotas are met. The effect of this shortfall on accuracy is untested. Training loss still decreases at epoch five, so the completed native schedule does not establish convergence. Training genomic diversity is also different: $32\times2$\,Mb here versus $3\times200$\,Mb in the original study. Its selected model is the final epoch. Current native ARGMix selects epoch nine from 11 completed epochs using its native smoothed, masked, unweighted validation batch-mean loss, with patience two and a 20-epoch cap. The external physical-span scorer does not replace this inner selection rule. These method-specific differences must accompany interpretation of the pipeline comparison.
+
+\section{Additional Mechanistic and Cohort Results}
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{@{}lrr@{}}
+\toprule
+Local interaction & Accuracy (\%) $\uparrow$ & NLL $\downarrow$\\
+\midrule
+Event MLP & $96.20\pm0.70$ &0.110014\\
+Event tensor & $96.27\pm0.75$ &0.109332\\
+Local flags & $\best{96.58\pm0.60}$ &$\best{0.100656}$\\
+\bottomrule
+\end{tabular}
+\caption{Equal added-parameter and continuation-budget structural comparison. Accuracy is mean$\pm$simulation SD. NLL is the equal-simulation mean. Bold identifies the best mean per metric.}
+\label{tab:interactions}
+\end{table}
+
+A matched neighboring-tree-state experiment also has a small paired gain: $0.0153\pm0.0920$ accuracy points, below the 0.10-point practical-gain criterion.
+
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{@{}lrr@{}}
+\toprule
+Cohort & Local control $\uparrow$ & Foreign episode $\uparrow$\\
+\midrule
+Present-day &$96.82\pm0.61$&$\best{96.83\pm0.59}$\\
+Bronze Age &$99.17\pm0.40$&$\best{99.20\pm0.32}$\\
+BAA &$\best{99.28\pm1.14}$&$99.15\pm1.25$\\
+Neo &$\best{99.64\pm0.09}$&$99.61\pm0.08$\\
+Yam &$99.87\pm0.18$&$\best{99.90\pm0.13}$\\
+Ancient &$\best{99.49\pm0.15}$&$99.48\pm0.13$\\
+All queries &$\best{98.7815\pm0.2566}$&$98.7761\pm0.2486$\\
+\bottomrule
+\end{tabular}
+\caption{Episode-comparison cohort accuracy (\%), mean$\pm$simulation SD. Bold identifies the larger mean. The final row retains additional mean precision to distinguish the close ranking. }
+\label{tab:episodecohorts}
+\end{table}
+
+The foreign-episode model reaches boundary F1 $18.1558\pm1.3790\%$, versus $18.0557\pm1.7761\%$ for its local control. The paired difference is $0.1001\pm0.9632$ points. These results concern the completed episode stage, rather than the later memory comparison.
+
+Strict NLL assigns infinite loss when a method gives zero probability to a true source over positive represented mass. AncestralPaths has one such event over 800 query-base pairs, giving infinite mean NLL while retaining finite accuracy. We use its probabilities without flooring or calibration. Sparse-cohort boundary and source-specific metrics can also be undefined when no relevant event occurs. Undefined values are not treated as zero.
+
+\section{American Baseline Detail}
+Table~\ref{tab:flare} gives FLARE's first American source-specific scores. We evaluate original calls using the nearest native marker with midpoint boundaries.
 
 \begin{table}[t]
 \centering
 \small
 \begin{tabular}{@{}lrrrr@{}}
 \toprule
-Source & Prec. & Recall & F1 & Records \\
+Source & Precision & Recall & F1 & True records\\
 \midrule
-EUR & 97.32 & 97.68 & 97.50 & 3,274 \\
-EAS & 98.53 & 98.64 & 98.58 & 5,287 \\
-AFR & 97.68 & 96.46 & 97.06 & 1,439 \\
+EUR &97.32&97.68&97.50&3,274\\
+EAS &98.53&98.64&98.58&5,287\\
+AFR &97.68&96.46&97.06&1,439\\
 \bottomrule
 \end{tabular}
-\caption{Native FLARE on the first American validation simulation. Precision, recall and F1 are percentages. Records counts true focal labels. These are fixed native calls on common focal support, without probability modification. Provenance: E18.}
-\label{tab:americanflare}
+\caption{FLARE on one American validation simulation. Metrics are percentages. Rows describe different source classes rather than competing methods, so no between-method winner is marked. There is no between-simulation SD.}
+\label{tab:flare}
 \end{table}
 
-\subsection{Frozen Application to Ancient Danish Genomes}
-We applied the selected H045 foreign-episode checkpoint to a fixed panel of 18 ancient Danish individuals from published imputed genomes \citep{eurasians2024}. Eight proxy individuals provide 16 labelled reference haplotypes. Ten query people comprise five earlier individuals, dated 5.44--5.67\,ka cal BP, and five later individuals, dated 3.97--4.26\,ka cal BP. Three fixed windows on chromosomes 20--22, each at $[20,30)$\,Mb, yield 1,158 native Relate trees and 8,587 qualified site records. Features use original phased genotype calls. The original 31,812 learned parameters, feature equations and normalizations are retained without optimization, calibration or checkpoint reselection. Panel size, window length and the pre-population-size Relate stage differ from training. Provenance: E15.
 
-We average the two haplotypes within each person using native physical spans, pool covered chromosome spans by base pairs, and then give each person equal cohort weight. Later-minus-earlier model assignment is $+14.27$ percentage points for EHG and $+5.52$ for CHG (Figure~\ref{fig:danish}). EHG is positive on every chromosome and under all ten leave-person and three leave-chromosome deletions. CHG decreases slightly on chromosomes 20 and 22, and omitting chromosome 21 changes its pooled difference to $-0.68$ points. Both pooled contrasts remain positive under each leave-person deletion. These outputs describe model assignments without known local ancestry truth or calibrated mixture fractions. Separate GP-dosage affinity contrasts on the shared imputation resource are negative for both proxies, using a distinct 13-person, SNP-weighted estimand. They do not independently validate the neural assignments. The frozen application supports examining model behavior on empirical genealogies, with chromosome dependence retained explicitly.
+\todo{Complete the native ARGformer pretraining, contrastive learning and retrieval stages. Its paper specifies temperature $0.05$ and inverse-frequency anchor weighting. The released contrastive route defaults to temperature $0.30$ and can fall back to uniform weights when its training loader is unavailable. The completed benchmark must identify the executed condition and resolve these differences before it is described as reproducing the paper.}
 
-\begin{figure*}[t]
-\centering
-\includegraphics[width=\textwidth]{figures/Danish_frozen_model_assignments.pdf}
-\caption{Frozen H045 application to the same ten Danish query people across three fixed windows. (a) Physical-span-weighted model assignments, pooled across covered chromosome spans. Each bar averages two haplotypes for one person. (b) Both registered later-minus-earlier contrasts. EHG is positive on each chromosome, while pooled CHG depends on chromosome 21. These descriptive outputs have no ancestry truth or mixture calibration.}
-\label{fig:danish}
-\end{figure*}
+\section{Initial Cross-Domain Diagnostic}
+The trade-network task from Temporal Graph Benchmark \citep{tgb2023} provides an initial transfer diagnostic. Models predict before observing the current year's edges. Validation uses 2010--2013 and test uses 2014--2016. All three learned models share a residual persistence prior and complete 100 epochs with a fixed seed. Test predictions precede target access. All learned models are below persistence (Table~\ref{tab:trade}).
 
-\subsection{Observed Training Cost}
-The completed aligned H038 run records 43.6 seconds per 32-simulation pass, 1,307.9 seconds in training and 1,698.5 seconds total elapsed time. Its peak CUDA allocated memory is 21.35\,GB and reserved memory is 37.16\,GB in decimal units. These are measurements of that training path, excluding full data preparation and external baseline evaluation. They neither isolate a PyG speedup nor establish the cost of H042 or the other complete pipelines.
-
-\section{Discussion and Scope}
-The results distinguish fitted-pipeline performance from architectural invention. Local clade-change flags exceed the earlier tensor and event-MLP conditions under matched added capacity and training. H045 subsequently improves the development span score, but almost the same improvement occurs in its own-state arm. Its 0.0096-point foreign-context effect and H043's 0.0153-point neighbor-state effect both fail their practical 0.10-point gates. H050 likewise favors stable leaves in span accuracy and continuation in boundary F1, while pair-cell memory fails both registered criteria. Established tree propagation, local conditioning, pooling and genomic recurrence remain viable explanations of the observed performance.
-
-Several limitations determine how the scores should be used. The VAL simulations have informed model selection and architecture development. A single optimizer seed cannot quantify training instability. The native comparators preserve their released methods but differ in input evidence, training units, reference choices and selection objectives. The simulated roster and the derived C4 endpoint also differ from the published ARGMix benchmark, which uses different panel, reference and evaluation conditions. Numerical comparisons with its published tables would require a separately verified recipe.
-
-The task is conditional on one demographic simulation family and inferred observation pipeline. High cohort means do not establish robustness to genotype errors, demographic misspecification, a different reference panel or real genomes. Full-panel ARGformer and broader external comparisons remain incomplete. The first American native FLARE score is complete, while the full three-class comparison with our GNN and native ARGformer is unfinished. No independent outer TEST result is reported. A literature assessment must distinguish established components from any defensible contribution before a novelty claim is formulated.
-
-Boundary performance is a substantive remaining weakness. Improving the ability to express a transition inside a native hold addresses a geometric restriction, while improving transition recognition addresses failures where a suitable edge already exists. Neither follows automatically from higher span accuracy. Future evaluation should preserve the fixed physical-support scorer, count real short tracts, and use independent simulations for confirmation rather than tune a post-processing rule on the current boundary errors.
-
-\section{Conclusion}
-The completed H050 continuation compares three cut-memory rules with continued training of the same whole-tree PyG and genomic-GRU model. Stable-leaf memory reaches $97.0778\pm0.5674\%$ present-day span accuracy, while continuation reaches $97.0000\pm0.4978\%$ and has higher boundary F1. Pair-cell memory fails both registered utility criteria. Together with the earlier episode controls, these development results favor testing specific structural mechanisms against continued training and simpler memory, while preserving tract-boundary metrics. They establish neither a new operator nor overall benchmark superiority. Independent assessment and matched external benchmarking remain necessary.
-
-\bibliography{current_full_panel_refs}
-
-\appendix
-\section{Matched Cohort Results}
-\label{app:matched}
-\begin{table}[t]
+\begin{table}[htbp]
 \centering
 \small
-\begin{tabular}{lrrr}
+\begin{tabular}{@{}lrr@{}}
 \toprule
-Cohort & Event MLP & Tensor & Local flags \\
+Method & Validation $\uparrow$ & Test $\uparrow$\\
 \midrule
-Present & $96.20\pm0.70$ & $96.27\pm0.75$ & $96.58\pm0.60$ \\
-Bronze Age & $98.82\pm0.44$ & $98.83\pm0.47$ & $99.07\pm0.32$ \\
-BAA & $99.11\pm0.92$ & $99.14\pm0.89$ & $99.02\pm1.07$ \\
-Neo & $99.56\pm0.12$ & $99.52\pm0.16$ & $99.53\pm0.18$ \\
-Yam & $99.76\pm0.24$ & $99.72\pm0.30$ & $99.86\pm0.19$ \\
-Ancient & $99.32\pm0.17$ & $99.30\pm0.21$ & $99.39\pm0.16$ \\
-All queries & $98.49\pm0.29$ & $98.49\pm0.34$ & $98.64\pm0.26$ \\
+Persistence &$\best{0.8672\pm0.0107}$&$\best{0.8469\pm0.0144}$\\
+First-order memory &$0.8574\pm0.0073$&$0.8324\pm0.0113$\\
+Conditional triple &$0.8567\pm0.0054$&$0.8305\pm0.0110$\\
+Tree only &$0.8581\pm0.0056$&$0.8271\pm0.0113$\\
+Seven-year EMA &$0.8429\pm0.0085$&$0.8090\pm0.0049$\\
 \bottomrule
 \end{tabular}
-\caption{Matched extended-family cohort span accuracy (\%), mean$\pm$sample SD over eight VAL simulations. Provenance: E2--E3 and E5.}
-\label{tab:matchedcohorts}
+\caption{Initial trade-network NDCG@10, mean$\pm$year SD. Years are serially dependent, and SD is not training-seed uncertainty. Bold identifies the best mean. This causal diagnostic is separate from published leaderboard settings and does not complete the GST comparison.}
+\label{tab:trade}
 \end{table}
 
-The same added budget and parameter count do not imply identical cohort rankings. These descriptive results supplement the registered present-day endpoint and do not redefine it.
 
-\section{Completed Episode Cohort Comparison}
-\begin{table}[t]
-\centering
-\small
-\begin{tabular}{lrr}
-\toprule
-Cohort & Own-state & Foreign episode \\
-\midrule
-Present & $96.82\pm0.61$ & $96.83\pm0.59$ \\
-Bronze Age & $99.17\pm0.40$ & $99.20\pm0.32$ \\
-BAA & $99.28\pm1.14$ & $99.15\pm1.25$ \\
-Neo & $99.64\pm0.09$ & $99.61\pm0.08$ \\
-Yam & $99.87\pm0.18$ & $99.90\pm0.13$ \\
-Ancient & $99.49\pm0.15$ & $99.48\pm0.13$ \\
-All queries & $98.78\pm0.26$ & $98.78\pm0.25$ \\
-\bottomrule
-\end{tabular}
-\caption{H045 cohort span accuracy (\%), mean$\pm$sample SD across eight development simulations. Both arms select pass 30 after the same H042 initialization and a further 960 updates. These are descriptive cohort results, not independent validation. Provenance: E13.}
-\label{tab:episodecohorts}
-\end{table}
 
-Own-state has the larger mean in BAA, Neo, ancient and all-query aggregates, while foreign episode has the larger present-day, Bronze Age and Yam means. The small present-day difference does not establish broad cohort or metric superiority.
-
-\section{Completed Neighbor-State Control}
-The completed H043 comparison supplies an additional paired control, without changing the main H042 comparison. The arms compare a paired neighboring-tree state with a matched control using its own state. Each arm finishes 30 passes and 960 full-simulation updates. The true-partner arm reaches $96.5182\pm0.6201\%$ present-day accuracy, while the own-state control reaches $96.5029\pm0.6006\%$. The paired difference is $0.0153\pm0.0920$ percentage points, positive in five of eight simulations.
-
-This effect is below the registered practical-gain criterion of 0.1 percentage points. The true-partner mean is also 0.0596 points below H042. The criterion is a practical development gate, not a significance threshold. The result does not establish a meaningful foreign-state benefit or architectural novelty. Provenance: E12. It is retained as a completed control rather than presented as a new leading method.
-
-\section{Metric and Reproducibility Details}
-All reported accuracy cells and present-day boundary cells use eight simulations. Other diagnostic metrics can be undefined when a sparse cohort lacks a true class or boundary. Their machine-readable records retain metric-specific defined counts. Such cells are not interpreted as zero accuracy, and the tables here do not compare differently defined cohort-boundary averages.
-
-The boundary matcher uses the fixed 1\,kb tolerance and one-to-one positional matches. Its precision, recall and F1 ignore the ordered source-class transition, so a nearby wrong transition can receive positional credit. The H038 diagnostic separately records transition identity and geometric candidate competition. Its hold-edge oracle is class-agnostic and does not promise that a trained classifier can attain the geometric ceiling.
-
-The exact-span training aggregation is appropriate because the current model is constant on each hold. It does not license the same aggregation for a model whose logits vary inside a hold. All genotype pooling and all graph/recurrent states remain observed-input computations. Target-mass arrays are neither model features nor a rule for choosing genomic windows.
-
-The architecture description follows the exact source files listed below. The companion author README records unresolved evidence gates and compilation status. The scientific description and numerical claims are tied to completed metadata and exact source versions.
-
-\section{Evidence Provenance}
-\label{app:provenance}
-Tables and Figure~\ref{fig:architecture} identify evidence keys below. Exact code versions, result files and full SHA256 values for E1--E15 are indexed in the companion \path{paper/current_full_panel_provenance.json}. E16--E17 identify the subsequent completed H050 evidence and source. E18 records the first American native FLARE score.
-
-\paragraph{E1: H038 completed base/control scores.}
-\noindent\path{experiments/results/mutation_routed_full_panel_pyg_v1_summary_root/summary.json}\par
-\noindent\path{experiments/results/mutation_routed_full_panel_pyg_v1_aligned_seed101_GPU2/final_selected_full_diagnostics.json}\par
-\noindent\path{experiments/results/mutation_routed_full_panel_pyg_v1_zero_concordance_seed101_GPU3/final_selected_full_diagnostics.json}\par
-\paragraph{E2: H040 matched interaction comparison.}
-\noindent\path{research/reviews/H040_completed_comparison_root_20261015_v1/summary.json}\par
-\paragraph{E3: H042 completed local-flag comparison.}
-\noindent\path{research/reviews/H042_completed_comparison_root_20261015_v1/summary.json}\par
-\paragraph{E4: Native AP and ARGMix cohort diagnostics.}
-\noindent\path{research/reviews/native_common_cohort_diagnostics_20261015_v1/native_cohort_metrics_mean_SD.json}\par
-\paragraph{E5: H042 cohort and boundary diagnostics.}
-\noindent\path{research/reviews/H042_completed_cohort_diagnostics_root_20261015_v1/summary.json}\par
-\paragraph{E6: H042 exact local flags and adapter.}
-\noindent\path{src/arggnn/anonymous_clade_flag_control_v1.py}\par
-\paragraph{E7: Whole-tree encoding, PyG sweeps and GRU.}
-\noindent\path{src/arggnn/mutation_routed_whole_tree_gnn_v1.py}\par
-\noindent\path{src/arggnn/mutation_routed_pyg_gnn_v1.py}\par
-\noindent\path{src/arggnn/anonymous_clade_gnn_v1.py}\par
-\noindent\path{src/arggnn/mutation_routed_full_panel_pyg_model_v1.py}\par
-\paragraph{E8: Fixed H038 boundary-error decomposition.}
-\noindent\path{research/reviews/H038_boundary_error_diagnostic_source_v1/summary.json}\par
-\noindent\path{research/reviews/H038_boundary_error_diagnostic_source_v1/biological_decomposition.json}\par
-\paragraph{E9: Actual native fitting metadata.}
-\noindent\path{data/expanded_native_ancestralpaths_v2/run/fit/fit.json}\par
-\noindent\path{experiments/results/expanded_native_argmix_full32TRAIN8VAL_fit_v1/fit/native_fit.json}\par
-\paragraph{E10: Full-panel definition and actual observation provenance.}
-\noindent\path{src/arggnn/prepare_expanded_full_panel_v1.py}\par
-\noindent\path{configs/ancestralpaths_full_panel_discovery_v1.json}\par
-\noindent\path{data/expanded_full_panel_v1/ap_expanded_train_000/generation.json}\par
-\noindent\path{data/expanded_full_panel_v1/ap_expanded_train_000/relate/inference.json}\par
-\paragraph{E11: Original primary native C4 scoring.}
-\noindent\path{experiments/results/full_panel_H038_AP_comparison_root/summary.json}\par
-\noindent\path{research/reviews/expanded_native_argmix_H038_score_root_v1/readonly_CPU_result_v1.json}\par
-\paragraph{E12: Root-confirmed completed neighbor-state control.}
-\noindent\path{research/reviews/H043_completed_comparison_root_20261015_v1/summary.json}\par
-\paragraph{E13: Completed H045 matched development evidence.}
-\noindent\path{research/reviews/H045_completed_comparison_root_20261015_v1/summary.json}\par
-\noindent\path{experiments/results/H045_GPU5_episode_train_seed101_v1/completed.json}\par
-\noindent\path{experiments/results/H045_GPU5_episode_evaluate_seed101_v1/completed.json}\par
-\paragraph{E14: Exact H045 episode model and frozen training configuration.}
-\noindent\path{src/arggnn/ordered_clade_episode_gnn_v1.py}\par
-\noindent\path{research/reviews/H045_GPU45_episode_root_source_v1/config.json}\par
-
-\paragraph{E15: Frozen empirical application and registered contrasts.}
-\noindent\path{experiments/results/H056_frozen_H045_Danish_three_chromosome_CPU_v2/summary.json}\par
-\noindent\path{experiments/results/H056_frozen_H045_Danish_three_chromosome_CPU_v2/provenance.json}\par
-\noindent\path{research/reviews/H056_frozen_H045_Danish_application_registration_20261016_v1/protocol.root_frozen_v1.json}\par
-\noindent\path{research/reviews/H056_three_bank_application_actual_root_20261016_v2/actual_tool_terminal.root_v1.json}\par
-
-\paragraph{E16: Completed H050 four-arm training and evaluation.}
-\noindent\path{experiments/results/H050_GPU0_direct_readout_train_seed101_v1/completed.json}\par
-\noindent\path{experiments/results/H050_CPU_full192_savedfit_failedCLI_root_v1/completed.json}\par
-% H050 evaluation SHA256: 2e3dcb14affee5f87d9e0607745a0039647d0ca55daffa0e276bb5599a4a6763
-\noindent\path{research/reviews/H050_CPU_evaluation_failed_CLI_successor_source_20261016_v1/root_actual_metadata_v1/actual_tool_terminal.root_v1.json}\par
-% Genuine CPU evaluation terminal SHA256: b842a3d33841332c705d5c61d3c08969de79249788e8caec27d934ad28a266fe
-The complete saved training budget and 24 checkpoints were scored by a separate successful CPU evaluation without optimization or training replay. The original training CLI exit 1 remains recorded separately from the evaluation exit 0.
-
-\paragraph{E17: H050 model and matched-memory implementation.}
-\noindent\path{research/reviews/H050_direct_readout_cut_memory_source_20261015_v1/direct_readout_cut_memory_v1.py}\par
-\noindent\path{research/reviews/H050_direct_readout_cut_memory_source_20261015_v1/integration_hooks_v1.py}\par
-\noindent\path{research/reviews/order2_cut_memory_implementation_20261015_v1/order2_cut_memory_v1.py}\par
-
-\paragraph{E18: First native FLARE score on the common American panel.}
-\noindent\path{experiments/results/FLARE_C3_VAL000_common_score_H020980_20261016_v1/completed.json}\par
-\noindent\path{research/reviews/FLARE_VAL000_score_H020980_root_20261016_v1/actual_tool_terminal.root_v1.json}\par
-All 10,000 original focal records retain native calls. The new CPU scoring command returns 0 after its final storage check. This is one validation parent and a distinct focal-record endpoint.
 \end{document}

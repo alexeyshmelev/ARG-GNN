@@ -1,54 +1,13 @@
-Current compiled development manuscript: [PDF](current_full_panel_working.pdf), [LaTeX source](current_full_panel_working.tex), [Overleaf source bundle](current_full_panel_overleaf_working.zip). Root compiled and visually checked all eleven pages on2026-10-16. This draft now includes the first American native FLARE score, completed H050 four-arm results and training lineage, H045, earlier H038-H043 evidence and the frozen Danish application. Native American comparisons and scientific novelty remain unfinished. [Latest scores and remaining benchmarks](../README.md#latest-status).
+# Current scientific working paper
 
-# Manuscript sources
+[PDF](current_full_panel_working.pdf) · [LaTeX](current_full_panel_working.tex) · [Overleaf source bundle](current_full_panel_overleaf_working.zip).
 
-## Current full-panel working draft
+The revised AAAI working draft has **nine pages**: scientific main text through page6, references through page7, and a separately headed scientific supplement on pages8–9. It has a rewritten abstract, explicit biological motivation and related work, mathematical methods, comparative results, bold best comparable scores and an original editable architecture diagram. Simulation parameters, their sources, training settings and additional scientific results are in the supplement. The old E1–E18 file-path appendices are removed.
 
-[current_full_panel_working.tex](current_full_panel_working.tex) and
-[current_full_panel_refs.bib](current_full_panel_refs.bib) now describe the
-completed 476-diploid/952-haplotype, 32-TRAIN/eight-VAL whole-tree PyG comparison.
-The evidence includes H038/H040/H042, H045 and the completed H050 memory comparison with current native AP and ARGMix.
-A compact completed H043 control appears only in the appendix.
-This is an incomplete development manuscript, with no H044 result.
+The integrated source and extracted Overleaf bundle both compile cleanly and produce identical document text/layout. All nine final pages were rendered and visually inspected. The zip contains only portable LaTeX, bibliography, official AAAI assets, figure source and short Overleaf instructions.
 
-[Author status and remaining evidence gates](CURRENT_FULL_PANEL_README.md)
-and [exact evidence/source provenance](current_full_panel_provenance.json)
-record unresolved external benchmarks, independent confirmation and novelty
-assessment. Compilation and visual review are recorded in the linked root receipt. The scientific goal remains incomplete.
+This remains a development manuscript. The eight European validation simulations were reused for model selection. The evaluated ARGMix release uses15references/no ancestors, while the paper describes25references/three ancestors. The released AncestralPaths dense classifier and derived four-source endpoint differ from its published convolutional/path task. Original-paper configurations, complete native American comparisons, independent confirmation and useful architectural novelty remain unfinished and visible as research TODOs.
 
-## Historical methods drafts
+[Scientific comparison status](CURRENT_FULL_PANEL_README.md) · [External provenance](current_full_panel_provenance.json) · [Independent competitor-fidelity audit](../research/reviews/competitor_fidelity_user_audit_20261016_v1/REPORT.md) · [Actual integrated build](../research/reviews/paper_root_integration_20261016_v1/integration_build_receipt.root_v1.json).
 
-
-Three explicitly incomplete methods/protocol drafts preserve earlier candidate
-architectures. None is the final empirical paper.
-
-The current full-panel whole-tree PyG models and the H038–H043 experiments are
-documented in the [main README](../README.md) and linked experiment records.
-Their 476-diploid, 32-TRAIN/eight-VAL results belong to a different architecture
-and dataset from the 140-diploid anchor-kernel pilot described below. The final
-AAAI manuscript must be rewritten around the selected method and its matched
-evidence. The current drafts remain historical methods records.
-
-- anchor_kernel_working.tex describes repeated fixed-anchor kernel message passing, integrated age geometry, reference-inclusive bounded normalization and factorial controls. It is a methods draft. The development comparison table was updated2026-10-11 to completed three-seed standalone fits, native ARGformer and one-seed reference refinements. A six-page PDF compiled with the existing remote project runtime, with no overfull table warning. Independent biological superiority and distinct GNN novelty remain unresolved. The current source includes the biological development panel, census350 estimand, observation-only interfaces and native-baseline task-transfer definitions.
-- boundary_kernel_working.tex describes the coupled persistent-sample boundary
-  kernel, its conditional covariance interpretation, dual subdivision contract
-  and same-input attribution controls. Predictive benefit and distinct novelty
-  remain unestablished.
-- methods_working.tex records the earlier interval-integrated attention
-  candidate. It is retained as a research draft while comparative studies run.
-
-Architecture selection, larger studies and final held-out evidence are pending.
-The final manuscript will be rewritten around supported contributions. Complete
-experiment and reviewer records remain separate from the final paper.
-
-The official AAAI-27 style and bibliography style beside the drafts are
-byte-identical copies of the vendored assets. Working draft mode suppresses the
-submission copyright block. The final review bundle will use submission mode
-and the selected venue page limits.
-
-All sources and compilation outputs remain on anogena. The native Mac editor
-cannot access this remote multi-file project within that storage constraint.
-Use the project-local PDFTeX runtime after sourcing scripts/project_env.sh,
-with paper as the compilation working directory. The final Overleaf bundle
-will include the completed source, bibliography, unchanged styles and used
-graphics.
+Earlier anchor_kernel_working.tex, boundary_kernel_working.tex and methods_working.tex are historical research drafts. The current working paper is current_full_panel_working.tex. All research and manuscript files remain in the dedicated server repository.
