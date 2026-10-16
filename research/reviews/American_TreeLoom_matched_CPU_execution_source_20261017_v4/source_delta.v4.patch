@@ -1,0 +1,117 @@
+--- research/reviews/American_TreeLoom_matched_CPU_execution_source_20261017_v3/root_contract_v1.py
++++ research/reviews/American_TreeLoom_matched_CPU_execution_source_20261017_v4/root_contract_v1.py
+@@ -3,7 +3,7 @@
+ from datetime import datetime,timezone
+ import copy,hashlib,importlib.util,json,sys
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-REL=HERE="research/reviews/American_TreeLoom_matched_CPU_execution_source_20261017_v3"
++REL=HERE="research/reviews/American_TreeLoom_matched_CPU_execution_source_20261017_v4"
+ SOURCE=HERE+"/root_contract_v1.py";DRIVER=HERE+"/root_driver_v1.py";ENTRY=HERE+"/worker_entry_v1.py"
+ MANIFEST=HERE+"/source_manifest.v1.json";HANDOFF=HERE+"/source_handoff.v1.json"
+ PHASE="train_matched";PARENT="American_C3_short20_TRAIN_TreeLoom_matched"
+@@ -90,6 +90,10 @@
+   and q.get("physical_gpu")is None and q.get("CUDA_authorized")is False and q.get("TRAIN_truth_only")is True
+   and q.get("VAL_truth_authorized")is False and q.get("TEST_authorized")is False
+   and q.get("automatic_retry_resume_or_fallback")is False and q.get("standalone_token_update_qualification")is False,"Exact fresh CPU-only full-budget ROOT request")
++ preparation=local(q["preparation_directory"]);packet=local(q["packet_directory"]);output=local(q["output_directory"])
++ require(preparation==local(record["path"]).parent and preparation.is_dir()
++  and q["preparation_directory"].startswith("research/reviews/TreeLoom_matched_CPU_ROOT_preparation_")
++  and not any(preparation==p or preparation in p.parents or p in preparation.parents for p in (packet,output)),"Separate existing ROOT request/preparation directory; never a reserved target scope")
+  require(q["packet_directory"].startswith("research/reviews/TreeLoom_matched_CPU_ROOT_")
+   and q["output_directory"].startswith("experiments/results/TreeLoom_matched_CPU_")
+   and type(q["cpu_ids"])is list and len(q["cpu_ids"])==len(set(q["cpu_ids"]))==32
+@@ -103,7 +107,7 @@
+   and qualified.get("runner_source_ref")==b["runner_source_ref"]and qualified.get("unresolved_items")==[]
+   and qualified.get("standalone_token_update_probe")is False,"Actual metadata/runtime qualification; no token updates")
+  require(directive.get("root_authorizer")=="root_agent"and directive.get("active")is True and directive.get("directive")==DIRECTIVE
+-  and all(directive.get(k)==q[k]for k in ("source_manifest_ref","source_review_ref","scientific_review_ref","registration_ref","registration_decisions_ref","registration_ledger_ref","training_context_ref",
++  and all(directive.get(k)==q[k]for k in ("preparation_directory","source_manifest_ref","source_review_ref","scientific_review_ref","registration_ref","registration_decisions_ref","registration_ledger_ref","training_context_ref",
+    "runtime_ref","runtime_qualification_ref","scientific_config","caps","cpu_ids","created_at_utc","expires_at_utc"))
+   and directive.get("first_scheduled_update_timed_inside_full_budget")is True,"Separate real ROOT directive binds complete representative budget")
+  return q,CAPS,runtime
+--- research/reviews/American_TreeLoom_matched_CPU_execution_source_20261017_v3/root_driver_v1.py
++++ research/reviews/American_TreeLoom_matched_CPU_execution_source_20261017_v4/root_driver_v1.py
+@@ -2,7 +2,7 @@
+ from pathlib import Path
+ from datetime import datetime,timezone
+ import argparse,ctypes,difflib,hashlib,json,os,signal,stat,subprocess,sys,time
+-from research.reviews.American_TreeLoom_matched_CPU_execution_source_20261017_v3 import root_contract_v1 as c
++from research.reviews.American_TreeLoom_matched_CPU_execution_source_20261017_v4 import root_contract_v1 as c
+ ROOT=c.ROOT;HERE=c.HERE;SOURCE=c.DRIVER;PIDFD=c.PIDFD;OWNED=c.OWNED
+ need=c.require;local=c.local;ref=c.ref;read=c.read;load=c.load;put=c.put;current=c.current;guard=c.guard
+ CAPS={};OUTPUT=PARENT=CONFIG=None
+@@ -24,9 +24,9 @@
+  q,caps,_=c.validate_request(request_ref);packet=local(q["packet_directory"]);output=q["output_directory"]
+  need(set(q["cpu_ids"])<=os.sched_getaffinity(0),"ROOT supplies32actually available CPU identities")
+  need(not packet.exists()and not local(output).exists(),"Fresh exclusive one-shot packet/output")
+- g=guard(False);packet.mkdir()
+- cfgref=put(packet/"config.json",c.make_config(q,caps));sources=c.sources()["source_sha256"]
+- closure=put(packet/"source_and_input_closure.json",dict(source_sha256=sources,root_stage_request_ref=request_ref))
++ g=guard(False);preparation=local(q["preparation_directory"]);stem=packet.name
++ cfgref=put(preparation/(stem+".config.json"),c.make_config(q,caps));sources=c.sources()["source_sha256"]
++ closure=put(preparation/(stem+".source_and_input_closure.json"),dict(source_sha256=sources,root_stage_request_ref=request_ref))
+  implementation=ref(g.budget.SOURCE_REL);launcher=ref(g.budget.LAUNCHER_REL)
+  with g.budget.v4.mutex(ROOT):state=g._state_locked(implementation["sha256"],launcher["sha256"],fresh=True)
+  consumers=g.consumer_bindings_v1(list(state[3].values()),c.direct_roles(request_ref,q,cfgref,closure))
+@@ -35,11 +35,15 @@
+   reserved_bytes=caps["reservation_bytes"],consumer_bindings=consumers)
+  # Exact original read-only schema/type/hash preflight over every returned/current role.
+  # This precedes authority creation and reservation accounting mutation.
+- g.budget.v4.scope_spec(ROOT,reserve)
++ paths=g.budget.v4.scope_spec(ROOT,reserve)
++ need(reserve["key"] not in state[0] and reserve["key"] not in g._policy()["never_credit_keys"]
++  and not any(p.exists() for p in paths),"New key and fresh exclusive paths")
+  authority=g.operation_draft_v1("reserve",reserve,expected_before=g._pins(state[2]),bindings=state[3])
+  authority.update(active=True,expires_at_utc=q["expires_at_utc"])
+- ar=put(packet/"reserve_authority.json",authority)
++ ar=put(preparation/(stem+".reserve_authority.json"),authority)
+  receipt=g.apply_reserve_v1(ar,expected_source_sha256=implementation["sha256"],expected_launcher_sha256=launcher["sha256"])
++ need(not packet.exists() and not local(output).exists(),"Reserved target paths remain absent before exclusive creation")
++ packet.mkdir()
+  rr=put(packet/"reserve_receipt.json",receipt)
+  storage=dict(kind="project_budget_v9_storage_record",active=True,consumer_uses_v9_guard=True,accounting_mode=g.MODE,
+   job_id=job,output_directory=output,reserved_new_bytes=caps["reservation_bytes"],reservation=receipt["value"],
+--- research/reviews/American_TreeLoom_matched_CPU_execution_source_20261017_v3/worker_entry_v1.py
++++ research/reviews/American_TreeLoom_matched_CPU_execution_source_20261017_v4/worker_entry_v1.py
+@@ -1,7 +1,7 @@
+ """Inactive actual CPU worker. No scientific import before admitted ROOT gate."""
+ from pathlib import Path
+ import argparse,hashlib,importlib,json,io,os,re,resource,stat,sys,time
+-from research.reviews.American_TreeLoom_matched_CPU_execution_source_20261017_v3 import root_contract_v1 as c
++from research.reviews.American_TreeLoom_matched_CPU_execution_source_20261017_v4 import root_contract_v1 as c
+ ROOT=c.ROOT
+ class CappedBuffer(io.BytesIO):
+  def __init__(self,cap):super().__init__();self.cap=cap
+--- research/reviews/American_TreeLoom_matched_CPU_execution_source_20261017_v3/ROOT_request.INACTIVE.template.v1.json
++++ research/reviews/American_TreeLoom_matched_CPU_execution_source_20261017_v4/ROOT_request.INACTIVE.template.v1.json
+@@ -36,6 +36,7 @@
+   "parent_id": "American_C3_short20_TRAIN_TreeLoom_matched",
+   "phase": "train_matched",
+   "physical_gpu": null,
++  "preparation_directory": null,
+   "registration_decisions_ref": null,
+   "registration_ledger_ref": null,
+   "registration_ref": null,
+--- research/reviews/American_TreeLoom_matched_CPU_execution_source_20261017_v3/ROOT_directive.INACTIVE.template.v1.json
++++ research/reviews/American_TreeLoom_matched_CPU_execution_source_20261017_v4/ROOT_directive.INACTIVE.template.v1.json
+@@ -26,6 +26,7 @@
+   "directive": "ROOT authorizes one fresh H060 full matched TreeLoom CPU run with600additional updates EACHarm and1200total, firstscheduled updates timed inline",
+   "expires_at_utc": null,
+   "first_scheduled_update_timed_inside_full_budget": true,
++  "preparation_directory": null,
+   "registration_decisions_ref": null,
+   "registration_ledger_ref": null,
+   "registration_ref": null,
+--- research/reviews/American_TreeLoom_matched_CPU_execution_source_20261017_v3/ROOT_review.INACTIVE.template.v1.json
++++ research/reviews/American_TreeLoom_matched_CPU_execution_source_20261017_v4/ROOT_review.INACTIVE.template.v1.json
+@@ -17,8 +17,8 @@
+   "source_handoff_ref": null,
+   "source_manifest_ref": null,
+   "source_ref": {
+-    "path": "research/reviews/American_TreeLoom_matched_CPU_execution_source_20261017_v3/root_driver_v1.py",
+-    "sha256": "e733d12570a1d1161ba70498b4719a380523379c17589e92b5d72a1a33b22588"
++    "path": "research/reviews/American_TreeLoom_matched_CPU_execution_source_20261017_v4/root_driver_v1.py",
++    "sha256": "43bde5ac62bffdd74b7df870f3727d4a163b12b2681e920f44194310b8df4314"
+   },
+   "verdict": "UNREVIEWED_INACTIVE"
+ }

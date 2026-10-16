@@ -1,0 +1,168 @@
+{
+  "schema": "TreeLoom_current_core_Chickenpox_completion_protocol_source_v1",
+  "status": "SOURCE_ONLY_UNREGISTERED_NOT_EXECUTION_AUTHORITY",
+  "execution_authorized": false,
+  "task": "Rolling-origin one-week-ahead raw county case forecasting; observed history length52.",
+  "dataset": {
+    "name": "UCI Hungarian Chickenpox Cases",
+    "url": "https://archive.ics.uci.edu/dataset/580/hungarian+chickenpox+cases",
+    "doi": "10.24432/C5103B",
+    "license": "CC BY4.0",
+    "archive_path": "data/raw/chickenpox/hungarian-chickenpox-cases.zip",
+    "archive_sha256": "dc306b1845c86616d2a72c202deeefac8fd1fcf0a34b3067cf6721e377d9da44",
+    "actual_rows": 522,
+    "node_count": 20,
+    "history": 52,
+    "native_directed_edge_records": 102,
+    "native_self_loops": 20,
+    "retained_nonself_directed": 82,
+    "county_order": [
+      "BACS",
+      "BARANYA",
+      "BEKES",
+      "BORSOD",
+      "BUDAPEST",
+      "CSONGRAD",
+      "FEJER",
+      "GYOR",
+      "HAJDU",
+      "HEVES",
+      "JASZ",
+      "KOMAROM",
+      "NOGRAD",
+      "PEST",
+      "SOMOGY",
+      "SZABOLCS",
+      "TOLNA",
+      "VAS",
+      "VESZPREM",
+      "ZALA"
+    ],
+    "split": "Original chronological boundaries, no random re-splitting or window resampling."
+  },
+  "splits": {
+    "scaler_fit_rows": [
+      0,
+      365
+    ],
+    "train_target_indices": [
+      52,
+      365
+    ],
+    "validation_target_indices": [
+      365,
+      443
+    ],
+    "test_target_indices": [
+      443,
+      522
+    ],
+    "range_convention": "left-inclusive,right-exclusive",
+    "train_forecasts": 313,
+    "validation_forecasts": 78,
+    "test_forecasts": 79
+  },
+  "features": {
+    "node": [
+      "per-county count standardized with mean/populationSD from rows0:365 only"
+    ],
+    "entity_identity": "fixed physical county column; metadata key only",
+    "edge": "unchanged native geography; native self loops represented through explicit self route",
+    "time": "positive1week dwell; only52past weeks",
+    "references": "none",
+    "invented_tree_or_clade_information": false,
+    "forecast_target_in_input": false,
+    "state_across_windows": false
+  },
+  "core": {
+    "hidden_dim": 32,
+    "graph_passes": 2,
+    "graph_pass_weights_shared": true,
+    "generic_graph_fields_per_pass": 2,
+    "own_state_residual": "H045 rank8 U(h)*V(h)+W(h), outputzero initialization",
+    "stable_entity_memory_rank": 8,
+    "stable_entity_memory_parameters": 513,
+    "bidirectional_memory": "Only within already observed history, then centered by current forcing",
+    "memory_length_initial_weeks": 5,
+    "memory_length_bounds_weeks": [
+      0.1,
+      100
+    ],
+    "recurrent": "one forwardGRU and one reverseGRU, width32,input35, both terminal states from observed history",
+    "output": "scalar standardized regression; no softmax, clipping or discretization",
+    "ancestry_checkpoint_reused": false,
+    "tree_specific_class_reused": false
+  },
+  "arms": [
+    "full",
+    "no_memory"
+  ],
+  "training": {
+    "seeds": [
+      101,
+      202,
+      303
+    ],
+    "epochs": 40,
+    "early_stopping": false,
+    "batch_size": 16,
+    "updates_per_epoch": 20,
+    "updates_per_arm_seed": 800,
+    "total_new_fits": 6,
+    "total_new_updates": 4800,
+    "optimizer": "AdamW",
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "gradient_clip_norm": 1,
+    "loss": "standardized mean squared error",
+    "precision": "FP32",
+    "device": "CPU only,1Torchthread; no CUDA discovery",
+    "initialization": "fresh seed before construction; copy every common tensor into NoMem; only absent memory513 parameters differ",
+    "batch_order": "Random(seed+epoch) over all313TRAIN targets, same order in both arms",
+    "selection": "minimum original-unit validationMAE each epoch, strict improvement/earliest tie",
+    "prediction_clipping": "none"
+  },
+  "comparators": {
+    "last_value": "t-1 known count",
+    "seasonal": "t-52 known count",
+    "ridge": "Reconstruct TRAIN-only coefficients using frozen alpha1000 already selected in the prior pilot; no alpha search or optimization on TEST.",
+    "legacy_gru": "Reuse old seed101 epoch16 selected checkpointSHA0a311637a0e011a60e691a53aff2088e5d296b3c512b0b2dd77545a4a57b10bc, only after independent constructor/source compatibility authentication. No re-fit. Existing constructor source has changed since oldaudit.",
+    "GST": "Not applicable as native competitor on this forecasting task. Genuine author GST remains the separate unordered USPTO H022 branch; no old reconstruction is relabelled."
+  },
+  "test_barriers": {
+    "before_test_unmask": "ROOT authenticates all6selected checkpoint products, freezes all6configurations and comparator states.",
+    "before_target_scoring": "ROOT seals all6complete core chronological predictions; comparator products are also sealed before their corresponding truth scorer. Callbackmetadata is not itself an execution authority.",
+    "rolling_history": "Earlier validation/test observations may appear in later histories after their date; no refitting/rescaling.",
+    "coverage": "Every79test weeks and20counties; no paired denominator trimming."
+  },
+  "evaluation": {
+    "primary": "MAE in original count units, averaged across79weeks/20counties",
+    "secondary": [
+      "RMSE",
+      "per-countyMAE",
+      "per-weekMAE"
+    ],
+    "seed_spread": "mean/sampleSD over3training seeds, conditional on one county graph/time series",
+    "paired_interval": "10000circular moving-block draws,13weeks,seed7721, average paired errors across counties/seeds before resampling",
+    "memory_utility_gate": "Full mean TESTMAE<=0.98*NoMem, upper95%paired block interval for Full-minus-NoMem MAE<0, and mean RMSE no worse. Otherwise record negative completion without changed hyperparameters/replay.",
+    "generalization_claim": "Fixed topology forecasting applicability only. No changing-topology, biological, native GST reproduction, broad superiority or operator novelty.",
+    "chronology_diagnostic": "After all selections frozen, permute first51known weeks with Random(9031+target), hold finalknown week fixed, same permutations for every model. Report reliance only; no tuning."
+  },
+  "root_integration_required": [
+    "Independent source review and explicit new-condition registration linked to H010/H022, not their overwrite.",
+    "Current child capacity/runtime admission, bounded artifact sinks and mandatory runtime boundary callback.",
+    "Synthetic numerical qualification before actual benchmark payload/model work; no such qualification performed in this packet.",
+    "Archive/source/runtime hashes, CPU/scientific write caps and genuine wait/drain supplied by separate ROOT wrapper. No old resource policy or lease is adopted."
+  ],
+  "not_performed": [
+    "payload decoding",
+    "model import or execution",
+    "numerical fixture",
+    "training",
+    "scoring",
+    "guard/admission/resource/process operations",
+    "registration",
+    "installation",
+    "Git"
+  ]
+}

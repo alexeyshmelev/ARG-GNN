@@ -1,56 +1,32 @@
 # Research progress
 
-Updated UTC: 2026-10-16T17:22:58.865163+00:00.
+Updated UTC: 2026-10-16T22:42:21.602136+00:00.
 
-Current focus is complete faithful comparisons and independent testing, with one registered architecture experiment retained. The full research objective and novelty requirement remain unchanged.
+TreeLoom is the final European development model. It processes whole inferred local trees, carries memory for persistent sampled haplotypes and uses a genomic BiGRU. The main paper now defines local ancestry inference (LAI), explains the biological task and keeps completed competitor comparisons plus one meaningful memory control in the main results.
 
-| Completed European development pipeline | Present182 span accuracy, mean ± simulation SD (%) |
-|---|---:|
-| TreeLoom |97.0778 ±0.5674|
-| TreeLoom-NoMem |97.0000 ±0.4978|
-| Current author ARGMix release |94.4461 ±1.1491|
-| Released AncestralPaths, derived four-source output |93.7830 ±0.8385|
+| European development pipeline | Modern span accuracy (%) | Boundary F1 (%) |
+|---|---:|---:|
+| TreeLoom | **97.0778 ± 0.5674** | 18.3807 ± 1.3141 |
+| TreeLoom-NoMem | 97.0000 ± 0.4978 | **19.0488 ± 1.4275** |
+| Current ARGMix release | 94.4461 ± 1.1491 | See detailed scoreboard |
+| Released AncestralPaths, derived four source output | 93.7830 ± 0.8385 | See detailed scoreboard |
 
-Eight reused2Mb validation simulations,952haplotypes/686queries,one optimizer seed. Inputs, training and selection differ across pipelines. This is not an exact published-table reproduction or architecture-only attribution. Stable-leaf memory adds0.0778percentagepoints over the matched control, with boundaryF1 lower at18.3807% versus19.0488%.
+These are eight reused 2 Mb validation simulations and one optimizer seed. SD is across simulations. Method inputs, training and selection differ. The completed comparison does not establish exact publication reproduction, independent generalization, architecture-only attribution or an overall method ranking.
 
-- American C3 GNN: at least592/600 actual completed optimizer updates, durable checkpoint200 independently verified, physicalGPU0. This is AmericanC3WholeTreeGNNV1, not the full European H050 TreeLoom memory architecture. No ancestry score yet.
-- Native American ARGformer: stopped by its GPU0 capacity guard after at least6500/227990 saved AdamW updates. Actual directworker-15 and complete owned drain are preserved. Outer tool24814 exit0 is supervisor completion, not model training success. Exact failing capacity values were not persisted. Full7GiB charge and files retained, no automatic retry or ancestry score.
-- Native FLARE: one American VAL000 score is complete,98.0100% focal accuracy and97.7151%macroF1 over10,000fixed focals. No multi-parent SD or GNN/ARGformer head-to-head table yet.
-- Larger ARGMix condition: full1,611-diploid observed dataset accepted after all7 observed products were independently stream-hashed and the final original storage guard passed. Original child0/parentouter1 monitor failure and original16GiB charge remain preserved. Full64GiB Relate pipeline is now admitted and running (tool41415), preserving all samples/sites/map. No inferred-bank completion or ancestry score yet.
-- New H058 route: actual one-hold FP32 arithmetic PASS,37checks,worker0/outer0/drain. Full scientific sourcev2 passes independent review. No full-parent training or accuracy yet. One30pass/960-update-per-arm trial is planned, without a broad architecture search.
-- Independent European outer tests: eight reserved simulations remain ungenerated and untouched.
-- Cross-domain: completed TGB experiment is negative. Full paired GST comparison remains unfinished.
-- Real data: Danish application remains descriptive, without ancestry truth. Independent genotype contrasts did not support registered directions.
-- Paper: compiled9-page AAAI working draft and Overleaf bundle. Final primary tables, independent evidence, useful novelty and final fresh manuscript review remain.
+| Current work | Actual status | Remaining result |
+|---|---|---|
+| Native American ARGformer | Running on GPU 0. Latest stable saved audit verifies 91,000 of 227,990 AdamW updates across all 77 states, with one completed epoch | Finish native fit and downstream ancestry scoring |
+| Earlier American backbone | 600 saved updates accepted on 20 independent 2 Mb training simulations. Full 30 Mb VAL000–003 prediction workers continue | Complete all five original plans and all 30 predictions before truth |
+| Original American VAL004 | Native paths completed with genuine worker0, owned drain and consumed outer0. Ordinary close completed successfully | Construct final original observation plan |
+| Full American TreeLoom versus NoMem, H060 | Fresh v4 admission completed and the scheduled execution launched. Scientific startup and first update remain unverified | 600 additional complete-parent updates per arm, then all 60 predictions before either arm VAL truth |
+| Native FLARE | One VAL parent and 10,000 fixed focals: 98.0100% accuracy and 97.7151% macro F1. Four remaining cells have reviewed completion source | Run remaining native cells and report five-parent mean and sample SD |
+| Larger ARGMix comparison | Full 1,611-diploid observed data accepted. Full Relate inference stopped at its 21,600 s limit | Complete the inferred bank before any score |
+| Independent European test, H059 | Five methods and eight reserved simulations frozen. Generation pending | All 40 primary and eight secondary products before truth |
+| Cross-domain | A current-core Chickenpox source packet is under independent review. Earlier TGB mechanism test was negative | Register and run scientifically justified transfer |
+| Real data | Danish predictions, PCA and genotype contrasts completed. Descriptive, without ancestry truth. Genotype contrasts did not support registered directions | Stronger independent biological corroboration |
 
-The next result milestones are the American common-data ancestry table, larger native ARGMix comparison, and independent confirmation of the frozen European candidate. Training loss and arithmetic checks are never ancestry scores.
+The ten-page AAAI draft and Overleaf source compile, with Figure 1 on page 3. The current v6 figure has matching ARG slices and local trees, explicit vectors, shared graph stages, sample memory and a separate BiGRU. A new image-only reader recovered the broad pipeline and found no major overlap or sample-label mismatch. The v6 memory inset now distinguishes current and historical context, with a fresh reader recovering its role before the second graph pass. The caption and equations supply the exact update. Experimental values are unchanged.
 
-[Actual H058 arithmetic result](reviews/H058_actual_one_hold_ROOTv4_qualification_20261016_v1/REPORT.md) · [Accepted larger data](reviews/prospective1611_observed_data_acceptance_root_20261016_v1/acceptance.root_v1.json) · [Current detailed scores](current_scoreboard.md) · [Working PDF](../paper/current_full_panel_working.pdf)
+Useful operator novelty remains unestablished. Completing native benchmarks and independent validation remains necessary for a submission. No new American GNN or ARGformer ancestry score is available.
 
-## ARGMix correction
-
-The modern documented `build-training` route at author commit `c2481248eb0de5fda659d68f59c51e0e27becd20` uses `FastSubgraphEngine`, whose reference ranking uses uncapped absolute differences of quantized times. The earlier log-distance description applies to a legacy route. The old proposed shared-only adapter is a development adaptation and must not be run or described as author-faithful. The modern native training and inference adapters passed independent source review. Simulation, fitting and scoring remain pending. Native ancient-query self/homolog eligibility must be disclosed and aligned deliberately.
-
-[Full current scores](current_scoreboard.md) · [Working PDF](../paper/current_full_panel_working.pdf) · [Overleaf working bundle](../paper/current_full_panel_overleaf_working.zip)
-
-[Completed TGB result](reviews/TGB_H051_completed_seed17_root_20261016_v1/REPORT.md). The1GBqualificationreservation was closed with genuinewait0 and targetedwriterabsence, retaining188416bytes and crediting999811584unusedbytes. No files were deleted and no guard was changed.
-
-[Current paper and benchmark completion audit](reviews/paper_completion_compact_audit_20261016_v1/REPORT.md). The nine-page draft has equations and a schematic, but native American comparisons, the larger ARGMix panel, useful novelty and untouched tests remain unfinished.
-
-Capacity recovery: one old completed run retained23.379GB of its52.321GB cap. Actual unused reservation credit28.942GB, no files deleted. New admissions use the active Census fit2 child, with the H020v3 parent frozen. Existing C3/controller inputs and caps remain unchanged. [Actual recovery](reviews/prospective980_H020_root_activation_20261016_v3/REPORT.md).
-
-The manuscript was fully rewritten for scientific readers and both integrated and extracted Overleaf sources compile cleanly to9pages. All9pages were visually inspected. The path appendices are gone, the architecture figure is an original editable vector, and simulation/training details sit in the supplement. [Current paper](../paper/current_full_panel_working.pdf) · [Strict comparator audit](reviews/competitor_fidelity_user_audit_20261016_v1/REPORT.md).
-
-Actual unused reservation recovery69.906GB retained all old files. Current commitment979.266GB includes fullRelate64GiB and failednative7GiB. This is accounting commitment, not a physical free-disk measurement. New admissions use the actual Census fit2 child, while existing C3 guards remain unchanged.
-
-The latest Figure 1 and naming revision is complete: TreeLoom, defined variants, a simulated ARG with three true marginal trees, symbolic shapes and exact layers. The final nine-page paper and extracted Overleaf bundle compile without warnings and match text/layout. Root inspected all final pages. Numerical experiments are unchanged. [Final integration](reviews/paper_fig_naming_revision_20261016_v2/final_integration.root_v1.json).
-
-The native downstream I/O option passed fresh independent source/API review. It preserves all4native embedding products and original retrieval, avoids50.29GB duplicate serialization and proposes a separate65GiB cap. Actual execution bindings, storage admission, RAM/GPU fit and numerical runtime checks remain pending. Outer8 v3 source passed fresh independent review with its full40primary-plus8top5 prediction barrier. No outer data generation or fit has started.
-
-ROOT verified the preserved native checkpoint at6,500updates, including all77Adamstates and full model/scheduler/callback/RNG/training-position state. The interrupted fit remains incomplete. Its operational full-state resume candidate is being prepared. C3 CPU evaluation source passed independent review, preserving all30prediction seals before any VAL truth. Actual full600 completion, VAL003004 preparation and runtime fit remain pending.
-
-Native resume v6 preparation failed before any new native launch because the original strict storage traversal rejects Composer’s latest-checkpoint symlink. Its regular checkpoint at6,500updates is preserved. A separately scoped operational alias repair is being prepared. No new ancestry score or training completion follows from this work.
-
-The ten-page scientific rewrite is integrated. Figure1is onpage3. All10pages were visually inspected and the extracted Overleaf bundle matches every rendered page. Main results now focus on final TreeLoom and completed comparators, with one meaningful memory ablation. [PDF](../paper/current_full_panel_working.pdf) · [Current scientific status](../paper/CURRENT_FULL_PANEL_README.md).
-
-Latest native full-state resume failed before restore/CUDA with0newupdates due stale startup evidence. Its independently reviewed v9 operational repair is source-only. Original6500checkpoint and failures remain preserved.
+[Detailed scores](current_scoreboard.md) · [Latest execution report](reviews/user_progress_20261017_v1/REPORT.md) · [Experiment decisions](experiment_decisions.json) · [Paper](../paper/current_full_panel_working.pdf) · [Overleaf source](../paper/current_full_panel_overleaf_working.zip)

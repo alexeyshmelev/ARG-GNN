@@ -1017,10 +1017,14 @@ def main():
                         latest_saved_checkpoint_audit_ref=entry.get("latest_saved_checkpoint_audit_ref"))
                 elif kind in ("VAL003_native_paths_down8","VAL003_GNN_plan"):
                     remaining_val_status+="; "+("003/native_paths: " if kind=="VAL003_native_paths_down8" else "003/GNN_plan: ")+entry["summary"]
+                elif kind=="VAL004_native_paths_fresh7500":
+                    remaining_val_status+="; 004/native_paths: "+entry["summary"]
                 elif kind=="C3":
                     c3_status=entry["summary"]
                     c3_execution.update(status=c3_status,GPU0_runtime_snapshot_ref=ref(gpu0_snapshot_path),running=entry.get("state")=="running",new_GPU0_execution_pending=entry.get("GPU_training_pending",entry.get("state")!="running"),actual_optimizer_updates_lower_bound=entry.get("optimizer_steps_verified"),latest_optimizer_progress_ref=entry.get("latest_optimizer_progress_ref"))
                     c3_device=entry.get("reporting_device","GPU0")
+    h060_runtime=gpu0_snapshot.get("jobs",{}).get("H060",{}) if gpu0_snapshot else {}
+    h060_status=h060_runtime.get("summary","Full TreeLoom American transfer is not yet scored.")
     h050_saved_entry=gpu0_snapshot.get("jobs",{}).get("H050",{}) if gpu0_snapshot else {}
     h050_saved_steps=h050_saved_entry.get("optimizer_steps_verified",{})
     h050_scientific_updates=(3840 if h050_evaluation["ready"] or
@@ -1212,6 +1216,7 @@ def main():
             FLARE_author_build=flare_build,FLARE_TRAIN_conversion=flare_conversion,FLARE_TRAIN_native=flare_native,FLARE_TRAIN_seal=flare_seal,
             FLARE_VAL_conversion=flare_val_conversion,FLARE_VAL_native=flare_val_native,FLARE_VAL_seal=flare_val_seal,FLARE_VAL_original_deliberate_stop_ref=ref(flare_val_old_stop),C3_original_VAL000_GNN_plan=gnn_VAL000_plan),
         American_remaining_VAL_preparation=dict(status=remaining_val_status,phases=remaining_val_phases),
+        H060_full_TreeLoom_transfer=h060_runtime,
         American_short_TRAIN_remaining_preparation=wave_status,
         American_short_TRAIN014_recovery=recovery,C3_focal_plan_preparation=focal_preparation,
         native_ARGformer_execution=native_execution,native_ARGformer_counts_execution=counts_execution,native_ARGformer_VAL000_counts=val000_native_counts,ARGformer_Table1_fidelity=dict(status=table1_fidelity,report_ref=ref(table1_audit_path)),VAL000_FLARE_target_binding=val_flare_binding,
@@ -1359,6 +1364,7 @@ def main():
         "| Native ARGformer held-out VAL000 | CPU | Original per-ARG six-dataset counts: "+val000_native_counts["status"]+". Separate native fit follows actual counts. | no ancestry score |",
         "| Native FLARE | CPU | "+flare_val_score_status+" Author build, TRAIN000 full-site inference and prediction seal completed. Held-out VAL000 conversion: "+flare_val_conversion["status"]+"; native inference: "+flare_val_native["status"]+"; seal: "+flare_val_seal["status"]+". | "+flare_val_score_label+" |",
         "| Our American C3 GNN | "+c3_device+" | "+str(focal_ready)+"/20 exact TRAIN plans completed. "+c3_status.rstrip(".")+". Original VAL000 full-length GNN block plan: "+gnn_VAL000_plan["status"]+". | no ancestry score |",
+        "| Full American TreeLoom versus NoMem | CPU | "+h060_status+" | no ancestry score |",
         "| H049 cut-memory candidate | CPU preparation | "+h049_prepare_status+". Three matched 32,446-parameter arms. Full 30 passes / 960 updates per arm planned. | no fit or accuracy yet |",
         "| TreeLoom memory comparison | "+h050_device+" | "+h050_execution_status.rstrip(".")+". H045 own-state predictor retained initially, three 32,325-parameter memory arms and a 31,812-parameter continuation. "+("192 prediction seals verified, original GPU0 TRAIN CLI exit 1 preserved." if h050_evaluation["ready"] else "192 prediction seals required before scoring, ancestry metrics pending.")+" | "+h050_scores+" |",
         "| Empirical data | CPU | H045 probabilities, ancestry proportions and genotype PCA completed for 24 query haplotypes / 12 subjects. Descriptive only, without known ancestry truth. | completed |","",

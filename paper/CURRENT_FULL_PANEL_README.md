@@ -8,6 +8,6 @@ These results do not establish publication-benchmark top-1, independent-test gen
 
 The editorial rewrite changes no experimental values. The final model and completed comparators replace the developmental catalogue in the main results. One meaningful matched memory comparison retains both accuracy and boundary F1. Additional controls are in the scientific supplement. Figure 1 was checked by fresh image-only readers and revised in response. The v5 correction matches miniature GNN topology to T1, groups all tree inputs, shows the initial feature encoder and persistent sample rows, and makes physical geometry and argmax explicit. Its input values and output probabilities are illustrative.
 
-Both the canonical source and extracted Overleaf bundle compile. All ten rendered pages were inspected, and all ten bundle pages are pixel-identical to the canonical render. [Final integration](../research/reviews/paper_figure_clarity_ROOT_20261016_v5/final_integration.root_v1.json).
+Both the canonical source and extracted Overleaf bundle compile. All ten rendered pages were inspected, and all ten bundle pages are pixel-identical to the canonical render. [Final integration](../research/reviews/paper_figure_clarity_ROOT_20261017_v6/final_integration.root_v1.json).
 
 [Current detailed scores](../research/current_scoreboard.md) · [Comparator-fidelity matrix](../research/reviews/competitor_fidelity_user_audit_20261016_v1/comparison_matrix.md) · [Provenance](current_full_panel_provenance.json).

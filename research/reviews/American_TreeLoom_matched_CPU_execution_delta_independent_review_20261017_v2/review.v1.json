@@ -1,0 +1,76 @@
+{
+  "schema": "TreeLoom_matched_CPU_execution_independent_delta_review_v2",
+  "created_utc": "2026-10-16T22:13:05.343703+00:00",
+  "independent": true,
+  "status": "SOURCE_BLOCKED",
+  "verdict": "SOURCE_BLOCKED",
+  "source_ref": {
+    "path": "research/reviews/American_TreeLoom_matched_CPU_execution_source_20261017_v2/root_driver_v1.py",
+    "sha256": "d591d3778706a9415c3fc7789a6d96195275359ca7a76fc4e6034c9698e3e8b9"
+  },
+  "source_manifest_ref": {
+    "path": "research/reviews/American_TreeLoom_matched_CPU_execution_source_20261017_v2/source_manifest.v1.json",
+    "sha256": "1f6d66dfe083e6341d4a7ab9e186a44fb882d706472ccc9f57e1839f9a8c914e"
+  },
+  "source_handoff_ref": {
+    "path": "research/reviews/American_TreeLoom_matched_CPU_execution_source_20261017_v2/source_handoff.v1.json",
+    "sha256": "eb9a36af312f2a0748c02133abcdfb0edd6c8d0aed2c44106315c0e41c85141b"
+  },
+  "runner_source_ref": {
+    "path": "research/reviews/American_TreeLoom_warmstart_training_source_20261017_v2/warmstart_train_v2.py",
+    "sha256": "c26f3cb2c949648ccea97570007e08bc49fff12608906be9d3084d5919d1ea07"
+  },
+  "protocol_ref": {
+    "path": "research/reviews/American_TreeLoom_warmstart_training_source_20261017_v2/protocol.inactive.v2.json",
+    "sha256": "e25d626ae3d0f49767416e4697fbae646d622396ed978fbdeacb8a0cfbbfc595"
+  },
+  "unchanged_body_review_ref": {
+    "path": "research/reviews/American_TreeLoom_matched_CPU_execution_independent_review_20261017_v1/review.v1.json",
+    "sha256": "e050352869a9701e67a934b7114f96dbb821d194b06a1d24cdd5184a3dcf241e"
+  },
+  "source_checks_ref": {
+    "path": "research/reviews/American_TreeLoom_matched_CPU_execution_source_20261017_v2/source_checks.v2.json",
+    "sha256": "af5f17150f0a0d45053356183af0527427dade3bd37904671b2f1bbf5c408cd5"
+  },
+  "audit_manifest_ref": {
+    "path": "research/reviews/American_TreeLoom_matched_CPU_execution_source_20261017_v2/audit_artifact_manifest.v2.json",
+    "sha256": "f9d31e0d25afebddb522f6d788effd60346f9f4ae92f60da8fdf2209476b965e"
+  },
+  "blockers": [
+    {
+      "id": "B1",
+      "severity": "blocking",
+      "paths": [
+        "research/reviews/American_TreeLoom_matched_CPU_execution_source_20261017_v2/root_driver_v1.py:5",
+        "research/reviews/American_TreeLoom_matched_CPU_execution_source_20261017_v2/worker_entry_v1.py:4"
+      ],
+      "finding": "Both actual executable modules still import the dotted v1 root_contract package. Actual c.HERE/c.SOURCE/c.DRIVER/c.ENTRY and direct_roles therefore remain v1, so the v2 repair is not reached and v2 references cannot satisfy the old contract.",
+      "required_fix": "Fresh successor must bind both executable imports to its actual successor contract; verify actual inactive module-import routing constants and direct_roles before any guard/admission."
+    }
+  ],
+  "additional_observation": {
+    "template": "research/reviews/American_TreeLoom_matched_CPU_execution_source_20261017_v2/ROOT_review.INACTIVE.template.v1.json",
+    "finding": "Inactive template has v2 driver path with old v1 driver digest; do not promote unchanged."
+  },
+  "why_author_check_missed_it": "The checker extracts v2 direct_roles into a detached environment. Slash-path replace(PREV,HERE) does not replace dotted Python package imports, so its worker assertion also misses the actual routing error.",
+  "positive_bounded_findings": [
+    "Source diff removes only the Markdown direct role in the v2 contract and adds exact scope_spec preflight before authority drafting in the v2 driver.",
+    "registration(q) still raw-verifies the exact ledger and validate_request binds its reference through directly bound request/directive.",
+    "These intended improvements do not repair the actual v1 contract import routing."
+  ],
+  "execution_authorized": false,
+  "admission_authorized": false,
+  "actual_apply_performed": false,
+  "scope": "Narrow source delta review only; preserve all sealed v2 and actual v1 failure artifacts. ROOT requested no further obsolete-v2 checks.",
+  "not_performed": [
+    "module imports",
+    "guard objects or calls",
+    "accounting",
+    "admission",
+    "jobs",
+    "scientific payloads",
+    "model execution",
+    "resource/process probes",
+    "Git"
+  ]
+}

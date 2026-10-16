@@ -1,0 +1,37 @@
+--- research/reviews/American_TreeLoom_matched_CPU_execution_source_20261017_v1/root_contract_v1.py
++++ research/reviews/American_TreeLoom_matched_CPU_execution_source_20261017_v2/root_contract_v1.py
+@@ -3,7 +3,7 @@
+ from datetime import datetime,timezone
+ import copy,hashlib,importlib.util,json,sys
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-REL=HERE="research/reviews/American_TreeLoom_matched_CPU_execution_source_20261017_v1"
++REL=HERE="research/reviews/American_TreeLoom_matched_CPU_execution_source_20261017_v2"
+ SOURCE=HERE+"/root_contract_v1.py";DRIVER=HERE+"/root_driver_v1.py";ENTRY=HERE+"/worker_entry_v1.py"
+ MANIFEST=HERE+"/source_manifest.v1.json";HANDOFF=HERE+"/source_handoff.v1.json"
+ PHASE="train_matched";PARENT="American_C3_short20_TRAIN_TreeLoom_matched"
+@@ -108,10 +108,12 @@
+   and directive.get("first_scheduled_update_timed_inside_full_budget")is True,"Separate real ROOT directive binds complete representative budget")
+  return q,CAPS,runtime
+ def direct_roles(request_ref,q,cfgref,closure):
++ # The exact Markdown ledger stays SHA-bound through request/directive and registration(q).
++ # V4 direct consumer metadata permits only .py/.sh/.json, so never list that .md directly.
+  b=binding()
+  return [ref(MANIFEST),ref(SOURCE),ref(DRIVER),ref(ENTRY),ref(HANDOFF),b["runner_source_ref"],b["protocol_ref"],
+   q["source_review_ref"],q["scientific_review_ref"],q["runtime_ref"],q["runtime_qualification_ref"],cfgref,q["root_directive_ref"],
+-  request_ref,q["registration_ref"],q["registration_decisions_ref"],q["registration_ledger_ref"],q["training_context_ref"],closure,SELECTOR,q["storage_policy_selector_ref"],NAMESPACE,PIDFD,OWNED,SUPERVISOR]
++  request_ref,q["registration_ref"],q["registration_decisions_ref"],q["training_context_ref"],closure,SELECTOR,q["storage_policy_selector_ref"],NAMESPACE,PIDFD,OWNED,SUPERVISOR]
+ def make_config(q,caps):
+  return dict(schema="TreeLoom_matched_CPU_operational_config_v1",scientific_config=q["scientific_config"],caps=caps,
+   short_tmp_directory=q["packet_directory"]+"/worker_aux/tmp",training_context_ref=q["training_context_ref"])
+--- research/reviews/American_TreeLoom_matched_CPU_execution_source_20261017_v1/root_driver_v1.py
++++ research/reviews/American_TreeLoom_matched_CPU_execution_source_20261017_v2/root_driver_v1.py
+@@ -33,6 +33,9 @@
+  job="TreeLoom-matched-CPU-"+packet.name
+  reserve=dict(key="H060/"+job,output=str(ROOT/output),auxiliary_scopes=[str(packet)],
+   reserved_bytes=caps["reservation_bytes"],consumer_bindings=consumers)
++ # Exact original read-only schema/type/hash preflight over every returned/current role.
++ # This precedes authority creation and reservation accounting mutation.
++ g.budget.v4.scope_spec(ROOT,reserve)
+  authority=g.operation_draft_v1("reserve",reserve,expected_before=g._pins(state[2]),bindings=state[3])
+  authority.update(active=True,expires_at_utc=q["expires_at_utc"])
+  ar=put(packet/"reserve_authority.json",authority)

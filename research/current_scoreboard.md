@@ -1,6 +1,6 @@
 # Current scientific scoreboard
 
-Updated UTC: 2026-10-16T21:58:39.611233+00:00
+Updated UTC: 2026-10-16T22:51:30.623859+00:00
 
 [All measured cohort details](#detailed-cohort-metrics) · [Complete historical receipt inventory](all_recorded_metric_receipts.md) · [Fresh H048 novelty/cross-domain audit](../research/reviews/H048_novelty_crossdomain_fresh_20261015_v1/report.md)
 
@@ -527,7 +527,7 @@ H048 retains 31,933 parameters per arm and a fixed 30-pass/960-update schedule. 
 
 | Method | Current ancestry scores | Status |
 |---|---|---|
-| Native ARGformer | unavailable | Native ARGformer is training on GPU 0. Stable saved state verifies 64,500 AdamW updates across all 77 states and one completed epoch, against 227,990 planned updates over five epochs. Full training and ancestry scoring remain incomplete. |
+| Native ARGformer | unavailable | Native ARGformer continues on GPU 0. One stable readonly-FD observation verifies 91,000 AdamW updates across all 77 states and one completed epoch, against 227,990 planned updates. Full fit and ancestry evaluation remain incomplete. |
 | Native ARGformer dataset counts | not an accuracy run | completed; actual count producer wait0 and drain verified |
 | Native FLARE | 98.0100% focal accuracy | Completed fixed native-call score on one VAL parent, not a multi-parent paper-table reproduction. Macro F1 97.7151%. Held-out VAL000 conversion: completed; actual wait0 and owned-group drain verified. Inference: completed; actual wait0 and owned-group drain verified. Prediction seal: prediction worker completed; direct wait0 and owned-group drain verified, outer tool terminal/final guard unconfirmed. The GNN/ARGformer comparison remains pending. |
 | Our C3 GNN | unavailable | The earlier American backbone completed 600 verified updates on 20 independent 2 Mb training simulations. It lacks the final TreeLoom mechanisms. Full 30 Mb predictions for VAL000–002 continue and the repaired VAL003 worker has now started. Four of five observation plans are complete. No ancestry score is available yet. Original training invocation failures remain recorded separately. Original full 30 Mb VAL000 observation preparation is complete. Full prespecified prediction/scoring gate pending. |

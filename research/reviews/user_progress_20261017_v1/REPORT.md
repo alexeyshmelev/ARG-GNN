@@ -1,13 +1,32 @@
 # Current progress
 
-Native ARGformer runs on physical GPU 0. A stable checkpoint observation verifies **64,500 AdamW updates**, including 42,500 beyond the current resume and one completed epoch. Its full 227,990 update fit and ancestry evaluation remain incomplete.
+Updated UTC: 2026-10-16T22:42:21.602136+00:00.
 
-European modern span accuracy remains **97.0778 ± 0.5674%** for TreeLoom, **94.4461 ± 1.1491%** for current ARGMix and **93.7830 ± 0.8385%** for derived dense AncestralPaths. These are eight reused validation simulations and one optimizer seed. Matched NoMem reaches **97.0000 ± 0.4978%**. Boundary F1 is **18.3807 ± 1.3141%** for TreeLoom versus **19.0488 ± 1.4275%** for NoMem. No independent test or overall top ranking is established.
+TreeLoom is the final European development model. It processes whole inferred local trees, carries memory for persistent sampled haplotypes and uses a genomic BiGRU. The main paper now defines local ancestry inference (LAI), explains the biological task and keeps completed competitor comparisons plus one meaningful memory control in the main results.
 
-American VAL000–002 predictions continue. VAL003 execution failed before prediction completion because an adapter misread nested checkpoint metadata. The repaired prediction preparation completed and its exact one-shot execution is launched, with no worker completion yet. VAL004 native path preparation is running with the complete original data. Native FLARE retains **98.0100%** accuracy and **97.7151%** macro F1 on one parent and 10,000 focal records. There is no multi-parent SD or American GNN or ARGformer score yet.
+| European development pipeline | Modern span accuracy (%) | Boundary F1 (%) |
+|---|---:|---:|
+| TreeLoom | **97.0778 ± 0.5674** | 18.3807 ± 1.3141 |
+| TreeLoom-NoMem | 97.0000 ± 0.4978 | **19.0488 ± 1.4275** |
+| Current ARGMix release | 94.4461 ± 1.1491 | See detailed scoreboard |
+| Released AncestralPaths, derived four source output | 93.7830 ± 0.8385 | See detailed scoreboard |
 
-Current American predictions score the simpler backbone. The full TreeLoom transfer now instantiates with **32,132 parameters**, both structural residuals and sample memory. H060 registers600additional full-parent updates per arm with the same accepted backbone weights. Source and CPU runtime reviews passed. Actual admission77023 waits on the existing scheduler mutex while native path preparation waits on NFS. No scientific run, new update or score is claimed.
+These are eight reused 2 Mb validation simulations and one optimizer seed. SD is across simulations. Method inputs, training and selection differ. The completed comparison does not establish exact publication reproduction, independent generalization, architecture-only attribution or an overall method ranking.
 
-H059 freezes the European independent comparison and eight reserved simulations before generation. Interpreter, package and native binary identities match the original configuration. Generation and all 40 primary plus eight secondary products remain future work.
+| Current work | Actual status | Remaining result |
+|---|---|---|
+| Native American ARGformer | Running on GPU 0. Latest stable saved audit verifies 91,000 of 227,990 AdamW updates across all 77 states, with one completed epoch | Finish native fit and downstream ancestry scoring |
+| Earlier American backbone | 600 saved updates accepted on 20 independent 2 Mb training simulations. Full 30 Mb VAL000–003 prediction workers continue | Complete all five original plans and all 30 predictions before truth |
+| Original American VAL004 | Native paths completed with genuine worker0, owned drain and consumed outer0. Ordinary close completed successfully | Construct final original observation plan |
+| Full American TreeLoom versus NoMem, H060 | Fresh v4 admission completed and the scheduled execution launched. Scientific startup and first update remain unverified | 600 additional complete-parent updates per arm, then all 60 predictions before either arm VAL truth |
+| Native FLARE | One VAL parent and 10,000 fixed focals: 98.0100% accuracy and 97.7151% macro F1. Four remaining cells have reviewed completion source | Run remaining native cells and report five-parent mean and sample SD |
+| Larger ARGMix comparison | Full 1,611-diploid observed data accepted. Full Relate inference stopped at its 21,600 s limit | Complete the inferred bank before any score |
+| Independent European test, H059 | Five methods and eight reserved simulations frozen. Generation pending | All 40 primary and eight secondary products before truth |
+| Cross-domain | A current-core Chickenpox source packet is under independent review. Earlier TGB mechanism test was negative | Register and run scientifically justified transfer |
+| Real data | Danish predictions, PCA and genotype contrasts completed. Descriptive, without ancestry truth. Genotype contrasts did not support registered directions | Stronger independent biological corroboration |
 
-The ten-page paper rewrite and Figure 1 v5 are already published and visually checked. Experiment values are unchanged. Complete independent benchmarks, useful architectural novelty and stronger biological validation remain unfinished.
+The ten-page AAAI draft and Overleaf source compile, with Figure 1 on page 3. The current v6 figure has matching ARG slices and local trees, explicit vectors, shared graph stages, sample memory and a separate BiGRU. A new image-only reader recovered the broad pipeline and found no major overlap or sample-label mismatch. The v6 memory inset now distinguishes current and historical context, with a fresh reader recovering its role before the second graph pass. The caption and equations supply the exact update. Experimental values are unchanged.
+
+Useful operator novelty remains unestablished. Completing native benchmarks and independent validation remains necessary for a submission. No new American GNN or ARGformer ancestry score is available.
+
+[Detailed scores](../../current_scoreboard.md) · [Latest execution report](REPORT.md) · [Experiment decisions](../../experiment_decisions.json) · [Paper](../../../paper/current_full_panel_working.pdf) · [Overleaf source](../../../paper/current_full_panel_overleaf_working.zip)
