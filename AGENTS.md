@@ -157,3 +157,13 @@ ROOT accepts the sealed downward8GB source and independent SOURCE_PASS and perma
 ## ROOT saved600 CPU predictions
 
 ROOT consumed actual dedicated validator18771outer0 and accepts only the six saved AmericanC3WholeTreeGNNV1 states, preserving original producer1/outer74136UNKNOWN. Active saved-artifact acceptance: research/reviews/C3_saved600_validator_ROOT_actual_20261016_v1/artifact_acceptance.root_active_v1.json. ROOT accepts separately reviewed evaluation-builder v2, authorizing one fresh CPU admission/launch for each ready VAL000 and VAL001 prediction from its own genuine closed plan. Preserve32threads/zeroCUDA, all6epochs per parent and original full30Mb data/numerical code/caps/64role guard. Matrix and score still require all5closed plans and all30pretruth seals. No partial scoring or automatic retry is authorized. Directive: research/reviews/C3_full30Mb_eval_ROOT_v2_activation_20261016_v1/ROOT_CPU_prediction_directive.root_active_v2.json.
+
+
+## ROOT VAL002 saved600 prediction
+
+ROOT authorizes one separately admitted full30Mb VAL002 CPU prediction with the same sealed saved600 producer and reviewed own-plan builder v2. Original VAL002 plan now has genuine completed wait0/drain/consumed outer0 and ordinary native14v3 close. Preserve32threads/zeroCUDA, all1600samples/1000queries/10000focals, all6checkpoints and all30pretruth seals before scoring. No training, reduced support, automatic retry or partial score is authorized. Directive: research/reviews/C3_full30Mb_eval_ROOT_v2_activation_20261016_v1/ROOT_CPU_VAL002_prediction_directive.root_active_v2.json.
+
+
+## ROOT VAL003 original GNN plan
+
+ROOT consumed VAL003 native-path outer48254exit0 and ordinary native14v3 close89225exit0. ROOT authorizes one original full30Mb VAL003 GNN observation plan through the independently reviewed down8 source, after actual same-parent close and fresh current capacity. Preserve all1600samples/1000queries/10000focals, author preparation and fixed20:04:16.988073Z expiry. No reduced workload, deadline reset, replay, prediction or scoring follows. Directive: research/reviews/VAL003004_downward8GB_ROOT_activation_20261016_v1/ROOT_VAL003_plan_directive.root_active_v1.json.
