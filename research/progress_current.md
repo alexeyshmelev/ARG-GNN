@@ -1,6 +1,6 @@
 # Research progress
 
-Updated UTC: 2026-10-16T15:21:29.315120+00:00.
+Updated UTC: 2026-10-16T16:13:48.184839+00:00.
 
 Current focus is complete faithful comparisons and independent testing, with one registered architecture experiment retained. The full research objective and novelty requirement remain unchanged.
 
@@ -13,7 +13,7 @@ Current focus is complete faithful comparisons and independent testing, with one
 
 Eight reused2Mb validation simulations,952haplotypes/686queries,one optimizer seed. Inputs, training and selection differ across pipelines. This is not an exact published-table reproduction or architecture-only attribution. Stable-leaf memory adds0.0778percentagepoints over the matched control, with boundaryF1 lower at18.3807% versus19.0488%.
 
-- American C3 GNN: at least478/600 actual completed optimizer updates, durable checkpoint200 independently verified, physicalGPU0. This is AmericanC3WholeTreeGNNV1, not the full European H050 TreeLoom memory architecture. No ancestry score yet.
+- American C3 GNN: at least519/600 actual completed optimizer updates, durable checkpoint200 independently verified, physicalGPU0. This is AmericanC3WholeTreeGNNV1, not the full European H050 TreeLoom memory architecture. No ancestry score yet.
 - Native American ARGformer: stopped by its GPU0 capacity guard after at least6500/227990 saved AdamW updates. Actual directworker-15 and complete owned drain are preserved. Outer tool24814 exit0 is supervisor completion, not model training success. Exact failing capacity values were not persisted. Full7GiB charge and files retained, no automatic retry or ancestry score.
 - Native FLARE: one American VAL000 score is complete,98.0100% focal accuracy and97.7151%macroF1 over10,000fixed focals. No multi-parent SD or GNN/ARGformer head-to-head table yet.
 - Larger ARGMix condition: full1,611-diploid observed dataset accepted after all7 observed products were independently stream-hashed and the final original storage guard passed. Original child0/parentouter1 monitor failure and original16GiB charge remain preserved. Full64GiB Relate pipeline is now admitted and running (tool41415), preserving all samples/sites/map. No inferred-bank completion or ancestry score yet.
@@ -48,3 +48,5 @@ The latest Figure 1 and naming revision is complete: TreeLoom, defined variants,
 The native downstream I/O option passed fresh independent source/API review. It preserves all4native embedding products and original retrieval, avoids50.29GB duplicate serialization and proposes a separate65GiB cap. Actual execution bindings, storage admission, RAM/GPU fit and numerical runtime checks remain pending. Outer8 v3 source passed fresh independent review with its full40primary-plus8top5 prediction barrier. No outer data generation or fit has started.
 
 ROOT verified the preserved native checkpoint at6,500updates, including all77Adamstates and full model/scheduler/callback/RNG/training-position state. The interrupted fit remains incomplete. Its operational full-state resume candidate is being prepared. C3 CPU evaluation source passed independent review, preserving all30prediction seals before any VAL truth. Actual full600 completion, VAL003004 preparation and runtime fit remain pending.
+
+Native resume v6 preparation failed before any new native launch because the original strict storage traversal rejects Composer’s latest-checkpoint symlink. Its regular checkpoint at6,500updates is preserved. A separately scoped operational alias repair is being prepared. No new ancestry score or training completion follows from this work.

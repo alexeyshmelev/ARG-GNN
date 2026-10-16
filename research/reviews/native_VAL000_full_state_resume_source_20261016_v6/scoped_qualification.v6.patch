@@ -1,0 +1,159 @@
+--- research/reviews/native_VAL000_full_state_resume_source_20261016_v5/amendment_contract_v1.py
++++ research/reviews/native_VAL000_full_state_resume_source_20261016_v6/amendment_contract_v1.py
+@@ -7,7 +7,7 @@
+ import copy,hashlib,importlib.util,json,os,stat,sys,time
+ from research.reviews.native_VAL000_GPU0_borrowed32_source_20261016_v2.common_v1 import *
+ from research.reviews.native_VAL000_GPU0_borrowed32_source_20261016_v2 import common_v1 as original
+-HERE="research/reviews/native_VAL000_full_state_resume_source_20261016_v5"
++HERE="research/reviews/native_VAL000_full_state_resume_source_20261016_v6"
+ SOURCE=HERE+"/amendment_contract_v1.py"
+ ACTUAL_DRIVER=HERE+"/execution_only_v1.py"
+ DIRECT=HERE+"/direct_gpu0_v1.py"
+@@ -30,10 +30,15 @@
+ AMENDMENT_REF=None
+ ORIGINAL_STATE=None
+ RESUME_STATE=None
++V4_STDOUT_PROJECTION_REF={'path': 'research/reviews/native_VAL000_GPU0_borrowed32_ROOT_actual_20261016_v2/worker_aux/ROOT_owned_roster_v4_actual_stdout_required_fields.root_v1.json', 'sha256': 'af114c2f0bcaef24c202ca9c0fafcd4b3a575fa68fd6575c9b4911a34c79cfdb'}
++V4_OUTER_PROJECTION_REF={'path': 'research/reviews/native_VAL000_GPU0_borrowed32_ROOT_actual_20261016_v2/worker_aux/ROOT_owned_roster_v4_consumed_outer_projection.root_v1.json', 'sha256': '705dfe54bfd2afe77e39c096a256729e09317224e231749ad194e416a4451e4e'}
++V4_LAUNCH_REF={'path': 'research/reviews/native_VAL000_GPU0_borrowed32_ROOT_actual_20261016_v2/worker_aux/same_charge_owned_roster_v4/launch.json', 'sha256': '2f86420dfec54338e08862750b59c9cc080d736efab214bf19034c33174e9564'}
++V4_CUDA_OBSERVATION_REF={'path': 'research/reviews/native_VAL000_GPU0_borrowed32_ROOT_actual_20261016_v2/worker_aux/ROOT_owned_roster_v4_CUDA_observation.root_v1.json', 'sha256': '95a7e00cc13990433905cc83b0e97484603169cb6c0029f9599324bf995b7f84'}
++V4_PRIOR_TARGET_REGISTRY_REF={'path': 'research/reviews/native_VAL000_GPU0_borrowed32_ROOT_actual_20261016_v2/worker_aux/ROOT_owned_roster_v4_preparation.root_actual_v1.json', 'sha256': '394e9ca41f209d1d53a401bbba98fd2367bacf61ee56e4eefd7a0b4e44970fa7'}
+ RESUME_CHECKPOINT_REF={'path': 'experiments/results/native_VAL000_full30mb_borrowed32_GPU0_v2/same_charge_owned_roster_v4/checkpoints/ep0-ba6500-rank0.pt', 'sha256': '17e266f77b9a91f6a72fcf50a4bb6551e794da86fdbe8ca382da7fccb180bce0'}
+ ROOT_PRESERVED_METADATA_REF={'path': 'research/reviews/native_v4_preserved_checkpoint_resume_root_metadata_20261016_v1/preserved_checkpoint_metadata.root_v2.json', 'sha256': '15a68643d5d940ee3b6304bc691e8aede1ac223d68b9a61581633805c0f3c7da'}
+ V4_MANIFEST_REF={'path': 'research/reviews/native_VAL000_GPU0_owned_roster_source_20261016_v4/source_manifest.v1.json', 'sha256': '4fc7f605f36d18b82ed155c24b0095a83b4b8b3a9649d8d65f81b23bc8cfae37'}
+-RESUME_POLICY_REF={'path': 'research/reviews/native_VAL000_full_state_resume_source_20261016_v5/resume_policy.INACTIVE.v5.json', 'sha256': 'a89466723712123290f587c7d4dccf50c33b6a2360d9072f95315139dcd69ed5'}
++RESUME_POLICY_REF={'path': 'research/reviews/native_VAL000_full_state_resume_source_20261016_v6/resume_policy.INACTIVE.v5.json', 'sha256': 'a89466723712123290f587c7d4dccf50c33b6a2360d9072f95315139dcd69ed5'}
+ 
+ def set_amendment_v1(record):
+     global AMENDMENT_REF
+@@ -48,7 +53,7 @@
+     require(AMENDMENT_REF is not None,"Actual separate ROOT amendment ref required")
+     a=read(AMENDMENT_REF);active(a)
+     require(a.get("template_only") is not True,"Inactive templates never authorize execution")
+-    require(a.get("schema")=="native32_full_state_resume_same_charge_ROOT_amendment_v5"
++    require(a.get("schema")=="native32_full_state_resume_same_charge_ROOT_amendment_v6"
+         and a.get("root_authorizer")=="root_agent" and a.get("status")=="active"
+         and a.get("execution_authorized") is True and a.get("independent_source_review_passed") is True
+         and a.get("adapter_manifest_ref")==ref(MANIFEST) and a.get("original_input_ref")==ORIGINAL_INPUT
+@@ -250,6 +255,8 @@
+         and a.get("failed_v4_and_all_prior_launch_capabilities_revoked") is True
+         and a.get("original_checkpoint_and_all_failed_artifacts_preserved") is True,
+         "Explicit narrowly reviewed same-charge full-state resume, no deletion or automatic retry")
++    require(a["failed_v4_stdout_observation_ref"]==V4_STDOUT_PROJECTION_REF
++        and a["failed_v4_outer_terminal_ref"]==V4_OUTER_PROJECTION_REF,"Exact genuine ROOT factual projections, no reconstructed stdout array")
+     failed=read(a["failed_v4_stdout_observation_ref"]);outer=read(a["failed_v4_outer_terminal_ref"])
+     require(failed.get("adapter_manifest_ref")==V4_MANIFEST_REF
+         and failed.get("returncode")==-15 and failed.get("actual_OS_wait_status")==15
+@@ -269,7 +276,11 @@
+         and qualified.get("checkpoint_full_SHA_via_own_readonly_FD_verified") is True
+         and qualified.get("genuine_full_state_model_optimizer_scheduler_RNG_timestamp_verified") is True
+         and qualified.get("whole_original7GiB_and6GiB_checkpoint_capacity_qualified") is True
+-        and qualified.get("all_prior_owners_drained_and_future_writes_revoked") is True
++        and qualified.get("current_v4_complete64_identity_and_group_drain_verified") is True
++        and qualified.get("fresh_targeted_known_old_root_PID_start_and_group_absence_verified") is True
++        and qualified.get("all_cooperative_old_capabilities_permanently_revoked") is True
++        and qualified.get("historical_v3_descendant_coverage")=="UNKNOWN_TRUNCATED64"
++        and qualified.get("historical_v3_unknown_descendants_absent") is None
+         and qualified.get("private_FD_no_Composer_TMP_symlink_or_copy_route_reviewed") is True
+         and qualified.get("actual_source_manifest_ref")==ref(MANIFEST),"ROOT actual post-drain full-state/FD/capacity prerequisite, not source fit")
+     require(qualified["actual_ROOT_verifier_receipt_ref"]==ROOT_PRESERVED_METADATA_REF,"Exact genuinely verified original6500 full-state metadata receipt")
+@@ -278,6 +289,7 @@
+         and evidence["full_byte_read_and_sha256"] is True and evidence["pre_post_file_and_FD_identity_equal"] is True
+         and evidence["full_budget_complete"] is False,"Actual original6500 is partial full-state progress, never full227990")
+     raw(qualified["whole_parent_capacity_observation_ref"])
++    validate_known_owner_scope_v6(a,qualified,failed)
+     checkpoint=qualified["checkpoint_ref"];identity=qualified["checkpoint_identity"]
+     require(checkpoint==RESUME_CHECKPOINT_REF and local(checkpoint["path"])==local("experiments/results/native_VAL000_full30mb_borrowed32_GPU0_v2/same_charge_owned_roster_v4/checkpoints/ep0-ba6500-rank0.pt")
+         and type(checkpoint["sha256"]) is str and len(checkpoint["sha256"])==64
+@@ -294,3 +306,91 @@
+         "Original strict fresh-entry cutoff retained")
+     RESUME_STATE=copy.deepcopy(qualified)
+     return qualified
++
++
++def validate_known_owner_scope_v6(a,qualified,failed):
++    record=a["ROOT_known_owner_observation_bundle_ref"]
++    require(qualified["ROOT_known_owner_observation_bundle_ref"]==record,"One exact genuine ROOT known-owner observation bundle")
++    bundle=read(record)
++    require(bundle.get("schema")=="ROOT_native_VAL000_known_owner_observation_bundle_v6"
++        and bundle.get("root_authorizer")=="root_agent" and bundle.get("template_only") is not True and bundle.get("source_manifest_ref")==ref(MANIFEST)
++        and bundle.get("failed_v4_stdout_observation_ref")==a["failed_v4_stdout_observation_ref"]
++        and bundle.get("failed_v4_outer_terminal_ref")==a["failed_v4_outer_terminal_ref"]
++        and bundle.get("current_v4_complete_roster_identity_count")==64
++        and bundle.get("current_v4_complete_identity_and_group_drain_verified") is True
++        and bundle.get("historical_v3_descendant_coverage")=="UNKNOWN_TRUNCATED64"
++        and bundle.get("historical_v3_unknown_descendants_absent") is None
++        and bundle.get("historical_v3_full_ownership_reconstructed") is False,
++        "Known-owner scope only, v4complete64 and permanently UNKNOWN truncated v3 history")
++    require(failed.get("known_identity_count")==64 and failed.get("adopted_wait_count")==41
++        and failed.get("complete_owned_roster_known") is True and failed.get("adopted_waits_truncated") is False
++        and failed.get("all_owned_processes_and_groups_drained") is True
++        and failed.get("full_original_stdout_or_identity_array_not_reconstructed") is True,
++        "Actual recorded currentv4 complete64 drain, without inventing unavailable full identity arrays")
++    registry=read(bundle["known_identity_registry_ref"])
++    pids=read(bundle["fresh_known_PID_start_absence_ref"])
++    groups=read(bundle["fresh_known_process_group_absence_ref"])
++    revoke=read(bundle["permanent_cooperative_revocation_ref"])
++    require(all(value.get("template_only") is not True for value in (registry,pids,groups,revoke)),"Inactive observation templates never establish facts")
++    expected_sources=[PRIOR_WAIT,LATEST_METADATA_WAIT,LATEST_ROSTER_WAIT,V4_STDOUT_PROJECTION_REF,V4_LAUNCH_REF,V4_CUDA_OBSERVATION_REF,V4_PRIOR_TARGET_REGISTRY_REF]
++    require(registry.get("root_authorizer")=="root_agent"
++        and registry.get("known_old_root_source_refs")==expected_sources
++        and registry.get("all_available_known_old_root_identities_from_listed_sources_and_ROOT_launchers_included") is True
++        and registry.get("unknown_historical_descendants_claimed_listed") is False,
++        "Exact source-bound finite known-owner registry, no inferred historical completeness")
++    identities=registry["identities"];pgids=registry["process_groups"]
++    require(type(identities) is list and 1<=len(identities)<=4096
++        and all(set(row)=={"pid","start_ticks"} and type(row["pid"]) is int and row["pid"]>=2
++            and (row["start_ticks"] is None or type(row["start_ticks"]) is int and row["start_ticks"]>0) for row in identities)
++        and len({(r["pid"],r["start_ticks"]) for r in identities})==len(identities)
++        and type(pgids) is list and 1<=len(pgids)<=4096 and all(type(g) is int and g>=2 for g in pgids)
++        and len(set(pgids))==len(pgids),"Complete bounded known PID/start and group registry only")
++    known_pairs=set();known_pids=set();known_groups=set()
++    extra=registry.get("additional_ROOT_launcher_source_refs",[])
++    require(type(extra) is list and len(extra)<=64,"Explicit bounded extra ROOT launcher metadata only")
++    for source_ref in expected_sources+extra:
++        source=read(source_ref);own=source.get("ownership",{})
++        for name in ("owned_identities","retained_owned_identities"):
++            for row in own.get(name,[]):
++                known_pairs.add((row["pid"],row["start"]));known_pids.add(row["pid"])
++        for row in source.get("adopted_waits",[]):known_pids.add(row["pid"])
++        if type(source.get("pid")) is int:known_pids.add(source["pid"])
++        if type(source.get("parent_pid")) is int:known_pids.add(source["parent_pid"])
++        for key in ("worker_identity_before","worker_identity_after"):
++            row=source.get(key)
++            if isinstance(row,dict) and type(row.get("pid")) is int and type(row.get("start_ticks")) is int:
++                known_pairs.add((row["pid"],row["start_ticks"]));known_pids.add(row["pid"])
++        for row in source.get("known_old_targeted_absence",[]):
++            if type(row.get("pid")) is int:known_pids.add(row["pid"])
++            if type(row.get("pgid")) is int:known_groups.add(row["pgid"])
++        if source_ref==V4_LAUNCH_REF:known_groups.add(source["pid"])
++        for row in source.get("group_observations",[]):known_groups.add(row["pgid"])
++    require(known_pairs<={(row["pid"],row["start_ticks"]) for row in identities}
++        and known_pids<={row["pid"] for row in identities} and known_groups<=set(pgids),
++        "Every recorded known old-source identity/PID/group included, no historical completeness inferred")
++    require(pids.get("root_authorizer")==groups.get("root_authorizer")=="root_agent"
++        and pids.get("known_identity_registry_ref")==groups.get("known_identity_registry_ref")==bundle["known_identity_registry_ref"]
++        and pids.get("unknown_history_absence_asserted") is False and groups.get("unknown_history_absence_asserted") is False,
++        "Fresh targeted observations reference exact known registry without unknown-history assertion")
++    rows=pids["observations"];grows=groups["observations"];now=datetime.now(timezone.utc)
++    require(len(rows)==len(identities) and len(grows)==len(pgids),"No known observation omitted or truncated")
++    for identity,row in zip(identities,rows):
++        require(row["pid"]==identity["pid"] and row["start_ticks"]==identity["start_ticks"]
++            and row["known_identity_absent"] is True and row["method"]=="targeted PID/start or numeric ESRCH"
++            and (identity["start_ticks"] is not None or row["numeric_PID_absent"] is True)
++            and 0<=(now-datetime.fromisoformat(row["checked_utc"])).total_seconds()<=120,
++            "Genuine fresh known PID/start absence, unknown start requires actual numeric ESRCH")
++    for pgid,row in zip(pgids,grows):
++        require(row["pgid"]==pgid and row["absent"] is True and row["method"]=="targeted os.killpg(pgid,0) ESRCH"
++            and 0<=(now-datetime.fromisoformat(row["checked_utc"])).total_seconds()<=120,
++            "Genuine fresh absence of each known process group only")
++    require(revoke.get("schema")=="ROOT_native_VAL000_permanent_cooperative_old_capability_revocation_v6"
++        and revoke.get("root_authorizer")=="root_agent" and revoke.get("source_manifest_ref")==ref(MANIFEST)
++        and revoke.get("all_source_referenced_old_launch_capabilities_permanently_revoked") is True
++        and revoke.get("old_original_resume_entrypoints_and_automatic_retries_revoked") is True
++        and revoke.get("new_exception_is_exact_reviewed_v6_ROOT_amendment_only") is True
++        and revoke.get("historical_files_or_failures_mutated") is False
++        and revoke.get("unknown_old_processes_absent_asserted") is False,
++        "Permanent cooperative old-capability revocation, exact reviewed new exception, unknown history remains unknown")
++    return dict(bundle_ref=record,known_identities=len(identities),known_groups=len(pgids),
++        historical_v3_descendant_coverage="UNKNOWN_TRUNCATED64",historical_unknown_absence=None)

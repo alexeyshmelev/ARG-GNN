@@ -1,0 +1,17 @@
+# Native14 stopped-retention v2 independent source review
+
+Verdict: SOURCE_PASS. No findings or documentary observations remain. Activation, execution and credit are not authorized by this source review.
+
+The exact candidate manifest is research/reviews/native14_stopped_retention_successor_source_20261016_v2/source_manifest.v1.json, SHA256 153edc2559df224c457b8ec05a41f255c04c08426365bdb61b15e7438f207ea2. Its handoff SHA256 is 010b7dca3eed6b7702dc4feff1713cb43f837da65c3a41af4240243233fb2b8a.
+
+F1 is resolved by rejecting every unqualified retained filesystem socket. Raw pathname nonmatching never certifies socket inactivity. The production callback rejects even renamed or different-basename ambiguity, every known historical endpoint must have an absent path, and every accepted root certificate must contain zero sockets. The strict bounded catalog parser and lexical filters add conservative rejection without following aliases or probing external endpoints. If any of the original 24 or any additional socket remains, ROOT must preserve it and stop; this pass does not establish that retirement is possible.
+
+All 222 runtime source/compact metadata refs and the 166 Python source closure passed authentication. A total of 261 distinct packet/predecessor refs were verified and reverified. All 17 v1 authored files and the previous REQUEST_CHANGES_SOURCE_ONLY review remain unchanged. Historical raw waits/tokens remain bound by the sealed audit and compact extracts rather than reopened.
+
+All 99 candidate software cases reproduced: 56 pure fake catalog/API cases and 43 tiny synthetic filesystem/API cases. An additional 42 independent negative cases passed, covering all 24 historical endpoint positions, every charged-root socket certificate and an extra role beyond64. These tests created only 56 bytes of synthetic regular payload in the reviewer directory and preserved all fixture aliases, sockets and rejected nodes. They are software evidence only.
+
+All 30 ordinary function/class ASTs and reserve/completed replay branches remain identical to the current Census parent. The generic no-follow retained-node helper and 52 other v1 function/class bodies are unchanged. The direct role union remains62 for state and64 for the complete invocation, preserving all current23 and historical45 refs. D1 is resolved: the static report binds the final exact role-plan hash.
+
+The sole proposed retention key remains the original native14 allocation with its original charge, all three full roots and unchanged unexpired authority. The current native7GiB and separate admin5MiB allocations are excluded. Original failures,89 evidence records,150 PID/start rows with six UNKNOWN starts,11 groups and24 endpoint identities remain preserved. Native/entry/launcher -15 and outer1 are failure; v8 exit, optimizer updates and complete historical drain remain UNKNOWN. No deletion, cleanup or normalization is introduced.
+
+ROOT separately owns actual permanent cooperative revocation and residual-uncertainty acceptance, frozen-parent activation, complete actual role reconstruction, fresh targeted observations, full-root retained metadata measurement and final current operation authority. Actual retained bytes, socket absence, eligibility, credit, capacity and new admission remain unestablished. No original scope census, payload/model/truth read, production process/device/socket probe, accounting/authority call, launch, Git or package action occurred in this review.
