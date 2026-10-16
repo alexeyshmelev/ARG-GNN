@@ -1,6 +1,6 @@
 # Current scientific scoreboard
 
-Updated UTC: 2026-10-16T21:13:40.016192+00:00
+Updated UTC: 2026-10-16T21:58:39.611233+00:00
 
 [All measured cohort details](#detailed-cohort-metrics) · [Complete historical receipt inventory](all_recorded_metric_receipts.md) · [Fresh H048 novelty/cross-domain audit](../research/reviews/H048_novelty_crossdomain_fresh_20261015_v1/report.md)
 
@@ -527,10 +527,10 @@ H048 retains 31,933 parameters per arm and a fixed 30-pass/960-update schedule. 
 
 | Method | Current ancestry scores | Status |
 |---|---|---|
-| Native ARGformer | unavailable | Native ARGformer VAL000 is running on GPU0. Saved checkpoint verifies43000AdamWupdates acrossall77states,21000new since22000resume and19000since24000observation, against227990updates/5epochs. No ancestry accuracy or completed native fit. Prior failures preserved. |
+| Native ARGformer | unavailable | Native ARGformer is training on GPU 0. Stable saved state verifies 64,500 AdamW updates across all 77 states and one completed epoch, against 227,990 planned updates over five epochs. Full training and ancestry scoring remain incomplete. |
 | Native ARGformer dataset counts | not an accuracy run | completed; actual count producer wait0 and drain verified |
 | Native FLARE | 98.0100% focal accuracy | Completed fixed native-call score on one VAL parent, not a multi-parent paper-table reproduction. Macro F1 97.7151%. Held-out VAL000 conversion: completed; actual wait0 and owned-group drain verified. Inference: completed; actual wait0 and owned-group drain verified. Prediction seal: prediction worker completed; direct wait0 and owned-group drain verified, outer tool terminal/final guard unconfirmed. The GNN/ARGformer comparison remains pending. |
-| Our C3 GNN | unavailable | Earlier AmericanC3WholeTreeGNNV1 saved600 backbone is accepted, not full final TreeLoom. Original000–002 full30Mb CPU predictions continue with six saved candidates. VAL003 attempt failed metadata interface and has no score. Four plans complete; VAL004 native paths now launched. All5plans/all30pretruth seals required. Original producer1/outer74136UNKNOWN preserved. Original full 30 Mb VAL000 observation preparation is complete. Full prespecified prediction/scoring gate pending. |
+| Our C3 GNN | unavailable | The earlier American backbone completed 600 verified updates on 20 independent 2 Mb training simulations. It lacks the final TreeLoom mechanisms. Full 30 Mb predictions for VAL000–002 continue and the repaired VAL003 worker has now started. Four of five observation plans are complete. No ancestry score is available yet. Original training invocation failures remain recorded separately. Original full 30 Mb VAL000 observation preparation is complete. Full prespecified prediction/scoring gate pending. |
 
 The TRAIN000 conversion is development evidence. Independent VAL000 inference now has its own actual completion/wait receipts; GNN/ARGformer predictions and their common-truth scoring remain pending. Original 30 Mb VAL000 simulation: completed; actual wait0 and owned-group drain verified; inferred observation: completed; actual wait0 and owned-group drain verified; shared native-path/10k-focal preparation: completed; actual wait0 and owned-group drain verified. R600/Q1000 identities stay common. GNN and ARGformer ancestry scores remain pending. Original full30Mb VAL000 native preparations are ready. The completed native FLARE focal score is reported separately. GNN/ARGformer predictions and common scores remain pending. Native FLARE VAL000 target bound: 228477 sites, common R600/Q1000. Fresh memo2 conversion: completed; actual wait0 and owned-group drain verified; current native focal score is reported separately. Earlier conversion deliberately stopped to repair scheduler contention, with all artifacts retained. Original-paper simulation assumptions and source versions remain explicitly documented.
 

@@ -1,0 +1,68 @@
+--- research/reviews/American_C3_VAL004_fresh7500MB_authority_source_20261016_v1/root_driver_v1.py
++++ research/reviews/American_TreeLoom_matched_CPU_execution_source_20261017_v1/root_driver_v1.py
+@@ -25,6 +25,15 @@
+             for name in files:
+                 st=(Path(directory)/name).lstat();scratch+=max(st.st_size,st.st_blocks*512)
+     need(scratch<=CAPS["private_work_bytes"],"Original private-work allowance")
++    packet=local(s["worker_auxiliary_scope"]).parent
++    admin=packet.lstat().st_blocks*512
++    for child in packet.iterdir():
++        if child==local(s["worker_auxiliary_scope"]):continue
++        st=child.lstat();need(stat.S_ISREG(st.st_mode) and st.st_nlink==1,"Flat regular administrative metadata")
++        admin+=max(st.st_size,st.st_blocks*512)
++    need(admin<=CAPS["root_packet_bytes"],"Bounded root packet metadata")
++    totals[str(packet.relative_to(ROOT))]=admin
++    need(sum(totals.values())<=CAPS["reservation_bytes"],"Output+workerAUX+rootmetadata whole charge")
+     return totals
+ 
+ def boundary(g,s,required=0,target="output"):
+@@ -36,7 +45,7 @@
+ 
+ def execute(r):
+     need(os.getpid()==os.getpgrp()==os.getsid(0),"ROOT supervisor must use a dedicated actual session")
+-    started=time.monotonic();s,q,cfg=input_spec(r);g=guard(True)
++    started=time.monotonic();s,q,cfg=input_spec(r);g=guard(True);c.verify_actual_roles(s,q,g)
+     need(Path.cwd()==ROOT and Path(sys.executable).resolve()==(ROOT/".runtime/env/bin/python").resolve(),"Original CPU supervisor runtime")
+     need(not local(OUTPUT).exists() and not local(s["worker_auxiliary_scope"]).exists(),"Fresh one-shot execution only")
+     g.validate_storage_v9(s,dict(output_cap_bytes=CAPS["reservation_bytes"]),s["storage"],source_ref=ref(SOURCE),config_ref=CONFIG,runtime_ref=s["runtime_ref"])
+@@ -51,12 +60,17 @@
+     old={sig:signal.signal(sig,lambda n,f:cancel.__setitem__(0,n)) for sig in (signal.SIGINT,signal.SIGTERM)}
+     env=dict(os.environ,CUDA_VISIBLE_DEVICES="",PYTHONDONTWRITEBYTECODE="1",PYTHONNOUSERSITE="1",
+         PYTHONPATH=os.pathsep.join([str(ROOT),str(ROOT/"src"),str(ROOT/"scripts")]),
+-        TMPDIR=str(aux/"tmp"),TMP=str(aux/"tmp"),TEMP=str(aux/"tmp"),OMP_NUM_THREADS="8",MKL_NUM_THREADS="1",OPENBLAS_NUM_THREADS="1",NUMBA_NUM_THREADS="8",ARGGNN_C3_PREPARATION_SLOT_FD=str(SLOT_FD),ARGGNN_COMPLETED_CREDITS_POLICY_REF=json.dumps(c.POLICY_REF))
++        TMPDIR=str(aux/"tmp"),TMP=str(aux/"tmp"),TEMP=str(aux/"tmp"),OMP_NUM_THREADS="32",MKL_NUM_THREADS="1",OPENBLAS_NUM_THREADS="1",NUMBA_NUM_THREADS="32",ARGGNN_COMPLETED_CREDITS_POLICY_REF=json.dumps(c.POLICY_REF))
++    for name,key in (("cache","XDG_CACHE_HOME"),("config","XDG_CONFIG_HOME"),("data","XDG_DATA_HOME"),("torch","TORCH_HOME"),
++        ("cuda","CUDA_CACHE_PATH"),("inductor","TORCHINDUCTOR_CACHE_DIR"),("triton","TRITON_CACHE_DIR"),
++        ("matplotlib","MPLCONFIGDIR"),("huggingface","HF_HOME"),("numba","NUMBA_CACHE_DIR")):
++        env[key]=str(aux/"tmp"/name)
++    env.update(HF_HUB_OFFLINE="1",TRANSFORMERS_OFFLINE="1",HF_DATASETS_OFFLINE="1",WANDB_MODE="disabled")
+     deadline=min(started+CAPS["wall_seconds"]-300,time.monotonic()+datetime.fromisoformat(s["expires_at_utc"]).timestamp()-time.time()-300)
+     try:
+         proc=subprocess.Popen([worker_python(q),"-B","-m",HERE.replace("/",".")+".worker_entry_v1",
+             "--worker-ref",json.dumps(r),"--gate-fd",str(gate_read)],cwd=ROOT,env=env,stdout=subprocess.PIPE,
+-            stderr=subprocess.STDOUT,start_new_session=True,pass_fds=(gate_read,SLOT_FD),bufsize=0)
++            stderr=subprocess.STDOUT,start_new_session=True,pass_fds=(gate_read,),bufsize=0)
+         os.close(gate_read);gate_read=None;os.set_blocking(proc.stdout.fileno(),False);nonblocking=True
+         seed=owned._stat(proc.pid);tree=owned.OwnedTree(proc.pid)
+         put(aux/"launch.json",dict(pid=proc.pid,input_ref=r,ownership=tree.evidence(),gate_closed=True))
+@@ -65,7 +79,7 @@
+         while time.monotonic()<deadline and cancel[0] is None:
+             event=os.waitid(os.P_PID,proc.pid,os.WEXITED|os.WNOHANG|os.WNOWAIT)
+             tree.refresh();need(len(tree.known)<=64,"Bounded own process roster")
+-            rss=0
++            rss=int(Path("/proc/self/statm").read_text().split()[1])*os.sysconf("SC_PAGE_SIZE")
+             for row in tree.known.values():
+                 if owned._same(owned._stat(row["pid"]),row):
+                     try:rss+=int(Path("/proc/%d/statm"%row["pid"]).read_text().split()[1])*os.sysconf("SC_PAGE_SIZE")
+@@ -144,7 +158,10 @@
+     try:
+         # Genuine drain precedes every new source/accounting/product inspection.
+         boundary(g,s,32768,target="aux")
+-        cp=ref(OUTPUT+"/completed.json");completed=read(cp);validate_completion(completed,q)
++        cp=None
++        if local(OUTPUT+"/completed.json").is_file():
++            cp=ref(OUTPUT+"/completed.json");completed=read(cp);validate_completion(completed,q)
++        else:failure=failure or "No genuine completed matched training envelope"
+         observation.update(completed_ref=cp,phase=q["phase"],parent_id=PARENT,actual_direct_launcher_wait=status is not None,
+             known_owned_pids=sorted(tree.known) if tree is not None else [],known_owned_process_groups=[x["pgid"] for x in groups],
+             supervisor_pid=os.getpid(),supervisor_process_group=os.getpgrp())
