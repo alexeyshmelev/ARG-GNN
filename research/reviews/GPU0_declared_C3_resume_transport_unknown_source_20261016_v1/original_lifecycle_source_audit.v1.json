@@ -1,0 +1,73 @@
+{
+  "created_utc": "2026-10-16T05:15:43.256596+00:00",
+  "durable_original_outer_wait0_alternative_found_in_inspected_lifecycle": false,
+  "exact_source_methods": [
+    {
+      "class": "Shared45Controller",
+      "line_end": 590,
+      "line_start": 552,
+      "method": "tick",
+      "source_excerpt": "def tick(self,launch_queued=True):\n        with self.lock:\n            if self.lifecycle not in {\"running\",\"draining\"}:return\n            # Explicit cancel/shutdown TERM is attempted before slow/failing\n            # scans. Repeated ticks provide bounded owned SIGKILL escalation.\n            self._service_termination()\n            try:\n                if time.time()>=self.cap[\"expires_unix\"] and self.lifecycle==\"running\":\n                    self.lifecycle=\"draining\"\n                    for job in self.jobs.values():\n                        if job[\"state\"]==\"queued\":job.update(state=\"cancelled\",finished_unix=time.time(),error=\"Pool submission authority expired; owned drain continues\")\n                self._lease_check();self._drain_logs();self._process_scan();self._reap_owned_adopted();memory=self._memory()\n                self.safety_error=None\n                if memory[\"overrun_jobs\"]:\n                    self._fail_owned_supervision(\"Owned GPU reservation overrun; drain required\")\n                for name,child in list(self.children.items()):\n                    job=self.jobs[name];exit_code=child.poll()\n                    if exit_code is not None:\n                        job.update(exit_code=exit_code,state=\"draining\",leader_wait_status_known=True)\n                        self._process_scan();self._reap_owned_adopted();memory=self._memory()\n                        live=name in self.pid_jobs.values()\n                        own_compute=name in memory[\"owned_compute_jobs\"]\n                        if not live and not own_compute and not self.ambiguous:\n                            descendant_ok=all(r[\"returncode\"]==0 for r in job[\"descendant_waits\"])\n                            self._drain_logs();job.update(state=\"succeeded\" if exit_code==0 and descendant_ok and not job.get(\"resource_abort\") and not job.get(\"cancel_requested\") else \"failed\",finished_unix=time.time(),owned_drain_observed=True)\n                            if child.stdout is not None:child.stdout.close()\n                            self.logs.pop(name).close();del self.children[name]\n                if launch_queued:self._launch_queue()\n                if self.lifecycle==\"draining\" and not self.children and not self.ambiguous:self.lifecycle=\"closed\"\n            except Exception as error:\n                self._fail_owned_supervision(f\"{type(error).__name__}: {error}\")\n            finally:\n                # Includes scan/guard errors. Do not depend on persistence to\n                # send a previously authorised, exact owned PIDFD signal.\n                self._service_termination()\n            try:self._persist()\n            except Exception as error:\n                self._fail_owned_supervision(\"Controller persistence failed: \"+f\"{type(error).__name__}: {error}\")\n                self._service_termination()",
+      "source_ref": {
+        "path": "src/arggnn/gpu45_c3cache_h050_pool_v1.py",
+        "sha256": "d3279c6208737371031330f4bef9325199ba20c86f0f7d8e930c134b128d29fb"
+      }
+    },
+    {
+      "class": "Controller",
+      "line_end": 1047,
+      "line_start": 967,
+      "method": "run",
+      "source_excerpt": "def run(self, poll_seconds=1.0):\n        \"\"\"Bounded one-request connections; waiting clients never stop supervision.\"\"\"\n        selector = selectors.DefaultSelector()\n        selector.register(self.listener, selectors.EVENT_READ, None)\n        clients = {}\n        normal = False\n        def drop(conn):\n            clients.pop(conn, None)\n            try:\n                selector.unregister(conn)\n            except KeyError:\n                pass\n            conn.close()\n        try:\n            while self.lifecycle != \"closed\" or clients:\n                now = time.monotonic()\n                if self.shutdown_requested:\n                    self.shutdown_requested = False\n                    self.shutdown(terminate=False)\n                if now >= self.next_poll:\n                    self.tick()\n                    self.next_poll = time.monotonic() + poll_seconds\n                for conn, state in list(clients.items()):\n                    if now > state[\"deadline\"]:\n                        drop(conn)\n                for key, events in selector.select(timeout=min(poll_seconds, .25)):\n                    if key.fileobj is self.listener:\n                        conn, _ = self.listener.accept()\n                        try:\n                            peer = struct.unpack(\"3i\", conn.getsockopt(socket.SOL_SOCKET, socket.SO_PEERCRED, 12))\n                            if peer[1] != os.getuid() or len(clients) >= 32:\n                                conn.close()\n                                continue\n                        except Exception:\n                            conn.close()\n                            continue\n                        conn.setblocking(False)\n                        clients[conn] = dict(input=bytearray(), output=b\"\", deadline=time.monotonic() + 30)\n                        selector.register(conn, selectors.EVENT_READ, clients[conn])\n                        continue\n                    conn, state = key.fileobj, key.data\n                    try:\n                        if events & selectors.EVENT_READ:\n                            chunk = conn.recv(8192)\n                            if not chunk:\n                                drop(conn)\n                                continue\n                            state[\"input\"].extend(chunk)\n                            if len(state[\"input\"]) > MAX_REQUEST:\n                                raise ValueError(\"Request exceeds size limit\")\n                            if b\"\\n\" in state[\"input\"]:\n                                line, remainder = bytes(state[\"input\"]).split(b\"\\n\", 1)\n                                if remainder:\n                                    raise ValueError(\"One request per connection required\")\n                                try:\n                                    answer = dict(ok=True, result=self.dispatch(json.loads(line)))\n                                except Exception as error:\n                                    answer = dict(ok=False, error=f\"{type(error).__name__}: {error}\")\n                                state[\"output\"] = encoded(answer) + b\"\\n\"\n                                if len(state[\"output\"]) > MAX_REPLY:\n                                    raise ValueError(\"Response exceeds size limit\")\n                                selector.modify(conn, selectors.EVENT_WRITE, state)\n                        if events & selectors.EVENT_WRITE:\n                            sent = conn.send(state[\"output\"])\n                            state[\"output\"] = state[\"output\"][sent:]\n                            if not state[\"output\"]:\n                                drop(conn)\n                    except (OSError, ValueError):\n                        drop(conn)\n            normal = True\n        finally:\n            for conn in list(clients):\n                drop(conn)\n            selector.close()\n            if normal:\n                self.close()\n            else:\n                self.lifecycle = \"controller_error\"\n                self._persist()\n                # Crash/error handling does not unlock inherited leases or kill users.\n                self._release_handles()",
+      "source_ref": {
+        "path": "src/arggnn/gpu_pool_v1.py",
+        "sha256": "ae1e0494ab672cfa3017759460eb06a4b4789eaef54928496c3c80314adcc0e1"
+      }
+    },
+    {
+      "class": "Controller",
+      "line_end": 951,
+      "line_start": 947,
+      "method": "close",
+      "source_excerpt": "def close(self):\n        with self.lock:\n            if self.children or self.ambiguous or self.lifecycle != \"closed\":\n                raise RuntimeError(\"Graceful close requires fully drained shutdown\")\n            self._release_handles()",
+      "source_ref": {
+        "path": "src/arggnn/gpu_pool_v1.py",
+        "sha256": "ae1e0494ab672cfa3017759460eb06a4b4789eaef54928496c3c80314adcc0e1"
+      }
+    },
+    {
+      "class": "Controller",
+      "line_end": 945,
+      "line_start": 927,
+      "method": "_release_handles",
+      "source_excerpt": "def _release_handles(self):\n        if self.listener is not None:\n            # Only unlink the socket this controller actually bound.\n            try:\n                bound = self.listener.getsockname()\n            except OSError:\n                bound = \"\"\n            self.listener.close()\n            self.listener = None\n            if bound == str(self.socket_path):\n                try:\n                    current = self.socket_path.lstat()\n                    if (current.st_dev, current.st_ino) == self.socket_inode:\n                        self.socket_path.unlink()\n                except FileNotFoundError:\n                    pass\n        if self.lease is not None:\n            self.lease.close()  # Never LOCK_UN: inherited workers can still hold the OFD.\n            self.lease = None",
+      "source_ref": {
+        "path": "src/arggnn/gpu_pool_v1.py",
+        "sha256": "ae1e0494ab672cfa3017759460eb06a4b4789eaef54928496c3c80314adcc0e1"
+      }
+    },
+    {
+      "line_end": 720,
+      "line_start": 679,
+      "method": "main",
+      "source_excerpt": "def main(argv=None):\n    parser=argparse.ArgumentParser(description=__doc__)\n    parser.add_argument(\"command\",choices=(\"start\",\"submit\",\"run\",\"cancel\",\"status\",\"wait\",\"shutdown\",\"worker\"),nargs=\"?\")\n    parser.add_argument(\"--execute\",action=\"store_true\")\n    parser.add_argument(\"--capability\");parser.add_argument(\"--sha256\");parser.add_argument(\"--job\")\n    parser.add_argument(\"--terminate\",action=\"store_true\")\n    args=parser.parse_args(argv)\n    if not args.execute:\n        print(json.dumps(dict(status=\"source_only_not_activated\",source=SOURCE,physical_GPUs=[4,5],legacy_exclusive_coexistence=False,external_job_sharing_authorized_only_by_fresh_root_capability=True)));return 0\n    require(args.capability and args.sha256 and args.command,\"Pinned active capability and explicit operation\")\n    cap_ref={\"path\":args.capability,\"sha256\":args.sha256};cap=load_cap(cap_ref,allow_drain=args.command in {\"status\",\"wait\",\"shutdown\",\"cancel\"})\n    if args.command==\"worker\":return worker(cap_ref,args.job)\n    socket_path=socket_name(cap)\n    if args.command==\"start\":\n        controller=Shared45Controller(cap_ref).start()\n        def stop(signum,frame):controller.shutdown_requested=True\n        signal.signal(signal.SIGTERM,stop);signal.signal(signal.SIGINT,stop)\n        print(json.dumps(controller.status(),sort_keys=True),flush=True);controller.run();return 0\n    if args.command==\"cancel\":\n        answer=base.request(socket_path,dict(v=1,op=\"cancel\",job=args.job));print(json.dumps(answer,sort_keys=True),flush=True);return 0\n    interrupted=[False]\n    if args.command==\"run\":\n        def cancel_signal(signum,frame):interrupted[0]=True\n        signal.signal(signal.SIGTERM,cancel_signal);signal.signal(signal.SIGINT,cancel_signal)\n    if args.command in {\"submit\",\"run\"}:\n        require(args.job in cap[\"jobs\"],\"Declared job\")\n        answer=base.request(socket_path,dict(v=1,op=\"submit\",job=args.job));print(json.dumps(answer,sort_keys=True),flush=True)\n        if args.command==\"submit\":return 0\n    if args.command==\"shutdown\":\n        answer=base.request(socket_path,dict(v=1,op=\"shutdown\",terminate=args.terminate));print(json.dumps(answer,sort_keys=True),flush=True);return 0\n    cancellation_sent=False\n    while True:\n        if interrupted[0] and not cancellation_sent:\n            base.request(socket_path,dict(v=1,op=\"cancel\",job=args.job));cancellation_sent=True\n        answer=base.request(socket_path,dict(v=1,op=\"status\"))\n        if args.command==\"status\":print(json.dumps(answer,sort_keys=True));return 0\n        jobs={j[\"logical_job\"]:j for j in answer[\"jobs\"]};require(args.job in jobs,\"Submitted job\")\n        job=jobs[args.job]\n        if job[\"state\"] in base.TERMINAL:\n            print(json.dumps(job,sort_keys=True),flush=True)\n            return job[\"exit_code\"] if job[\"state\"]==\"succeeded\" or type(job.get(\"exit_code\")) is int and job[\"exit_code\"]!=0 else 2\n        time.sleep(1)",
+      "source_ref": {
+        "path": "src/arggnn/gpu45_c3cache_h050_pool_v1.py",
+        "sha256": "d3279c6208737371031330f4bef9325199ba20c86f0f7d8e930c134b128d29fb"
+      }
+    }
+  ],
+  "original_external_exit_code": null,
+  "original_external_exit_status": "UNKNOWN",
+  "original_tool_session_id": 23022,
+  "runtime_or_process_or_lease_observation_performed": false,
+  "schema": "GPU0_original_controller_lifecycle_source_audit_v1",
+  "source_findings": [
+    "tick persists lifecycle closed after logical children and ambiguity drain",
+    "run exits its event loop then calls close in its finally clause",
+    "close releases listener and its own lifetime lease FD without producing outer wait evidence",
+    "main returns0 after controller.run but does not persist a durable outer-wait0 receipt",
+    "closed registry alone cannot establish original external tool exit0"
+  ],
+  "status": "SOURCE_ONLY_FINDING"
+}
