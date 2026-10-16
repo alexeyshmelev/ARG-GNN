@@ -1,6 +1,6 @@
 # Current scientific scoreboard
 
-Updated UTC: 2026-10-16T08:02:58.511535+00:00
+Updated UTC: 2026-10-16T08:36:03.318259+00:00
 
 [All measured cohort details](#detailed-cohort-metrics) · [Complete historical receipt inventory](all_recorded_metric_receipts.md) · [Fresh H048 novelty/cross-domain audit](../research/reviews/H048_novelty_crossdomain_fresh_20261015_v1/report.md)
 
@@ -10,6 +10,10 @@ Updated UTC: 2026-10-16T08:02:58.511535+00:00
 
 | Setup | Present accuracy % ± SD | Present NLL | Present boundary F1 % ± SD | Training |
 |---|---:|---:|---:|---|
+| H050 stable_leaf_memory | 97.0778 ± 0.5674 | 0.088115 ± 0.021993 | 18.3807 ± 1.3141 | H045 own-state warmstart +30 passes /960 new updates, seed101, FP32 AdamW |
+| H050 triple_support_pair_memory | 97.0640 ± 0.5595 | 0.088471 ± 0.020998 | 18.9265 ± 1.4187 | H045 own-state warmstart +30 passes /960 new updates, seed101, FP32 AdamW |
+| H050 adjacent_marginal_null | 97.0504 ± 0.5796 | 0.088394 ± 0.021768 | 18.8498 ± 1.0520 | H045 own-state warmstart +30 passes /960 new updates, seed101, FP32 AdamW |
+| H050 h045_continued_training | 97.0000 ± 0.4978 | 0.088541 ± 0.019128 | 19.0488 ± 1.4275 | H045 own-state warmstart +30 passes /960 new updates, seed101, FP32 AdamW |
 | H045 foreign_episode | 96.8270 ± 0.5870 | 0.092980 ± 0.020423 | 18.1558 ± 1.3790 | H042 warmstart +30 passes /960 updates per arm, seed101 |
 | H045 own_state | 96.8175 ± 0.6142 | 0.092976 ± 0.020230 | 18.0557 ± 1.7761 | H042 warmstart +30 passes /960 updates per arm, seed101 |
 | H044 localized | 96.7919 ± 0.5967 | 0.094944 ± 0.020882 | 15.5374 ± 1.1777 | H042 warmstart +30 passes /960 updates per arm, seed101 |
@@ -34,6 +38,10 @@ Updated UTC: 2026-10-16T08:02:58.511535+00:00
 
 | Setup | Completed cumulative updates | Selected pass | Selected cumulative updates |
 |---|---:|---:|---:|
+| H050 stable_leaf_memory | 3840 | 30 | 3840 |
+| H050 triple_support_pair_memory | 3840 | 30 | 3840 |
+| H050 adjacent_marginal_null | 3840 | 30 | 3840 |
+| H050 h045_continued_training | 3840 | 20 | 3520 |
 | H045 foreign_episode | 2880 | 30 | 2880 |
 | H045 own_state | 2880 | 30 | 2880 |
 | H044 localized | 2880 | 30 | 2880 |
@@ -58,6 +66,10 @@ Updated UTC: 2026-10-16T08:02:58.511535+00:00
 
 | Setup | Present182 | BronzeAge162 | BAA14 | Neo302 | Yam26 | Ancient504 | All686 |
 |---|---:|---:|---:|---:|---:|---:|---:|
+| H050 stable_leaf_memory | 97.0778 ± 0.5674 | 99.1611 ± 0.4329 | 99.3453 ± 1.0446 | 99.7335 ± 0.0682 | 99.9366 ± 0.1229 | 99.5492 ± 0.1257 | 98.8935 ± 0.2345 |
+| H050 triple_support_pair_memory | 97.0640 ± 0.5595 | 99.1356 ± 0.4344 | 99.2933 ± 1.0707 | 99.7168 ± 0.0805 | 99.9366 ± 0.1254 | 99.5296 ± 0.1380 | 98.8755 ± 0.2375 |
+| H050 adjacent_marginal_null | 97.0504 ± 0.5796 | 99.1319 ± 0.4194 | 99.3567 ± 0.9636 | 99.6999 ± 0.0771 | 99.9355 ± 0.1261 | 99.5199 ± 0.1347 | 98.8647 ± 0.2428 |
+| H050 h045_continued_training | 97.0000 ± 0.4978 | 99.1360 ± 0.4040 | 99.2531 ± 1.0425 | 99.6468 ± 0.0595 | 99.9072 ± 0.1399 | 99.4851 ± 0.1335 | 98.8258 ± 0.2215 |
 | H045 foreign_episode | 96.8270 ± 0.5870 | 99.2047 ± 0.3199 | 99.1511 ± 1.2545 | 99.6063 ± 0.0850 | 99.9039 ± 0.1292 | 99.4799 ± 0.1347 | 98.7761 ± 0.2486 |
 | H045 own_state | 96.8175 ± 0.6142 | 99.1658 ± 0.3983 | 99.2765 ± 1.1385 | 99.6424 ± 0.0859 | 99.8687 ± 0.1833 | 99.4907 ± 0.1501 | 98.7815 ± 0.2566 |
 | H044 localized | 96.7919 ± 0.5967 | 99.1895 ± 0.3391 | 99.2328 ± 1.1873 | 99.6288 ± 0.0928 | 99.8685 ± 0.2092 | 99.4889 ± 0.1358 | 98.7734 ± 0.2475 |
@@ -84,6 +96,34 @@ BronzeAge is not asserted identical to the paper's Post-Neolithic cohort. A dash
 
 | Setup / cohort | Accuracy % ± SD | NLL ± SD | Macro F1 % ± SD | Boundary F1 % ± SD | Brier ± SD | ECE ± SD |
 |---|---:|---:|---:|---:|---:|---:|
+| H050 stable_leaf_memory / Present182 | 97.0778 ± 0.5674 | 0.088115 ± 0.021993 | 96.9061 ± 0.6144 | 18.3807 ± 1.3141 | 0.044351 ± 0.008880 | 0.004883 ± 0.002316 |
+| H050 stable_leaf_memory / BronzeAge162 | 99.1611 ± 0.4329 | 0.025119 ± 0.012659 | 99.0822 ± 0.4273 | 19.9267 ± 3.3080 | 0.012800 ± 0.006392 | 0.002681 ± 0.002115 |
+| H050 stable_leaf_memory / BAA14 | 99.3453 ± 1.0446 | 0.016517 ± 0.016368 | 98.8791 ± 2.0404 | 24.0036 ± 25.7263 | 0.009263 ± 0.011830 | 0.006097 ± 0.005038 |
+| H050 stable_leaf_memory / Neo302 | 99.7335 ± 0.0682 | 0.008320 ± 0.001881 | 99.6752 ± 0.0797 | 23.6718 ± 3.1313 | 0.004240 ± 0.000972 | 0.000867 ± 0.000316 |
+| H050 stable_leaf_memory / Yam26 | 99.9366 ± 0.1229 | 0.002875 ± 0.003772 | 99.9583 ± 0.0615 | 23.0159 ± 29.4721 (n=7) | 0.001150 ± 0.002117 | 0.001144 ± 0.000695 |
+| H050 stable_leaf_memory / Ancient504 | 99.5492 ± 0.1257 | 0.013666 ± 0.003787 | 99.4147 ± 0.1886 | 21.9495 ± 3.1192 | 0.006972 ± 0.001915 | 0.000977 ± 0.000499 |
+| H050 stable_leaf_memory / All686 | 98.8935 ± 0.2345 | 0.033418 ± 0.008141 | 98.6395 ± 0.3127 | 19.6186 ± 1.7162 | 0.016889 ± 0.003588 | 0.001738 ± 0.000892 |
+| H050 triple_support_pair_memory / Present182 | 97.0640 ± 0.5595 | 0.088471 ± 0.020998 | 96.8912 ± 0.6091 | 18.9265 ± 1.4187 | 0.044697 ± 0.008882 | 0.005287 ± 0.002595 |
+| H050 triple_support_pair_memory / BronzeAge162 | 99.1356 ± 0.4344 | 0.025504 ± 0.012829 | 99.0633 ± 0.4471 | 20.3884 ± 3.9584 | 0.013143 ± 0.006524 | 0.002786 ± 0.002228 |
+| H050 triple_support_pair_memory / BAA14 | 99.2933 ± 1.0707 | 0.019449 ± 0.020665 | 98.8139 ± 2.1396 | 14.7945 ± 19.7051 | 0.010708 ± 0.013228 | 0.006765 ± 0.006250 |
+| H050 triple_support_pair_memory / Neo302 | 99.7168 ± 0.0805 | 0.008838 ± 0.002109 | 99.6604 ± 0.0935 | 23.9966 ± 2.8549 | 0.004575 ± 0.001152 | 0.000918 ± 0.000365 |
+| H050 triple_support_pair_memory / Yam26 | 99.9366 ± 0.1254 | 0.002828 ± 0.003877 | 99.9583 ± 0.0639 | 34.1270 ± 39.3398 (n=7) | 0.001117 ± 0.002133 | 0.001023 ± 0.000584 |
+| H050 triple_support_pair_memory / Ancient504 | 99.5296 ± 0.1380 | 0.014179 ± 0.003989 | 99.3799 ± 0.2273 | 22.1676 ± 3.0152 | 0.007321 ± 0.002108 | 0.001128 ± 0.000649 |
+| H050 triple_support_pair_memory / All686 | 98.8755 ± 0.2375 | 0.033889 ± 0.007978 | 98.6152 ± 0.3194 | 20.0936 ± 1.8709 | 0.017237 ± 0.003657 | 0.001767 ± 0.000932 |
+| H050 adjacent_marginal_null / Present182 | 97.0504 ± 0.5796 | 0.088394 ± 0.021768 | 96.8796 ± 0.6208 | 18.8498 ± 1.0520 | 0.044633 ± 0.008894 | 0.004897 ± 0.002401 |
+| H050 adjacent_marginal_null / BronzeAge162 | 99.1319 ± 0.4194 | 0.025473 ± 0.012376 | 99.0672 ± 0.4153 | 20.0869 ± 3.4869 | 0.013101 ± 0.006109 | 0.002882 ± 0.002417 |
+| H050 adjacent_marginal_null / BAA14 | 99.3567 ± 0.9636 | 0.020183 ± 0.021958 | 98.9282 ± 1.6574 | 14.6638 ± 19.7717 | 0.010958 ± 0.013896 | 0.006060 ± 0.005637 |
+| H050 adjacent_marginal_null / Neo302 | 99.6999 ± 0.0771 | 0.009045 ± 0.001992 | 99.6576 ± 0.0846 | 23.4297 ± 3.3286 | 0.004715 ± 0.001092 | 0.000939 ± 0.000361 |
+| H050 adjacent_marginal_null / Yam26 | 99.9355 ± 0.1261 | 0.002775 ± 0.003830 | 99.9572 ± 0.0645 | 30.9524 ± 41.3080 (n=7) | 0.001121 ± 0.002118 | 0.001002 ± 0.000597 |
+| H050 adjacent_marginal_null / Ancient504 | 99.5199 ± 0.1347 | 0.014311 ± 0.003663 | 99.3714 ± 0.2079 | 21.5676 ± 2.6487 | 0.007398 ± 0.001905 | 0.001204 ± 0.000534 |
+| H050 adjacent_marginal_null / All686 | 98.8647 ± 0.2428 | 0.033966 ± 0.007858 | 98.6074 ± 0.3224 | 19.8289 ± 1.4907 | 0.017277 ± 0.003517 | 0.001759 ± 0.000824 |
+| H050 h045_continued_training / Present182 | 97.0000 ± 0.4978 | 0.088541 ± 0.019128 | 96.8241 ± 0.5409 | 19.0488 ± 1.4275 | 0.045035 ± 0.007921 | 0.004881 ± 0.001968 |
+| H050 h045_continued_training / BronzeAge162 | 99.1360 ± 0.4040 | 0.027010 ± 0.015174 | 99.0420 ± 0.4077 | 21.0383 ± 3.8494 | 0.013496 ± 0.006520 | 0.002537 ± 0.002223 |
+| H050 h045_continued_training / BAA14 | 99.2531 ± 1.0425 | 0.021403 ± 0.020613 | 98.8543 ± 2.0066 | 17.6152 ± 19.4861 | 0.011659 ± 0.014477 | 0.007296 ± 0.005646 |
+| H050 h045_continued_training / Neo302 | 99.6468 ± 0.0595 | 0.009789 ± 0.001692 | 99.5774 ± 0.0934 | 21.4579 ± 3.6466 | 0.005309 ± 0.000856 | 0.000940 ± 0.000260 |
+| H050 h045_continued_training / Yam26 | 99.9072 ± 0.1399 | 0.003100 ± 0.002861 | 99.9476 ± 0.0638 | 30.1587 ± 40.9327 (n=7) | 0.001324 ± 0.001788 | 0.001280 ± 0.000671 |
+| H050 h045_continued_training / Ancient504 | 99.4851 ± 0.1335 | 0.015302 ± 0.004932 | 99.3301 ± 0.2367 | 20.9661 ± 2.0832 | 0.007911 ± 0.002163 | 0.001103 ± 0.000679 |
+| H050 h045_continued_training / All686 | 98.8258 ± 0.2215 | 0.034733 ± 0.008156 | 98.5619 ± 0.3047 | 19.7485 ± 1.5069 | 0.017760 ± 0.003453 | 0.001803 ± 0.000725 |
 | H045 foreign_episode / Present182 | 96.8270 ± 0.5870 | 0.092980 ± 0.020423 | 96.6565 ± 0.6006 | 18.1558 ± 1.3790 | 0.047499 ± 0.008911 | 0.005594 ± 0.003098 |
 | H045 foreign_episode / BronzeAge162 | 99.2047 ± 0.3199 | 0.026452 ± 0.012930 | 99.1203 ± 0.3202 | 20.7714 ± 4.0220 | 0.012811 ± 0.005395 | 0.002614 ± 0.001679 |
 | H045 foreign_episode / BAA14 | 99.1511 ± 1.2545 | 0.026361 ± 0.026762 | 98.3460 ± 2.5829 | 12.6786 ± 18.9947 | 0.014188 ± 0.017672 | 0.009820 ± 0.008154 |
@@ -222,6 +262,34 @@ BronzeAge is not asserted identical to the paper's Post-Neolithic cohort. A dash
 
 | Setup / cohort | Balanced accuracy % ± SD | Boundary precision % ± SD | Boundary recall % ± SD | Dosage MSE ± SD | Dosage MAE ± SD |
 |---|---:|---:|---:|---:|---:|
+| H050 stable_leaf_memory / Present182 | 96.9741 ± 0.6236 | 15.5804 ± 1.0753 | 22.4617 ± 2.0462 | 0.022217 ± 0.004470 | 0.041122 ± 0.006381 |
+| H050 stable_leaf_memory / BronzeAge162 | 99.0494 ± 0.5087 | 17.1083 ± 4.1931 | 24.7032 ± 2.9782 | 0.006367 ± 0.003152 | 0.011319 ± 0.004408 |
+| H050 stable_leaf_memory / BAA14 | 98.6285 ± 2.7731 | 23.9912 ± 27.4318 | 33.3333 ± 36.4605 | 0.004549 ± 0.005780 | 0.008693 ± 0.008327 |
+| H050 stable_leaf_memory / Neo302 | 99.6202 ± 0.1222 | 21.3847 ± 3.1699 | 26.6826 ± 3.5663 | 0.002112 ± 0.000481 | 0.004181 ± 0.000607 |
+| H050 stable_leaf_memory / Yam26 | 99.9414 ± 0.1146 | 27.1429 ± 38.6067 (n=7) | 21.4286 ± 26.7261 (n=7) | 0.000576 ± 0.001057 | 0.001606 ± 0.001432 |
+| H050 stable_leaf_memory / Ancient504 | 99.3701 ± 0.2654 | 19.2828 ± 3.6648 | 25.8534 ± 2.9207 | 0.003468 ± 0.000945 | 0.006468 ± 0.001487 |
+| H050 stable_leaf_memory / All686 | 98.6209 ± 0.3920 | 16.7960 ± 1.7028 | 23.6925 ± 2.1871 | 0.008443 ± 0.001796 | 0.015662 ± 0.002718 |
+| H050 triple_support_pair_memory / Present182 | 96.9668 ± 0.6211 | 16.2723 ± 1.3020 | 22.6395 ± 1.6907 | 0.022370 ± 0.004481 | 0.041256 ± 0.006320 |
+| H050 triple_support_pair_memory / BronzeAge162 | 99.0394 ± 0.5047 | 17.5734 ± 4.7489 | 25.1041 ± 3.5223 | 0.006540 ± 0.003215 | 0.011529 ± 0.004419 |
+| H050 triple_support_pair_memory / BAA14 | 98.5932 ± 2.8040 | 15.2357 ± 22.3200 | 20.8333 ± 25.9731 | 0.005276 ± 0.006495 | 0.009607 ± 0.008867 |
+| H050 triple_support_pair_memory / Neo302 | 99.6036 ± 0.1472 | 21.5809 ± 2.1912 | 27.1200 ± 4.0812 | 0.002281 ± 0.000572 | 0.004458 ± 0.000743 |
+| H050 triple_support_pair_memory / Yam26 | 99.9414 ± 0.1173 | 38.5714 ± 45.6175 (n=7) | 32.1429 ± 37.4007 (n=7) | 0.000561 ± 0.001065 | 0.001515 ± 0.001394 |
+| H050 triple_support_pair_memory / Ancient504 | 99.3731 ± 0.2828 | 19.3631 ± 3.2805 | 26.2354 ± 3.3357 | 0.003644 ± 0.001040 | 0.006722 ± 0.001562 |
+| H050 triple_support_pair_memory / All686 | 98.6214 ± 0.3869 | 17.3492 ± 1.8867 | 23.9452 ± 2.0707 | 0.008612 ± 0.001834 | 0.015884 ± 0.002728 |
+| H050 adjacent_marginal_null / Present182 | 96.9532 ± 0.6340 | 16.1712 ± 0.8543 | 22.6254 ± 1.6282 | 0.022365 ± 0.004485 | 0.041572 ± 0.006294 |
+| H050 adjacent_marginal_null / BronzeAge162 | 99.0394 ± 0.4884 | 16.9320 ± 4.1303 | 25.4276 ± 3.7443 | 0.006521 ± 0.003010 | 0.011491 ± 0.004122 |
+| H050 adjacent_marginal_null / BAA14 | 99.0942 ± 1.4517 | 15.1515 ± 22.3709 | 20.8333 ± 25.9731 | 0.005368 ± 0.006795 | 0.009933 ± 0.009302 |
+| H050 adjacent_marginal_null / Neo302 | 99.5869 ± 0.1336 | 20.9227 ± 3.1418 | 26.7566 ± 3.9628 | 0.002351 ± 0.000542 | 0.004517 ± 0.000725 |
+| H050 adjacent_marginal_null / Yam26 | 99.9402 ± 0.1179 | 35.7143 ± 47.5595 (n=7) | 28.5714 ± 39.3398 (n=7) | 0.000562 ± 0.001058 | 0.001483 ± 0.001391 |
+| H050 adjacent_marginal_null / Ancient504 | 99.3780 ± 0.2753 | 18.5370 ± 2.8572 | 26.1415 ± 3.4392 | 0.003683 ± 0.000939 | 0.006752 ± 0.001455 |
+| H050 adjacent_marginal_null / All686 | 98.6235 ± 0.3903 | 16.9940 ± 1.4579 | 23.9006 ± 2.1157 | 0.008639 ± 0.001763 | 0.015990 ± 0.002643 |
+| H050 h045_continued_training / Present182 | 96.8555 ± 0.5567 | 16.3102 ± 1.4217 | 22.9418 ± 1.5835 | 0.022571 ± 0.004005 | 0.041699 ± 0.005976 |
+| H050 h045_continued_training / BronzeAge162 | 99.0470 ± 0.4705 | 17.9240 ± 4.2831 | 25.9559 ± 3.3451 | 0.006721 ± 0.003232 | 0.012076 ± 0.004464 |
+| H050 h045_continued_training / BAA14 | 98.8665 ± 1.9461 | 16.9574 ± 21.7856 | 33.3333 ± 36.4605 | 0.005737 ± 0.007066 | 0.010786 ± 0.009165 |
+| H050 h045_continued_training / Neo302 | 99.5572 ± 0.1345 | 18.6483 ± 3.5479 | 25.4057 ± 3.9828 | 0.002647 ± 0.000427 | 0.005245 ± 0.000665 |
+| H050 h045_continued_training / Yam26 | 99.9140 ± 0.1303 | 30.0000 ± 45.3557 | 28.5714 ± 39.3398 (n=7) | 0.000664 ± 0.000892 | 0.002050 ± 0.001596 |
+| H050 h045_continued_training / Ancient504 | 99.3467 ± 0.2937 | 17.7694 ± 2.1440 | 25.7153 ± 2.3774 | 0.003940 ± 0.001074 | 0.007430 ± 0.001579 |
+| H050 h045_continued_training / All686 | 98.5653 ± 0.3824 | 16.8372 ± 1.5648 | 23.9407 ± 1.5625 | 0.008883 ± 0.001736 | 0.016522 ± 0.002689 |
 | H045 foreign_episode / Present182 | 96.6953 ± 0.6366 | 15.2282 ± 1.5093 | 22.5890 ± 1.6757 | 0.023814 ± 0.004537 | 0.044235 ± 0.006572 |
 | H045 foreign_episode / BronzeAge162 | 99.0791 ± 0.4021 | 18.1427 ± 3.7729 | 24.3576 ± 4.3506 | 0.006372 ± 0.002679 | 0.011980 ± 0.003564 |
 | H045 foreign_episode / BAA14 | 98.4867 ± 2.9981 | 12.6912 ± 20.3542 | 27.0833 ± 37.4669 | 0.006872 ± 0.008367 | 0.012557 ± 0.010372 |
@@ -358,7 +426,17 @@ BronzeAge is not asserted identical to the paper's Post-Neolithic cohort. A dash
 
 ## H050 matched direct-readout outcome
 
-H050 ancestry metrics pending actual CPU completion and consumed outer tool exit 0.
+All four arms completed 30 passes and 960 new FP32 updates per arm, 3,840 new updates total. CPU evaluation completed all 192 prediction seals before any VAL truth, with genuine outer tool exit 0. Original TRAIN CLI exit 1 remains recorded. Primary utility failed, secondary boundary utility failed. Eight reused development VAL simulations, seed101, no independent test.
+
+| Triple-support pair memory minus control | Accuracy delta pp ± paired SD | Boundary F1 delta pp ± paired SD | Primary utility | Secondary utility |
+|---|---:|---:|---|---|
+| adjacent_marginal_null | +0.013679 ± 0.024336 | +0.076613 ± 0.641715 | fail | fail |
+| stable_leaf_memory | -0.013801 ± 0.038427 | +0.545802 ± 0.751794 | fail | fail |
+| h045_continued_training | +0.064015 ± 0.145348 | -0.122387 ± 0.784856 | fail | fail |
+
+Primary utility requires at least +0.10 accuracy percentage points with no mean boundary F1 loss against every control. Secondary utility requires at least +1.00 boundary F1 percentage point with no more than 0.05 accuracy point loss against every control. Paired SD is across eight simulations, not training seeds. Three memory arms have 32,325 parameters, the continuation 31,812. All inherit 2,880 model-lineage updates, complete 3,840 cumulative updates and select 2,880 + 32 times the selected pass. Optimizer moments reset for the 960 new updates.
+
+[Actual four-arm scored completion](../experiments/results/H050_CPU_full192_savedfit_failedCLI_root_v1/completed.json) · [Consumed CPU outer terminal0](../research/reviews/H050_CPU_evaluation_failed_CLI_successor_source_20261016_v1/root_actual_metadata_v1/actual_tool_terminal.root_v1.json)
 
 
 ## TGB annual trade causal diagnostic
@@ -436,10 +514,10 @@ H048 retains 31,933 parameters per arm and a fixed 30-pass/960-update schedule. 
 
 | Method | Current ancestry scores | Status |
 |---|---|---|
-| Native ARGformer | unavailable | Native VAL000 launch failed before method import because the worker argv contained a stale module name. Genuine logical wait2 and controller shutdown0 consumed, owned worker drained. No new native optimizer updates. Correcting operational routing while retaining original scientific input,7GiB charge and expiry. Five epochs/227,990 updates remain planned, no ancestry score. |
+| Native ARGformer | unavailable | Corrected native route reached its scientific supervisor but failed before training: inherited OwnedGpuMemory monitor accepted only GPUs4/5 and rejected physicalGPU0. Actual direct entry/launcher wait1 and owned drain recorded. No native optimizer update or CUDA context observed. Preparing a GPU0-only operational monitor correction while C3 continues. Original7GiB charge,science and expiry retained. No ancestry score. |
 | Native ARGformer dataset counts | not an accuracy run | completed; actual count producer wait0 and drain verified |
 | Native FLARE | unavailable | Held-out VAL000 conversion: completed; actual wait0 and owned-group drain verified. Inference: completed; actual wait0 and owned-group drain verified. Prediction seal: prediction worker completed; direct wait0 and owned-group drain verified, outer tool terminal/final guard unconfirmed. Common-method scoring remains pending. |
-| Our C3 GNN | unavailable | Original C3 stopped with 100/600 durable updates and all known owned workers drained. State-preserving migration v2 completed with genuine worker/outer exit0, retaining model, AdamW, cursor and RNG. Remaining500 updates admitted for the efficient continuation. No resumed training yet because the shared launcher route needs correction. Later discarded original updates remain unknown. No ancestry score. Original full 30 Mb VAL000 observation preparation is complete. Full prespecified prediction/scoring gate pending. |
+| Our C3 GNN | unavailable | Efficient C3 continuation is running on physicalGPU0 from the intact100/600 checkpoint. Model,AdamW,cursor and RNG were preserved,500 scheduled updates remain. Cache/startup is in progress and new optimizer updates are not yet verified. Original later discarded updates remain unknown. No ancestry score. Original full 30 Mb VAL000 observation preparation is complete. Full prespecified prediction/scoring gate pending. |
 
 The TRAIN000 conversion is development evidence. Independent VAL000 inference now has its own actual completion/wait receipts; its method predictions and common-truth scoring remain pending. Original 30 Mb VAL000 simulation: completed; actual wait0 and owned-group drain verified; inferred observation: completed; actual wait0 and owned-group drain verified; shared native-path/10k-focal preparation: completed; actual wait0 and owned-group drain verified. R600/Q1000 identities stay common. No VAL ancestry score. Original full30Mb VAL000 native preparations are ready; method predictions and common-truth scores remain pending. Native FLARE VAL000 target bound: 228477 sites, common R600/Q1000. Fresh memo2 conversion: completed; actual wait0 and owned-group drain verified; predictions/scoring pending. Earlier conversion deliberately stopped to repair scheduler contention, with all artifacts retained. Original-paper simulation assumptions and source versions remain explicitly documented.
 
@@ -471,10 +549,14 @@ Two European VAL simulations,280observed haplotypes,64present-day/56ancient quer
 
 ## Real data and paper
 
-H045 empirical probabilities, bp-weighted proportions and original-genotype PCA written. Actual successful wait and completion verified. Descriptive24query haplotypes/12subjects only. No known ancestry truth. No empirical ancestry accuracy exists. The AAAI draft is9pages and remains unfinished.
+H045 empirical probabilities, bp-weighted proportions and original-genotype PCA written. Actual successful wait and completion verified. Descriptive24query haplotypes/12subjects only. No known ancestry truth. No empirical ancestry accuracy exists. The AAAI draft is10pages and remains unfinished.
 
 ## Evidence and complete recorded inventory
 
+- H050 stable_leaf_memory: [experiments/results/H050_CPU_full192_savedfit_failedCLI_root_v1/completed.json](../experiments/results/H050_CPU_full192_savedfit_failedCLI_root_v1/completed.json)
+- H050 triple_support_pair_memory: [experiments/results/H050_CPU_full192_savedfit_failedCLI_root_v1/completed.json](../experiments/results/H050_CPU_full192_savedfit_failedCLI_root_v1/completed.json)
+- H050 adjacent_marginal_null: [experiments/results/H050_CPU_full192_savedfit_failedCLI_root_v1/completed.json](../experiments/results/H050_CPU_full192_savedfit_failedCLI_root_v1/completed.json)
+- H050 h045_continued_training: [experiments/results/H050_CPU_full192_savedfit_failedCLI_root_v1/completed.json](../experiments/results/H050_CPU_full192_savedfit_failedCLI_root_v1/completed.json)
 - H045 foreign_episode: [research/reviews/H045_completed_comparison_root_20261015_v1/summary.json](../research/reviews/H045_completed_comparison_root_20261015_v1/summary.json)
 - H045 own_state: [research/reviews/H045_completed_comparison_root_20261015_v1/summary.json](../research/reviews/H045_completed_comparison_root_20261015_v1/summary.json)
 - H044 localized: [experiments/results/H044_marker_cached_evaluate_seed101_v2/completed.json](../experiments/results/H044_marker_cached_evaluate_seed101_v2/completed.json)

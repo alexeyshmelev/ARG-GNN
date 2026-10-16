@@ -1,4 +1,4 @@
-% Root working draft: completed H045 development and frozen H056 descriptive application.
+% Root working draft: completed H045/H050 development and frozen H056 descriptive application.
 % Scientific validation and useful operator novelty remain incomplete.
 % Official AAAI27 draft style, total manuscript limit20pages.
 \documentclass[letterpaper]{article}
@@ -24,7 +24,7 @@ for Ancestry Inference}
 \begin{document}
 \maketitle
 \begin{abstract}
-Changing inferred genealogies provide a structured representation for local ancestry prediction, but strong span accuracy can conceal poor tract boundaries. We study a whole-tree graph neural pipeline on 476 diploids, with 32 training and eight development validation simulations. The model combines observed SNP features, complete PyTorch Geometric tree sweeps and a bidirectional genomic GRU. A local adapter marks sampled-leaf clades gained or lost between adjacent trees. A completed continuation additionally pools learned states over contiguous clade episodes. It reaches $96.8270\pm0.5870\%$ present-day span accuracy, compared with $96.8175\pm0.6142\%$ for its matched own-state control and $94.4461\pm1.1491\%$ for current native ARGMix. The episode-versus-control gain is only 0.0096 percentage points and fails the registered 0.10-point utility criterion. The native-pipeline difference includes extra SNP evidence, training and checkpoint-selection effects. Episode boundary F1 remains $18.16\pm1.38\%$ at 1\,kb tolerance. These reused-validation results do not establish useful cross-tree exchange, a new operator or overall benchmark superiority.
+Changing inferred genealogies provide a structured representation for local ancestry prediction, but high span accuracy can conceal poor tract boundaries. We study a whole-tree graph neural pipeline on 476 diploids, with 32 training and eight development validation simulations. The model combines observed SNP features, complete PyTorch Geometric tree sweeps and a bidirectional genomic GRU. We compare local clade-change features, contiguous clade episodes and three ordered cut-memory rules. In the completed four-arm memory comparison, stable-leaf memory reaches $97.0778\pm0.5674\%$ present-day span accuracy, versus $97.0000\pm0.4978\%$ for continued training without added memory. Pair-cell memory reaches $97.0640\pm0.5595\%$ and fails both registered utility criteria against its controls. Stable-leaf boundary F1 is $18.3807\pm1.3141\%$, below continuation's $19.0488\pm1.4275\%$ at 1\,kb tolerance. Current native ARGMix reaches $94.4461\pm1.1491\%$, with different input evidence, training and checkpoint rules. These reused-validation results distinguish span improvement from boundary quality and higher-order memory utility. They do not establish a new operator or overall benchmark superiority.
 \end{abstract}
 
 \section{Introduction}
@@ -36,7 +36,7 @@ We investigate a compact whole-tree model that retains all 952 observed haplotyp
 
 The empirical question is whether coupling learned states across changing trees is useful beyond simpler structural features. We first compare tensor clade-event interactions with matched event-MLP and node-local flag controls. A later completed H045 comparison pools states across consecutive occurrences of the same proper clade and compares this foreign context with an equal-parameter own-state arm. The latter computes the same episode pool but uses its own state in the residual. This matched comparison separates a foreign-state effect from the capacity and additional training shared by the two arms.
 
-The completed results support three findings. First, the H045 continuation reaches a larger present-day development mean than the earlier conditions, but its matched own-state control is almost identical. Second, the 0.0096-point foreign-episode gain falls below the registered 0.10-point practical criterion. Together with the small H043 neighbor-state effect, this leaves useful learned cross-tree exchange and operator novelty unestablished. Third, all of these high span scores coexist with weak tract-boundary prediction. A fixed-output diagnostic separates missing candidate boundaries from errors at boundaries the decoder could express.
+The completed comparisons distinguish three effects. H045 improves the development mean over earlier conditions, but its foreign-episode arm exceeds own-state by only 0.0096 percentage points. A further H050 four-arm continuation reaches higher span scores, with stable-leaf memory ahead of pair-cell memory and the continued-training control strongest on boundary F1. Pair-cell memory fails its registered utility criteria against all three controls. High span accuracy therefore neither establishes a higher-order memory advantage nor resolves tract-boundary prediction. A fixed-output diagnostic separates missing candidate boundaries from errors at boundaries the decoder could express.
 
 The study uses independent simulations as the unit of partitioning and reporting. Its eight validation simulations also support checkpoint selection and architecture development. The reported variation is across those simulations from one optimizer seed per condition. Independent confirmation, broader comparators and a completed novelty assessment remain necessary before stronger claims.
 
@@ -166,6 +166,9 @@ O_e\!\left[(U_eh_i)\odot(V_em_i)+W_eh_i\right].
 \end{equation}
 The own-state arm substitutes $m_i=h_i$ on the same eligible nodes while computing the same pool. Three bias-free $32\to8$ projections and one $8\to32$ projection add 1,024 weights, for 31,812 per arm. The output projection starts at zero. The second shared tree sweep receives $b+\Delta+\Delta^{\mathrm{ep}}$. PyG sums implement the span-weighted pool, and gradients remain connected across episode members. This is an implemented conditioning comparison, not a claim of a new pooling or message-passing operator. Provenance: E13--E14.
 
+\subsection{Ordered Cut-Memory Comparison}
+H050 starts from H045 own-state and adds memory at observed tree cuts 350 generations before the present. Samples older than the cut retain their actual sampled-node singleton. At each cut representative, a bias-free $32\to8$ projection receives the sum of first-sweep upward and outside states. Forward and reverse memory scans use physical-span decay $\rho_t=\exp(-w_t/\ell)$ with a learned positive length scale initialized to 5\,kb. The pair-cell arm transports histories through sample-witness intersections of successive cut groups. Its adjacent-marginal null retains only the corresponding middle-group marginal. A stable-leaf control instead carries memory along persistent sampled haplotypes. Each arm projects the bidirectional history minus the current forcing through an $8\to32$ map and injects the result at cut representatives before the second tree sweep. The output map starts at zero. The three arms add 513 parameters, for 32,325 each, and retain the original genomic GRU and direct classifier. A fourth arm continues the 31,812-parameter H045 model without adding memory. This comparison tests these specific memory rules using established aggregation and recurrence. Provenance: E16--E17.
+
 \subsection{Complete Genomic History and Readout}
 The second-sweep leaf contexts are concatenated with three observed geometry channels: log hold span and log distances to the preceding and following hold midpoints. The normalization denominator is $\log(2{,}000{,}001)$. A single-layer bidirectional GRU receives the resulting 35-channel sequence, with hidden width 32 in each direction. It processes all native holds for all 952 sampled haplotypes.
 
@@ -189,6 +192,8 @@ H040 tensor and event-MLP conditions and H042 flags begin from the same selected
 
 H045 begins from the same selected H042 pass-30 checkpoint in both arms, preserves its complete flag adapter and trains all body weights. Its new episode weights are identical at initialization, and each arm independently resets the same AdamW settings and completes 30 FP32 passes, or 960 further whole-simulation updates, with seed 101. Each arm therefore has 1,920 continuation updates beyond the selected H038 base. This extra exposure and its 31,812 parameters must be distinguished from H042's 30,788 parameters. Provenance: E13--E14.
 
+H050 initializes every arm from the completed H045 own-state pass-30 model, whose lineage contains 2,880 prior updates. Each arm resets AdamW, trains all weights and completes another 30 FP32 passes, or 960 updates, with seed 101. The four-arm experiment therefore adds 3,840 optimizer updates in total, and each completed model lineage reaches 3,840 updates. Memory arms select added pass 30, while continuation selects added pass 20, corresponding to 3,520 updates in that selected checkpoint's lineage. All arms finish the same training budget despite their different selected passes. All 192 checkpoint-parent prediction products are sealed before any VAL truth is opened. Provenance: E16.
+
 Checkpoints at five-pass intervals are evaluated using equal-simulation present-day VAL accuracy, with lower NLL and earlier-pass tie breaks. The aligned H038 checkpoint is pass 30, while zero concordance selects pass 25 although both finish pass 30. H040 and H042 select additional pass 30. Both H045 arms also select their additional pass 30. All 96 H045 checkpoint-parent products are sealed before validation truth is opened for scoring. VAL supplies no optimization gradients, but repeated development and selection on this split limit confirmatory interpretation.
 
 \subsection{Matched Interactions and Native Baselines}
@@ -198,7 +203,7 @@ Native AncestralPaths retains the released Keras Dense512 classifier, six path o
 
 Current native ARGMix retains its author implementation, with disclosed full-panel slot and metadata adaptation. It uses the released 15-reference representation without ancestor features and the native genomic sequence model. Its fit uses source seed 50 and selects epoch 9 by the original smoothed, masked, unweighted VAL batch-mean loss. Native patience is 2 with a 20-epoch cap. External full-support scoring does not replace that inner selection rule.
 
-These conditions share simulation observations and physical scoring support, but they do not isolate architecture. The whole-tree models additionally consume observed SNP features. Native row sampling, reference representations, sequence chunks, supervision, training exposure and checkpoint objectives remain method-specific. H040 and H042 receive 960 additional updates after H038. H045 receives another 960 after H042. Its comparison with native pipelines is therefore a development pipeline comparison, rather than a matched-input or matched-budget operator test.
+These conditions share simulation observations and physical scoring support, but they do not isolate architecture. The whole-tree models additionally consume observed SNP features. Native row sampling, reference representations, sequence chunks, supervision, training exposure and checkpoint objectives remain method-specific. H040 and H042 receive 960 additional updates after H038. H045 receives another 960 after H042, and H050 another 960 per arm after H045 own-state. Comparisons with native pipelines are therefore development pipeline comparisons, rather than matched-input or matched-budget operator tests.
 
 \section{Results}
 \subsection{Primary Span Accuracy}
@@ -255,6 +260,28 @@ H045 foreign $-$ own & $0.0096\pm0.1527$ & 6/8 \\
 
 
 The earlier comparisons favor local flags over the examined clade-event interactions. The later episode comparison does not establish a useful foreign-state advantage over its own-state control. Different incidence definitions, objectives or independent simulations could change these results. Neither the tensor interaction nor the episode pool is supported here as a distinct new neural operator.
+
+\subsection{Matched Ordered-Memory Ablation}
+Table~\ref{tab:H050} reports the completed H050 comparison on the same eight development simulations. Stable-leaf memory has the highest present-day accuracy of the four arms, but continuation has the highest boundary F1. Pair-cell memory exceeds the adjacent-marginal null by $0.0137\pm0.0243$ accuracy points and falls below stable leaves by $0.0138\pm0.0384$ points. Its gain over continuation is $0.0640\pm0.1453$ points. These are means and sample SDs of paired differences, distinct from the per-arm SDs in the table.
+
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{@{}lrr@{}}
+\toprule
+H050 arm & Accuracy (\%) & Boundary F1 (\%) \\
+\midrule
+Pair-cell memory & $97.0640\pm0.5595$ & $18.93\pm1.42$ \\
+Marginal null & $97.0504\pm0.5796$ & $18.85\pm1.05$ \\
+Stable leaves & $97.0778\pm0.5674$ & $18.38\pm1.31$ \\
+Continuation & $97.0000\pm0.4978$ & $19.05\pm1.43$ \\
+\bottomrule
+\end{tabular}
+\caption{H050 present-day results, mean$\pm$sample SD across eight reused VAL simulations and optimizer seed 101. Boundary tolerance is 1\,kb. All arms complete 960 new updates from the same H045 own-state model. The memory arms have 32,325 parameters and select pass 30. Continuation has 31,812 parameters and selects pass 20. Provenance: E16.}
+\label{tab:H050}
+\end{table}
+
+The registered primary criterion requires pair-cell memory to gain at least 0.10 accuracy points without reducing boundary F1 against each of the three controls. The secondary criterion requires at least 1.00 boundary-F1 point without losing more than 0.05 accuracy points against each control. Both criteria fail. Pair-cell memory's mean boundary F1 is 0.1224 points below continuation. Stable leaves gain 0.0778 accuracy points over continuation but lose 0.6682 boundary-F1 points. Thus this completed ablation does not support a useful higher-order memory advantage, despite the larger span scores than the earlier H045 checkpoints. These remain one-seed development results.
 
 \subsection{Cohort Dependence}
 Table~\ref{tab:cohorts} retains the earlier native and H042 cohort comparison, including the small BAA and Yam groups. Appendix Table~\ref{tab:episodecohorts} adds both completed H045 arms. Foreign-episode context reaches $98.7761\%$ across all 686 queries, compared with $98.7815\%$ for own-state. Its present-day score is $96.8270\%$. These aggregate and primary endpoints are not interchangeable, and the foreign condition does not uniformly exceed its matched control.
@@ -330,7 +357,7 @@ We average the two haplotypes within each person using native physical spans, po
 The completed aligned H038 run records 43.6 seconds per 32-simulation pass, 1,307.9 seconds in training and 1,698.5 seconds total elapsed time. Its peak CUDA allocated memory is 21.35\,GB and reserved memory is 37.16\,GB in decimal units. These are measurements of that training path, excluding full data preparation and external baseline evaluation. They neither isolate a PyG speedup nor establish the cost of H042 or the other complete pipelines.
 
 \section{Discussion and Scope}
-The results distinguish fitted-pipeline performance from architectural invention. Local clade-change flags exceed the earlier tensor and event-MLP conditions under matched added capacity and training. H045 subsequently improves the development span score, but almost the same improvement occurs in its own-state arm. Its 0.0096-point foreign-context effect and H043's 0.0153-point neighbor-state effect both fail their practical 0.10-point gates. Established tree propagation, local conditioning, pooling and genomic recurrence remain viable explanations of the observed performance.
+The results distinguish fitted-pipeline performance from architectural invention. Local clade-change flags exceed the earlier tensor and event-MLP conditions under matched added capacity and training. H045 subsequently improves the development span score, but almost the same improvement occurs in its own-state arm. Its 0.0096-point foreign-context effect and H043's 0.0153-point neighbor-state effect both fail their practical 0.10-point gates. H050 likewise favors stable leaves in span accuracy and continuation in boundary F1, while pair-cell memory fails both registered criteria. Established tree propagation, local conditioning, pooling and genomic recurrence remain viable explanations of the observed performance.
 
 Several limitations determine how the scores should be used. The VAL simulations have informed model selection and architecture development. A single optimizer seed cannot quantify training instability. The native comparators preserve their released methods but differ in input evidence, training units, reference choices and selection objectives. The simulated roster and the derived C4 endpoint also differ from the published ARGMix benchmark, which uses different panel, reference and evaluation conditions. Numerical comparisons with its published tables would require a separately verified recipe.
 
@@ -339,7 +366,7 @@ The task is conditional on one demographic simulation family and inferred observ
 Boundary performance is a substantive remaining weakness. Improving the ability to express a transition inside a native hold addresses a geometric restriction, while improving transition recognition addresses failures where a suitable edge already exists. Neither follows automatically from higher span accuracy. Future evaluation should preserve the fixed physical-support scorer, count real short tracts, and use independent simulations for confirmation rather than tune a post-processing rule on the current boundary errors.
 
 \section{Conclusion}
-The completed H045 continuation of a whole-tree PyG and genomic-GRU pipeline reaches $96.8270\pm0.5870\%$ present-day span accuracy on eight development simulations. Its matched own-state control reaches $96.8175\pm0.6142\%$. Their 0.0096-point difference fails the registered useful-gain criterion, while boundary F1 remains about 18\%. These results document a fitted development pipeline without establishing useful foreign-state exchange, a new operator or overall superiority. Independent assessment and matched external benchmarking remain necessary.
+The completed H050 continuation compares three cut-memory rules with continued training of the same whole-tree PyG and genomic-GRU model. Stable-leaf memory reaches $97.0778\pm0.5674\%$ present-day span accuracy, while continuation reaches $97.0000\pm0.4978\%$ and has higher boundary F1. Pair-cell memory fails both registered utility criteria. Together with the earlier episode controls, these development results favor testing specific structural mechanisms against continued training and simpler memory, while preserving tract-boundary metrics. They establish neither a new operator nor overall benchmark superiority. Independent assessment and matched external benchmarking remain necessary.
 
 \bibliography{current_full_panel_refs}
 
@@ -407,7 +434,7 @@ The architecture description follows the exact source files listed below. The co
 
 \section{Evidence Provenance}
 \label{app:provenance}
-Tables and Figure~\ref{fig:architecture} identify evidence keys below. Exact code versions, result files and full SHA256 values for E1--E15 are indexed in the companion \path{paper/current_full_panel_provenance.json}.
+Tables and Figure~\ref{fig:architecture} identify evidence keys below. Exact code versions, result files and full SHA256 values for E1--E15 are indexed in the companion \path{paper/current_full_panel_provenance.json}. E16--E17 identify the subsequent completed H050 evidence and source.
 
 \paragraph{E1: H038 completed base/control scores.}
 \noindent\path{experiments/results/mutation_routed_full_panel_pyg_v1_summary_root/summary.json}\par
@@ -457,4 +484,17 @@ Tables and Figure~\ref{fig:architecture} identify evidence keys below. Exact cod
 \noindent\path{experiments/results/H056_frozen_H045_Danish_three_chromosome_CPU_v2/provenance.json}\par
 \noindent\path{research/reviews/H056_frozen_H045_Danish_application_registration_20261016_v1/protocol.root_frozen_v1.json}\par
 \noindent\path{research/reviews/H056_three_bank_application_actual_root_20261016_v2/actual_tool_terminal.root_v1.json}\par
+
+\paragraph{E16: Completed H050 four-arm training and evaluation.}
+\noindent\path{experiments/results/H050_GPU0_direct_readout_train_seed101_v1/completed.json}\par
+\noindent\path{experiments/results/H050_CPU_full192_savedfit_failedCLI_root_v1/completed.json}\par
+% H050 evaluation SHA256: 2e3dcb14affee5f87d9e0607745a0039647d0ca55daffa0e276bb5599a4a6763
+\noindent\path{research/reviews/H050_CPU_evaluation_failed_CLI_successor_source_20261016_v1/root_actual_metadata_v1/actual_tool_terminal.root_v1.json}\par
+% Genuine CPU evaluation terminal SHA256: b842a3d33841332c705d5c61d3c08969de79249788e8caec27d934ad28a266fe
+The complete saved training budget and 24 checkpoints were scored by a separate successful CPU evaluation without optimization or training replay. The original training CLI exit 1 remains recorded separately from the evaluation exit 0.
+
+\paragraph{E17: H050 model and matched-memory implementation.}
+\noindent\path{research/reviews/H050_direct_readout_cut_memory_source_20261015_v1/direct_readout_cut_memory_v1.py}\par
+\noindent\path{research/reviews/H050_direct_readout_cut_memory_source_20261015_v1/integration_hooks_v1.py}\par
+\noindent\path{research/reviews/order2_cut_memory_implementation_20261015_v1/order2_cut_memory_v1.py}\par
 \end{document}

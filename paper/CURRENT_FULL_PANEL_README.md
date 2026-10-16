@@ -8,7 +8,7 @@ Primary sources:
 - current_full_panel_refs.bib
 - current_full_panel_provenance.json
 
-The body uses the completed 476-diploid/952-haplotype, 32-TRAIN/eight-VAL H038, H040, H042 and H045 evidence with native AncestralPaths and current native ARGMix. A compact H043 control appendix was added only after root confirmed completed evaluation. Its 0.0153 pp paired effect is below its registered 0.1 pp practical gate and remains a supplementary control. H045 adds the best current development mean and its matched own-state control. H044 results are excluded.
+The body uses the completed 476-diploid/952-haplotype, 32-TRAIN/eight-VAL H038, H040, H042 and H045 evidence with native AncestralPaths and current native ARGMix. A compact H043 control appendix was added only after root confirmed completed evaluation. Its 0.0153 pp paired effect is below its registered 0.1 pp practical gate and remains a supplementary control. H045 adds its historical development mean and matched own-state control. H050 now gives97.0778%stable-leaf accuracy and97.0000%continuation,with lower stable-leaf boundaryF1. Pair-cell memory fails both registered utility criteria. H044 results are excluded.
 
 The manuscript describes the actual H042 implementation: observed SNP pooling and known donor annotations, two shared full-tree PyG sweeps, node-local rank-8 gained/lost-clade residual, all 952 sampled contexts through the complete bidirectional GRU, and the 96→32→4 classifier. H045 adds the span-weighted exact-clade episode residual and its equal-parameter own-state control. The inherited H042 TikZ architecture is embedded, with the H045 extension identified in its caption and method section.
 
@@ -24,7 +24,7 @@ Tables trace to named evidence keys and exact source paths in the appendix. Full
 
 No original-paper reproduction, universal ranking, new-operator, statistical-significance, held-out-test, or real-data PCA claim is made. Sparse-cohort undefined metric counts remain in the original records.
 
-## Root compilation and review
+## Historical root compilation and review
 
 Compilation and rendering were explicitly left to root. No compiler, installation, Git operation, experimental array, checkpoint tensor, GPU, model execution, admission or accounting operation was used during authorship.
 
@@ -64,3 +64,9 @@ Root integrated the completed H045 method, matched control, population metrics, 
 - [Current bundle verification](build/current_full_panel_H045_20261016_v2/overleaf_bundle_receipt.root_v1.json)
 
 Latest source SHA256: 185ae3f64e0b5f8bd249edc8c6dc99f356065797122501e4195de1cd324fcfb7.
+
+## Current H050 integration,2026-10-16
+
+Root compiled and visually reviewed all10pages,including the four-arm matched ablation and evidenceE16-E17. Each arm completed960newupdates,3840newtotal. Selected memorypasses30,continuationpass20. Both higher-order utility criteria failed. The PDF and Overleaf bundle include current sources. All earlier8/9page receipts above are historical.
+
+[Current compile and visual review](build/current_full_panel_H050_20261016_v1/compile_and_visual_review.root_v1.json).

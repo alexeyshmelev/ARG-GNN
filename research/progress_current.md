@@ -1,25 +1,27 @@
 # Research progress
 
-Updated UTC: 2026-10-16T08:01:48.410520+00:00.
+Updated UTC: 2026-10-16T08:28:09.194574+00:00.
 
-The compiled nine-page AAAI draft and Overleaf working bundle are available. The paper is not submission-ready. The main unfinished work is evidence for a useful distinct contribution and complete faithful comparisons.
+The compiled ten-page AAAI draft and Overleaf working bundle are available. The paper is not submission-ready. The main unfinished work is evidence for a useful distinct contribution and complete faithful comparisons.
 
 | Shared European development pipeline | Present182 span accuracy, mean ± simulation SD (%) |
 |---|---:|
-| Our best completed H045 | 96.8270 ± 0.5870 |
+| H050 stable-leaf memory, current accuracy leader | 97.0778 ± 0.5674 |
+| H050 same-budget continued training | 97.0000 ± 0.4978 |
+| Historical H045 best | 96.8270 ± 0.5870 |
 | Matched H045 own-state control | 96.8175 ± 0.6142 |
 | Current author ARGMix release | 94.4461 ± 1.1491 |
 | Released AncestralPaths, derived four-source endpoint | 93.7830 ± 0.8385 |
 
-All scores use eight reused VAL simulations, one optimizer seed, a 2 Mb shared panel. Differences in SNP inputs, training and selection prevent an architecture-only comparison or an original-paper reproduction claim. The best candidate gains only 0.0096 percentage points over the matched control. Its boundary F1 is 18.16%, so high span accuracy does not establish precise ancestry tract recovery.
+All scores use eight reused VAL simulations, one optimizer seed, a 2 Mb shared panel. Differences in SNP inputs, training and selection prevent an architecture-only comparison or an original-paper reproduction claim. H050 stableleaf adds0.0778percentagepoints over same-budget continuation but lowers boundaryF1 from19.0488%to18.3807%. Triple-support failed both registered utility rules,so higher-order novelty remains unsupported.
 
 ## Current execution
 
-- H050 European four-arm training: All30 TRAIN passes and960 FP32 updates per arm completed,3840 total,with24 saved checkpoints. Original TRAIN CLI exit1 was a SystemExit wrapper error after saved scientific completion. CPU validation from saved fits is running: 171/192 prediction products sealed at 2026-10-16T08:01:48.410520+00:00. No training replay and no ancestry score yet.
-- American C3 GNN: Original C3 stopped with 100/600 durable updates and all known owned workers drained. State-preserving migration v2 completed with genuine worker/outer exit0, retaining model, AdamW, cursor and RNG. Remaining500 updates admitted for the efficient continuation. No resumed training yet because the shared launcher route needs correction. Later discarded original updates remain unknown. No ancestry score.
-- Native ARGformer: Native VAL000 launch failed before method import because the worker argv contained a stale module name. Genuine logical wait2 and controller shutdown0 consumed, owned worker drained. No new native optimizer updates. Correcting operational routing while retaining original scientific input,7GiB charge and expiry. Five epochs/227,990 updates remain planned, no ancestry score. FLARE predictions exist, but the common American ancestry table is unfinished.
+- H050 European four-arm training and saved-fit evaluation completed. Stableleaf97.0778%,triple97.0640%,marginal97.0504%,continuation97.0000%. All23setups/sevencohorts and SDs are in the scoreboard. Both triple-support utility criteria failed.
+- American C3 GNN: Efficient C3 continuation is running on physicalGPU0 from the intact100/600 checkpoint. Model,AdamW,cursor and RNG were preserved,500 scheduled updates remain. Cache/startup is in progress and new optimizer updates are not yet verified. Original later discarded updates remain unknown. No ancestry score.
+- Native ARGformer: Corrected native route reached its scientific supervisor but failed before training: inherited OwnedGpuMemory monitor accepted only GPUs4/5 and rejected physicalGPU0. Actual direct entry/launcher wait1 and owned drain recorded. No native optimizer update or CUDA context observed. Preparing a GPU0-only operational monitor correction while C3 continues. Original7GiB charge,science and expiry retained. No ancestry score.
 - TGB full campaign and VAL/TEST evaluation completed. TEST NDCG@10: first-order0.83238±0.01125, conditional-triple0.83045±0.01101, tree-only0.82706±0.01134, persistence0.84688±0.01439. No higher-order benefit. SD across3dependent years, one optimizerseed.
-- GPU 0 is idle after the confirmed native bootstrap failure. Correcting the shared worker route is required before C3 and native training resume. H050 CPU evaluation remains live.
+- GPU0 has an unrelated13542MiB process. Our C3 continuation is running, native monitor correction proceeds separately. Device utilization must not be attributed wholly to our project.
 
 ## Evidence still needed
 
@@ -38,4 +40,4 @@ The modern documented `build-training` route at author commit `c2481248eb0de5fda
 
 [Completed TGB result](reviews/TGB_H051_completed_seed17_root_20261016_v1/REPORT.md). The1GBqualificationreservation was closed with genuinewait0 and targetedwriterabsence, retaining188416bytes and crediting999811584unusedbytes. No files were deleted and no guard was changed.
 
-[Current paper and benchmark completion audit](reviews/paper_completion_compact_audit_20261016_v1/REPORT.md). The nine-page draft has equations and a schematic, but native American comparisons, the larger ARGMix panel, useful novelty and untouched tests remain unfinished.
+[Current paper and benchmark completion audit](reviews/paper_completion_compact_audit_20261016_v1/REPORT.md). The ten-page draft has equations and a schematic, but native American comparisons, the larger ARGMix panel, useful novelty and untouched tests remain unfinished.

@@ -1,0 +1,113 @@
+--- research/reviews/C3_native_H050_failed_CLI_transport_admission_source_20261016_v1/finite_jobs_v1.py
++++ research/reviews/C3_native_worker_module_route_fix_source_20261016_v2/finite_jobs_v1.py
+@@ -4,7 +4,7 @@
+ from datetime import datetime,timezone
+ import hashlib,importlib.util,json,math,os,re,sys
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-REL="research/reviews/C3_native_H050_failed_CLI_transport_admission_source_20261016_v1"
++REL="research/reviews/C3_native_worker_module_route_fix_source_20261016_v2"
+ CATALOGUE=REL+"/finite_catalogue.v1.json"
+ SOURCE=REL+"/finite_jobs_v1.py"
+ POOL=REL+"/gpu0_declared_pool_v1.py"
+@@ -438,7 +438,7 @@
+     expected=validate_loss_revocation_v1(request,ready,final);helper=transport_helper_v1()
+     observation=read(proof["transport_unknown_observation_ref"])
+     helper.validate_observation_v1(observation,request_ref,helper.known_roster_v1(final),expected,TRANSPORT_HELPER_REF)
+-    require(observation.get("request_validator_ref")==ref(SOURCE),"Exact actual request validator source")
++    require(observation.get("request_validator_ref")=={'path': 'research/reviews/C3_native_H050_failed_CLI_transport_admission_source_20261016_v1/finite_jobs_v1.py', 'sha256': '8dcd1e5fd3b79e59baea6378d5eeb7ad485e59478cd9d8943aca4669bf9568b1'},"Exact preserved historical request validator source")
+     tool=read(proof["probe_actual_tool_terminal_ref"])
+     require(tool.get("schema")=="GPU0_transport_unknown_probe_actual_tool_terminal_v1"
+         and tool.get("root_authorizer")=="root_agent" and tool.get("actual_terminal_consumed") is True
+--- research/reviews/C3_native_H050_failed_CLI_transport_admission_source_20261016_v1/launch_declared_gpu0_v1.py
++++ research/reviews/C3_native_worker_module_route_fix_source_20261016_v2/launch_declared_gpu0_v1.py
+@@ -4,7 +4,7 @@
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+ sys.path[:0]=[str(ROOT),str(ROOT/"src")]
+ REL="research/reviews/H039_marker_repair_renewal_source_20261016_v1/marker_repair_renewal_v1.py"
+-MODULE="research.reviews.C3_native_H050_failed_CLI_transport_admission_source_20261016_v1.gpu0_declared_pool_v1"
++MODULE="research.reviews.C3_native_worker_module_route_fix_source_20261016_v2.gpu0_declared_pool_v1"
+ def bootstrap_main_v1(argv=None):
+     parser=argparse.ArgumentParser(description=__doc__)
+     parser.add_argument("--execute",action="store_true")
+@@ -29,7 +29,7 @@
+     argv=sys.argv[1:] if argv is None else list(argv)
+     if any(x=="--renewal-certificate" or x.startswith("--renewal-certificate=") for x in argv):
+         return bootstrap_main_v1(argv)
+-    from research.reviews.C3_native_H050_failed_CLI_transport_admission_source_20261016_v1.gpu0_declared_pool_v1 import main as pool_main
++    from research.reviews.C3_native_worker_module_route_fix_source_20261016_v2.gpu0_declared_pool_v1 import main as pool_main
+     return pool_main(argv)
+ 
+ if __name__=="__main__":raise SystemExit(main())
+--- research/reviews/C3_native_H050_failed_CLI_transport_admission_source_20261016_v1/gpu0_declared_pool_v1.py
++++ research/reviews/C3_native_worker_module_route_fix_source_20261016_v2/gpu0_declared_pool_v1.py
+@@ -8,12 +8,12 @@
+ import ast,hashlib,importlib.util,json,os,resource,sys,time,types
+ 
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-HERE="research/reviews/C3_native_H050_failed_CLI_transport_admission_source_20261016_v1"
++HERE="research/reviews/C3_native_worker_module_route_fix_source_20261016_v2"
+ SOURCE=HERE+"/gpu0_declared_pool_v1.py"
+ LAUNCHER=HERE+"/launch_declared_gpu0_v1.py"
+ DISPATCHER=SOURCE
+ BOOTSTRAP=LAUNCHER
+-CONTRACT_REF={"path":HERE+"/finite_jobs_v1.py","sha256":"8dcd1e5fd3b79e59baea6378d5eeb7ad485e59478cd9d8943aca4669bf9568b1"}
++CONTRACT_REF={"path":HERE+"/finite_jobs_v1.py","sha256":"820b4c213830f848b3428af8481e1433d66a1e7b428fb4a4150d0f1291b73283"}
+ CATALOGUE_REF={"path":HERE+"/finite_catalogue.v1.json","sha256":"8226afd683102b52f0e08e11b0d1bb2f966b36d63d2e97943cd962525b95a34d"}
+ REVIEWED="research/reviews/GPU0_shared_execution_source_20261016_v1"
+ REVIEWED_POOL_REF={"path":REVIEWED+"/gpu0_shared_pool_v1.py","sha256":"28bb690f33c2384d04f88dbacff1f910694c398c81874f9b9751336f4fb6429c"}
+@@ -48,7 +48,7 @@
+ # Only this newly loaded private legacy namespace is adapted.
+ legacy.SOURCE=SOURCE
+ legacy.LAUNCHER=LAUNCHER
+-legacy.RENEWAL_BOOTSTRAP_REF={"path":BOOTSTRAP,"sha256":"f59cfac77c9a3303cc57446d34557277f0a3c8f11ae54027ecf43cbb3606360b"}
++legacy.RENEWAL_BOOTSTRAP_REF={"path":BOOTSTRAP,"sha256":"c3e58b67c549d3abd70684bac9165a577b6d0c20f49a8c38c579baad9c50ac27"}
+ 
+ def socket_name(cap):
+     token=hashlib.sha256(base.encoded(cap["plan_ref"])).hexdigest()[:16]
+@@ -202,7 +202,7 @@
+ launchtext=ast.get_source_segment(old,node)
+ before='"arggnn.gpu45_c3cache_h050_pool_v1"'
+ require(launchtext.count(before)==1,"Single frozen worker module literal")
+-launchtext=launchtext.replace(before,'"research.reviews.GPU0_declared_C3_resume_transport_unknown_source_20261016_v2.gpu0_declared_pool_v1"')
++launchtext=launchtext.replace(before,repr(SOURCE[:-3].replace("/", ".")))
+ # Preserve the original queue body, adding only individual expired-queue rejection.
+ queue_anchor='            if job["state"]!="queued":continue'
+ queue_expiry=queue_anchor+'\n            original_end=contract.job_expiry_v2(job["requested"])\n            if time.time()>=original_end:\n                job.update(state="cancelled",finished_unix=time.time(),\n                    error="Original per-job input/envelope expired before launch",\n                    expiry_rejected_before_start=True,original_expires_unix=original_end)\n                self._persist()\n                continue'
+--- research/reviews/C3_native_H050_failed_CLI_transport_admission_source_20261016_v1/prepare_resume_v1.py
++++ research/reviews/C3_native_worker_module_route_fix_source_20261016_v2/prepare_resume_v1.py
+@@ -5,7 +5,7 @@
+ from datetime import datetime,timezone,timedelta
+ import copy,hashlib,importlib.util,json,math,re,sys
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-HERE="research/reviews/C3_native_H050_failed_CLI_transport_admission_source_20261016_v1"
++HERE="research/reviews/C3_native_worker_module_route_fix_source_20261016_v2"
+ SOURCE=HERE+"/prepare_resume_v1.py"
+ OLD_INPUT_REF={'path': 'research/reviews/GPU0_shared_root_integration_20261016_v1/admitted_C3_GPU0_train_v1/input.json', 'sha256': 'ed223e3bc46a47a07e999a0c4599ee8a150c3fc237c9ac8880b131bfc2dae0dc'}
+ OLD_CAP_REF={'path': 'research/reviews/GPU0_shared_root_integration_20261016_v1/admitted_controller_v1/pool_capability.root_active.json', 'sha256': 'c88db41d22769af8cf7a02ce09134a0c0ac8ddc95006875d60b6d61a4c10e852'}
+@@ -15,9 +15,9 @@
+ VALIDATOR_REF={'path': 'research/reviews/C3_efficient_resume_migration_source_20261016_v1/checkpoint_migration_validator_v1.py', 'sha256': '31414598d0f69533864cf600a9a6f0c24ef5f0d81f9ca131fb5f9612f761fafd'}
+ STEP_REF={'path': 'research/reviews/C3_efficient_query_GPU_cache_successor_source_20261016_v1/efficient_step_v1.py', 'sha256': '0df05b1957affc222ca1c11d9f34cc3277f5a3098834fb36fedee64bb242d2e8'}
+ CACHE_REF={'path': 'research/reviews/C3_efficient_query_GPU_cache_successor_source_20261016_v1/single_parent_device_cache_v1.py', 'sha256': 'd19879458474883e125b7efc7cbd649839f25c3db22ecb876ba3f7f5ab9b49b6'}
+-FINITE_POOL_REF={'path': 'research/reviews/C3_native_H050_failed_CLI_transport_admission_source_20261016_v1/gpu0_declared_pool_v1.py', 'sha256': '38b7fb1122983d99f786023f51a01a5db17e2192466aab4505ac486c3e8700e2'}
+-FINITE_CONTRACT_REF={'path': 'research/reviews/C3_native_H050_failed_CLI_transport_admission_source_20261016_v1/finite_jobs_v1.py', 'sha256': '8dcd1e5fd3b79e59baea6378d5eeb7ad485e59478cd9d8943aca4669bf9568b1'}
+-FINITE_LAUNCHER_REF={'path': 'research/reviews/C3_native_H050_failed_CLI_transport_admission_source_20261016_v1/launch_declared_gpu0_v1.py', 'sha256': 'f59cfac77c9a3303cc57446d34557277f0a3c8f11ae54027ecf43cbb3606360b'}
++FINITE_POOL_REF={'path': 'research/reviews/C3_native_worker_module_route_fix_source_20261016_v2/gpu0_declared_pool_v1.py', 'sha256': '458d58e5683dfad6722bb5704a43e7846ad0c60c1bd427c121c44d3d6aa77da6'}
++FINITE_CONTRACT_REF={'path': 'research/reviews/C3_native_worker_module_route_fix_source_20261016_v2/finite_jobs_v1.py', 'sha256': '820b4c213830f848b3428af8481e1433d66a1e7b428fb4a4150d0f1291b73283'}
++FINITE_LAUNCHER_REF={'path': 'research/reviews/C3_native_worker_module_route_fix_source_20261016_v2/launch_declared_gpu0_v1.py', 'sha256': 'c3e58b67c549d3abd70684bac9165a577b6d0c20f49a8c38c579baad9c50ac27'}
+ MIB=2**20
+ GPU0_UUID="GPU-ff06ca1f-403a-f2d0-b584-71e177452667"
+ 
+--- research/reviews/C3_native_H050_failed_CLI_transport_admission_source_20261016_v1/finite_envelopes_v1.py
++++ research/reviews/C3_native_worker_module_route_fix_source_20261016_v2/finite_envelopes_v1.py
+@@ -8,9 +8,9 @@
+ import copy,hashlib,importlib.util,json,math,re,sys
+ 
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-HERE="research/reviews/C3_native_H050_failed_CLI_transport_admission_source_20261016_v1"
++HERE="research/reviews/C3_native_worker_module_route_fix_source_20261016_v2"
+ SOURCE=HERE+"/finite_envelopes_v1.py"
+-PREPARE_REF=dict(path=HERE+"/prepare_resume_v1.py",sha256="8db30e2eca56925937f4b22f6657603b514211ffe1b6a209c999ddb2a939b438")
++PREPARE_REF=dict(path=HERE+"/prepare_resume_v1.py",sha256="c86c16335672c1749dc9d4c226c83e8eafa2296839692534ba83363355f67d0b")
+ MIB=2**20
+ GIB=2**30
+ 

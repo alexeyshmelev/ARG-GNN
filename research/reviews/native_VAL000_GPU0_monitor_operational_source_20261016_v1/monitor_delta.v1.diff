@@ -1,0 +1,11 @@
+--- research/reviews/American_C3_native_MLM_full_fit_v8/gpu_monitor_v8.py:classes
++++ research/reviews/native_VAL000_GPU0_monitor_operational_source_20261016_v1/native_gpu0_monitor_route_v1.py:classes
+@@ -10,7 +10,7 @@
+     def __init__(self,uuid,physical_gpu):
+         require(platform.system()=="Linux" and platform.machine()=="x86_64"
+             and ctypes.sizeof(ProcessInfo)==24,"Reviewed Linux x86_64 NVML ABI")
+-        require(physical_gpu in (4,5),"Eligible physical metadata-query device only")
++        require(type(physical_gpu) is int and physical_gpu==0 and uuid==GPU0_UUID,"Only canonical physical GPU0 metadata-query device")
+         self.owner_pid=os.getpid();self.uuid=uuid;self.physical_gpu=physical_gpu
+         self.lib=ctypes.CDLL("libnvidia-ml.so.1")
+         def bind(name,args):
