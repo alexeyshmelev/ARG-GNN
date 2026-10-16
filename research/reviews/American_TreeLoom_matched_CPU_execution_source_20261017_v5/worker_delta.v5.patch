@@ -1,0 +1,31 @@
+--- research/reviews/American_TreeLoom_matched_CPU_execution_source_20261017_v4/worker_entry_v1.py
++++ research/reviews/American_TreeLoom_matched_CPU_execution_source_20261017_v5/worker_entry_v1.py
+@@ -1,8 +1,17 @@
+ """Inactive actual CPU worker. No scientific import before admitted ROOT gate."""
+ from pathlib import Path
+ import argparse,hashlib,importlib,json,io,os,re,resource,stat,sys,time
+-from research.reviews.American_TreeLoom_matched_CPU_execution_source_20261017_v4 import root_contract_v1 as c
++from research.reviews.American_TreeLoom_matched_CPU_execution_source_20261017_v5 import root_contract_v1 as c
+ ROOT=c.ROOT
++def jsonable_runtime_v1(value, torch, np):
++ """Bind serialization to the actual initialized local runtime, never lazy legacy globals."""
++ if isinstance(value,torch.Tensor):return jsonable_runtime_v1(value.detach().cpu().numpy(),torch,np)
++ if isinstance(value,np.ndarray):return jsonable_runtime_v1(value.tolist(),torch,np)
++ if isinstance(value,np.generic):return value.item()
++ if isinstance(value,dict):return {str(k):jsonable_runtime_v1(v,torch,np) for k,v in value.items()}
++ if isinstance(value,(list,tuple)):return [jsonable_runtime_v1(v,torch,np) for v in value]
++ return value
++
+ class CappedBuffer(io.BytesIO):
+  def __init__(self,cap):super().__init__();self.cap=cap
+  def write(self,data):
+@@ -70,8 +79,7 @@
+   c.require(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss*1024<=c.CAPS["rss_bytes"],"128GiB main RSS; finite outer covers complete owned tree")
+   c.require(not torch.cuda.is_initialized()and torch.get_num_threads()==32 and set(os.sched_getaffinity(0))==set(q["cpu_ids"]),"CPU/32threads/affinity remain exact")
+   return dict(event=event,no_storage_scan_or_journal_call=True)
+- from arggnn.census_tsinfer_fit_v1 import _jsonable_v1
+- writer=BoundedWriter(s,q,g,fast,torch,_jsonable_v1)
++ writer=BoundedWriter(s,q,g,fast,torch,lambda value:jsonable_runtime_v1(value,torch,np))
+  writer.save("started.json",dict(status="started_TreeLoom_actual_full_matched_CPU_training",input_ref=record,
+   additional_updates_per_arm=600,total_additional_updates=1200,first_scheduled_updates_timed_inline=True,
+   standalone_token_qualification=False,device="cpu",dtype="float32",CPU_threads=32,
