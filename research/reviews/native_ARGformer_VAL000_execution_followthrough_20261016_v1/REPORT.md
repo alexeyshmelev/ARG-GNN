@@ -1,0 +1,44 @@
+# Native ARGformer VAL000 execution followthrough
+
+Metadata/source inspection at 2026-10-16T07:13:25.299792+00:00. No live process, GPU, lease or accounting observation was made.
+
+The held native MLM is already admitted. Reuse its exact job American-C3-native-val000-MLM-prediction-route-sharedGPU0-mlm-v1, input 52242fe0…, storage 49d4097f…, 7 GiB charge and expiry **2026-10-18T23:41:32.476768Z**. Do not bind/admit MLM again. The saved input preserves VAL000, its own ARG/vocabulary, GPU0, 40 GiB CUDA and 384 GiB owned RSS. Exact preparation/counts/close/config/runtime hashes and all source hashes in the active source approval match. Source approval expires 2026-10-19T23:40:02.368073Z. These are existing immutable records, not a current accounting or runtime-fit claim.
+
+The reviewed failed-CLI handover is the path to starting this unchanged held job. Root still needs actual C3 stop/wait/drain and complete-state migration, native cancelled-never-started proof, final old-controller closure/revocation, genuine transport observation and actual new admissions. The new controller only accepts C3_RESUME_TRAIN and NATIVE_MLM. It cannot silently accept fit or embeddings under that immutable capability.
+
+After actual MLM completion, use existing post-MLM APIs:
+
+1. Require the original own-VAL000 root completion and actual_wait.json, child completion/native wait, full-corpus authentication and final checkpoint metadata. post_mlm_bridge_v1.val000_mlm_phase_v1 verifies five epochs, 227,990 actual updates, tokenizer 107,144, exact same preparation/corpus and no foreign-parent initialization. No MLM completion was saved at this inspection.
+2. Use research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/root_native_driver_v1.py --bind fit --gpu 0 --gpu-uuid GPU-ff06ca1f-403a-f2d0-b584-71e177452667 --MLM ACTUAL_COMPLETION --MLM-sha256 ACTUAL_SHA --MLM-wait ACTUAL_ROOT_WAIT --MLM-wait-sha256 ACTUAL_SHA, then its existing --admit fit. Counts/count-wait defaults are the exact already completed VAL000 records. The active root source approval already covers this code. Bind accepts metadata only and launches nothing.
+3. Execute the fresh fit only under a separately bound supported native pool authority and inherited GPU0 lease. Existing shared_native_runtime_entry_v1.invoke_job_v1 and original shared GPU0 pool support native phase fit with module native_ARGformer_VAL000_fit. The current two-slot handover capability does not. Use existing pool lifecycle/admission controls and genuine old-controller drain rather than editing a capability or creating another namespace/guard framework. Direct manual --launch outside the inherited lease fails.
+4. Fit is one released contrastive epoch, batch/microbatch 4,096, FP32, seed 36, temperature 0.3, 2,135 updates, initialized only by the actual own MLM final. Known reference labels are allowed, query ancestry labels are forbidden. Saved optimizer counters and real wait/drain qualify it. Retention 1 is the disclosed I/O change. No fit request/admission currently exists.
+5. Then use the same driver --bind embeddings with the actual MLM/MLM-wait and fit/fit-wait path/SHA pairs, followed by --admit embeddings and its separately declared native job. root_native_contract_v1.validate_fit_metadata_v1 verifies the own-parent fit lineage. No embeddings request/admission currently exists.
+
+The minimal faithful classifier after fitting is already implemented. native_child_v1.py RAM branch calls the released embedding loader and embeddings.get_embeddings with **head_norm**, sequence length 128, batch 256, both original query/reference internal splits and no sample cap. It retains all **10,000 query paths** and **9,721,236 known-reference paths**. The existing RAM I/O adapter calls released ensure_l2_normalized and topk_indices_streaming(k=1,q_batch=1024,e_chunk=100000). It does not substitute PCA, a new head, a smaller corpus or a different classifier.
+
+native_top1_seal_ram_v1 validates complete original row sidecars and extant IDs, then joins full raw record IDs, sample nodes and original genotype-column indices to the same frozen 10,000 focals. It preserves native top1 indices/scores. Its one-hot probabilities field transports native hard calls, it is not a calibrated posterior. The prediction seal, native top1 preservation file, RAM manifest, actual native wait and parent/root completion remain the required actual products. Large embedding files need not be written.
+
+External scoring already exists as arggnn.american_c3_evaluate_v1.execute, or its unchanged root-admitted CPU CLI. Use the actual sealed prediction_ref, the same original focal registry, original full-parent truth ref and method ARGformer_native_top1_current_release_reconstruction. Keep support focal_unique_path_first_occurrence_midpoint_RECONSTRUCTION and class order EUR/EAS/AFR. The original scorer verifies every prediction identity before truth, joins half-open ancestry intervals by original sample column, and returns confusion, accuracy, per-class precision/recall/F1 and macro-F1. A VAL000 score is one independent parent, not a five-parent mean or SD.
+
+The global original truth barrier remains binding. The target's shared contract requires all-method prediction seals before common truth scoring. GNN selection additionally requires all 30 original five-VAL×six-checkpoint prediction cells before any VAL truth resolver. A completed native 10,000-row seal alone does not permit early shared scoring. After that barrier, root needs a fresh ordinary CPU score config/runtime/admission with embedded actual storage and exact original CLI source closure. No new evaluator is needed.
+
+Actual blockers are the genuine transition evidence, unfinished MLM→fit→embeddings/prediction outputs, fresh supported phase authorities, actual runtime/capacity fit and the outstanding common prediction barrier. Data preparation, counts, native code, head_norm/top1 implementation, source approval and the original scorer already exist. Do not repeat preparation or engineering qualifications as substitutes for these stages. Report this as the current released-code American common-data reconstruction. Exact paper Table1/PCA/historical-k settings remain unrecovered.
+
+Source/metadata refs used:
+
+- research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/mlm_v1/admitted_mlm_v1/input.json — SHA256 52242fe04f8f944dccbc81bf12940ad311d0d80f300e3cdd099be5e1748bc5d2
+- research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/mlm_v1/admitted_mlm_v1/storage.json — SHA256 49d4097f8ceb367f1b8bd7a99649b0ae90db1045515953a0059b2e42bbf3eb81
+- research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/mlm_v1/caps_mlm.root_active_v1.json — SHA256 2f9763d36a58e45f6d0f06b78c2bead18041e2fc88aaff084845414ae99d1b7e
+- experiments/results/American_C3_val000_full30mb_shared_v1/native_paths/completed.json — SHA256 40a3b588d0aa2b474c3f4aab492e34feb0a753a0f8cb73c20d9c0059d8a8c16b
+- experiments/results/American_C3_native_val000_full30mb_counts980_namespace_v1/completed.json — SHA256 502c111b443c46eea789dc03ee3ff8b6454546ce6e86e3f9fcddba25e82489a7
+- research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/GPU0_execution_approval.root_active_v1.json — SHA256 fd23a09ca260eff8f9c72d8831d7a0398279ca7eb75e2fe79aa6793d9a430c60
+- research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/shared_native_runtime_entry_v1.py — SHA256 51d888173f720f6e37298002d16252d71d8f5f64b301351fbeb61095c5bd5286
+- research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/root_native_driver_v1.py — SHA256 7741c46b7a5be1189f0d597587d8f33e8fa0a00efcfd615c36320df6a6cbece6
+- research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/post_mlm_bridge_v1.py — SHA256 32275e0a6d7ea2363caffccf74afad1758d7cd287705c831ca6ce624c5ff6c41
+- research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/native_child_v1.py — SHA256 e658a3f7e5947244be398cac01f2763b938163f411923c5279e2d14936001156
+- research/reviews/C3_native_post_MLM_root_handoff_20261015_v1/ram_downstream_v1.py — SHA256 0d29297a8a1d9a4179c45c9b8cb9685eba022a934fbd4c95e79d0d473e4f2b37
+- src/arggnn/american_c3_evaluate_v1.py — SHA256 1ada0ab40fe9f198b89a1953bb7c0688e68f1dd44b34dc118600ac25eefc70d3
+- research/reviews/prospective_980GB_capacity_source_v1/shared_contract.inactive.json — SHA256 50af87a85ad1f231faa846d0a21ee2017e05594dee32bf29d73a9c79013b5f89
+- src/arggnn/american_c3_gnn_selection_v1.py — SHA256 a9b82eb58fe83eb0a7bee40bedabb834eaa4cb2051d5c16573e3c747ad59508a
+
+Only this guide was written. No scientific arrays, checkpoints, trees, predictions or truth were accessed. No numerical/project imports, native jobs, probes, guards, accounting, admissions, source edits or Git actions occurred. This guide is not an additional runtime consumer binding.

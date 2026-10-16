@@ -1,0 +1,11 @@
+# Independent C3 CPU transport observer source review
+
+PASS for the sealed source-only CLI. No runtime event is established by this review.
+
+The source is inert until explicit --execute. It uses the exact existing renewal before guard-bearing helper imports, original p/e/fj validation and observation functions, unchanged guard APIs and original exclusive c.save JSON writer. Both original writer/guard defining source and its C3 alias source are direct bindings. The separately admitted scope remains 8 MiB with no auxiliaries and a 1,800-second authority. The 120-second probe clock begins after the initial admission and guard operations. Empty CUDA visibility and a 2 GiB peak self RSS bound are checked through the original probe resource callback. Original guards bracket the probe and writing, including actual JSON length plus 8,192 bytes before writing.
+
+The complete 63-path union was reconstructed independently from source AST/literal path arithmetic, the actual root request, sealed migration metadata and the frozen 18-role guard binding map. All 63 source/JSON hashes match. The author role-shape supplement matches exactly after replacing explicitly tagged future roles with actual existing root metadata. This is not a live guard observation or reservation. Runtime still reads current guard bindings and authenticates the full union against 64 before reserve. No source roles were dropped to fit the ceiling, and no nonexistent probe result or terminal is invented.
+
+The original controller session 23022 remains UNKNOWN with null exit and no outer-wait-0 claim. The sole new output product is observation.json. Admission, guard, probe, write and total timings are recorded separately. No old controller allocation or files fund new writes. The original observer checks only the exact known identities and original lease metadata. It performs no GPU query, signals or numerical computation.
+
+Root owns actual admission, execution, the genuine new tool terminal, and observation consumption. No model, kernel, optimizer, checkpoint, scientific-array or truth work is added. The reviewer imported or executed no project module and performed no runtime, process, GPU, guard, accounting or Git actions.

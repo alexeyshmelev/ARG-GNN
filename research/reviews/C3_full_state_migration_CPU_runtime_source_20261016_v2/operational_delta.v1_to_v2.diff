@@ -1,0 +1,125 @@
+--- research/reviews/C3_full_state_migration_CPU_runtime_source_20261016_v1/ordinary_migration_cpu_v1.py
++++ research/reviews/C3_full_state_migration_CPU_runtime_source_20261016_v2/ordinary_migration_cpu_v1.py
+@@ -5,11 +5,11 @@
+ import argparse,ast,hashlib,importlib.util,json,os,sys,types
+ 
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-HERE="research/reviews/C3_full_state_migration_CPU_runtime_source_20261016_v1"
++HERE="research/reviews/C3_full_state_migration_CPU_runtime_source_20261016_v2"
+ SOURCE=HERE+"/ordinary_migration_cpu_v1.py"
+-STATIC_CONTRACT_REF={'path': 'research/reviews/C3_full_state_migration_CPU_runtime_source_20261016_v1/contract.source_only.v1.json', 'sha256': 'eea17a1a38fa57d5627894a547ecfb1d1202fa570d7036809e193cd5b921d6e8'}
++STATIC_CONTRACT_REF={'path': 'research/reviews/C3_full_state_migration_CPU_runtime_source_20261016_v2/contract.source_only.v1.json', 'sha256': '5499c4cbb0cc80bb3cc59f3c0f04bc320d2604b8ba9947cd7d06c5b1b62a0055'}
+ ORDINARY_REF={'path': 'research/reviews/H050_one_FP32_CPU_forward_qualification_source_20261016_v1/ordinary_root_cpu_v1.py', 'sha256': 'bd1ffa9b3a93a219958a62a3ffa1ef04e2aeacf1f997587b3268bdf7f5c74ae8'}
+-METADATA_REF={'path': 'research/reviews/C3_full_state_migration_CPU_runtime_source_20261016_v1/request_metadata_v1.py', 'sha256': 'd715e5d0c4cd129161d745f0e9681d21f53ac773938eb0a271a93819fb656a54'}
++METADATA_REF={'path': 'research/reviews/C3_full_state_migration_CPU_runtime_source_20261016_v2/request_metadata_v1.py', 'sha256': '73428bd37f722539b0b93a6ddea915c9382e2506879f7c6a48d3aa729a105afc'}
+ _REQUEST_REF=None
+ _BASE=None
+ _METADATA=None
+@@ -57,7 +57,7 @@
+     for old,new in substitutions:
+         need(execute.count(old)==1,"One narrow ordinary-runtime adaptation: "+old[:90])
+         execute=execute.replace(old,new,1)
+-    return worker.replace("H050_one","C3_migration"),execute.replace("H050_one","C3_migration")
++    return worker.replace("H050_one","C3_migration"),execute.replace("H050_one","C3_migration").replace("Unextended300s lifetime","Unextended1800s lifetime")
+ 
+ def setup(request_ref):
+     global _REQUEST_REF,_BASE,_METADATA
+@@ -71,6 +71,7 @@
+     _BASE.ADMIN=ROOT/HERE/"actual_admission_v1"
+     _BASE.CAP=8*2**20
+     _BASE.RESULT_CAP=65536
++    _BASE.WALL=1800
+     _BASE.contract=contract
+     text=(ROOT/ORDINARY_REF["path"]).read_text()
+     worker,execute=_generated_functions_v1(text)
+--- research/reviews/C3_full_state_migration_CPU_runtime_source_20261016_v1/request_metadata_v1.py
++++ research/reviews/C3_full_state_migration_CPU_runtime_source_20261016_v2/request_metadata_v1.py
+@@ -2,7 +2,7 @@
+ from pathlib import Path
+ import hashlib,json,stat
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-HERE="research/reviews/C3_full_state_migration_CPU_runtime_source_20261016_v1"
++HERE="research/reviews/C3_full_state_migration_CPU_runtime_source_20261016_v2"
+ SOURCE=HERE+"/request_metadata_v1.py"
+ SCOPE_CAP=8*2**20
+ FIXED_NONCHECKPOINT_ALLOWANCE=2**20
+--- research/reviews/C3_full_state_migration_CPU_runtime_source_20261016_v1/migration_callback_v1.py
++++ research/reviews/C3_full_state_migration_CPU_runtime_source_20261016_v2/migration_callback_v1.py
+@@ -2,7 +2,7 @@
+ from pathlib import Path
+ import hashlib,importlib.util,io,json,os,stat,sys,types
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-SOURCE="research/reviews/C3_full_state_migration_CPU_runtime_source_20261016_v1/migration_callback_v1.py"
++SOURCE="research/reviews/C3_full_state_migration_CPU_runtime_source_20261016_v2/migration_callback_v1.py"
+ VALIDATOR_REF={"path":"research/reviews/C3_efficient_resume_migration_source_20261016_v1/checkpoint_migration_validator_v1.py",
+  "sha256":"31414598d0f69533864cf600a9a6f0c24ef5f0d81f9ca131fb5f9612f761fafd"}
+ _RAN=False
+--- research/reviews/C3_full_state_migration_CPU_runtime_source_20261016_v1/contract.source_only.v1.json
++++ research/reviews/C3_full_state_migration_CPU_runtime_source_20261016_v2/contract.source_only.v1.json
+@@ -1,6 +1,6 @@
+ {
+   "admission_metadata_accounting": "Unchanged ordinary prospective980 per-event metadata allowance, bounded128KiB. The count-derived fixed1MiB planning allowance conservatively includes these bytes as well as output/aux control and temporary products.",
+-  "auxiliary_directory": "experiments/results/C3_full_state_migration_CPU_root_v1_aux",
++  "auxiliary_directory": "experiments/results/C3_full_state_migration_CPU_root_v2_aux",
+   "combined_log_retention_cap_bytes": 16384,
+   "complete_execution_scope_cap_bytes": 8388608,
+   "execution_authorized": false,
+@@ -26,11 +26,11 @@
+       "sha256": "f6f2d628199e8be73db8b5d90d428570d8afdefeab9dc5cd94bb5eafb39247db"
+     }
+   },
+-  "job_id": "C3-full-state-migration-CPU-v1",
++  "job_id": "C3-full-state-migration-CPU-v2",
+   "max_aggregate_CPU_RSS_soft_bytes": 2147483648,
+   "metadata_ref": {
+-    "path": "research/reviews/C3_full_state_migration_CPU_runtime_source_20261016_v1/request_metadata_v1.py",
+-    "sha256": "d715e5d0c4cd129161d745f0e9681d21f53ac773938eb0a271a93819fb656a54"
++    "path": "research/reviews/C3_full_state_migration_CPU_runtime_source_20261016_v2/request_metadata_v1.py",
++    "sha256": "73428bd37f722539b0b93a6ddea915c9382e2506879f7c6a48d3aa729a105afc"
+   },
+   "monitor_helper_ref": {
+     "path": "research/reviews/FLARE_existing_JDK_source_v1/root_build_driver.py",
+@@ -116,9 +116,9 @@
+       "sha256": "c11a5543746899c8a387508e9877ce6ae2bf80fe4d3076c1dbe1cb8f7a43b859"
+     }
+   },
+-  "output_directory": "experiments/results/C3_full_state_migration_CPU_root_v1",
++  "output_directory": "experiments/results/C3_full_state_migration_CPU_root_v2",
+   "read_cap_is_not_output_reservation": true,
+-  "reservation_key": "C3/full-state-migration-CPU-v1",
++  "reservation_key": "C3/full-state-migration-CPU-v2",
+   "result_JSON_cap_bytes": 65536,
+   "root_admission_metadata_cap_bytes": 131072,
+   "schema": "C3_full_state_migration_CPU_static_source_contract_v1",
+@@ -156,12 +156,12 @@
+       "sha256": "41367588489a2b2451156f881b2b824824955493b8172f85817d9a0b79387cb6"
+     },
+     {
+-      "path": "research/reviews/C3_full_state_migration_CPU_runtime_source_20261016_v1/migration_callback_v1.py",
+-      "sha256": "8961970beccfaf2a0023dd7a3d6c6dcbac7836f7a14eef20b3519a2a36c92ce1"
+-    },
+-    {
+-      "path": "research/reviews/C3_full_state_migration_CPU_runtime_source_20261016_v1/request_metadata_v1.py",
+-      "sha256": "d715e5d0c4cd129161d745f0e9681d21f53ac773938eb0a271a93819fb656a54"
++      "path": "research/reviews/C3_full_state_migration_CPU_runtime_source_20261016_v2/migration_callback_v1.py",
++      "sha256": "c78e01c5bbd9a2e60a8a075f1764a69b2296f2163c7230bb8df163a4b5e797be"
++    },
++    {
++      "path": "research/reviews/C3_full_state_migration_CPU_runtime_source_20261016_v2/request_metadata_v1.py",
++      "sha256": "73428bd37f722539b0b93a6ddea915c9382e2506879f7c6a48d3aa729a105afc"
+     },
+     {
+       "path": "research/reviews/C3_shared_context_training_source_20261016_v1/shared_context_step_v1.py",
+@@ -301,9 +301,9 @@
+     }
+   ],
+   "temporary_cache_subcap_bytes": 262144,
+-  "wall_seconds": 300,
++  "wall_seconds": 1800,
+   "wrapper_ref": {
+-    "path": "research/reviews/C3_full_state_migration_CPU_runtime_source_20261016_v1/migration_callback_v1.py",
+-    "sha256": "8961970beccfaf2a0023dd7a3d6c6dcbac7836f7a14eef20b3519a2a36c92ce1"
++    "path": "research/reviews/C3_full_state_migration_CPU_runtime_source_20261016_v2/migration_callback_v1.py",
++    "sha256": "c78e01c5bbd9a2e60a8a075f1764a69b2296f2163c7230bb8df163a4b5e797be"
+   }
+ }

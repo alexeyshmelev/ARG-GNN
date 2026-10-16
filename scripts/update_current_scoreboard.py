@@ -51,6 +51,133 @@ def maybe_read(p):
     path=ROOT/p
     try:return json.loads(path.read_text()) if path.is_file() else None
     except (FileNotFoundError,json.JSONDecodeError):return None
+H050_ARMS=("triple_support_pair_memory","adjacent_marginal_null","stable_leaf_memory","h045_continued_training")
+H050_RUNTIME_STATUS="research/reviews/GPU0_shared_root_integration_20261016_v1/runtime_status.root_latest.json"
+
+def h050_completed_evaluation():
+    """Read scored JSON only after the exact consumed CPU outer-terminal proof."""
+    snapshot=maybe_read(H050_RUNTIME_STATUS) or {}
+    entry=snapshot.get("jobs",{}).get("H050",{})
+    evaluation=entry.get("CPU_evaluation",{})
+    pending=dict(ready=False,status="H050 ancestry metrics pending actual CPU completion and consumed outer tool exit 0.",
+        actual_TRAIN_tool_exit_code=1,actual_CPU_tool_terminal_ref=evaluation.get("actual_tool_terminal_ref"))
+    terminal_ref=evaluation.get("actual_tool_terminal_ref")
+    if not terminal_ref:return pending
+    def checked(record):
+        if not isinstance(record,dict) or set(record)!={"path","sha256"}:
+            raise ValueError("Exact H050 JSON path/SHA reference required")
+        name=record["path"]
+        if not isinstance(name,str) or Path(name).is_absolute() or ".." in Path(name).parts or Path(name).suffix!=".json":
+            raise ValueError("Only contained H050 source-bound JSON metadata")
+        path=ROOT/name
+        if path.resolve()!=path or path.is_symlink() or not path.is_file() or path.stat().st_size>105*2**20:
+            raise ValueError("Canonical bounded H050 JSON metadata required")
+        raw=path.read_bytes()
+        if hashlib.sha256(raw).hexdigest()!=record["sha256"]:
+            raise ValueError("H050 JSON evidence SHA mismatch")
+        return json.loads(raw)
+    def require(ok,message):
+        if not ok:raise ValueError(message)
+    try:
+        terminal=checked(terminal_ref)
+        require(terminal.get("actual_terminal_consumed") is True and terminal.get("actual_exit_code")==0,
+            "H050 CPU outer terminal0 not consumed")
+        inp_ref=evaluation["input_ref"]
+        inp=checked(inp_ref)
+        require(inp.get("hypothesis_id")=="H050" and inp.get("phase")=="evaluate"
+            and inp.get("device")=="cpu" and inp.get("seed")==101
+            and inp.get("optimization_authorized") is False
+            and inp.get("TRAIN_actual_tool_exit_code")==1 and inp.get("TRAIN_actual_leader_exit_code")==1
+            and entry.get("actual_tool_exit_code")==1,
+            "Distinct saved-fit CPU evaluation and original TRAIN CLI1 required")
+        completed_ref=terminal.get("completed_ref")
+        require(isinstance(completed_ref,dict) and terminal.get("result_ref")==completed_ref
+            and completed_ref.get("path")==str(Path(inp["output_directory"])/"completed.json"),
+            "H050 CPU terminal completed/result refs must bind the actual evaluator output")
+        # No scored completion is read until both real outer-terminal flags and
+        # its exact completed/result bindings have passed above.
+        completed=checked(completed_ref)
+        require(completed.get("schema")=="H050_four_arm_VAL_completion_v1"
+            and completed.get("hypothesis_id")=="H050"
+            and completed.get("status")=="completed_original8VAL_four_arm_development_selection"
+            and completed.get("input_ref")==inp_ref
+            and completed.get("train_completion_ref")==inp["train_completion_ref"]
+            and completed.get("all192_RAM_seals_before_any_VAL_truth") is True
+            and completed.get("optimization_performed") is False and completed.get("outer_truth_read") is False,
+            "Actual unchanged full192-product H050 evaluation required")
+        worker_ref=dict(path=inp["output_directory"]+"/root_CPU_runtime_receipt.json")
+        worker_ref=ref(worker_ref["path"])
+        worker=checked(worker_ref)
+        require(worker.get("schema")=="H050_CPU_EVAL_worker_receipt_v1"
+            and worker.get("input_ref")==inp_ref
+            and worker.get("original_scientific_completion_ref")==completed_ref
+            and worker.get("device")=="cpu" and worker.get("physical_gpu") is None
+            and worker.get("dtype")=="float32" and worker.get("optimizer_updates")==0
+            and worker.get("original_science_unmodified") is True
+            and worker.get("all192_original_seals_before_truth") is True
+            and worker.get("CUDA_initialized") is False,
+            "H050 original CPU worker completion receipt required")
+        outer_ref=ref(inp["worker_auxiliary_scope"]+"/outer_wait.json")
+        outer=checked(outer_ref)
+        minimal_ref=outer["actual_wait_ref"]
+        minimal=checked(minimal_ref)
+        require(outer.get("schema")=="H050_CPU_actual_outer_monitor_wait_v1"
+            and outer.get("input_ref")==inp_ref and outer.get("returncode")==0
+            and outer.get("error") is None and outer.get("observed_owned_groups_ESRCH") is True
+            and minimal.get("schema")=="H050_CPU_actual_direct_wait_minimal_v1"
+            and minimal.get("actual_direct_wait") is True and minimal.get("returncode")==0
+            and minimal.get("input_ref")==inp_ref,
+            "H050 actual CPU direct wait0 and owned drain required")
+        protocol=completed["scientific_protocol"]
+        arms=set(H050_ARMS)
+        parents={"ap_expanded_val_%03d"%i for i in range(8)}
+        require(protocol.get("schema")=="H050_direct_readout_cut_memory_protocol_v1"
+            and set(protocol.get("arms",[]))==arms and protocol.get("seed")==101
+            and protocol.get("dtype")=="float32" and protocol.get("passes")==30
+            and protocol.get("updates_per_pass")==32 and protocol.get("updates_per_arm")==960
+            and protocol.get("updates_all_arms")==3840
+            and len(protocol.get("TRAIN_parent_ids",[]))==len(set(protocol.get("TRAIN_parent_ids",[])))==32
+            and set(protocol.get("VAL_parent_ids",[]))==parents
+            and protocol.get("VAL_prediction_products_required_before_truth")==192
+            and protocol.get("same_VAL_is_development_evidence") is True,
+            "Original32TRAIN/eight reused VAL, seed101 H050 protocol required")
+        train=checked(completed["train_completion_ref"])
+        require(train.get("schema")=="H050_four_arm_train_completion_v1"
+            and train.get("status")=="completed_fixed30pass_four_arm_TRAIN"
+            and set(train.get("arms",[]))==arms and train.get("steps")=={a:960 for a in H050_ARMS}
+            and train.get("scientific_protocol")==protocol,
+            "H050 saved scientific3840updates distinct from failed TRAIN CLI required")
+        require(set(completed["selected"])==set(completed["selected_full_diagnostics"])==set(completed["metric_receipts"])==arms,
+            "All four selected H050 arms required")
+        for arm in H050_ARMS:
+            chosen=completed["selected"][arm]
+            at=chosen["pass_index"]
+            diagnostics=completed["selected_full_diagnostics"][arm]
+            metric_receipt=completed["metric_receipts"][arm]
+            require(type(at) is int and at in protocol["checkpoint_passes"]
+                and chosen["checkpoint"]==train["checkpoint_groups"][str(at)][arm]
+                and diagnostics.get("selection_revised") is False
+                and len(diagnostics["cells"])==8
+                and {r["parent_id"] for r in diagnostics["cells"]}==parents
+                and all(set(r["groups"])==set(COHORTS) for r in diagnostics["cells"])
+                and metric_receipt.get("VAL_parents")==8
+                and metric_receipt.get("all_VAL_seals_before_truth") is True
+                and metric_receipt.get("full_selected_diagnostic_calls")==1,
+                "Complete selected seven-cohort H050 diagnostic metadata required")
+        criteria=completed["registered_practical_criteria"]
+        require(set(criteria["comparisons"])==arms-{H050_ARMS[0]}
+            and criteria.get("one_seed_reused8VAL") is True,
+            "Original paired H050 utility outcome required")
+        return dict(ready=True,status="H050 four-arm CPU evaluation completed with genuine outer tool exit 0.",
+            completion=completed,source_ref=completed_ref,actual_TRAIN_tool_exit_code=1,
+            actual_CPU_tool_terminal_ref=terminal_ref,CPU_worker_receipt_ref=worker_ref,
+            CPU_outer_wait_ref=outer_ref,CPU_direct_wait_ref=minimal_ref,
+            TRAIN_completion_ref=completed["train_completion_ref"],
+            failed_TRAIN_CLI_outcome_ref=entry.get("failed_CLI_outcome_ref"))
+    except (OSError,ValueError,KeyError,TypeError) as error:
+        pending["status"]="H050 ancestry metrics pending complete matching CPU evidence: "+str(error)
+        return pending
+
 def known_process(pid):
     """Read only the previously recorded project PID, never a host process inventory."""
     try:
@@ -249,6 +376,51 @@ def main():
             training_budget_lineage={k:original[k] for k in (
                 "training_budget","completed_extra_updates","cumulative_model_lineage_updates",
                 "selected_model_lineage_updates","selected_pass")})
+    h050_evaluation=h050_completed_evaluation()
+    h050_scores="pending"
+    h050_outcome=h050_evaluation["status"]
+    h050_utility_lines=["","## H050 matched direct-readout outcome","",h050_outcome,""]
+    if h050_evaluation["ready"]:
+        h050_completed=h050_evaluation["completion"]
+        h050_source=h050_evaluation["source_ref"]["path"]
+        h050_criteria=h050_completed["registered_practical_criteria"]
+        for arm in H050_ARMS:
+            diagnostics=h050_completed["selected_full_diagnostics"][arm]
+            at=h050_completed["selected"][arm]["pass_index"]
+            add("H050 "+arm,h050_source,normalization.normalize_scored_cells(diagnostics["cells"]),
+                "H045 own-state warmstart +30 passes /960 new updates, seed101, FP32 AdamW",
+                "Eight reused development VAL simulations. Original TRAIN CLI exit1 preserved. "
+                "Saved 3,840 scientific updates across four arms, separate CPU evaluation outer exit 0. No independent test or priority claim.")
+            models[-1].update(raw_score_ref=h050_evaluation["source_ref"],
+                actual_CPU_tool_terminal_ref=h050_evaluation["actual_CPU_tool_terminal_ref"],
+                training_budget_lineage=dict(training_budget="2880 prior model-lineage updates +960 new per arm",
+                    warmstart_model_lineage_updates=2880,completed_extra_updates=960,
+                    cumulative_model_lineage_updates=3840,selected_pass=at,
+                    selected_model_lineage_updates=2880+at*32,optimizer="AdamW",
+                    optimizer_state_reset=True,learning_rate=.001,weight_decay=.0001,
+                    seed=101,dtype="float32",TRAIN_CLI_exit_code=1,
+                    parameters=h050_completed["parameters_per_arm"][arm]))
+        h050_rows={r["name"][5:]:r for r in models if r["name"].startswith("H050 ")}
+        h050_scores=", ".join(arm+" "+fmt(h050_rows[arm]["cohorts"][PRIMARY]["accuracy"],True)+"%"
+            for arm in H050_ARMS)
+        h050_outcome=("All four arms completed 30 passes and 960 new FP32 updates per arm, 3,840 new updates total. "
+            "CPU evaluation completed all 192 prediction seals before any VAL truth, with genuine outer tool exit 0. "
+            "Original TRAIN CLI exit 1 remains recorded. Primary utility "
+            +("passed" if h050_criteria["meets_primary"] else "failed")
+            +", secondary boundary utility "+("passed" if h050_criteria["meets_secondary_boundary"] else "failed")
+            +". Eight reused development VAL simulations, seed101, no independent test.")
+        h050_utility_lines=["","## H050 matched direct-readout outcome","",h050_outcome,"",
+            "| Triple-support pair memory minus control | Accuracy delta pp ± paired SD | Boundary F1 delta pp ± paired SD | Primary utility | Secondary utility |",
+            "|---|---:|---:|---|---|"]
+        for arm in H050_ARMS[1:]:
+            effect=h050_criteria["comparisons"][arm]
+            h050_utility_lines.append("| "+arm+" | "
+                +f"{effect['mean_accuracy_delta']*100:+.6f} ± {effect['paired_accuracy_sample_SD_pp']:.6f}"
+                +" | "+f"{effect['mean_boundary_F1_delta']*100:+.6f} ± {effect['paired_boundary_F1_sample_SD_pp']:.6f}"
+                +" | "+("pass" if effect["primary"] else "fail")
+                +" | "+("pass" if effect["secondary"] else "fail")+" |")
+        h050_utility_lines+=["","Primary utility requires at least +0.10 accuracy percentage points with no mean boundary F1 loss against every control. Secondary utility requires at least +1.00 boundary F1 percentage point with no more than 0.05 accuracy point loss against every control. Paired SD is across eight simulations, not training seeds. Three memory arms have 32,325 parameters, the continuation 31,812. All inherit 2,880 model-lineage updates, complete 3,840 cumulative updates and select 2,880 + 32 times the selected pass. Optimizer moments reset for the 960 new updates.",
+            "","[Actual four-arm scored completion](../"+h050_source+") · [Consumed CPU outer terminal0](../"+h050_evaluation["actual_CPU_tool_terminal_ref"]["path"]+")",""]
     models.sort(key=lambda r:r["cohorts"][PRIMARY]["accuracy"]["mean"],reverse=True)
     jobs=[]
     for hid,gpu,output,packet in [
@@ -761,6 +933,16 @@ def main():
                     c3_status=entry["summary"]
                     c3_execution.update(status=c3_status,GPU0_runtime_snapshot_ref=ref(gpu0_snapshot_path),running=entry.get("state")=="running")
                     c3_device="GPU0"
+    h050_saved_entry=gpu0_snapshot.get("jobs",{}).get("H050",{}) if gpu0_snapshot else {}
+    h050_saved_steps=h050_saved_entry.get("optimizer_steps_verified",{})
+    h050_scientific_updates=(3840 if h050_evaluation["ready"] or
+        (h050_saved_entry.get("full_budget_scientific_completion_saved") is True
+         and h050_saved_steps=={a:960 for a in H050_ARMS}) else None)
+    if h050_evaluation["ready"]:
+        h050_execution_status=h050_outcome
+        h050_device="CPU evaluation complete"
+    else:
+        h050_execution_status+=" "+h050_outcome
     tgb_results_path="experiments/results/H052_TGB_trade_causal_native_baselines_v1/results.json"
     tgb_terminal_path="research/reviews/TGB_trade_causal_baselines_root_20261016_v1/actual_tool_terminal.root_v1.json"
     tgb_results=maybe_read(tgb_results_path);tgb_terminal=maybe_read(tgb_terminal_path)
@@ -848,7 +1030,22 @@ def main():
         GPU4_shared_execution=shared_snapshot,
         current_GPU_execution_policy=current_gpu_policy,
         TGB_trade_causal_diagnostic=dict(status=tgb_status,complete=tgb_ready,results=tgb_results if tgb_ready else None,result_ref=ref(tgb_results_path) if tgb_ready else None,terminal_ref=ref(tgb_terminal_path) if tgb_ready else None,our_GNN_score=tgb_learned_results if tgb_learned_results else None),
-        H050_registered_candidate=dict(status=h050["status"],execution_status=h050_execution_status,canonical_metadata_binding_ref=ref(h050_binding_path) if h050_bound else None,training_budget="4arms x30passes x32parents =3840updates",actual_optimizer_updates=None,verified_optimizer_update_lower_bounds=(gpu0_snapshot.get("jobs",{}).get("H050",{}).get("optimizer_steps_verified") if gpu0_snapshot else (shared_snapshot.get("jobs",{}).get("H050-direct-readout-shared-TRAIN-v2",{}).get("updates_per_arm") if shared_snapshot else None)),accuracy=None,parameters_per_arm=h050["parameters_per_arm"],VAL_products_required_before_truth=192,source_handoff_ref=h050["source_handoff_ref"],utility_criteria=h050["prospective_utility_criteria"]) if h050 else None,
+        H050_registered_candidate=dict(status=h050["status"],execution_status=h050_execution_status,canonical_metadata_binding_ref=ref(h050_binding_path) if h050_bound else None,
+            training_budget="4 arms x30 passes x32 parents =3840 new updates,960 per arm",
+            actual_optimizer_updates=h050_scientific_updates,
+            verified_optimizer_update_lower_bounds=(gpu0_snapshot.get("jobs",{}).get("H050",{}).get("optimizer_steps_verified") if gpu0_snapshot else (shared_snapshot.get("jobs",{}).get("H050-direct-readout-shared-TRAIN-v2",{}).get("updates_per_arm") if shared_snapshot else None)),
+            accuracy={a:h050_rows[a]["cohorts"][PRIMARY]["accuracy"] for a in H050_ARMS} if h050_evaluation["ready"] else None,
+            evaluation_completed=h050_evaluation["ready"],completed_evaluation_ref=h050_evaluation.get("source_ref"),
+            actual_CPU_tool_terminal_ref=h050_evaluation.get("actual_CPU_tool_terminal_ref"),
+            CPU_worker_receipt_ref=h050_evaluation.get("CPU_worker_receipt_ref"),
+            CPU_outer_wait_ref=h050_evaluation.get("CPU_outer_wait_ref"),
+            CPU_direct_wait_ref=h050_evaluation.get("CPU_direct_wait_ref"),
+            actual_TRAIN_tool_exit_code=1,TRAIN_CLI_success_or_completed_scope_credit_claimed=False,
+            CPU_evaluation_optimizer_updates=0 if h050_evaluation["ready"] else None,paired_utility_decision=h050_criteria if h050_evaluation["ready"] else None,
+            selected_training_lineage={a:h050_rows[a]["training_budget_lineage"] for a in H050_ARMS} if h050_evaluation["ready"] else None,
+            parameters_per_arm=h050["parameters_per_arm"],VAL_products_required_before_truth=192,
+            validation_scope="32 TRAIN/eight reused European development VAL simulations, seed101,952 haplotypes/686 queries",
+            source_handoff_ref=h050["source_handoff_ref"],utility_criteria=h050["prospective_utility_criteria"]) if h050 else None,
         H049_registered_candidate=dict(status=h049["status"],parameters_per_arm=32446,
             arms=h049["execution_budget"]["arms"],training_budget="30passes/960updates per arm",
             actual_optimizer_updates=None,actual_optimizer_updates_status="no_training_launch_or_verified_step_receipt",accuracy=None,preparation_status=h049_prepare_status,preparation_completion_wait0_verified=h049_prepare_verified,registered_criteria=h049["prospective_utility_criteria"]) if h049 else None,
@@ -918,6 +1115,7 @@ def main():
             lines.append("| "+r["name"]+" / "+label+" | "+" | ".join(fmt(q.get(k),pct) for k,pct in [
                 ("balanced_accuracy",True),("boundary_precision",True),("boundary_recall",True),
                 ("dosage_mse_per_diploid_bp_class",False),("dosage_mae_per_diploid_bp_class",False)])+" |")
+    lines+=h050_utility_lines
     lines+=tgb_lines
     lines += ["", "## Danish registered genotype corroboration", "", h055_status, ""]
     if h055_summary:
@@ -964,6 +1162,14 @@ def main():
     (RESEARCH/"current_scoreboard.md").write_text("\n".join(lines).replace("]("+pilot_source,"](../"+pilot_source)+"\n")
     ledger=read("research/experiment_ledger.json")
     inventory=[r for r in ledger["result_inventory"] if r.get("metrics")]
+    if h050_evaluation["ready"]:
+        for arm in H050_ARMS:
+            study="H050/"+arm
+            artifact=h050_evaluation["source_ref"]["path"]
+            if not any(r.get("study")==study and r.get("artifact")==artifact for r in inventory):
+                inventory.append(dict(study=study,kind="selected_seven_cohort_development_metrics",
+                    status="completed_CPU_evaluation_TRAIN_CLI_exit1_preserved",artifact=artifact,
+                    metrics=h050_rows[arm]["cohorts"]))
     if tgb_ready and not any(r.get("artifact")==tgb_results_path for r in inventory):
         for name,arm in tgb_results["results"].items():
             inventory.append(dict(study="H052/"+name,kind="native_cross_domain_predictive_metrics",status="completed_causal_diagnostic",artifact=tgb_results_path,metrics=arm["splits"]))
@@ -1003,10 +1209,10 @@ def main():
         "| Native FLARE | CPU | Author build, TRAIN000 full-site inference and prediction seal completed. Held-out VAL000 conversion: "+flare_val_conversion["status"]+"; native inference: "+flare_val_native["status"]+"; seal: "+flare_val_seal["status"]+". | held-out score pending |",
         "| Our American C3 GNN | "+c3_device+" | "+str(focal_ready)+"/20 exact TRAIN plans completed. "+c3_status.rstrip(".")+". Original VAL000 full-length GNN block plan: "+gnn_VAL000_plan["status"]+". | no ancestry score |",
         "| H049 cut-memory candidate | CPU preparation | "+h049_prepare_status+". Three matched 32,446-parameter arms. Full 30 passes / 960 updates per arm planned. | no fit or accuracy yet |",
-        "| H050 stronger direct-readout candidate | "+h050_device+" | "+h050_execution_status.rstrip(".")+". H045 predictor retained initially. Three 32,325-parameter memory arms and an unmodified 31,812-parameter continuation. 960 updates per arm, 192 prediction seals planned. Original45run interrupted byGPU0-only instruction, no validation accuracy. | ancestry score pending |",
+        "| H050 stronger direct-readout candidate | "+h050_device+" | "+h050_execution_status.rstrip(".")+". H045 own-state predictor retained initially, three 32,325-parameter memory arms and a 31,812-parameter continuation. "+("192 prediction seals verified, original GPU0 TRAIN CLI exit 1 preserved." if h050_evaluation["ready"] else "192 prediction seals required before scoring, ancestry metrics pending.")+" | "+h050_scores+" |",
         "| Empirical data | CPU | H045 probabilities, ancestry proportions and genotype PCA completed for 24 query haplotypes / 12 subjects. Descriptive only, without known ancestry truth. | completed |","",
         "**Completed H048:** "+h048_scores+". Both registered utility criteria failed. [Actual scores, all cohorts and provenance](research/reviews/H048_completed_comparison_root_20261015_v1/REPORT.md)." if h048_ready else "**H048 evaluation:** pending.","",
-        "**Current measured development scores:** H045 foreign-episode **96.8270 ± 0.5870%** Present182 span accuracy, matched own-state **96.8175 ± 0.6142%**. H046: "+h046_scores+". "+h046_outcome+" H047 original-risk **96.7777 ± 0.5970%**, balanced-risk **96.7576 ± 0.5287%**. SD is across eight VAL simulations, one optimizer seed. H048: "+h048_scores+". [All "+str(len(models))+" measured setups, all seven cohorts, NLL/F1/boundaries/Brier/ECE and training budgets](research/current_scoreboard.md#detailed-cohort-metrics).","",
+        "**Current measured development scores:** H045 foreign-episode **96.8270 ± 0.5870%** Present182 span accuracy, matched own-state **96.8175 ± 0.6142%**. H046: "+h046_scores+". "+h046_outcome+" H047 original-risk **96.7777 ± 0.5970%**, balanced-risk **96.7576 ± 0.5287%**. SD is across eight VAL simulations, one optimizer seed. H048: "+h048_scores+". H050: "+h050_scores+". [All "+str(len(models))+" measured setups, all seven cohorts, NLL/F1/boundaries/Brier/ECE and training budgets](research/current_scoreboard.md#detailed-cohort-metrics).","",
         "[Fresh independent H048 novelty/cross-domain assessment]("+novelty_path+"). "+novelty_status,"",
         "**ARGformer paper fidelity:** "+table1_fidelity+" [Audit]("+table1_audit_path+").","",
         "**Biological comparison scope:** Our current AncestralPaths comparator is the released Dense workflow with derived four-source probability collapse. Native six-path ancestry and BAA-excluded four-path retraining are distinct endpoints. [Exact labels, cohorts and protocol differences](docs/biological_comparison_scope.md).", "",
@@ -1059,6 +1265,7 @@ def main():
             "**Native ARGformer, "+native_device+":** "+native_status,"",
             "**Native FLARE:** "+flare_status+" Held-out VAL000 conversion: "+flare_val_conversion["status"]+".","",
             "**Original remaining American VAL:** "+remaining_val_status+".","",
+            "**H050 saved-fit CPU evaluation:** "+h050_execution_status+" Present182: "+h050_scores+". [All four arms, seven cohorts and paired utility](research/current_scoreboard.md#h050-matched-direct-readout-outcome).","",
             "**Completed H046:** "+h046_outcome+" [Results](research/reviews/H046_completed_comparison_root_20261015_v1/REPORT.md).","",
             "**Completed H047:** original-risk96.7777±0.5970%, balanced-risk96.7576±0.5287%. Both30passes/960updates. Registered accuracy benefit not met. [Results](research/reviews/H047_completed_comparison_root_20261015_v1/REPORT.md).","",
             "**American GNN preparation:** "+fanout_status+". "+wave_text+" "+c3_status+".","",

@@ -1,6 +1,6 @@
 # Current scientific scoreboard
 
-Updated UTC: 2026-10-16T07:04:06.733899+00:00
+Updated UTC: 2026-10-16T08:02:58.511535+00:00
 
 [All measured cohort details](#detailed-cohort-metrics) · [Complete historical receipt inventory](all_recorded_metric_receipts.md) · [Fresh H048 novelty/cross-domain audit](../research/reviews/H048_novelty_crossdomain_fresh_20261015_v1/report.md)
 
@@ -356,6 +356,11 @@ BronzeAge is not asserted identical to the paper's Post-Neolithic cohort. A dash
 | Native AncestralPaths derived C4 / Ancient504 | 95.5283 ± 0.8861 | 1.5510 ± 0.1423 | 35.0191 ± 3.6585 | 0.027955 ± 0.002749 | 0.054775 ± 0.003113 |
 | Native AncestralPaths derived C4 / All686 | 94.9495 ± 0.7906 | 2.4754 ± 0.1926 | 33.3643 ± 2.1785 | 0.033742 ± 0.003703 | 0.062954 ± 0.004715 |
 
+## H050 matched direct-readout outcome
+
+H050 ancestry metrics pending actual CPU completion and consumed outer tool exit 0.
+
+
 ## TGB annual trade causal diagnostic
 
 255country catalogue,468245edges,1986–2016. Strictly prior-year observations, all255source forecasts sealed before target joining. Fixed author persistence/EMA classes. No model fitting or hyperparameter selection.
@@ -431,10 +436,10 @@ H048 retains 31,933 parameters per arm and a fixed 30-pass/960-update schedule. 
 
 | Method | Current ancestry scores | Status |
 |---|---|---|
-| Native ARGformer | unavailable | Fresh native VAL000 MLM admitted but not started. Held for the next controller so evaluation can run alongside the long fit. Original input, 7 GiB charge and expiry preserved. Five epochs and 227,990 updates planned. No ancestry score. |
+| Native ARGformer | unavailable | Native VAL000 launch failed before method import because the worker argv contained a stale module name. Genuine logical wait2 and controller shutdown0 consumed, owned worker drained. No new native optimizer updates. Correcting operational routing while retaining original scientific input,7GiB charge and expiry. Five epochs/227,990 updates remain planned, no ancestry score. |
 | Native ARGformer dataset counts | not an accuracy run | completed; actual count producer wait0 and drain verified |
 | Native FLARE | unavailable | Held-out VAL000 conversion: completed; actual wait0 and owned-group drain verified. Inference: completed; actual wait0 and owned-group drain verified. Prediction seal: prediction worker completed; direct wait0 and owned-group drain verified, outer tool terminal/final guard unconfirmed. Common-method scoring remains pending. |
-| Our C3 GNN | unavailable | Running on physical GPU 0. The first scheduled checkpoint verifies 100/600 updates and 1,000,000 focal-label exposures, with all 38 AdamW states at step 100. Latest live updates may be higher. All 20 observed TRAIN caches and target joins are complete. No ancestry score. The efficient query/cache successor passed a CPU FP32 technical qualification, with training speed and accuracy still unmeasured. Current training continues unchanged. Original full 30 Mb VAL000 observation preparation is complete. Full prespecified prediction/scoring gate pending. |
+| Our C3 GNN | unavailable | Original C3 stopped with 100/600 durable updates and all known owned workers drained. State-preserving migration v2 completed with genuine worker/outer exit0, retaining model, AdamW, cursor and RNG. Remaining500 updates admitted for the efficient continuation. No resumed training yet because the shared launcher route needs correction. Later discarded original updates remain unknown. No ancestry score. Original full 30 Mb VAL000 observation preparation is complete. Full prespecified prediction/scoring gate pending. |
 
 The TRAIN000 conversion is development evidence. Independent VAL000 inference now has its own actual completion/wait receipts; its method predictions and common-truth scoring remain pending. Original 30 Mb VAL000 simulation: completed; actual wait0 and owned-group drain verified; inferred observation: completed; actual wait0 and owned-group drain verified; shared native-path/10k-focal preparation: completed; actual wait0 and owned-group drain verified. R600/Q1000 identities stay common. No VAL ancestry score. Original full30Mb VAL000 native preparations are ready; method predictions and common-truth scores remain pending. Native FLARE VAL000 target bound: 228477 sites, common R600/Q1000. Fresh memo2 conversion: completed; actual wait0 and owned-group drain verified; predictions/scoring pending. Earlier conversion deliberately stopped to repair scheduler contention, with all artifacts retained. Original-paper simulation assumptions and source versions remain explicitly documented.
 

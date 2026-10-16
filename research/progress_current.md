@@ -1,6 +1,6 @@
 # Research progress
 
-Updated UTC: 2026-10-16T07:03:18.322823+00:00.
+Updated UTC: 2026-10-16T08:01:48.410520+00:00.
 
 The compiled nine-page AAAI draft and Overleaf working bundle are available. The paper is not submission-ready. The main unfinished work is evidence for a useful distinct contribution and complete faithful comparisons.
 
@@ -15,11 +15,11 @@ All scores use eight reused VAL simulations, one optimizer seed, a 2 Mb shared p
 
 ## Current execution
 
-- H050 European four-arm training: All 30 TRAIN passes and 960 FP32 updates per arm completed, 3,840 total, with 24 saved checkpoints. The launcher returned exit 1 after incorrectly passing the completion dictionary to SystemExit. Original failure and saved training outputs are preserved. CPU validation is now running from those checkpoints, with 14/192 prediction seals observed at 2026-10-16T07:03:18.322823+00:00. No training replay and no ancestry score yet.
-- American C3 GNN: running on GPU 0. The first saved checkpoint verifies 100/600 updates. Progress after that checkpoint is unknown.
-- Native ARGformer: held and never started on this evaluation panel. FLARE predictions exist, but the common American ancestry table is unfinished. VAL001prepared, VAL002nativepathsnext, VAL003–004unstarted. The next16GBstage remains unfunded under current reservation accounting.
+- H050 European four-arm training: All30 TRAIN passes and960 FP32 updates per arm completed,3840 total,with24 saved checkpoints. Original TRAIN CLI exit1 was a SystemExit wrapper error after saved scientific completion. CPU validation from saved fits is running: 171/192 prediction products sealed at 2026-10-16T08:01:48.410520+00:00. No training replay and no ancestry score yet.
+- American C3 GNN: Original C3 stopped with 100/600 durable updates and all known owned workers drained. State-preserving migration v2 completed with genuine worker/outer exit0, retaining model, AdamW, cursor and RNG. Remaining500 updates admitted for the efficient continuation. No resumed training yet because the shared launcher route needs correction. Later discarded original updates remain unknown. No ancestry score.
+- Native ARGformer: Native VAL000 launch failed before method import because the worker argv contained a stale module name. Genuine logical wait2 and controller shutdown0 consumed, owned worker drained. No new native optimizer updates. Correcting operational routing while retaining original scientific input,7GiB charge and expiry. Five epochs/227,990 updates remain planned, no ancestry score. FLARE predictions exist, but the common American ancestry table is unfinished.
 - TGB full campaign and VAL/TEST evaluation completed. TEST NDCG@10: first-order0.83238±0.01125, conditional-triple0.83045±0.01101, tree-only0.82706±0.01134, persistence0.84688±0.01439. No higher-order benefit. SD across3dependent years, one optimizerseed.
-- GPU 0 snapshot at 2026-10-16T07:03:18.322823+00:00: 23% utilization and 3,731 MiB allocated. This is an instantaneous reading.
+- GPU 0 is idle after the confirmed native bootstrap failure. Correcting the shared worker route is required before C3 and native training resume. H050 CPU evaluation remains live.
 
 ## Evidence still needed
 
@@ -37,3 +37,5 @@ The modern documented `build-training` route at author commit `c2481248eb0de5fda
 [Full current scores](current_scoreboard.md) · [Working PDF](../paper/current_full_panel_working.pdf) · [Overleaf working bundle](../paper/current_full_panel_overleaf_working.zip)
 
 [Completed TGB result](reviews/TGB_H051_completed_seed17_root_20261016_v1/REPORT.md). The1GBqualificationreservation was closed with genuinewait0 and targetedwriterabsence, retaining188416bytes and crediting999811584unusedbytes. No files were deleted and no guard was changed.
+
+[Current paper and benchmark completion audit](reviews/paper_completion_compact_audit_20261016_v1/REPORT.md). The nine-page draft has equations and a schematic, but native American comparisons, the larger ARGMix panel, useful novelty and untouched tests remain unfinished.
