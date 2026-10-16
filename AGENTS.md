@@ -142,3 +142,18 @@ ROOT consumed actualv9execute26684outer1. Actualprep53205was0. V9failed before n
 ## ROOT actual native full-state resume v10
 
 ROOT independently accepted the sealed v10 source and separate preparation review. Actual preparation83690 returned0 and authenticated active authority research/reviews/native_VAL000_GPU0_borrowed32_ROOT_actual_20261016_v2/worker_aux/ROOT_same_charge_full_state_resume_v10.root_active_v1.json SHAbc7db02872d605247d5ee19d9d083337a7c148d109e04facd74a50c178e902c3. ROOT explicitly directs one exact reviewed v10 execution from that prepared argv. All v9 and older future launch/write capabilities remain permanently cooperatively revoked. Preserve the recorded C3 failed leader1/drain and separate original outer74136 UNKNOWN, native6500 full-state checkpoint, original7GiB caps, GPU0/native32+2GiB, fixedC326GiB,4GiBheadroom, original anchored deadlines and227990update science. No automatic retry, charge, close, credit or result follows from this authority. The existing executor performs genuine current capacity/lease and separate120s entry probes before its child gate and first CUDA.
+
+
+## ROOT dedicated saved C3 artifact validator
+
+ROOT accepts the independent saved600 source and separate ROOT preparation SOURCE_PASS reviews and authorizes one fresh native14v3 admission for its dedicated CPU saved-state validator only. Preserve original producer1, missing original completion/drain manifests, unknown release count/exception and outer74136UNKNOWN. Permanently cooperatively revoke original C3 training writes/retries without changing its files, guards or registry. Preserve the controller for borrowed native work. New validator uses32MiB,900s,2GiBCPU RSS, one thread, zero workers/CUDA, exact native14v3 roles and full original-source checks. ROOT must consume this validator's own genuine wait0/drain/outer0 before any separate saved-artifact acceptance. This grants no retraining, ancestry prediction/scoring, old-scope close/credit or historical success claim.
+
+
+## ROOT downward native-path reservation
+
+ROOT accepts the sealed downward8GB source and independent SOURCE_PASS and permanently revokes future original v3 VAL003/004 native_paths/plan bind/admit/execute/replay routes. Preserve original infer success and all files. Only the new down8 namespaces may proceed after genuine same-parent close and current native14v3 capacity. ROOT directs one VAL003 native_paths bind/admit/execute, preserving full30Mb/1600haplotypes/10000focals/author algorithms, unchanged16GB scientific config, original two slot inodes/64role ceiling, guards and20:04:16.988073Z expiry. Actual accounting8GB is a downward failstop with fit unproven. No workload reduction or automatic retry/next stage is authorized. Directive: research/reviews/VAL003004_downward8GB_ROOT_activation_20261016_v1/ROOT_downward8GB_directive.root_active_v1.json.
+
+
+## ROOT saved600 CPU predictions
+
+ROOT consumed actual dedicated validator18771outer0 and accepts only the six saved AmericanC3WholeTreeGNNV1 states, preserving original producer1/outer74136UNKNOWN. Active saved-artifact acceptance: research/reviews/C3_saved600_validator_ROOT_actual_20261016_v1/artifact_acceptance.root_active_v1.json. ROOT accepts separately reviewed evaluation-builder v2, authorizing one fresh CPU admission/launch for each ready VAL000 and VAL001 prediction from its own genuine closed plan. Preserve32threads/zeroCUDA, all6epochs per parent and original full30Mb data/numerical code/caps/64role guard. Matrix and score still require all5closed plans and all30pretruth seals. No partial scoring or automatic retry is authorized. Directive: research/reviews/C3_full30Mb_eval_ROOT_v2_activation_20261016_v1/ROOT_CPU_prediction_directive.root_active_v2.json.

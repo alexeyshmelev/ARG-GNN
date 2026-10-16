@@ -1,0 +1,26 @@
+--- research/reviews/C3_full30Mb_eval_admission_readiness_source_20261016_v1/prepare_evaluation_root_v1.py
++++ research/reviews/C3_full30Mb_eval_admission_readiness_source_20261016_v2/prepare_evaluation_root_v2.py
+@@ -3,8 +3,8 @@
+ from datetime import datetime,timezone
+ import argparse,copy,hashlib,importlib.util,json,re,sys
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-HERE="research/reviews/C3_full30Mb_eval_admission_readiness_source_20261016_v1"
+-SOURCE=HERE+"/prepare_evaluation_root_v1.py"
++HERE="research/reviews/C3_full30Mb_eval_admission_readiness_source_20261016_v2"
++SOURCE=HERE+"/prepare_evaluation_root_v2.py"
+ PACKAGE="research/reviews/C3_saved600_artifact_acceptance_source_20261016_v1"
+ MAIN_HANDOFF_REF=dict(path=PACKAGE+"/source_handoff.v1.json",sha256="d57045ec59223ebbea48efcff9f67550717be84090efa4560855d110b31ee010")
+ MAIN_MANIFEST_REF=dict(path=PACKAGE+"/source_manifest.v1.json",sha256="a76e6eb58fef091dd80ca8ba918c4873b1a31b7f28f28b2e6e84104ec910af35")
+@@ -100,8 +100,10 @@
+     b,training=c.training_ready_v1(evidence["ROOT_artifact_acceptance_ref"])
+     training_ref=b["training_completion_ref"];candidates={x["epoch"]:x["checkpoint_ref"] for x in training["checkpoint_candidates"]}
+     supplied=evidence["closed_plan_evidence_by_parent"]
+-    require(set(supplied)==set(c.VAL),"All5 actual closed full30Mb plans required before this evaluation admission")
+-    plans={p:c.plan_ready_v1(supplied[p],p) for p in c.VAL}
++    required_parents=({c.VAL[int(phase[-3:])]} if phase.startswith("predict_val_") else set(c.VAL))
++    require(set(supplied)==required_parents,
++        "Prediction requires only its own actual closed plan;matrix/score require all5 actual closed full30Mb plans")
++    plans={p:c.plan_ready_v1(supplied[p],p) for p in c.VAL if p in required_parents}
+     fields=dict(training_evidence_ref=evidence["ROOT_artifact_acceptance_ref"])
+     if phase.startswith("predict_val_"):
+         parent=c.VAL[int(phase[-3:])];fields["plan_evidence"]=copy.deepcopy(supplied[parent])

@@ -1,0 +1,192 @@
+--- research/reviews/American_C3_VAL003004_native14v3_preparation_source_20261016_v3/root_contract_v1.py
++++ research/reviews/American_C3_VAL003004_downward8GB_source_20261016_v1/root_contract_v1.py
+@@ -3,7 +3,7 @@
+ from datetime import datetime,timezone,timedelta
+ import contextlib,fcntl,hashlib,importlib.util,json,os,stat,sys
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-REL="research/reviews/American_C3_VAL003004_native14v3_preparation_source_20261016_v3"
++REL="research/reviews/American_C3_VAL003004_downward8GB_source_20261016_v1"
+ SOURCE=REL+"/root_contract_v1.py";DRIVER=REL+"/root_driver_v1.py";WORKER=REL+"/worker_entry_v1.py"
+ MANIFEST=REL+"/source_manifest.v1.json";SOURCE_PINS=MANIFEST
+ READINESS=REL+"/readiness.v1.json";BASIS=REL+"/scientific_basis.v1.json";CAPFILE=REL+"/caps.template.inactive.v1.json"
+@@ -25,7 +25,7 @@
+ PIDFD=dict(path="research/reviews/American_C3_native_MLM_full_source_v5/pidfd_backend_v1.py",sha256="61be5d89357d1b95611e0ba26dd39d381ececf3ce6a36c347507cdc062373eca")
+ OWNED=dict(path="research/reviews/American_C3_native_MLM_amendment_v12/owned_lifecycle_v2.py",sha256="93d71acc40f1037d0b37acb2ca0859300ea4bd9741409e9bd00ca21bf100d633")
+ BASE_CONFIG_REF=dict(path="configs/census_tsinfer_fit_v1.json",sha256="7c2436d5479e68beb1a8f3edb04ca0ee729a23be35ca2d7893827c0db68e3b00")
+-PARENTS=("american_c3_val_003","american_c3_val_004");STAGES=("infer","native_paths","plan")
++PARENTS=("american_c3_val_003","american_c3_val_004");STAGES=("native_paths","plan")
+ PARENT=STAGE=PHASE=None;CAPS={};PHASES=CPU_PHASES=();GPU_PHASES=()
+ SLOT_FD=None;GPU_MODULE=GPU_MAIN=GPU_AUTH_REF=LAUNCHER_REF=None
+ STATUSES={};ENTRY=WORKER
+@@ -62,7 +62,7 @@
+ def current(value,margin=0):active(value,margin)
+ def select(parent,stage):
+     global PARENT,STAGE,PHASE,CAPS,PHASES,CPU_PHASES,STATUSES,ENTRY,RUNTIME_REF,HOOK_REF,TRAIN_SOURCE_REF
+-    require(parent in PARENTS and stage in STAGES,"Only original VAL003/004 inference/native-path/plan")
++    require(parent in PARENTS and stage in STAGES,"Only future original VAL003/004 native-path/plan")
+     PARENT=parent;STAGE=stage;PHASE=stage+"_val_"+parent[-3:];PHASES=CPU_PHASES=(PHASE,)
+     CAPS=read(ref(CAPFILE))["stages"][stage]
+     status={"infer":"completed_current_C3_inference","native_paths":"completed_native_C3_path_preparation","plan":"completed_C3_GNN_current980_"+PHASE}
+@@ -72,7 +72,7 @@
+     TRAIN_SOURCE_REF=next(r for r in read(ref(MANIFEST))["refs"] if r["path"]=="src/arggnn/american_c3_gnn_train_v1.py")
+ def phase_paths(phase):
+     require(phase==PHASE,"Exact selected phase")
+-    return local(REL+"/admitted_val"+PARENT[-3:]+"_"+STAGE+"_v3"),"experiments/results/American_C3_val"+PARENT[-3:]+"_full30mb_"+STAGE+"_native14v3_v3"
++    return local(REL+"/admitted_val"+PARENT[-3:]+"_"+STAGE+"_down8_v1"),"experiments/results/American_C3_val"+PARENT[-3:]+"_full30mb_"+STAGE+"_native14v3_down8_v1"
+ def validate_slot_resources(rows):
+     require(SLOT_IDENTITY_REF in rows,"Exact JSON slot identity receipt stays in sealed source closure")
+     value=read(SLOT_IDENTITY_REF)
+@@ -166,15 +166,24 @@
+     require(cfg["ancestry_seed"]==row["seed_row"]["ancestry_seed"] and cfg["mutation_seed"]==row["seed_row"]["mutation_seed"]
+         and cfg["sequence_length_bp"]==30000000,"Original independent simulation seeds/full extent")
+     return row
++def predecessor_paths_v1(parent,stage):
++    require(parent in PARENTS and stage in STAGES,"Only exact future parent/stage prerequisites")
++    suffix=parent[-3:]
++    if stage=="native_paths":
++        return ("infer","research/reviews/American_C3_VAL003004_native14v3_preparation_source_20261016_v3/admitted_val"+suffix+"_infer_v3",
++            "experiments/results/American_C3_val"+suffix+"_full30mb_infer_native14v3_v3",
++            "H041/American-C3-val"+suffix+"-full30mb-infer-native14v3-v3")
++    return ("native_paths",REL+"/admitted_val"+suffix+"_native_paths_down8_v1",
++        "experiments/results/American_C3_val"+suffix+"_full30mb_native_paths_native14v3_down8_v1",
++        "H041/American-C3-val"+suffix+"-full30mb-native_paths-native14v3-down8-v1")
+ def actual_prior(parent,stage):
+     row=existing_simulation(parent)
+     if stage=="infer":
+         return dict(completion_ref=row["simulation_completion_ref"],wait_ref=row["simulation_wait_ref"],
+             outer_ref=row["simulation_outer_terminal_ref"],close_ref=row["simulation_close_ref"],
+             observation_ref=row["simulation_observation_ref"],closed_key=row["simulation_closed_key"])
+-    previous="infer" if stage=="native_paths" else "native_paths"
+-    folder=local(REL+"/admitted_val"+parent[-3:]+"_"+previous+"_v3")
+-    output="experiments/results/American_C3_val"+parent[-3:]+"_full30mb_"+previous+"_native14v3_v3"
++    previous,folder_rel,output,previous_key=predecessor_paths_v1(parent,stage)
++    folder=local(folder_rel)
+     cp=ref(output+"/completed.json");wr=ref(folder/"worker_aux/actual_wait.json")
+     tr=ref(folder/"outer_terminal.root_actual_v1.json");cr=ref(folder/"closed/close_receipt.json")
+     done=read(cp);wait=read(wr);terminal=read(tr);close=read(cr)
+@@ -186,7 +195,7 @@
+     require(terminal["root_authorizer"]=="root_agent" and terminal["actual_terminal_consumed"] is True
+         and terminal["actual_exit_code"]==0 and terminal["completed_ref"]==cp and terminal["direct_wait_ref"]==wr,
+         "ROOT genuinely consumed exact predecessor outer terminal")
+-    require(close["key"]=="H041/American-C3-val"+parent[-3:]+"-full30mb-"+previous+"-native14v3-v3"
++    require(close["key"]==previous_key
+         and close["value"]["future_writes_and_relaunch_revoked"] is True and close["value"]["proof"]["completed_ref"]==cp
+         and close["value"]["proof"]["direct_wait_ref"]==wr,"Actual predecessor ordinary completed-scope close")
+     require(done["status"]=={"infer":"completed_current_C3_inference","native_paths":"completed_native_C3_path_preparation"}[previous],
+@@ -241,13 +250,20 @@
+ def validate_request(record):
+     q=read(record);bind_policy(q["policy_ref"]);select(q["parent_id"],q["stage"]);active(q,300)
+     require(q["expires_at_utc"]==ORIGINAL_EXPIRY_UTC,"Exact original failed-admission expiry, no deadline reset")
+-    require(q["schema"]=="American_C3_VAL003004_native14v3_request_v2" and q["active"] is True
++    require(q["schema"]=="American_C3_VAL003004_downward8GB_request_v1" and q["active"] is True
+         and q["root_authorizer"]=="root_agent" and q["phase"]==PHASE and q["execution_authorized"] is True
+         and q["source_review_passed"] is True and q["adapter_manifest_ref"]==ref(MANIFEST)
+         and q["guard_ref"]==GUARD_REF and q["policy_ref"]==POLICY_REF and q["maximum_CPU_producers"]==2
+         and q["query_truth_access_authorized"] is False and q["GNN_optimization_authorized"] is False
+         and q["TEST_access_authorized"] is False and q["all30_C3_prediction_seals_before_VAL_truth"] is True,
+         "Exact fresh independently reviewed CPU preparation authority")
++    require(q.get("reservation_only_downward_failstop_authorized") is True
++        and q.get("accounting_reservation_bytes")==CAPS["reservation_bytes"],
++        "Explicit ROOT reservation-only failstop, no scientific-bound replacement")
++    if STAGE=="native_paths":
++        require(CAPS["reservation_bytes"]==8000000000
++            and q["scientific_config"]["output_cap_bytes"]==16000000000,
++            "Actual8GB reservation separated from unchanged16GB scientific preflight")
+     reviewed(q["source_review_ref"]);source_paths()
+     prior=actual_prior(PARENT,STAGE)
+     require(q["prior"]==prior and q["scientific_config"]==scientific_config(PARENT,STAGE,prior,True),"Actual complete predecessor and unchanged original scientific recipe")
+@@ -263,12 +279,13 @@
+     require(now+timedelta(seconds=600)<end,"Original failed-admission deadline remains fixed with evidence margin")
+     require(end<datetime.fromisoformat(read(CERT_REF)["renewed_expires_at_utc"]),"Original renewal covers whole wall/drain/evidence authority")
+     caps_ref=save(local(REL),"caps_val"+parent[-3:]+"_"+stage+".root_active_v1.json",worker_caps(stage))
+-    q=dict(schema="American_C3_VAL003004_native14v3_request_v2",active=True,root_authorizer="root_agent",
++    q=dict(schema="American_C3_VAL003004_downward8GB_request_v1",active=True,root_authorizer="root_agent",
+         execution_authorized=True,parent_id=parent,stage=stage,phase=PHASE,created_at_utc=now.isoformat(),expires_at_utc=end.isoformat(),
+         adapter_manifest_ref=ref(MANIFEST),guard_ref=GUARD_REF,policy_ref=POLICY_REF,source_review_ref=review_ref,source_review_passed=True,
+         prior=prior,scientific_config=cfg,caps_ref=caps_ref,runtime_ref=RUNTIME_REF,maximum_CPU_producers=2,
+         query_truth_access_authorized=False,GNN_optimization_authorized=False,TEST_access_authorized=False,
+         all30_C3_prediction_seals_before_VAL_truth=True,
++        reservation_only_downward_failstop_authorized=True,accounting_reservation_bytes=CAPS["reservation_bytes"],
+         bindings=dict(parent_id=parent,plan_config=cfg) if stage=="plan" else dict(parent_id=parent,scientific_config=cfg))
+     r=save(local(REL),"request_val"+parent[-3:]+"_"+stage+".root_active_v1.json",q)
+     validate_request(r);return r
+@@ -294,6 +311,7 @@
+         and s["created_at_utc"]==q["created_at_utc"] and s["expires_at_utc"]==q["expires_at_utc"]
+         and s["runtime_ref"]==RUNTIME_REF and s["native14_policy_ref"]==POLICY_REF and s["GPU_authorized"] is False,"Exact admitted original CPU stage")
+     require(storage["reservation"]["reserved_bytes"]==CAPS["reservation_bytes"]
++        and storage["reserved_new_bytes"]==CAPS["reservation_bytes"]
+         and storage["completed_overlay_policy_ref"]==POLICY_REF and storage["budget_components"]["consumer_adapter"]==GUARD_REF,
+         "Actual current Census full charged stage reservation")
+     require(s["source_sha256"]=={path:ref(path)["sha256"] for path in source_paths()},"Complete exact authenticated transitive source map")
+--- research/reviews/American_C3_VAL003004_native14v3_preparation_source_20261016_v3/root_driver_v1.py
++++ research/reviews/American_C3_VAL003004_downward8GB_source_20261016_v1/root_driver_v1.py
+@@ -2,7 +2,7 @@
+ from pathlib import Path
+ from datetime import datetime,timezone,timedelta
+ import argparse,ctypes,hashlib,json,os,signal,stat,subprocess,sys,time
+-from research.reviews.American_C3_VAL003004_native14v3_preparation_source_20261016_v3 import root_contract_v1 as c
++from research.reviews.American_C3_VAL003004_downward8GB_source_20261016_v1 import root_contract_v1 as c
+ ROOT=c.ROOT;HERE=c.REL;SOURCE=c.DRIVER;PIDFD=c.PIDFD;OWNED=c.OWNED
+ need=c.require;local=c.local;ref=c.ref;read=c.read;load=c.load;put=c.put;current=c.current;guard=c.guard
+ SLOT_FD=None;CAPS={};OUTPUT=PARENT=CONFIG=None
+@@ -61,12 +61,14 @@
+     need(q["prior"]["closed_key"] in state[1],"Actual predecessor CLOSED in current Census state")
+     need("H041/American-C3-val003-full30mb-infer-native14v3-v2" not in state[0],
+         "Original partial VAL003 admission must remain unreserved, no double charge")
++    prior_v3_key="H041/American-C3-val"+c.PARENT[-3:]+"-full30mb-"+c.STAGE+"-native14v3-v3"
++    need(prior_v3_key not in state[0],"Only never-admitted future v3 native-path/plan may use new lower cap")
+     packet.mkdir();config_ref=c.save(packet,"config.json",c.make_config(q,caps))
+     sources={path:ref(path)["sha256"] for path in c.source_paths()}
+     closure=c.save(packet,"source_and_input_closure.json",dict(schema="American_C3_original_preparation_closure_v1",
+         source_sha256=sources,root_stage_request_ref=request_ref,bindings=q["bindings"],native_MLM_dependency=False))
+     consumers=c.unique([*state[3].values(),*c.direct_roles(request_ref,q,config_ref,closure,q["runtime_ref"])])
+-    job="American-C3-val"+c.PARENT[-3:]+"-full30mb-"+c.STAGE+"-native14v3-v3";aux=packet/"worker_aux"
++    job="American-C3-val"+c.PARENT[-3:]+"-full30mb-"+c.STAGE+"-native14v3-down8-v1";aux=packet/"worker_aux"
+     reserve=dict(key="H041/"+job,output=str(ROOT/output),auxiliary_scopes=[str(aux)],
+         reserved_bytes=c.CAPS["reservation_bytes"],consumer_bindings=consumers)
+     authority=g.operation_draft_v1("reserve",reserve,expected_before=g._pins(state[2]),bindings=state[3])
+--- research/reviews/American_C3_VAL003004_native14v3_preparation_source_20261016_v3/worker_entry_v1.py
++++ research/reviews/American_C3_VAL003004_downward8GB_source_20261016_v1/worker_entry_v1.py
+@@ -1,7 +1,7 @@
+ """Authorized CPU worker: unchanged original execute functions and existing plan worker."""
+ from pathlib import Path
+ import argparse,fcntl,importlib,json,os,sys
+-from research.reviews.American_C3_VAL003004_native14v3_preparation_source_20261016_v3 import root_contract_v1 as c
++from research.reviews.American_C3_VAL003004_downward8GB_source_20261016_v1 import root_contract_v1 as c
+ def worker(record,gate_fd):
+     c.require(os.read(gate_fd,1)==b"G","No scientific execution before owned launch gate");os.close(gate_fd)
+     s,q,cfg=c.input_spec(record)
+@@ -17,7 +17,7 @@
+         else:
+             fcntl.flock(probe,fcntl.LOCK_UN);raise ValueError("CPU slot lock not actually held")
+     if q["stage"]=="plan":
+-        from research.reviews.American_C3_VAL003004_native14v3_preparation_source_20261016_v3 import plan_worker_v1
++        from research.reviews.American_C3_VAL003004_downward8GB_source_20261016_v1 import plan_worker_v1
+         return plan_worker_v1.execute(record)
+     g,_=c.consumer_guard()
+     basis=c.read(c.ref(c.BASIS));stage=q["stage"]
+--- research/reviews/American_C3_VAL003004_native14v3_preparation_source_20261016_v3/plan_worker_v1.py
++++ research/reviews/American_C3_VAL003004_downward8GB_source_20261016_v1/plan_worker_v1.py
+@@ -2,9 +2,9 @@
+ from pathlib import Path
+ import argparse,hashlib,importlib.util,json,os,resource,sys,time
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-REL="research/reviews/American_C3_VAL003004_native14v3_preparation_source_20261016_v3"
++REL="research/reviews/American_C3_VAL003004_downward8GB_source_20261016_v1"
+ sys.path[:0]=[str(ROOT),str(ROOT/"src"),str(ROOT/"scripts"),str(ROOT/REL)]
+-from research.reviews.American_C3_VAL003004_native14v3_preparation_source_20261016_v3 import root_contract_v1 as c
++from research.reviews.American_C3_VAL003004_downward8GB_source_20261016_v1 import root_contract_v1 as c
+ def execute(record):
+  spec=c.read(record,cap=33554432);req,caps,_=c.validate_request(spec["root_stage_request_ref"]);stage=req["phase"];c.active(spec)
+  c.require(spec["root_driver_ref"]==c.ref(c.DRIVER) and spec["job_id"] and spec["phase"]==stage,"Exact current input/driver")
+--- research/reviews/American_C3_VAL003004_native14v3_preparation_source_20261016_v3/caps.template.inactive.v1.json
++++ research/reviews/American_C3_VAL003004_downward8GB_source_20261016_v1/caps.template.inactive.v1.json
+@@ -24,7 +24,7 @@
+       "cleanup_seconds": 30,
+       "log_bytes": 16777216,
+       "private_work_bytes": 134217728,
+-      "reservation_bytes": 16000000000,
++      "reservation_bytes": 8000000000,
+       "rss_bytes": 68719476736,
+       "terminal_evidence_margin_seconds": 150,
+       "wall_seconds": 7200,
