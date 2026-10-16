@@ -1,6 +1,6 @@
 # Current scientific scoreboard
 
-Updated UTC: 2026-10-16T04:22:01.549340+00:00
+Updated UTC: 2026-10-16T04:33:32.490479+00:00
 
 [All measured cohort details](#detailed-cohort-metrics) · [Complete historical receipt inventory](all_recorded_metric_receipts.md) · [Fresh H048 novelty/cross-domain audit](../research/reviews/H048_novelty_crossdomain_fresh_20261015_v1/report.md)
 
@@ -387,7 +387,7 @@ Both contrasts use later-minus-earlier and the same13-person complete GP support
 
 [Actual report and registered outcome](../research/reviews/H055_root_actual_CPU_20261016_v1/REPORT.md) · [Post-outcome biological context audit](../research/reviews/H055_actual_biological_interpretation_audit_20261016_v1/)
 
-H056 freezes H045 on the same ten query subjects and three nominal windows. All three frozen Danish phased preparations and native genealogies completed with genuine consumed outer exits0. Chr20/21/22 contain201/605/352whole local trees (1,158total). Chr20 original-GT observation bank completed with genuine tool41775exit0. Chr21/22 bank preparation is admitted and running in parallel on CPU (tool10155), with completion unconfirmed. Frozen H045 application and both registered EHG/CHG contrasts remain pending. No new local-ancestry accuracy or biological corroboration result. [Actual progress](../research/reviews/H056_actual_progress_root_20261016_v1/status.root_latest.json). Existing H045 output covers seven of ten people on chr22 only. [Completed CPU interface qualification](../research/reviews/H056_root_single_FP32_qualification_20261016_v1/actual_single_FP32_fixture.root_v1.json).
+H056 freezes H045 on the same ten query subjects and three nominal windows. All three frozen Danish phased preparations, native genealogies and original-GT model-input banks completed with genuine consumed outer exits0. Chr20/21/22 contain201/605/352whole local trees (1,158total). Frozen H045 application and both registered EHG/CHG contrasts remain pending. The first application launcher rejected a noncanonical interpreter path before model execution. No new local-ancestry accuracy or biological corroboration result. [Actual progress](../research/reviews/H056_actual_progress_root_20261016_v1/status.root_latest.json). Existing H045 output covers seven of ten people on chr22 only. [Completed CPU interface qualification](../research/reviews/H056_root_single_FP32_qualification_20261016_v1/actual_single_FP32_fixture.root_v1.json).
 
 
 ## H046 matched continuous-flank outcome
