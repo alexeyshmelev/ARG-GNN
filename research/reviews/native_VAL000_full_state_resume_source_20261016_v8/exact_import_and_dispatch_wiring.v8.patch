@@ -1,0 +1,140 @@
+--- sealed_v7/amendment_contract_v1.py
++++ v8/amendment_contract_v1.py
+@@ -7,7 +7,7 @@
+ import copy,hashlib,importlib.util,json,os,stat,sys,time
+ from research.reviews.native_VAL000_GPU0_borrowed32_source_20261016_v2.common_v1 import *
+ from research.reviews.native_VAL000_GPU0_borrowed32_source_20261016_v2 import common_v1 as original
+-HERE="research/reviews/native_VAL000_full_state_resume_source_20261016_v7"
++HERE="research/reviews/native_VAL000_full_state_resume_source_20261016_v8"
+ SOURCE=HERE+"/amendment_contract_v1.py"
+ ACTUAL_DRIVER=HERE+"/execution_only_v1.py"
+ DIRECT=HERE+"/direct_gpu0_v1.py"
+@@ -26,7 +26,7 @@
+ MINIMAL_WAIT_CAP_BYTES=65536
+ TERMINAL_RECEIPT_CAP_BYTES=8*2**20
+ OWNED_ROSTER_POLICY_REF={'path': 'research/reviews/native_VAL000_GPU0_owned_roster_source_20261016_v4/owned_roster_policy.INACTIVE.v4.json', 'sha256': 'ea1ddb59ab4248b8ba95dbbe77d25db30636cc318a4fdaebde1e1ae6e5a7344f'}
+-CHILD="same_charge_full_state_resume_v7"
++CHILD="same_charge_full_state_resume_v8"
+ AMENDMENT_REF=None
+ ORIGINAL_STATE=None
+ RESUME_STATE=None
+@@ -38,7 +38,7 @@
+ RESUME_CHECKPOINT_REF={'path': 'experiments/results/native_VAL000_full30mb_borrowed32_GPU0_v2/same_charge_owned_roster_v4/checkpoints/ep0-ba6500-rank0.pt', 'sha256': '17e266f77b9a91f6a72fcf50a4bb6551e794da86fdbe8ca382da7fccb180bce0'}
+ ROOT_PRESERVED_METADATA_REF={'path': 'research/reviews/native_v4_preserved_checkpoint_resume_root_metadata_20261016_v1/preserved_checkpoint_metadata.root_v2.json', 'sha256': '15a68643d5d940ee3b6304bc691e8aede1ac223d68b9a61581633805c0f3c7da'}
+ V4_MANIFEST_REF={'path': 'research/reviews/native_VAL000_GPU0_owned_roster_source_20261016_v4/source_manifest.v1.json', 'sha256': '4fc7f605f36d18b82ed155c24b0095a83b4b8b3a9649d8d65f81b23bc8cfae37'}
+-RESUME_POLICY_REF={'path': 'research/reviews/native_VAL000_full_state_resume_source_20261016_v7/resume_policy.INACTIVE.v5.json', 'sha256': '40dcc29613754bf43fc564eb8bb8e0af3675bc63272d7eecb19111bd12cd93b6'}
++RESUME_POLICY_REF={'path': 'research/reviews/native_VAL000_full_state_resume_source_20261016_v8/resume_policy.INACTIVE.v5.json', 'sha256': '40dcc29613754bf43fc564eb8bb8e0af3675bc63272d7eecb19111bd12cd93b6'}
+ 
+ def set_amendment_v1(record):
+     global AMENDMENT_REF
+@@ -53,7 +53,7 @@
+     require(AMENDMENT_REF is not None,"Actual separate ROOT amendment ref required")
+     a=read(AMENDMENT_REF);active(a)
+     require(a.get("template_only") is not True,"Inactive templates never authorize execution")
+-    require(a.get("schema")=="native32_full_state_resume_same_charge_ROOT_amendment_v7"
++    require(a.get("schema")=="native32_full_state_resume_same_charge_ROOT_amendment_v8"
+         and a.get("root_authorizer")=="root_agent" and a.get("status")=="active"
+         and a.get("execution_authorized") is True and a.get("independent_source_review_passed") is True
+         and a.get("adapter_manifest_ref")==ref(MANIFEST) and a.get("original_input_ref")==ORIGINAL_INPUT
+@@ -393,7 +393,7 @@
+         and revoke.get("root_authorizer")=="root_agent" and revoke.get("source_manifest_ref")==ref(MANIFEST)
+         and revoke.get("all_source_referenced_old_launch_capabilities_permanently_revoked") is True
+         and revoke.get("old_original_resume_entrypoints_and_automatic_retries_revoked") is True
+-        and revoke.get("new_exception_is_exact_reviewed_v7_ROOT_amendment_only") is True
++        and revoke.get("new_exception_is_exact_reviewed_v8_ROOT_amendment_only") is True
+         and revoke.get("historical_files_or_failures_mutated") is False
+         and revoke.get("unknown_old_processes_absent_asserted") is False,
+         "Permanent cooperative old-capability revocation, exact reviewed new exception, unknown history remains unknown")
+@@ -412,9 +412,9 @@
+         error="Planned writes require exact owned-scope boundary",
+         evidence_provenance="ROOT_actual_tool_stdout_no_filesystem_receipt_was_written")]
+ ALIAS_SOURCE=HERE+"/alias_namespace_v7.py"
+-ALIAS_ORIGINAL_BEFORE="ROOT_full_state_resume_v7_original_Composer_alias.before_unlink.json"
+-ALIAS_ORIGINAL_AFTER="ROOT_full_state_resume_v7_original_Composer_alias.strict_after.json"
+-ALIAS_TERMINAL_BEFORE="ROOT_full_state_resume_v7_terminal_Composer_alias.before_unlink.json"
++ALIAS_ORIGINAL_BEFORE="ROOT_full_state_resume_v8_original_Composer_alias.before_unlink.json"
++ALIAS_ORIGINAL_AFTER="ROOT_full_state_resume_v8_original_Composer_alias.strict_after.json"
++ALIAS_TERMINAL_BEFORE="ROOT_full_state_resume_v8_terminal_Composer_alias.before_unlink.json"
+ ALIAS_METADATA_CAP=65536
+ 
+ def validate_alias_authority_v7(a):
+--- sealed_v7/direct_gpu0_v1.py
++++ v8/direct_gpu0_v1.py
+@@ -6,7 +6,7 @@
+ """
+ from pathlib import Path
+ import errno,fcntl,hashlib,json,os,select,socket,stat,struct,sys,time
+-from research.reviews.native_VAL000_full_state_resume_source_20261016_v6.amendment_contract_v1 import *
++from research.reviews.native_VAL000_full_state_resume_source_20261016_v8.amendment_contract_v1 import *
+ SOURCE=DIRECT
+ CONTROLLER_PID=3349405
+ CONTROLLER_START=481281638
+--- sealed_v7/execution_only_v1.py
++++ v8/execution_only_v1.py
+@@ -4,7 +4,7 @@
+ from pathlib import Path
+ from datetime import datetime,timezone
+ import argparse,collections,ctypes,fcntl,hashlib,importlib,io,itertools,json,os,resource,selectors,signal,stat,subprocess,sys,tempfile,time
+-from research.reviews.native_VAL000_full_state_resume_source_20261016_v6.amendment_contract_v1 import *
++from research.reviews.native_VAL000_full_state_resume_source_20261016_v8.amendment_contract_v1 import *
+ 
+ class _RAMLog:
+     def __init__(self,cap):self.cap=cap;self.parts=collections.deque();self.kept=0;self.total=0
+@@ -48,14 +48,14 @@
+     ticket=read(attachment_ref)
+     require(ticket["job_id"]==s["job_id"] and ticket["borrowed_physical_inode"] is True
+         and ticket["direct_attachment_authority_ref"]==q["direct_attachment_authority_ref"],"Original job/capacity, actual fresh logical attachment")
+-    from research.reviews.native_VAL000_full_state_resume_source_20261016_v6 import direct_gpu0_v1 as direct
++    from research.reviews.native_VAL000_full_state_resume_source_20261016_v8 import direct_gpu0_v1 as direct
+     guard=direct.install_before_torch_v1(s,q,ticket)
+-    from research.reviews.native_VAL000_full_state_resume_source_20261016_v6 import corpus_metadata_bridge_v1
++    from research.reviews.native_VAL000_full_state_resume_source_20261016_v8 import corpus_metadata_bridge_v1
+     corpus_metadata_bridge_v1.install_private_authentication_bridge_v1()
+     from research.reviews.native_VAL000_GPU0_borrowed32_source_20261016_v2 import native_child_v1
+     # Unchanged exact native scientific/operational child function, with explicit
+     # ROOT-amended descendant I/O arguments and the new authenticated attachment.
+-    from research.reviews.native_VAL000_full_state_resume_source_20261016_v6 import resume_scientific_bridge_v5
++    from research.reviews.native_VAL000_full_state_resume_source_20261016_v8 import resume_scientific_bridge_v5
+     rc=resume_scientific_bridge_v5.run_resumed_native_v5(input_ref,s,q,cfg,ticket,guard)
+     bridge_path=local(s["output_directory"])/"actual_execution_amendment.json"
+     bridge_receipt=dict(
+@@ -134,7 +134,7 @@
+             ARGGNN_BUDGET_V9_LAUNCHER_SHA256=storage["budget_components"]["launcher"]["sha256"])
+         env.update(paths)
+         if s["phase"]=="mlm":
+-            from research.reviews.native_VAL000_full_state_resume_source_20261016_v6 import direct_gpu0_v1 as direct
++            from research.reviews.native_VAL000_full_state_resume_source_20261016_v8 import direct_gpu0_v1 as direct
+             direct.install_cancellation_check_v1(lambda:require(cancelled is None and time.monotonic()<work_deadline,
+                 "Actual cancellation or anchored work cutoff during status proof"))
+             capacity_failure_counter=[0]
+@@ -165,7 +165,7 @@
+                 env.pop(name,None)
+         gate_read,gate_write=os.pipe()
+         command=[str(local(NATIVE_PYTHON_REF["path"])),"-B","-s","-m",
+-            "research.reviews.native_VAL000_full_state_resume_source_20261016_v6.execution_only_v1",
++            "research.reviews.native_VAL000_full_state_resume_source_20261016_v8.execution_only_v1",
+             "--worker-input-ref",json.dumps(input_ref,separators=(",",":")),"--gate-fd",str(gate_read)]
+         if attachment_ref is not None:command+=["--attachment-ref",json.dumps(attachment_ref,separators=(",",":"))]
+         command+=["--amendment-ref",json.dumps(current_amendment_ref_v1(),separators=(",",":"))]
+--- sealed_v7/corpus_metadata_bridge_v1.py
++++ v8/corpus_metadata_bridge_v1.py
+@@ -6,7 +6,7 @@
+ """
+ from pathlib import Path
+ import ast,sys,types
+-from research.reviews.native_VAL000_full_state_resume_source_20261016_v6 import amendment_contract_v1 as c
++from research.reviews.native_VAL000_full_state_resume_source_20261016_v8 import amendment_contract_v1 as c
+ SOURCE=c.HERE+"/corpus_metadata_bridge_v1.py"
+ AUTH_REF={"path":"research/reviews/American_C3_native_MLM_amendment_v12/corpus_auth_v2.py","sha256":"2f02c99d49502493abab82e5b6c08c8abc782538d7d821a71cd5116f62b0cd98"}
+ PRODUCER_REF={"path":"src/arggnn/american_c3_paths_v1.py","sha256":"3b32f16e0a81160852e5b93fe9033abf9bc2eeb56c3b15ca552d73f4aacf374c"}
+--- sealed_v7/resume_scientific_bridge_v5.py
++++ v8/resume_scientific_bridge_v5.py
+@@ -4,7 +4,7 @@
+ from pathlib import Path
+ from datetime import timedelta
+ import ast,copy,hashlib,os,stat,sys,types
+-from research.reviews.native_VAL000_full_state_resume_source_20261016_v6 import amendment_contract_v1 as c
++from research.reviews.native_VAL000_full_state_resume_source_20261016_v8 import amendment_contract_v1 as c
+ SOURCE=c.HERE+"/resume_scientific_bridge_v5.py"
+ def validated_composer_timestamp_v1(state):
+     outer=state.get("timestamp")

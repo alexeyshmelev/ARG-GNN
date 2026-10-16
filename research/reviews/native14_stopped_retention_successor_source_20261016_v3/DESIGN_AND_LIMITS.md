@@ -1,0 +1,13 @@
+# Native14 v3 exact historical manifest authentication
+
+This inactive source revision makes only an operational binding consolidation over the sealed v2 socket repair. Current Census23 ancestry roles and seven native14 source/helper/manifest/policy/activation/revocation/review roles remain direct. The exact audited original reservation and all45 original bindings remain immutable. The direct sealed manifest authenticates every one of222 source/compact-metadata refs; _bindings additionally calls _raw on every original binding. Historical-only refs are not flattened into future ordinary consumers.
+
+Only _bindings and _native_manifest change relative to v2 after the separate directory/mode/journal substitution. The retained-node helper is byte-identical;57 other function/class ASTs and all30 ordinary current Census APIs match. Original64-role ceiling, authority/event bounds,15,032,385,536B charge, all3 entire roots, expiry, history, waits and unknown facts are preserved.
+
+The v2 fail-closed socket repair is preserved: strict bounded complete nonempty parseable kernel catalog; lexical absolute/same-basename ambiguity filters without external resolution; every unqualified retained filesystem socket is preserved and blocks; certificates require zero sockets; all24 historical endpoint paths require genuine absent_path. No deletion, rename or normalization is authorized.
+
+State30 and retirement invocation32 fit64. Sealed VALv1 stages each need65 and require a separate reviewed operational rebind. The current full30Mb C3 evaluation package needs45 for original5 VAL parents times6 epoch seals. The legacy concurrent C3/native package declares EVAL outer67, science46, controller56, native outer59 and native science63; outer fails64, and its plan has a stale finite_envelopes_v1.py ref recorded in deployment_compatibility.v3.json. This legacy package is separate from current full evaluation and native ARGformer downstream.
+
+The separate native65GiB downstream draft illustrates34 master reserve roles, or35 with a distinct reserve authority. Its final complete union is not proven and still needs its own review, ROOT authority, phase/controller roles and guard rebind. Role fit alone establishes no capacity.
+
+This seal records source/software facts only. No current parent prefix or projection is selected; no observation, real measurement, ROOT activation, accounting call, capacity credit, admission, job or scientific success is established. Original v8 exit, optimizer progress and whole descendant drain remain UNKNOWN; namespace02 is not promoted to namespace03 success. Current native7GiB/admin5MiB and all other consumers remain outside this scope.

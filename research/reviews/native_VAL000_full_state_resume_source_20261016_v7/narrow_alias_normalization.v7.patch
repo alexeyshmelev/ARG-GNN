@@ -1,0 +1,273 @@
+--- v6_path_bound/amendment_contract_v1.py
++++ v7/amendment_contract_v1.py
+@@ -38,7 +38,7 @@
+ RESUME_CHECKPOINT_REF={'path': 'experiments/results/native_VAL000_full30mb_borrowed32_GPU0_v2/same_charge_owned_roster_v4/checkpoints/ep0-ba6500-rank0.pt', 'sha256': '17e266f77b9a91f6a72fcf50a4bb6551e794da86fdbe8ca382da7fccb180bce0'}
+ ROOT_PRESERVED_METADATA_REF={'path': 'research/reviews/native_v4_preserved_checkpoint_resume_root_metadata_20261016_v1/preserved_checkpoint_metadata.root_v2.json', 'sha256': '15a68643d5d940ee3b6304bc691e8aede1ac223d68b9a61581633805c0f3c7da'}
+ V4_MANIFEST_REF={'path': 'research/reviews/native_VAL000_GPU0_owned_roster_source_20261016_v4/source_manifest.v1.json', 'sha256': '4fc7f605f36d18b82ed155c24b0095a83b4b8b3a9649d8d65f81b23bc8cfae37'}
+-RESUME_POLICY_REF={'path': 'research/reviews/native_VAL000_full_state_resume_source_20261016_v7/resume_policy.INACTIVE.v5.json', 'sha256': 'a89466723712123290f587c7d4dccf50c33b6a2360d9072f95315139dcd69ed5'}
++RESUME_POLICY_REF={'path': 'research/reviews/native_VAL000_full_state_resume_source_20261016_v7/resume_policy.INACTIVE.v5.json', 'sha256': '40dcc29613754bf43fc564eb8bb8e0af3675bc63272d7eecb19111bd12cd93b6'}
+ 
+ def set_amendment_v1(record):
+     global AMENDMENT_REF
+@@ -53,7 +53,7 @@
+     require(AMENDMENT_REF is not None,"Actual separate ROOT amendment ref required")
+     a=read(AMENDMENT_REF);active(a)
+     require(a.get("template_only") is not True,"Inactive templates never authorize execution")
+-    require(a.get("schema")=="native32_full_state_resume_same_charge_ROOT_amendment_v6"
++    require(a.get("schema")=="native32_full_state_resume_same_charge_ROOT_amendment_v7"
+         and a.get("root_authorizer")=="root_agent" and a.get("status")=="active"
+         and a.get("execution_authorized") is True and a.get("independent_source_review_passed") is True
+         and a.get("adapter_manifest_ref")==ref(MANIFEST) and a.get("original_input_ref")==ORIGINAL_INPUT
+@@ -91,7 +91,7 @@
+         and roster_policy["overflow_or_truncation_authorizes_success"] is False,
+         "Exact finite4096 identity/8MiB terminal policy, original30s cleanup and fully charged AUX")
+     manifest=read(a["adapter_manifest_ref"])
+-    expected=[ref(HERE+"/"+name) for name in ("__init__.py","amendment_contract_v1.py","direct_gpu0_v1.py","execution_only_v1.py","corpus_metadata_bridge_v1.py","resume_scientific_bridge_v5.py")]
++    expected=[ref(HERE+"/"+name) for name in ("__init__.py","amendment_contract_v1.py","direct_gpu0_v1.py","execution_only_v1.py","corpus_metadata_bridge_v1.py","resume_scientific_bridge_v5.py","alias_namespace_v7.py")]
+     require(manifest["new_executed_source_refs"]==expected
+         and manifest["original_source_handoff_ref"]==ORIGINAL_SOURCE_HANDOFF
+         and manifest["original_source_manifest_ref"]==original.ref(original.MANIFEST),
+@@ -113,6 +113,7 @@
+     require(a.get("original48h_window_anchor_utc")==q["created_at_utc"]
+         and time.time()<min(anchor+172800,datetime.fromisoformat(original.ORIGINAL_ABSOLUTE_EXPIRY).timestamp()),
+         "Original48hour window anchored before first attempt, never reset")
++    validate_alias_authority_v7(a)
+     return a,original_s,q
+ 
+ def work_deadline_monotonic_v1():
+@@ -219,6 +220,10 @@
+     auxiliary=original._sizes(local(original_spec["worker_auxiliary_scope"]))
+     regular=[(parts,n-4096) for parts,n,kind in output if "checkpoints" in parts and kind=="regular" and parts[-1].endswith(".pt")]
+     checkpoint=sum(n for parts,n,kind in output if "checkpoints" in parts)
++    allowed_aliases={Path(RESUME_CHECKPOINT_REF["path"]).relative_to(Path(original_spec["output_directory"])).parts[:-1]+("latest-rank0.pt",),
++        (CHILD,"checkpoints","latest-rank0.pt")}
++    require(all(parts in allowed_aliases for parts,n,kind in output if kind=="alias"),
++        "Only fixed preserved original or this one fresh resumed Composer alias")
+     retained=Path(RESUME_STATE["checkpoint_ref"]["path"]).relative_to(Path(original_spec["output_directory"])).parts
+     originals=[(parts,n) for parts,n in regular if parts==retained]
+     newer=[(parts,n) for parts,n in regular if parts!=retained]
+@@ -388,9 +393,183 @@
+         and revoke.get("root_authorizer")=="root_agent" and revoke.get("source_manifest_ref")==ref(MANIFEST)
+         and revoke.get("all_source_referenced_old_launch_capabilities_permanently_revoked") is True
+         and revoke.get("old_original_resume_entrypoints_and_automatic_retries_revoked") is True
+-        and revoke.get("new_exception_is_exact_reviewed_v6_ROOT_amendment_only") is True
++        and revoke.get("new_exception_is_exact_reviewed_v7_ROOT_amendment_only") is True
+         and revoke.get("historical_files_or_failures_mutated") is False
+         and revoke.get("unknown_old_processes_absent_asserted") is False,
+         "Permanent cooperative old-capability revocation, exact reviewed new exception, unknown history remains unknown")
+     return dict(bundle_ref=record,known_identities=len(identities),known_groups=len(pgids),
+         historical_v3_descendant_coverage="UNKNOWN_TRUNCATED64",historical_unknown_absence=None)
++
++
++ROOT_V6_AMENDMENT_REF={"path":"research/reviews/native_VAL000_GPU0_borrowed32_ROOT_actual_20261016_v2/worker_aux/ROOT_same_charge_full_state_resume_v6.root_active_v1.json","sha256":"4150fe809de142bfdc8a79f799c0fe5ac5fa48c5c7973672330de0b7170673de"}
++V6_PREPARATION_FAILURE_FACTS=[
++    dict(actual_tool_session_id=19149,actual_exit_code=1,native_launch_occurred=False,
++        stage="original_strict_storage_boundary_before_native_launch",
++        error="canonical project path without symlinks required",
++        evidence_provenance="ROOT_actual_tool_stdout_no_filesystem_receipt_was_written"),
++    dict(actual_tool_session_id=78681,actual_exit_code=1,native_launch_occurred=False,
++        stage="ROOT_later_attempted_failure_receipt_before_write",
++        error="Planned writes require exact owned-scope boundary",
++        evidence_provenance="ROOT_actual_tool_stdout_no_filesystem_receipt_was_written")]
++ALIAS_SOURCE=HERE+"/alias_namespace_v7.py"
++ALIAS_ORIGINAL_BEFORE="ROOT_full_state_resume_v7_original_Composer_alias.before_unlink.json"
++ALIAS_ORIGINAL_AFTER="ROOT_full_state_resume_v7_original_Composer_alias.strict_after.json"
++ALIAS_TERMINAL_BEFORE="ROOT_full_state_resume_v7_terminal_Composer_alias.before_unlink.json"
++ALIAS_METADATA_CAP=65536
++
++def validate_alias_authority_v7(a):
++    require(a.get("preserved_actual_v6_amendment_ref")==ROOT_V6_AMENDMENT_REF
++        and a.get("actual_v6_future_execution_permanently_revoked") is True
++        and a.get("prior_v6_preparation_failure_facts")==V6_PREPARATION_FAILURE_FACTS
++        and a.get("exact_Composer_alias_metadata_only_unlink_authorized") is True
++        and a.get("exact_precanonical_metadata_receipt_exception_authorized") is True
++        and a.get("precanonical_metadata_max_bytes")==ALIAS_METADATA_CAP
++        and a.get("canonical_or_global_guard_change_authorized") is False
++        and a.get("regular_checkpoint_copy_or_delete_authorized") is False,
++        "Exact narrow ROOT v7 alias metadata/unlink authority, preserved failed v6 and unchanged strict guard")
++    old=read(ROOT_V6_AMENDMENT_REF)
++    require(old.get("schema")=="native32_full_state_resume_same_charge_ROOT_amendment_v6"
++        and old.get("root_authorizer")=="root_agent" and old.get("status")=="active",
++        "Exact immutable actual v6 authority retained as historical evidence only")
++    return True
++
++def alias_module_v7():
++    return load(ref(ALIAS_SOURCE),"_native_VAL000_exact_alias_namespace_v7")
++
++def alias_readonly_guard_v7(spec,g,storage,*,projected_metadata_bytes=0):
++    require(type(projected_metadata_bytes) is int and 0<=projected_metadata_bytes<=ALIAS_METADATA_CAP+8192,
++        "Only bounded exact pre-canonical metadata projection")
++    # This unchanged original call is read-only. It does not authorize a write.
++    g.budget_check_v9(storage,boundary=False,required_write_bytes=0)
++    # The separately explicit ROOT authority authorizes only the exact bounded
++    # metadata receipt after a full original no-follow charge/cap projection.
++    charged_census_v1(spec,required_write_bytes=projected_metadata_bytes)
++    active_amendment_v1()
++    return True
++
++def alias_strict_boundary_v7(spec,g,storage):
++    charged_census_v1(spec)
++    g.budget_check_v9(storage,boundary=True,required_write_bytes=0)
++    active_amendment_v1()
++    return dict(original_unchanged_budget_check_boundary_True_passed=True,
++        original_whole_scope_no_follow_charge_caps_passed=True,
++        storage_close_or_credit_authorized=False)
++
++def alias_durable_metadata_v7(spec,g,storage,directory,name,value):
++    require(name in (ALIAS_ORIGINAL_BEFORE,ALIAS_TERMINAL_BEFORE),
++        "Only two exact reviewed before-unlink metadata names")
++    expected=local(spec["original_charged_auxiliary_scope"]) if name==ALIAS_ORIGINAL_BEFORE \
++        else local(spec["worker_auxiliary_scope"])
++    require(directory==expected and directory.is_dir(),"Exact ROOT-owned original or own terminal AUX")
++    data=(json.dumps(value,sort_keys=True,indent=2,allow_nan=False)+"\n").encode()
++    require(0<len(data)<=ALIAS_METADATA_CAP,"Exact64KiB metadata exception, no checkpoint payload")
++    alias_readonly_guard_v7(spec,g,storage,projected_metadata_bytes=len(data)+8192)
++    active_amendment_v1()
++    target=directory/name
++    fd=os.open(target,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600)
++    with os.fdopen(fd,"wb") as f:
++        f.write(data);f.flush();os.fsync(f.fileno())
++    dfd=os.open(directory,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
++    try:os.fsync(dfd)
++    finally:os.close(dfd)
++    result=ref(str(target.relative_to(ROOT)))
++    alias_module_v7().verify_receipt_v7(ROOT,result,value)
++    return result
++
++def alias_original_context_v7():
++    return dict(kind="fixed_original_stopped_Composer_alias",
++        actual_execution_amendment_ref=current_amendment_ref_v1(),adapter_manifest_ref=ref(MANIFEST),
++        original_resume_checkpoint_ref=RESUME_CHECKPOINT_REF,
++        ROOT_full_state_verifier_receipt_ref=ROOT_PRESERVED_METADATA_REF,
++        factual_v4_current_complete64_drain_ref=V4_STDOUT_PROJECTION_REF,
++        historical_v3_descendant_coverage="UNKNOWN_TRUNCATED64",
++        historical_v3_unknown_descendants_absent=None,
++        preserved_actual_v6_amendment_ref=ROOT_V6_AMENDMENT_REF,
++        prior_v6_preparation_failure_facts=V6_PREPARATION_FAILURE_FACTS,
++        boundary_False_check_is_read_only_not_write_authority=True,
++        separate_exact_ROOT_precanonical_metadata_exception=True)
++
++def normalize_original_alias_v7(spec,q,g,storage):
++    require(ORIGINAL_STATE is not None and RESUME_STATE is not None,"Actual v6 full-state prerequisite API first")
++    module=alias_module_v7()
++    # Fixed literal checkpoint directory, never a caller-selected historical tree.
++    directory=local(RESUME_CHECKPOINT_REF["path"]).parent
++    alias=directory/"latest-rank0.pt"
++    receipt=local(spec["original_charged_auxiliary_scope"])/ALIAS_ORIGINAL_BEFORE
++    def prove():
++        a,_,_=active_amendment_v1()
++        validate_resume_prerequisites_v5(a)
++        return RESUME_STATE["current_v4_complete64_identity_and_group_drain_verified"] is True
++    def strict():return alias_strict_boundary_v7(spec,g,storage)
++    require(prove(),"Current factual v4 complete64 drain and fresh available known-owner evidence")
++    try:alias.lstat()
++    except FileNotFoundError:
++        # ROOT prep may have normalized once. Only this exact attempt's durable
++        # metadata plus current original identity can authorize consuming absence.
++        record=ref(str(receipt.relative_to(ROOT)));value=read(record)
++        module.verify_receipt_v7(ROOT,record,value)
++        require(value.get("schema")=="native_VAL000_durable_ROOT_Composer_alias_before_unlink_v7"
++            and value.get("context")==alias_original_context_v7()
++            and value.get("alias")==str(alias.relative_to(ROOT))
++            and value.get("target_ref")==RESUME_CHECKPOINT_REF
++            and value.get("target_identity")==RESUME_STATE["checkpoint_identity"]
++            and value.get("actual_complete_owned_writer_drain_verified") is True
++            and value.get("regular_checkpoint_payload_read_or_copied") is False
++            and module.identity(local(RESUME_CHECKPOINT_REF["path"]).lstat())==RESUME_STATE["checkpoint_identity"]
++            and module.regular_snapshot(directory)==value["regular_checkpoint_metadata_before"],
++            "Same exact v7 attempt premetadata and unchanged original checkpoint required for existing alias absence")
++        result=dict(schema="native_VAL000_exact_original_alias_absence_consumed_v7",
++            before_unlink_metadata_ref=record,alias_absent=True,unlink_replayed=False,
++            strict_original_boundary_after_unlink=strict())
++    else:
++        result=module.normalize_latest_v7(ROOT,directory,prove_drained=prove,
++            preserve=lambda value:alias_durable_metadata_v7(spec,g,storage,
++                local(spec["original_charged_auxiliary_scope"]),ALIAS_ORIGINAL_BEFORE,value),
++            revalidate_pre_unlink=lambda:alias_readonly_guard_v7(spec,g,storage),
++            strict_boundary=strict,max_bytes=2*2**30,max_regular_files=1,
++            expected_target_ref=RESUME_CHECKPOINT_REF,
++            expected_target_identity=RESUME_STATE["checkpoint_identity"],
++            context=alias_original_context_v7())
++    # This after-receipt is strictly guarded. It never claims new science.
++    path=local(spec["original_charged_auxiliary_scope"])/ALIAS_ORIGINAL_AFTER
++    if not path.exists():
++        data=(json.dumps(result,sort_keys=True,indent=2,allow_nan=False)+"\n").encode()
++        require(len(data)<=ALIAS_METADATA_CAP,"Bounded normalization outcome")
++        charged_census_v1(spec,required_write_bytes=len(data)+8192)
++        g.budget_check_v9(storage,boundary=True,required_write_bytes=len(data)+8192)
++        active_amendment_v1()
++        save(path.parent,path.name,result)
++    else:
++        prior=read(ref(str(path.relative_to(ROOT))))
++        require(prior.get("before_unlink_metadata_ref")==result["before_unlink_metadata_ref"]
++            and prior.get("alias_absent") is True,"Exact immutable prior normalization outcome")
++    return result
++
++def normalize_resumed_alias_v7(spec,q,g,storage,*,prove_drained,minimal_wait_facts):
++    module=alias_module_v7()
++    out=local(spec["output_directory"]);directory=out/"checkpoints"
++    # This callable is supplied only by the actual post-finally supervisor. Its
++    # drained boolean already requires complete4096 roster, wait, EOF, identities
++    # and targeted group absence. No historical unknown is upgraded.
++    require(prove_drained(),"Genuine complete current owned drain before any terminal alias operation")
++    require(spec["output_directory"]==spec["original_charged_output_directory"]+"/"+CHILD,
++        "Only this one exact fresh resumed child")
++    try:s=directory.lstat()
++    except FileNotFoundError:
++        return dict(alias_present=False,strict_original_boundary=alias_strict_boundary_v7(spec,g,storage))
++    require(stat.S_ISDIR(s.st_mode),"Own real terminal checkpoint directory")
++    alias=directory/"latest-rank0.pt"
++    try:alias.lstat()
++    except FileNotFoundError:
++        return dict(alias_present=False,strict_original_boundary=alias_strict_boundary_v7(spec,g,storage))
++    return module.normalize_latest_v7(ROOT,directory,prove_drained=prove_drained,
++        preserve=lambda value:alias_durable_metadata_v7(spec,g,storage,
++            local(spec["worker_auxiliary_scope"]),ALIAS_TERMINAL_BEFORE,value),
++        revalidate_pre_unlink=lambda:alias_readonly_guard_v7(spec,g,storage),
++        strict_boundary=lambda:alias_strict_boundary_v7(spec,g,storage),
++        max_bytes=2*2**30,max_regular_files=2,
++        context=dict(kind="only_this_actual_resumed_child_after_complete_owned_drain",
++            actual_execution_amendment_ref=current_amendment_ref_v1(),adapter_manifest_ref=ref(MANIFEST),
++            actual_minimal_wait_facts=minimal_wait_facts,
++            regular_checkpoint_content_SHA_not_claimed=True,
++            separate_exact_ROOT_precanonical_metadata_exception=True))
+--- v6_path_bound/execution_only_v1.py
++++ v7/execution_only_v1.py
+@@ -79,6 +79,7 @@
+     work_deadline=min(work_deadline_monotonic_v1(),stage_started+CAPS["max_seconds"]-CAPS["work_cutoff_margin_seconds"],
+         time.monotonic()+expires_unix-time.time()-CAPS["work_cutoff_margin_seconds"])
+     g=guard_v1(q)
++    normalize_original_alias_v7(s,q,g,storage)
+     g.validate_storage_v9(s,dict(output_cap_bytes=CAPS["reservation_bytes"]),storage,
+         source_ref=ref(DRIVER),config_ref=s["refs"]["config"],runtime_ref=s["refs"]["runtime"])
+     out,aux=local(s["output_directory"]),local(s["worker_auxiliary_scope"])
+@@ -387,22 +388,14 @@
+             no_future_stage_authorized=True,actual_outer_tool_terminal_still_required=True)
+     minimal=completed_ref=wait_ref=None
+     try:
++        def authorized_drained_v7():
++            active_amendment_v1()
++            return drained and roster_complete and raw_status is not None and identity_absence is True and pipe_eof
++        normalize_resumed_alias_v7(s,q,g,storage,prove_drained=authorized_drained_v7,
++            minimal_wait_facts=minimal_facts)
++        # Genuine stdout wait already exists. Only after metadata-first exact
++        # alias removal and original strict boundary may filesystem waits follow.
+         minimal=compact_v1(s,"actual_wait_minimal.json",minimal_facts,g,storage,cap=MINIMAL_WAIT_CAP_BYTES)
+-        # The compact genuine wait survives any later full-evidence overflow.
+-        # Quiescent namespace and prospective authority margin established.
+-        # Minimal honest OS wait precedes every later scientific inspection.
+-        namespace=load({"path":"research/reviews/American_C3_native_MLM_amendment_v12/terminal_namespace_v12.py","sha256":"51cb8950ae0f86dd0721ebd413cc9270753e8bc66408e45b437f8e2d28a8498d"},"_native32_postdrain_namespace")
+-        alias_counter=[0]
+-        def preserve_alias(value):
+-            alias_counter[0]+=1
+-            charged_census_v1(s,required_write_bytes=65536+8192)
+-            active_amendment_v1()
+-            save(aux,"native_alias_%02d.json"%alias_counter[0],value)
+-        def authorized_drained_v1():
+-            active_amendment_v1()
+-            return drained
+-        namespace.normalize_latest(out/"checkpoints",prove_drained=authorized_drained_v1,
+-            preserve=preserve_alias,max_bytes=CAPS["max_checkpoint_bytes"])
+         g.budget_check_v9(storage,boundary=True,required_write_bytes=8*2**20)
+         completed_path=out/"completed.json"
+         completed_ref=ref(str(completed_path.relative_to(ROOT))) if completed_path.is_file() else None
