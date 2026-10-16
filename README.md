@@ -7,7 +7,7 @@ Graph neural networks for ordered collections of whole genealogical trees, with 
 [Persistent research goal and reporting requirements](research/goal_current.json). Current limits: **physical GPU 0 only**, parallel jobs allowed, and **1 TB** of storage. All project writes stay inside this server repository. GPUs 4–5 are excluded.
 
 <!-- CURRENT_SCOREBOARD_START -->
-**Scoreboard updated UTC: 2026-10-16T01:54:36.756917+00:00.** [Every current setup, all cohorts and detailed metrics](research/current_scoreboard.md) · [Native class metrics and training-lineage audit, frozen17-setup snapshot](research/reviews/root_score_report_20261015_v1/REPORT.md) · [All recorded historical/engineering metric receipts](research/all_recorded_metric_receipts.md)
+**Scoreboard updated UTC: 2026-10-16T02:43:44.137423+00:00.** [Every current setup, all cohorts and detailed metrics](research/current_scoreboard.md) · [Native class metrics and training-lineage audit, frozen17-setup snapshot](research/reviews/root_score_report_20261015_v1/REPORT.md) · [All recorded historical/engineering metric receipts](research/all_recorded_metric_receipts.md)
 
 | Current run | Device | Progress | Validation score |
 |---|---:|---|---|
@@ -19,7 +19,7 @@ Graph neural networks for ordered collections of whole genealogical trees, with 
 | Native FLARE | CPU | Author build, TRAIN000 full-site inference and prediction seal completed. Held-out VAL000 conversion: completed; actual wait0 and owned-group drain verified; native inference: completed; actual wait0 and owned-group drain verified; seal: prediction worker completed; direct wait0 and owned-group drain verified, outer tool terminal/final guard unconfirmed. | held-out score pending |
 | Our American C3 GNN | GPU0 | 20/20 exact TRAIN plans completed. Running on physical GPU 0. All 20 observed-input caches and TRAIN target joins are complete. The first scheduled durable model checkpoint is at 100 updates, so optimizer counts remain unverified. Full 600-update campaign continues. No ancestry score yet. The second original 30 Mb VAL observation plan (VAL001) is completed and closed, with 76,453 trees and 227,316 sites. No VAL targets were opened. Original VAL000 full-length GNN block plan: completed; actual wait0 and owned drain verified. | no ancestry score |
 | H049 cut-memory candidate | CPU preparation | bounded-v5 CPU preparation completed with genuine wait0/drain. Three matched 32,446-parameter arms. Full 30 passes / 960 updates per arm planned. | no fit or accuracy yet |
-| H050 stronger direct-readout candidate | GPU0 | Training on physical GPU 0. Completed 9/30 full TRAIN passes and 288/960 FP32 optimizer updates per arm (1152/3,840 total). These are completed-pass lower bounds. No validation score yet. H045 predictor retained initially. Three 32,325-parameter memory arms and an unmodified 31,812-parameter continuation. 960 updates per arm, 192 prediction seals planned. Original45run interrupted byGPU0-only instruction, no validation accuracy. | full fit incomplete |
+| H050 stronger direct-readout candidate | GPU0 | Training on physical GPU 0. Completed 13/30 full TRAIN passes and 416/960 FP32 optimizer updates per arm (1664/3,840 total). These are completed-pass lower bounds. No validation score yet. H045 predictor retained initially. Three 32,325-parameter memory arms and an unmodified 31,812-parameter continuation. 960 updates per arm, 192 prediction seals planned. Original45run interrupted byGPU0-only instruction, no validation accuracy. | full fit incomplete |
 | Empirical data | CPU | H045 probabilities, ancestry proportions and genotype PCA completed for 24 query haplotypes / 12 subjects. Descriptive only, without known ancestry truth. | completed |
 
 **Completed H048:** 96.3800 ± 0.6002% graph_to_transition; 96.3886 ± 0.6098% graph_to_own_confidence_fixed_distance_chain. Both registered utility criteria failed. [Actual scores, all cohorts and provenance](research/reviews/H048_completed_comparison_root_20261015_v1/REPORT.md).
@@ -50,7 +50,7 @@ Graph neural networks for ordered collections of whole genealogical trees, with 
 
 **Ordered-tree mechanism status:** The frozen TRAIN-only trade audit found 22 partition changes and 21 nonzero conditional-innovation years. This establishes active input support, without a predictive-accuracy result. [Actual audit](research/reviews/TGB_trade_H051_data_integration_root_20261016_v1/actual_TRAIN_operator_support.root_v1.json). A [fresh independent literature review](research/reviews/H051_independent_priority_audit_20261016_v2/REPORT.md) identifies established conditional-mean and higher-order constructions. Generic operator novelty remains unestablished.
 
-Parallel ownership: two workers implement the frozen H056 same-cohort H045 application sources. One worker updates the development manuscript proposal. Root owns execution, outcomes, metrics and Git.
+Parallel ownership: two workers prepare the H056 acquisition and native/application runtime adapters. A third reviews acquisition source independently. Root owns GPU0 execution, actual outcomes, figures, metrics and Git.
 
 <!-- CURRENT_SCOREBOARD_END -->
 
@@ -61,6 +61,23 @@ Parallel ownership: two workers implement the frozen H056 same-cohort H045 appli
 Current native ARGMix reaches **94.4461 ± 1.1491%** on the shared development panel. SNP inputs, training budget and checkpoint selection differ, so this pipeline comparison does not isolate architecture or reproduce published tables. H044 written scores remain verified, with genuine post-completion CLI exit 1 preserved. [H044 results and caveat](research/reviews/H044_completed_comparison_root_20261015_v1/README.md).
 
 The shared model backbone combines **whole-tree PyTorch Geometric message passing, observed SNP features, exact local topology-change flags and a bidirectional GRU across genomic trees**. H042 has 30,788 parameters. H044 adds a 640-parameter marker readout, for 31,428 total. Neither uses ARGMix predictions. Whole trees, all 952 observed haplotypes and the full genomic recurrent history are retained.
+
+**Class-level error analysis:** [Three-way confusion maps and paired recall differences](research/reviews/development_confusion_20261016_v1/REPORT.md). On the same eight Present182 VAL simulations, H045 minus current ARGMix mean class recall is +3.11 pp ANA, +2.43 pp CHG, +2.64 pp WHG and +1.20 pp EHG. These are descriptive reductions of existing selected development metrics, with per-parent normalization and paired simulation SDs. They do not establish an independent test gain or architecture-only attribution.
+
+### Paper completion status
+
+The compiled eight-page AAAI draft is **not submission-ready**. No overall top-1 claim is supported. The latest completed ancestry accuracy result remains H045.
+
+| Required evidence | Current status |
+|---|---|
+| European shared development | Completed for our candidates, current author ARGMix and released AncestralPaths with a disclosed C4 readout. Common support, population metrics and confusion diagnostics are available. |
+| ARGMix published-scale experiments | Unfinished. The paper-scale 1,611-diploid panel has not been simulated and scored. Published-table reproduction is unproved. |
+| American ARGformer / FLARE / our GNN | Unfinished. Full 30 Mb VAL000 observations are prepared. FLARE predictions exist, native ARGformer fitting is held, and our C3 job is active without a verified durable optimizer milestone. No common ancestry scores yet. |
+| Independent European test and uncertainty | Unfinished. Eight reserved outer simulations are ungenerated and untouched. Current headline SD is across validation simulations with one training seed. |
+| Useful distinct architecture | Unproved. H045 foreign-minus-own accuracy is only 0.0096 pp. H050 matched memory/readout candidates are training. |
+| Biological and cross-domain evidence | Partial. Descriptive real-data predictions/PCA exist. Danish genotype contrasts did not support either registered direction. Frozen Danish model application, paired GST TEST and learned TGB results remain unfinished. |
+
+[Detailed current scores and all seven cohorts](research/current_scoreboard.md) · [Existing development confusion figures](research/reviews/development_confusion_20261016_v1/REPORT.md)
 
 ### Shared-data development comparison
 
@@ -250,7 +267,7 @@ Frozen ARGMix predictions derive from Relate trees. The new graph context comes 
 
 Novelty is assessed throughout development in the [claim-by-claim novelty log](docs/novelty_assessment_v1.md). The latest independent [design critique](research/reviews/edge_innovation_novelty_fresh_v1/critique.md) identifies TGN and Gated DeltaNet precedents. Whole-tree cavity construction plus carrier-conditioned memory remains a hypothesis about useful biological coupling, with priority and predictive benefit unresolved. Existing kernels, recurrence and message passing are discovery tools.
 
-At most two physical GPUs from indices2–5 are assigned to the project. GPU workers are titled 'AI Auto Research Pipeline Test'. Current storage authorization is1TB. See [development priorities](docs/development_priorities_20261011.md).
+Only physical GPU 0 is assigned to the project under the latest instruction. Parallel workers on GPU 0 are permitted and titled 'AI Auto Research Pipeline Test'. Current storage authorization is 1 TB. See [development priorities](docs/development_priorities_20261011.md).
 
 ## Main advantages and current evidence
 

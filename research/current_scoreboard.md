@@ -1,6 +1,6 @@
 # Current scientific scoreboard
 
-Updated UTC: 2026-10-16T01:54:36.756917+00:00
+Updated UTC: 2026-10-16T02:43:44.137423+00:00
 
 [All measured cohort details](#detailed-cohort-metrics) · [Complete historical receipt inventory](all_recorded_metric_receipts.md) · [Fresh H048 novelty/cross-domain audit](../research/reviews/H048_novelty_crossdomain_fresh_20261015_v1/report.md)
 
@@ -387,7 +387,7 @@ Both contrasts use later-minus-earlier and the same13-person complete GP support
 
 [Actual report and registered outcome](../research/reviews/H055_root_actual_CPU_20261016_v1/REPORT.md) · [Post-outcome biological context audit](../research/reviews/H055_actual_biological_interpretation_audit_20261016_v1/)
 
-H056 separately registers the frozenH045 model on the same10query subjects and three nominal windows. Source/cardinality qualification is pending. Existing H045 real-data output covers7of10people onchr22 only. No H056 model score exists.
+H056 freezes H045 on the same ten query subjects and three nominal windows. Independent source review and one tiny CPU FP32 interface qualification completed. Actual phased-data acquisition, genealogy and full frozen-model application remain pending. Existing H045 output covers seven of ten people on chr22 only. No H056 ancestry-accuracy score exists. [Actual interface qualification](../research/reviews/H056_root_single_FP32_qualification_20261016_v1/actual_single_FP32_fixture.root_v1.json).
 
 
 ## H046 matched continuous-flank outcome
@@ -423,8 +423,8 @@ H048 retains 31,933 parameters per arm and a fixed 30-pass/960-update schedule. 
 |---|---|---|
 | Native ARGformer | unavailable | Fresh native VAL000 MLM admitted but not started. Held for the next controller so evaluation can run alongside the long fit. Original input, 7 GiB charge and expiry preserved. Five epochs and 227,990 updates planned. No ancestry score. |
 | Native ARGformer dataset counts | not an accuracy run | completed; actual count producer wait0 and drain verified |
-| Native FLARE | unavailable | Author build and TRAIN000 full-site conversion completed with actual wait0. Native inference: completed; actual wait0 and owned-group drain verified; sealing: completed; actual wait0 and owned-group drain verified. Native completed allowance closed; 8977226240 unused bytes credited with all files preserved. Accuracy pending; TRAIN000 is development, not held-out. |
-| Our C3 GNN | unavailable | TRAIN000 exact native focal/plan preparation: completed with actual wait0; explicit retry after missing-parent directory repair, original failure preserved; 10000 focals, 4897 trees, 14937 sites, 154 blocks. remaining TRAIN001–013 fanout 5/13 completed with actual wait0; terminal failed_or_stopped_partial_preserved; root requested cooperative stop of new additions to relieve GPU training mutex contention, current scientific children drain unchanged. Fresh controlled TRAIN006–015 continuation 10/10 completed with genuine wait0; max2CPU producers; terminal completed_selected_remaining_exact_focal_plan_preparations. run016_017_v1: 2/2 genuine completed waits; completed_selected_remaining_exact_focal_plan_preparations. run018_v1: 1/1 genuine completed waits; completed_selected_remaining_exact_focal_plan_preparations. run019_v1: 1/1 genuine completed waits; completed_selected_remaining_exact_focal_plan_preparations. Shared 30 Mb VAL000 inference completed. Remaining TRAIN parents, checkpoint and full prespecified VAL gate pending |
+| Native FLARE | unavailable | Held-out VAL000 conversion: completed; actual wait0 and owned-group drain verified. Inference: completed; actual wait0 and owned-group drain verified. Prediction seal: prediction worker completed; direct wait0 and owned-group drain verified, outer tool terminal/final guard unconfirmed. Common-method scoring remains pending. |
+| Our C3 GNN | unavailable | Running on physical GPU 0. All 20 observed-input caches and TRAIN target joins are complete. The first scheduled durable model checkpoint is at 100 updates, so optimizer counts remain unverified. Full 600-update campaign continues. No ancestry score yet. The second original 30 Mb VAL observation plan (VAL001) is completed and closed, with 76,453 trees and 227,316 sites. No VAL targets were opened. Original full 30 Mb VAL000 observation preparation is complete. Full prespecified prediction/scoring gate pending. |
 
 The TRAIN000 conversion is development evidence. Independent VAL000 inference now has its own actual completion/wait receipts; its method predictions and common-truth scoring remain pending. Original 30 Mb VAL000 simulation: completed; actual wait0 and owned-group drain verified; inferred observation: completed; actual wait0 and owned-group drain verified; shared native-path/10k-focal preparation: completed; actual wait0 and owned-group drain verified. R600/Q1000 identities stay common. No VAL ancestry score. Original full30Mb VAL000 native preparations are ready; method predictions and common-truth scores remain pending. Native FLARE VAL000 target bound: 228477 sites, common R600/Q1000. Fresh memo2 conversion: completed; actual wait0 and owned-group drain verified; predictions/scoring pending. Earlier conversion deliberately stopped to repair scheduler contention, with all artifacts retained. Original-paper simulation assumptions and source versions remain explicitly documented.
 

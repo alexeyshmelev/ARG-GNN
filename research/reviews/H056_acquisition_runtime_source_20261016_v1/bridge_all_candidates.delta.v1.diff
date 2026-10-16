@@ -1,0 +1,16 @@
+--- research/reviews/H056_H36_implementation_20261016_v1/bridge_h36_v1.py
++++ research/reviews/H056_acquisition_runtime_source_20261016_v1/bridge_all_candidates_v1.py
+@@ -20,8 +20,11 @@
+     require(int(row["absolute_bp0"]) == p-1 and int(row["region_bp0"]) == p-1-BEGIN,
+             "Exact absolute/regional coordinate join")
+     ref, alt = row["REF"], row["ALT"]
+-    require(ref in BASES and alt in BASES and len(ref) == len(alt) == 1 and ref != alt,
+-            "Original biallelic nucleotide identity")
++    require(isinstance(ref,str) and isinstance(alt,str) and ref and alt
++            and not any(c in ref+alt for c in "\t\r\n"), "Exact all-candidate REF/ALT text identity")
++    if row["H018_fixed_QC_pass"] == "1":
++        require(ref in BASES and alt in BASES and len(ref) == len(alt) == 1 and ref != alt,
++                "Original retained QC1 biallelic nucleotide identity")
+     return chromosome, p, ref, alt
+ 
+ def frozen_mask(qc_raw,*,chromosome,counts):

@@ -904,7 +904,7 @@ def main():
             lines.append("| chr"+row["chromosome"]+" | "+str(row["SNPs"])+" | "+f"{row['means'][0]:.8f}"+" | "+f"{row['means'][1]:.8f}"+" |")
         lines.append("| Pooled | "+str(h055_summary["primary_SNPs"])+" | "+f"{h055_summary['pooled_equal_SNP_means'][0]:.8f}"+" | "+f"{h055_summary['pooled_equal_SNP_means'][1]:.8f}"+" |")
         lines += ["", "Both contrasts use later-minus-earlier and the same13-person complete GP support over the fixed three windows. Descriptive chromosome SDs: "+", ".join(f"{v:.8f}" for v in h055_summary["descriptive_chromosome_SD"])+". These are not independent uncertainty estimates. DeletingNEO92 flips the Sidelkino pooled sign. No neural model or ancestry truth was used.", "", "[Actual report and registered outcome](../research/reviews/H055_root_actual_CPU_20261016_v1/REPORT.md) · [Post-outcome biological context audit](../research/reviews/H055_actual_biological_interpretation_audit_20261016_v1/)", ""]
-    lines += ["H056 separately registers the frozenH045 model on the same10query subjects and three nominal windows. Source/cardinality qualification is pending. Existing H045 real-data output covers7of10people onchr22 only. No H056 model score exists.", ""]
+    lines += ["H056 freezes H045 on the same ten query subjects and three nominal windows. Independent source review and one tiny CPU FP32 interface qualification completed. Actual phased-data acquisition, genealogy and full frozen-model application remain pending. Existing H045 output covers seven of ten people on chr22 only. No H056 ancestry-accuracy score exists. [Actual interface qualification](../research/reviews/H056_root_single_FP32_qualification_20261016_v1/actual_single_FP32_fixture.root_v1.json).", ""]
     lines+=["","## H046 matched continuous-flank outcome","",h046_outcome,
         "[Completed H046 comparison and paired effects](../research/reviews/H046_completed_comparison_root_20261015_v1/REPORT.md).","",
         "## Live full-budget training","",
@@ -919,8 +919,8 @@ def main():
         "| Method | Current ancestry scores | Status |","|---|---|---|",
         "| Native ARGformer | unavailable | "+native_status+" |",
         "| Native ARGformer dataset counts | not an accuracy run | "+counts_status+" |",
-        "| Native FLARE | unavailable | "+flare_status+" |",
-        "| Our C3 GNN | unavailable | TRAIN000 exact native focal/plan preparation: "+focal_status+". "+fanout_status+". Shared 30 Mb VAL000 inference completed. Remaining TRAIN parents, checkpoint and full prespecified VAL gate pending |",
+        "| Native FLARE | unavailable | Held-out VAL000 conversion: "+flare_val_conversion["status"]+". Inference: "+flare_val_native["status"]+". Prediction seal: "+flare_val_seal["status"]+". Common-method scoring remains pending. |",
+        "| Our C3 GNN | unavailable | "+c3_status+" Original full 30 Mb VAL000 observation preparation is complete. Full prespecified prediction/scoring gate pending. |",
         "","The TRAIN000 conversion is development evidence. Independent VAL000 inference now has its own actual completion/wait receipts; its method predictions and common-truth scoring remain pending. "+val_status+" Original-paper simulation assumptions and source versions remain explicitly documented.","",
         table1_fidelity+" [Exact fidelity audit](../"+table1_audit_path+").","",
         "## GST molecular graph-set pilot","",
@@ -989,7 +989,7 @@ def main():
         "**GST and cross-domain status:** "+gst_status,"",
         "**TGB ordered cross-domain diagnostic:** "+tgb_status+" [Frozen protocol and actual per-year results](research/current_scoreboard.md#tgb-annual-trade-causal-diagnostic).","",
         ordered_support_note,"",
-        "Parallel ownership: two workers implement the frozen H056 same-cohort H045 application sources. One worker updates the development manuscript proposal. Root owns execution, outcomes, metrics and Git.","","<!-- CURRENT_SCOREBOARD_END -->"]
+        "Parallel ownership: two workers prepare the H056 acquisition and native/application runtime adapters. A third reviews acquisition source independently. Root owns GPU0 execution, actual outcomes, figures, metrics and Git.","","<!-- CURRENT_SCOREBOARD_END -->"]
     p=ROOT/"README.md"
     text=p.read_text()
     a="<!-- CURRENT_SCOREBOARD_START -->"

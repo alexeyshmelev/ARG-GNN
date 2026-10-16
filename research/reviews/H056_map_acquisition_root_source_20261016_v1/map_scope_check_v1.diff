@@ -1,0 +1,24 @@
+--- research/reviews/GPU45_TRAIN_controller_execution_override_20261016_v1/controller_metadata_scope_check_v1.py
++++ research/reviews/H056_map_acquisition_root_source_20261016_v1/map_scope_check_v1.py
+@@ -1,8 +1,8 @@
+-"""Finite controller metadata scope hotpath; never changes guards or accounting."""
++"""Exact8MiB H056 map scope hotpath. Original guards/accounting unchanged."""
+ from pathlib import Path
+ import hashlib,importlib.util,sys,time
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-SOURCE="research/reviews/GPU45_TRAIN_controller_execution_override_20261016_v1/controller_metadata_scope_check_v1.py"
++SOURCE="research/reviews/H056_map_acquisition_root_source_20261016_v1/map_scope_check_v1.py"
+ MEMO_REF=dict(path="research/reviews/resource_guard_hotpath_source_audit_v1/transaction_memo_adapter_v2.py",sha256="c972e9a779d424ceafdb258848614bf40994d1004e2c73fc5cd225ae99621364")
+ V4_REF=dict(path="src/arggnn/project_budget_v4.py",sha256="a093c7d86f57fee569cb99f4712250e9505a1119f3950fa44282c7ba8c57df47")
+ 
+@@ -19,8 +19,8 @@
+     Subsequent receipts explicitly do not claim a refreshed global projection.
+     """
+     def __init__(self,guard,storage):
+-        require(type(storage["reserved_new_bytes"]) is int and 32*2**20<=storage["reserved_new_bytes"]<=64*2**20,
+-            "Only isolated32to64MiB fully charged controller metadata reservation")
++        require(type(storage["reserved_new_bytes"]) is int and storage["reserved_new_bytes"]==8*2**20,
++            "Only one exact8MiB fully charged H056 map reservation")
+         require(storage["reservation"]["auxiliary_scopes"]==[],"Controller has exactly one isolated output scope")
+         for r in (MEMO_REF,V4_REF):
+             require(hashlib.sha256((ROOT/r["path"]).read_bytes()).hexdigest()==r["sha256"],"Exact reviewed memo2/originalv4")
