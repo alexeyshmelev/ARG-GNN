@@ -1,42 +1,36 @@
 # Research progress
 
-Updated UTC: 2026-10-16T10:46:12.790580+00:00.
+Updated UTC: 2026-10-16T11:36:59.228434+00:00.
 
-The compiled eleven-page AAAI draft and Overleaf working bundle are available. The paper is not submission-ready. The main unfinished work is evidence for a useful distinct contribution and complete faithful comparisons.
+The eleven-page AAAI draft, equations, preliminary schematic and Overleaf bundle exist. The scientific evidence is incomplete. No overall top-1, established architecture novelty or submission-ready claim is supported.
 
-| Shared European development pipeline | Present182 span accuracy, mean ± simulation SD (%) |
+| European shared development pipeline | Present182 span accuracy, mean ± simulation SD (%) |
 |---|---:|
-| H050 stable-leaf memory, current accuracy leader | 97.0778 ± 0.5674 |
-| H050 same-budget continued training | 97.0000 ± 0.4978 |
-| Historical H045 best | 96.8270 ± 0.5870 |
-| Matched H045 own-state control | 96.8175 ± 0.6142 |
+| Our stable-leaf memory | 97.0778 ± 0.5674 |
+| Our matched same-budget continued training | 97.0000 ± 0.4978 |
 | Current author ARGMix release | 94.4461 ± 1.1491 |
 | Released AncestralPaths, derived four-source endpoint | 93.7830 ± 0.8385 |
 
-All scores use eight reused VAL simulations, one optimizer seed, a 2 Mb shared panel. Differences in SNP inputs, training and selection prevent an architecture-only comparison or an original-paper reproduction claim. H050 stableleaf adds0.0778percentagepoints over same-budget continuation but lowers boundaryF1 from19.0488%to18.3807%. Triple-support failed both registered utility rules,so higher-order novelty remains unsupported.
+These scores use eight reused 2 Mb VAL simulations, one training seed and 952 haplotypes / 686 queries. Methods share scored support, but their SNP inputs, training and checkpoint selection differ. This is a pipeline comparison, without architecture-only attribution or an exact published-table reproduction.
 
+Stable-leaf memory adds 0.0778 percentage points over continued training, while mean boundary F1 falls from 19.0488% to 18.3807%. The higher-order triple-support candidate fails its registered utility rules. The large difference from ARGMix does not prove the added memory mechanism is useful.
 
-**First American native baseline:** FLARE reaches **98.01% focal accuracy** and **97.7151% macro F1** on the single VAL000 simulation, all10,000 fixed common focal records. F1: EUR97.50%, EAS98.5822%, AFR97.0629%. No between-parent SD or GNN/ARGformer head-to-head score exists yet. [Full metrics and scope](reviews/FLARE_VAL000_score_H020980_root_20261016_v1/REPORT.md).
+| Required evidence | Status |
+|---|---|
+| European development and population-level metrics | Completed, with confusion maps, NLL, boundaries and calibration in the scoreboard |
+| American ARGformer / FLARE / GNN common-data comparison | Incomplete. Native FLARE on one VAL parent: 98.0100% focal accuracy, 97.7151% macro F1 over 10,000 fixed focal records. GNN and native ARGformer ancestry scores remain unavailable |
+| American GNN training | Running on physical GPU0, at least 224/600 completed updates and durable checkpoint200 |
+| American held-out preparation | VAL002 native paths and its full30Mb GNN block plan completed. VAL003 and VAL004 full30Mb simulations completed, with inference and native paths still needed |
+| Larger ARGMix condition | Numerical generation completed for1,611 diploids over35,178,458bp. Parent monitoring failed after child wait0. Saved products have passed a source/metadata audit, separate data acceptance pending. No training or comparison score |
+| Independent European test and final uncertainty | Eight reserved outer simulations remain ungenerated. Final selected-model seed uncertainty is unfinished |
+| Useful distinct architecture | Unproved. Current added-mechanism gain is small and boundary utility worsens |
+| Cross-domain result | TGB completed, negative. Persistence exceeds all learned variants. Full GST comparison is unfinished |
+| Real-data validation | Danish application and genotype analysis completed descriptively. No ancestry truth. Independent genotype contrasts did not support the registered directions |
+| Final manuscript | Working11-page AAAI draft compiled. Final benchmark tables, final architecture figure and fresh manuscript review remain |
 
-## Current execution
+The next scientific milestones are complete American head-to-head predictions, accepted larger-panel data and a faithful ARGMix comparison, then an independently confirmed useful mechanism. More prose cannot substitute for that evidence.
 
-- H050 European four-arm training and saved-fit evaluation completed. Stableleaf97.0778%,triple97.0640%,marginal97.0504%,continuation97.0000%. All23setups/sevencohorts and SDs are in the scoreboard. Both triple-support utility criteria failed.
-- American C3 GNN: C3 is training on physical GPU 0 after all 20 TRAIN observation banks completed. At least 197/600 optimizer updates are verified, including 97 after retained checkpoint 100. Latest progress receipts do not assert a new durable optimizer checkpoint. No American GNN ancestry score.
-- Native ARGformer: Native American ARGformer has no completed optimizer update or ancestry score. The prior GPU0 route failed before training because of inherited GPU eligibility checks. The corrected fresh operational successor passed independent source review. Its launch still requires genuine current C3/controller closure and fresh GPU0 capacity checks. Author numerical training and the original failure remain unchanged.
-- American validation preparation: full VAL002 native paths and full 30 Mb VAL003 simulation completed, each with genuine worker wait0, owned drain and outer exit0. VAL003 still needs tree inference and native-path preparation. These are data preparation milestones, without ancestry scores.
-- TGB full campaign and VAL/TEST evaluation completed. TEST NDCG@10: first-order0.83238±0.01125, conditional-triple0.83045±0.01101, tree-only0.82706±0.01134, persistence0.84688±0.01439. No higher-order benefit. SD across3dependent years, one optimizerseed.
-- GPU0 has an unrelated13542MiB process. Our C3 continuation is running, native monitor correction proceeds separately. Device utilization must not be attributed wholly to our project.
-
-**Larger-panel execution failure:** First full prospective 1,611-diploid TRAIN generation failed after 120.54 seconds because the storage boundary check detected scope stat/membership changes. Actual outer exit1, child wait-15 and owned drain recorded. No completed simulation, fit or ancestry score. Failed artifacts and full reservation retained, no automatic retry.
-
-## Evidence still needed
-
-1. Complete the common American ARGformer, FLARE and GNN ancestry table across original validation parents. First native FLARE VAL000 score is complete, GNN/ARGformer and remaining parents are pending.
-2. Larger prospective ARGMix comparison. First full 1,611-diploid mapped chr22 TRAIN generation failed after 120.54 seconds because a storage boundary check required stable file metadata while the generator was writing. Actual outer exit1 and owned child wait-15/drain are recorded. No completed parent or scores. The original-table inputs remain unavailable.
-3. Eight untouched European outer tests and training-seed uncertainty for the final selected method.
-4. A useful matched gain attributable to the proposed mechanism and a defensible novelty claim.
-5. Useful learned cross-domain evidence and stronger biological corroboration. The completed Danish application is descriptive. Its CHG contrast is chromosome-sensitive, and the independent genotype contrasts did not support the registered directions.
-6. Final result tables, architecture figure and independent manuscript review after the scientific evidence is complete.
+[Current score details](current_scoreboard.md) · [Actual runtime and generation snapshot](reviews/user_progress_20261016_v3/snapshot.root_v1.json) · [Working paper](../paper/current_full_panel_working.pdf) · [Overleaf bundle](../paper/current_full_panel_overleaf_working.zip)
 
 ## ARGMix correction
 

@@ -559,7 +559,11 @@ def main():
         ("american_c3_val_003","simulate"):(
             "experiments/results/American_C3_val003_full30mb_simulate_H020v3_v1",
             "research/reviews/American_C3_VAL003_simulate_H020v3_source_20261016_v1/admitted_simulate_H020v3_v1",
-            "research/reviews/American_C3_VAL003_simulate_H020v3_source_20261016_v1/actual_tool_terminal.root_v1.json")}
+            "research/reviews/American_C3_VAL003_simulate_H020v3_source_20261016_v1/actual_tool_terminal.root_v1.json"),
+        ("american_c3_val_004","simulate"):(
+            "experiments/results/American_C3_val004_full30mb_simulate_H020v3_v1",
+            "research/reviews/American_C3_VAL004_simulate_H020v3_source_20261016_v1/admitted_simulate_H020v3_v1",
+            "research/reviews/American_C3_VAL004_simulate_H020v3_source_20261016_v1/actual_tool_terminal.root_v1.json")}
     for row in remaining_val_phases:
         successor=phase_successors.get((row["parent_id"],row["stage"]))
         if successor and (ROOT/successor[1]/"admission.json").is_file():
@@ -1019,6 +1023,20 @@ def main():
         assert wait["actual_direct_worker_wait"] is True and wait["returncode"]==-15
         assert wait["all_owned_processes_and_groups_drained"] is True
     prospective_status=prospective_state.get("summary","Full prospective panel generation has no recorded terminal.")
+    prospective_successor=prospective_state.get("operational_successor")
+    if prospective_successor:
+        successor_terminal_ref=prospective_successor["actual_tool_terminal_ref"]
+        assert ref(successor_terminal_ref["path"])==successor_terminal_ref
+        successor_terminal=read(successor_terminal_ref["path"])
+        assert successor_terminal["actual_terminal_consumed"] is True and successor_terminal["actual_exit_code"]==1
+        successor_wait_ref=prospective_successor["actual_wait_ref"]
+        assert successor_terminal["actual_wait_ref"]==successor_wait_ref
+        assert ref(successor_wait_ref["path"])==successor_wait_ref
+        successor_wait=read(successor_wait_ref["path"])
+        assert successor_wait["returncode"]==0 and successor_wait["all_owned_processes_and_groups_drained"] is True
+        observed_ref=prospective_successor["observed_generation_receipt_ref"]
+        assert ref(observed_ref["path"])==observed_ref and read(observed_ref["path"])["complete"] is True
+        prospective_status=prospective_successor["summary"]+" Original attempt failure remains preserved separately."
     tgb_results_path="experiments/results/H052_TGB_trade_causal_native_baselines_v1/results.json"
     tgb_terminal_path="research/reviews/TGB_trade_causal_baselines_root_20261016_v1/actual_tool_terminal.root_v1.json"
     tgb_results=maybe_read(tgb_results_path);tgb_terminal=maybe_read(tgb_terminal_path)
