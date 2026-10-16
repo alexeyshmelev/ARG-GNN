@@ -1,6 +1,6 @@
 # Current scientific scoreboard
 
-Updated UTC: 2026-10-16T18:03:37.955663+00:00
+Updated UTC: 2026-10-16T18:25:32.335041+00:00
 
 [All measured cohort details](#detailed-cohort-metrics) · [Complete historical receipt inventory](all_recorded_metric_receipts.md) · [Fresh H048 novelty/cross-domain audit](../research/reviews/H048_novelty_crossdomain_fresh_20261015_v1/report.md)
 
@@ -527,7 +527,7 @@ H048 retains 31,933 parameters per arm and a fixed 30-pass/960-update schedule. 
 
 | Method | Current ancestry scores | Status |
 |---|---|---|
-| Native ARGformer | unavailable | Native ARGformer v10 source and separate ROOT preparation passed independent review. Actual preparation returned0 and one exact executor launch was issued under tool10747. Preserved6500 checkpoint, full-state restore and any new updates await actual worker evidence. Priorv9prelaunchfailure remains preserved. No ancestry score. |
+| Native ARGformer | unavailable | Native ARGformer is training on physicalGPU0. A new full-state checkpoint independently verifies10000/227990 AdamW updates across all77 parameter states,3500 beyond the preserved6500 checkpoint. Model, scheduler, callbacks and RNG entries are present. Saved progress is a lower bound while the worker remains live. Correct NVTOP process title confirmed. No ancestry score or completed full fit. |
 | Native ARGformer dataset counts | not an accuracy run | completed; actual count producer wait0 and drain verified |
 | Native FLARE | 98.0100% focal accuracy | Completed fixed native-call score on one VAL parent, not a multi-parent paper-table reproduction. Macro F1 97.7151%. Held-out VAL000 conversion: completed; actual wait0 and owned-group drain verified. Inference: completed; actual wait0 and owned-group drain verified. Prediction seal: prediction worker completed; direct wait0 and owned-group drain verified, outer tool terminal/final guard unconfirmed. The GNN/ARGformer comparison remains pending. |
 | Our C3 GNN | unavailable | American C3 saved all 600 optimizer updates across 30 epochs. Independent CPU audit verified all six checkpoints, complete AdamW counters and finite model states. The controller records leader exit 1 and owned drain, while original outer tool74136 remains unconsumed. Separate saved-model acceptance and evaluation are pending. No American GNN ancestry score. Original full 30 Mb VAL000 observation preparation is complete. Full prespecified prediction/scoring gate pending. |
