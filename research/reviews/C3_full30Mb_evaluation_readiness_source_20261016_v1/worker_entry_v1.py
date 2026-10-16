@@ -1,0 +1,149 @@
+"""Exact CPU evaluation adapter. Default inert. No array/model imports before authority."""
+from pathlib import Path
+import argparse,importlib.util,json,os,resource,sys,time
+ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+HERE="research/reviews/C3_full30Mb_evaluation_readiness_source_20261016_v1"
+sys.path[:0]=[str(ROOT),str(ROOT/"src"),str(ROOT/"scripts"),str(ROOT/HERE)]
+import evaluation_contract_v1 as c
+
+class GuardedLoaderV1:
+    """Operational checks only; every original block and its order passes unchanged."""
+    def __init__(self,loader,check):self.loader,self.check=loader,check
+    def __getattr__(self,name):return getattr(self.loader,name)
+    def __iter__(self):
+        self.check("before_original_loader_iteration")
+        for block in self.loader:
+            self.check("before_original_whole_tree_inference_block")
+            yield block
+            self.check("after_original_whole_tree_inference_block")
+
+def predict_v1(req,training_bundle,training,writer,fast):
+    import torch
+    from arggnn.american_c3_gnn_shared30mb_isolated_v2 import (
+        MODEL_KWARGS,validate_shared_plan_v1,validate_shared_metadata_v1,seal_shared_val_prediction_v1)
+    from arggnn.american_c3_gnn_model_v1 import AmericanC3WholeTreeGNNV1
+    from arggnn.american_c3_gnn_dataset_isolated_v2 import AmericanC3WholeTreeDatasetV1,make_dataloader
+    from arggnn.american_c3_gnn_predict_isolated_v2 import completed_training_v1
+    parent=c.VAL[int(req["phase"][-3:])];plan_ref=req["plan_evidence"]["plan_ref"];plan=c.read(plan_ref)
+    validate_shared_plan_v1(plan,parent_id=parent);validate_shared_metadata_v1(plan["config"],parent_id=parent)
+    c.require(completed_training_v1(training_bundle["training_completion_ref"])==training,"Same600-update training completion")
+    # Strict original checkpoint loading replaces every parameter. Initial RNG draw
+    # is not a new fit or a new weight initialization used by inference.
+    with torch.device("cpu"):model=AmericanC3WholeTreeGNNV1(**MODEL_KWARGS)
+    model=model.to(torch.device("cpu"));seals=[]
+    for candidate in training["checkpoint_candidates"]:
+        fast("before_original_six_candidate_cell")
+        datasets=[AmericanC3WholeTreeDatasetV1(plan_ref,direction=d,
+            worker_tmp_directory=writer.tmp) for d in ("forward","reverse")]
+        loaders=[GuardedLoaderV1(make_dataloader(d,num_workers=0,pin_memory=False),fast) for d in datasets]
+        try:
+            seals.append(seal_shared_val_prediction_v1(model,*loaders,parent_id=parent,
+                checkpoint_ref=candidate["checkpoint_ref"],training_completion_ref=training_bundle["training_completion_ref"],
+                writer=writer,device=torch.device("cpu"),runtime_guard=fast))
+        finally:
+            # Original zero-worker two-pass producer drains both loaders itself.
+            for d in datasets:d._state=None;d._pid=None
+    del model
+    return writer.save(parent+"_all6_prediction_seals.json",dict(
+        status="sealed_C3_one_original_VAL_all6_candidates",parent_id=parent,
+        training_completion_ref=training_bundle["training_completion_ref"],prediction_seal_refs=seals,
+        common_focal_records=10000,private_truth_opened=False,TEST_deferred=True,
+        complete_original5VAL_barrier_still_required=True,exact_CPU_FP32_source_math=True,
+        architecture="AmericanC3WholeTreeGNNV1",full_TreeLoom_history_pair_model_claimed=False,
+        all1600_graph_and_recurrent_columns_preserved=True,no_context_cache_or_protocol_reduction=True))
+
+def matrix_v1(req,bundle,writer,fast):
+    from arggnn.american_c3_gnn_predict_isolated_v2 import seal_validation_matrix_v1
+    refs=[]
+    for parent in c.VAL:
+        env=c.read(req["VAL_predictions"][parent]["completion_ref"]);six=c.read(env["result_ref"])
+        refs.extend(six["prediction_seal_refs"])
+    fast("before_original30cell_prediction_barrier")
+    return seal_validation_matrix_v1(refs,training_completion_ref=bundle["training_completion_ref"],writer=writer)
+
+def score_v1(req,bundle,writer,fast):
+    from arggnn.american_c3_gnn_selection_isolated_v2 import (
+        validation_matrix_v1,score_validation_matrix_v1,select_original_val_checkpoint_v1)
+    matrix_ref=c.read(req["matrix"]["completion_ref"])["result_ref"]
+    # Authenticate every30-cell prediction and registry SHA before a resolver is built.
+    matrix,training,cells=validation_matrix_v1(matrix_ref)
+    c.require(matrix["training_completion_ref"]==bundle["training_completion_ref"],"Same complete trained family")
+    truth={}
+    for parent in c.VAL:
+        plan=c.plan_ready_v1(req["plan_evidence_by_parent"][parent],parent)
+        c.require(all(cell["focal_registry_ref"]==plan["focal_registry_ref"] for (epoch,p),cell in cells.items() if p==parent),
+                  "Every checkpoint scored on exact same native focal identity/support registry")
+        simref=req["VAL_truth_capability"][parent];sim=c.read(simref);obs=c.read(plan["observation_ref"])
+        c.require(sim["status"]=="completed_C3_simulation_reconstruction" and sim["parent_id"]==parent
+            and sim["class_order"]==["EUR","EAS","AFR"]
+            and obs["source_observation_ref"]==sim["observation_ref"]
+            and sim["private_truth_ref"]["path"]==str(Path(simref["path"]).parent/"truth/c3_pulse_ancestry.npz"),
+            "Separate same-parent simulation truth, not an unrelated truth capability")
+        truth[parent]=sim["private_truth_ref"]
+        if parent=="american_c3_val_000":
+            comparison=c.read(c.manifest_v1()["common_comparator_score_ref"])
+            c.require(comparison["focal_registry_ref"]==plan["focal_registry_ref"]
+                and comparison["external_truth_ref"]==truth[parent],"Exact existing FLARE common focal/truth support")
+    def resolve(parent):
+        c.require(parent in c.VAL,"Only original5VAL after complete30-cell barrier")
+        return truth[parent]
+    scored=score_validation_matrix_v1(matrix_ref,writer=writer,resolve_val_truth=resolve,runtime_guard=fast)
+    fast("before_original_fixed_checkpoint_selection")
+    selected=select_original_val_checkpoint_v1(scored,writer=writer)
+    return writer.save("score_and_selection_completed.json",dict(status="completed_C3_original30_scores_and_selection",
+        score_matrix_ref=scored,selected_checkpoint_ref=selected,validation_matrix_ref=matrix_ref,
+        training_completion_ref=bundle["training_completion_ref"],original_metric_equations_unchanged=True,
+        all30_seals_precede_VAL_truth=True,TEST_deferred=True,full_TreeLoom_history_pair_model_claimed=False))
+
+def execute(record):
+    spec,req,caps=c.validate_input_v1(record)
+    c.require(Path.cwd().resolve()==ROOT and os.environ.get("CUDA_VISIBLE_DEVICES")=="","Exact CPU-only repository execution")
+    c.require(sys.prefix==str(ROOT/".runtime/env"),"Exact existing shared Torch/PyG interpreter")
+    for key in ("TMPDIR","TMP","TEMP"):
+        c.require(os.environ.get(key)==str(c.local(req["packet_directory"]+"/worker_tmp")),"Charged private runtime TMP")
+    guard,_=c.consumer_guard();storage=c.read(spec["refs"]["storage"])
+    guard.validate_storage_v9(spec,dict(output_cap_bytes=caps["reservation_cap_bytes"]),storage,
+        source_ref=c.ref(c.ENTRY),config_ref=spec["refs"]["config"],runtime_ref=c.RUNTIME_REF)
+    from arggnn.american_c3_common_v1 import runtime_report
+    c.require(runtime_report()==c.read(c.RUNTIME_REF),"Exact prequalified shared CPU package/runtime metadata")
+    import numpy as np,torch,torch_geometric
+    c.require(str(torch.__version__)=="2.6.0+cu124" and torch_geometric.__version__=="2.7.0","Original Torch/PyG versions")
+    torch.set_num_threads(caps["CPU_threads"]);torch.set_num_interop_threads(1)
+    c.require(not torch.cuda.is_initialized(),"No CUDA context in exact CPU option")
+    from arggnn import census_tsinfer_fit_v1 as fit
+    fit.np=np;fit.torch=torch
+    raw=guard.PilotOutputV9(spec["output_directory"],storage,fit.ConsumerReaderV1());start=time.monotonic()
+    def fast(event="C3_exact_CPU_evaluation"):
+        c.active(spec);c.active(req)
+        c.require(time.monotonic()-start<caps["operational_deadline_seconds"],"Actual full-stage deadline, no truncation")
+        c.require(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss*1024<=caps["max_cpu_rss_bytes"],"Original owned main RSS failstop")
+        c.require(not torch.cuda.is_initialized(),"CPU-only inference retains zero CUDA context")
+    class Writer:
+        path=raw.path
+        tmp=req["packet_directory"]+"/worker_tmp"
+        def save(self,name,value,kind="json"):
+            fast("before_exact_guarded_product_write")
+            result=raw.save(name,value,kind=kind)
+            c.require(raw.used<=caps["phase_write_budget_bytes"],"Bounded complete per-stage product budget")
+            return result
+    writer=Writer();bundle,training=c.training_ready_v1(req["training_evidence_ref"])
+    writer.save("started.json",dict(status="started_C3_exact_CPU_evaluation",stage=req["phase"],input_ref=record,
+        architecture="AmericanC3WholeTreeGNNV1",training_completion_ref=bundle["training_completion_ref"],
+        device="cpu",num_workers=0,full30Mb_fit_or_accuracy_claimed=False,TEST_deferred=True))
+    fast()
+    if req["phase"].startswith("predict_val_"):result=predict_v1(req,bundle,training,writer,fast)
+    elif req["phase"]=="matrix":result=matrix_v1(req,bundle,writer,fast)
+    else:result=score_v1(req,bundle,writer,fast)
+    fast("completed_original_evaluation_stage")
+    return writer.save("completed.json",dict(status=c.STATUSES[req["phase"]],stage=req["phase"],parent_id=c.PARENT,
+        input_ref=record,root_driver_ref=c.ref(c.DRIVER),result_ref=result,device="cpu",
+        native_MLM_dependency=False,TEST_deferred=True,training_completion_ref=bundle["training_completion_ref"]))
+def main(argv=None):
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument("--execute",action="store_true")
+    p.add_argument("--input");p.add_argument("--expected-input-sha256");a=p.parse_args(argv)
+    if not a.execute:
+        print(json.dumps(dict(status="SOURCE_ONLY_INACTIVE",device_option="cpu",phases=list(c.PHASES),actual_execution=False)));return 0
+    c.require(a.input and a.expected_input_sha256,"Actual separate ROOT input and SHA required")
+    result=execute(dict(path=a.input,sha256=a.expected_input_sha256))
+    print(json.dumps(dict(completed_ref=result)),flush=True);return 0
+if __name__=="__main__":raise SystemExit(main())
