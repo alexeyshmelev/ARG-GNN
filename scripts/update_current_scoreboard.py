@@ -550,6 +550,30 @@ def main():
             state=cpu_stage("experiments/results/American_C3_val%03d_full30mb_shared_v1/"%index+dirname,
                 (remaining_val_root if index==1 else "research/reviews/American_C3_remaining_VAL_namespace_memo_root_20261015_v1")+"/admitted_val%03d_"%index+stage+"_v1")
             remaining_val_phases.append(dict(parent_id="american_c3_val_%03d"%index,stage=stage,**state))
+    # Exact fresh operational successors retain original parent/scientific settings.
+    phase_successors={
+        ("american_c3_val_002","native_paths"):(
+            "experiments/results/American_C3_val002_full30mb_native_paths_H020v3_v1",
+            "research/reviews/American_C3_VAL002_native_paths_H020v3_source_20261016_v1/admitted_native_paths_H020v3_v1",
+            "research/reviews/American_C3_VAL002_native_paths_H020v3_source_20261016_v1/actual_tool_terminal.root_v1.json"),
+        ("american_c3_val_003","simulate"):(
+            "experiments/results/American_C3_val003_full30mb_simulate_H020v3_v1",
+            "research/reviews/American_C3_VAL003_simulate_H020v3_source_20261016_v1/admitted_simulate_H020v3_v1",
+            "research/reviews/American_C3_VAL003_simulate_H020v3_source_20261016_v1/actual_tool_terminal.root_v1.json")}
+    for row in remaining_val_phases:
+        successor=phase_successors.get((row["parent_id"],row["stage"]))
+        if successor and (ROOT/successor[1]/"admission.json").is_file():
+            row.update(cpu_stage(successor[0],successor[1]))
+            row["operational_successor_original_science"]=True
+            row["actual_output_directory"]=successor[0]
+            terminal=maybe_read(successor[2])
+            row["actual_outer_tool_terminal_ref"]=ref(successor[2]) if terminal else None
+            if row["completed_and_wait0_verified"]:
+                terminal_ok=bool(terminal and terminal.get("actual_terminal_consumed") is True
+                    and terminal.get("actual_exit_code")==0 and terminal.get("completed_ref")==row["completion_ref"])
+                row["outer_terminal0_verified"]=terminal_ok
+                if not terminal_ok:
+                    row["status"]="producer completed with wait0/drain, actual outer terminal remains unconfirmed"
     remaining_val_status="; ".join(r["parent_id"][-3:]+"/"+r["stage"]+": "+r["status"] for r in remaining_val_phases if r["status"]!="not admitted")
     remaining_val_status=remaining_val_status or "Original remaining VAL001–004 source ready; actual execution pending."
     native_launch="research/reviews/American_C3_native_MLM_amendment_v10/root_execution_admin_v2/worker_metadata/v11_root_outer_launch.json"
@@ -971,7 +995,7 @@ def main():
                     native_execution.update(current_status=native_status,GPU0_runtime_snapshot_ref=ref(gpu0_snapshot_path),running=entry.get("state")=="running")
                 elif kind=="C3":
                     c3_status=entry["summary"]
-                    c3_execution.update(status=c3_status,GPU0_runtime_snapshot_ref=ref(gpu0_snapshot_path),running=entry.get("state")=="running")
+                    c3_execution.update(status=c3_status,GPU0_runtime_snapshot_ref=ref(gpu0_snapshot_path),running=entry.get("state")=="running",new_GPU0_execution_pending=entry.get("state")!="running",actual_optimizer_updates_lower_bound=entry.get("optimizer_steps_verified"),latest_optimizer_progress_ref=entry.get("latest_optimizer_progress_ref"))
                     c3_device="GPU0"
     h050_saved_entry=gpu0_snapshot.get("jobs",{}).get("H050",{}) if gpu0_snapshot else {}
     h050_saved_steps=h050_saved_entry.get("optimizer_steps_verified",{})
@@ -983,6 +1007,18 @@ def main():
         h050_device="CPU evaluation complete"
     else:
         h050_execution_status+=" "+h050_outcome
+    prospective_state=gpu0_snapshot.get("jobs",{}).get("prospective1611_first_generation",{}) if gpu0_snapshot else {}
+    prospective_terminal_ref=prospective_state.get("actual_tool_terminal_ref")
+    prospective_terminal=read(prospective_terminal_ref["path"]) if prospective_terminal_ref else None
+    if prospective_terminal:
+        assert ref(prospective_terminal_ref["path"])==prospective_terminal_ref
+        assert prospective_terminal.get("actual_terminal_consumed") is True and prospective_terminal.get("actual_exit_code")==1
+        assert prospective_terminal.get("actual_wait_ref")==prospective_state.get("actual_wait_ref")
+        wait=read(prospective_state["actual_wait_ref"]["path"])
+        assert ref(prospective_state["actual_wait_ref"]["path"])==prospective_state["actual_wait_ref"]
+        assert wait["actual_direct_worker_wait"] is True and wait["returncode"]==-15
+        assert wait["all_owned_processes_and_groups_drained"] is True
+    prospective_status=prospective_state.get("summary","Full prospective panel generation has no recorded terminal.")
     tgb_results_path="experiments/results/H052_TGB_trade_causal_native_baselines_v1/results.json"
     tgb_terminal_path="research/reviews/TGB_trade_causal_baselines_root_20261016_v1/actual_tool_terminal.root_v1.json"
     tgb_results=maybe_read(tgb_results_path);tgb_terminal=maybe_read(tgb_terminal_path)
@@ -1107,6 +1143,7 @@ def main():
             original_paper_reproduction=False,untouched_outer_test_completed=False),
         models=models,live_jobs=jobs,GST_TRAIN1000_seed0_VALID_AP=gst,
         H046_completed_comparison=dict(summary_ref=ref(h046_summary),paired_effects=h046["paired_effects"],status=h046_outcome) if h046_ready else None,
+        ARGMix_prospective1611_first_generation=prospective_state,
         original_American_C3=dict(our_GNN_score=None,native_ARGformer_score=None,native_FLARE_score=flare_val_score if flare_val_score["ready"] else None,
             status=val_status+" Native ARGformer, FLARE and our C3 adapter proceed in parallel.",shared_VAL_preparation_status=val_status,native_ARGformer_execution_status=native_status),
         real_data=dict(predictions_available=empirical_verified,PCA_available=empirical_verified,products_written=empirical_products,completion_verified=empirical_verified,observed_bank_prepared=empirical is not None,
@@ -1207,7 +1244,7 @@ def main():
         lines.append(f"| {k} | {v['selected_VALID_AP']:.8f} | {v['selected_epoch']} |")
     lines+=["","Full TRAIN parsing retains10,439/10,500 reactions. This is data readiness, not a new model score. [Fresh task-semantics/transfer assessment](../"+novelty_path+").",""]+pilot_lines+["",
         "## Real data and paper","",
-        real_status+" No empirical ancestry accuracy exists. The AAAI draft is10pages and remains unfinished.","",
+        real_status+" No empirical ancestry accuracy exists. The AAAI draft is11pages and remains unfinished.","",
         "## Evidence and complete recorded inventory",""]
     for r in models:
         p=r["source_ref"]["path"]
@@ -1276,7 +1313,7 @@ def main():
         "**Biological comparison scope:** Our current AncestralPaths comparator is the released Dense workflow with derived four-source probability collapse. Native six-path ancestry and BAA-excluded four-path retraining are distinct endpoints. [Exact labels, cohorts and protocol differences](docs/biological_comparison_scope.md).", "",
         "**Remaining biological error:** H045 recovers22.59% of true Present182 changes at1kb tolerance despite96.827% span accuracy. Across8VAL parents its selected predictions match905 changes, miss3103 and add5063extra calls. [Audited residual-error table and scope limits](research/reviews/residual_biological_errors_20261015_v1/REPORT.md).", "",
         "**Comparison contract:** Use the same observed genomes, reference/query identities, truth and scored support. Each method keeps its native representation, such as VCFs, ancestral paths or PyG tensors. Extra inputs, training changes and reconstruction differences are disclosed. Native-format differences do not postpone a shared-data comparison.","",
-        "**Next ARGMix comparison, not yet run:** A prospective 1,611-diploid paired panel with explicit reference/query roles. The official HapMapII GRCh37 chr22 map has been acquired and the generator map contract passed. Simulation and model comparison remain pending. This is a new common-data comparison, distinct from the unavailable original-table inputs. [Frozen plan and remaining adapters](research/reviews/ARGMix_published_panel_fair_comparison_source_plan_20261016_v1/HANDOFF.md).","",
+        "**Larger ARGMix comparison:** "+prospective_status+" The full condition is 1,611 diploids over the 35,178,458 bp mapped chr22 interval. It is a common-data reconstruction, distinct from the unavailable original-table inputs. [Frozen plan](research/reviews/ARGMix_published_panel_fair_comparison_source_plan_20261016_v1/HANDOFF.md).","",
         "**Paper readiness:** The compiled eleven-page AAAI draft now includes H050, its matched controls and the first native American FLARE score. It is not submission-ready. Complete American ARGformer/FLARE/GNN comparisons, a larger ARGMix comparison, independent held-out confirmation, useful operator novelty and stronger biological corroboration remain unfinished. The completed learned TGB comparison found no higher-order benefit. [Current H050 results and remaining scope](research/reviews/H050_completed_comparison_root_20261016_v1/REPORT.md) · [Draft scope](paper/README.md).", "",
         "**Danish biological corroboration:** "+h055_status+" [Actual results and limits](research/reviews/H055_root_actual_CPU_20261016_v1/REPORT.md).","",
         "**Current GPU policy: physical GPU0 only.** Our GPU4/5 jobs have stopped and their contexts/known roots are absent. Parallel jobs onGPU0 are permitted after fresh device-bound admission. [Policy and actual stop evidence](research/reviews/GPU0_only_user_transition_root_20261016_v1/GPU0_only_policy.root_active_v1.json).","",
@@ -1353,6 +1390,12 @@ def main():
         str(short_ready)+"/20 independent2Mb TRAIN inferred inputs and"+str(focal_ready)+"/20 exact focal plans are complete. Original TRAIN019 inference recovery completed with genuine remote wait0, preserving the earlier supervisor/transport failures.")
     text=text.replace("The 40-haplotype panel and pre-size/domain differences still need an explicit adapter and assessment. No ancestry or PCA result.",
         "The variable-panel adapter and H045 empirical application have completed, with ancestry probabilities, bp-weighted proportions and genotype PCA for24query haplotypes/12subjects. These are descriptive outputs without known ancestry truth. Panel/domain assessment remains necessary. [Completed application](experiments/results/H018_H045_empirical_application_root_v1/completed.json).")
+    # Keep the persistent completion checklist aligned with the current receipt summary.
+    completion_prefix="| American ARGformer / FLARE / our GNN |"
+    completion_row=(completion_prefix+" Partial. Native FLARE VAL000: "+flare_val_score_label+
+        ". "+c3_status+" Native ARGformer and the remaining common multi-parent scores are unfinished. |")
+    text="".join(completion_row+"\n" if line.startswith(completion_prefix) else line
+        for line in text.splitlines(keepends=True))
     p.write_text(text)
     print(json.dumps(dict(current_setups=len(models),cohorts=len(COHORTS),recorded_metric_receipts=len(inventory),live_jobs=jobs,updated_utc=stamp)),flush=True)
 if __name__=="__main__":

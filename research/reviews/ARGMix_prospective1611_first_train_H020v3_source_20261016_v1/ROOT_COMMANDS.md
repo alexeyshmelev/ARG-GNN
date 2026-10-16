@@ -1,0 +1,18 @@
+# Root recipe (deferred; no commands here were executed)
+
+1. Independently review this sealed source successor. Consult/register the original prospective experiment or an explicit repeat reason under the project's existing ledger rules. Only published_recon_train_000 is eligible.
+2. Root obtains actual current CPU/memory/storage observations while preserving every running/external process. Populate a new immutable actual capacity receipt from capacity_verification.template.inactive.v1.json: current root observations true, source_only_estimate false, exact available bytes/CPU, current UTC, fresh unique scope and exact wrapper/active H020v3 refs. Do not require native success or reinterpret original TRAIN stop as success. The live guard must independently admit the full16GiB including normal per-event charge under980GB. If projected capacity is insufficient, leave this package inactive.
+3. Populate a separate immutable actual request from root_request.template.inactive.v1.json, leaving templates unchanged. Root authorizer=root_agent, active=true, registered_before_execution=true, unique matching scope, actual capacity ref, exact CPU and aware current UTC. Expiry must cover21600s+600s, be <=8h away and plus600s precede the renewal certificate expiry. Preserve both historical refs/false success flags, exact runtime metadata and all no-retry/no-fallback fields. Select actual runtime_support_refs if needed; all are authenticated, and the full eligible union must stay<=64 without dropping required refs.
+4. Root invokes the exact pinned interpreter from the repository cwd, with the actual request path and real SHA. This is an illustrative deferred invocation with placeholders, not a runnable fabricated authority:
+
+    cd /workspace-SR003.nfs2/ARG-GNN
+    PYTHONPATH=.:src:scripts .runtime/env/bin/python -B research/reviews/ARGMix_prospective1611_first_train_H020v3_source_20261016_v1/root_generate_v1.py --execute --request ACTUAL_ROOT_REQUEST_PATH --request-sha256 ACTUAL_ROOT_REQUEST_SHA
+
+Keep and consume the genuine outer tool terminal. A timeout/disconnected tool or worker receipt is not outer wait0. The wrapper installs the pinned renewal before configuring H020v3, obtains an actual current guard view/reservation, binds the full closure, sets one CPU and no CUDA visibility, acquires exact child pidfd/OwnedTree then releases its same-process startup gate. Failures retain full charge and artifacts and have no automatic retry.
+
+5. Only after genuine successful completed.json, worker actual_wait.json with OS wait0+drain, and separately consumed outer terminal0, root populates new immutable actual_outer_wait, exact-scope permanent revocation and success-close request records using the three inactive close templates. Retain all files. The revoke record lists exactly wrapper/child PIDs, binds the actual reservation digest and all actual wait/completion refs, and permanently revokes future launch/resume/write rights. No failed-scope credit or historical mutation is authorized.
+6. Root invokes the source-pinned close adapter using actual close request path/SHA:
+
+    PYTHONPATH=.:src:scripts .runtime/env/bin/python -B research/reviews/ARGMix_prospective1611_first_train_H020v3_source_20261016_v1/root_close_generation_v1.py --execute --request ACTUAL_SUCCESS_CLOSE_REQUEST_PATH --request-sha256 ACTUAL_SUCCESS_CLOSE_REQUEST_SHA
+
+It installs renewal before H020v3 consumers, checks current exact guard prefix, performs only targeted owned root/child absence and one successful-scope stat measurement, and appends the unchanged normal success-close event. Do not close after failure or infer outer status. Root owns actual ledger/scoreboard updates and Git.
