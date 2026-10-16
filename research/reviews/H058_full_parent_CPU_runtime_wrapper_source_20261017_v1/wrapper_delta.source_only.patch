@@ -1,0 +1,341 @@
+--- research/reviews/American_TreeLoom_matched_CPU_execution_source_20261017_v5/root_contract_v1.py
++++ research/reviews/H058_full_parent_CPU_runtime_wrapper_source_20261017_v1/root_contract_v1.py
+@@ -3,20 +3,20 @@
+ from datetime import datetime,timezone
+ import copy,hashlib,importlib.util,json,sys
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-REL=HERE="research/reviews/American_TreeLoom_matched_CPU_execution_source_20261017_v5"
++REL=HERE="research/reviews/H058_full_parent_CPU_runtime_wrapper_source_20261017_v1"
+ SOURCE=HERE+"/root_contract_v1.py";DRIVER=HERE+"/root_driver_v1.py";ENTRY=HERE+"/worker_entry_v1.py"
+ MANIFEST=HERE+"/source_manifest.v1.json";HANDOFF=HERE+"/source_handoff.v1.json"
+-PHASE="train_matched";PARENT="American_C3_short20_TRAIN_TreeLoom_matched"
+-TRAIN=tuple("american_c3_short_train_%03d"%i for i in range(20))
+-STATUSES={PHASE:"completed_TreeLoom_saved600_matched_CPU_training"}
+-DIRECTIVE="ROOT authorizes one fresh H060 full matched TreeLoom CPU run with600additional updates EACHarm and1200total, firstscheduled updates timed inline"
++PHASE="train";PARENT="H058_European32_full_TRAIN_CPU"
++TRAIN=tuple("ap_expanded_train_%03d"%i for i in range(32))
++STATUSES={PHASE:"completed_H058_full960_each_arm_CPU_training"}
++DIRECTIVE="ROOT authorizes one fresh H058 full original32parent CPU run with960updates EACHarm and1920total, firstscheduled updates checked and timed inline"
+ HELPER=dict(path="research/reviews/European_outer8_current_policy_successor_source_20261016_v1/prepare_outer000_v1.py",sha256="5bc07b0021b1b35b4ddee9ae6dce8680b61773413593ab829869125a7b7a3c3d")
+ assert hashlib.sha256((ROOT/HELPER["path"]).read_bytes()).hexdigest()==HELPER["sha256"]
+ _sp=importlib.util.spec_from_file_location("_TreeLoom_CPU_source_metadata_helpers",ROOT/HELPER["path"])
+ _h=importlib.util.module_from_spec(_sp);_sp.loader.exec_module(_h)
+ require=_h.need;local=_h.local;ref=_h.ref;raw=_h.raw;read=_h.read;load=_h.load;put=_h.put;current=_h.current
+ DEPS=json.loads((ROOT/HERE/"dependencies.v1.json").read_text())
+-for _name in ("PIDFD","OWNED","SUPERVISOR","SELECTOR","GUARD_REF","POLICY_REF","NAMESPACE","V4","BASE_RUNTIME","TARGET_HOOK","ACCEPTANCE"):globals()[_name]=DEPS[_name]
++for _name in ("PIDFD","OWNED","SUPERVISOR","SELECTOR","GUARD_REF","POLICY_REF","NAMESPACE","V4","BASE_RUNTIME"):globals()[_name]=DEPS[_name]
+ CAPS=json.loads((ROOT/HERE/"caps.inactive.v1.json").read_text())
+ SELECTOR_REF=None;_CHOSEN=None;_ACTIVE=None
+ def binding():return read(ref(HERE+"/scientific_binding.v1.json"))
+@@ -43,11 +43,15 @@
+  _h.selection=selected
+  return _h.guard(SELECTOR_REF,consumer)
+ def validate_config(cfg):
+- b=binding();defaults=b["inactive_defaults"];op=set(b["operational_config_keys"])
+- require(set(cfg)==set(defaults)and cfg.get("execution_enabled")is True
+-  and all(cfg[k]==defaults[k]for k in defaults if k not in op),"Exact600additional EACHarm/1200total; no scientific reduction")
+- require(cfg["max_truth_uncompressed_bytes"]==b["inherited_max_truth_uncompressed_bytes"]and type(cfg["CPU_observation_cache_bytes"])is int and cfg["CPU_observation_cache_bytes"]==0 and 0<cfg["max_cached_parent_bytes"]<=CAPS["max_cached_parent_bytes"],"Whole20CPUcache<=96GiB; no block cache")
+- require(all(type(cfg[k])is int and cfg[k]>0 for k in op-{"execution_enabled","CPU_observation_cache_bytes"}),"Explicit integer full-parent failstop bounds")
++ b=binding();defaults=b["config_defaults"];op=set(b["operational_ref_keys"])
++ require(set(cfg)==set(defaults)and all(cfg[k]==defaults[k]for k in defaults if k not in op),
++  "Exact original32TRAIN/30passes/960EACH/1920total; no changed math or support")
++ for key in op:
++  require(isinstance(cfg[key],dict)and set(cfg[key])=={"path","sha256"},"Actual source-bound ROOT CPU metadata refs")
++  require(read(cfg[key]).get("root_authorizer")=="root_agent","ROOT CPU declarations, never GPU proof")
++ require(cfg["checkpoint_file_cap_bytes"]==CAPS["checkpoint_serialized_bytes"]and cfg["output_cap_bytes"]==CAPS["output_bytes"]
++  and cfg["max_cpu_rss_bytes"]==CAPS["rss_bytes"]and cfg["CPU_prepared_cache_cap_bytes"]==CAPS["max_cached_parent_bytes"],
++  "Actual capped CPU and output envelopes")
+ def reviewed(record):
+  v=read(record);b=binding()
+  require(v.get("independent")is True and v.get("verdict")in("SOURCE_PASS","PASS")and v.get("source_ref")==ref(DRIVER)
+@@ -55,36 +59,31 @@
+   and v.get("runner_source_ref")==b["runner_source_ref"]and v.get("protocol_ref")==b["protocol_ref"]
+   and v.get("blockers")==[],"Actual complete independent CPU source review")
+ def scientific_review(record):
+- b=binding();require(record==b["scientific_review_ref"],"Exact published cache-v2 independent review bytes")
+- v=read(record);raw(b["scientific_review_manifest_ref"])
+- norm=lambda r:dict(path=r["path"],sha256=r["sha256"])
+- require(v.get("status")=="SOURCE_PASS"and v.get("independent_review")is True
+-  and norm(v["candidate_manifest_ref"])==b["source_manifest_ref"]
+-  and norm(v["candidate_protocol_ref"])==b["protocol_ref"]
+-  and any(norm(r)==b["runner_source_ref"]for r in v["candidate_source_refs"]),"Exact reviewed cached runner/protocol/source closure")
++ b=binding();v=read(record);producer=v.get("producer_review",v)
++ require(v.get("independent")is True and producer.get("verdict")in("SOURCE_PASS","PASS")
++  and producer.get("source_manifest_ref")==b["source_manifest_ref"]and producer.get("source_handoff_ref")==b["source_handoff_ref"]
++  and producer.get("producer_ref")==b["runner_source_ref"]and producer.get("blockers")==[],
++  "Actual independent review of sealed CPU producer/cache/context, not wrapper self-review")
+ def context(record):
+- v=read(record);b=binding();original=read(b["original_training_request_ref"])["bindings"]
+- require(v.get("schema")=="TreeLoom_original20_TRAIN_context_v1"and v.get("root_authorizer")=="root_agent"
+-  and v.get("accepted_artifact_ref")==ACCEPTANCE and v.get("original_training_request_ref")==b["original_training_request_ref"]
+-  and v["parent_plan_refs"]==original["parent_plan_refs"]and v["actual_train_bindings"]==original["actual_train_bindings"]and set(v["parent_plan_refs"])==set(TRAIN)
+-  and set(v["actual_train_bindings"])==set(TRAIN),"Original20TRAIN plans and accepted epoch30 context")
+- for parent in TRAIN:require(set(v["actual_train_bindings"][parent])=={"simulation_completion_ref","simulation_config_ref","inferred_observation_ref"},"Only original TRAIN operational metadata")
++ v=read(record);b=binding();original=read(b["original_H050_input_ref"]);targets=read(b["original_TRAIN_bindings_ref"])["parents"]
++ require(v.get("schema")=="H058_original32_TRAIN_CPU_context_v1"and v.get("root_authorizer")=="root_agent"
++  and v.get("original_H050_input_ref")==b["original_H050_input_ref"]and v.get("original_TRAIN_bindings_ref")==b["original_TRAIN_bindings_ref"]
++  and v.get("warmstart_checkpoint_ref")==b["warmstart_checkpoint_ref"]and v.get("warmstart_completion_ref")==b["warmstart_completion_ref"]
++  and v.get("TRAIN_parent_ids")==list(TRAIN)and set(targets)==set(TRAIN)
++  and set(original["observation_entry_refs"])==set(TRAIN)|{"ap_expanded_val_%03d"%i for i in range(8)},
++  "Original32EuropeanTRAIN inputs/target authority and exact accepted H045 initializer")
+  return v
+ def registration(q):
++ b=binding();require(q["registration_ref"]==b["registration_ref"],"Preserve exact existing H058registration")
+  r=read(q["registration_ref"]);decisions=read(q["registration_decisions_ref"]);ledger=raw(q["registration_ledger_ref"]).decode()
+- require(r.get("schema")=="H060_American_TreeLoom_matched_scientific_registration_v1"
+-  and r.get("root_authorizer")=="root_agent"and r.get("hypothesis_id")=="H060"
+-  and r.get("status")=="registered_before_new_training_no_accuracy_yet"
+-  and r.get("source_protocol_ref")==binding()["protocol_ref"]and r.get("new_pretruth_barrier")==60
+-  and r.get("original_C3_pretruth_barrier_unchanged")==30 and r.get("resource_admission_or_execution_granted")is False
+-  and r.get("scoring_authorized")is False and r.get("TEST_access_authorized")is False,"Genuine prospective H060 scientific registration, no resource authority")
+- rows=[d for d in decisions["decisions"]if d.get("id")=="H060"]
+- require(len(rows)==1 and "H060"in ledger,"Actual immutable H060decision/ledger snapshots")
++ require(r.get("id")=="H058"and r["protocol"]["passes"]==30and r["protocol"]["aligned_and_null_new_updates_each"]==960
++  and r["protocol"]["untouched_outer_or_TEST_access_authorized"]is False,"Registered original H058condition; no new hypothesis")
++ require(len([d for d in decisions["decisions"]if d.get("id")=="H058"])==1and "H058"in ledger,"Actual immutable H058decision/ledger snapshots")
+  stamp=datetime.fromisoformat(r["registered_utc"])
+- require(stamp.tzinfo and stamp<=datetime.fromisoformat(q["created_at_utc"]),"Registration precedes fresh request")
++ require(stamp.tzinfo and stamp<=datetime.fromisoformat(q["created_at_utc"]),"Registration precedes fresh CPU request")
+ def validate_request(record):
+  q=read(record);current(q,CAPS["wall_seconds"]+600);b=binding();sources();bind_selector(q["storage_policy_selector_ref"])
+- require(q.get("schema")=="TreeLoom_matched_CPU_ROOT_request_v1"and q.get("active")is True and q.get("root_authorizer")=="root_agent"
++ require(q.get("schema")=="H058_full_parent_CPU_ROOT_request_v1"and q.get("active")is True and q.get("root_authorizer")=="root_agent"
+   and q.get("execution_authorized")is True and q.get("phase")==PHASE and q.get("stage")=="train"and q.get("parent_id")==PARENT
+   and q.get("source_manifest_ref")==ref(MANIFEST)and q.get("caps")==CAPS and q.get("GPU_authorized")is False
+   and q.get("physical_gpu")is None and q.get("CUDA_authorized")is False and q.get("TRAIN_truth_only")is True
+@@ -92,10 +91,10 @@
+   and q.get("automatic_retry_resume_or_fallback")is False and q.get("standalone_token_update_qualification")is False,"Exact fresh CPU-only full-budget ROOT request")
+  preparation=local(q["preparation_directory"]);packet=local(q["packet_directory"]);output=local(q["output_directory"])
+  require(preparation==local(record["path"]).parent and preparation.is_dir()
+-  and q["preparation_directory"].startswith("research/reviews/TreeLoom_matched_CPU_ROOT_preparation_")
++  and q["preparation_directory"].startswith("research/reviews/H058_CPU_ROOT_preparation_")
+   and not any(preparation==p or preparation in p.parents or p in preparation.parents for p in (packet,output)),"Separate existing ROOT request/preparation directory; never a reserved target scope")
+- require(q["packet_directory"].startswith("research/reviews/TreeLoom_matched_CPU_ROOT_")
+-  and q["output_directory"].startswith("experiments/results/TreeLoom_matched_CPU_")
++ require(q["packet_directory"].startswith("research/reviews/H058_CPU_ROOT_")
++  and q["output_directory"].startswith("experiments/results/H058_full_parent_CPU_")
+   and type(q["cpu_ids"])is list and len(q["cpu_ids"])==len(set(q["cpu_ids"]))==32
+   and all(type(x)is int and x>=0 for x in q["cpu_ids"]),"Fresh canonical scopes and32CPU identities")
+  reviewed(q["source_review_ref"]);scientific_review(q["scientific_review_ref"]);registration(q);context(q["training_context_ref"]);validate_config(q["scientific_config"])
+@@ -105,7 +104,10 @@
+  require(qualified.get("root_authorizer")=="root_agent"and qualified.get("status")=="qualified"
+   and qualified.get("runtime_ref")==q["runtime_ref"]and qualified.get("source_manifest_ref")==ref(MANIFEST)
+   and qualified.get("runner_source_ref")==b["runner_source_ref"]and qualified.get("unresolved_items")==[]
+-  and qualified.get("standalone_token_update_probe")is False,"Actual metadata/runtime qualification; no token updates")
++  and qualified.get("standalone_token_update_probe")is False
++   and qualified.get("one_hold_summary_ref")==b["one_hold_summary_ref"]
++   and qualified.get("full_training_fit_measured")is False
++   and qualified.get("scientific_probe_updates")==0,"Existing genuine CPU arithmetic/runtime evidence only; no new probes or measured960fit claim")
+  require(directive.get("root_authorizer")=="root_agent"and directive.get("active")is True and directive.get("directive")==DIRECTIVE
+   and all(directive.get(k)==q[k]for k in ("preparation_directory","source_manifest_ref","source_review_ref","scientific_review_ref","registration_ref","registration_decisions_ref","registration_ledger_ref","training_context_ref",
+    "runtime_ref","runtime_qualification_ref","scientific_config","caps","cpu_ids","created_at_utc","expires_at_utc"))
+@@ -117,14 +119,16 @@
+  b=binding()
+  return [ref(MANIFEST),ref(SOURCE),ref(DRIVER),ref(ENTRY),ref(HANDOFF),b["runner_source_ref"],b["protocol_ref"],
+   q["source_review_ref"],q["scientific_review_ref"],q["runtime_ref"],q["runtime_qualification_ref"],cfgref,q["root_directive_ref"],
+-  request_ref,q["registration_ref"],q["registration_decisions_ref"],q["training_context_ref"],closure,SELECTOR,q["storage_policy_selector_ref"],NAMESPACE,PIDFD,OWNED,SUPERVISOR]
++  make_config(q,CAPS)["scientific_config_ref"],request_ref,q["registration_ref"],q["registration_decisions_ref"],q["training_context_ref"],closure,SELECTOR,q["storage_policy_selector_ref"],NAMESPACE,PIDFD,OWNED,SUPERVISOR]
+ def make_config(q,caps):
+- return dict(schema="TreeLoom_matched_CPU_operational_config_v1",scientific_config=q["scientific_config"],caps=caps,
++ science=ref(q["preparation_directory"]+"/"+local(q["packet_directory"]).name+".scientific_config.json")
++ require(read(science)==q["scientific_config"],"Exact exclusive staged H058scientific config")
++ return dict(schema="H058_full_parent_CPU_operational_config_v1",scientific_config_ref=science,caps=caps,
+   short_tmp_directory=q["packet_directory"]+"/worker_aux/tmp",training_context_ref=q["training_context_ref"])
+ def input_spec(record):
+  global _ACTIVE
+  s=read(record);q,caps,_=validate_request(s["root_stage_request_ref"]);current(s,300);cfg=read(s["refs"]["config"])
+- require(record["path"]==q["packet_directory"]+"/input.json"and s["schema"]=="TreeLoom_matched_CPU_admitted_input_v1"
++ require(record["path"]==q["packet_directory"]+"/input.json"and s["schema"]=="H058_full_parent_CPU_admitted_input_v1"
+   and s.get("active")is True and s.get("root_authorizer")=="root_agent"and s.get("execution_authorized")is True
+   and s.get("GPU_authorized")is False and s.get("physical_gpu")is None
+   and s["root_driver_ref"]==ref(DRIVER)and s["main_source_ref"]==ref(ENTRY)and s["parent_id"]==PARENT and s["phase"]==PHASE
+--- research/reviews/American_TreeLoom_matched_CPU_execution_source_20261017_v5/root_driver_v1.py
++++ research/reviews/H058_full_parent_CPU_runtime_wrapper_source_20261017_v1/root_driver_v1.py
+@@ -11,27 +11,30 @@
+  s,q,cfg=c.input_spec(record);CAPS=c.CAPS;OUTPUT=s["output_directory"];PARENT=c.PARENT;CONFIG=s["refs"]["config"]
+  return s,q,cfg
+ def validate_completion(value,q):
+- need(value["status"]==c.STATUSES[c.PHASE]and value["parent_id"]==c.PARENT,"Exact matched CPU completed envelope")
+- result=read(value["result_ref"])
+- need(result["status"]=="completed_TreeLoom_saved600_warmstart_matched_training"
+-  and result["additional_updates_per_arm"]==600 and result["new_saved_logical_optimizer_updates_total"]==1200
+-  and result["epochs"]==30 and result["trained_parent_ids"]==list(c.TRAIN)
+-  and result["train_sequence_lengths_bp"]==[2000000]*20
+-  and result["first_step_timing_inside_full_budget"]is True and result["standalone_token_update_probe"]is False
+-  and all(len(rows)==6 for rows in result["checkpoint_candidates"].values())
+-  and len(result["checkpoint_candidates"])==2 and result["TEST_deferred"]is True,"Real full600additional EACHarm/1200total; no token qualification")
++ need(value["status"]==c.STATUSES[c.PHASE]and value["parent_id"]==c.PARENT,"Exact H058CPU completion envelope")
++ result=read(value["result_ref"]);arms=("same_marker_aligned","same_marker_alignment_null")
++ need(result["status"]=="completed_fixed30pass_full_TRAIN"and result["hypothesis_id"]=="H058"
++  and result["steps"]=={arm:960 for arm in arms}and result["arms"]==list(arms)
++  and [row["pass_index"]for row in result["history"]]==list(range(1,31))and set(result["checkpoint_groups"])=={"5","10","15","20","25","30"}
++  and all(set(rows)==set(arms)for rows in result["checkpoint_groups"].values())
++  and all(row["steps"]=={arm:32*row["pass_index"]for arm in arms}and set(row["parent_order"])==set(c.TRAIN)for row in result["history"])
++  and result["scientific_protocol"]==q["scientific_config"]["scientific_protocol"]
++  and result["VAL_truth_read"]is False and result["outer_truth_read"]is False and result["disposable_updates"]==0,
++  "Actual full32parents x30passes/960each/1920total, no qualification substitute")
+ def admit(request_ref):
+  q,caps,_=c.validate_request(request_ref);packet=local(q["packet_directory"]);output=q["output_directory"]
+  need(set(q["cpu_ids"])<=os.sched_getaffinity(0),"ROOT supplies32actually available CPU identities")
+  need(not packet.exists()and not local(output).exists(),"Fresh exclusive one-shot packet/output")
+  g=guard(False);preparation=local(q["preparation_directory"]);stem=packet.name
++ put(preparation/(stem+".scientific_config.json"),q["scientific_config"])
+  cfgref=put(preparation/(stem+".config.json"),c.make_config(q,caps));sources=c.sources()["source_sha256"]
+  closure=put(preparation/(stem+".source_and_input_closure.json"),dict(source_sha256=sources,root_stage_request_ref=request_ref))
+  implementation=ref(g.budget.SOURCE_REL);launcher=ref(g.budget.LAUNCHER_REL)
+  with g.budget.v4.mutex(ROOT):state=g._state_locked(implementation["sha256"],launcher["sha256"],fresh=True)
+  consumers=g.consumer_bindings_v1(list(state[3].values()),c.direct_roles(request_ref,q,cfgref,closure))
+- job="TreeLoom-matched-CPU-"+packet.name
+- reserve=dict(key="H060/"+job,output=str(ROOT/output),auxiliary_scopes=[str(packet)],
++ need(len(consumers)<=64,"Complete original returned guard roles and H058direct union<=64 before reserve")
++ job="H058-full-parent-CPU-"+packet.name
++ reserve=dict(key="H058/"+job,output=str(ROOT/output),auxiliary_scopes=[str(packet)],
+   reserved_bytes=caps["reservation_bytes"],consumer_bindings=consumers)
+  # Exact original read-only schema/type/hash preflight over every returned/current role.
+  # This precedes authority creation and reservation accounting mutation.
+@@ -51,7 +54,7 @@
+   completed_overlay_policy_ref=c.POLICY_REF,storage_policy_selector_ref=c.SELECTOR_REF,
+   budget_components=dict(implementation=implementation,launcher=launcher,consumer_adapter=c.GUARD_REF))
+  sr=put(packet/"storage.json",storage)
+- s=dict(schema="TreeLoom_matched_CPU_admitted_input_v1",status="active",active=True,root_authorizer="root_agent",execution_authorized=True,
++ s=dict(schema="H058_full_parent_CPU_admitted_input_v1",status="active",active=True,root_authorizer="root_agent",execution_authorized=True,
+   GPU_authorized=False,physical_gpu=None,parent_id=c.PARENT,phase=c.PHASE,stage="train",job_id=job,packet_directory=q["packet_directory"],
+   output_directory=output,worker_auxiliary_scope=q["packet_directory"]+"/worker_aux",root_stage_request_ref=request_ref,
+   root_driver_ref=ref(SOURCE),main_source_ref=ref(c.ENTRY),source_sha256=sources,transitive_source_closure_ref=closure,
+@@ -212,7 +215,7 @@
+     drained=status is not None and absence and eof and bool(groups) and all(x["absent"] is True for x in groups)
+     if not drained:failure=failure or "Unresolved owned drain/wait"
+     if rc!=0 or any(x["returncode"]!=0 for x in adopted):failure=failure or "Genuine nonzero/unknown child wait"
+-    observation=dict(schema="American_C3_full_original_CPU_actual_wait_v1",input_ref=r,pid=None if proc is None else proc.pid,
++    observation=dict(schema="H058_full_parent_CPU_actual_wait_v1",input_ref=r,pid=None if proc is None else proc.pid,
+         actual_direct_worker_wait=status is not None,actual_OS_wait_status=status,returncode=rc,
+         all_owned_processes_and_groups_drained=drained,group_observations=groups,adopted_waits=adopted,
+         operational_failure=failure,cleanup_errors=errors,outer_truth_scored=False,automatic_close_or_credit=False)
+@@ -224,8 +227,8 @@
+         # Genuine drain precedes every new source/accounting/product inspection.
+         boundary(g,s,32768,target="aux")
+         cp=None
+-        if local(OUTPUT+"/completed.json").is_file():
+-            cp=ref(OUTPUT+"/completed.json");completed=read(cp);validate_completion(completed,q)
++        if local(OUTPUT+"/ROOT_completed.json").is_file():
++            cp=ref(OUTPUT+"/ROOT_completed.json");completed=read(cp);validate_completion(completed,q)
+         else:failure=failure or "No genuine completed matched training envelope"
+         observation.update(completed_ref=cp,phase=q["phase"],parent_id=PARENT,actual_direct_launcher_wait=status is not None,
+             known_owned_pids=sorted(tree.known) if tree is not None else [],known_owned_process_groups=[x["pgid"] for x in groups],
+--- research/reviews/American_TreeLoom_matched_CPU_execution_source_20261017_v5/worker_entry_v1.py
++++ research/reviews/H058_full_parent_CPU_runtime_wrapper_source_20261017_v1/worker_entry_v1.py
+@@ -23,20 +23,21 @@
+   self.s=s;self.q=q;self.g=g;self.fast=fast;self.torch=torch;self.jsonable=jsonable
+   self.path=c.local(s["output_directory"]);self.tmp=q["packet_directory"]+"/worker_aux/tmp"
+   self.used=8192;self.json_used=0;self.torch_files=0;self.names=set()
+-  c.require(not self.path.exists(),"Exclusive fresh matched output")
++  c.require(not self.path.exists(),"Exclusive fresh full H058output")
+   g.budget_check_v9(s["storage"],boundary=True,required_write_bytes=8192);self.path.mkdir()
+  def save(self,name,value,kind="json"):
+   self.fast("before_actual_bounded_serialization")
+   c.require(isinstance(name,str)and Path(name).name==name and name not in self.names,"One exclusive flat product name")
+-  allowed_json={"started.json","TRAIN_observation_barrier.json","TRAIN_external_target_joins.json","matched_initialization.json",
+-   "completed_training.json","failed_training.json","worker_failure.json","completed.json"}
++  allowed_json={"ROOT_started.json","all_32_H058_observation_recipes.json","CPU_complete_phase_preparation_cache.json",
++   "initialization.json","same_marker_aligned.first_scheduled_step.json","same_marker_alignment_null.first_scheduled_step.json",
++   "completed.json","failed.json","worker_failure.json","ROOT_completed.json"}
+   if kind=="torch":
+-   c.require(re.fullmatch(r"checkpoint_pair_epoch_(005|010|015|020|025|030)\.pt",name)is not None or name=="failure_last_complete_pair.pt",
+-    "Six paired checkpoints and at most one failure boundary only")
+-   c.require(self.torch_files<c.CAPS["maximum_torch_files"],"At most7full-state files; no per-update series")
++   c.require(re.fullmatch(r"same_marker_(aligned|alignment_null)\.pass_(05|10|15|20|25|30)\.pt",name)is not None,
++    "Twelve original per-arm checkpoints only")
++   c.require(self.torch_files<c.CAPS["maximum_torch_files"],"At most12original H058checkpoints")
+    buffer=CappedBuffer(c.CAPS["checkpoint_serialized_bytes"]);self.torch.save(value,buffer);data=buffer.getvalue()
+   else:
+-   c.require(kind=="json"and name in allowed_json,"Exact bounded training/operational metadata products")
++   c.require(kind=="json"and(name in allowed_json or re.fullmatch(r"TRAIN_pass_(0[1-9]|[12][0-9]|30)\.json",name)is not None),"Exact bounded training/operational metadata products")
+    data=(json.dumps(self.jsonable(value),sort_keys=True,indent=2,allow_nan=False)+"\n").encode()
+    c.require(self.json_used+len(data)<=c.CAPS["total_JSON_bytes"],"Aggregate actual JSON serialization cap; no partial write")
+   planned=len(data)+8192
+@@ -60,50 +61,58 @@
+  finally:os.close(gate_fd)
+  c.require(Path.cwd()==ROOT and sys.dont_write_bytecode and sys.flags.no_user_site
+   and sys.prefix==str(ROOT/".runtime/env")and os.environ.get("CUDA_VISIBLE_DEVICES")=="","Qualified -B -s CPU-only interpreter")
+- for key in ("TMPDIR","TMP","TEMP"):c.require(os.environ.get(key)==str(c.local(cfg["short_tmp_directory"])),"Charged private TMP only")
++ for key in("TMPDIR","TMP","TEMP"):c.require(os.environ.get(key)==str(c.local(cfg["short_tmp_directory"])),"Charged private TMP only")
+  c.require(set(q["cpu_ids"])<=os.sched_getaffinity(0),"ROOT supplied actual32CPU capacity")
+  os.sched_setaffinity(0,set(q["cpu_ids"]))
+  g=c.guard(True);c.verify_actual_roles(s,q,g)
+  g.validate_storage_v9(s,dict(output_cap_bytes=c.CAPS["reservation_bytes"]),s["storage"],source_ref=c.ref(c.DRIVER),
+   config_ref=s["refs"]["config"],runtime_ref=s["runtime_ref"])
+- # All model/data/checkpoint imports are after real source/runtime/reservation/owned gate checks.
+  import numpy as np,torch,torch_geometric
+  from arggnn.american_c3_common_v1 import runtime_report
+  c.require(runtime_report()==c.read(c.BASE_RUNTIME),"Exact prequalified shared CPU package report")
+  torch.set_num_threads(32);torch.set_num_interop_threads(1)
+- c.require(torch.get_default_dtype()==torch.float32 and not torch.cuda.is_initialized(),"Full FP32/zeroCUDA; no physical lease")
++ c.require(torch.get_default_dtype()==torch.float32 and not torch.cuda.is_initialized(),"FP32/zeroCUDA; no physical lease")
+  started=time.monotonic()
+- def fast(event="TreeLoom_actual_matched_CPU_boundary"):
++ def fast(event="H058_actual_complete_CPU_boundary"):
+   c.current(s,150)
+-  c.require(time.monotonic()-started<c.CAPS["scientific_seconds"],"Full24h scientific failstop; no shortcut")
++  c.require(time.monotonic()-started<c.CAPS["scientific_seconds"],"Full24h scientific failstop, no shortcut")
+   c.require(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss*1024<=c.CAPS["rss_bytes"],"128GiB main RSS; finite outer covers complete owned tree")
+-  c.require(not torch.cuda.is_initialized()and torch.get_num_threads()==32 and set(os.sched_getaffinity(0))==set(q["cpu_ids"]),"CPU/32threads/affinity remain exact")
++  c.require(not torch.cuda.is_initialized()and torch.get_num_threads()==32and torch.get_num_interop_threads()==1
++   and set(os.sched_getaffinity(0))==set(q["cpu_ids"]),"CPU/32threads/interop1/affinity remain exact")
+   return dict(event=event,no_storage_scan_or_journal_call=True)
+  writer=BoundedWriter(s,q,g,fast,torch,lambda value:jsonable_runtime_v1(value,torch,np))
+- writer.save("started.json",dict(status="started_TreeLoom_actual_full_matched_CPU_training",input_ref=record,
+-  additional_updates_per_arm=600,total_additional_updates=1200,first_scheduled_updates_timed_inline=True,
+-  standalone_token_qualification=False,device="cpu",dtype="float32",CPU_threads=32,
+-  output_serialization_is_failstop_not_fit_guarantee=True,physical_GPU_lease=None,TEST_deferred=True))
++ writer.save("ROOT_started.json",dict(status="started_H058_actual_complete32parent_CPU_TRAIN",input_ref=record,
++  updates_per_arm=960,total_updates=1920,first_scheduled_checks_timed_inline=True,standalone_probe=False,
++  device="cpu",physical_gpu=None,CPU_threads=32,prepared_cache_cap_bytes=32*2**30,VAL_truth_authorized=False,TEST_deferred=True))
+  try:
+-  b=c.binding();c.raw(c.TARGET_HOOK);hooks=importlib.import_module(b["target_hook_module"])
+-  ctx=c.context(q["training_context_ref"])
+-  # The original factory authenticates only metadata here. The runner alone invokes TRAIN truth after all20 observed barriers.
+-  meta=hooks.actual_train_metadata_v1(ctx["actual_train_bindings"])
+-  factory=hooks.make_actual_target_joiner_factory_v1(ctx["actual_train_bindings"])
+-  def train_truth(parent):
+-   c.require(parent in c.TRAIN,"Original20TRAIN-only truth capability; VAL/TEST impossible")
+-   return meta[parent]["private_truth_ref"]
++  b=c.binding();c.context(q["training_context_ref"])
++  from arggnn.census_tsinfer_fit_v1 import ConsumerReaderV1
++  base=ConsumerReaderV1()
++  train=c.read(b["original_TRAIN_bindings_ref"])["parents"]
++  allowed={(v["truth_npz"]["path"],v["truth_npz"]["sha256"])for v in train.values()}
++  class TrainOnlyReader:
++   root=base.root
++   def read(self,record,**kwargs):
++    if "truth"in Path(record["path"]).parts:
++     c.require((record["path"],record["sha256"])in allowed,"Only exact original32TRAINtruth; VAL/outer denied")
++    return base.read(record,**kwargs)
++   def decode_json(self,record):return json.loads(self.read(record))
++  reader=TrainOnlyReader()
++  factory=importlib.import_module(b["context_factory_module"])
++  execution=dict(s,admitted=True,device="cpu",max_cuda_reserved_bytes=0,refs=dict(s["refs"],config=cfg["scientific_config_ref"]))
++  ctx=factory.build_context_v1(execution,reader=reader,output=writer,guard=fast,worker_tmp_directory=c.local(cfg["short_tmp_directory"]))
++  c.require(ctx["phase"]=="train"and set(ctx["bindings"])==set(c.TRAIN),"Only original32TRAIN target authority")
+   runner=importlib.import_module(b["runner_module"])
+-  fast("before_actual_full_matched_runner")
+-  result=runner.run_train_v1(q["scientific_config"],parent_plan_refs=ctx["parent_plan_refs"],
+-   artifact_acceptance_ref=c.ACCEPTANCE,writer=writer,device="cpu",worker_tmp_directory=cfg["short_tmp_directory"],
+-   resolve_train_truth=train_truth,runtime_guard=fast,train_target_joiner_factory=factory,resume_ref=None)
+-  fast("after_full600additional_eacharm")
+-  return writer.save("completed.json",dict(status=c.STATUSES[c.PHASE],parent_id=c.PARENT,phase=c.PHASE,
+-   input_ref=record,root_driver_ref=c.ref(c.DRIVER),result_ref=result,additional_updates_per_arm=600,total_additional_updates=1200,
+-   device="cpu",physical_gpu=None,TEST_deferred=True,automatic_close_or_credit=False))
++  fast("before_actual_complete960_eacharm")
++  result=runner.run_context_v1(ctx,record)
++  fast("after_actual_complete960_eacharm")
++  c.require(result["steps"]=={"same_marker_aligned":960,"same_marker_alignment_null":960}
++   and result["VAL_truth_read"]is False and result["outer_truth_read"]is False,"Actual complete1920updates; no VAL/outer")
++  return writer.save("ROOT_completed.json",dict(status=c.STATUSES[c.PHASE],parent_id=c.PARENT,phase=c.PHASE,
++   input_ref=record,root_driver_ref=c.ref(c.DRIVER),result_ref=c.ref(s["output_directory"]+"/completed.json"),
++   updates_per_arm=960,total_updates=1920,device="cpu",physical_gpu=None,TEST_deferred=True,automatic_close_or_credit=False))
+  except BaseException as error:
+-  try:writer.save("worker_failure.json",dict(status="failed_TreeLoom_actual_matched_CPU_training",exception_type=type(error).__name__,
++  try:writer.save("worker_failure.json",dict(status="failed_H058_actual_complete_CPU_training",exception_type=type(error).__name__,
+    message=str(error)[:2000],no_success_or_automatic_retry_claimed=True))
+   except BaseException:pass
+   raise

@@ -1,0 +1,256 @@
+--- research/reviews/H058_full_parent_pilot_source_20261016_v2/producer_v1.py
++++ research/reviews/H058_full_parent_CPU_execution_source_20261017_v1/producer_v1.py
+@@ -1,4 +1,4 @@
+-"""Concrete H058 full TRAIN/VAL engine. Default inert; ROOT provides existing guards.
++"""Concrete CPU-only H058 full TRAIN/VAL engine. ROOT provides existing finite CPU guards.
+ 
+ No scheduler, GPU lease, storage ledger, admission or process controller is added.
+ Scientific imports occur only after explicit authenticated ROOT context validation.
+@@ -9,13 +9,14 @@
+ from .protocol_v1 import *
+ 
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-HERE="research/reviews/H058_full_parent_pilot_source_20261016_v2"
++HERE="research/reviews/H058_full_parent_CPU_execution_source_20261017_v1"
+ SOURCE=HERE+"/producer_v1.py"
+ MANIFEST=HERE+"/source_manifest.v1.json"
+ CAP_NAMES=("CPU_bank_cap_bytes","CPU_target_cap_bytes","episode_payload_cap_bytes",
+-    "episode_cache_cap_bytes","GPU_episode_cap_bytes","GPU_residency_cap_bytes",
++    "episode_cache_cap_bytes","CPU_parent_episode_cap_bytes","CPU_parent_residency_cap_bytes",
+     "packed_layout_cap_bytes","packed_prepare_named_cap_bytes","RAM_prediction_cap_bytes",
+-    "checkpoint_file_cap_bytes","output_cap_bytes","max_cpu_rss_bytes","max_cuda_reserved_bytes",
++    "checkpoint_file_cap_bytes","output_cap_bytes","max_cpu_rss_bytes","CPU_prepared_cache_cap_bytes",
++    "CPU_packed_cache_cap_bytes","CPU_packed_cache_max_tensor_objects","CPU_packed_python_allowance_bytes",
+     "binding_chunk_elements","packed_max_hold_nodes")
+ 
+ 
+@@ -37,51 +38,39 @@
+ 
+ 
+ def runtime_flags_v1():
+-    if not torch.cuda.is_initialized() and os.environ.get("CUDA_VISIBLE_DEVICES") == "":
+-        return dict(backend="cpu",intraop_threads=torch.get_num_threads(),
+-            interop_threads=torch.get_num_interop_threads(),default_dtype=str(torch.get_default_dtype()),
+-            CUDA_initialized=False,torch_version=torch.__version__,
+-            numpy_version=np.__version__,PyG_version=__import__("torch_geometric").__version__)
+-    return dict(matmul_precision=torch.get_float32_matmul_precision(),
+-        cuda_matmul_TF32=torch.backends.cuda.matmul.allow_tf32,
+-        cudnn_TF32=torch.backends.cudnn.allow_tf32,cudnn_benchmark=torch.backends.cudnn.benchmark,
+-        cudnn_deterministic=torch.backends.cudnn.deterministic,
+-        deterministic_algorithms=torch.are_deterministic_algorithms_enabled(),
+-        deterministic_warn_only=torch.is_deterministic_algorithms_warn_only_enabled(),
+-        CUBLAS_WORKSPACE_CONFIG=os.environ.get("CUBLAS_WORKSPACE_CONFIG"))
++    require(os.environ.get("CUDA_VISIBLE_DEVICES")=="" and not torch.cuda.is_initialized(),
++        "Explicit CPU-only environment; never initialize or discover CUDA")
++    return dict(backend="cpu",intraop_threads=torch.get_num_threads(),
++        interop_threads=torch.get_num_interop_threads(),default_dtype=str(torch.get_default_dtype()),
++        CUDA_initialized=False,torch_version=torch.__version__,numpy_version=np.__version__,
++        PyG_version=__import__("torch_geometric").__version__)
++
+ 
+ 
+ def validate_runtime_flags_v1(ctx):
+-    if ctx["device"].type=="cpu":
+-        expected=dict(backend="cpu",intraop_threads=32,interop_threads=1,
+-            default_dtype="torch.float32",CUDA_initialized=False,
+-            torch_version="2.6.0+cu124",numpy_version="2.4.6",PyG_version="2.7.0")
+-        require(runtime_flags_v1()==expected, "Original CPU FP32 inference runtime/32 threads/interop1/noCUDA")
+-        proof=ctx["reader"].decode_json(ctx["cfg"]["runtime_equivalence_ref"])
+-        require(proof.get("root_authorizer")=="root_agent" and proof.get("flags")==expected
+-            and proof.get("original_H050_runtime_ref")==ctx["cfg"]["H050_CPU_runtime_ref"],
+-            "Actual ROOT same CPU inference runtime evidence")
+-        return
+-    expected=dict(matmul_precision="highest",cuda_matmul_TF32=False,cudnn_TF32=False,
+-        cudnn_benchmark=False,cudnn_deterministic=True,deterministic_algorithms=True,
+-        deterministic_warn_only=False,CUBLAS_WORKSPACE_CONFIG=":4096:8")
+-    require(runtime_flags_v1()==expected, "Exact actual H050 FP32/determinism settings; ROOT configures before CUDA")
++    expected=dict(backend="cpu",intraop_threads=32,interop_threads=1,
++        default_dtype="torch.float32",CUDA_initialized=False,
++        torch_version="2.6.0+cu124",numpy_version="2.4.6",PyG_version="2.7.0")
++    require(ctx["device"].type=="cpu" and ctx.get("physical_gpu") is None
++        and runtime_flags_v1()==expected,"Exact original CPU FP32/32threads/interop1/zeroCUDA")
+     proof=ctx["reader"].decode_json(ctx["cfg"]["runtime_equivalence_ref"])
+-    require(proof.get("root_authorizer")=="root_agent"
+-        and proof.get("configured_before_CUDA") is True and proof.get("flags")==expected
+-        and proof.get("original_H050_runtime_ref")==ctx["cfg"]["H050_runtime_qualification_ref"],
+-        "Actual ROOT runtime identity and pre-CUDA configuration evidence")
++    require(proof.get("root_authorizer")=="root_agent" and proof.get("flags")==expected
++        and proof.get("original_H050_runtime_ref")==ctx["cfg"]["H050_CPU_runtime_ref"]
++        and proof.get("CPU_entry_ref")==actual_ref(SOURCE)
++        and proof.get("extra_qualification_or_probe_authorized") is False,
++        "Current source-bound ROOT CPU runtime declaration; first actual scheduled step checks inline")
++
+ 
+ 
+ def validate_context_v1(ctx):
+     require(ctx.get("root_authorizer")=="root_agent" and ctx.get("admitted") is True
+         and ctx.get("hypothesis_id")=="H058" and ctx.get("phase") in
+-        ("train","evaluate","train_continuation","evaluate_continuation")
++        ("train","evaluate")
+         and all(callable(ctx.get(k)) for k in ("guard","before_episode_build")),
+         "Explicit actual ROOT context using the existing resource framework")
+     ctx["guard"]()  # Existing authority/lease/storage boundary before scientific imports.
+     cfg=ctx["cfg"];phase=ctx["phase"]
+-    require(cfg.get("schema")=="H058_full_parent_execution_config_v1"
++    require(cfg.get("schema")=="H058_full_parent_CPU_execution_config_v1"
+         and cfg.get("execution_enabled") is True
+         and cfg.get("scientific_protocol")==fixed_protocol_v1()
+         and cfg.get("producer_ref")==actual_ref(SOURCE)
+@@ -92,7 +81,11 @@
+         and all(type(cfg.get(k)) is int and cfg[k]>0 for k in CAP_NAMES)
+         and cfg["binding_chunk_elements"]<=1048576
+         and cfg.get("checkpoint_backbone") is True
+-        and cfg.get("evaluation_backend") in ("cpu","cuda")
++        and cfg.get("evaluation_backend")=="cpu"
++        and cfg.get("max_cuda_reserved_bytes")==0
++        and cfg.get("CPU_training_threads")==32 and cfg.get("CPU_training_interop_threads")==1
++        and cfg.get("CPU_prepared_cache_cap_bytes")==32*2**30
++        and cfg.get("max_cpu_rss_bytes")==128*2**30
+         and cfg.get("continuation_mode") in ("pending_identity_audit","reuse_original_CPU_selected_metrics",
+             "replay_frozen_H050_checkpoints")
+         and (cfg.get("continuation_mode")!="reuse_original_CPU_selected_metrics"
+@@ -102,10 +95,9 @@
+         and set(ctx["entry_refs"])==set(TRAIN+VAL)
+         and set(ctx["bindings"])==set(TRAIN if phase.startswith("train") else VAL),
+         "Exact original corpus and phase-only target capability")
+-    require((phase.startswith("train") and ctx.get("physical_gpu")==0 and ctx["device"].type=="cuda")
+-        or (phase.startswith("evaluate") and ctx["device"].type==cfg["evaluation_backend"]
+-            and (ctx["device"].type=="cpu" or ctx.get("physical_gpu")==0)),
+-        "Only actual leased physical GPU0; explicit frozen evaluation backend")
++    require(ctx["device"].type=="cpu" and ctx.get("physical_gpu") is None
++        and os.environ.get("CUDA_VISIBLE_DEVICES")=="",
++        "CPU-only TRAIN/VAL, no physical GPU lease or change to live GPU guards")
+     old=ctx["reader"].decode_json(H050_INPUT_REF)
+     old_cfg=ctx["reader"].decode_json(old["refs"]["config"])
+     require(cfg["metrics"]==old_cfg["metrics"]
+@@ -133,7 +125,10 @@
+         directive=ctx["reader"].decode_json(cfg["full_training_directive_ref"])
+         require(directive.get("root_authorizer")=="root_agent"
+             and directive.get("full30pass_training_authorized") is True
+-            and directive.get("scientific_protocol")==fixed_protocol_v1(),
++            and directive.get("scientific_protocol")==fixed_protocol_v1()
++            and directive.get("device")=="cpu" and directive.get("physical_gpu") is None
++            and directive.get("CPU_entry_ref")==actual_ref(SOURCE)
++            and directive.get("extra_probe_updates_authorized") is False,
+             "Separate actual full-budget ROOT training authority")
+     # Separate operational authority is necessary even after source review.
+     completed=ctx["reader"].decode_json(cfg["one_hold_completion_ref"])
+@@ -157,7 +152,10 @@
+     require(layout.get("root_authorizer")=="root_agent"
+         and layout.get("status")=="admitted_first_scheduled_full_parent_step"
+         and layout.get("source_count_ref")==cfg["source_count_ref"]
+-        and layout.get("physical_gpu")==0 and layout.get("reduced_data") is False
++        and layout.get("physical_gpu") is None and layout.get("device")=="cpu"
++        and layout.get("CPU_prepared_cache_cap_bytes")==cfg["CPU_prepared_cache_cap_bytes"]
++        and layout.get("original_TRAIN_parent_ids")==list(TRAIN)
++        and layout.get("reduced_data") is False
+         and layout.get("counted_in_960_updates") is True,
+         "ROOT full-coverage source-bound admission; no disposable qualification update")
+     if phase.endswith("_continuation"):
+@@ -195,8 +193,10 @@
+         steps[arm]+=1
+     try:
+         # Exact existing Torch/PyG full-parent objective/backward/clip/AdamW step.
++        observations.validate_scheduled_cache_v1(ctx,bank,payload)
+         row=h45.train_one(value,optimizer,bank,mass,payload,ctx["guard"],
+             qualify=first,after_optimizer_step=counted)
++        observations.validate_scheduled_cache_v1(ctx,bank,payload)
+     finally:
+         for handle in handles:handle.remove()
+     if first:
+@@ -211,6 +211,7 @@
+         row["first_scheduled_step"]=dict(gradient_checks=checks,updated_parameters=changes,
+             optimizer_steps=steps[arm],no_extra_updates=True,retained_in_full960=True,
+             parameter_count=PARAMETERS[arm],runtime_flags=runtime_flags_v1())
++        row["first_scheduled_step"]["CPU_runtime_cache"]=observations.scheduled_CPU_receipt_v1(ctx)
+         require("logits" in captures, "Logits captured from the actual scheduled forward")
+     return row,captures.get("logits")
+ 
+--- research/reviews/H058_full_parent_pilot_source_20261016_v2/observations_v1.py
++++ research/reviews/H058_full_parent_CPU_execution_source_20261017_v1/observations_v1.py
+@@ -13,6 +13,7 @@
+     CORE_INPUTS, bind_current_observations_v3, validate_observed_roster_v2)
+ from research.reviews.same_marker_full_parent_binding_successor_source_20261016_v1.integration_hooks_v3 import PackedSameMarkerPayloadV3
+ from .protocol_v1 import ARMS, CONTINUATION, OBSERVATION, TRAIN, VAL, require
++from .cpu_cache_v1 import FrozenEpisodeCacheV1, FrozenPackedCacheV1, cache_preflight_v1
+ 
+ 
+ def tensor_bytes(value):
+@@ -68,7 +69,8 @@
+         entry_refs=ctx["entry_refs"],source_refs=ctx["observation_source_refs"],
+         parent_ids=ids,worker_tmp_directory=ctx["worker_tmp_directory"],allow_outer=False)
+     loader=make_parent_dataloader_v1(dataset,pin_memory=False)
+-    episodes=h45.EpisodeCache(ctx["cfg"],ctx["guard"],ctx["before_episode_build"])
++    forecast=cache_preflight_v1(ctx,ids)
++    episodes=FrozenEpisodeCacheV1(ctx["cfg"],ctx["guard"],ctx["before_episode_build"])
+     banks,parents,keys,rosters,permutations,proofs,site_refs={},{},{},{},{},{},{}
+     total=0
+     drain=None
+@@ -110,21 +112,37 @@
+         recipes=proofs,observation_cache_ref=OBSERVATION,CPU_bank_tensor_bytes=total,
+         original_CPU_DataLoader_workers=2,worker_drain=drain,targets_read=False,
+         all_original_trees_sites_haplotypes_queries_retained=True))
+-    return dict(banks=banks,parents=parents,keys=keys,rosters=rosters,
++    observed=dict(banks=banks,parents=parents,keys=keys,rosters=rosters,
+         permutations=permutations,episodes=episodes,seal=seal,proofs=proofs,site_refs=site_refs)
++    # All immutable CPU preparation completes before the caller opens phase truth.
++    episodes.freeze_v1(banks,keys,ids)
++    cache=FrozenPackedCacheV1(ctx,observed,ids,forecast)
++    for pid in ids:
++        bank=banks[pid];episode=episodes.get(pid,bank,keys[pid])
++        for arm in ARMS:
++            ctx["guard"]()
++            payload,proof=_prepare_payload_once_v1(ctx,observed,pid,arm,bank,episode)
++            cache.add_v1(pid,arm,payload,proof)
++    cache.seal_v1()
++    observed["cpu_cache"]=cache;ctx["_H058_CPU_cache"]=cache
++    ctx["output"].save("CPU_complete_phase_preparation_cache.json",cache.receipt_v1())
++    return observed
+ 
+ 
+ def device_parent_v1(ctx,observed,pid,mass=None):
+     ctx["guard"]()
++    require(ctx["device"].type=="cpu" and ctx.get("physical_gpu") is None,"CPU-only full parent")
+     bank=observed["banks"][pid]
+     episode=observed["episodes"].get(pid,bank,observed["keys"][pid])
+     resident=tensor_bytes(bank)+episode.tensor_bytes()+(0 if mass is None else mass.numel()*mass.element_size())
+-    require(episode.tensor_bytes()<=ctx["cfg"]["GPU_episode_cap_bytes"]
+-        and resident<=ctx["cfg"]["GPU_residency_cap_bytes"], "One shared complete original GPU bank/episode")
+-    return bank.to(ctx["device"]),episode.to(ctx["device"]),None if mass is None else mass.to(ctx["device"])
++    require(episode.tensor_bytes()<=ctx["cfg"]["CPU_parent_episode_cap_bytes"]
++        and resident<=ctx["cfg"]["CPU_parent_residency_cap_bytes"],"Complete original CPU bank/episode/mass")
++    require(mass is None or mass.device.type=="cpu","Original complete CPU target mass")
++    return bank,episode,mass
+ 
+ 
+-def payload_v1(ctx,observed,pid,arm,device_bank,device_episode):
++
++def _prepare_payload_once_v1(ctx,observed,pid,arm,device_bank,device_episode):
+     """At most ONE parent/ONE arm packed layout alive. No cross-parent route cache."""
+     require(arm in (*ARMS,CONTINUATION), "Registered arm")
+     if arm==CONTINUATION:
+@@ -155,3 +173,24 @@
+         actual_max_hold_nodes=max(h.nodes for h in route.holds),
+         GPU_packed_whole_parent_copy=False,CPU_route_cache_parents=1)
+     return PackedSameMarkerPayloadV3(device_episode,route,binding),proof
++
++
++def payload_v1(ctx,observed,pid,arm,device_bank,device_episode):
++    if arm==CONTINUATION:
++        observed["cpu_cache"].validate_active_v1(pid,device_bank,device_episode)
++        return device_episode,None
++    return observed["cpu_cache"].get_v1(pid,arm,device_bank,device_episode)
++
++
++def validate_scheduled_cache_v1(ctx,bank,payload):
++    ctx["_H058_CPU_cache"].validate_scheduled_v1(bank,payload)
++
++
++def scheduled_CPU_receipt_v1(ctx):
++    # Called only after a counted first real scheduled optimizer step.
++    import resource
++    cache=ctx["_H058_CPU_cache"]
++    return dict(main_peak_RSS_bytes=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss*1024,
++        main_RSS_is_not_combined_owned_tree_peak=True,ROOT_outer_owned_monitor_still_required=True,
++        complete_prepared_cache=cache.receipt_v1(),after_counted_first_real_step=True,
++        extra_model_probe_or_optimizer_update=False,measured_completion_of_all960=False)
