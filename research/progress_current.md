@@ -1,20 +1,20 @@
 # Research progress
 
-Updated UTC: 2026-10-16T13:32:28.761787+00:00.
+Updated UTC: 2026-10-16T14:31:10.699360+00:00.
 
 Current focus is complete faithful comparisons and independent testing, with one registered architecture experiment retained. The full research objective and novelty requirement remain unchanged.
 
 | Completed European development pipeline | Present182 span accuracy, mean ± simulation SD (%) |
 |---|---:|
-| Our stable-leaf candidate |97.0778 ±0.5674|
-| Our same-budget continued-training control |97.0000 ±0.4978|
+| TreeLoom |97.0778 ±0.5674|
+| TreeLoom-NoMem |97.0000 ±0.4978|
 | Current author ARGMix release |94.4461 ±1.1491|
 | Released AncestralPaths, derived four-source output |93.7830 ±0.8385|
 
 Eight reused2Mb validation simulations,952haplotypes/686queries,one optimizer seed. Inputs, training and selection differ across pipelines. This is not an exact published-table reproduction or architecture-only attribution. Stable-leaf memory adds0.0778percentagepoints over the matched control, with boundaryF1 lower at18.3807% versus19.0488%.
 
-- American C3 GNN: at least336/600 actual completed optimizer updates, durable checkpoint200 independently verified, physicalGPU0. No ancestry score yet.
-- Native American ARGformer: native32v2 initialized418MiB CUDA, then failed a controller-registry freshness check. Worker-15/outer241 and owned drain are verified. No optimizer progress or ancestry score. A same-charge source amendment is being prepared, preserving full science and original7GiB charge.
+- American C3 GNN: at least397/600 actual completed optimizer updates, durable checkpoint200 independently verified, physicalGPU0. No ancestry score yet.
+- Native American ARGformer: the v3 metadata bridge passed corpus authentication and reached Trainer startup, then the cumulative owned-process identity tracker exceeded its64entry bound. Actual worker-15/outer241 and owned-group drain recorded. No verified optimizer progress or ancestry score. A narrow lifecycle source repair is underway, preserving author workers, science and original7GiB charge.
 - Native FLARE: one American VAL000 score is complete,98.0100% focal accuracy and97.7151%macroF1 over10,000fixed focals. No multi-parent SD or GNN/ARGformer head-to-head table yet.
 - Larger ARGMix condition: full1,611-diploid observed dataset accepted after all7 observed products were independently stream-hashed and the final original storage guard passed. Original child0/parentouter1 monitor failure and original16GiB charge remain preserved. Full64GiB Relate pipeline is now admitted and running (tool41415), preserving all samples/sites/map. No inferred-bank completion or ancestry score yet.
 - New H058 route: actual one-hold FP32 arithmetic PASS,37checks,worker0/outer0/drain. Full scientific sourcev2 passes independent review. No full-parent training or accuracy yet. One30pass/960-update-per-arm trial is planned, without a broad architecture search.
@@ -42,3 +42,5 @@ Capacity recovery: one old completed run retained23.379GB of its52.321GB cap. Ac
 The manuscript was fully rewritten for scientific readers and both integrated and extracted Overleaf sources compile cleanly to9pages. All9pages were visually inspected. The path appendices are gone, the architecture figure is an original editable vector, and simulation/training details sit in the supplement. [Current paper](../paper/current_full_panel_working.pdf) · [Strict comparator audit](reviews/competitor_fidelity_user_audit_20261016_v1/REPORT.md).
 
 Actual unused reservation recovery69.906GB retained all old files. Current commitment979.266GB includes fullRelate64GiB and failednative7GiB. This is accounting commitment, not a physical free-disk measurement. New admissions use the actual Census fit2 child, while existing C3 guards remain unchanged.
+
+The latest Figure 1 and naming revision is complete: TreeLoom, defined variants, a simulated ARG with three true marginal trees, symbolic shapes and exact layers. The final nine-page paper and extracted Overleaf bundle compile without warnings and match text/layout. Root inspected all final pages. Numerical experiments are unchanged. [Final integration](reviews/paper_fig_naming_revision_20261016_v2/final_integration.root_v1.json).

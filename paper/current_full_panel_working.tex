@@ -17,14 +17,14 @@
 \setcounter{secnumdepth}{2}
 \newcommand{\best}[1]{\mathbf{#1}}
 \newcommand{\todo}[1]{\par\noindent\textbf{Research TODO.} #1\par}
-\title{Whole-Tree Learning over Ordered Genealogies\\for Local Ancestry Inference}
+\title{TreeLoom: Whole-Tree Learning over Ordered Genealogies\\for Local Ancestry Inference}
 \author{Anonymous Authors}
 \affiliations{}
 \begin{document}
 \maketitle
 
 \begin{abstract}
-A person's genome contains segments inherited from different ancestral populations. Identifying these segments helps reconstruct population history, but their boundaries can be difficult to recover from genetic data. Inferred genealogies offer a natural representation of shared ancestry: each local tree connects sampled genomes, and the trees change along the chromosome. Learning from this representation requires combining evidence within each tree with continuity across trees. We develop a whole-tree neural model that propagates genetic and reference-panel information through complete genealogies and follows sampled haplotypes along the genome. Structural conditioning marks changes in descendant groups, while recurrent context connects local predictions. On eight European development simulations, the strongest span-accuracy candidate reaches $97.08\pm0.57\%$, compared with $94.45\pm1.15\%$ for the evaluated ARGMix release. Matched controls show that much of the improvement within our model family also follows from continued training. The highest span accuracy and the best boundary score occur in different variants. These findings support whole-tree learning as a promising ancestry framework and identify boundary recovery as a distinct target for model design.
+A person's genome contains segments inherited from different ancestral populations. Identifying these segments helps reconstruct population history, but their boundaries can be difficult to recover from genetic data. Inferred genealogies offer a natural representation of shared ancestry: each local tree connects sampled genomes, and the trees change along the chromosome. Learning from this representation requires combining evidence within each tree with continuity across trees. We develop TreeLoom, a whole-tree neural model that propagates genetic and reference-panel information through complete genealogies and follows sampled haplotypes along the genome. Structural conditioning marks changes in descendant groups, while recurrent context connects local predictions. On eight European development simulations, TreeLoom reaches $97.08\pm0.57\%$, compared with $94.45\pm1.15\%$ for the evaluated ARGMix release. Matched controls show that much of the improvement within our model family also follows from continued training. The highest span accuracy and the best boundary score occur in different variants. These findings support whole-tree learning as a promising ancestry framework and identify boundary recovery as a distinct target for model design.
 \end{abstract}
 
 \section{Introduction}
@@ -36,7 +36,7 @@ Recent ancestry methods exploit these genealogical representations. AncestralPat
 
 A generic sequence of graph embeddings does not directly preserve every sample's relationship to all other samples. Conversely, a set-based graph model does not by itself encode genomic order or physical distance. For genealogies, treating internal-node identifiers as persistent can also introduce a false correspondence. The reliable shared interface is the sampled haplotype. Descendant sets provide an additional structural comparison, but an equal descendant set does not prove that two inferred internal nodes represent the same biological ancestor.
 
-We therefore build a whole-tree model with two complementary computations. Upward and downward messages connect reference and query haplotypes through every node in each local genealogy. A genomic recurrent network then follows each sampled haplotype through the ordered tree sequence. Local changes in descendant groups condition a second tree traversal. We examine whether additional cross-tree context improves this representation using matched episode and memory controls.
+We therefore build TreeLoom around two complementary computations. Upward and downward messages connect reference and query haplotypes through every node in each local genealogy. A genomic recurrent network then follows each sampled haplotype through the ordered tree sequence. Local changes in descendant groups condition a second tree traversal. We examine whether additional cross-tree context improves this representation using matched episode and memory controls.
 
 The present results support three scientific observations. First, the evaluated whole-tree pipelines exceed the evaluated native ARGMix and AncestralPaths pipelines on the shared European development endpoint. Second, simple local structural features are competitive with the examined cross-tree interactions. Third, span accuracy and tract-boundary recovery favor different variants. This analysis identifies which design choices improve fitted ancestry prediction and which metrics expose remaining errors. The completed comparisons use eight development simulations that have also informed model selection. Independent testing and the remaining native benchmarks are explicit completion items in this working manuscript.
 
@@ -53,7 +53,9 @@ Graph Set Transformer interleaves node-level propagation and set-wide contextual
 
 Temporal graph state-space models study recurrent state on changing graphs \citep{graphssm2024}. Gated recurrent units provide an established sequence mechanism \citep{gru2014}. Our graph sweeps, gated recurrence, pooling and residual conditioning use established ingredients. The empirical question is whether their genealogical organization improves ancestry inference, and whether a proposed cross-tree interaction adds value beyond matched local and continued-training controls.
 
-\section{Whole-Tree Ancestry Model}
+\section{TreeLoom}
+\subsection{Model Family and Variants}
+TreeLoom names our full model with memory along persistent sampled haplotypes. Every family member combines a whole-tree encoder with a genomic recurrent network. The suffix identifies the changed component: \textbf{Base} has neither structural residuals nor added sample memory. \textbf{Clade} adds conditioning on changes in descendant groups. \textbf{Local} also transforms a node's own embedding, whereas \textbf{Episode} replaces that local residual with information from other trees in a contiguous clade episode. \textbf{NoMem} extends Local with the memory comparison's training budget. \textbf{Group} and \textbf{Pair} replace stable-sample memory with cut-group and pair-cell transport, respectively. Figure~\ref{fig:architecture} depicts the full TreeLoom model. The MLP and Tensor suffixes denote alternative clade-event residuals, described in the supplement. The Base--Clade--Local progression also increases training exposure and is not a set of matched-budget ablations. The final four-arm memory comparison does use a common initialization and run budget.
 \subsection{Inputs and Prediction Target}
 Let $T_t=(V_t,E_t)$ be the inferred marginal tree on interval $I_t$ of length $w_t$. The same sampled haplotypes appear in every tree. Let $v_t(q)$ denote the node of sampled haplotype $q$ in tree $t$. Inferred internal nodes need not correspond across trees.
 
@@ -61,10 +63,10 @@ The observed inputs are phased genetic variants, inferred topology and branch ag
 
 Figure~\ref{fig:architecture} shows the data representation and the strongest span-accuracy variant. The central design preserves the complete genealogy during graph propagation and the complete sequence of marginal-tree contexts during genomic recurrence.
 
-\begin{figure*}[t]
+\begin{figure*}[p]
 \centering
 \input{figures/whole_tree_architecture.tex}
-\caption{Whole-tree ancestry inference. \textbf{A:} An inferred ARG describes genealogical change along the genome. \textbf{B:} Its ordered marginal trees retain the same sampled haplotypes, shown by repeated colors. Internal ancestors can change. \textbf{C:} Observed alleles, sample ages and reference labels supply features. Two shared whole-tree sweeps propagate information upward and downward. Structural residuals mark clade changes and provide local conditioning. In the stable-leaf variant, cut-level context is carried along persistent sampled haplotypes and added before the second sweep. A bidirectional recurrent network follows each sampled haplotype through the genomic sequence. Its history is concatenated with local tree context to predict ancestry probabilities and tracts. The drawing is schematic, with four sampled haplotypes for clarity.}
+\caption{TreeLoom architecture. \textbf{A:} An illustrative ARG with recorded recombination events yields three marginal trees. Sheets follow genomic edges. Tip colors identify samples. \textbf{B:} Two shared whole-tree sweeps, local residuals, sample memory and a one-layer bidirectional GRU feed the ancestry classifier. Outputs are schematic.}
 \label{fig:architecture}
 \end{figure*}
 
@@ -117,7 +119,7 @@ Episodes with at least two members receive the residual
 The matched local control substitutes $h_i$ for $\bar h_{-i}$ on the same eligible nodes. It retains the same parameter count, initialization and training budget. This control asks whether foreign-tree states help beyond the additional local transformation.
 
 \subsection{Memory along Persistent Samples}
-The strongest span-accuracy candidate adds stable-leaf memory to the local-control model. A time cut at 350 generations groups sampled haplotypes by their observed ancestor at that cut. A sample older than the cut retains its sampled node. This cut is computed from inferred node ages, without ancestry labels.
+TreeLoom adds stable-sample memory to TreeLoom-Local. TreeLoom-NoMem retains the same local architecture without this added memory. A time cut at 350 generations groups sampled haplotypes by their observed ancestor at that cut. A sample older than the cut retains its sampled node. This cut is computed from inferred node ages, without ancestry labels.
 
 For cut group $k$ in tree $t$, a learned projection of upward and outside context gives a forcing vector $f_{tk}$. Let $k_t(q)$ denote haplotype $q$'s group. A forward memory follows the same sampled haplotype across trees,
 \begin{equation}
@@ -130,7 +132,7 @@ z^\rightarrow_{tq}
 \end{equation}
 The first state is initialized by its forcing. A reverse scan uses the corresponding reverse order. The positive learned distance scale $\lambda$ lets physical span determine the amount of retained history.
 
-The two directions are averaged, pooled over the current cut group, and centered by subtracting the current forcing. A learned output projection injects this residual at that group's representative before the second tree sweep. This mechanism preserves sample identity even when cut groups change. The shared framework also permits pair-cell memory, which transports history through intersections of adjacent cut groups, and an adjacent-marginal control that discards the additional intersection conditioning. We compare these rules with continued training without added memory.
+The two directions are averaged, pooled over the current cut group, and centered by subtracting the current forcing. A learned output projection injects this residual at that group's representative before the second tree sweep. This mechanism preserves sample identity even when cut groups change. TreeLoom-Pair uses pair-cell memory, which transports history through intersections of adjacent cut groups, while TreeLoom-Group discards the additional intersection conditioning. TreeLoom-NoMem supplies the matched-budget control without added memory.
 
 \subsection{Genomic Context and Ancestry Readout}
 The second tree sweep produces a local representation $e_{tq}$ for every sampled haplotype. A bidirectional recurrent network receives this representation together with interval length and neighboring interval distances,
@@ -180,7 +182,7 @@ Within our model family, matched controls isolate narrower questions. Clade-even
 
 \section{Results}
 \subsection{Shared European Development Performance}
-Table~\ref{tab:pipeline} summarizes the evaluated pipelines. Stable-leaf memory reaches $97.0778\pm0.5674\%$ present-day span accuracy, compared with $94.4461\pm1.1491\%$ for current native ARGMix and $93.7830\pm0.8385\%$ for the derived AncestralPaths output. The stable-leaf--ARGMix difference is 2.63 percentage points for these fitted pipelines.
+Table~\ref{tab:pipeline} summarizes the evaluated pipelines. TreeLoom reaches $97.0778\pm0.5674\%$ present-day span accuracy, compared with $94.4461\pm1.1491\%$ for current native ARGMix and $93.7830\pm0.8385\%$ for the derived AncestralPaths output. The TreeLoom--ARGMix difference is 2.63 percentage points for these fitted pipelines.
 
 \begin{table}[t]
 \centering
@@ -191,87 +193,88 @@ Pipeline & Span accuracy (\%) $\uparrow$\\
 \midrule
 Released AncestralPaths, derived C4 & $93.78\pm0.84$\\
 Current native ARGMix & $94.45\pm1.15$\\
-Whole-tree base & $95.49\pm0.83$\\
-Local clade flags & $96.58\pm0.60$\\
-Episode local control & $96.82\pm0.61$\\
-Foreign-episode context & $96.83\pm0.59$\\
-Continued-training control & $97.00\pm0.50$\\
-Stable-leaf memory & $\best{97.08\pm0.57}$\\
+TreeLoom-Base & $95.49\pm0.83$\\
+TreeLoom-Clade & $96.58\pm0.60$\\
+TreeLoom-Local & $96.82\pm0.61$\\
+TreeLoom-Episode & $96.83\pm0.59$\\
+TreeLoom-NoMem & $97.00\pm0.50$\\
+TreeLoom & $\best{97.08\pm0.57}$\\
 \bottomrule
 \end{tabular}
 \caption{Shared European development endpoint on 182 present-day query haplotypes. Values are mean$\pm$simulation SD across eight 2\,Mb simulations. The best observed mean is bold. Inputs, training exposure and model selection differ between pipeline families. This is not a reproduction of published table values.}
 \label{tab:pipeline}
 \end{table}
 
-The progression within the neural family also increases training exposure. The continued-training control reaches $97.00\%$ without adding memory. Stable leaves exceed that control by only $0.0778$ points, and the paired episode comparison adds only $0.0096$ points for foreign states. Thus the larger pipeline gain does not establish that cross-tree message exchange is its cause.
+The progression within the neural family also increases training exposure. TreeLoom-NoMem reaches $97.00\%$ without adding memory. TreeLoom exceeds TreeLoom-NoMem by only $0.0778$ points, and the paired episode comparison adds only $0.0096$ points for foreign states. Thus the larger pipeline gain does not establish that cross-tree message exchange is its cause.
 
-The source cohorts have different prediction difficulty (Table~\ref{tab:cohorts}). The local-flag model exceeds the native comparators in every listed cohort under this condition. Scores are highest for the ancient aggregate. This does not demonstrate equal performance on empirical ancient DNA, since source mixtures, sampling ages and tract structures differ between cohorts.
+The source cohorts have different prediction difficulty (Table~\ref{tab:cohorts}). TreeLoom exceeds the evaluated native comparators in every listed cohort under this condition. Scores are highest for the ancient aggregate. This does not demonstrate equal performance on empirical ancient DNA, since source mixtures, sampling ages and tract structures differ between cohorts.
 
 \begin{table*}[t]
 \centering
 \small
 \begin{tabular}{@{}lrrrrr@{}}
 \toprule
-Cohort & Query haplotypes & AncestralPaths, C4 & ARGMix & Whole-tree base & Local flags\\
+Cohort & Query haplotypes & AncestralPaths, C4 & ARGMix & TreeLoom-NoMem & TreeLoom\\
 \midrule
-Present-day &182&$93.78\pm0.84$&$94.45\pm1.15$&$95.49\pm0.83$&$\best{96.58\pm0.60}$\\
-Bronze Age &162&$94.76\pm1.18$&$97.71\pm0.75$&$98.17\pm0.80$&$\best{99.07\pm0.32}$\\
-BAA &14&$96.94\pm1.32$&$98.44\pm1.02$&$98.90\pm0.89$&$\best{99.02\pm1.07}$\\
-Neo &302&$97.57\pm0.27$&$99.30\pm0.26$&$99.41\pm0.13$&$\best{99.53\pm0.18}$\\
-Yam &26&$95.43\pm1.41$&$99.22\pm0.90$&$98.96\pm1.31$&$\best{99.86\pm0.19}$\\
-Ancient &504&$96.54\pm0.32$&$98.76\pm0.31$&$98.98\pm0.32$&$\best{99.39\pm0.16}$\\
-All queries &686&$95.81\pm0.45$&$97.61\pm0.50$&$98.05\pm0.43$&$\best{98.64\pm0.26}$\\
+Present-day &182&$93.78\pm0.84$&$94.45\pm1.15$&$97.00\pm0.50$&$\best{97.08\pm0.57}$\\
+Bronze Age &162&$94.76\pm1.18$&$97.71\pm0.75$&$99.14\pm0.40$&$\best{99.16\pm0.43}$\\
+BAA &14&$96.94\pm1.32$&$98.44\pm1.02$&$99.25\pm1.04$&$\best{99.35\pm1.04}$\\
+Neo &302&$97.57\pm0.27$&$99.30\pm0.26$&$99.65\pm0.06$&$\best{99.73\pm0.07}$\\
+Yam &26&$95.43\pm1.41$&$99.22\pm0.90$&$99.91\pm0.14$&$\best{99.94\pm0.12}$\\
+Ancient &504&$96.54\pm0.32$&$98.76\pm0.31$&$99.49\pm0.13$&$\best{99.55\pm0.13}$\\
+All queries &686&$95.81\pm0.45$&$97.61\pm0.50$&$98.83\pm0.22$&$\best{98.89\pm0.23}$\\
 \bottomrule
 \end{tabular}
-\caption{Cohort span accuracy (\%), mean$\pm$simulation SD. Bold identifies the best mean within each row. Ancient and all-query rows aggregate the cohorts above them. This completed cohort comparison concerns the local-flag model, rather than the later stable-leaf model. Bronze Age has not been established as identical to the published Post-Neolithic panel.}
+\caption{Cohort span accuracy (\%), mean$\pm$simulation SD across the same eight development simulations. TreeLoom is the full stable-sample-memory model. TreeLoom-NoMem is its matched-budget continuation without added memory. Bold identifies the best mean within each row. Ancient and all-query rows aggregate the cohorts above them. Bronze Age has not been established as identical to the published Post-Neolithic panel.}
 \label{tab:cohorts}
 \end{table*}
 
 \subsection{What Does Cross-Tree Context Add?}
-Local clade flags outperform the examined clade-event tensor interaction by $0.3104\pm0.2588$ accuracy points and the matched event MLP by $0.3771\pm0.2165$ points. The simpler structural control therefore captures useful information that these interactions need not exchange explicitly. In a later matched comparison, foreign-episode context exceeds own-state conditioning by $0.0096\pm0.1527$ points. This falls below the registered practical-gain threshold of 0.10 points.
+TreeLoom-Clade outperforms the examined TreeLoom-Tensor interaction by $0.3104\pm0.2588$ accuracy points and the matched TreeLoom-MLP interaction by $0.3771\pm0.2165$ points. The simpler structural control therefore captures useful information that these interactions need not exchange explicitly. In a later matched comparison, TreeLoom-Episode exceeds TreeLoom-Local by $0.0096\pm0.1527$ points. This falls below the registered practical-gain threshold of 0.10 points.
 
-The ordered-memory comparison tests whether a richer transport rule improves over stable samples and continued training (Table~\ref{tab:memory}). Pair-cell memory exceeds its adjacent-marginal control by $0.0137\pm0.0243$ accuracy points. It is below stable-leaf memory by $0.0138\pm0.0384$ points. Neither registered utility criterion is met: a gain of at least 0.10 accuracy points without a boundary-F1 decrease, or a gain of at least 1.00 boundary-F1 point with no more than 0.05 accuracy points lost, against every control. These thresholds are practical development criteria.
+The ordered-memory comparison tests whether a richer transport rule improves over stable samples and continued training (Table~\ref{tab:memory}). TreeLoom-Pair exceeds TreeLoom-Group by $0.0137\pm0.0243$ accuracy points. It is below TreeLoom by $0.0138\pm0.0384$ points. Neither registered utility criterion is met: a gain of at least 0.10 accuracy points without a boundary-F1 decrease, or a gain of at least 1.00 boundary-F1 point with no more than 0.05 accuracy points lost, against every control. These thresholds are practical development criteria.
 
 \begin{table}[t]
 \centering
 \small
 \begin{tabular}{@{}lrr@{}}
 \toprule
-Memory condition & Accuracy $\uparrow$ & Boundary F1 $\uparrow$\\
+TreeLoom variant & Accuracy $\uparrow$ & Boundary F1 $\uparrow$\\
 \midrule
-Pair-cell & $97.064\pm0.560$ & $18.93\pm1.42$\\
-Adjacent marginal & $97.050\pm0.580$ & $18.85\pm1.05$\\
-Stable leaves & $\best{97.078\pm0.567}$ & $18.38\pm1.31$\\
-Continued training & $97.000\pm0.498$ & $\best{19.05\pm1.43}$\\
+TreeLoom-Pair & $97.06\pm0.56$ & $18.93\pm1.42$\\
+TreeLoom-Group & $97.05\pm0.58$ & $18.85\pm1.05$\\
+TreeLoom & $\best{97.08\pm0.57}$ & $18.38\pm1.31$\\
+TreeLoom-NoMem & $97.00\pm0.50$ & $\best{19.05\pm1.43}$\\
 \bottomrule
 \end{tabular}
-\caption{Matched ordered-memory comparison, mean$\pm$simulation SD in percent. All arms finish the same additional training budget. Checkpoint selection is individual to each arm. Bold identifies the largest mean in each metric. Boundary tolerance is 1\,kb.}
+\caption{Matched memory comparison, mean$\pm$simulation SD in percent. Pair and Group substitute the memory transport rule. NoMem omits added sample memory. All arms finish the same additional training budget, with checkpoint selection individual to each arm. Bold identifies the largest mean per metric. Boundary tolerance is 1\,kb.}
 \label{tab:memory}
 \end{table}
 
-Stable leaves have the highest span accuracy, while continued training has the highest boundary F1. Their paired differences are $+0.0778$ accuracy points and $-0.6682$ boundary-F1 points. This tradeoff is central to evaluating a method intended to recover ancestry tracts.
+TreeLoom has the highest span accuracy, while TreeLoom-NoMem has the highest boundary F1. Their paired differences are $+0.0778$ accuracy points and $-0.6682$ boundary-F1 points. This tradeoff is central to evaluating a method intended to recover ancestry tracts.
 
 \subsection{Tract Boundaries Remain Difficult}
-Table~\ref{tab:boundaries} shows that improvements in span accuracy can accompany better boundary F1 relative to native pipelines, while still leaving most true transitions unrecovered. Local flags reach $18.05\pm1.84\%$ F1. AncestralPaths has the highest recall in this comparison, at a much lower precision.
+Table~\ref{tab:boundaries} shows that improvements in span accuracy can accompany better boundary F1 relative to native pipelines, while still leaving most true transitions unrecovered. TreeLoom reaches $18.38\pm1.31\%$ F1, while TreeLoom-NoMem reaches $19.05\pm1.43\%$. AncestralPaths has the highest recall in this comparison, at a much lower precision.
 
-\begin{table}[t]
+\begin{table*}[t]
 \centering
 \small
 \begin{tabular}{@{}lrrr@{}}
 \toprule
-Pipeline & Prec. $\uparrow$ & Recall $\uparrow$ & F1 $\uparrow$\\
+Pipeline & Precision $\uparrow$ & Recall $\uparrow$ & F1 $\uparrow$\\
 \midrule
-AP (C4)&$3.95\pm0.48$&$\best{32.36\pm2.06}$&$7.03\pm0.78$\\
-ARGMix&$9.16\pm1.49$&$16.41\pm2.22$&$11.74\pm1.73$\\
-Tree base&$10.71\pm1.21$&$17.99\pm2.01$&$13.42\pm1.47$\\
-Local flags&$\best{15.21\pm2.01}$&$22.30\pm1.86$&$\best{18.05\pm1.84}$\\
+AncestralPaths (C4) & $3.95\pm0.48$ & $\best{32.36\pm2.06}$ & $7.03\pm0.78$\\
+ARGMix & $9.16\pm1.49$ & $16.41\pm2.22$ & $11.74\pm1.73$\\
+TreeLoom-Base & $10.71\pm1.21$ & $17.99\pm2.01$ & $13.42\pm1.47$\\
+TreeLoom-NoMem & $\best{16.31\pm1.42}$ & $22.94\pm1.58$ & $\best{19.05\pm1.43}$\\
+TreeLoom & $15.58\pm1.08$ & $22.46\pm2.05$ & $18.38\pm1.31$\\
 \bottomrule
 \end{tabular}
-\caption{Present-day boundary metrics (\%), with AP denoting AncestralPaths. Values are mean$\pm$simulation SD at 1\,kb tolerance. The best mean in each column is bold, including the native comparator's recall. Matching is positional and does not require the correct source-transition identity.}
+\caption{Present-day boundary metrics (\%), mean$\pm$simulation SD at 1\,kb tolerance. Bold identifies the best mean in each column, including the native comparator's recall and the NoMem control's precision and F1. Matching is positional and does not require the correct source-transition identity.}
 \label{tab:boundaries}
-\end{table}
+\end{table*}
 
-A diagnostic of frozen whole-tree-base predictions separates representation from recognition. Of 4,008 true changes, 1,094 have no native interval edge within 1\,kb. Yet 2,195 of the model's 3,289 missed changes do have a nearby candidate. Finer readout alone would therefore address only part of the problem. Short false ancestry islands also contribute disproportionately to extra boundaries: islands of at most 10\,kb account for $35.46\pm2.71\%$ of extra boundaries but only $3.83\pm0.73\%$ of erroneous physical mass. This explains why a span-based ranking can understate fragmentation.
+A diagnostic of frozen TreeLoom-Base predictions separates representation from recognition. Of 4,008 true changes, 1,094 have no native interval edge within 1\,kb. Yet 2,195 of the model's 3,289 missed changes do have a nearby candidate. Finer readout alone would therefore address only part of the problem. Short false ancestry islands also contribute disproportionately to extra boundaries: islands of at most 10\,kb account for $35.46\pm2.71\%$ of extra boundaries but only $3.83\pm0.73\%$ of erroneous physical mass. This explains why a span-based ranking can understate fragmentation.
 
 \subsection{American Admixture Benchmark}
 A separate 30\,Mb American simulation contains 600 reference and 1,000 query haplotypes with EUR, EAS and AFR source classes. Released FLARE calls reach $98.0100\%$ accuracy and $97.7151\%$ macro F1 on 10,000 predetermined focal records. This is one validation simulation, so no between-simulation SD is available. The endpoint counts focal records rather than physical span.
@@ -279,19 +282,19 @@ A separate 30\,Mb American simulation contains 600 reference and 1,000 query hap
 \todo{Complete our model and native ARGformer on the same American observations, reference/query identities and focal support. Add multi-simulation uncertainty and verify the published demographic and prediction settings before comparing with its Table~1. The current FLARE score alone establishes no head-to-head ranking.}
 
 \subsection{Application to Ancient Danish Genomes}
-We applied a frozen foreign-episode model to ten ancient Danish query individuals and eight proxy-reference individuals from the imputed genomes analyzed by \citet{eurasians2024}. Five earlier individuals date to 5.44--5.67\,ka cal BP and five later individuals to 3.97--4.26\,ka cal BP. Three fixed 10\,Mb windows on chromosomes 20--22 contain 1,158 inferred trees and 8,587 qualified site records.
+We applied the frozen TreeLoom-Episode model to ten ancient Danish query individuals and eight proxy-reference individuals from the imputed genomes analyzed by \citet{eurasians2024}. Five earlier individuals date to 5.44--5.67\,ka cal BP and five later individuals to 3.97--4.26\,ka cal BP. Three fixed 10\,Mb windows on chromosomes 20--22 contain 1,158 inferred trees and 8,587 qualified site records.
 
 The model received original phased genotypes and was not fitted again. Person-weighted, span-integrated assignments are 14.27 percentage points higher for EHG and 5.52 points higher for CHG in the later group. The EHG contrast is positive on each chromosome. The pooled CHG contrast depends on chromosome 21, and becomes $-0.68$ points when that chromosome is omitted. Independent genotype-affinity contrasts using the shared imputation resource do not support the registered directions. These model assignments are descriptive outputs, without local ancestry truth or calibrated mixture fractions. The application illustrates behavior on empirical genealogies rather than confirming a population-history hypothesis.
 
 \section{Discussion}
-Whole-tree learning provides a direct way to combine reference ancestry, genetic variation and genealogical structure. Its sampled-haplotype interface preserves correspondence along the genome without assuming persistent inferred ancestors. The shared European development comparison is encouraging for this representation. Its biological value must nevertheless be judged by both the amount of correctly assigned sequence and the placement of transitions.
+TreeLoom provides a direct way to combine reference ancestry, genetic variation and genealogical structure. Its sampled-haplotype interface preserves correspondence along the genome without assuming persistent inferred ancestors. The shared European development comparison is encouraging for this representation. Its biological value must nevertheless be judged by both the amount of correctly assigned sequence and the placement of transitions.
 
 The matched controls constrain the architectural interpretation. Local structural conditioning is competitive with the examined event interactions, foreign-episode context provides little added accuracy over local conditioning, and richer pair-cell memory does not outperform the simpler controls under the registered criteria. Continued training explains much of the later improvement. The present evidence supports this ancestry framework and its comparative analysis, while the contribution of a distinct cross-tree operator remains an open research question.
 
 The external evaluations also have specific scope. Development validation has been reused, native models retain different training and input choices, and the completed panel is not a verified recreation of the published tables. The Danish application has no ancestry ground truth. A separate trade-network diagnostic finds persistence stronger than the tested learned memory models (Supplement), so that experiment does not support a broad generality claim. Independent ancestry tests and completed native benchmarks are the next basis for a stronger conclusion.
 
 \section{Conclusion}
-We study local ancestry through complete inferred genealogies linked by persistent sampled haplotypes. Whole-tree propagation, structural conditioning and genomic recurrence achieve promising development span accuracy. Matched controls show that additional cross-tree memory yields small gains and can reduce boundary quality. These results motivate ancestry models that recover tract structure as well as genomic mass, with final claims tied to independent tests and faithful native comparisons.
+TreeLoom infers local ancestry from complete inferred genealogies linked by persistent sampled haplotypes. Whole-tree propagation, structural conditioning and genomic recurrence achieve promising development span accuracy. Matched controls show that additional cross-tree memory yields small gains and can reduce boundary quality. These results motivate ancestry models that recover tract structure as well as genomic mass, with final claims tied to independent tests and faithful native comparisons.
 
 \paragraph{Code availability.}
 Source code, experiment configurations and full results are available at \url{https://github.com/alexeyshmelev/ARG-GNN}.
@@ -353,7 +356,7 @@ Here $r(i)$ maps an original scored bin to its native tree interval. Since predi
 
 Each development stage completes 30 passes over 32 training simulations, or 960 optimizer updates. AdamW uses learning rate $10^{-3}$, weight decay $10^{-4}$, betas $(0.9,0.999)$ and epsilon $10^{-8}$, with gradient norm clipped at one. Optimizer state is reset for each continuation stage. The reported model family uses training seed 101. Checkpoints every five passes are selected by equal-simulation present-day validation accuracy, followed by lower NLL and then earlier pass.
 
-Table~\ref{tab:budget} separates capacity and cumulative training. Memory arms select added pass 30. The continuation control selects added pass 20, or 640 new updates and 3,520 cumulative updates, while completing the same 960-update run.
+Table~\ref{tab:budget} separates capacity and cumulative training. TreeLoom, Pair and Group select added pass 30. TreeLoom-NoMem selects added pass 20, or 640 new updates and 3,520 cumulative updates, while completing the same 960-update run.
 
 \begin{table}[t]
 \centering
@@ -362,14 +365,14 @@ Table~\ref{tab:budget} separates capacity and cumulative training. Memory arms s
 \toprule
 Stage & Parameters & New updates & Total\\
 \midrule
-Whole-tree base &29,764&960&960\\
-Local flags &30,788&960&1,920\\
-Episode model &31,812&960&2,880\\
-Memory comparison &32,325&960&3,840\\
-Continuation control &31,812&960&3,840\\
+TreeLoom-Base &29,764&960&960\\
+TreeLoom-Clade &30,788&960&1,920\\
+TreeLoom-Local &31,812&960&2,880\\
+TreeLoom / Pair / Group &32,325&960&3,840\\
+TreeLoom-NoMem &31,812&960&3,840\\
 \bottomrule
 \end{tabular}
-\caption{Completed training budgets for the lineage used by the memory comparison. Cumulative counts describe final trained models, rather than all selected checkpoints. The final two rows share the episode local-control initialization. No metric winner is applicable.}
+\caption{Completed training budgets for the lineage used by the memory comparison. Cumulative counts describe final trained models, rather than all selected checkpoints. The final two rows share the TreeLoom-Local initialization. No metric winner is applicable.}
 \label{tab:budget}
 \end{table}
 
@@ -383,12 +386,12 @@ The archived dense AncestralPaths classifier uses 5,190,874 of 5,200,000 request
 \toprule
 Local interaction & Accuracy (\%) $\uparrow$ & NLL $\downarrow$\\
 \midrule
-Event MLP & $96.20\pm0.70$ &0.110014\\
-Event tensor & $96.27\pm0.75$ &0.109332\\
-Local flags & $\best{96.58\pm0.60}$ &$\best{0.100656}$\\
+TreeLoom-MLP & $96.20\pm0.70$ &0.110014\\
+TreeLoom-Tensor & $96.27\pm0.75$ &0.109332\\
+TreeLoom-Clade & $\best{96.58\pm0.60}$ &$\best{0.100656}$\\
 \bottomrule
 \end{tabular}
-\caption{Equal added-parameter and continuation-budget structural comparison. Accuracy is mean$\pm$simulation SD. NLL is the equal-simulation mean. Bold identifies the best mean per metric.}
+\caption{Matched added-parameter and continuation-budget structural comparison. TreeLoom-MLP and TreeLoom-Tensor are alternative clade-event residuals to TreeLoom-Clade. Accuracy is mean$\pm$simulation SD. NLL is the equal-simulation mean. Bold identifies the best mean per metric.}
 \label{tab:interactions}
 \end{table}
 
@@ -399,7 +402,7 @@ A matched neighboring-tree-state experiment also has a small paired gain: $0.015
 \small
 \begin{tabular}{@{}lrr@{}}
 \toprule
-Cohort & Local control $\uparrow$ & Foreign episode $\uparrow$\\
+Cohort & TreeLoom-Local $\uparrow$ & TreeLoom-Episode $\uparrow$\\
 \midrule
 Present-day &$96.82\pm0.61$&$\best{96.83\pm0.59}$\\
 Bronze Age &$99.17\pm0.40$&$\best{99.20\pm0.32}$\\
@@ -410,11 +413,11 @@ Ancient &$\best{99.49\pm0.15}$&$99.48\pm0.13$\\
 All queries &$\best{98.7815\pm0.2566}$&$98.7761\pm0.2486$\\
 \bottomrule
 \end{tabular}
-\caption{Episode-comparison cohort accuracy (\%), mean$\pm$simulation SD. Bold identifies the larger mean. The final row retains additional mean precision to distinguish the close ranking. }
+\caption{TreeLoom-Local versus TreeLoom-Episode cohort accuracy (\%), mean$\pm$simulation SD. Bold identifies the larger mean. The final row retains additional mean precision to distinguish the close ranking. }
 \label{tab:episodecohorts}
 \end{table}
 
-The foreign-episode model reaches boundary F1 $18.1558\pm1.3790\%$, versus $18.0557\pm1.7761\%$ for its local control. The paired difference is $0.1001\pm0.9632$ points. These results concern the completed episode stage, rather than the later memory comparison.
+TreeLoom-Episode reaches boundary F1 $18.1558\pm1.3790\%$, versus $18.0557\pm1.7761\%$ for TreeLoom-Local. The paired difference is $0.1001\pm0.9632$ points. These results concern the completed episode stage, rather than the later memory comparison.
 
 Strict NLL assigns infinite loss when a method gives zero probability to a true source over positive represented mass. AncestralPaths has one such event over 800 query-base pairs, giving infinite mean NLL while retaining finite accuracy. We use its probabilities without flooring or calibration. Sparse-cohort boundary and source-specific metrics can also be undefined when no relevant event occurs. Undefined values are not treated as zero.
 
@@ -443,7 +446,7 @@ AFR &97.68&96.46&97.06&1,439\\
 \section{Initial Cross-Domain Diagnostic}
 The trade-network task from Temporal Graph Benchmark \citep{tgb2023} provides an initial transfer diagnostic. Models predict before observing the current year's edges. Validation uses 2010--2013 and test uses 2014--2016. All three learned models share a residual persistence prior and complete 100 epochs with a fixed seed. Test predictions precede target access. All learned models are below persistence (Table~\ref{tab:trade}).
 
-\begin{table}[htbp]
+\noindent\begin{minipage}{\columnwidth}
 \centering
 \small
 \begin{tabular}{@{}lrr@{}}
@@ -457,9 +460,9 @@ Tree only &$0.8581\pm0.0056$&$0.8271\pm0.0113$\\
 Seven-year EMA &$0.8429\pm0.0085$&$0.8090\pm0.0049$\\
 \bottomrule
 \end{tabular}
-\caption{Initial trade-network NDCG@10, mean$\pm$year SD. Years are serially dependent, and SD is not training-seed uncertainty. Bold identifies the best mean. This causal diagnostic is separate from published leaderboard settings and does not complete the GST comparison.}
+\captionof{table}{Trade-network NDCG@10, mean$\pm$year SD. Years are serially dependent, and SD is not training-seed uncertainty. Bold identifies the best mean. This causal diagnostic differs from published leaderboard settings.}
 \label{tab:trade}
-\end{table}
+\end{minipage}\par
 
 
 

@@ -1,0 +1,65 @@
+{
+  "checkpoint_save_interval_and_all_107_save_events_preserved": true,
+  "new_checkpoint_rotation_scope": "fresh separately admitted contrastive output only",
+  "not_a_numerical_equivalence_test_or_measured_performance": true,
+  "only_proposed_config_difference": {
+    "save_num_checkpoints_to_keep": {
+      "original": -1,
+      "proposed": 1
+    }
+  },
+  "schema": "native_contrastive_keep1_source_callback_RNG_selection_audit_v1",
+  "source_observations": [
+    "Trainer passes save_num_checkpoints_to_keep only into CheckpointSaver constructor.",
+    "CheckpointSaver evaluates the original20ba scheduler at the unchanged batch/epoch events.",
+    "CheckpointSaver serializes before rotation. Each event records the timestamp mapping and writes a full model/optimizer/RNG checkpoint.",
+    "The only keep>=0 branch follows saved_checkpoints.append and invokes _rotate_checkpoints.",
+    "For the required unsharded/single-rank local path, _rotate_checkpoints only pops the oldest newly generated pathname and os.remove(s) it.",
+    "CheckpointSaver.state_dict serializes all_saved_checkpoints_to_timestamp, not saved_checkpoints or the retention limit. Full timestamp history remains.",
+    "Composer RNG serialization uses getstate/get_rng_state getters. Because save events are preserved, any state_dict/metric snapshot side effects occur at identical events.",
+    "Author MaxMetricTracker only logs an evaluation maximum and does not select/save/load a best checkpoint.",
+    "Original speed_monitor and lr_monitor callbacks, evaluation every20ba, optimizer/scheduler, data order and batch4096 all remain configured identically.",
+    "The adaptation selects only the actual epoch1/update2135 final checkpoint with genuine saved Adam step/moment counters, matching the original downstream source.",
+    "No resume/autoresume or remote checkpoint uploading is introduced. Fresh local output, empty external loggers and full checkpoint optimizer state remain required."
+  ],
+  "source_only": true,
+  "source_refs": {
+    "RNG_getters": {
+      "path": ".runtime/conda/envs/argformer_native_v1/lib/python3.11/site-packages/composer/utils/reproducibility.py",
+      "sha256": "2f95c7e95734626e882a32f84ef606876ce0426f03bffd0ac6fbcd2d1c66d46c"
+    },
+    "author_train": {
+      "path": ".runtime/author_sources/argformer_f7545be7bca0/sequence_contrastive.py",
+      "sha256": "7df3e0571aeb032b8ec745d49feb5d0335572a9a9594ee643603e961b4b98339"
+    },
+    "author_yaml": {
+      "path": ".runtime/author_sources/argformer_f7545be7bca0/yamls/contrastive.yaml",
+      "sha256": "3b4f87e149a2b56d8a3efa2e35bd52ec94b61d2d3c768f15df67e82376ce4847"
+    },
+    "checkpoint_saver": {
+      "path": ".runtime/conda/envs/argformer_native_v1/lib/python3.11/site-packages/composer/callbacks/checkpoint_saver.py",
+      "sha256": "2795b5ca31d7d691cfedd486c81b9cd94df554142761328b86133f0440af8b2f"
+    },
+    "checkpoint_serialization": {
+      "path": ".runtime/conda/envs/argformer_native_v1/lib/python3.11/site-packages/composer/utils/checkpoint.py",
+      "sha256": "f7acc3f1010e74bb8fc692ca95163c0d6e13e4bb8242fdd3581fe396eb688039"
+    },
+    "composer_state": {
+      "path": ".runtime/conda/envs/argformer_native_v1/lib/python3.11/site-packages/composer/core/state.py",
+      "sha256": "7ac71704e2d4c5d6680c4510d253e180aac64d7f740308260f6fa5a4fcf7b33d"
+    },
+    "composer_trainer": {
+      "path": ".runtime/conda/envs/argformer_native_v1/lib/python3.11/site-packages/composer/trainer/trainer.py",
+      "sha256": "d0c1d6cc233573bc6b9ce6256641426d8f06ca10988cf67eb9a71491ce1226fb"
+    },
+    "interval_scheduler": {
+      "path": ".runtime/conda/envs/argformer_native_v1/lib/python3.11/site-packages/composer/utils/misc.py",
+      "sha256": "e87c7e1bf9e9d94f8f2ac42525f78e3f82a7cbfc0cd7e46341de763bece95e69"
+    }
+  },
+  "state_dict_and_RNG_snapshot_invocations_preserved_at_identical_events": true,
+  "tiny_rotation_fixture_ref": {
+    "path": "research/reviews/native_VAL000_downstream_IO_efficiency_source_20261016_v1/tiny_retention_software_fixture.v1.json",
+    "sha256": "bc39b44f6eb3d901a28b970d41027a445a876f1150c5fcf32a7ff60909d927a4"
+  }
+}

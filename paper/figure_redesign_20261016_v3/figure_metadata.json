@@ -1,0 +1,124 @@
+{
+  "diagram_revision": "v3_symbolic_shapes_and_sample_projection",
+  "symbolic_shapes": {
+    "input": "S \u00d7 M",
+    "all_native_node_states": "B_t: N_t \u00d7 d",
+    "sampled_tree_embeddings": "E_t: S \u00d7 d",
+    "projection": "sampled concat(upward,outside): 2d \u2192 Linear \u2192 tanh \u2192 d"
+  },
+  "axis_meaning": {
+    "S": "sampled haplotypes",
+    "M": "observed markers",
+    "N_t": "all native nodes in tree t",
+    "d": "hidden feature width",
+    "convention": "rows \u00d7 columns"
+  },
+  "title": "TreeLoom: full-tree encoding and ancestry readout",
+  "vector_outputs": [
+    "TreeLoom_architecture.pdf",
+    "TreeLoom_architecture.svg"
+  ],
+  "editable_source": "build_figure.py",
+  "figure_size_inches": [
+    7.0,
+    8.15
+  ],
+  "minimum_font_points": 8.0,
+  "publication_width_inches": 7.0,
+  "AAAI_textwidth_inches": 7.0,
+  "AAAI_textheight_inches": 9.0,
+  "toy_validation": {
+    "num_trees": 3,
+    "num_samples": 4,
+    "all_trees_connected": true,
+    "strict_parent_time": true,
+    "tskit_version": "1.0.3",
+    "msprime_version": "1.3.4",
+    "full_ARG_nodes": 13,
+    "full_ARG_edges": 14,
+    "recombination_nodes": [
+      5,
+      6,
+      8,
+      9
+    ],
+    "simulation_seed": 225,
+    "genotypes": [
+      [
+        1,
+        0,
+        1,
+        0
+      ],
+      [
+        0,
+        1,
+        0,
+        1
+      ],
+      [
+        1,
+        1,
+        0,
+        1
+      ]
+    ]
+  },
+  "source_map": {
+    "site_encoder": {
+      "file": "src/arggnn/mutation_routed_whole_tree_gnn_v1.py",
+      "symbol": "MutationRoutedWholeTreeGNNV1.__init__, _site_chunk, encode_sites",
+      "operation": "19\u219232 GELU\u219232 tanh; interval mean/max plus count, empty, span; 67\u219232 tanh",
+      "sha256": "254f5155e31f81ae675e2bd08d38c97c9bf130d47e98efa2deea4c7344d9e073"
+    },
+    "tree_sweep": {
+      "file": "src/arggnn/anonymous_clade_gnn_v1.py",
+      "symbol": "AnonymousCladeTensorGNNV1.prepare_tree_base_v1, sweep_tree_state_v1, leaf_context_v1",
+      "operation": "gated linear child messages divided by child count; sum; base residual+tanh+layernorm; outside recipient exclusion; gated linear\u2192linear\u2192tanh\u2192layernorm; sampled concat64\u219232tanh",
+      "sha256": "2f878e6334079cff083f67b6da8eda129dd30e7beebc62ae2a93d51796c3f137"
+    },
+    "clade_flags": {
+      "file": "src/arggnn/anonymous_clade_flag_control_v1.py",
+      "symbol": "RankEightCladeFlagAdapterV1",
+      "operation": "O[gained(Uh\u2299Vh)\u2212lost(Uh\u2299Wh)] at proper clade representatives",
+      "sha256": "d88a4639a53e63e2bff91e20d98e2af1f5cf8abc71e5fde2e02ac35e831eb8ce"
+    },
+    "own_state_episode": {
+      "file": "src/arggnn/ordered_clade_episode_gnn_v1.py",
+      "symbol": "RankEightCladeEpisodeAdapterV1.forward",
+      "operation": "O[Uh\u2299Vh+Wh] where episode size>=2; own-state control used by H050",
+      "sha256": "71d93e2131858474bb7f6d0856459545dce1e6889de831b0092682f19dcbc6e6"
+    },
+    "stable_sample_memory": {
+      "file": "research/reviews/order2_cut_memory_implementation_20261015_v1/order2_cut_memory_v1.py",
+      "symbol": "CutMemoryV1",
+      "operation": "rank8 forcing U(h_up+h_out) at cut representative; stable sample forward/reverse span-decay; average, current cut-group mean, subtract forcing, O back to32",
+      "sha256": "3b496b163e11147643aa576dfe1f37a75544d466624ef2bd4377fc62d1533265"
+    },
+    "TreeLoom_encoder_splice": {
+      "file": "research/reviews/H050_direct_readout_cut_memory_source_20261015_v1/direct_readout_cut_memory_v1.py",
+      "symbol": "DirectReadoutCutMemoryGNNV1.encode_trees",
+      "operation": "first sweep; three parallel residual injections added to original base; second sweep with identical weights and gates; leaf projection",
+      "sha256": "ed7b9b889ca703a76c48f104e3f695b29bab005da9c53c3090aa29ea0b9d4ec3"
+    },
+    "sampled_projection": {
+      "file": "src/arggnn/anonymous_clade_gnn_v1.py",
+      "symbol": "AnonymousCladeTensorGNNV1.leaf_context_v1",
+      "operation": "concatenate sampled second-sweep upward and outside states; inherited Linear(2d,d) then tanh",
+      "sha256": "2f878e6334079cff083f67b6da8eda129dd30e7beebc62ae2a93d51796c3f137"
+    },
+    "genomic_head": {
+      "file": "src/arggnn/mutation_routed_whole_tree_gnn_v1.py",
+      "symbol": "MutationRoutedWholeTreeGNNV1.__init__",
+      "operation": "one-layer BiGRU 35 input,32 per direction; concat32+64; Linear96\u219232,GELU,Linear32\u21924; softmax at prediction",
+      "sha256": "254f5155e31f81ae675e2bd08d38c97c9bf130d47e98efa2deea4c7344d9e073"
+    }
+  },
+  "scientific_scope": "Architecture schematic only; no experiment, data bank, truth, model checkpoint, fitted probability, or GPU read or execution",
+  "recorded_ARG_recombination_nodes": true,
+  "sample_colors_denote": "persistent sample identity only, not ancestry",
+  "output_class_colors_denote": "ancestry class columns A=Ana,C=CHG,W=WHG,E=EHG and hypothetical tract; no numerical model predictions are plotted",
+  "gray_rows_denote": "internal ancestors in all-node B_t; sample-only E_t has no gray rows",
+  "highlighted_blue_row": "persistent sample q1 in each E_t, fed through an ordered bus to the GRU",
+  "query_reference_labels_masked": true
+}
