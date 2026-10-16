@@ -1,6 +1,6 @@
 # Current scientific scoreboard
 
-Updated UTC: 2026-10-16T20:02:22.455266+00:00
+Updated UTC: 2026-10-16T20:35:08.726590+00:00
 
 [All measured cohort details](#detailed-cohort-metrics) · [Complete historical receipt inventory](all_recorded_metric_receipts.md) · [Fresh H048 novelty/cross-domain audit](../research/reviews/H048_novelty_crossdomain_fresh_20261015_v1/report.md)
 
@@ -527,7 +527,7 @@ H048 retains 31,933 parameters per arm and a fixed 30-pass/960-update schedule. 
 
 | Method | Current ancestry scores | Status |
 |---|---|---|
-| Native ARGformer | unavailable | Native ARGformer retains verified22,000/227,990 saved AdamW updates across77states. Complete v12 independent source review passed. Actual preparation71425 completed0 with fresh4.25GiB accounting failstop and unchanged5GiB operational envelope,51roles. Exact emitted continuation launched once70445. Scientific worker startup, current GPU context/title, restored22000 and new updates are not yet verified. All earlier failures and old7GiB readonly checkpoint scope remain. No ancestry score or complete fit. |
+| Native ARGformer | unavailable | Native ARGformer VAL000 v12 is live on GPU 0. A saved checkpoint verifies 24,000 AdamW steps across all 77 parameter states, including 2,000 new steps since the 22,000 checkpoint, against 227,990 planned updates over five epochs. The required title is verified in NVTOP. No ancestry score or full training completion yet. Prior failures and unknowns remain preserved. |
 | Native ARGformer dataset counts | not an accuracy run | completed; actual count producer wait0 and drain verified |
 | Native FLARE | 98.0100% focal accuracy | Completed fixed native-call score on one VAL parent, not a multi-parent paper-table reproduction. Macro F1 97.7151%. Held-out VAL000 conversion: completed; actual wait0 and owned-group drain verified. Inference: completed; actual wait0 and owned-group drain verified. Prediction seal: prediction worker completed; direct wait0 and owned-group drain verified, outer tool terminal/final guard unconfirmed. The GNN/ARGformer comparison remains pending. |
 | Our C3 GNN | unavailable | American C3 saved600updates/30epochs and all6 states passed dedicated validation/acceptance. Original producer1/outer74136UNKNOWN preserved. Independent full30Mb CPU predictions for VAL000,VAL001,VAL002 are admitted and launched, each covering all6 saved candidates. No prediction completion or ancestry score yet. All5parents/all30pretruth seals remain mandatory. Training used20independent2Mb parents, so full30Mb results compare pipelines rather than equal-training architectures. Original full 30 Mb VAL000 observation preparation is complete. Full prespecified prediction/scoring gate pending. |

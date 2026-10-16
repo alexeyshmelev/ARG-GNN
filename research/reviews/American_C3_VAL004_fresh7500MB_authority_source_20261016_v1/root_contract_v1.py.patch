@@ -1,0 +1,279 @@
+--- research/reviews/American_C3_VAL003004_downward8GB_source_20261016_v1/root_contract_v1.py
++++ research/reviews/American_C3_VAL004_fresh7500MB_authority_source_20261016_v1/root_contract_v1.py
+@@ -3,15 +3,14 @@
+ from datetime import datetime,timezone,timedelta
+ import contextlib,fcntl,hashlib,importlib.util,json,os,stat,sys
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-REL="research/reviews/American_C3_VAL003004_downward8GB_source_20261016_v1"
++REL="research/reviews/American_C3_VAL004_fresh7500MB_authority_source_20261016_v1"
+ SOURCE=REL+"/root_contract_v1.py";DRIVER=REL+"/root_driver_v1.py";WORKER=REL+"/worker_entry_v1.py"
+ MANIFEST=REL+"/source_manifest.v1.json";SOURCE_PINS=MANIFEST
+ READINESS=REL+"/readiness.v1.json";BASIS=REL+"/scientific_basis.v1.json";CAPFILE=REL+"/caps.template.inactive.v1.json"
+-GUARD_REF={'path': 'research/reviews/native14_stopped_retention_successor_source_20261016_v3/native14_stopped_retention_v1.py', 'sha256': '60d010e393bda25f662381051b3fd3d4e4decfa034b10c3baad3c3f30a6a196c'}
+-NATIVE_MANIFEST_REF={'path': 'research/reviews/native14_stopped_retention_successor_source_20261016_v3/source_manifest.v1.json', 'sha256': 'c2bae5575ae0e8e68e152b0edde0b7b2d53e4fc7398a3a8501ce278e23a84fa6'}
+-NATIVE_HELPER_REF={'path': 'research/reviews/native14_stopped_retention_successor_source_20261016_v3/retained_nodes_v1.py', 'sha256': '83f544e45eba5190174b70d43bf84ed4f0b58f80159be593b4e8392c3e4afb92'}
+-POLICY_PATH="research/reviews/native14_stopped_retention_ROOT_activation_20261016_v3/activation_policy.root_active_v1.json"
+-POLICY_REF=None
++GUARD_REF=POLICY_REF=SELECTOR_REF=None
++_SELECTOR_MODULE=_SELECTED_GUARD=None
++SELECTOR_SOURCE_REF={'path': 'research/reviews/native7_H050_stopped_retention_successor_source_20261016_v1/explicit_policy_selector_v1.py', 'sha256': '2a991ca6e2da3f4ba05888bc44e4cd53025f929abf88760aa4f93571e13bc87b'}
++APPROVED_GUARDS=({'source_ref': {'path': 'research/reviews/native14_stopped_retention_successor_source_20261016_v3/native14_stopped_retention_v1.py', 'sha256': '60d010e393bda25f662381051b3fd3d4e4decfa034b10c3baad3c3f30a6a196c'}, 'source_manifest_ref': {'path': 'research/reviews/native14_stopped_retention_successor_source_20261016_v3/source_manifest.v1.json', 'sha256': 'c2bae5575ae0e8e68e152b0edde0b7b2d53e4fc7398a3a8501ce278e23a84fa6'}, 'measurement_source_ref': {'path': 'research/reviews/native14_stopped_retention_successor_source_20261016_v3/retained_nodes_v1.py', 'sha256': '83f544e45eba5190174b70d43bf84ed4f0b58f80159be593b4e8392c3e4afb92'}}, {'source_ref': {'path': 'research/reviews/native7_H050_stopped_retention_successor_source_20261016_v1/stopped_retention_v1.py', 'sha256': 'c9392ed88b76a5a6c1394d13ff78b55df83c1b16d8186d23b4d3110b46008e8f'}, 'source_manifest_ref': {'path': 'research/reviews/native7_H050_stopped_retention_successor_source_20261016_v1/source_manifest.v1.json', 'sha256': 'cb6c3af2858d007d74edb08742f8633ddef5f2a9cb4c6cd5b3682205fee32d88'}, 'measurement_source_ref': {'path': 'research/reviews/native7_H050_stopped_retention_successor_source_20261016_v1/retained_nodes_v1.py', 'sha256': '1da50bff13c94cc3003aab9ce186746300641d9ec8ef6c49f4c443d1ab179f91'}})
+ ORIGINAL_EXPIRY_UTC='2026-10-16T20:04:16.988073+00:00'
+ SLOT_IDENTITY_REF={'path': 'research/reviews/American_C3_VAL003004_native14v3_preparation_source_20261016_v3/slot_resource_identity.v3.json', 'sha256': '8174fa2a8044e0c200530f92ef6496239f4a7722ee5e35cace0662fe7147a3b2'}
+ PARTIAL_ADMISSION_AUDIT_REF={'path': 'research/reviews/VAL003_admission_partial_audit_20261016_v1/conclusion.v1.json', 'sha256': '69936ff6f13ae820453c21e026f3fa6e5adeca749845ae805a14cc7c468bb140'}
+@@ -25,7 +24,7 @@
+ PIDFD=dict(path="research/reviews/American_C3_native_MLM_full_source_v5/pidfd_backend_v1.py",sha256="61be5d89357d1b95611e0ba26dd39d381ececf3ce6a36c347507cdc062373eca")
+ OWNED=dict(path="research/reviews/American_C3_native_MLM_amendment_v12/owned_lifecycle_v2.py",sha256="93d71acc40f1037d0b37acb2ca0859300ea4bd9741409e9bd00ca21bf100d633")
+ BASE_CONFIG_REF=dict(path="configs/census_tsinfer_fit_v1.json",sha256="7c2436d5479e68beb1a8f3edb04ca0ee729a23be35ca2d7893827c0db68e3b00")
+-PARENTS=("american_c3_val_003","american_c3_val_004");STAGES=("native_paths","plan")
++PARENTS=("american_c3_val_004",);STAGES=("native_paths","plan")
+ PARENT=STAGE=PHASE=None;CAPS={};PHASES=CPU_PHASES=();GPU_PHASES=()
+ SLOT_FD=None;GPU_MODULE=GPU_MAIN=GPU_AUTH_REF=LAUNCHER_REF=None
+ STATUSES={};ENTRY=WORKER
+@@ -72,7 +71,7 @@
+     TRAIN_SOURCE_REF=next(r for r in read(ref(MANIFEST))["refs"] if r["path"]=="src/arggnn/american_c3_gnn_train_v1.py")
+ def phase_paths(phase):
+     require(phase==PHASE,"Exact selected phase")
+-    return local(REL+"/admitted_val"+PARENT[-3:]+"_"+STAGE+"_down8_v1"),"experiments/results/American_C3_val"+PARENT[-3:]+"_full30mb_"+STAGE+"_native14v3_down8_v1"
++    return local(REL+"/admitted_val"+PARENT[-3:]+"_"+STAGE+"_fresh7500_v1"),"experiments/results/American_C3_val"+PARENT[-3:]+"_full30mb_"+STAGE+"_fresh7500_v1"
+ def validate_slot_resources(rows):
+     require(SLOT_IDENTITY_REF in rows,"Exact JSON slot identity receipt stays in sealed source closure")
+     value=read(SLOT_IDENTITY_REF)
+@@ -96,43 +95,33 @@
+     for r in rows:raw(r)
+     validate_slot_resources(rows)
+     return tuple(r["path"] for r in rows)
+-def bind_policy(record):
+-    global POLICY_REF
+-    require(isinstance(record,dict) and record.get("path")==POLICY_PATH,"Explicit exact actual native14v3 ROOT policy ref")
+-    raw(record)
+-    require(POLICY_REF is None or POLICY_REF==record,"Immutable native14v3 policy binding; no policy swap")
+-    p=read(record)
+-    require(p.get("active") is True and p.get("schema")=="native14_exact_stopped_retention_policy_v1"
+-        and p.get("source_ref")==GUARD_REF and p.get("source_manifest_ref")==NATIVE_MANIFEST_REF
+-        and p.get("measurement_source_ref")==NATIVE_HELPER_REF and p.get("journal")==".runtime/storage/native14_stopped_retention_v3"
+-        and p.get("root_authorizer")=="root_agent","Exact active reviewed native14v3 guard/source/manifest policy")
+-    for key in ("root_activation_ref","permanent_revocation_ref","source_review_ref"):raw(p[key])
+-    activation=read(p["root_activation_ref"])
+-    require(activation.get("active") is True and activation.get("root_authorizer")=="root_agent"
+-        and activation.get("source_ref")==GUARD_REF and activation.get("source_manifest_ref")==NATIVE_MANIFEST_REF
+-        and activation.get("measurement_source_ref")==NATIVE_HELPER_REF
+-        and activation.get("new_journal")==p["journal"] and activation.get("permanent_revocation_ref")==p["permanent_revocation_ref"]
+-        and activation.get("source_review_ref")==p["source_review_ref"]
+-        and activation.get("frozen_parent_pins")==p["base_pins"]
+-        and activation.get("frozen_parent_projected_bytes")==p["base_projected_bytes"],
+-        "Actual exact frozen-parent ROOT activation agrees with immutable policy")
+-    review=read(p["source_review_ref"])
+-    require(review.get("verdict") in ("PASS","SOURCE_PASS") and review.get("source_ref")==GUARD_REF
+-        and review.get("source_manifest_ref")==NATIVE_MANIFEST_REF and review.get("measurement_source_ref")==NATIVE_HELPER_REF,
+-        "Exact native14v3 independent source/manifest/helper review")
+-    require(read(p["permanent_revocation_ref"]).get("active") is True,"Actual permanent exact-key ROOT revocation")
+-    POLICY_REF=dict(record)
+-    return p
++def selector_value(record):
++    value=read(record)
++    require(value.get("active") is True and value.get("root_authorizer")=="root_agent"
++        and value.get("selector_source_ref")==SELECTOR_SOURCE_REF
++        and value.get("repair_authority_ref")==REPAIR_REF,"Exact active immutable ROOT selector and known selector source")
++    require(any(all(value.get(k)==v for k,v in choice.items()) for choice in APPROVED_GUARDS),
++        "Reject unknown selected source/manifest/measurement digest")
++    for k in ("source_ref","source_manifest_ref","measurement_source_ref","policy_ref","source_review_ref"):raw(value[k])
++    p=read(value["policy_ref"])
++    require(p.get("source_ref")==value["source_ref"] and p.get("source_manifest_ref")==value["source_manifest_ref"]
++        and p.get("measurement_source_ref")==value["measurement_source_ref"] and p.get("source_review_ref")==value["source_review_ref"],
++        "Exact selected actual policy digest and source lineage")
++    return value
++def bind_selector(record):
++    global SELECTOR_REF,POLICY_REF,GUARD_REF,_SELECTOR_MODULE,_SELECTED_GUARD
++    require(SELECTOR_REF is None or SELECTOR_REF==record,"No operational selector swap")
++    value=selector_value(record)
++    if _SELECTOR_MODULE is None:_SELECTOR_MODULE=load(SELECTOR_SOURCE_REF,"_VAL004_fresh7500_explicit_selector")
++    g=_SELECTOR_MODULE.load_selected_guard_v1(record)
++    require(g.MODE==value["accounting_mode"] and g.JOURNAL==value["journal"],"Exact returned selected guard mode/journal")
++    SELECTOR_REF=dict(record);POLICY_REF=dict(value["policy_ref"]);GUARD_REF=dict(value["source_ref"]);_SELECTED_GUARD=g
++    return value
+ def original_guard():
+-    require(POLICY_REF is not None,"Explicit actual native14v3 policy required before guard configuration")
+-    bind_policy(POLICY_REF)
+-    for r in (GUARD_REF,POLICY_REF,REPAIR_REF,RENEWAL_REF,CERT_REF,MEMO_REF,NAMESPACE_REF,V4_REF):raw(r)
+-    sys.path[:0]=[str(ROOT),str(ROOT/"src"),str(ROOT/"scripts")]
+-    g=load(GUARD_REF,"_American_VAL003004_actual_native14v3")
+-    g.configure_with_renewal_v1(REPAIR_REF,policy_ref=POLICY_REF)
+-    require(g.MODE=="native14_stopped_retention_v3" and all(getattr(g.budget.v4,n).__module__==g.budget.v4.__name__
+-        for n in ("canonical","file_bytes","mutex")),"Fresh original unwrapped current Census mutation guard")
+-    return g
++    require(SELECTOR_REF is not None,"Explicit immutable selected ROOT guard required")
++    bind_selector(SELECTOR_REF)
++    require(_SELECTED_GUARD is not None,"Exactly once configured selected guard")
++    return _SELECTED_GUARD
+ def consumer_guard():
+     g=original_guard();m=load(NAMESPACE_REF,"_American_VAL003004_readonly_namespace_memo")
+     handle=m.install_consumer_v1(g.budget.v4,g.budget,consumer_role="read_only_consumer",
+@@ -173,9 +162,9 @@
+         return ("infer","research/reviews/American_C3_VAL003004_native14v3_preparation_source_20261016_v3/admitted_val"+suffix+"_infer_v3",
+             "experiments/results/American_C3_val"+suffix+"_full30mb_infer_native14v3_v3",
+             "H041/American-C3-val"+suffix+"-full30mb-infer-native14v3-v3")
+-    return ("native_paths",REL+"/admitted_val"+suffix+"_native_paths_down8_v1",
+-        "experiments/results/American_C3_val"+suffix+"_full30mb_native_paths_native14v3_down8_v1",
+-        "H041/American-C3-val"+suffix+"-full30mb-native_paths-native14v3-down8-v1")
++    return ("native_paths",REL+"/admitted_val"+suffix+"_native_paths_fresh7500_v1",
++        "experiments/results/American_C3_val"+suffix+"_full30mb_native_paths_fresh7500_v1",
++        "H041/American-C3-val"+suffix+"-full30mb-native_paths-fresh7500-v1")
+ def actual_prior(parent,stage):
+     row=existing_simulation(parent)
+     if stage=="infer":
+@@ -205,6 +194,8 @@
+         and obs["sites_and_sample_identities_verified"] is True and obs["source_observation_ref"]==row["simulation_observation_ref"],
+         "All original inferred sites and sample identities; no trimming/subsampling")
+     result=dict(completion_ref=cp,wait_ref=wr,outer_ref=tr,close_ref=cr,observation_ref=done["observation_ref"],closed_key=close["key"])
++    if previous=="infer":
++        require(result==read(ref(REL+"/frozen_infer_prerequisite.v1.json")),"Exact sealed original VAL004 inferred prerequisite remains immutable")
+     if previous=="native_paths":
+         require(done["parent_id"]==parent and done["query_focal_count"]==10000 and done["query_ancestry_truth_opened"] is False
+             and done["native_split_seed"]==42 and done["native_train_fraction"]==.9
+@@ -247,73 +238,113 @@
+             and seal["source_only"] is True,"Review binds this exact sealed continuation handoff/manifest")
+     else:require(value.get("source_manifest_ref")==ref(MANIFEST),"Review binds this exact continuation manifest")
+     return value
++def authority_metadata(value,review_ref,selector_ref,stage,now=None):
++    require(stage in STAGES,"Exact never-admitted original VAL004 stage")
++    require(value.get("schema")=="VAL004_fresh7500_explicit_ROOT_authority_v1"
++        and value.get("active") is True and value.get("root_authorizer")=="root_agent"
++        and value.get("parent_id")=="american_c3_val_004" and value.get("allowed_stages")==list(STAGES)
++        and value.get("adapter_manifest_ref")==ref(MANIFEST) and value.get("source_review_ref")==review_ref
++        and value.get("storage_policy_selector_ref")==selector_ref
++        and value.get("historical_expired_authority_utc")==ORIGINAL_EXPIRY_UTC
++        and value.get("frozen_infer_prerequisite_ref")==ref(REL+"/frozen_infer_prerequisite.v1.json")
++        and value.get("old_v3_and_down8_future_routes_revoked") is True
++        and value.get("only_never_admitted_original_VAL004_stages") is True
++        and value.get("no_replay_resume_or_old_clock_reset") is True
++        and value.get("native_accounting_failstop_bytes")==7500000000
++        and value.get("native_scientific_output_cap_bytes")==16000000000
++        and value.get("native_scientific_wall_seconds")==7200
++        and value.get("maximum_CPU_producers")==2
++        and value.get("all30_C3_prediction_seals_before_VAL_truth") is True
++        and value.get("query_truth_access_authorized") is False
++        and value.get("GNN_optimization_authorized") is False
++        and value.get("TEST_access_authorized") is False,"Explicit fresh ROOT authority preserves all original science and barriers")
++    start=datetime.fromisoformat(value["created_at_utc"]);end=datetime.fromisoformat(value["expires_at_utc"])
++    old=datetime.fromisoformat(ORIGINAL_EXPIRY_UTC)
++    require(start.tzinfo and end.tzinfo and start>=old and end-start==timedelta(hours=24),
++        "Separately authorized fresh24h interval after immutable historical expiry")
++    actual=datetime.now(timezone.utc) if now is None else now
++    require(start<=actual and actual+timedelta(seconds=CAPS["wall_seconds"]+300)<end,
++        "Fresh full unchanged scientific runtime plus drain/evidence preparation margin")
++    require(end<datetime.fromisoformat(read(CERT_REF)["renewed_expires_at_utc"]),
++        "Existing marker renewal covers new finite authority")
++    return value
++def validate_root_authority(record,review_ref,selector_ref,stage):
++    return authority_metadata(read(record),review_ref,selector_ref,stage)
+ def validate_request(record):
+-    q=read(record);bind_policy(q["policy_ref"]);select(q["parent_id"],q["stage"]);active(q,300)
+-    require(q["expires_at_utc"]==ORIGINAL_EXPIRY_UTC,"Exact original failed-admission expiry, no deadline reset")
+-    require(q["schema"]=="American_C3_VAL003004_downward8GB_request_v1" and q["active"] is True
++    q=read(record);select(q["parent_id"],q["stage"]);bind_selector(q["storage_policy_selector_ref"]);active(q,300)
++    authority=validate_root_authority(q["root_authority_ref"],q["source_review_ref"],SELECTOR_REF,STAGE)
++    require(q["created_at_utc"]==authority["created_at_utc"] and q["expires_at_utc"]==authority["expires_at_utc"],
++        "New request uses exact separate ROOT authority clocks, never old clock replay")
++    require(q["schema"]=="American_C3_VAL004_fresh7500_request_v1" and q["active"] is True
+         and q["root_authorizer"]=="root_agent" and q["phase"]==PHASE and q["execution_authorized"] is True
+         and q["source_review_passed"] is True and q["adapter_manifest_ref"]==ref(MANIFEST)
+         and q["guard_ref"]==GUARD_REF and q["policy_ref"]==POLICY_REF and q["maximum_CPU_producers"]==2
+         and q["query_truth_access_authorized"] is False and q["GNN_optimization_authorized"] is False
+         and q["TEST_access_authorized"] is False and q["all30_C3_prediction_seals_before_VAL_truth"] is True,
+-        "Exact fresh independently reviewed CPU preparation authority")
++        "Exact fresh independently reviewed VAL004-only CPU preparation")
+     require(q.get("reservation_only_downward_failstop_authorized") is True
+-        and q.get("accounting_reservation_bytes")==CAPS["reservation_bytes"],
+-        "Explicit ROOT reservation-only failstop, no scientific-bound replacement")
++        and q.get("accounting_reservation_bytes")==CAPS["reservation_bytes"],"Explicit reservation-only failstop")
+     if STAGE=="native_paths":
+-        require(CAPS["reservation_bytes"]==8000000000
+-            and q["scientific_config"]["output_cap_bytes"]==16000000000,
+-            "Actual8GB reservation separated from unchanged16GB scientific preflight")
++        require(CAPS["reservation_bytes"]==7500000000 and q["scientific_config"]["output_cap_bytes"]==16000000000,
++            "7.5B accounting failstop, unchanged16GB scientific bound")
+     reviewed(q["source_review_ref"]);source_paths()
+     prior=actual_prior(PARENT,STAGE)
+-    require(q["prior"]==prior and q["scientific_config"]==scientific_config(PARENT,STAGE,prior,True),"Actual complete predecessor and unchanged original scientific recipe")
+-    require(q["bindings"]==dict(parent_id=PARENT,plan_config=q["scientific_config"]) if STAGE=="plan"
+-        else q["bindings"]==dict(parent_id=PARENT,scientific_config=q["scientific_config"]),"Exact method inputs only; no truth payload inputs")
+-    require(read(q["caps_ref"])==worker_caps(STAGE) and q["runtime_ref"]==RUNTIME_REF,"Exact original chosen runtime and caps")
++    require(q["prior"]==prior and q["scientific_config"]==scientific_config(PARENT,STAGE,prior,True),
++        "Genuine complete same-parent predecessor and original scientific recipe")
++    require(q["bindings"]==(dict(parent_id=PARENT,plan_config=q["scientific_config"]) if STAGE=="plan"
++        else dict(parent_id=PARENT,scientific_config=q["scientific_config"])),"Original inputs and no truth payload")
++    require(read(q["caps_ref"])==worker_caps(STAGE) and q["runtime_ref"]==RUNTIME_REF,"Original runtime and operational limits")
+     return q,read(q["caps_ref"]),read(RUNTIME_REF)
+-def bind(parent,stage,review_ref,policy_ref):
+-    bind_policy(policy_ref);original_guard()
++def bind(parent,stage,review_ref,selector_ref,root_authority_ref):
+     select(parent,stage);reviewed(review_ref);source_paths()
+-    prior=actual_prior(parent,stage);cfg=scientific_config(parent,stage,prior,True);now=datetime.now(timezone.utc)
+-    end=datetime.fromisoformat(ORIGINAL_EXPIRY_UTC)
+-    require(now+timedelta(seconds=600)<end,"Original failed-admission deadline remains fixed with evidence margin")
+-    require(end<datetime.fromisoformat(read(CERT_REF)["renewed_expires_at_utc"]),"Original renewal covers whole wall/drain/evidence authority")
+-    caps_ref=save(local(REL),"caps_val"+parent[-3:]+"_"+stage+".root_active_v1.json",worker_caps(stage))
+-    q=dict(schema="American_C3_VAL003004_downward8GB_request_v1",active=True,root_authorizer="root_agent",
+-        execution_authorized=True,parent_id=parent,stage=stage,phase=PHASE,created_at_utc=now.isoformat(),expires_at_utc=end.isoformat(),
++    authority=validate_root_authority(root_authority_ref,review_ref,selector_ref,stage)
++    bind_selector(selector_ref);original_guard()
++    prior=actual_prior(parent,stage);cfg=scientific_config(parent,stage,prior,True)
++    caps_ref=save(local(REL),"caps_val004_"+stage+".root_active_v1.json",worker_caps(stage))
++    q=dict(schema="American_C3_VAL004_fresh7500_request_v1",active=True,root_authorizer="root_agent",
++        execution_authorized=True,parent_id=parent,stage=stage,phase=PHASE,
++        created_at_utc=authority["created_at_utc"],expires_at_utc=authority["expires_at_utc"],
++        root_authority_ref=root_authority_ref,storage_policy_selector_ref=selector_ref,
+         adapter_manifest_ref=ref(MANIFEST),guard_ref=GUARD_REF,policy_ref=POLICY_REF,source_review_ref=review_ref,source_review_passed=True,
+         prior=prior,scientific_config=cfg,caps_ref=caps_ref,runtime_ref=RUNTIME_REF,maximum_CPU_producers=2,
+         query_truth_access_authorized=False,GNN_optimization_authorized=False,TEST_access_authorized=False,
+         all30_C3_prediction_seals_before_VAL_truth=True,
+         reservation_only_downward_failstop_authorized=True,accounting_reservation_bytes=CAPS["reservation_bytes"],
+         bindings=dict(parent_id=parent,plan_config=cfg) if stage=="plan" else dict(parent_id=parent,scientific_config=cfg))
+-    r=save(local(REL),"request_val"+parent[-3:]+"_"+stage+".root_active_v1.json",q)
++    r=save(local(REL),"request_val004_"+stage+".root_active_v1.json",q)
+     validate_request(r);return r
++def never_admitted_stage_keys_v1():
++    require(PARENT=="american_c3_val_004" and STAGE in STAGES,"Only original VAL004 future stages")
++    prefix="H041/American-C3-val004-full30mb-"+STAGE
++    return (prefix+"-native14v3-v3",prefix+"-native14v3-down8-v1",prefix+"-fresh7500-v1")
++def require_never_admitted_v1(reservations):
++    require(all(key not in reservations for key in never_admitted_stage_keys_v1()),
++        "No old or new allocation/key replay, including closed historical allocations")
+ def unique(rows):
+     d={}
+     for r in rows:raw(r);require(r["path"] not in d or d[r["path"]]==r,"Exact unique role");d[r["path"]]=r
+     require(len(d)<=64,"Original direct64 ceiling");return list(d.values())
+ def direct_roles(request_ref,q,cfgref,closure,runtime):
++    # All current returned guard roles stay direct through state[3]. Historical
++    # source/evidence are transitively authenticated by this directly bound manifest.
+     basis=read(ref(BASIS))
+-    result=[ref(SOURCE),ref(DRIVER),ref(WORKER),ref(REL+"/plan_worker_v1.py"),ref(MANIFEST),
+-        ref(READINESS),ref(BASIS),ref(CAPFILE),request_ref,q["caps_ref"],cfgref,closure,runtime,q["source_review_ref"],
+-        GUARD_REF,POLICY_REF,REPAIR_REF,RENEWAL_REF,CERT_REF,MEMO_REF,NAMESPACE_REF,V4_REF,PIDFD,OWNED,
+-        basis["common_producer_ref"],basis["inference_producer_ref"],basis["simulation_sanitize_helper_ref"],
+-        basis["native_producer_ref"],basis["author_path_helper_ref"],basis["plan_hook_ref"],basis["plan_dataset_ref"],
+-        basis[STAGE+"_config_ref"] if STAGE in ("infer","native_paths") else basis["plan_config_ref"]]
+-    result.extend(q["prior"][k] for k in ("completion_ref","wait_ref","outer_ref","close_ref","observation_ref"))
+-    return result
++    return [ref(SOURCE),ref(DRIVER),ref(WORKER),ref(REL+"/plan_worker_v1.py"),ref(MANIFEST),
++        request_ref,q["caps_ref"],cfgref,closure,runtime,q["source_review_ref"],
++        q["root_authority_ref"],q["storage_policy_selector_ref"],SELECTOR_SOURCE_REF,
++        basis["common_producer_ref"],basis["native_producer_ref"],basis["author_path_helper_ref"]]
+ def input_spec(record):
+     s=read(record);q,caps,_=validate_request(s["root_stage_request_ref"]);active(s,300)
+     packet,output=phase_paths(PHASE);storage=read(s["refs"]["storage"])
+     require(record["path"]==str((packet/"input.json").relative_to(ROOT)) and s["phase"]==PHASE and s["parent_id"]==PARENT
+         and s["root_driver_ref"]==ref(DRIVER) and s["output_directory"]==output and s["storage"]==storage
+         and s["created_at_utc"]==q["created_at_utc"] and s["expires_at_utc"]==q["expires_at_utc"]
+-        and s["runtime_ref"]==RUNTIME_REF and s["native14_policy_ref"]==POLICY_REF and s["GPU_authorized"] is False,"Exact admitted original CPU stage")
++        and s["runtime_ref"]==RUNTIME_REF and s["selected_policy_ref"]==POLICY_REF
++        and s["storage_policy_selector_ref"]==SELECTOR_REF and s["root_authority_ref"]==q["root_authority_ref"] and s["GPU_authorized"] is False,"Exact admitted original CPU stage")
+     require(storage["reservation"]["reserved_bytes"]==CAPS["reservation_bytes"]
+         and storage["reserved_new_bytes"]==CAPS["reservation_bytes"]
+         and storage["completed_overlay_policy_ref"]==POLICY_REF and storage["budget_components"]["consumer_adapter"]==GUARD_REF,
+         "Actual current Census full charged stage reservation")
++    require(storage.get("storage_policy_selector_ref")==SELECTOR_REF,"Storage binds exact immutable ROOT selector")
+     require(s["source_sha256"]=={path:ref(path)["sha256"] for path in source_paths()},"Complete exact authenticated transitive source map")
+     for path,sha in s["source_sha256"].items():raw(dict(path=path,sha256=sha))
+     closure=read(s["transitive_source_closure_ref"])

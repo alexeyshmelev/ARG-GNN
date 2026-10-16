@@ -1,0 +1,64 @@
+--- research/reviews/American_C3_VAL003004_downward8GB_source_20261016_v1/root_driver_v1.py
++++ research/reviews/American_C3_VAL004_fresh7500MB_authority_source_20261016_v1/root_driver_v1.py
+@@ -2,7 +2,7 @@
+ from pathlib import Path
+ from datetime import datetime,timezone,timedelta
+ import argparse,ctypes,hashlib,json,os,signal,stat,subprocess,sys,time
+-from research.reviews.American_C3_VAL003004_downward8GB_source_20261016_v1 import root_contract_v1 as c
++from research.reviews.American_C3_VAL004_fresh7500MB_authority_source_20261016_v1 import root_contract_v1 as c
+ ROOT=c.ROOT;HERE=c.REL;SOURCE=c.DRIVER;PIDFD=c.PIDFD;OWNED=c.OWNED
+ need=c.require;local=c.local;ref=c.ref;read=c.read;load=c.load;put=c.put;current=c.current;guard=c.guard
+ SLOT_FD=None;CAPS={};OUTPUT=PARENT=CONFIG=None
+@@ -61,14 +61,13 @@
+     need(q["prior"]["closed_key"] in state[1],"Actual predecessor CLOSED in current Census state")
+     need("H041/American-C3-val003-full30mb-infer-native14v3-v2" not in state[0],
+         "Original partial VAL003 admission must remain unreserved, no double charge")
+-    prior_v3_key="H041/American-C3-val"+c.PARENT[-3:]+"-full30mb-"+c.STAGE+"-native14v3-v3"
+-    need(prior_v3_key not in state[0],"Only never-admitted future v3 native-path/plan may use new lower cap")
++    c.require_never_admitted_v1(state[0])
+     packet.mkdir();config_ref=c.save(packet,"config.json",c.make_config(q,caps))
+     sources={path:ref(path)["sha256"] for path in c.source_paths()}
+     closure=c.save(packet,"source_and_input_closure.json",dict(schema="American_C3_original_preparation_closure_v1",
+         source_sha256=sources,root_stage_request_ref=request_ref,bindings=q["bindings"],native_MLM_dependency=False))
+     consumers=c.unique([*state[3].values(),*c.direct_roles(request_ref,q,config_ref,closure,q["runtime_ref"])])
+-    job="American-C3-val"+c.PARENT[-3:]+"-full30mb-"+c.STAGE+"-native14v3-down8-v1";aux=packet/"worker_aux"
++    job="American-C3-val"+c.PARENT[-3:]+"-full30mb-"+c.STAGE+"-fresh7500-v1";aux=packet/"worker_aux"
+     reserve=dict(key="H041/"+job,output=str(ROOT/output),auxiliary_scopes=[str(aux)],
+         reserved_bytes=c.CAPS["reservation_bytes"],consumer_bindings=consumers)
+     authority=g.operation_draft_v1("reserve",reserve,expected_before=g._pins(state[2]),bindings=state[3])
+@@ -79,12 +78,12 @@
+     storage=dict(kind="project_budget_v9_storage_record",active=True,consumer_uses_v9_guard=True,accounting_mode=g.MODE,
+         job_id=job,output_directory=output,reserved_new_bytes=c.CAPS["reservation_bytes"],reservation=receipt["value"],
+         initial_ledger_pins=receipt["initial_ledger_pins"],expires_at_utc=q["expires_at_utc"],completed_overlay_policy_ref=c.POLICY_REF,
+-        budget_components=dict(implementation=implementation,launcher=launcher,consumer_adapter=c.GUARD_REF))
++        budget_components=dict(implementation=implementation,launcher=launcher,consumer_adapter=c.GUARD_REF),storage_policy_selector_ref=c.SELECTOR_REF)
+     storage_ref=c.save(packet,"storage.json",storage)
+     spec=dict(schema="American_C3_current_Census_active_preparation_input_v1",status="active",root_authorizer="root_agent",
+         execution_authorized=True,GPU_authorized=False,parent_id=c.PARENT,phase=c.PHASE,stage=c.STAGE,job_id=job,
+         output_directory=output,worker_auxiliary_scope=str(aux.relative_to(ROOT)),root_stage_request_ref=request_ref,
+-        root_driver_ref=ref(SOURCE),native14_policy_ref=c.POLICY_REF,main_source_ref=ref(c.ENTRY),source_sha256=sources,transitive_source_closure_ref=closure,
++        root_driver_ref=ref(SOURCE),selected_policy_ref=c.POLICY_REF,storage_policy_selector_ref=c.SELECTOR_REF,root_authority_ref=q["root_authority_ref"],main_source_ref=ref(c.ENTRY),source_sha256=sources,transitive_source_closure_ref=closure,
+         caps_ref=q["caps_ref"],refs=dict(config=config_ref,runtime=q["runtime_ref"],storage=storage_ref),
+         runtime_ref=q["runtime_ref"],storage=storage,created_at_utc=q["created_at_utc"],expires_at_utc=q["expires_at_utc"],
+         query_truth_access_authorized=False,TEST_access_authorized=False,GNN_optimization_authorized=False)
+@@ -218,7 +217,7 @@
+ def close(record,approval_ref):
+     # A genuine completed close may follow the original execution expiry. This
+     # fresh close authority grants no further execution and never extends it.
+-    s=read(record);q=read(s["root_stage_request_ref"]);c.bind_policy(q["policy_ref"]);c.select(q["parent_id"],q["stage"]);packet,_=c.phase_paths(c.PHASE)
++    s=read(record);q=read(s["root_stage_request_ref"]);c.bind_selector(q["storage_policy_selector_ref"]);c.select(q["parent_id"],q["stage"]);packet,_=c.phase_paths(c.PHASE)
+     need(record==ref(packet/"input.json") and s["root_driver_ref"]==ref(SOURCE)
+         and q["adapter_manifest_ref"]==ref(c.MANIFEST),"Exact original admitted completed stage/source")
+     wr=ref(packet/"worker_aux/actual_wait.json");wait=read(wr);approval=read(approval_ref)
+@@ -275,9 +274,9 @@
+     p=argparse.ArgumentParser(description=__doc__);p.add_argument("--parent",choices=c.PARENTS);p.add_argument("--stage",choices=c.STAGES)
+     mode=p.add_mutually_exclusive_group();mode.add_argument("--bind",action="store_true");mode.add_argument("--admit",action="store_true")
+     mode.add_argument("--execute",action="store_true");mode.add_argument("--close",action="store_true")
+-    p.add_argument("--review-ref");p.add_argument("--policy-ref");p.add_argument("--request-ref");p.add_argument("--input-ref");p.add_argument("--approval-ref")
++    p.add_argument("--review-ref");p.add_argument("--selector-ref");p.add_argument("--root-authority-ref");p.add_argument("--request-ref");p.add_argument("--input-ref");p.add_argument("--approval-ref")
+     a=p.parse_args(argv)
+-    if a.bind:result=c.bind(a.parent,a.stage,json.loads(a.review_ref),json.loads(a.policy_ref))
++    if a.bind:result=c.bind(a.parent,a.stage,json.loads(a.review_ref),json.loads(a.selector_ref),json.loads(a.root_authority_ref))
+     elif a.admit:result=admit(json.loads(a.request_ref))
+     elif a.execute:
+         global SLOT_FD

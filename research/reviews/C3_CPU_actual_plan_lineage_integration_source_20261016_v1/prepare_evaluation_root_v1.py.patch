@@ -1,0 +1,102 @@
+--- research/reviews/C3_CPU_interleaved_guarded_integration_source_20261016_v1/prepare_evaluation_root_v1.py
++++ research/reviews/C3_CPU_actual_plan_lineage_integration_source_20261016_v1/prepare_evaluation_root_v1.py
+@@ -3,14 +3,14 @@
+ from datetime import datetime,timezone
+ import argparse,copy,hashlib,importlib.util,json,re,sys
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-HERE="research/reviews/C3_CPU_interleaved_guarded_integration_source_20261016_v1"
++HERE="research/reviews/C3_CPU_actual_plan_lineage_integration_source_20261016_v1"
+ SOURCE=HERE+"/prepare_evaluation_root_v1.py"
+ PACKAGE="research/reviews/C3_saved600_artifact_acceptance_source_20261016_v1"
+ MAIN_HANDOFF_REF=dict(path=PACKAGE+"/source_handoff.v1.json",sha256="d57045ec59223ebbea48efcff9f67550717be84090efa4560855d110b31ee010")
+ MAIN_MANIFEST_REF=dict(path=PACKAGE+"/source_manifest.v1.json",sha256="a76e6eb58fef091dd80ca8ba918c4873b1a31b7f28f28b2e6e84104ec910af35")
+ PREP_HELPER_REF=dict(path="research/reviews/C3_saved600_validator_ROOT_preparation_source_20261016_v1/prepare_root_v1.py",
+     sha256="810177e841b7bc2e3ca3ea29332826442122bd28ad0dd917661f13c7cab33781")
+-DIRECTIVE="ROOT authorizes one fresh interleaved C3 CPU stage with the fixed mixed producer route and unchanged original evaluation science"
++DIRECTIVE="ROOT authorizes one fresh actual-plan-lineage C3 CPU stage with the fixed mixed producer route and unchanged original evaluation science"
+ PHASES=("predict_val_003","predict_val_004","matrix","score")
+ GUARD_REF=dict(path="research/reviews/native14_stopped_retention_successor_source_20261016_v3/native14_stopped_retention_v1.py",
+     sha256="60d010e393bda25f662381051b3fd3d4e4decfa034b10c3baad3c3f30a6a196c")
+@@ -50,8 +50,9 @@
+     main=json.loads(bound(MAIN_HANDOFF_REF));require(main["source_manifest_ref"]==MAIN_MANIFEST_REF,"Exact sealed main handoff")
+     manifest=json.loads(bound(reference(HERE+"/source_manifest.v1.json")));contract_path=HERE+"/acceptance_contract_v1.py"
+     c=load(dict(path=contract_path,sha256=manifest["source_sha256"][contract_path]),"_C3_eval_exact_saved600_contract")
+-    require(c.GUARD_REF==GUARD_REF and c.POLICY_REF==POLICY_REF and c.ref(c.legacy.MANIFEST)==MAIN_MANIFEST_REF,
+-        "Exact actual current native14v3 child/policy and unchanged saved600 package")
++    selector_ref=dict(path=args.selector_path,sha256=args.selector_sha256)
++    c.select_storage_metadata_v1(selector_ref)
++    require(c.ref(c.legacy.MANIFEST)==MAIN_MANIFEST_REF,"Unchanged saved600 package and exact explicitly selected ROOT policy")
+     c.manifest_v1()
+     builder_review_ref=dict(path=args.builder_review_path,sha256=args.builder_review_sha256)
+     builder_review_v1(json.loads(bound(builder_review_ref)));c.integration_review_v1(builder_review_ref)
+@@ -70,7 +71,7 @@
+     expiry=datetime.fromisoformat(args.expires_at_utc.replace("Z","+00:00"))
+     require(expiry.tzinfo is not None and (expiry-datetime.now(timezone.utc)).total_seconds()>caps["operational_deadline_seconds"]+600,
+         "ROOT supplies fresh expiry covering full original stage budget and preparation/drain reserve")
+-    expiry_text=expiry.isoformat();tag="interleaved_"+args.phase+"_"+args.instance
++    expiry_text=expiry.isoformat();tag="actual_plan_lineage_"+args.phase+"_"+args.instance
+     packet_rel="research/reviews/C3_full30Mb_eval_ROOT_"+tag;output="experiments/results/C3_full30Mb_eval_"+tag
+     packet=c.local(packet_rel)
+     require(not packet.exists() and not packet.is_symlink() and not c.local(output).exists()
+@@ -80,7 +81,7 @@
+         execution_authorized=True,created_at_utc=datetime.now(timezone.utc).isoformat(),expires_at_utc=expiry_text,
+         phase=args.phase,device="cpu",GPU_authorized=False,physical_gpu=None,runtime_ref=c.RUNTIME_REF,
+         source_manifest_ref=c.ref(c.MANIFEST),packet_directory=packet_rel,output_directory=output,
+-        integration_review_ref=builder_review_ref,actual_stage_evidence_ref=evidence_ref,**fields)
++        integration_review_ref=builder_review_ref,actual_stage_evidence_ref=evidence_ref,storage_policy_selector_ref=selector_ref,**fields)
+     packet.mkdir()
+     caps_ref=c.save(packet,"caps.json",caps);request["caps_ref"]=caps_ref
+     directive_ref=c.save(packet,"ROOT_evaluation_stage_directive.json",dict(
+@@ -89,7 +90,7 @@
+         actual_recorded_utc=request["created_at_utc"],actual_stage_evidence_ref=evidence_ref,
+         actual_ROOT_artifact_acceptance_ref=evidence["ROOT_artifact_acceptance_ref"],
+         main_review_ref=main_review_ref,builder_review_ref=builder_review_ref,
+-        original_history=copy.deepcopy(c.ORIGINAL_HISTORY),all5VALx6checkpoint_barrier_preserved=True,
++        original_history=copy.deepcopy(c.ORIGINAL_HISTORY),all5VALx6checkpoint_barrier_preserved=True,storage_policy_selector_ref=selector_ref,
+         original_producer_success_or_outer_wait_claimed=False,controller_shutdown_or_edit_authorized=False,
+         close_credit_retire_retraining_or_automatic_retry_authorized=False))
+     request["ROOT_directive_ref"]=directive_ref
+@@ -105,14 +106,15 @@
+         main_source_ref=c.ref(c.ENTRY),root_driver_ref=c.ref(c.DRIVER),
+         refs=dict(config=config_ref,runtime=c.RUNTIME_REF,storage=None),
+         max_cpu_rss_bytes=caps["max_cpu_rss_bytes"],max_cuda_reserved_bytes=0,
+-        root_auxiliary_directory=packet_rel+"/worker_aux",completed_overlay_policy_ref=c.POLICY_REF)
++        root_auxiliary_directory=packet_rel+"/worker_aux",completed_overlay_policy_ref=c.POLICY_REF,storage_policy_selector_ref=selector_ref)
+     guard=c.original_guard()
+-    require(guard.MODE=="native14_stopped_retention_v3","Actual current child,never frozen ancestor mutation")
++    require(guard.MODE==c.SELECTED_MODE and guard.JOURNAL==c.SELECTED_JOURNAL,"Exact immutable selected current/child guard")
+     require(all(getattr(guard.budget.v4,n).__module__==guard.budget.v4.__name__
+         for n in ("canonical","file_bytes","mutex")),"Fresh original unwrapped ROOT mutation role")
+     view=guard.inspect_v1(expected_source_sha256=c.CORE,expected_launcher_sha256=c.BASE)
+-    extra=[directive_ref,evidence_ref,reference(SOURCE),reference(HERE+"/source_handoff.v1.json"),
+-        builder_review_ref,main_review_ref,PREP_HELPER_REF,MAIN_HANDOFF_REF]
++    # Historical helper/main handoff/review refs stay authenticated through the
++    # directly bound complete source manifest. Never omit any returned guard role.
++    extra=[reference(HERE+"/source_handoff.v1.json")]
+     roles=helper.role_union_v1(c,guard,view,spec,req,extra)
+     reserve_request=dict(key="H041/"+job,output=str(c.local(output)),
+         auxiliary_scopes=[str(c.local(packet_rel+"/worker_aux")),str(c.local(packet_rel+"/worker_tmp"))],
+@@ -122,7 +124,7 @@
+     authority_ref=c.save(packet,"reserve_authority.json",authority)
+     reserved=guard.apply_reserve_v1(authority_ref,expected_source_sha256=c.CORE,expected_launcher_sha256=c.BASE)
+     reserve_ref=c.save(packet,"reserve_receipt.json",reserved)
+-    storage=helper.storage_v1(c,guard,job,output,reserved,expiry_text)
++    storage=helper.storage_v1(c,guard,job,output,reserved,expiry_text);storage["storage_policy_selector_ref"]=selector_ref
+     guard.validate_storage_v9(spec,config,storage,source_ref=c.ref(c.ENTRY),config_ref=config_ref,runtime_ref=c.RUNTIME_REF)
+     storage_ref=c.save(packet,"storage.json",storage);spec["refs"]["storage"]=storage_ref
+     input_ref=c.save(packet,"input.json",spec)
+@@ -144,12 +146,12 @@
+     p=argparse.ArgumentParser(description=__doc__);p.add_argument("--prepare-root",action="store_true")
+     p.add_argument("--phase",choices=PHASES)
+     for name in ("main-review-path","main-review-sha256","builder-review-path","builder-review-sha256",
+-        "evidence-path","evidence-sha256","instance","expires-at-utc","root-directive"):p.add_argument("--"+name)
++        "evidence-path","evidence-sha256","selector-path","selector-sha256","instance","expires-at-utc","root-directive"):p.add_argument("--"+name)
+     a=p.parse_args(argv)
+     if not a.prepare_root:
+         print(json.dumps(dict(status="SOURCE_ONLY_INACTIVE",phases=list(PHASES),admission=False,evaluation=False)));return 0
+     require(all(getattr(a,n) for n in ("phase","main_review_path","main_review_sha256","builder_review_path",
+-        "builder_review_sha256","evidence_path","evidence_sha256","instance","expires_at_utc"))
++        "builder_review_sha256","evidence_path","evidence_sha256","selector_path","selector_sha256","instance","expires_at_utc"))
+         and a.root_directive==DIRECTIVE,"Explicit actual ROOT reviews,acceptance/stage evidence,phase,instance,expiry and directive required")
+     print(json.dumps(prepare_root_v1(a),sort_keys=True),flush=True);return 0
+ if __name__=="__main__":raise SystemExit(main())
