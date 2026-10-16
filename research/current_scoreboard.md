@@ -1,6 +1,6 @@
 # Current scientific scoreboard
 
-Updated UTC: 2026-10-16T06:05:32.623957+00:00
+Updated UTC: 2026-10-16T07:04:06.733899+00:00
 
 [All measured cohort details](#detailed-cohort-metrics) · [Complete historical receipt inventory](all_recorded_metric_receipts.md) · [Fresh H048 novelty/cross-domain audit](../research/reviews/H048_novelty_crossdomain_fresh_20261015_v1/report.md)
 
@@ -365,11 +365,19 @@ BronzeAge is not asserted identical to the paper's Post-Neolithic cohort. A dash
 | native_persistence | 0.8285 ± 0.0455 | 0.8672 ± 0.0107 | 0.8469 ± 0.0144 |
 | native_EMA_window7 | 0.7879 ± 0.0511 | 0.8429 ± 0.0085 | 0.8090 ± 0.0049 |
 
-TRAIN1987–2009/23years, VAL2010–2013/4years, TEST2014–2016/3years and675queriedcountry-years. SD is descriptive across serially dependent years, not training seeds. This causal diagnostic adapts scheduler and1986initialization and is distinct from the published leaderboard. Our ordered graph model remains pending.
+TRAIN1987–2009/23years, VAL2010–2013/4years, TEST2014–2016/3years and675queriedcountry-years. SD is descriptive across serially dependent years, not training seeds. This causal diagnostic adapts scheduler and1986initialization and is distinct from the published leaderboard. The learned comparison is reported below.
 
 [All per-year results](../experiments/results/H052_TGB_trade_causal_native_baselines_v1/results.json) · [Frozen protocol](../research/reviews/TGB_trade_causal_baselines_root_20261016_v1/protocol.root_frozen_v1.json)
 
-The full three-arm Torch/PyG CPU campaign has launched, with 100 epochs per arm and 300 total updates planned. The exact worker is live. No completed optimizer milestone or learned score has yet been verified. [Actual training status](../research/TGB_H051_current_training_status.json).
+| Learned model, seed17,100epochs | VAL NDCG@10 ± year SD | TEST NDCG@10 ± year SD |
+|---|---:|---:|
+| tree_only.seed17 | 0.858134 ± 0.005595 | 0.827057 ± 0.011339 |
+| first_order.seed17 | 0.857352 ± 0.007294 | 0.832384 ± 0.011250 |
+| conditional_triple.seed17 | 0.856675 ± 0.005389 | 0.830455 ± 0.011007 |
+
+All three models completed 300 total updates and 6,900 TRAIN graph forwards. Conditional-triple is below first-order on VAL and TEST. All learned models are below persistence. One optimizer seed, descriptive SD across dependent target years. [Completed result and actual lineage](../research/reviews/TGB_H051_completed_seed17_root_20261016_v1/REPORT.md).
+
+Completed all3models x100epochs/100updates,300totalupdates. TEST NDCG@10: first_order0.83238±0.01125, conditional_triple0.83045±0.01101, tree_only0.82706±0.01134; native persistence0.84688±0.01439. Conditional-triple is below first-order on VAL and TEST, so this condition does not support the mechanism. SD spans3dependent TEST years, one optimizerseed. Additional seeds declined from VAL before TEST release. [Actual training status](../research/TGB_H051_current_training_status.json).
 
 **Ordered-tree mechanism status:** The frozen TRAIN-only trade audit found 22 partition changes and 21 nonzero conditional-innovation years. This establishes active input support, without a predictive-accuracy result. [Actual audit](../research/reviews/TGB_trade_H051_data_integration_root_20261016_v1/actual_TRAIN_operator_support.root_v1.json). A [fresh independent literature review](../research/reviews/H051_independent_priority_audit_20261016_v2/REPORT.md) identifies established conditional-mean and higher-order constructions. Generic operator novelty remains unestablished.
 

@@ -1,0 +1,235 @@
+{
+  "author_commit": "c2481248eb0de5fda659d68f59c51e0e27becd20",
+  "evidence": {
+    "current_template": {
+      "excerpt": "35:   run_pca: true\n36:   threads: 8\n37:   memory_gb: 8\n38:   mask_fasta: null\n39:   use_dist: true\n40:   transversion: false\n41:   seed: null\n42:   coal: null\n43:   consistency: null\n44: \n45: model:\n46:   num_refs: 15\n47:   hidden_size: 128\n48:   gt_output_dim: 16\n49:   dim_feedforward_mult: 4\n50:   num_heads: 4\n51:   num_layers: 4\n52:   dropout_prob: 0.25\n53:   attn_dropout_prob: 0.1\n54:   max_rel_distance: 14\n55: \n56: joint_model:\n57:   chunk_rows: 1024\n58:   chunk_stride: 512\n59:   gru:\n60:     hidden_size: 128\n61:     num_layers: 1\n62:     bidirectional: true\n63:     dropout: 0.1\n64:   train:\n65:     batch_size: 16\n66:     num_epochs: 20\n67:     learning_rate: 2.0e-4\n68:     weight_decay: 1.0e-4\n69:     label_smoothing: 0.1\n70:     early_stop_patience: 2\n71:     loss_weighting:\n72:       mode: none\n73:     sample_seed: 0\n74:     reference_selection_augmentation:\n75:       train:",
+      "lines": [
+        35,
+        75
+      ],
+      "source": {
+        "bytes": 1830,
+        "path": ".runtime/author_sources/argmix_c2481248eb0d/templates/forward_blank/argmix.yaml",
+        "sha256": "ad0445a13ef2fe49c29f33477869b1707b3e7f74dea8491fa45a5c7f2a20937c"
+      }
+    },
+    "fallback_defaults": {
+      "excerpt": "92:     \"joint_model\": {\n93:         \"chunk_rows\": 1024,\n94:         \"chunk_stride\": 512,\n95:         \"cm_features\": {\n96:             \"include_delta_cm_prev\": False,\n97:             \"row_span_transform\": {\n98:                 \"mode\": \"raw\",\n99:                 \"median_span_cM\": None,\n100:                 \"clamp_min\": 1.0e-6,\n101:                 \"clamp_max\": 10.0,\n102:             },\n103:         },\n104:         \"gru\": {\n105:             \"hidden_size\": 128,\n106:             \"num_layers\": 1,\n107:             \"bidirectional\": True,\n108:             \"dropout\": 0.1,\n109:         },\n110:         \"train\": {\n111:             \"batch_size\": 16,\n112:             \"num_epochs\": 3,\n113:             \"learning_rate\": 2e-4,\n114:             \"weight_decay\": 1e-4,\n115:             \"label_smoothing\": 0.1,\n116:             \"early_stop_patience\": 2,\n117:             \"loss_weighting\": {\n118:                 \"mode\": \"none\",\n119:             },\n120:             \"sample_seed\": 0,\n121:             \"max_train_subgraphs\": None,\n122:             \"max_val_subgraphs\": None,\n123:         },",
+      "lines": [
+        92,
+        123
+      ],
+      "source": {
+        "bytes": 29546,
+        "path": ".runtime/author_sources/argmix_c2481248eb0d/src/argmix_project.py",
+        "sha256": "e1b6018e45e6d6e35dd88188541089c6b42382862edf7e7f296be9fccabac1d0"
+      }
+    },
+    "fast_absolute_difference": {
+      "excerpt": "201:         Some(x) if x >= 0 => x as u32,\n202:         _ => NO_TMRCA,\n203:     }\n204: }\n205: \n206: fn relative_distance_uncapped(node_time: i32, raw_tmrca: u32) -> u32 {\n207:     if raw_tmrca == NO_TMRCA {\n208:         return NO_TMRCA;\n209:     }\n210:     (node_time as i64 - raw_tmrca as i64).unsigned_abs() as u32\n211: }",
+      "lines": [
+        201,
+        211
+      ],
+      "source": {
+        "bytes": 47123,
+        "path": ".runtime/author_sources/argmix_c2481248eb0d/src/rust/ancpath/src/fast_lca/engine.rs",
+        "sha256": "1daf49d5c4ac777a2b07ddc9b5dbb85ca166739f1d2e6975d21334b0d2aafa73"
+      }
+    },
+    "fast_rank_not_log": {
+      "excerpt": "104:     fn rebuild_sample_ref(\n105:         &mut self,\n106:         lifter: &LocalBinaryLift,\n107:         _node_time: &[i32],\n108:         preds: &[NodeId],\n109:         refs: &[NodeId],\n110:         pred_times: &[i32],\n111:     ) -> u64 {\n112:         let r_len = self.r_len;\n113:         let sample_local_lookup_failures = AtomicU64::new(0);\n114:         self.sample_ref_raw\n115:             .par_chunks_mut(r_len)\n116:             .zip(self.sample_ref_dist.par_chunks_mut(r_len))\n117:             .enumerate()\n118:             .for_each(|(p, (raw_row, dist_row))| {\n119:                 let sample_local = lifter.local_of_node(preds[p]);\n120:                 if sample_local.is_none() {\n121:                     sample_local_lookup_failures.fetch_add(1, Ordering::Relaxed);\n122:                 }\n123:                 for r in 0..r_len {\n124:                     let raw = encode_tmrca(match sample_local {\n125:                         Some(sample_local) => lifter.tmrca_from_local_sample(sample_local, refs[r]),\n126:                         None => None,\n127:                     });\n128:                     raw_row[r] = raw;\n129:                     dist_row[r] = relative_distance_uncapped(pred_times[p], raw);\n130:                 }\n131:             });\n132:         sample_local_lookup_failures.load(Ordering::Relaxed)\n133:     }\n134: \n135:     fn select_refs(\n136:         &self,\n137:         p: usize,\n138:         num_refs: usize,\n139:         drop_top_m_nearest: usize,\n140:         scratch: &mut Vec<(u32, usize)>,\n141:         out: &mut Vec<usize>,\n142:     ) {\n143:         let _ = scratch;\n144:         out.clear();\n145:         if num_refs == 0 {\n146:             return;\n147:         }\n148:         let row_start = sr_idx(p, 0, self.r_len);\n149:         let row = &self.sample_ref_dist[row_start..row_start + self.r_len];\n150:         *out = ref_selection::select_ref_indices_from_distances(row, num_refs, drop_top_m_nearest);\n151:     }",
+      "lines": [
+        104,
+        151
+      ],
+      "source": {
+        "bytes": 47123,
+        "path": ".runtime/author_sources/argmix_c2481248eb0d/src/rust/ancpath/src/fast_lca/engine.rs",
+        "sha256": "1daf49d5c4ac777a2b07ddc9b5dbb85ca166739f1d2e6975d21334b0d2aafa73"
+      }
+    },
+    "native_archive": {
+      "excerpt": "828:     let npz_options = SimpleFileOptions::default()\n829:         .compression_method(CompressionMethod::Stored)\n830:         .large_file(true);\n831:     let mut writer = NpzWriter::new_with_options(File::create(path)?, npz_options);\n832:     writer.add_array(\"input_ids\", &c.input_ids)?;\n833:     writer.add_array(\"tmrca\", &c.tmrca)?;\n834:     writer.add_array(\"labels\", &c.labels)?;\n835:     writer.add_array(\"row_mask\", &c.row_mask)?;\n836:     writer.add_array(\"cm_features\", &c.cm_features)?;\n837:     writer.add_array(\"metadata\", &meta)?;\n838:     writer.finish()?;",
+      "lines": [
+        828,
+        838
+      ],
+      "source": {
+        "bytes": 41081,
+        "path": ".runtime/author_sources/argmix_c2481248eb0d/src/rust/ancpath/src/bin/build_training.rs",
+        "sha256": "55c136ba40ccc4167ecdda515ac43c3f1a813631b0f1f663a9279c184a6aa81a"
+      }
+    },
+    "native_builder_inputs": {
+      "excerpt": "312:     let pairs_key = if split == \"train\" {\n313:         \"train_pairs\"\n314:     } else {\n315:         \"val_pairs\"\n316:     };\n317:     let pairs_path = abs_path(base, get_str(paths, pairs_key)?);\n318:     let specs = load_specs(&pairs_path)?;\n319:     let recomb_path = abs_path(base, get_str(relate, \"recomb_map\")?);\n320:     let recomb = RecombMap::from_path(recomb_path.to_str().unwrap())?;\n321: \n322:     let pops_map = get_map(&cfg, \"populations\")?;\n323:     let ref_pops = get_str_list(pops_map, \"reference\")?;\n324:     let predict_pops = get_str_list(pops_map, \"predict\")?;\n325:     let token_to_id = build_vocab(&ref_pops, &predict_pops);\n326:     let num_refs = get_i64(model, \"num_refs\", 15) as usize;\n327:     if model.get(\"num_ancs\").is_some() {\n328:         bail!(\"model.num_ancs is no longer supported (ancestor features were removed)\");\n329:     }\n330:     let num_ancs: usize = 0;\n331:     let max_rel_distance = get_i64(model, \"max_rel_distance\", 14) as u16;\n332:     let chunk_rows = get_i64(joint, \"chunk_rows\", 1024) as usize;\n333:     let chunk_stride = get_i64(joint, \"chunk_stride\", 512) as usize;\n334:     let subgraph_cap_key = if split == \"train\" {\n335:         \"max_train_subgraphs\"\n336:     } else {\n337:         \"max_val_subgraphs\"\n338:     };\n339:     let removed_row_cap_key = if split == \"train\" {\n340:         \"max_train_rows\"\n341:     } else {\n342:         \"max_val_rows\"\n343:     };\n344:     if get_opt_i64(joint_train, removed_row_cap_key).is_some() {\n345:         bail!(\"joint_model.train.{removed_row_cap_key} has been removed; use {subgraph_cap_key}\");\n346:     }\n347:     let max_subgraphs = get_opt_i64(joint_train, subgraph_cap_key)\n348:         .unwrap_or(0)\n349:         .max(0) as usize;\n350:     let sample_seed = get_i64(joint_train, \"sample_seed\", 0) as u64;\n351:     let max_haps: Option<usize> = None;\n352:     let drop_top_m_nearest = resolve_drop_top_m_nearest(joint_train, split);\n353:     let truth_dataset = supervision\n354:         .get(\"truth_dataset\")\n355:         .and_then(Value::as_str)\n356:         .unwrap_or(\"truth\");\n357:     let truth_label_mode = supervision\n358:         .get(\"truth_label_mode\")\n359:         .and_then(Value::as_str)\n360:         .unwrap_or(\"first_snp\")\n361:         .trim()\n362:         .to_string();\n363:     let truth_min_label_purity = supervision.get(\"truth_min_label_purity\").and_then(|v| {\n364:         if v.is_null() {\n365:             None\n366:         } else {\n367:             v.as_f64().or_else(|| v.as_i64().map(|x| x as f64))\n368:         }\n369:     });\n370:     let truth_collect_diagnostics = get_bool(supervision, \"truth_collect_diagnostics\", false);\n371:     let truth_ancestry_rename = truth_ancestry_rename_from_supervision(supervision)?;\n372:     let expected_ancestry_names = ordered_class_labels(pops_map);\n373:     let exclude_edge_trees = get_bool(processing, \"exclude_edge_trees\", true);\n374:     let log_scale_tmrca = get_log_scale_tmrca(model, processing);",
+      "lines": [
+        312,
+        374
+      ],
+      "source": {
+        "bytes": 41081,
+        "path": ".runtime/author_sources/argmix_c2481248eb0d/src/rust/ancpath/src/bin/build_training.rs",
+        "sha256": "55c136ba40ccc4167ecdda515ac43c3f1a813631b0f1f663a9279c184a6aa81a"
+      }
+    },
+    "native_chunking": {
+      "excerpt": "724: fn build_chunks(\n725:     rows: &mut [Row],\n726:     recomb: &RecombMap,\n727:     chunk_rows: usize,\n728:     chunk_stride: usize,\n729: ) -> Result<Chunks> {\n730:     let seq_len = rows[0].input_ids.len();\n731:     rows.sort_by(|a, b| {\n732:         (a.shard_id, a.node_id, (a.tree_start * 1e6) as i64).cmp(&(\n733:             b.shard_id,\n734:             b.node_id,\n735:             (b.tree_start * 1e6) as i64,\n736:         ))\n737:     });\n738:     let mut groups: HashMap<(i64, i32), Vec<usize>> = HashMap::new();\n739:     for (idx, row) in rows.iter().enumerate() {\n740:         groups\n741:             .entry((row.shard_id, row.node_id))\n742:             .or_default()\n743:             .push(idx);\n744:     }\n745:     let mut specs = Vec::new();\n746:     for idxs in groups.values() {\n747:         let mut start = 0;\n748:         while start < idxs.len() {\n749:             let end = (start + chunk_rows).min(idxs.len());\n750:             specs.push(idxs[start..end].to_vec());\n751:             if start + chunk_rows >= idxs.len() {\n752:                 break;\n753:             }\n754:             start += chunk_stride;\n755:         }\n756:     }\n757:     let n_chunks = specs.len();\n758:     let mut ids = vec![0i64; n_chunks * chunk_rows * seq_len];\n759:     let mut tmrca = vec![0i16; n_chunks * chunk_rows * seq_len * seq_len];\n760:     let mut labels = vec![-100i64; n_chunks * chunk_rows];\n761:     let mut mask = vec![0u8; n_chunks * chunk_rows];\n762:     let mut cm = vec![0f32; n_chunks * chunk_rows * 2];\n763:     for (c, idxs) in specs.iter().enumerate() {\n764:         let mut prev_start_cm: Option<f64> = None;\n765:         for (pos, &ri) in idxs.iter().enumerate() {\n766:             let row = &rows[ri];\n767:             let id0 = (c * chunk_rows + pos) * seq_len;\n768:             ids[id0..id0 + seq_len].copy_from_slice(&row.input_ids);\n769:             let m0 = (c * chunk_rows + pos) * seq_len * seq_len;\n770:             tmrca[m0..m0 + seq_len * seq_len].copy_from_slice(&row.tmrca);\n771:             labels[c * chunk_rows + pos] = row.label;\n772:             mask[c * chunk_rows + pos] = 1;\n773:             let start_cm = recomb.at_bp(row.tree_start);\n774:             let end_cm = recomb.at_bp(row.tree_end);\n775:             let cm0 = (c * chunk_rows + pos) * 2;\n776:             cm[cm0] = (end_cm - start_cm).max(0.0) as f32;\n777:             cm[cm0 + 1] = prev_start_cm.map(|p| start_cm - p).unwrap_or(0.0) as f32;\n778:             prev_start_cm = Some(start_cm);\n779:         }\n780:     }\n781:     Ok(Chunks {\n782:         input_ids: Array3::from_shape_vec((n_chunks, chunk_rows, seq_len), ids)?,\n783:         tmrca: Array4::from_shape_vec((n_chunks, chunk_rows, seq_len, seq_len), tmrca)?,\n784:         labels: Array2::from_shape_vec((n_chunks, chunk_rows), labels)?,\n785:         row_mask: Array2::from_shape_vec((n_chunks, chunk_rows), mask)?,\n786:         cm_features: Array3::from_shape_vec((n_chunks, chunk_rows, 2), cm)?,\n787:     })",
+      "lines": [
+        724,
+        787
+      ],
+      "source": {
+        "bytes": 41081,
+        "path": ".runtime/author_sources/argmix_c2481248eb0d/src/rust/ancpath/src/bin/build_training.rs",
+        "sha256": "55c136ba40ccc4167ecdda515ac43c3f1a813631b0f1f663a9279c184a6aa81a"
+      }
+    },
+    "native_dense_loading_optimizer": {
+      "excerpt": "417:     train_ds = TensorDataset(\n418:         train_chunks[\"input_ids\"],\n419:         train_chunks[\"tmrca\"],\n420:         train_chunks[\"labels\"],\n421:         train_chunks[\"row_mask\"],\n422:         train_chunks[\"cm_features\"],\n423:     )\n424:     val_ds = TensorDataset(\n425:         val_chunks[\"input_ids\"],\n426:         val_chunks[\"tmrca\"],\n427:         val_chunks[\"labels\"],\n428:         val_chunks[\"row_mask\"],\n429:         val_chunks[\"cm_features\"],\n430:     )\n431:     batch_size = int(joint_cfg[\"train\"][\"batch_size\"])\n432:     train_loader = DataLoader(train_ds, batch_size=batch_size, shuffle=True, num_workers=0)\n433:     val_loader = DataLoader(val_ds, batch_size=batch_size, shuffle=False, num_workers=0)\n434: \n435:     optimizer = torch.optim.AdamW(\n436:         model.parameters(),\n437:         lr=float(joint_cfg[\"train\"][\"learning_rate\"]),\n438:         weight_decay=float(joint_cfg[\"train\"][\"weight_decay\"]),\n439:     )\n440:     num_epochs = int(joint_cfg[\"train\"][\"num_epochs\"])\n441:     patience = int(joint_cfg[\"train\"][\"early_stop_patience\"])",
+      "lines": [
+        417,
+        441
+      ],
+      "source": {
+        "bytes": 26295,
+        "path": ".runtime/author_sources/argmix_c2481248eb0d/src/train_joint_model.py",
+        "sha256": "07f2afa904fa0063d2658ce072c9ded640d31e6ddaac4713e60becf0eafcba10"
+      }
+    },
+    "native_fast_call": {
+      "excerpt": "463:     for (shard_idx, spec) in specs.iter().enumerate() {\n464:         let references = abs_path(base, &spec.references);\n465:         let node_meta = read_references(&references)?;\n466:         let ref_ids: Vec<i32> = node_meta\n467:             .iter()\n468:             .filter(|(_, m)| ref_pops.contains(&m.pop))\n469:             .map(|(&nid, _)| nid)\n470:             .collect();\n471:         let available_predict: Vec<i32> = node_meta\n472:             .iter()\n473:             .filter(|(_, m)| predict_pops.contains(&m.pop))\n474:             .map(|(&nid, _)| nid)\n475:             .collect();\n476:         let predict_ids = sample_predict_ids(&available_predict, max_haps, sample_seed);\n477:         let rel = abs_path(base, &spec.rel);\n478:         let meta_for_engine: HashMap<i32, (String, i32)> = node_meta\n479:             .iter()\n480:             .map(|(&k, v)| (k, (v.pop.clone(), v.time)))\n481:             .collect();",
+      "lines": [
+        463,
+        481
+      ],
+      "source": {
+        "bytes": 41081,
+        "path": ".runtime/author_sources/argmix_c2481248eb0d/src/rust/ancpath/src/bin/build_training.rs",
+        "sha256": "55c136ba40ccc4167ecdda515ac43c3f1a813631b0f1f663a9279c184a6aa81a"
+      }
+    },
+    "native_fast_engine": {
+      "excerpt": "530:         let ts =\n531:             TreeSequence::load(rel.to_str().unwrap()).map_err(|e| anyhow!(\"load trees: {e}\"))?;\n532:         // Engine max_count stays unlimited; max_*_subgraphs is enforced as distinct intervals below.\n533:         let mut engine_fast = py_anyhow(FastSubgraphEngine::from_tree_sequence(\n534:             &ts,\n535:             max_rel_distance,\n536:             meta_for_engine,\n537:             num_refs,\n538:             num_ancs,\n539:             0,\n540:             ref_ids,\n541:             predict_ids,\n542:             Some(exclude_edge_trees),\n543:             Some(log_scale_tmrca),\n544:             drop_top_m_nearest,\n545:             None,\n546:             None,\n547:         ))?;",
+      "lines": [
+        530,
+        547
+      ],
+      "source": {
+        "bytes": 41081,
+        "path": ".runtime/author_sources/argmix_c2481248eb0d/src/rust/ancpath/src/bin/build_training.rs",
+        "sha256": "55c136ba40ccc4167ecdda515ac43c3f1a813631b0f1f663a9279c184a6aa81a"
+      }
+    },
+    "native_label_filter": {
+      "excerpt": "667: fn append_labeled_rows_from_extracted(\n668:     eb: &ExtractedBatch,\n669:     shard_id: i64,\n670:     truth: &TruthResolver,\n671:     pop_id_to_token: &[i64],\n672:     rows: &mut Vec<Row>,\n673:     seen_intervals: &mut HashSet<(i64, u64, u64)>,\n674:     max_subgraphs: usize,\n675: ) -> bool {\n676:     let n = eb.node_ids.len();\n677:     let seq_len = eb.seq_len;\n678:     for r in 0..n {\n679:         let node_id = eb.node_ids[r];\n680:         let interval = eb.intervals[r];\n681:         let key = interval_key(shard_id, interval.0, interval.1);\n682:         let is_new = !seen_intervals.contains(&key);\n683:         if max_subgraphs > 0 && is_new && seen_intervals.len() >= max_subgraphs {\n684:             return true;\n685:         }\n686:         let Some(label) = truth.label_for(node_id, interval.0, interval.1) else {\n687:             continue;\n688:         };\n689:         if label < 0 {\n690:             continue;\n691:         }\n692:         let p0 = r * seq_len;\n693:         let m0 = r * seq_len * seq_len;\n694:         if is_new {\n695:             seen_intervals.insert(key);\n696:         }\n697:         rows.push(Row {\n698:             shard_id,\n699:             node_id,\n700:             tree_start: interval.0,\n701:             tree_end: interval.1,\n702:             input_ids: eb.pop_ids_flat[p0..p0 + seq_len]\n703:                 .iter()\n704:                 .map(|&pid| token_for_pop_id(pid, pop_id_to_token))\n705:                 .collect(),\n706:             tmrca: eb.matrices_flat[m0..m0 + seq_len * seq_len]\n707:                 .iter()\n708:                 .map(|&x| x as i16)\n709:                 .collect(),\n710:             label,\n711:         });",
+      "lines": [
+        667,
+        711
+      ],
+      "source": {
+        "bytes": 41081,
+        "path": ".runtime/author_sources/argmix_c2481248eb0d/src/rust/ancpath/src/bin/build_training.rs",
+        "sha256": "55c136ba40ccc4167ecdda515ac43c3f1a813631b0f1f663a9279c184a6aa81a"
+      }
+    },
+    "native_map_parser": {
+      "excerpt": "81: impl RecombMap {\n82:     fn from_path(path: &str) -> Result<Self> {\n83:         let text =\n84:             std::fs::read_to_string(path).with_context(|| format!(\"read recomb map {path}\"))?;\n85:         let mut lines = text.lines().filter(|l| !l.trim().is_empty());\n86:         let header: Vec<String> = lines\n87:             .next()\n88:             .ok_or_else(|| anyhow!(\"empty recomb map\"))?\n89:             .split_whitespace()\n90:             .map(|s| s.to_string())\n91:             .collect();\n92:         let pos_idx = find_col(&header, &[\"position\", \"Position.bp.\"])\n93:             .unwrap_or(3.min(header.len().saturating_sub(1)));\n94:         let map_idx = find_col(\n95:             &header,\n96:             &[\n97:                 \"Genetic_Map(cM)\",\n98:                 \"Genetic_Map.cM.\",\n99:                 \"Genetic_Map.cM\",\n100:                 \"map_cM\",\n101:                 \"cM\",\n102:                 \"Map.cM.\",\n103:             ],\n104:         );\n105:         let rate_idx = find_col(\n106:             &header,\n107:             &[\n108:                 \"COMBINED_rate(cM/Mb)\",\n109:                 \"rate\",\n110:                 \"Rate(cM/Mb)\",\n111:                 \"recomb_rate\",\n112:                 \"Rate.cM.Mb.\",\n113:             ],\n114:         );\n115:         let mut rows = Vec::new();\n116:         for line in lines {\n117:             let f: Vec<&str> = line.split_whitespace().collect();\n118:             if f.len() <= pos_idx {\n119:                 continue;\n120:             }\n121:             let pos = f[pos_idx].parse::<f64>()?;\n122:             let cm = match map_idx {\n123:                 Some(idx) if f.len() > idx => Some(f[idx].parse::<f64>()?),\n124:                 _ => None,\n125:             };\n126:             let rate = match rate_idx {\n127:                 Some(idx) if f.len() > idx => Some(f[idx].parse::<f64>()?),\n128:                 _ => None,\n129:             };\n130:             rows.push((pos, cm, rate));\n131:         }\n132:         rows.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap());\n133:         if rows.is_empty() {\n134:             bail!(\"recombination map has no data rows\");\n135:         }\n136:         let pos: Vec<f64> = rows.iter().map(|x| x.0).collect();\n137:         let cm: Vec<f64> = if rows.iter().all(|x| x.1.is_some()) {\n138:             rows.iter().map(|x| x.1.unwrap()).collect()\n139:         } else if rows.iter().all(|x| x.2.is_some()) {\n140:             let mut out = vec![0.0f64; rows.len()];\n141:             for i in 1..rows.len() {\n142:                 let rate_morgans_per_bp = rows[i - 1].2.unwrap() / 1e8;\n143:                 out[i] = out[i - 1] + rate_morgans_per_bp * (pos[i] - pos[i - 1]) * 100.0;\n144:             }\n145:             out\n146:         } else {\n147:             bail!(\"recomb map must include either cumulative cM or rate column\");\n148:         };\n149:         Ok(Self { pos, cm })\n150:     }\n151: \n152:     fn at_bp(&self, bp: f64) -> f64 {\n153:         if self.pos.is_empty() {\n154:             return 0.0;\n155:         }\n156:         if bp <= self.pos[0] {\n157:             return self.cm[0];\n158:         }\n159:         let n = self.pos.len();\n160:         if bp >= self.pos[n - 1] {\n161:             return self.cm[n - 1];\n162:         }\n163:         let hi = self.pos.partition_point(|p| *p < bp);\n164:         let lo = hi - 1;\n165:         let span = self.pos[hi] - self.pos[lo];\n166:         if span <= 0.0 {\n167:             return self.cm[lo];\n168:         }\n169:         self.cm[lo] + (bp - self.pos[lo]) / span * (self.cm[hi] - self.cm[lo])\n170:     }",
+      "lines": [
+        81,
+        170
+      ],
+      "source": {
+        "bytes": 41081,
+        "path": ".runtime/author_sources/argmix_c2481248eb0d/src/rust/ancpath/src/bin/build_training.rs",
+        "sha256": "55c136ba40ccc4167ecdda515ac43c3f1a813631b0f1f663a9279c184a6aa81a"
+      }
+    },
+    "native_reference_vector": {
+      "excerpt": "900: fn read_references(path: &Path) -> Result<HashMap<i32, NodeMeta>> {\n901:     let mut out = HashMap::new();\n902:     for line in std::fs::read_to_string(path)?.lines() {\n903:         let f: Vec<&str> = line.split_whitespace().collect();\n904:         if f.len() >= 3 {\n905:             out.insert(\n906:                 f[0].parse()?,\n907:                 NodeMeta {\n908:                     pop: f[1].to_string(),\n909:                     time: f[2].parse::<f64>()? as i32,\n910:                 },\n911:             );\n912:         }\n913:     }\n914:     Ok(out)\n915: }",
+      "lines": [
+        900,
+        915
+      ],
+      "source": {
+        "bytes": 41081,
+        "path": ".runtime/author_sources/argmix_c2481248eb0d/src/rust/ancpath/src/bin/build_training.rs",
+        "sha256": "55c136ba40ccc4167ecdda515ac43c3f1a813631b0f1f663a9279c184a6aa81a"
+      }
+    },
+    "native_train_val_selection": {
+      "excerpt": "467:         for epoch in range(1, num_epochs + 1):\n468:             model.train()\n469:             train_loss_sum = 0.0\n470:             train_batches = 0\n471:             train_correct = 0\n472:             train_total = 0\n473:             for batch in train_loader:\n474:                 ids_or_features, tmrca, labels, row_mask, cm_features = batch\n475:                 ids_or_features = ids_or_features.to(device, non_blocking=True)\n476:                 tmrca = tmrca.to(device, non_blocking=True)\n477:                 labels = labels.to(device, non_blocking=True)\n478:                 row_mask = row_mask.to(device, non_blocking=True)\n479:                 cm_features = cm_features.to(device, non_blocking=True)\n480: \n481:                 optimizer.zero_grad()\n482:                 _, refined_logits = model.forward_chunks(\n483:                     ids_or_features,\n484:                     tmrca,\n485:                     row_mask,\n486:                     cm_features,\n487:                     pad_id=pad_id,\n488:                 )\n489:                 loss = _masked_joint_loss(\n490:                     refined_logits,\n491:                     labels,\n492:                     row_mask,\n493:                     cm_features,\n494:                     label_smoothing=label_smoothing,\n495:                     loss_weighting=loss_weighting,\n496:                 )\n497:                 correct, total = compute_masked_row_accuracy(refined_logits, labels, row_mask)\n498:                 loss.backward()\n499:                 optimizer.step()\n500:                 train_loss_sum += float(loss.item())\n501:                 train_batches += 1\n502:                 train_correct += correct\n503:                 train_total += total\n504: \n505:             model.eval()\n506:             val_loss_sum = 0.0\n507:             val_batches = 0\n508:             val_correct = 0\n509:             val_total = 0\n510:             with torch.no_grad():\n511:                 for batch in val_loader:\n512:                     ids_or_features, tmrca, labels, row_mask, cm_features = batch\n513:                     ids_or_features = ids_or_features.to(device, non_blocking=True)\n514:                     tmrca = tmrca.to(device, non_blocking=True)\n515:                     labels = labels.to(device, non_blocking=True)\n516:                     row_mask = row_mask.to(device, non_blocking=True)\n517:                     cm_features = cm_features.to(device, non_blocking=True)\n518:                     _, refined_logits = model.forward_chunks(\n519:                         ids_or_features,\n520:                         tmrca,\n521:                         row_mask,\n522:                         cm_features,\n523:                         pad_id=pad_id,\n524:                     )\n525:                     loss = _masked_joint_loss(\n526:                         refined_logits,\n527:                         labels,\n528:                         row_mask,\n529:                         cm_features,\n530:                         label_smoothing=label_smoothing,\n531:                         loss_weighting=loss_weighting,\n532:                     )\n533:                     correct, total = compute_masked_row_accuracy(refined_logits, labels, row_mask)\n534:                     val_loss_sum += float(loss.item())\n535:                     val_batches += 1\n536:                     val_correct += correct\n537:                     val_total += total\n538: \n539:             train_loss = train_loss_sum / max(1, train_batches)\n540:             val_loss = val_loss_sum / max(1, val_batches)\n541:             train_acc = (float(train_correct) / float(train_total)) if train_total else float(\"nan\")\n542:             val_acc = (float(val_correct) / float(val_total)) if val_total else float(\"nan\")\n543:             improved = val_loss < best_val\n544:             if improved:\n545:                 best_val = val_loss\n546:                 best_epoch = epoch\n547:                 best_val_acc = val_acc\n548:                 best_state = copy.deepcopy(model.state_dict())\n549:                 patience_left = patience\n550:             else:\n551:                 patience_left -= 1\n552:             logger.info(\n553:                 \"Joint epoch %d/%d train_loss=%.4f train_acc=%.4f val_loss=%.4f val_acc=%.4f\",\n554:                 epoch,\n555:                 num_epochs,\n556:                 train_loss,\n557:                 train_acc,\n558:                 val_loss,\n559:                 val_acc,\n560:             )\n561:             _wandb_log(\n562:                 {\n563:                     \"epoch\": epoch,\n564:                     \"train_loss\": train_loss,\n565:                     \"train_acc\": train_acc,\n566:                     \"val_loss\": val_loss,\n567:                     \"val_acc\": val_acc,\n568:                     \"best_val_loss\": best_val,\n569:                     \"learning_rate\": float(joint_cfg[\"train\"][\"learning_rate\"]),\n570:                 }\n571:             )\n572:             if not improved and patience_left <= 0:\n573:                 logger.info(\"Early stopping triggered.\")\n574:                 break",
+      "lines": [
+        467,
+        574
+      ],
+      "source": {
+        "bytes": 26295,
+        "path": ".runtime/author_sources/argmix_c2481248eb0d/src/train_joint_model.py",
+        "sha256": "07f2afa904fa0063d2658ce072c9ded640d31e6ddaac4713e60becf0eafcba10"
+      }
+    },
+    "native_training_seed": {
+      "excerpt": "291: def main() -> None:\n292:     args = parse_args()\n293:     setup_logging()\n294:     logger = logging.getLogger(__name__)\n295: \n296:     config = load_and_validate(args.config)\n297:     joint_cfg = resolve_joint_model_config(config)\n298:     subgraph_merge_enabled = get_subgraph_merge_enabled(config)\n299:     subgraph_merge_signature_mode = get_subgraph_merge_signature_mode(config)\n300:     if subgraph_merge_enabled:\n301:         logger.info(\n302:             \"Subgraph merge: enabled (signature_mode=%s)\",\n303:             subgraph_merge_signature_mode,\n304:         )\n305:     seed_everything(50)\n306:     paths_cfg = get_paths_config(config)\n307:     train_pairs = paths_cfg.get(\"train_pairs\")\n308:     val_pairs = paths_cfg.get(\"val_pairs\")\n309:     save_dir = paths_cfg.get(\"save_dir\")\n310:     if not train_pairs or not val_pairs or not save_dir:\n311:         raise ValueError(\"paths.train_pairs, paths.val_pairs, and paths.save_dir are required\")\n312: \n313:     device = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n314:     model = build_joint_model_from_config(config, device=device)\n315:     model_cfg = get_model_config(config)\n316: \n317:     train_cfg = joint_cfg[\"train\"]\n318:     sample_seed = int(train_cfg[\"sample_seed\"])\n319:     train_max_subgraphs = train_cfg[\"max_train_subgraphs\"]\n320:     val_max_subgraphs = train_cfg[\"max_val_subgraphs\"]\n321:     label_smoothing = float(train_cfg[\"label_smoothing\"])\n322:     loss_weighting = train_cfg.get(\"loss_weighting\", {}) or {}\n323:     ref_aug_cfg = train_cfg.get(\"reference_selection_augmentation\", {}) or {}\n324:     train_ref_aug_cfg = ref_aug_cfg.get(\"train\", {}) or {}\n325:     val_ref_aug_cfg = ref_aug_cfg.get(\"val\", {}) or {}\n326:     train_ref_aug_drop_top_m = int(train_ref_aug_cfg.get(\"drop_top_m_nearest\", 0))\n327:     val_ref_aug_drop_top_m = int(val_ref_aug_cfg.get(\"drop_top_m_nearest\", 0))\n328:     expected_encoder = str(joint_cfg.get(\"base_encoder\", \"tmrca_transformer\"))\n329:     available_predict = count_joint_predict_haplotypes(config)",
+      "lines": [
+        291,
+        329
+      ],
+      "source": {
+        "bytes": 26295,
+        "path": ".runtime/author_sources/argmix_c2481248eb0d/src/train_joint_model.py",
+        "sha256": "07f2afa904fa0063d2658ce072c9ded640d31e6ddaac4713e60becf0eafcba10"
+      }
+    },
+    "outer_forward_CLI": {
+      "excerpt": "454:             \"put scheduler resources in your own SLURM script\"\n455:         )\n456: \n457:     get_source_type(ctx)\n458:     ancestry = dict(ctx.resolved.get(\"ancestry\", {}) or {})\n459:     if not ancestry.get(\"reference_pops\"):\n460:         raise ValueError(\"ancestry.reference_pops must be provided\")\n461:     ancestry[\"predict_pops\"] = [PRESENT_POPULATION]\n462:     ctx.resolved[\"ancestry\"] = ancestry\n463:     validate_class_labels(get_class_labels(ctx))\n464: \n465:     raw_model_type = (\n466:         ctx.config.get(\"model\", {}).get(\"type\")\n467:         or ctx.advanced.get(\"model\", {}).get(\"type\")\n468:         or ctx.resolved.get(\"model\", {}).get(\"type\", \"tmrca\")\n469:     )\n470:     advanced_model_type = str(raw_model_type)\n471:     if advanced_model_type.lower() != \"tmrca\":\n472:         raise ValueError(\n473:             f\"Only TMRCA is supported in the new CLI surface; received model.type={advanced_model_type}\"\n474:         )\n475: \n476:     supervision = dict(ctx.resolved.get(\"supervision\", {}) or {})\n477:     supervision[\"label_source\"] = \"npz_truth\"\n478:     supervision[\"truth_dataset\"] = PRESENT_POPULATION\n479:     ctx.resolved[\"supervision\"] = supervision",
+      "lines": [
+        454,
+        479
+      ],
+      "source": {
+        "bytes": 29546,
+        "path": ".runtime/author_sources/argmix_c2481248eb0d/src/argmix_project.py",
+        "sha256": "e1b6018e45e6d6e35dd88188541089c6b42382862edf7e7f296be9fccabac1d0"
+      }
+    },
+    "truth_NPZ_and_native_node_identity": {
+      "excerpt": "224:         let mut npz = NpzReader::new(File::open(truth_npz_path)?)\n225:             .with_context(|| format!(\"read truth npz {truth_npz_path}\"))?;\n226:         let variant_arr: Array1<i64> = npz.by_name(\"variant_pos.npy\")?;\n227:         let hap_key = format!(\"{}__hap_labels.npy\", truth_dataset);\n228:         let mut hap_arr: Array2<i16> = npz.by_name(&hap_key)?;\n229: \n230:         let mut variant_pos: Vec<i64> = variant_arr.to_vec();\n231:         let mut observed_stats: Option<ObservedPositionFilterStats> = None;\n232: \n233:         if let Some(haps_raw) = relate_haps_path {\n234:             let haps_raw = haps_raw.trim();\n235:             if !haps_raw.is_empty() {\n236:                 let haps_path = Path::new(haps_raw);\n237:                 if !haps_path.exists() {\n238:                     bail!(\n239:                         \"relate_haps / observed_positions_file not found: {}\",\n240:                         haps_raw\n241:                     );\n242:                 }\n243:                 let observed_sorted = load_relate_haps_positions(haps_path)?;\n244:                 let (vp, ha, mut st) =\n245:                     apply_observed_positions_filter(&variant_pos, &hap_arr, &observed_sorted)?;\n246:                 st.observed_positions_file = haps_path.display().to_string();\n247:                 variant_pos = vp;\n248:                 hap_arr = ha;\n249:                 observed_stats = Some(st);\n250:             }\n251:         }\n252: \n253:         let (truth_sample_ids, raw_ancestry) =\n254:             load_truth_strings_via_python(truth_npz_path, truth_dataset)?;\n255:         let ancestry_names: Vec<String> = raw_ancestry\n256:             .into_iter()\n257:             .map(|n| truth_ancestry_rename.get(&n).cloned().unwrap_or(n))\n258:             .collect();\n259: \n260:         let label_remap = match expected_ancestry_names {\n261:             None => None,\n262:             Some(exp) => Some(build_label_remap(&ancestry_names, exp)?),\n263:         };\n264: \n265:         let truth_cols: HashMap<String, (i64, i64)> = truth_sample_ids\n266:             .into_iter()\n267:             .enumerate()\n268:             .map(|(i, sample_id)| (sample_id, ((2 * i) as i64, (2 * i + 1) as i64)))\n269:             .collect();\n270: \n271:         let relate_sample_ids = read_relate_sample_ids(Path::new(relate_sample_path))?;\n272:         let mut col_by_node = HashMap::with_capacity(relate_sample_ids.len().saturating_mul(2));\n273:         for (i, sample_id) in relate_sample_ids.iter().enumerate() {\n274:             if let Some(&(c0, c1)) = truth_cols.get(sample_id) {\n275:                 col_by_node.insert((2 * i) as i32, c0);\n276:                 col_by_node.insert((2 * i + 1) as i32, c1);\n277:             }\n278:         }\n279: \n280:         let (nrows, ncols) = hap_arr.dim();\n281:         if ncols != 2 * truth_cols.len() {\n282:             bail!(\"NPZ truth matrix shape does not match sample IDs\");\n283:         }\n284:         if nrows != variant_pos.len() {\n285:             bail!(\n286:                 \"variant_pos length {} does not match hap_labels rows {}\",\n287:                 variant_pos.len(),\n288:                 nrows\n289:             );\n290:         }\n291: \n292:         Ok(Self {\n293:             variant_pos,\n294:             hap_labels: hap_arr,\n295:             col_by_node,\n296:             label_remap,\n297:             label_mode_majority,\n298:             min_label_purity,\n299:             collect_diagnostics,\n300:             diagnostics: std::cell::RefCell::new(TruthIntervalDiagnostics::default()),\n301:             observed_filter_stats: observed_stats,",
+      "lines": [
+        224,
+        301
+      ],
+      "source": {
+        "bytes": 23135,
+        "path": ".runtime/author_sources/argmix_c2481248eb0d/src/rust/ancpath/src/npz_truth.rs",
+        "sha256": "845e77c18c74e3bff720ecfe4449e8e1ce68cc3711f6ca78e4cb3ffb5993738a"
+      }
+    },
+    "truth_interval_first_SNP": {
+      "excerpt": "305:     pub fn label_for(&self, node_id: i32, left: f64, right: f64) -> Option<i64> {\n306:         if self.collect_diagnostics {\n307:             self.diagnostics.borrow_mut().n_queries += 1;\n308:         }\n309: \n310:         let Some(&col) = self.col_by_node.get(&node_id) else {\n311:             self.bump_no_col();\n312:             return None;\n313:         };\n314: \n315:         if self.variant_pos.is_empty() {\n316:             self.bump_no_col();\n317:             return None;\n318:         }\n319: \n320:         let l = left.floor() as i64;\n321:         let r = right.ceil() as i64;\n322:         let lo = self.variant_pos.partition_point(|&p| p < l);\n323:         let hi = self.variant_pos.partition_point(|&p| p < r);\n324: \n325:         if hi <= lo {\n326:             self.bump_no_snps();\n327:             return None;\n328:         }\n329: \n330:         let ncol = self.hap_labels.shape()[1];\n331:         let Ok(col) = usize::try_from(col) else {\n332:             self.bump_no_col();\n333:             return None;\n334:         };\n335:         if col >= ncol {\n336:             self.bump_no_col();\n337:             return None;\n338:         }\n339: \n340:         let remap_len = self.label_remap.as_ref().map(|m| m.len()).unwrap_or(0);\n341: \n342:         let mut labels_scratch: Vec<i16> = Vec::new();\n343:         for row in lo..hi {\n344:             let lab = self.hap_labels[[row, col]];\n345:             if lab < 0 {\n346:                 continue;\n347:             }\n348:             let mut v = lab;\n349:             if let Some(remap) = &self.label_remap {\n350:                 let Ok(ui) = usize::try_from(v) else {\n351:                     continue;\n352:                 };\n353:                 if ui >= remap_len {\n354:                     continue;\n355:                 }\n356:                 v = remap[ui];\n357:             }\n358:             labels_scratch.push(v);\n359:         }",
+      "lines": [
+        305,
+        359
+      ],
+      "source": {
+        "bytes": 23135,
+        "path": ".runtime/author_sources/argmix_c2481248eb0d/src/rust/ancpath/src/npz_truth.rs",
+        "sha256": "845e77c18c74e3bff720ecfe4449e8e1ce68cc3711f6ca78e4cb3ffb5993738a"
+      }
+    },
+    "truth_purity_and_rule": {
+      "excerpt": "431:         if let Some(th) = self.min_label_purity {\n432:             if purity < th {\n433:                 if self.collect_diagnostics {\n434:                     self.diagnostics.borrow_mut().n_low_purity += 1;\n435:                 }\n436:                 return None;\n437:             }\n438:         }\n439: \n440:         let out = if self.label_mode_majority {\n441:             majority\n442:         } else {\n443:             first\n444:         };\n445: \n446:         if self.collect_diagnostics {\n447:             self.diagnostics.borrow_mut().n_returned += 1;\n448:         }\n449: \n450:         Some(out)",
+      "lines": [
+        431,
+        450
+      ],
+      "source": {
+        "bytes": 23135,
+        "path": ".runtime/author_sources/argmix_c2481248eb0d/src/rust/ancpath/src/npz_truth.rs",
+        "sha256": "845e77c18c74e3bff720ecfe4449e8e1ce68cc3711f6ca78e4cb3ffb5993738a"
+      }
+    }
+  },
+  "schema": "ARGMix_prospective1611_primary_native_evidence_v1",
+  "source_only": true
+}

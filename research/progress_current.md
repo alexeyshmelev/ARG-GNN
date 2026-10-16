@@ -1,6 +1,6 @@
 # Research progress
 
-Updated UTC: 2026-10-16T06:04:26.942560+00:00.
+Updated UTC: 2026-10-16T07:03:18.322823+00:00.
 
 The compiled nine-page AAAI draft and Overleaf working bundle are available. The paper is not submission-ready. The main unfinished work is evidence for a useful distinct contribution and complete faithful comparisons.
 
@@ -15,11 +15,11 @@ All scores use eight reused VAL simulations, one optimizer seed, a 2 Mb shared p
 
 ## Current execution
 
-- H050 European four-arm training: 27/30 complete TRAIN passes, 864/960 verified updates per arm. No validation score yet.
+- H050 European four-arm training: All 30 TRAIN passes and 960 FP32 updates per arm completed, 3,840 total, with 24 saved checkpoints. The launcher returned exit 1 after incorrectly passing the completion dictionary to SystemExit. Original failure and saved training outputs are preserved. CPU validation is now running from those checkpoints, with 14/192 prediction seals observed at 2026-10-16T07:03:18.322823+00:00. No training replay and no ancestry score yet.
 - American C3 GNN: running on GPU 0. The first saved checkpoint verifies 100/600 updates. Progress after that checkpoint is unknown.
-- Native ARGformer: held and never started on this evaluation panel. FLARE predictions exist, but the common American ancestry table is unfinished.
-- TGB three-arm full CPU campaign: launched and exact worker live, 100 epochs per arm planned. No completed optimizer milestone or learned score yet verified.
-- GPU 0 snapshot: 36% utilization and 28047 MiB allocated. This is an instantaneous reading.
+- Native ARGformer: held and never started on this evaluation panel. FLARE predictions exist, but the common American ancestry table is unfinished. VAL001prepared, VAL002nativepathsnext, VAL003–004unstarted. The next16GBstage remains unfunded under current reservation accounting.
+- TGB full campaign and VAL/TEST evaluation completed. TEST NDCG@10: first-order0.83238±0.01125, conditional-triple0.83045±0.01101, tree-only0.82706±0.01134, persistence0.84688±0.01439. No higher-order benefit. SD across3dependent years, one optimizerseed.
+- GPU 0 snapshot at 2026-10-16T07:03:18.322823+00:00: 23% utilization and 3,731 MiB allocated. This is an instantaneous reading.
 
 ## Evidence still needed
 
@@ -27,11 +27,13 @@ All scores use eight reused VAL simulations, one optimizer seed, a 2 Mb shared p
 2. Larger prospective ARGMix comparison. The 1,611-diploid panel has not been simulated or scored, and exact original-table reproduction remains unavailable.
 3. Eight untouched European outer tests and training-seed uncertainty for the final selected method.
 4. A useful matched gain attributable to the proposed mechanism and a defensible novelty claim.
-5. Completed learned cross-domain evaluation and stronger biological corroboration. The completed Danish application is descriptive. Its CHG contrast is chromosome-sensitive, and the independent genotype contrasts did not support the registered directions.
+5. Useful learned cross-domain evidence and stronger biological corroboration. The completed Danish application is descriptive. Its CHG contrast is chromosome-sensitive, and the independent genotype contrasts did not support the registered directions.
 6. Final result tables, architecture figure and independent manuscript review after the scientific evidence is complete.
 
 ## ARGMix correction
 
-The modern documented `build-training` route at author commit `c2481248eb0de5fda659d68f59c51e0e27becd20` uses `FastSubgraphEngine`, whose reference ranking uses uncapped absolute differences of quantized times. The earlier log-distance description applies to a legacy route. The old proposed shared-only adapter is a development adaptation and must not be run or described as author-faithful. The additive modern adapter is being corrected before execution.
+The modern documented `build-training` route at author commit `c2481248eb0de5fda659d68f59c51e0e27becd20` uses `FastSubgraphEngine`, whose reference ranking uses uncapped absolute differences of quantized times. The earlier log-distance description applies to a legacy route. The old proposed shared-only adapter is a development adaptation and must not be run or described as author-faithful. The modern native training and inference adapters passed independent source review. Simulation, fitting and scoring remain pending. Native ancient-query self/homolog eligibility must be disclosed and aligned deliberately.
 
 [Full current scores](current_scoreboard.md) · [Working PDF](../paper/current_full_panel_working.pdf) · [Overleaf working bundle](../paper/current_full_panel_overleaf_working.zip)
+
+[Completed TGB result](reviews/TGB_H051_completed_seed17_root_20261016_v1/REPORT.md). The1GBqualificationreservation was closed with genuinewait0 and targetedwriterabsence, retaining188416bytes and crediting999811584unusedbytes. No files were deleted and no guard was changed.

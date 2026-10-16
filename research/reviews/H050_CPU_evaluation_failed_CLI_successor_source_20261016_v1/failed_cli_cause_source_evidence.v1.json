@@ -1,0 +1,82 @@
+{
+  "actual_return_failure": "SystemExit receives completed-result dict, which prints to stderr and exits1",
+  "canonical_H050_module_main_not_the_actual_exit_boundary": true,
+  "evidence": {
+    "actual_GPU0_adapter_invoke": {
+      "excerpt": "110:     from arggnn.native_argformer_exec import validate_lease,apply_and_validate_title\n111:     require(validate_lease()[\"physical_gpu\"]==0,\"Inherited GPU0 guard installed by pool before scientific imports\")\n112:     apply_and_validate_title()\n113:     if j[\"worker_kind\"]==\"H050\":return run_h050_v1(j)\n114:     require(j[\"worker_kind\"]==\"C3\",\"Only H050/C3 algorithm wrappers here\")\n115:     return run_c3_v1(j)",
+      "lines": [
+        110,
+        120
+      ],
+      "source_ref": {
+        "path": "research/reviews/GPU0_shared_execution_source_20261016_v1/gpu0_runtime_adapter_v1.py",
+        "sha256": "957ec724bb345a76932d5ea43b0df527bc9d12b068815db91cf17da1b0c85896"
+      }
+    },
+    "actual_GPU0_adapter_return_flow": {
+      "excerpt": "65:     before='in (4,5)'\n66:     require(source.count(before)==2,\"Exactly producer main/context GPU eligibility boundaries\")\n67:     source=source.replace(before,'in (0,)')\n68:     name=\"research.reviews.H050_direct_readout_cut_memory_source_20261015_v1.producer_integration_v1._gpu0_private_producer\"\n69:     m=types.ModuleType(name);m.__file__=str(ROOT/path);m.__package__=name.rsplit(\".\",1)[0]\n70:     sys.modules[name]=m;exec(compile(source,\"<original_H050_producer_GPU0_eligibility_only>\",\"exec\"),m.__dict__)\n71:     spec=json.loads((ROOT/j[\"input_ref\"][\"path\"]).read_bytes())\n72:     require(spec[\"root_context_module_ref\"]==ref(CONTEXT),\"Actual new GPU0 context declared\")\n73:     return m.main(j[\"args\"])\n74: \n75: def run_c3_v1(j):",
+      "lines": [
+        65,
+        75
+      ],
+      "source_ref": {
+        "path": "research/reviews/GPU0_shared_execution_source_20261016_v1/gpu0_runtime_adapter_v1.py",
+        "sha256": "957ec724bb345a76932d5ea43b0df527bc9d12b068815db91cf17da1b0c85896"
+      }
+    },
+    "actual_GPU0_pool_exit_boundary": {
+      "excerpt": "262: def worker(cap_ref,name):\n263:     cap=load_cap(cap_ref);require(name in cap[\"jobs\"],\"Declared logical job\")\n264:     j=cap[\"jobs\"][name];g=guard_module();g.install_before_torch_v1()\n265:     lease=g.validate_lease();g.apply_and_validate_title()\n266:     require(lease[\"physical_gpu\"]==0 and lease[\"visible_gpu_uuid\"]==GPU0_UUID\n267:         and os.environ.get(\"ARGGNN_LOGICAL_JOB_NAME\")==name\n268:         and lease[\"launcher_metadata\"][\"job\"]==\"gpu0_shared_v1:\"+cap[\"pool\"]+\":gpu0\",\"Exact inherited pool lease/logical job/title\")\n269:     legacy.guarded_check(legacy.current_guard(),json.loads(bound(j[\"storage_ref\"])))\n270:     runtime=load(j[\"runtime_entry_ref\"],\"_GPU0_actual_logical_runtime\")\n271:     return runtime.invoke_job_v1(j)\n272: \n273: # Keep original CLI/cancel/actual-wait semantics, with the new controller/worker.\n274: mainnode=next(n for n in ast.parse(old).body if isinstance(n,ast.FunctionDef) and n.name==\"main\")\n275: maintext=ast.get_source_segment(old,mainnode).replace(\"Shared45Controller(\",\"Shared0Controller(\").replace(\"base.request(\",\"controller_request(\").replace(\"physical_GPUs=[4,5]\",\"physical_GPUs=[0]\")\n276: main_ns=dict(vars(legacy),Shared0Controller=Shared0Controller,worker=worker,controller_request=controller_request,socket_name=socket_name)\n277: exec(compile(maintext,\"<frozen_CLI_GPU0_route_only>\",\"exec\"),main_ns)\n278: main=main_ns[\"main\"]\n279: if __name__==\"__main__\":raise SystemExit(main())",
+      "lines": [
+        262,
+        279
+      ],
+      "source_ref": {
+        "path": "research/reviews/GPU0_shared_execution_source_20261016_v1/gpu0_shared_pool_v1.py",
+        "sha256": "28bb690f33c2384d04f88dbacff1f910694c398c81874f9b9751336f4fb6429c"
+      }
+    },
+    "actual_frozen_root_observation": {
+      "observation_not_authored_by_this_worker": true,
+      "ref": {
+        "path": "research/reviews/H050_full_budget_failed_CLI_root_20261016_v1/actual_outcome.root_v1.json",
+        "sha256": "554e56ed22ee96910128b36580177e4c355ea51e0ad65115f4a5e3d8f6875819"
+      }
+    },
+    "inherited_worker_main_return": {
+      "excerpt": "682:     parser.add_argument(\"--execute\",action=\"store_true\")\n683:     parser.add_argument(\"--capability\");parser.add_argument(\"--sha256\");parser.add_argument(\"--job\")\n684:     parser.add_argument(\"--terminate\",action=\"store_true\")\n685:     args=parser.parse_args(argv)\n686:     if not args.execute:\n687:         print(json.dumps(dict(status=\"source_only_not_activated\",source=SOURCE,physical_GPUs=[4,5],legacy_exclusive_coexistence=False,external_job_sharing_authorized_only_by_fresh_root_capability=True)));return 0\n688:     require(args.capability and args.sha256 and args.command,\"Pinned active capability and explicit operation\")\n689:     cap_ref={\"path\":args.capability,\"sha256\":args.sha256};cap=load_cap(cap_ref,allow_drain=args.command in {\"status\",\"wait\",\"shutdown\",\"cancel\"})\n690:     if args.command==\"worker\":return worker(cap_ref,args.job)\n691:     socket_path=socket_name(cap)\n692:     if args.command==\"start\":",
+      "lines": [
+        682,
+        692
+      ],
+      "source_ref": {
+        "path": "src/arggnn/gpu45_c3cache_h050_pool_v1.py",
+        "sha256": "d3279c6208737371031330f4bef9325199ba20c86f0f7d8e930c134b128d29fb"
+      }
+    },
+    "producer_return_flow": {
+      "excerpt": "344:         and ctx[\"device\"].type==\"cuda\" and ctx[\"reader\"].root.resolve()==ROOT and all(callable(ctx.get(k)) for k in\n345:             (\"guard\",\"before_episode_build\",\"before_cut_decode\")),\"Actual H050 reviewed-framework GPU root context\")\n346:     validate_protocol(ctx[\"cfg\"]);bind_registration(ctx[\"cfg\"],ctx[\"reader\"])\n347:     require(ctx[\"reader\"].decode_json(ctx[\"config_ref\"])==ctx[\"cfg\"]\n348:         and set(ctx[\"entry_refs\"])==set(TRAIN+VAL)\n349:         and set(ctx[\"bindings\"])==set(TRAIN if ctx[\"phase\"]==\"train\" else VAL),\"Exact immutable config/observation/target capabilities\")\n350:     h45.science();ctx[\"guard\"]()\n351:     if ctx[\"phase\"]==\"train\":return run_train(ctx,input_ref)\n352:     try:return run_evaluate(ctx,input_ref)\n353:     except Exception as error:\n354:         ctx[\"output\"].save(\"failed.json\",dict(hypothesis_id=\"H050\",phase=\"evaluate\",status=\"failed_partial_preserved\",\n355:             error_type=type(error).__name__,error=str(error),VAL_truth_gate_opened=ctx.get(\"VAL_truth_gate_opened\",False),\n356:             outer_truth_read=False,automatic_replay=False));raise\n357: \n358: \n359: def main(argv=None):\n360:     p=argparse.ArgumentParser(description=__doc__);p.add_argument(\"--execute\",action=\"store_true\")\n361:     p.add_argument(\"--input\");p.add_argument(\"--expected-input-sha256\");args=p.parse_args(argv)\n362:     if not args.execute:\n363:         print(json.dumps(dict(status=\"source_only_no_execution\",hypothesis_id=\"H050\",arms=list(ARMS),\n364:             updates=3840,checkpoints=24,pretruth_seals=192,parameters=model.PARAMETERS)));return 0\n365:     require(args.input and args.expected_input_sha256,\"Actual root-issued pinned capability\")\n366:     record=dict(path=args.input,sha256=args.expected_input_sha256)\n367:     spec=json.loads(reviewed_worker.bound(record))\n368:     require(spec.get(\"schema\")==\"H050_direct_readout_root_input_v1\" and spec.get(\"status\")==\"active\"\n369:         and spec.get(\"hypothesis_id\")==\"H050\" and spec.get(\"root_authorizer\")==\"root_agent\"\n370:         and spec.get(\"arm\")==\"joint_four_arm\" and spec.get(\"phase\") in (\"train\",\"evaluate\")\n371:         and spec.get(\"physical_gpu\") in (4,5) and spec.get(\"producer_ref\")==actual_ref(SOURCE),\"Actual separate H050 authority\")\n372:     require(spec[\"source_sha256\"].get(SOURCE)==actual_ref(SOURCE)[\"sha256\"],\"Actual H050 producer in exact source closure\")\n373:     for path,sha in spec[\"source_sha256\"].items():reviewed_worker.bound(dict(path=path,sha256=sha))\n374:     context_ref=spec[\"root_context_module_ref\"]\n375:     require(actual_ref(context_ref[\"path\"])==context_ref\n376:         and spec[\"source_sha256\"].get(context_ref[\"path\"])==context_ref[\"sha256\"],\"Exact reviewed root context source\")\n377:     loader=importlib.util.spec_from_file_location(\"_H050_root_context\",ROOT/context_ref[\"path\"])\n378:     module=importlib.util.module_from_spec(loader);loader.loader.exec_module(module)\n379:     ctx=module.build_context_v1(record,spec)\n380:     require(ctx.get(\"phase\")==spec[\"phase\"] and ctx.get(\"physical_gpu\")==spec[\"physical_gpu\"]\n381:         and ctx[\"cfg\"][\"producer_ref\"]==spec[\"producer_ref\"],\"Same actual capability/context/producer\")\n382:     return run_context_v1(ctx,record)\n383: \n384: if __name__==\"__main__\":raise SystemExit(main())",
+      "lines": [
+        344,
+        384
+      ],
+      "source_ref": {
+        "path": "research/reviews/H050_direct_readout_cut_memory_source_20261015_v1/producer_integration_v1/producer_v1.py",
+        "sha256": "1efd84ea51ed05b20e713f6a39ef33dfc08ce3921730d8ce8aa39ef184506130"
+      }
+    },
+    "producer_saves_completion_then_returns_dict": {
+      "excerpt": "223:         result=dict(schema=\"H050_four_arm_train_completion_v1\",hypothesis_id=\"H050\",status=\"completed_fixed30pass_four_arm_TRAIN\",\n224:             input_ref=input_ref,config_ref=ctx[\"config_ref\"],arms=list(ARMS),steps=steps,history=history,\n225:             checkpoint_groups=groups,first_step_qualification=qualified,initial_state_sha256=hashes,\n226:             common_initial_predictor_verified=True,observations_seal=seal,parameters_per_arm=model.PARAMETERS,\n227:             registration_ref=ctx[\"cfg\"][\"registration_ref\"],producer_ref=ctx[\"cfg\"][\"producer_ref\"],\n228:             scientific_protocol=hooks.fixed_protocol_v1(),warmstart_checkpoint_ref=model.WARM_CHECKPOINT_REF,\n229:             warmstart_completion_ref=model.WARM_COMPLETION_REF,\n230:             cut_preparation_completion_ref=ctx[\"cut_preparation_completion_ref\"],\n231:             cut_preparation_actual_wait_ref=ctx[\"cut_preparation_actual_wait_ref\"],VAL_truth_read=False,outer_truth_read=False)\n232:         output.save(\"completed.json\",result);return result\n233:     except Exception as error:\n234:         output.save(\"failed.json\",dict(hypothesis_id=\"H050\",phase=\"train\",status=\"failed_partial_preserved\",",
+      "lines": [
+        223,
+        234
+      ],
+      "source_ref": {
+        "path": "research/reviews/H050_direct_readout_cut_memory_source_20261015_v1/producer_integration_v1/producer_v1.py",
+        "sha256": "1efd84ea51ed05b20e713f6a39ef33dfc08ce3921730d8ce8aa39ef184506130"
+      }
+    }
+  },
+  "no_failure_replay_or_numerical_execution": true,
+  "schema": "H050_failed_CLI_return_value_static_source_evidence_v1",
+  "source_only": true
+}
