@@ -1,0 +1,33 @@
+# Native VAL000 finite owned-roster successor, source only
+
+V3 actual tool93626 returned241 with native worker-15. The genuine root terminal is pinned in the manifest. The worker log reached author Trainer startup, the final capacity sample observed1316MiB native CUDA and saved optimizer updates remain UNVERIFIED. The inherited64 guard counted lifetime historical PID/start entries, rather than current live workers. Its retained roster was truncated. Preserve that fact alongside the genuine declared owned-group drain. Preserve every old source, failure, output, charge and the older418MiB context observation.
+
+## Narrow operational changes
+
+All11numeric64 roster/status accesses in the actual v3 supervisor are replaced consistently with OWNED_ROSTER_CAP4096. This covers monitor admission, cleanup checks, signal retention, group census, fallback observations and full evidence. The exact native author worker, compiler and model behavior stays unchanged. Original OwnedTree intake, PID/start validation, PID reuse exclusion and pidfd-only signaling remain the same source. The scientific worker function, direct attachment and corpus bridge are AST identical after namespace normalization. No author, installed runtime, guard or scientific file is edited.
+
+The new fixed owned_roster_policy.INACTIVE.v4.json binds4096 historical identities and4096 retained adopted waits. Its source hash must appear in the fresh ROOT amendment. Original source64 direct-consumer limits, SHA256 string lengths, serialization coefficients and x86_64 ABI text remain unchanged. all64_and_cleanup_helper_audit.v4.json inventories all relevant sites and inherited helpers.
+
+The aggregate cleanup deadline remains30seconds. It does not restart while iterating4096 identities. Every targeted pidfd signal and group absence observation retains the deadline check. If the cumulative identity limit is exceeded, adopted statuses are truncated, a required wait is unknown, a group observation is unknown or cleanup time expires, complete drain is false. Earlier valid absence observations do not convert a truncated roster into complete evidence. Adopted status records are capped at4096, with the actual wait count and an explicit truncation flag retained. No old/unknown identity is signaled without the inherited PID/start/pidfd checks.
+
+Complete4096identity/status/group evidence can exceed the former1MiB receipt default. The explicit terminal receipt cap is8MiB, already supported by the inherited save function and inside the unchanged768MiB AUX and7GiB charge. compact_v1 now prechecks the exact pretty-encoded bytes written by save. Original storage guard code and full original-root census stay unchanged.
+
+A separate compact minimal wait fact record, bounded to64KiB, is emitted to stdout before any large serialization or strict filesystem operation. It retains the genuine raw OS status/return code or explicit unknown values and cannot claim scientific completion. When complete drain and authority margin hold, actual_wait_minimal.json is written before alias normalization or full terminal serialization. It survives a later full-evidence overflow. When drain or authority is unresolved, the existing no-new-filesystem-write rule remains. ROOT must preserve the printed genuine minimal facts in its actual outer terminal receipt. No full-evidence overflow suppresses the already emitted actual wait/status facts.
+
+## Synthetic verification
+
+synthetic_roster_fixture_v1.py uses only standard-library source extraction with fake process maps, fake pidfds, fake clocks and an in-memory fake writer. It imports no project/scientific module and accesses no live process/device/data. Tests cover4096 full historical/group entries,4097 overflow, unrelated same-group exclusion, historical-versus-live distinction, original pidfd signaling/reuse checks, capped adopted statuses with truthful overflow counts, unknown wait/deadline/group rejection, exact encoded size checks and preservation of the minimal wait when a full receipt exceeds8MiB. The synthetic full4096 record was1,251,016bytes and the minimal record1,550bytes. These software fixtures are not training, GPU-fit or accuracy results.
+
+The exact source successor diff is exact_successor_diff.v4.patch. The original scientific child remains source-bound and unchanged. No native runtime probe, optimizer job, reservation, close, credit or Git operation was performed.
+
+## ROOT activation recipe
+
+1. Obtain independent review of this exact handoff, manifest, diff, policy, helper audit, source proof and synthetic fixture.
+2. Preserve all genuine prior actual terminals, including26943,62408 and93626. Revoke future launch/resume/write through v3 and older routes cooperatively, without modifying their frozen files.
+3. Create a fresh explicit ROOT amendment from ROOT_amendment.INACTIVE.template.v4.json. The template is inactive and is not authority. Set active/execution/review fields only after review, bind the genuine independent-review ref and this exact manifest/policy. Supply actual created time without changing the original anchor/expiry.
+4. Preserve all inherited amendment fields. Add latest_roster_failure_wait_ref, latest_roster_failure_outer_terminal_ref, owned_roster_policy_ref, cumulative_owned_identity_cap4096, terminal_receipt_cap_bytes8388608 and v3_metadata_bridge_future_execution_revokedtrue. Original caps, input/storage/request refs, controller borrowing rules and full7GiB charge stay unchanged.
+5. Bind genuinely fresh descendants named same_charge_owned_roster_v4 under each original fully charged output/AUX parent. Keep all failed descendants. Freshness is enforced by the successor and no old file is overwritten.
+6. ROOT verifies current capacity, exact borrowed GPU0/controller state, logical exclusivity and actual authority. No source packet authorizes admission or execution. If valid, use the original pinned supervisor interpreter with -B and the new module research.reviews.native_VAL000_GPU0_owned_roster_source_20261016_v4.execution_only_v1, original input ref and actual fresh amendment ref.
+7. Preserve genuine minimal and full child/outer waits, complete current owned roster/drain evidence and full native optimizer/corpus/config counters. No success, storage close/credit or downstream stage is authorized by a partial run or engineering check.
+
+Original48h anchor remains2026-10-16T13:02:46.539193+00:00, with end2026-10-18T13:02:46.539193+00:00. Absolute expiry remains2026-10-18T23:41:32.476768+00:00. The inherited fresh-entry validator is stricter and rejects new entry after2026-10-16T23:31:32.476768+00:00. None of these times is reset.

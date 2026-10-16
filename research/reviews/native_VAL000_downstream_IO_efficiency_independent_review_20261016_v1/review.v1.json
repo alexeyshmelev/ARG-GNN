@@ -1,0 +1,140 @@
+{
+  "candidate_handoff_ref": {
+    "path": "research/reviews/native_VAL000_downstream_IO_efficiency_source_20261016_v1/source_handoff.v1.json",
+    "sha256": "a10ce4add8fc5420ffa1a9d216ddfab168605cae41fb419b2e2416169ed16976"
+  },
+  "candidate_manifest_ref": {
+    "path": "research/reviews/native_VAL000_downstream_IO_efficiency_source_20261016_v1/source_manifest.v1.json",
+    "sha256": "ff4630314ddc36d3e87b8b8c1927931cf05f4c08d91cf043d7632a9dd3267aa3"
+  },
+  "date": "2026-10-16",
+  "evidence": [
+    {
+      "classification": "PRESERVED_SCIENCE",
+      "finding": "Exact original author train and final-checkpoint calls. The sole resolved-config difference is retention -1 to 1. Full 1 epoch/2135 updates, global and microbatch4096, FP32, seed36, temperature0.30, normalize/dot objective and uniform class-weight fallback remain. No model train_loader injection, corpus reduction, optimizer alteration, or checkpoint selection criterion was introduced.",
+      "id": "S1",
+      "locations": [
+        "research/reviews/native_VAL000_downstream_IO_efficiency_source_20261016_v1/efficient_downstream_v1.py:44-85",
+        "research/reviews/native_VAL000_downstream_scientific_stages_source_20261016_v1/scientific_stages_v1.py:99-130",
+        ".runtime/author_sources/argformer_f7545be7bca0/sequence_contrastive.py:593-629",
+        ".runtime/author_sources/argformer_f7545be7bca0/sequence_contrastive.py:821-911"
+      ]
+    },
+    {
+      "classification": "PRESERVED_TRAINING_EVENTS_DISCLOSED_RETENTION",
+      "finding": "The installed scheduler retains106 multiples-of20 plus final2135 saves. Saver serializes model/optimizer/state/RNG and updates full timestamp history before rotation. Retention affects only the local saved-path list and unsharded os.remove of old new-scope files. RNG capture uses getters. No best-metric model selection exists in MaxMetricTracker. Original final helper requires epoch1/update2135 and genuine Adam moments/steps; latest alias is validated rather than used for selection.",
+      "id": "S2",
+      "locations": [
+        ".runtime/conda/envs/argformer_native_v1/lib/python3.11/site-packages/composer/utils/misc.py:57-148",
+        ".runtime/conda/envs/argformer_native_v1/lib/python3.11/site-packages/composer/callbacks/checkpoint_saver.py:396-430",
+        ".runtime/conda/envs/argformer_native_v1/lib/python3.11/site-packages/composer/callbacks/checkpoint_saver.py:461-515",
+        ".runtime/conda/envs/argformer_native_v1/lib/python3.11/site-packages/composer/callbacks/checkpoint_saver.py:607-618",
+        ".runtime/conda/envs/argformer_native_v1/lib/python3.11/site-packages/composer/utils/checkpoint.py:1126-1148",
+        ".runtime/conda/envs/argformer_native_v1/lib/python3.11/site-packages/composer/utils/checkpoint.py:1234-1274",
+        ".runtime/conda/envs/argformer_native_v1/lib/python3.11/site-packages/composer/utils/reproducibility.py:179-194",
+        ".runtime/author_sources/argformer_f7545be7bca0/sequence_contrastive.py:132-178",
+        "research/reviews/native_VAL000_GPU0_borrowed32_source_20261016_v2/native_child_v1.py:61-90"
+      ]
+    },
+    {
+      "classification": "PRESERVED_FOUR_NATIVE_EMBEDDINGS",
+      "finding": "Unchanged original embedding_v1 is required for all four outputs from the same full contrastive checkpoint. It keeps author head_norm, batch256, layer=None, max_samples0, separate train/val extraction, all reference rows8748479+972757 and query rows9003+997. Reference labels remain observed labels; queries contain no ancestry labels.",
+      "id": "S3",
+      "locations": [
+        "research/reviews/native_VAL000_downstream_scientific_stages_source_20261016_v1/scientific_stages_v1.py:132-156",
+        ".runtime/author_sources/argformer_f7545be7bca0/embeddings.py:162-171",
+        ".runtime/author_sources/argformer_f7545be7bca0/embeddings.py:264-289",
+        ".runtime/author_sources/argformer_f7545be7bca0/embeddings.py:375-410",
+        "research/reviews/native_VAL000_downstream_IO_efficiency_source_20261016_v1/efficient_downstream_v1.py:166-181"
+      ]
+    },
+    {
+      "classification": "PRESERVED_CONCAT_WITH_EXPLICIT_RAM_OUTPUT",
+      "finding": "Candidate clones exact concatenate_embeddings_v1 code object and changes four metadata globals only through required ROOT callbacks. Original full tensor/dtype/finiteness/order/reference-label checks and torch.cat((train,val),dim=0) remain. RAM writer retains identical dict objects and explicit non-file descriptors, with no invented path/SHA references or hidden filter/normalization.",
+      "id": "S4",
+      "locations": [
+        "src/arggnn/american_c3_native_concat_v1.py:104-180",
+        "research/reviews/native_VAL000_downstream_IO_efficiency_source_20261016_v1/efficient_downstream_v1.py:87-128"
+      ]
+    },
+    {
+      "classification": "PRESERVED_ORIGINAL_RETRIEVAL_AND_SEAL",
+      "finding": "Candidate clones original retrieve.main code with only private load_embeddings returning validated RAM dictionaries. All original label conversion, L2 normalization, q_batch1024/e_chunk100000/topk1, query/corpus traversal, native topk merge/tie behavior and result save logic remain. Seal reverses to AST-identical native_top1_seal after restoring one exact nested embedding-load expression. Reference labels, raw-path/focal joins and saved index/score products remain original.",
+      "id": "S5",
+      "locations": [
+        "research/reviews/native_VAL000_downstream_IO_efficiency_source_20261016_v1/efficient_downstream_v1.py:130-153",
+        "research/reviews/native_VAL000_downstream_IO_efficiency_source_20261016_v1/efficient_downstream_v1.py:184-223",
+        ".runtime/author_sources/argformer_f7545be7bca0/retrieve.py:13-168",
+        "src/arggnn/american_c3_evaluate_v1.py:54-124"
+      ]
+    },
+    {
+      "classification": "GENUINE_STORAGE_PROPOSAL_NO_ADMISSION",
+      "finding": "Independent arithmetic matches49,979,548,096 persisted original embedding tensor bytes,311,319,552 combined sidecar bytes and50,290,867,648 avoided duplicate disk bytes. Proposed8+56+1GiB=65GiB(69,793,218,560bytes). 318GiB checkpoint reduction is exactly(108-2)*3GiB, a hypothetical cap comparison rather than measured checkpoint sizes or credit. Original MLM7GiB remains separate. 384GiB RSS and full4096 FP32 GPU fit remain unqualified.",
+      "id": "S6",
+      "locations": [
+        "research/reviews/native_VAL000_downstream_IO_efficiency_source_20261016_v1/storage_proposal.v1.json",
+        "research/reviews/native_VAL000_downstream_IO_efficiency_source_20261016_v1/io_policy.INACTIVE.v1.json",
+        "research/reviews/native_VAL000_downstream_IO_efficiency_independent_review_20261016_v1/fixture_results.v1.json"
+      ]
+    }
+  ],
+  "limitations": [
+    "Source-only verdict grants no launch/admission authority and no storage credit.",
+    "No measured memory, wall time, checkpoint size, numerical equality, ancestry accuracy or exact original-paper/Table1 PCA-classifier reproduction claim.",
+    "Native floating-point/kernel nondeterminism is not tested; original topk tie implementation is preserved by code identity."
+  ],
+  "mandatory_integration_prerequisites": [
+    {
+      "classification": "EXPECTED_ROOT_INTEGRATION_BLOCKER_NOT_SOURCE_DEFECT",
+      "id": "I1",
+      "requirement": "Independently review actual ROOT context/authority and VAL000 preparation/counts/fit/metadata callbacks. Bind candidate source and policy in both request and context, disclose original_author_recipe_claimed_exact=false, and authorize only new-scope keep1 rotation. Require genuine full MLM/contrastive/embedding completion, direct wait0, owned drain, consumed outer0 and exact checkpoint lineage."
+    },
+    {
+      "classification": "EXPECTED_RESOURCE_ADMISSION_BLOCKER_NOT_SOURCE_DEFECT",
+      "id": "I2",
+      "requirement": "Fresh separate storage admission must use the actual current child accounting guard and immutable parent lineage. Existing supervisor must cover full output/TMP/AUX/log/cache scopes, enforce checkpoint3GiB/file and peak2regular limits, guard original retrieval write and use streaming large-file authentication. Candidate is not a supervisor or enforcement proof."
+    },
+    {
+      "classification": "EXPECTED_RUNTIME_QUALIFICATION_BLOCKER_NOT_SOURCE_DEFECT",
+      "id": "I3",
+      "requirement": "ROOT must assess actual RAM/GPU0 capacity, lease/UUID/title and enforce resource limits before CUDA. mmap inputs, full concat tensors, finite-check temporaries, row-order copies, Python label lists, full L2-normalized vectors and author embedding accumulation all remain. Do not infer runtime fit or switch scientific settings to make resources fit."
+    },
+    {
+      "classification": "DISCLOSED_OPERATIONAL_STAGE_GROUPING",
+      "id": "I4",
+      "requirement": "RAM concat, retrieval and truth-free sealing run within one owned worker while objects remain alive. The old separate retrieval-to-seal process-wait boundary is grouped into this worker. Final real worker/outer waits and drain are still mandatory before external private-truth scoring or close. Do not claim intermediate standalone retrieval wait evidence."
+    }
+  ],
+  "original_handoff_ref": {
+    "path": "research/reviews/native_VAL000_downstream_scientific_stages_source_20261016_v1/source_handoff.v1.json",
+    "sha256": "e4056a2c500c4bfb0817252f89b95e7e9a941496d20c4d39bd7c9c323b7891fe"
+  },
+  "reviewer": "independent worker /root/native_downstream_io_fresh_review",
+  "schema": "native_VAL000_downstream_IO_efficiency_independent_source_review_v1",
+  "source_code_defect_count": 0,
+  "source_code_defects": [],
+  "validation": {
+    "authenticated_source_or_compact_metadata_files": 34,
+    "fixture_harness_note": "Initial fixture-only missing IO_POLICY_REF binding was corrected in owned directory; completed checks pass. No candidate file changed.",
+    "fixture_ref": {
+      "path": "research/reviews/native_VAL000_downstream_IO_efficiency_independent_review_20261016_v1/fixture_results.v1.json",
+      "sha256": "1c59171bb0ac7af847056337408747d92d994a97153371a9efef17ce2b1c3bb0"
+    },
+    "fixture_source_ref": {
+      "path": "research/reviews/native_VAL000_downstream_IO_efficiency_independent_review_20261016_v1/independent_source_API_fixtures_v1.py",
+      "sha256": "bd4f3b23e6d2568f04e8af9ca575ca87697a2a3ae171bb9efbc9446927827427"
+    },
+    "numerical_equivalence_or_performance_test": false,
+    "passed_checks": 7,
+    "real_checkpoint_deletions": 0,
+    "real_jobs_probes_GPU_packages_accounting_Git": false,
+    "real_payload_truth_or_model_weight_reads": false,
+    "scientific_imports": false,
+    "source_hash_inventory_ref": {
+      "path": "research/reviews/native_VAL000_downstream_IO_efficiency_independent_review_20261016_v1/source_hashes.v1.json",
+      "sha256": "2d3fd8accb90e20cdc2ecee3fbd5d3fe18d566bed3ee524ae8ce9edf78b7c795"
+    }
+  },
+  "verdict": "PASS_SOURCE_OPTION_ONLY_EXECUTION_NOT_AUTHORIZED"
+}

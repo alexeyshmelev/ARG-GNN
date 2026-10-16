@@ -1,0 +1,345 @@
+--- research/reviews/native_VAL000_GPU0_same_charge_metadata_bridge_source_20261016_v3/amendment_contract_v1.py
++++ research/reviews/native_VAL000_GPU0_owned_roster_source_20261016_v4/amendment_contract_v1.py
+@@ -7,7 +7,7 @@
+ import copy,hashlib,importlib.util,json,os,stat,sys,time
+ from research.reviews.native_VAL000_GPU0_borrowed32_source_20261016_v2.common_v1 import *
+ from research.reviews.native_VAL000_GPU0_borrowed32_source_20261016_v2 import common_v1 as original
+-HERE="research/reviews/native_VAL000_GPU0_same_charge_metadata_bridge_source_20261016_v3"
++HERE="research/reviews/native_VAL000_GPU0_owned_roster_source_20261016_v4"
+ SOURCE=HERE+"/amendment_contract_v1.py"
+ ACTUAL_DRIVER=HERE+"/execution_only_v1.py"
+ DIRECT=HERE+"/direct_gpu0_v1.py"
+@@ -20,7 +20,13 @@
+ CONTROLLER_CAPABILITY_REF={"path":"research/reviews/C3_module_route_repair_root_20261016_v1/controller/capability.root_active_v1.json","sha256":"4b781d0d88814508a02037c5935bb1dc6406a203cfa99939db4dabb5c04c9870"}
+ LATEST_METADATA_WAIT={"path":"research/reviews/native_VAL000_GPU0_borrowed32_ROOT_actual_20261016_v2/worker_aux/same_charge_execution_amendment_v1/actual_wait.json","sha256":"a7341fb3d54e74bfed4cd66db15b7c12d901df193bbbfadc7b8c5b3d9cbed50d"}
+ LATEST_METADATA_OUTER={"path":"research/reviews/native_VAL000_GPU0_borrowed32_ROOT_actual_20261016_v2/worker_aux/actual_same_charge_v2_tool_terminal.root_v1.json","sha256":"13a4359908f2a7ebd432f027fae625a26fc9675d5008b2b68ca9cad19122de3a"}
+-CHILD="same_charge_metadata_bridge_v3"
++LATEST_ROSTER_WAIT={"path":"research/reviews/native_VAL000_GPU0_borrowed32_ROOT_actual_20261016_v2/worker_aux/same_charge_metadata_bridge_v3/actual_wait.json","sha256":"6d3c18831e9386b0d0dd605b73e53fc16087040dd05ff75be96406738807c43a"}
++LATEST_ROSTER_OUTER={"path":"research/reviews/native_VAL000_GPU0_borrowed32_ROOT_actual_20261016_v2/worker_aux/actual_same_charge_metadata_bridge_v3_tool_terminal.root_v1.json","sha256":"d68eac7f677bceb1ac4229c6755046be3ce5a1aaf93d3eabea2509294c2ba0f0"}
++OWNED_ROSTER_CAP=4096
++MINIMAL_WAIT_CAP_BYTES=65536
++TERMINAL_RECEIPT_CAP_BYTES=8*2**20
++OWNED_ROSTER_POLICY_REF={'path': 'research/reviews/native_VAL000_GPU0_owned_roster_source_20261016_v4/owned_roster_policy.INACTIVE.v4.json', 'sha256': 'ea1ddb59ab4248b8ba95dbbe77d25db30636cc318a4fdaebde1e1ae6e5a7344f'}
++CHILD="same_charge_owned_roster_v4"
+ AMENDMENT_REF=None
+ ORIGINAL_STATE=None
+ 
+@@ -43,6 +49,12 @@
+         and a.get("prior_actual_wait_ref")==PRIOR_WAIT and a.get("prior_outer_terminal_ref")==OUTER_TERMINAL
+         and a.get("latest_metadata_failure_wait_ref")==LATEST_METADATA_WAIT
+         and a.get("latest_metadata_failure_outer_terminal_ref")==LATEST_METADATA_OUTER
++        and a.get("latest_roster_failure_wait_ref")==LATEST_ROSTER_WAIT
++        and a.get("latest_roster_failure_outer_terminal_ref")==LATEST_ROSTER_OUTER
++        and a.get("owned_roster_policy_ref")==OWNED_ROSTER_POLICY_REF
++        and a.get("cumulative_owned_identity_cap")==OWNED_ROSTER_CAP
++        and a.get("terminal_receipt_cap_bytes")==TERMINAL_RECEIPT_CAP_BYTES
++        and a.get("v3_metadata_bridge_future_execution_revoked") is True
+         and a.get("metadata_bridge_only_missing_operational_field") is True
+         and a.get("metadata_bridge_resets_or_rewrites_preparation") is False
+         and a.get("v2_same_charge_future_execution_revoked") is True
+@@ -55,6 +67,18 @@
+         and a.get("failed_artifacts_and_full_original7GiB_charge_retained") is True
+         and a.get("fresh_child_name")==CHILD and a.get("max_seconds")==172800
+         and a.get("expires_at_utc")==original.ORIGINAL_ABSOLUTE_EXPIRY,"Exact explicit ROOT same-charge source bridge")
++    roster_policy=read(OWNED_ROSTER_POLICY_REF)
++    require(roster_policy["schema"]=="native_VAL000_finite_cumulative_owned_roster_policy_v4"
++        and roster_policy["cumulative_identity_ceiling"]==OWNED_ROSTER_CAP==4096
++        and roster_policy["adopted_wait_ceiling"]==roster_policy["cleanup_signal_retention_ceiling"]==OWNED_ROSTER_CAP
++        and roster_policy["group_census_retention_ceiling"]==roster_policy["complete_ownership_evidence_ceiling"]==OWNED_ROSTER_CAP
++        and roster_policy["minimal_wait_receipt_ceiling_bytes"]==MINIMAL_WAIT_CAP_BYTES
++        and roster_policy["full_terminal_receipt_ceiling_bytes"]==TERMINAL_RECEIPT_CAP_BYTES==8*2**20
++        and roster_policy["inherited_save_ceiling_bytes"]==8*2**20
++        and roster_policy["cleanup_seconds"]==CAPS["cleanup_seconds"]==30
++        and roster_policy["complete_roster_required_for_complete_drain"] is True
++        and roster_policy["overflow_or_truncation_authorizes_success"] is False,
++        "Exact finite4096 identity/8MiB terminal policy, original30s cleanup and fully charged AUX")
+     manifest=read(a["adapter_manifest_ref"])
+     expected=[ref(HERE+"/"+name) for name in ("__init__.py","amendment_contract_v1.py","direct_gpu0_v1.py","execution_only_v1.py","corpus_metadata_bridge_v1.py")]
+     require(manifest["new_executed_source_refs"]==expected
+@@ -62,6 +86,7 @@
+         and manifest["original_source_manifest_ref"]==original.ref(original.MANIFEST),
+         "Every actual new executed source and unchanged original source closure authenticated separately")
+     for r in manifest["new_executed_source_refs"]:raw(r)
++    require(manifest["owned_roster_policy_ref"]==OWNED_ROSTER_POLICY_REF,"Exact separately authenticated operational roster policy")
+     require(manifest["installed_controller_endpoint_source_ref"]==CONTROLLER_ENDPOINT_SOURCE_REF,
+         "Exact actual installed Declared0Controller endpoint source bound by amendment")
+     raw(CONTROLLER_ENDPOINT_SOURCE_REF)
+@@ -114,6 +139,23 @@
+         and latest_outer.get("native_CUDA_context_observed_MiB")==0
+         and latest_outer.get("optimizer_updates")=="UNVERIFIED",
+         "Genuine latest metadata failure/drain, no observed CUDA or verified optimizer, never scientific success")
++    roster_wait=read(LATEST_ROSTER_WAIT);roster_outer=read(LATEST_ROSTER_OUTER)
++    require(roster_wait.get("returncode")==-15 and roster_wait.get("actual_OS_wait_status")==15
++        and roster_wait.get("actual_direct_worker_wait") is True
++        and roster_wait.get("all_owned_processes_and_groups_drained") is True
++        and roster_wait.get("completed_ref") is None and roster_wait.get("no_future_stage_authorized") is True
++        and roster_wait.get("operational_failure")=="ValueError: Bounded fixed native32 owned process identities"
++        and roster_wait["ownership"].get("complete_owned_roster_known") is False
++        and roster_wait["ownership"].get("owned_roster_truncated") is True
++        and roster_outer.get("actual_exit_code")==241 and roster_outer.get("actual_terminal_consumed") is True
++        and roster_outer.get("actual_tool_session_id")==93626 and roster_outer.get("actual_wait_ref")==LATEST_ROSTER_WAIT
++        and roster_outer.get("actual_direct_worker_returncode")==-15
++        and roster_outer.get("all_owned_processes_and_groups_drained") is True
++        and roster_outer.get("complete_owned_roster_known") is False and roster_outer.get("owned_roster_truncated") is True
++        and roster_outer.get("native_CUDA_context_observed_MiB")==1316
++        and roster_outer.get("full_original7GiB_charge_retained") is True
++        and roster_outer.get("optimizer_updates")=="UNVERIFIED",
++        "Genuine93626 failure/declaration of owned-group drain and truncated roster, never verified training")
+     require(a["original_storage_ref"]==s["refs"]["storage"] and a["original_root_request_ref"]==s["root_stage_request_ref"]
+         and a["original_author_scientific_config_ref"]==s["refs"]["config"]
+         and a["capacity_policy_ref"]==q["capacity_policy_ref"]==POLICY
+@@ -162,7 +204,7 @@
+ 
+ def compact_v1(spec,name,value,g,storage,*,cap=2**20):
+     active_amendment_v1();directory=local(spec["worker_auxiliary_scope"])
+-    data=(json.dumps(value,sort_keys=True,allow_nan=False)+"\n").encode()
++    data=(json.dumps(value,sort_keys=True,indent=2,allow_nan=False)+"\n").encode()
+     require(len(data)<=cap,"Bounded operational evidence")
+     charged_census_v1(spec,required_write_bytes=len(data)+8192)
+     g.budget_check_v9(storage,boundary=True,required_write_bytes=len(data)+8192)
+--- research/reviews/native_VAL000_GPU0_same_charge_metadata_bridge_source_20261016_v3/direct_gpu0_v1.py
++++ research/reviews/native_VAL000_GPU0_owned_roster_source_20261016_v4/direct_gpu0_v1.py
+@@ -6,7 +6,7 @@
+ """
+ from pathlib import Path
+ import errno,fcntl,hashlib,json,os,select,socket,stat,struct,sys,time
+-from research.reviews.native_VAL000_GPU0_same_charge_metadata_bridge_source_20261016_v3.amendment_contract_v1 import *
++from research.reviews.native_VAL000_GPU0_owned_roster_source_20261016_v4.amendment_contract_v1 import *
+ SOURCE=DIRECT
+ CONTROLLER_PID=3349405
+ CONTROLLER_START=481281638
+--- research/reviews/native_VAL000_GPU0_same_charge_metadata_bridge_source_20261016_v3/execution_only_v1.py
++++ research/reviews/native_VAL000_GPU0_owned_roster_source_20261016_v4/execution_only_v1.py
+@@ -4,7 +4,7 @@
+ from pathlib import Path
+ from datetime import datetime,timezone
+ import argparse,collections,ctypes,fcntl,hashlib,importlib,io,itertools,json,os,resource,selectors,signal,stat,subprocess,sys,tempfile,time
+-from research.reviews.native_VAL000_GPU0_same_charge_metadata_bridge_source_20261016_v3.amendment_contract_v1 import *
++from research.reviews.native_VAL000_GPU0_owned_roster_source_20261016_v4.amendment_contract_v1 import *
+ 
+ class _RAMLog:
+     def __init__(self,cap):self.cap=cap;self.parts=collections.deque();self.kept=0;self.total=0
+@@ -48,9 +48,9 @@
+     ticket=read(attachment_ref)
+     require(ticket["job_id"]==s["job_id"] and ticket["borrowed_physical_inode"] is True
+         and ticket["direct_attachment_authority_ref"]==q["direct_attachment_authority_ref"],"Original job/capacity, actual fresh logical attachment")
+-    from research.reviews.native_VAL000_GPU0_same_charge_metadata_bridge_source_20261016_v3 import direct_gpu0_v1 as direct
++    from research.reviews.native_VAL000_GPU0_owned_roster_source_20261016_v4 import direct_gpu0_v1 as direct
+     guard=direct.install_before_torch_v1(s,q,ticket)
+-    from research.reviews.native_VAL000_GPU0_same_charge_metadata_bridge_source_20261016_v3 import corpus_metadata_bridge_v1
++    from research.reviews.native_VAL000_GPU0_owned_roster_source_20261016_v4 import corpus_metadata_bridge_v1
+     corpus_metadata_bridge_v1.install_private_authentication_bridge_v1()
+     from research.reviews.native_VAL000_GPU0_borrowed32_source_20261016_v2 import native_child_v1
+     # Unchanged exact native scientific/operational child function, with explicit
+@@ -104,6 +104,7 @@
+     proc=tree=leader_seed=None;failure=cancelled=None;peak=0;adopted=[];original={}
+     pipe_nonblocking=pipe_eof=gate_released=False
+     raw_status=None;cleanup_errors=[];identity_absence=None;observations=[]
++    adopted_wait_count=0;adopted_waits_truncated=False
+     gate_read=gate_write=physical_fd=logical_fd=None;attachment_ref=None;start=stage_started
+     capacity_samples=0;last_capacity=None;next_capacity=0.
+     def stop(sig,frame):
+@@ -131,7 +132,7 @@
+             ARGGNN_BUDGET_V9_LAUNCHER_SHA256=storage["budget_components"]["launcher"]["sha256"])
+         env.update(paths)
+         if s["phase"]=="mlm":
+-            from research.reviews.native_VAL000_GPU0_same_charge_metadata_bridge_source_20261016_v3 import direct_gpu0_v1 as direct
++            from research.reviews.native_VAL000_GPU0_owned_roster_source_20261016_v4 import direct_gpu0_v1 as direct
+             direct.install_cancellation_check_v1(lambda:require(cancelled is None and time.monotonic()<work_deadline,
+                 "Actual cancellation or anchored work cutoff during status proof"))
+             physical_fd,logical_fd,ticket=direct.attach_v1(s,q)
+@@ -147,7 +148,7 @@
+                 env.pop(name,None)
+         gate_read,gate_write=os.pipe()
+         command=[str(local(NATIVE_PYTHON_REF["path"])),"-B","-s","-m",
+-            "research.reviews.native_VAL000_GPU0_same_charge_metadata_bridge_source_20261016_v3.execution_only_v1",
++            "research.reviews.native_VAL000_GPU0_owned_roster_source_20261016_v4.execution_only_v1",
+             "--worker-input-ref",json.dumps(input_ref,separators=(",",":")),"--gate-fd",str(gate_read)]
+         if attachment_ref is not None:command+=["--attachment-ref",json.dumps(attachment_ref,separators=(",",":"))]
+         command+=["--amendment-ref",json.dumps(current_amendment_ref_v1(),separators=(",",":"))]
+@@ -177,7 +178,7 @@
+             require(time.monotonic()<work_deadline,"Pre-expiry scientific work cutoff; cleanup/evidence reserve retained")
+             terminal=os.waitid(os.P_PID,proc.pid,os.WEXITED|os.WNOHANG|os.WNOWAIT)
+             tree.refresh()
+-            require(len(tree.known)<=64,"Bounded fixed native32 owned process identities")
++            require(len(tree.known)<=OWNED_ROSTER_CAP,"Bounded fixed native32 owned process identities")
+             peak=max(peak,rss_identity_v1(owned,parent_identity)+
+                 sum(rss_identity_v1(owned,r) for r in tree.known.values()))
+             require(peak<=CAPS["max_cpu_rss_bytes"],"Combined owned RSS cap")
+@@ -229,13 +230,13 @@
+                         if waited==proc.pid:
+                             raw_status=status;proc.returncode=os.waitstatus_to_exitcode(status)
+                     if tree is not None:
+-                        tree.refresh();require(len(tree.known)<=64,"Bounded fixed native32 cleanup identities")
++                        tree.refresh();require(len(tree.known)<=OWNED_ROSTER_CAP,"Bounded fixed native32 cleanup identities")
+                 except BaseException as exc:note_cleanup(exc)
+                 # Known identities remain signalable even when tree.refresh
+                 # failed. Never signal a guessed PID, group or unrelated job.
+-                rows=list(itertools.islice(tree.known.values(),64)) if tree is not None else ([leader_seed] if leader_seed else [])
++                rows=list(itertools.islice(tree.known.values(),OWNED_ROSTER_CAP)) if tree is not None else ([leader_seed] if leader_seed else [])
+                 signum=signal.SIGTERM if time.monotonic()-cleanup_started<10 else signal.SIGKILL
+-                for row in rows[:64]:
++                for row in rows[:OWNED_ROSTER_CAP]:
+                     if time.monotonic()>=cleanup_deadline:break
+                     try:owned.signal_identity(row,signum)
+                     except BaseException as exc:note_cleanup(exc)
+@@ -245,9 +246,12 @@
+                         except ChildProcessError:break
+                         except BaseException as exc:note_cleanup(exc);break
+                         if pid==0:break
+-                        adopted.append(dict(pid=pid,status=status,returncode=os.waitstatus_to_exitcode(status)))
+-                        if len(adopted)>64:
+-                            failure=failure or "More than64 adopted native32 wait identities";break
++                        adopted_wait_count+=1
++                        if len(adopted)<OWNED_ROSTER_CAP:
++                            adopted.append(dict(pid=pid,status=status,returncode=os.waitstatus_to_exitcode(status)))
++                        else:
++                            adopted_waits_truncated=True
++                            failure=failure or "More than4096 adopted native32 wait identities, retained statuses truncated"
+                 try:
+                     retain_pipe()
+                     if raw_status is not None and tree is None:
+@@ -258,7 +262,7 @@
+                         identity_absence=tree.identities_absent() and not owned._children(os.getpid())
+                         if identity_absence and pipe_eof:
+                             observations=[]
+-                            for group in sorted({r["group"] for r in list(itertools.islice(tree.known.values(),64))[:64]}):
++                            for group in sorted({r["group"] for r in list(itertools.islice(tree.known.values(),OWNED_ROSTER_CAP))[:OWNED_ROSTER_CAP]}):
+                                 gone=None
+                                 if time.monotonic()<cleanup_deadline:
+                                     try:os.killpg(group,0)
+@@ -287,10 +291,12 @@
+     # Retain only observations genuinely made inside the single cleanup
+     # allowance. No process/group probe is started after that deadline.
+     if not observations:
+-        rows=list(itertools.islice(tree.known.values(),64))[:64] if tree is not None else ([leader_seed] if leader_seed else [])
++        rows=list(itertools.islice(tree.known.values(),OWNED_ROSTER_CAP))[:OWNED_ROSTER_CAP] if tree is not None else ([leader_seed] if leader_seed else [])
+         observations=[dict(pgid=group,absent=None,method="not asserted; owned cleanup incomplete")
+             for group in sorted({r["group"] for r in rows})]
+-    drained=raw_status is not None and identity_absence is True and pipe_eof         and all(r["absent"] is True for r in observations)
++    roster_complete=tree is not None and len(tree.known)<=OWNED_ROSTER_CAP and not adopted_waits_truncated \
++        and adopted_wait_count==len(adopted)<=OWNED_ROSTER_CAP
++    drained=raw_status is not None and roster_complete and identity_absence is True and pipe_eof         and all(r["absent"] is True for r in observations)
+     if not drained:failure=failure or "Finite cleanup ended without genuine wait and complete owned absence"
+     if rc is not None and rc!=0:failure=failure or "Actual worker exit "+str(rc)
+     if any(r["returncode"]!=0 for r in adopted):failure=failure or "Nonzero actual adopted descendant wait"
+@@ -301,14 +307,18 @@
+         if fd is not None:
+             try:os.close(fd)
+             except OSError as exc:failure=failure or "Attachment descriptor close: "+str(exc)[:1000]
+-    if tree is not None and len(tree.known)<=64:
++    if tree is not None and len(tree.known)<=OWNED_ROSTER_CAP:
+         ownership=tree.evidence()
+     else:
+         ownership=dict(owned_tree_constructed=tree is not None,
+             actual_direct_identity_seed=leader_seed,complete_owned_roster_known=False,
+             retained_owned_identities=[dict(pid=row["pid"],start=row["start"])
+-                for row in itertools.islice(tree.known.values(),64)] if tree is not None else [],
++                for row in itertools.islice(tree.known.values(),OWNED_ROSTER_CAP)] if tree is not None else [],
+             owned_roster_truncated=tree is not None,signals_use_pidfd_only=True)
++    ownership.update(cumulative_identity_cap=OWNED_ROSTER_CAP,
++        complete_owned_roster_known=roster_complete,owned_roster_truncated=tree is not None and not roster_complete,
++        known_identity_count=len(tree.known) if tree is not None else None,adopted_wait_count=adopted_wait_count,
++        retained_adopted_wait_count=len(adopted),adopted_waits_truncated=adopted_waits_truncated)
+     observation=dict(schema="native32_fixed_full_parent_bounded_cleanup_observation_v2",input_ref=input_ref,
+         actual_execution_amendment_ref=current_amendment_ref_v1(),adapter_manifest_ref=ref(MANIFEST),
+         original_storage_ref=s["refs"]["storage"],whole_original_roots_measured=True,
+@@ -316,7 +326,9 @@
+         pid=proc.pid if proc is not None else None,returncode=rc,actual_OS_wait_status=raw_status,
+         actual_direct_worker_wait=raw_status is not None,all_owned_processes_and_groups_drained=drained,
+         owned_identity_absence=identity_absence,group_observations=observations,ownership=ownership,
+-        adopted_waits=adopted,operational_failure=failure,gate_released=gate_released,pipe_EOF_observed=pipe_eof,
++        adopted_waits=adopted,adopted_wait_count=adopted_wait_count,adopted_waits_truncated=adopted_waits_truncated,
++        operational_failure=failure,gate_released=gate_released,pipe_EOF_observed=pipe_eof,
++        owned_roster_policy_ref=OWNED_ROSTER_POLICY_REF,complete_owned_roster_known=roster_complete,
+         cleanup_errors=cleanup_errors,cleanup_deadline_seconds=CAPS["cleanup_seconds"],
+         cleanup_seconds=cleanup_finished-cleanup_started,elapsed_seconds=time.monotonic()-start,
+         work_cutoff_margin_seconds=CAPS["work_cutoff_margin_seconds"],
+@@ -325,6 +337,23 @@
+         no_future_stage_authorized=failure is not None or not drained,
+         storage_close_or_credit_authorized=False,
+         borrowed_physical_inode=attachment_ref is not None,controller_inheritance_claimed=False)
++    minimal_facts=dict(schema="native32_actual_bounded_minimal_wait_facts_v4",input_ref=input_ref,
++        actual_execution_amendment_ref=current_amendment_ref_v1(),adapter_manifest_ref=ref(MANIFEST),
++        original_storage_ref=s["refs"]["storage"],pid=proc.pid if proc is not None else None,
++        actual_OS_wait_status=raw_status,returncode=rc,actual_direct_worker_wait=raw_status is not None,
++        all_owned_processes_and_groups_drained=drained,complete_owned_roster_known=roster_complete,
++        known_identity_count=len(tree.known) if tree is not None else None,adopted_wait_count=adopted_wait_count,
++        retained_adopted_wait_count=len(adopted),adopted_waits_truncated=adopted_waits_truncated,
++        cumulative_owned_identity_cap=OWNED_ROSTER_CAP,owned_roster_policy_ref=OWNED_ROSTER_POLICY_REF,
++        operational_failure=failure,cleanup_deadline_seconds=CAPS["cleanup_seconds"],
++        cleanup_seconds=cleanup_finished-cleanup_started,pipe_EOF_observed=pipe_eof,
++        minimal_wait_only_not_scientific_completion=True,full_terminal_evidence_still_required=True,
++        no_future_stage_authorized=True,storage_close_or_credit_authorized=False)
++    # Always preserve actual or explicitly unknown wait/status facts before any
++    # large serialization, namespace operation or strict filesystem check.
++    require(len((json.dumps(minimal_facts,sort_keys=True,indent=2,allow_nan=False)+"\n").encode())<=MINIMAL_WAIT_CAP_BYTES,
++        "Bounded actual minimal wait facts, no ownership-array dependency")
++    print(json.dumps(dict(native32_actual_minimal_wait_facts=minimal_facts),sort_keys=True),flush=True)
+     # Stdout preserves genuine/unknown OS-wait evidence even when unresolved
+     # writers or expired authority prohibit another strict filesystem write.
+     print(json.dumps(dict(native32_bounded_cleanup_observation=observation),sort_keys=True),flush=True)
+@@ -342,6 +371,8 @@
+             no_future_stage_authorized=True,actual_outer_tool_terminal_still_required=True)
+     minimal=completed_ref=wait_ref=None
+     try:
++        minimal=compact_v1(s,"actual_wait_minimal.json",minimal_facts,g,storage,cap=MINIMAL_WAIT_CAP_BYTES)
++        # The compact genuine wait survives any later full-evidence overflow.
+         # Quiescent namespace and prospective authority margin established.
+         # Minimal honest OS wait precedes every later scientific inspection.
+         namespace=load({"path":"research/reviews/American_C3_native_MLM_amendment_v12/terminal_namespace_v12.py","sha256":"51cb8950ae0f86dd0721ebd413cc9270753e8bc66408e45b437f8e2d28a8498d"},"_native32_postdrain_namespace")
+@@ -356,7 +387,6 @@
+             return drained
+         namespace.normalize_latest(out/"checkpoints",prove_drained=authorized_drained_v1,
+             preserve=preserve_alias,max_bytes=CAPS["max_checkpoint_bytes"])
+-        minimal=compact_v1(s,"actual_wait_minimal.json",observation,g,storage)
+         g.budget_check_v9(storage,boundary=True,required_write_bytes=8*2**20)
+         completed_path=out/"completed.json"
+         completed_ref=ref(str(completed_path.relative_to(ROOT))) if completed_path.is_file() else None
+@@ -377,7 +407,7 @@
+             actual_wait_minimal_ref=minimal,log_ref=log_ref,peak_combined_owned_RSS_bytes=peak,
+             sampled_peak_scope_bytes=peak_scope,final_scope_census=final,
+             capacity_samples=capacity_samples,last_capacity_sample=last_capacity,
+-            outer_tool_terminal_consumed=False,automatic_close_or_credit=False),g,storage)
++            outer_tool_terminal_consumed=False,automatic_close_or_credit=False),g,storage,cap=TERMINAL_RECEIPT_CAP_BYTES)
+         g.budget_check_v9(storage,boundary=True)
+     except BaseException as exc:
+         failure=failure or "Strict terminal evidence failed: "+type(exc).__name__+": "+str(exc)[:2000]
+--- research/reviews/native_VAL000_GPU0_same_charge_metadata_bridge_source_20261016_v3/corpus_metadata_bridge_v1.py
++++ research/reviews/native_VAL000_GPU0_owned_roster_source_20261016_v4/corpus_metadata_bridge_v1.py
+@@ -6,7 +6,7 @@
+ """
+ from pathlib import Path
+ import ast,sys,types
+-from research.reviews.native_VAL000_GPU0_same_charge_metadata_bridge_source_20261016_v3 import amendment_contract_v1 as c
++from research.reviews.native_VAL000_GPU0_owned_roster_source_20261016_v4 import amendment_contract_v1 as c
+ SOURCE=c.HERE+"/corpus_metadata_bridge_v1.py"
+ AUTH_REF={"path":"research/reviews/American_C3_native_MLM_amendment_v12/corpus_auth_v2.py","sha256":"2f02c99d49502493abab82e5b6c08c8abc782538d7d821a71cd5116f62b0cd98"}
+ PRODUCER_REF={"path":"src/arggnn/american_c3_paths_v1.py","sha256":"3b32f16e0a81160852e5b93fe9033abf9bc2eeb56c3b15ca552d73f4aacf374c"}
+--- /dev/null
++++ research/reviews/native_VAL000_GPU0_owned_roster_source_20261016_v4/owned_roster_policy.INACTIVE.v4.json
+@@ -0,0 +1,24 @@
++{
++  "actual_minimal_wait_stdout_always_preserved": true,
++  "adopted_wait_ceiling": 4096,
++  "automatic_retry_or_new_execution_authority": false,
++  "cleanup_seconds": 30,
++  "cleanup_signal_retention_ceiling": 4096,
++  "complete_ownership_evidence_ceiling": 4096,
++  "complete_roster_required_for_complete_drain": true,
++  "cumulative_identity_ceiling": 4096,
++  "execution_authorized": false,
++  "full_terminal_receipt_ceiling_bytes": 8388608,
++  "group_census_retention_ceiling": 4096,
++  "incomplete_cleanup_allows_new_filesystem_writes": false,
++  "inherited_save_ceiling_bytes": 8388608,
++  "minimal_wait_receipt_ceiling_bytes": 65536,
++  "old_author_workers_compiler_model_and_science_unchanged": true,
++  "old_cumulative_identity_ceiling": 64,
++  "original48h_anchor_and_expiry_unchanged": true,
++  "original7GiB_charge_and768MiB_AUX_unchanged": true,
++  "original_guard_source_and_bindings_unchanged": true,
++  "overflow_or_truncation_authorizes_success": false,
++  "schema": "native_VAL000_finite_cumulative_owned_roster_policy_v4",
++  "source_only": true
++}

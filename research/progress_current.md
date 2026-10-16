@@ -1,6 +1,6 @@
 # Research progress
 
-Updated UTC: 2026-10-16T14:31:10.699360+00:00.
+Updated UTC: 2026-10-16T15:21:29.315120+00:00.
 
 Current focus is complete faithful comparisons and independent testing, with one registered architecture experiment retained. The full research objective and novelty requirement remain unchanged.
 
@@ -13,8 +13,8 @@ Current focus is complete faithful comparisons and independent testing, with one
 
 Eight reused2Mb validation simulations,952haplotypes/686queries,one optimizer seed. Inputs, training and selection differ across pipelines. This is not an exact published-table reproduction or architecture-only attribution. Stable-leaf memory adds0.0778percentagepoints over the matched control, with boundaryF1 lower at18.3807% versus19.0488%.
 
-- American C3 GNN: at least397/600 actual completed optimizer updates, durable checkpoint200 independently verified, physicalGPU0. No ancestry score yet.
-- Native American ARGformer: the v3 metadata bridge passed corpus authentication and reached Trainer startup, then the cumulative owned-process identity tracker exceeded its64entry bound. Actual worker-15/outer241 and owned-group drain recorded. No verified optimizer progress or ancestry score. A narrow lifecycle source repair is underway, preserving author workers, science and original7GiB charge.
+- American C3 GNN: at least456/600 actual completed optimizer updates, durable checkpoint200 independently verified, physicalGPU0. This is AmericanC3WholeTreeGNNV1, not the full European H050 TreeLoom memory architecture. No ancestry score yet.
+- Native American ARGformer: stopped by its GPU0 capacity guard after at least5500/227990 saved AdamW updates. Actual directworker-15 and complete owned drain are preserved. Outer tool24814 exit0 is supervisor completion, not model training success. Exact failing capacity values were not persisted. Full7GiB charge and files retained, no automatic retry or ancestry score.
 - Native FLARE: one American VAL000 score is complete,98.0100% focal accuracy and97.7151%macroF1 over10,000fixed focals. No multi-parent SD or GNN/ARGformer head-to-head table yet.
 - Larger ARGMix condition: full1,611-diploid observed dataset accepted after all7 observed products were independently stream-hashed and the final original storage guard passed. Original child0/parentouter1 monitor failure and original16GiB charge remain preserved. Full64GiB Relate pipeline is now admitted and running (tool41415), preserving all samples/sites/map. No inferred-bank completion or ancestry score yet.
 - New H058 route: actual one-hold FP32 arithmetic PASS,37checks,worker0/outer0/drain. Full scientific sourcev2 passes independent review. No full-parent training or accuracy yet. One30pass/960-update-per-arm trial is planned, without a broad architecture search.
@@ -44,3 +44,5 @@ The manuscript was fully rewritten for scientific readers and both integrated an
 Actual unused reservation recovery69.906GB retained all old files. Current commitment979.266GB includes fullRelate64GiB and failednative7GiB. This is accounting commitment, not a physical free-disk measurement. New admissions use the actual Census fit2 child, while existing C3 guards remain unchanged.
 
 The latest Figure 1 and naming revision is complete: TreeLoom, defined variants, a simulated ARG with three true marginal trees, symbolic shapes and exact layers. The final nine-page paper and extracted Overleaf bundle compile without warnings and match text/layout. Root inspected all final pages. Numerical experiments are unchanged. [Final integration](reviews/paper_fig_naming_revision_20261016_v2/final_integration.root_v1.json).
+
+The native downstream I/O option passed fresh independent source/API review. It preserves all4native embedding products and original retrieval, avoids50.29GB duplicate serialization and proposes a separate65GiB cap. Actual execution bindings, storage admission, RAM/GPU fit and numerical runtime checks remain pending. Outer8 v3 source passed fresh independent review with its full40primary-plus8top5 prediction barrier. No outer data generation or fit has started.
