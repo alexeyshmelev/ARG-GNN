@@ -1,0 +1,148 @@
+--- research/reviews/C3_efficient_query_GPU_cache_successor_source_20261016_v1/integration_api_v1.py
++++ research/reviews/C3_efficient_resume_migration_source_20261016_v1/resume_integration_v1.py
+@@ -4,8 +4,8 @@
+ from pathlib import Path
+ import ast,copy,hashlib,importlib.util,json,time
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-HERE="research/reviews/C3_efficient_query_GPU_cache_successor_source_20261016_v1"
+-SOURCE=HERE+"/integration_api_v1.py"
++HERE="research/reviews/C3_efficient_resume_migration_source_20261016_v1"
++SOURCE=HERE+"/resume_integration_v1.py"
+ TRAINER_REF=dict(path="research/reviews/C3_GNN_prefetch_isolated980_root_20261015_v2/trainer_prefetch_v1.py",
+  sha256="b2f08a3e84bd5fb65c5f3d95566ab082fb71a2dd0a826180a10aa518aa35025c")
+ STEP_REF={'path': 'research/reviews/C3_efficient_query_GPU_cache_successor_source_20261016_v1/efficient_step_v1.py', 'sha256': '0df05b1957affc222ca1c11d9f34cc3277f5a3098834fb36fedee64bb242d2e8'}
+@@ -55,8 +55,74 @@
+                 "Exact actual ordinaryFP32 query/cache gradient+AdamW qualification, no manufactured success")
+     return value
+ 
+-def make_training_callable_v1(bounds_ref):
++MIGRATION_VALIDATOR_REF={'path': 'research/reviews/C3_efficient_resume_migration_source_20261016_v1/checkpoint_migration_validator_v1.py', 'sha256': '31414598d0f69533864cf600a9a6f0c24ef5f0d81f9ca131fb5f9612f761fafd'}
++
++def read_resume_manifest_v1(record,bounds_ref):
++    require(isinstance(record,dict) and set(record)=={"path","sha256"} and ref(record["path"])==record,
++            "Actual separately root-sealed migration manifest")
++    m=json.loads((ROOT/record["path"]).read_text())
++    require(m.get("schema")=="C3_complete_state_execution_migration_manifest_v1"
++            and m.get("root_authorizer")=="root_agent" and m.get("passed") is True
++            and m.get("actual_migration_tool_terminal_consumed") is True
++            and m.get("actual_migration_tool_exit_code")==0
++            and m.get("migration_validator_ref")==MIGRATION_VALIDATOR_REF
++            and m.get("integration_source_ref")==ref(SOURCE) and m.get("bounds_ref")==bounds_ref
++            and m.get("original_model_optimizer_cursor_RNG_order_history_unchanged") is True
++            and m.get("original_sources_and_checkpoint_files_untouched") is True
++            and m.get("optimizer_updates_performed")==0
++            and m.get("execution_or_stop_or_relaunch_authorized") is False
++            and type(m.get("actual_global_step"))is int and 0<m["actual_global_step"]<600
++            and m.get("actual_AdamW_step")==m["actual_global_step"]
++            and m.get("remaining_updates")==600-m["actual_global_step"] and m.get("total_planned_updates")==600,
++            "Genuine actual full-state migration terminal, no fresh or guessed progress")
++    intent_ref=m["migration_intent_ref"]
++    require(ref(intent_ref["path"])==intent_ref,"Exact original-boundary migration intent")
++    intent=json.loads((ROOT/intent_ref["path"]).read_text())
+     bounds=read_bounds_v1(bounds_ref)
++    require(intent.get("schema")=="C3_actual_complete_boundary_migration_intent_v1"
++            and intent.get("active") is True and intent.get("root_authorizer")=="root_agent"
++            and intent["new_integration_ref"]==ref(SOURCE) and intent["bounds_ref"]==bounds_ref
++            and intent["qualification_ref"]==m["qualification_ref"]==bounds["qualification_ref"]
++            and intent["old_boundary_ref"]==m["old_boundary_ref"]
++            and intent["new_runtime_ref"]==m["runtime_source_ref"]
++            and intent["expected_actual_global_step"]==m["actual_global_step"],
++            "Exact original/successor source/cursor/qualified-bounds lineage")
++    require(m.get("continuation_mode")==intent["continuation_mode"]
++            and m.get("rollback_authorization_ref")==intent["rollback_authorization_ref"]
++            and type(m.get("original_attempt_elapsed_seconds"))in (int,float),
++            "Explicit continuation/rollback mode and separately disclosed original elapsed time")
++    if intent["continuation_mode"]=="root_authorized_durable_scheduled_checkpoint_rollback":
++        require(m.get("discarded_or_repeated_work_possible") is True and m.get("no_work_lost_claimed") is False
++                and (m.get("later_completed_update_count") is None or type(m["later_completed_update_count"])is int),
++                "Honest known-or-unknown discarded work, no exact-latest claim in rollback mode")
++        require(ref(intent["rollback_authorization_ref"]["path"])==intent["rollback_authorization_ref"],
++                "Actual explicit root rollback authorization")
++    else:require(intent["continuation_mode"]=="exact_latest_boundary","Declared source continuation mode")
++    boundary=m["migrated_boundary_ref"]
++    require(isinstance(boundary,dict) and set(boundary)=={"path","sha256"}
++            and isinstance(boundary["sha256"],str) and len(boundary["sha256"])==64
++            and Path(boundary["path"]).suffix==".pt"
++            and not Path(boundary["path"]).is_absolute() and ".." not in Path(boundary["path"]).parts
++            and (ROOT/boundary["path"]).is_relative_to(ROOT/intent["migration_output_directory"]),
++            "Exact separately materialized full-state boundary, hashed by unchanged trainer before load")
++    return m,intent
++
++def make_training_callable_v1(bounds_ref,resume_manifest_ref=None,*,migration_intent_ref=None,metadata_only=False):
++    bounds=read_bounds_v1(bounds_ref)
++    if metadata_only:
++        require(resume_manifest_ref is None and migration_intent_ref is not None,
++                "Explicit migration signature preparation only, no training")
++        require(ref(migration_intent_ref["path"])==migration_intent_ref,"Exact actual migration intent")
++        intent=json.loads((ROOT/migration_intent_ref["path"]).read_text())
++        require(intent["new_integration_ref"]==ref(SOURCE) and intent["bounds_ref"]==bounds_ref,
++                "Expected successor source/bounds for migration")
++        manifest=None
++    else:
++        require(migration_intent_ref is None and resume_manifest_ref is not None,
++                "Actual sealed migration manifest mandatory, no fresh fallback")
++        manifest,intent=read_resume_manifest_v1(resume_manifest_ref,bounds_ref)
++        migration_intent_ref=manifest["migration_intent_ref"]
++    require(ref(MIGRATION_VALIDATOR_REF["path"])==MIGRATION_VALIDATOR_REF,"Exact full-state validator source")
+     step=load(STEP_REF,"_C3_efficient_query_device_step_private")
+     trainer=load(TRAINER_REF,"_C3_efficient_frozen_trainer_private")
+     original_signature=trainer._signature
+@@ -67,14 +133,27 @@
+         all_focal_labels=10000,complete_parent_mean_CE=True,one_global_clip_AdamW_per_parent=True,
+         full_bidirectional_state_carry=True,encoder_gradient="originalencoder_queryselector_VJP",
+         seed_budget_model_and_candidate_selection_unchanged=True,no_learned_cache_across_updates=True,
+-        old_family_resume_rejected=True,current_live_run_untouched=True)
+-    trainer.SOURCES=tuple(dict.fromkeys((*trainer.SOURCES,STEP_REF["path"],CACHE_REF["path"],SOURCE,bounds_ref["path"])))
++        old_family_resume_rejected=True,current_live_run_untouched=True,
++        resume_migration_intent_ref=copy.deepcopy(migration_intent_ref),migration_validator_ref=MIGRATION_VALIDATOR_REF,
++        no_progress_reset=True,original_implementation_training_prefix_retained=True)
++    trainer.SOURCES=tuple(dict.fromkeys((*trainer.SOURCES,STEP_REF["path"],CACHE_REF["path"],SOURCE,bounds_ref["path"],
++        MIGRATION_VALIDATOR_REF["path"],migration_intent_ref["path"])))
+     def signature(cfg,plans):
+         value,_=original_signature(cfg,plans)
+         value["exact_gradient"]="shared_device_query_context_adjoints_then_original_fullgraph_encoder_VJP"
+         value["efficient_same_objective_execution_binding"]=copy.deepcopy(binding)
+         return value,trainer.json_sha(value)
+     trainer._signature=signature
++    if metadata_only:
++        def expected_protocol_v1(old_protocol):
++            cfg=dict(old_protocol["config"],execution_enabled=True)
++            value,_=signature(cfg,copy.deepcopy(old_protocol["parent_plan_refs"]))
++            for key in ("actual_TRAIN_execution_binding","observation_provider_execution_binding"):
++                require(key in old_protocol and isinstance(old_protocol[key],dict),"Actual original execution binding")
++                value[key]=copy.deepcopy(old_protocol[key])
++                value["source_refs"].extend(copy.deepcopy(old_protocol[key]["source_refs"]))
++            return value,trainer.json_sha(value)
++        return expected_protocol_v1
+     def bound_step(model,provider,targets,optimizer,**kwargs):
+         return step.complete_parent_step_v1(model,provider,targets,optimizer,caps=copy.deepcopy(bounds["memory_caps"]),**kwargs)
+     trainer.checkpointed_complete_parent_step_v1=bound_step
+@@ -121,19 +200,25 @@
+         require(read_bounds_v1(bounds_ref)==bounds and ref(STEP_REF["path"])==STEP_REF
+                 and ref(CACHE_REF["path"])==CACHE_REF and ref(TRAINER_REF["path"])==TRAINER_REF,
+                 "Exact separately admitted future source/caps family")
+-        require(progress_state["start"] is None,"One fresh complete training invocation")
++        require(progress_state["start"] is None,"One exact remaining-budget continuation invocation")
++        require(kwargs.get("resume_ref")==manifest["migrated_boundary_ref"],
++                "Only exact full-state migrated boundary may enter unchanged original resume validator")
+         progress_state["start"]=time.monotonic()
+         return trainer.run_train_v1(*args,**kwargs)
+     run_train_v1.execution_binding=copy.deepcopy(binding)
+     return run_train_v1
+ 
+ class HooksProxyV1:
+-    def __init__(self,original,bounds_ref):
++    def __init__(self,original,bounds_ref,resume_manifest_ref):
+         self.original,self.bounds_ref=original,copy.deepcopy(bounds_ref)
++        self.resume_manifest_ref=copy.deepcopy(resume_manifest_ref)
++        self.manifest,_=read_resume_manifest_v1(self.resume_manifest_ref,self.bounds_ref)
+         self.callable=None
+     def __getattr__(self,name):return getattr(self.original,name)
+     def run_train_stage_v1(self,cfg,*,actual_train_bindings,**kwargs):
+         require(self.callable is None,"One prospective full TRAIN stage")
+-        self.callable=make_training_callable_v1(self.bounds_ref)
++        require(kwargs.get("resume_ref") is None,"Only the original explicitNone resume call is adapted")
++        kwargs["resume_ref"]=copy.deepcopy(self.manifest["migrated_boundary_ref"])
++        self.callable=make_training_callable_v1(self.bounds_ref,self.resume_manifest_ref)
+         factory=self.original.make_actual_target_joiner_factory_v1(actual_train_bindings)
+         return self.callable(cfg,train_target_joiner_factory=factory,**kwargs)

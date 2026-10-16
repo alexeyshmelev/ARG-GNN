@@ -1,0 +1,50 @@
+--- research/reviews/C3_efficient_GPU0_pool_eligibility_extension_source_20261016_v1/gpu0_shared_pool_v1.py
++++ research/reviews/C3_efficient_resume_migration_source_20261016_v1/gpu0_shared_pool_v1.py
+@@ -8,7 +8,7 @@
+ import ast,hashlib,importlib.util,json,math,os,sys,time,types
+ 
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-HERE="research/reviews/C3_efficient_GPU0_pool_eligibility_extension_source_20261016_v1"
++HERE="research/reviews/C3_efficient_resume_migration_source_20261016_v1"
+ SOURCE=HERE+"/gpu0_shared_pool_v1.py"
+ LAUNCHER=HERE+"/launch_gpu0_shared_v1.py"
+ RUNTIME="research/reviews/GPU0_shared_execution_source_20261016_v1/gpu0_runtime_adapter_v1.py"
+@@ -41,7 +41,7 @@
+ exec(compile(ast.Module(body=[checked],type_ignores=[]),"<frozen_inventory_GPU0_eligibility_only>","exec"),ns)
+ base.checked_inventory=ns["checked_inventory"]
+ legacy.base=base;legacy.SOURCE=SOURCE;legacy.LAUNCHER=LAUNCHER
+-legacy.RENEWAL_BOOTSTRAP_REF={'path': 'research/reviews/C3_efficient_GPU0_pool_eligibility_extension_source_20261016_v1/gpu0_bootstrap_renewal_v1.py', 'sha256': '9d1f0c3d6e7ad797576318688229271db46af9169b81c597e2ebee50a7995fcd'}
++legacy.RENEWAL_BOOTSTRAP_REF={'path': 'research/reviews/C3_efficient_resume_migration_source_20261016_v1/gpu0_bootstrap_renewal_v1.py', 'sha256': 'd90df7e331e4a5eeb519816ea0538771eb9111acad472df989f2b5022b8b10ea'}
+ CHECKER_REF={'path': 'research/reviews/GPU45_TRAIN_controller_execution_override_20261016_v1/controller_metadata_scope_check_v1.py', 'sha256': '2621353de0dc56f328f7f308ba17a341425ef2fc02d54739b6ccfc7d1a6ce2cf'}
+ bound=legacy.bound
+ MIB=2**20
+@@ -73,8 +73,7 @@
+  sha256="28bb690f33c2384d04f88dbacff1f910694c398c81874f9b9751336f4fb6429c")
+ ORIGINAL_GPU0_LAUNCHER_REF=dict(path="research/reviews/GPU0_shared_execution_source_20261016_v1/launch_gpu0_shared_v1.py",
+  sha256="9bf5df4b964dfb537bd5e534de2a5a4b4c19e2d3e7b5857c92c64db376ee5b40")
+-EFFICIENT_RUNTIME_REF=dict(path="research/reviews/C3_efficient_query_GPU_cache_successor_source_20261016_v1/root_runtime_entry_v1.py",
+- sha256="f4e1eb8dab48457dfc79ad6bb2ff5fbad3a35bf68c55fd161585587a65a570a1")
++EFFICIENT_RUNTIME_REF={'path': 'research/reviews/C3_efficient_resume_migration_source_20261016_v1/root_resume_runtime_v1.py', 'sha256': '41367588489a2b2451156f881b2b824824955493b8172f85817d9a0b79387cb6'}
+ 
+ def efficient_C3_metadata_v1(cap,j,spec,admin,sources):
+     """Only explicit qualified same-objective C3 metadata, no scientific import."""
+@@ -86,6 +85,10 @@
+     bounds=integration.read_bounds_v1(bounds_ref)
+     extras=[EFFICIENT_RUNTIME_REF,runtime.INTEGRATION_REF,runtime.STEP_REF,runtime.CACHE_REF,
+             bounds_ref,bounds["qualification_ref"]]
++    manifest_ref=spec["efficient_resume_manifest_ref"]
++    manifest,intent=integration.read_resume_manifest_v1(manifest_ref,bounds_ref)
++    extras.extend([runtime.MIGRATION_VALIDATOR_REF,manifest_ref,manifest["migration_intent_ref"]])
++    if intent["rollback_authorization_ref"] is not None:extras.append(intent["rollback_authorization_ref"])
+     require(all(r in sources.values() and r in admin["reservation"]["consumer_bindings"] for r in extras),
+             "Actual controller closure directly authenticates new source/caps/qualification family")
+     limit=bounds["memory_caps"]["max_successor_cuda_reserved_bytes"]
+@@ -277,7 +280,7 @@
+ Shared0Controller.start=start
+ old=(ROOT/OLD).read_text()
+ Shared0Controller._launch_queue=_method(old,"Shared45Controller","_launch_queue",[
+-    ('"arggnn.gpu45_c3cache_h050_pool_v1"','"research.reviews.C3_efficient_GPU0_pool_eligibility_extension_source_20261016_v1.gpu0_shared_pool_v1"')])
++    ('"arggnn.gpu45_c3cache_h050_pool_v1"','"research.reviews.C3_efficient_resume_migration_source_20261016_v1.gpu0_shared_pool_v1"')])
+ # Preserve original peer-credential selector/service loop and reset only reply clock.
+ baseclass=next(n for n in tree.body if isinstance(n,ast.ClassDef) and n.name=="Controller")
+ run=next(n for n in baseclass.body if isinstance(n,ast.FunctionDef) and n.name=="run")

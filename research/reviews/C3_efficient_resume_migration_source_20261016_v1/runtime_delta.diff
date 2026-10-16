@@ -1,0 +1,52 @@
+--- research/reviews/C3_efficient_query_GPU_cache_successor_source_20261016_v1/root_runtime_entry_v1.py
++++ research/reviews/C3_efficient_resume_migration_source_20261016_v1/root_resume_runtime_v1.py
+@@ -4,11 +4,12 @@
+ from pathlib import Path
+ import ast,hashlib,importlib.util,json
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-HERE="research/reviews/C3_efficient_query_GPU_cache_successor_source_20261016_v1"
+-SOURCE=HERE+"/root_runtime_entry_v1.py"
++HERE="research/reviews/C3_efficient_resume_migration_source_20261016_v1"
++SOURCE=HERE+"/root_resume_runtime_v1.py"
+ BASE_REF=dict(path="research/reviews/GPU0_shared_execution_source_20261016_v1/gpu0_runtime_adapter_v1.py",
+  sha256="957ec724bb345a76932d5ea43b0df527bc9d12b068815db91cf17da1b0c85896")
+-INTEGRATION_REF={'path': 'research/reviews/C3_efficient_query_GPU_cache_successor_source_20261016_v1/integration_api_v1.py', 'sha256': 'bd7bf2151084ce64dacc1bd59b9d0e5b587b97ff2c891cc3a5772a29c294a68b'}
++INTEGRATION_REF={'path': 'research/reviews/C3_efficient_resume_migration_source_20261016_v1/resume_integration_v1.py', 'sha256': '988c3ede4bf96bbd24917f7a724e879edcaf6bb891f9b2c3f057ad6bb2706f6f'}
++MIGRATION_VALIDATOR_REF={'path': 'research/reviews/C3_efficient_resume_migration_source_20261016_v1/checkpoint_migration_validator_v1.py', 'sha256': '31414598d0f69533864cf600a9a6f0c24ef5f0d81f9ca131fb5f9612f761fafd'}
+ STEP_REF={'path': 'research/reviews/C3_efficient_query_GPU_cache_successor_source_20261016_v1/efficient_step_v1.py', 'sha256': '0df05b1957affc222ca1c11d9f34cc3277f5a3098834fb36fedee64bb242d2e8'}
+ CACHE_REF={'path': 'research/reviews/C3_efficient_query_GPU_cache_successor_source_20261016_v1/single_parent_device_cache_v1.py', 'sha256': 'd19879458474883e125b7efc7cbd649839f25c3db22ecb876ba3f7f5ab9b49b6'}
+ GUARD="research/reviews/GPU0_shared_execution_source_20261016_v1/gpu0_native_guard_v1.py"
+@@ -44,10 +45,21 @@
+     integration=load(INTEGRATION_REF,"_C3_efficient_future_integration")
+     bounds_ref=spec["efficient_training_caps_ref"]
+     bounds=integration.read_bounds_v1(bounds_ref)
++    manifest_ref=spec["efficient_resume_manifest_ref"]
++    manifest,intent=integration.read_resume_manifest_v1(manifest_ref,bounds_ref)
++    require(manifest["runtime_source_ref"]==ref(SOURCE)
++            and manifest["migration_validator_ref"]==MIGRATION_VALIDATOR_REF,
++            "Actual exact resume-runtime/full-state migration lineage")
++    migration_scope=ROOT/intent["migration_output_directory"];training_scope=ROOT/spec["output_directory"]
++    require(migration_scope!=training_scope and not migration_scope.is_relative_to(training_scope)
++            and not training_scope.is_relative_to(migration_scope),
++            "Immutable migrated checkpoints outside fresh training output scope")
+     require(j["cuda_cap_bytes"]==bounds["memory_caps"]["max_successor_cuda_reserved_bytes"]
+             and 0<j["cuda_cap_bytes"]<=spec["max_cuda_reserved_bytes"],
+             "Actual logical scheduling cap equals additional abort cap, original40GiB guard retained")
+-    required=[ref(SOURCE),INTEGRATION_REF,STEP_REF,CACHE_REF,bounds_ref,bounds["qualification_ref"],BASE_REF,ref(GUARD)]
++    required=[ref(SOURCE),INTEGRATION_REF,STEP_REF,CACHE_REF,bounds_ref,bounds["qualification_ref"],BASE_REF,ref(GUARD),
++              MIGRATION_VALIDATOR_REF,manifest_ref,manifest["migration_intent_ref"]]
++    if intent["rollback_authorization_ref"] is not None:required.append(intent["rollback_authorization_ref"])
+     require(all(ref(r["path"])==r and spec["source_sha256"].get(r["path"])==r["sha256"] for r in required),
+             "Every new source/caps/actual qualification and original wrapper/guard is directly input-bound")
+     storage=json.loads((ROOT/j["storage_ref"]["path"]).read_text())
+@@ -75,7 +87,8 @@
+     source=ast.get_source_segment(text,n)
+     needle="contract.make_config=make_config"
+     require(source.count(needle)==1,"One private operational hooks insertion")
+-    source=source.replace(needle,needle+"\n    original_hooks=contract.hooks\n    contract.hooks=lambda: efficient_integration.HooksProxyV1(original_hooks(),efficient_bounds_ref)")
+-    namespace=dict(base.__dict__,efficient_integration=integration,efficient_bounds_ref=bounds_ref)
++    source=source.replace(needle,needle+"\n    original_hooks=contract.hooks\n    contract.hooks=lambda: efficient_integration.HooksProxyV1(original_hooks(),efficient_bounds_ref,efficient_resume_manifest_ref)")
++    namespace=dict(base.__dict__,efficient_integration=integration,efficient_bounds_ref=bounds_ref,
++                   efficient_resume_manifest_ref=spec["efficient_resume_manifest_ref"])
+     exec(compile(source,"<original_GPU0_C3_private_contract_with_efficient_TRAIN_hook>","exec"),namespace)
+     return namespace["run_c3_v1"](j)

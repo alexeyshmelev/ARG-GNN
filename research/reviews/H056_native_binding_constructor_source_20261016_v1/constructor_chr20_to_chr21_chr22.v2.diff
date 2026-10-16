@@ -1,0 +1,136 @@
+--- construct_native_chr20_v2_v1.py
++++ construct_native_chr21_chr22_v2.py
+@@ -1,4 +1,4 @@
+-"""Pure fixedchr20 native-v2 metadata constructor. Import is inert.
++"""Pure chromosome21/22 native-v2 metadata constructor. Import is inert.
+ No filesystem/network, project imports, guards, admissions, payloads or execution.
+ Root supplies actual JSON metadata bytes and owns materialization and authority.
+ """
+@@ -8,17 +8,13 @@
+ 
+ ROOT="/workspace-SR003.nfs2/ARG-GNN"
+ HERE="research/reviews/H056_native_binding_constructor_source_20261016_v1"
+-META="research/reviews/H056_chr20_native_actual_root_20261016_v2"
+-JOB="H056-native-chr20-recovered-pre-size-v2"
+-KEY="H056/native-chr20-recovered-pre-size-v2"
+-OUTPUT="experiments/results/H056_chr20_H36_Relate_pre_size_CPU_v2"
+-AUXILIARY="experiments/results/H056_chr20_H36_Relate_pre_size_CPU_v2_aux"
+ PROTOCOL_REF={'path': 'research/reviews/H056_frozen_H045_Danish_application_registration_20261016_v1/protocol.root_frozen_v1.json', 'sha256': '9544bdbd499bddafeb0774c67e4e86ef25535d41dd2409e710c29b679619cd6e'}
+ PROFILE={'effective_haploid_N': 30000, 'mutation_rate': '1.25e-8', 'years_per_generation': 28, 'population_size_iterations_executed': 0, 'pre_size_only': True, 'seed': 414855340, 'native_memory_GB': '2'}
+ FIXED_REFS={'guard': {'path': 'research/reviews/prospective_980GB_capacity_source_v1/prospective_980gb_v1.py', 'sha256': 'fc71030865e0a3d5da31120d4daa2caa0b2d39ec7dd212b8c46c476b5a866d56'}, 'policy': {'path': 'research/reviews/prospective_980GB_capacity_source_v1/activation_policy.root_active_v1.json', 'sha256': 'eb3408004a508136aa434c0a2e02a9d14a5598a96b8483c264c93026f9326018'}, 'renewal': {'path': 'research/reviews/H039_marker_repair_renewal_source_20261016_v1/marker_repair_renewal_v1.py', 'sha256': '491236877e8d71cae8bd7619880858ac501c57dd93e59479ca32dacacab20468'}, 'renewal_certificate': {'path': 'research/reviews/H039_marker_repair_renewal_source_20261016_v1/renewal_certificate.root_active_v1.json', 'sha256': '66006202094d7a3ef2b29cbec28eb93f334505b72589f09d86e4b57498162db7'}, 'repair_authority': {'path': 'research/reviews/H039_missing_marker_repair_v1/repair_authority_20261015.json', 'sha256': 'f6f2d628199e8be73db8b5d90d428570d8afdefeab9dc5cd94bb5eafb39247db'}, 'installation_metadata': {'path': 'research/reviews/H056_native_runtime_integration_source_20261016_v1/pinned_original_installation.metadata.v1.json', 'sha256': '578e5c04ce297c80c742376297f51412270421958085b2bb28ca86bb9d7e47c8'}, 'map_source_metadata': {'path': 'research/reviews/H056_map_source_metadata_20261016_v1/source_metadata.root_v1.json', 'sha256': '0745c2a210d855607abb710da840b1b513d53c96adfde7a67d6f4c75700a767e'}, 'memo': {'path': 'research/reviews/resource_guard_hotpath_source_audit_v1/transaction_memo_adapter_v2.py', 'sha256': 'c972e9a779d424ceafdb258848614bf40994d1004e2c73fc5cd225ae99621364'}, 'v4': {'path': 'src/arggnn/project_budget_v4.py', 'sha256': 'a093c7d86f57fee569cb99f4712250e9505a1119f3950fa44282c7ba8c57df47'}}
+ SOURCE_REFS={'driver': {'path': 'research/reviews/H056_native_runtime_integration_source_20261016_v1/native_h056_v2.py', 'sha256': 'db34a73c1436e151e7e7c300e215611cf0001595b3279fa6d4c0b8bd3acaff4e'}, 'owned_helpers': {'path': 'research/reviews/H056_native_runtime_integration_source_20261016_v1/native_owned_helpers_v1.py', 'sha256': '92e7f13bab3687c1ec17cd9cebcd24eda18548c220207c845dd0811f37a681ea'}, 'native_core': {'path': 'research/reviews/H056_H36_implementation_20261016_v1/native_h36_core_v1.py', 'sha256': '55d63a9717dce70414fd62614090ec53279a9e2070e0447ea0a8af03575a9c5c'}, 'contract': {'path': 'research/reviews/H056_H36_implementation_20261016_v1/contract_v1.py', 'sha256': '4c7727e27be2dddeb698dc78ff6d7ca143d85b47187a1fdd23dc7c17217d8662'}, 'serialized_readback': {'path': 'research/reviews/H056_acquisition_runtime_source_20261016_v1/serialized_readback_v1.py', 'sha256': '0deb54f25d1fb1e9bd85b2c93e642d2f12044313519ce03b5e4dfd11dec666e4'}, 'repaired_bridge': {'path': 'research/reviews/H056_acquisition_runtime_source_20261016_v1/bridge_all_candidates_v1.py', 'sha256': 'dbb13e97dc3fb9051abd1ec0289f0f383d85eadb36df0a893703f81460cdb53a'}}
+ EXPECTED_RUNTIME_IDENTITY={'python_binary_ref': {'path': '.runtime/env/bin/python3.11', 'sha256': '463a65c4055c18d88f6ed863d227383593395c2f7f70976e38df24f17a836289'}, 'python_version': '3.11.17 (main, Oct  7 2026, 00:02:24) [GCC 15.3.0]', 'native_binary_refs': {'Relate': {'path': '.runtime/tools/relate/relate_v1.2.4_x86_64_static/bin/Relate', 'sha256': '71ce82f469dd99749a3eb1847e0704be8785a26be94eae2cb8e1ed80881c7ce8'}, 'RelateFileFormats': {'path': '.runtime/tools/relate/relate_v1.2.4_x86_64_static/bin/RelateFileFormats', 'sha256': 'cb19cb6e277c27704de506f0e8155f8f53d9c3dc8d0f52615a059caa253332ee'}}, 'license_ref': {'path': '.runtime/tools/relate/relate_v1.2.4_x86_64_static/20180411_15670_RELATE_Academic_Usage_Licence.pdf', 'sha256': 'c55aec267c4f8987f1d67c91cc2fb44a695c3f06244e3bf7be91230e61f2dbe2'}}
+-MAP_ASSET={'chromosome': '20', 'source_path': 'maps/genetic_maps.b37/chr20.b37.gmap.gz', 'git_blob_sha1': '2d28bfb7f3825930f77802d9513e96cd5b5ba8c4', 'bytes': 583035, 'URL': 'https://raw.githubusercontent.com/odelaneau/GLIMPSE/103ca071ea9e4e648192916142e5ed353ac94e27/maps/genetic_maps.b37/chr20.b37.gmap.gz'}
++MAP_ASSETS={'21': {'chromosome': '21', 'source_path': 'maps/genetic_maps.b37/chr21.b37.gmap.gz', 'git_blob_sha1': '7166a765adafd891b35859241c45f4f931b8d25e', 'bytes': 317881, 'URL': 'https://raw.githubusercontent.com/odelaneau/GLIMPSE/103ca071ea9e4e648192916142e5ed353ac94e27/maps/genetic_maps.b37/chr21.b37.gmap.gz'}, '22': {'chromosome': '22', 'source_path': 'maps/genetic_maps.b37/chr22.b37.gmap.gz', 'git_blob_sha1': 'eec8ceff2fdff0d70badcb09c18e5c6cc5b04854', 'bytes': 322186, 'URL': 'https://raw.githubusercontent.com/odelaneau/GLIMPSE/103ca071ea9e4e648192916142e5ed353ac94e27/maps/genetic_maps.b37/chr22.b37.gmap.gz'}}
++CHROMOSOMES=("21","22")
+ SUBJECTS=("Bar8","Bon002","KK1","SATP","Loschbour","Bichon","Sidelkino","NEO88",
+  "NEO866","NEO945","NEO28","NEO942","NEO790","NEO739","Gjerrild5","NEO735","NEO92","NEO870")
+ AGES=(8071,10078,9720,13255,8050,13665,11258.5,7858,5457,5444,5461,5495,5668,3971,4110,3995,4218,4255)
+@@ -104,25 +100,48 @@
+       native_output_file_count_cap=1024+32*children,input_bundle_cap_bytes=16*2**20,
+       max_chunks=max_chunks,maximum_native_children=children)
+ 
+-def validate_bundle_v1(bundle):
++def validate_target_v2(target):
++    """Validate root-selected future names only. No existence check or IO."""
++    fields={"metadata_directory","job_id","reservation_key","output_directory","auxiliary_directory"}
++    require(isinstance(target,dict) and set(target)==fields,"Exact root-selected target fields")
++    for key in ("metadata_directory","output_directory","auxiliary_directory"):
++        relative_path(target[key])
++    require(target["metadata_directory"].startswith("research/reviews/")
++            and target["metadata_directory"]!="research/reviews/",
++            "Intended root metadata lives inside a dedicated review folder")
++    require(all(target[key].startswith("experiments/results/")
++                and target[key]!="experiments/results/"
++                for key in ("output_directory","auxiliary_directory")),
++            "Intended scientific output and auxiliary scopes remain project-local")
++    require(isinstance(target["job_id"],str)
++            and re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,63}",target["job_id"]),
++            "Finite safe root-selected job name")
++    require(isinstance(target["reservation_key"],str)
++            and re.fullmatch(r"H056/[A-Za-z0-9][A-Za-z0-9_.-]{0,127}",target["reservation_key"]),
++            "Dedicated root-selected H056 reservation key")
++    return tuple(target[k] for k in ("metadata_directory","job_id","reservation_key",
++                                     "output_directory","auxiliary_directory"))
++
++def validate_bundle_v2(bundle,chromosome):
++    require(chromosome in CHROMOSOMES,"Explicit supported normal acquisition chromosome21/22")
+     require(isinstance(bundle,dict) and set(bundle)==BUNDLE_ROLES,"Exactly six actual acquisition JSON records")
+     decoded={k:metadata_record(v) for k,v in bundle.items()}
+     refs={k:v[0] for k,v in decoded.items()}
+     docs={k:v[1] for k,v in decoded.items()}
+     done,rb,wait,cd,q,roster=[docs[k] for k in ("completed","readback","actual_wait","counts","map_qualification","roster")]
+     require(cd["schema"]=="H056_actual_acquisition_counts_v1" and cd["protocol_ref"]==PROTOCOL_REF
+-            and cd["chromosome"]=="20","Actual samechr20 acquisition count seal")
++            and cd["chromosome"]==chromosome,"Actual same chromosome acquisition count seal")
+     counts=cd["counts"]
+     # The unchanged formula validates actual integerC/S/K. J1 here is only a structural validation.
+     derive_caps_v1(counts,1)
+     require(done["schema"]=="H056_acquisition_runtime_completed_v1"
+             and done["status"]=="completed_acquisition_bridge_and_serialized_readback_root_wait_required"
+-            and done["chromosome"]=="20" and done["protocol_ref"]==PROTOCOL_REF
++            and done["chromosome"]==chromosome and done["protocol_ref"]==PROTOCOL_REF
+             and done["counts"]==counts and done["no_native_or_model_execution"] is True
+             and plain_ref(done["artifacts"]["counts.json"])==refs["counts"],"Actual completed acquisition/count join")
+     require(rb["schema"]=="H056_acquisition_serialized_readback_root_sealed_v1"
+             and rb["status"]=="root_actual_wait0_drain_and_serialized_readback_sealed"
+-            and rb["protocol_ref"]==PROTOCOL_REF and rb["chromosome"]=="20" and rb["counts"]==counts
++            and rb["protocol_ref"]==PROTOCOL_REF and rb["chromosome"]==chromosome and rb["counts"]==counts
+             and rb["root_preparation_wait_verified"] is True and rb["root_owned_group_absent"] is True
+             and rb["worker_completion_ref"]==refs["completed"]
+             and rb["worker_readback_ref"]==plain_ref(done["worker_readback_ref"])
+@@ -147,17 +166,17 @@
+                 for name,r in data.items()),"All seven actual same-scope serialized bridge/map hashes")
+     require(sum(r["bytes"] for r in data.values())<=16*2**20,"Native unchanged16MiB complete input bundle bound")
+     require(q["schema"]=="H056_map_qualification_v1" and done["map_qualification_ref"]==refs["map_qualification"]
+-            and q["root_authorizer"]=="root_agent" and q["chromosome"]=="20"
++            and q["root_authorizer"]=="root_agent" and q["chromosome"]==chromosome
+             and q["map_sha256"]==data["qualified.regional.map"]["sha256"]
+             and q["byte_identity_verified"] is True and q["source_semantics_qualified"] is True
+             and q["source_map_brackets_full_requested_interval"] is True
+             and q["uniform_map_substitution"] is False and q["source_positions_or_distances_rescaled"] is False
+             and q["assembly"]=="GRCh37" and q["physical_unit"]=="bp" and q["genetic_unit"]=="cM"
+             and q["source_boundary_bp1"]==[20000001,30000001] and q["local_boundary_bp1"]==[1,10000001],
+-            "Exact actual original-family qualified samechr20 map/support")
++            "Exact actual original-family qualified same chromosome map/support")
+     require(q["source_repository"]=="https://github.com/odelaneau/GLIMPSE"
+             and q["source_commit"]=="103ca071ea9e4e648192916142e5ed353ac94e27"
+-            and q["source_path"]==MAP_ASSET["source_path"] and q["git_blob_sha1"]==MAP_ASSET["git_blob_sha1"]
++            and q["source_path"]==MAP_ASSETS[chromosome]["source_path"] and q["git_blob_sha1"]==MAP_ASSETS[chromosome]["git_blob_sha1"]
+             and done["original_map_source_refs"]==dict(raw_map=q["raw_map_ref"],map=q["regional_map_ref"],
+                  map_semantics=q["source_semantics_ref"],map_qualification=refs["map_qualification"])
+             and q["regional_map_ref"]["sha256"]==data["qualified.regional.map"]["sha256"],
+@@ -178,10 +197,11 @@
+             "Exact byte-frozen planned_H36 roster")
+     return refs,docs,dict(counts),data,bridge
+ 
+-def construct_native_chr20_v2_v1(bundle,actual_runtime_identity,original_bindings,*,
+-                                 max_chunks,created_at_utc,expires_at_utc):
++def construct_native_chr21_chr22_v2(bundle,actual_runtime_identity,original_bindings,*,
++                                    chromosome,target,max_chunks,created_at_utc,expires_at_utc):
+     """Return inactive exact dictionaries/bytes. Root alone writes, admits and authorizes."""
+-    refs,docs,counts,data,bridge=validate_bundle_v1(bundle)
++    refs,docs,counts,data,bridge=validate_bundle_v2(bundle,chromosome)
++    META,JOB,KEY,OUTPUT,AUXILIARY=validate_target_v2(target)
+     require(actual_runtime_identity==EXPECTED_RUNTIME_IDENTITY,"Root actual identity must match pinned original native runtime")
+     require(isinstance(original_bindings,dict) and original_bindings
+             and all(isinstance(k,str) and k for k in original_bindings),"Complete actual original guard binding map")
+@@ -195,7 +215,7 @@
+     scopes=[PurePosixPath(relative_path(p)) for p in (OUTPUT,AUXILIARY,bridge,META)]
+     require(all(a!=b and a not in b.parents and b not in a.parents
+                 for i,a in enumerate(scopes) for b in scopes[i+1:]),"Fresh disjoint intended output/aux/bridge/root metadata scopes")
+-    cfg=dict(schema="H056_native_Relate_config_v1",protocol_ref=dict(PROTOCOL_REF),chromosome="20",
++    cfg=dict(schema="H056_native_Relate_config_v1",protocol_ref=dict(PROTOCOL_REF),chromosome=chromosome,
+         scientific_options=dict(PROFILE),caps=caps,device="cpu",physical_gpu=None,cuda_visible_devices="",
+         no_replay_or_phase_resume=True,model_execution_authorized=False,
+         fixed_refs=json.loads(json.dumps(FIXED_REFS)),job_id=JOB,output_directory=OUTPUT,
+@@ -231,7 +251,8 @@
+     docbytes["input.inactive.json"]=encoded(inactive)
+     docrefs["input.inactive.json"]=dict(path=META+"/input.inactive.json",
+         sha256=hashlib.sha256(docbytes["input.inactive.json"]).hexdigest())
+-    return dict(schema="H056_native_chr20_v2_pure_binding_construction_v1",
++    return dict(schema="H056_native_chr21_chr22_v2_pure_binding_construction_v2",
++        chromosome=chromosome,target=dict(target),
+         execution_authorized=False,documents=documents,encoded_documents=docbytes,document_refs=docrefs,
+         consumer_bindings=direct,consumer_binding_count=len(direct),actual_counts=counts,caps=caps,
+         reservation_expectations=dict(key=KEY,output=ROOT+"/"+OUTPUT,auxiliary_scopes=[ROOT+"/"+AUXILIARY],
