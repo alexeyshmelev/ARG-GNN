@@ -9,7 +9,7 @@
   "American_C3_GNN_execution": {
     "GPU0_runtime_snapshot_ref": {
       "path": "research/reviews/GPU0_shared_root_integration_20261016_v1/runtime_status.root_latest.json",
-      "sha256": "085c46d95e47c14e251485640760d41efd4e5358d7677df699e8682722079365"
+      "sha256": "9cd8cccf1d6e19b01bdb42ec71dd8c684bf1516df37611950be438d8d940cffa"
     },
     "TRAIN_target_manifest_ref": {
       "path": "experiments/results/C3_GNN_prefetch_isolated980_train_v1/TRAIN_external_target_joins.json",
@@ -128,7 +128,7 @@
       "path": "experiments/results/C3_GNN_prefetch_isolated980_train_v1/started.json",
       "sha256": "035d2d4fb70b9cd601c518e12cdf64710bf12f003b002355f9db68e3816b252b"
     },
-    "status": "C3 continuation process is live on physical GPU 0 with the required NVTOP title. It is constructing and sealing all 20 observed TRAIN banks using two CPU feature workers before model/optimizer restore. New optimizer updates are not yet verified. The retained checkpoint has100/600 updates and500 remain scheduled. Original model/AdamW/cursor/RNG migration is intact. No American ancestry score.",
+    "status": "C3 finished all 20 TRAIN observation banks and resumed optimizer training on physical GPU 0. Completed update 103/600 is verified, including 3 new updates after retained checkpoint 100. The latest progress receipt is not a new durable optimizer checkpoint. Model, AdamW, cursor and RNG restoration is intact. No American ancestry score.",
     "worker_identity_present": false
   },
   "American_remaining_VAL_preparation": {
@@ -775,6 +775,7 @@
           "path": "experiments/results/C3_GNN_efficient_resume_GPU0_train_v1/cuda_qualification/qualification.json",
           "sha256": "e66f260c922372dfc1cb29756641f702fff26df32ff883d3d4a2600d77198323"
         },
+        "durable_checkpoint_optimizer_steps": 100,
         "first_step_receipt_present": false,
         "full_state_migration_ref": {
           "path": "research/reviews/C3_actual_full_state_handover_root_20261016_v1/migration_v2.root_sealed_manifest_v1.json",
@@ -788,36 +789,41 @@
           "path": "experiments/results/C3_GNN_cachev3_GPU0_train_v1/checkpoint_epoch_005.pt",
           "sha256": "d7c3eb70b30591df669582a97597aae6e93512a2d022e6263f416b83e94dfbe7"
         },
-        "latest_exact_identity_verified": false,
-        "latest_identity_observation_utc": "2026-10-16T07:03:18.322823+00:00",
+        "latest_exact_identity_verified": true,
+        "latest_identity_observation_utc": "2026-10-16T08:59:01.117956+00:00",
         "latest_observed_identity": {
-          "pid": 3120098,
-          "start_ticks": 478211010,
-          "state": "R"
+          "pid": 3352021,
+          "start_ticks": 481303226,
+          "state": "S"
+        },
+        "latest_optimizer_progress_ref": {
+          "path": "experiments/results/C3_GNN_efficient_resume_GPU0_train_v1/progress_update_000103.json",
+          "sha256": "7823f5fc33f7fe63d60d869890db4549292cb64c47568a2e6fbf66b147f0b3c8"
         },
         "latest_process_title_verified": true,
         "latest_runtime_observation_ref": {
-          "path": "research/reviews/C3_module_route_repair_root_20261016_v1/runtime_observation_v1.json",
-          "sha256": "8e2c74cf537ffb7bea8c87572e98e4b5dadf80c5a28096aa4235c2ebd3e50b1a"
+          "path": "research/reviews/C3_module_route_repair_root_20261016_v1/optimizer_resumed_observation.root_v1.json",
+          "sha256": "2d37cb6a551a5d11e975962fd1a6a8ab26c60a6149a6461c312b30d3b45f08fe"
         },
-        "live_updates_after_checkpoint_unknown": true,
+        "live_updates_after_checkpoint_unknown": false,
         "migration_failed_outer_tool_terminal_ref": {
           "path": "research/reviews/C3_actual_full_state_handover_root_20261016_v1/migration_v1.actual_tool_terminal.root_v1.json",
           "sha256": "140776d91976271b8e111a65f360c2f9a497634ccc0405f15ed167783a8eaf9a"
         },
-        "new_continuation_optimizer_updates_verified": 0,
+        "new_continuation_optimizer_updates_verified": 3,
         "nvtop_title_verified": true,
-        "optimizer_steps_are_checkpoint_lower_bound": true,
-        "optimizer_steps_verified": 100,
+        "optimizer_steps_are_checkpoint_lower_bound": false,
+        "optimizer_steps_are_progress_receipt_lower_bound": true,
+        "optimizer_steps_verified": 103,
         "original_attempt_elapsed_seconds": 26560.37367749214,
         "original_known_owned_workers_drained": true,
         "original_stop_wait_ref": {
           "path": "research/reviews/C3_actual_full_state_handover_root_20261016_v1/C3_wait.actual_tool_terminal_v1.json",
           "sha256": "5ce8ab910308b506324174b5847f30049cc1a95c384c12cd1c86de602acab6d7"
         },
-        "phase": "CPU_observation_bank_construction_before_resume_restore",
+        "phase": "resumed_optimizer_training",
         "state": "running",
-        "summary": "C3 continuation process is live on physical GPU 0 with the required NVTOP title. It is constructing and sealing all 20 observed TRAIN banks using two CPU feature workers before model/optimizer restore. New optimizer updates are not yet verified. The retained checkpoint has100/600 updates and500 remain scheduled. Original model/AdamW/cursor/RNG migration is intact. No American ancestry score.",
+        "summary": "C3 finished all 20 TRAIN observation banks and resumed optimizer training on physical GPU 0. Completed update 103/600 is verified, including 3 new updates after retained checkpoint 100. The latest progress receipt is not a new durable optimizer checkpoint. Model, AdamW, cursor and RNG restoration is intact. No American ancestry score.",
         "worker_pid": 3352021,
         "worker_start_ticks": 481303226
       },
@@ -1156,7 +1162,7 @@
     "remote_controller_and_worker_liveness_reverified": true,
     "schema": "root_GPU0_shared_runtime_status_v1",
     "scope": "PhysicalGPU0 only. H050 scientific TRAIN and CPU evaluation completed with original TRAINCLI1 retained. C3 continuation running from100/600 checkpoint, native attempt failed before training at inherited GPU4/5-only memory-monitor check. No American ancestry score.",
-    "updated_utc": "2026-10-16T08:46:05.283656+00:00"
+    "updated_utc": "2026-10-16T08:59:01.117956+00:00"
   },
   "GPU4_shared_execution": {
     "capability_ref": {
@@ -17277,7 +17283,7 @@
   "native_ARGformer_execution": {
     "GPU0_runtime_snapshot_ref": {
       "path": "research/reviews/GPU0_shared_root_integration_20261016_v1/runtime_status.root_latest.json",
-      "sha256": "085c46d95e47c14e251485640760d41efd4e5358d7677df699e8682722079365"
+      "sha256": "9cd8cccf1d6e19b01bdb42ec71dd8c684bf1516df37611950be438d8d940cffa"
     },
     "actual_user_stop_ref": {
       "path": "research/reviews/GPU0_only_user_transition_root_20261016_v1/actual_stop_and_absence.root_v1.json",
@@ -17346,5 +17352,5 @@
   },
   "schema": "ARG_GNN_current_scientific_scoreboard_v1",
   "source_only_or_engineering_checks_are_not_training_results": true,
-  "updated_utc": "2026-10-16T08:47:45.235344+00:00"
+  "updated_utc": "2026-10-16T08:59:27.263413+00:00"
 }
