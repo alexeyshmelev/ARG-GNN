@@ -1,0 +1,275 @@
+--- research/reviews/GPU0_declared_experiments_pool_source_20261016_v2/finite_jobs_v1.py
++++ research/reviews/GPU0_declared_C3_resume_pool_source_20261016_v1/finite_jobs_v1.py
+@@ -2,10 +2,10 @@
+ from __future__ import annotations
+ from pathlib import Path
+ from datetime import datetime,timezone
+-import hashlib,json,math,re
++import hashlib,importlib.util,json,math,re,sys
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-REL="research/reviews/GPU0_declared_experiments_pool_source_20261016_v2"
+-CATALOGUE="research/reviews/GPU0_declared_experiments_pool_source_20261016_v1/finite_catalogue.v1.json"
++REL="research/reviews/GPU0_declared_C3_resume_pool_source_20261016_v1"
++CATALOGUE=REL+"/finite_catalogue.v1.json"
+ SOURCE=REL+"/finite_jobs_v1.py"
+ POOL=REL+"/gpu0_declared_pool_v1.py"
+ LAUNCHER=REL+"/launch_declared_gpu0_v1.py"
+@@ -44,6 +44,103 @@
+     return rows
+ 
+ def catalogue_v1():return json.loads((ROOT/CATALOGUE).read_bytes())
++
++# One narrow additional metadata contract. All sources remain stdlib-only.
++RESUME_RUNTIME_REF={"path":"research/reviews/C3_efficient_resume_migration_source_20261016_v1/root_resume_runtime_v1.py","sha256":"41367588489a2b2451156f881b2b824824955493b8172f85817d9a0b79387cb6"}
++RESUME_INTEGRATION_REF={"path":"research/reviews/C3_efficient_resume_migration_source_20261016_v1/resume_integration_v1.py","sha256":"988c3ede4bf96bbd24917f7a724e879edcaf6bb891f9b2c3f057ad6bb2706f6f"}
++RESUME_VALIDATOR_REF={"path":"research/reviews/C3_efficient_resume_migration_source_20261016_v1/checkpoint_migration_validator_v1.py","sha256":"31414598d0f69533864cf600a9a6f0c24ef5f0d81f9ca131fb5f9612f761fafd"}
++STRICT_RESUME_CUDA_BYTES=24*2**30
++ORIGINAL_C3_CUDA_BYTES=40*2**30
++ORIGINAL_C3_RSS_BYTES=128*2**30
++
++def load_resume_metadata_v1():
++    require(ref(RESUME_INTEGRATION_REF["path"])==RESUME_INTEGRATION_REF,"Exact reviewed full-state resume integration")
++    spec=importlib.util.spec_from_file_location("_finite_C3_resume_metadata_only",ROOT/RESUME_INTEGRATION_REF["path"])
++    m=importlib.util.module_from_spec(spec);sys.modules[spec.name]=m;spec.loader.exec_module(m)
++    return m
++
++def resume_manifest_parts_v1(record):
++    raw=read(record)
++    integration=load_resume_metadata_v1()
++    manifest,intent=integration.read_resume_manifest_v1(record,raw["bounds_ref"])
++    bounds=integration.read_bounds_v1(raw["bounds_ref"])
++    require(manifest["runtime_source_ref"]==RESUME_RUNTIME_REF
++        and manifest["integration_source_ref"]==RESUME_INTEGRATION_REF
++        and manifest["migration_validator_ref"]==RESUME_VALIDATOR_REF
++        and bounds["memory_caps"]["max_successor_cuda_reserved_bytes"]==STRICT_RESUME_CUDA_BYTES,
++        "Only exact reviewed full-state migration and strict24GiB efficient C3 ceiling")
++    terminal=read(intent["old_terminal_observation_ref"])
++    return integration,manifest,intent,bounds,terminal
++
++def resume_transition_refs_v1(transition_ref):
++    proof=read(transition_ref)
++    record=proof.get("C3_resume_manifest_ref")
++    if record is None:return []
++    integration,manifest,intent,bounds,terminal=resume_manifest_parts_v1(record)
++    rows=[record,manifest["migration_intent_ref"],manifest["bounds_ref"],manifest["qualification_ref"],
++        intent["old_terminal_observation_ref"],intent["old_input_ref"],
++        RESUME_RUNTIME_REF,RESUME_INTEGRATION_REF,RESUME_VALIDATOR_REF,
++        integration.STEP_REF,integration.CACHE_REF]
++    if intent["rollback_authorization_ref"] is not None:rows.append(intent["rollback_authorization_ref"])
++    return [r for i,r in enumerate(rows) if r not in rows[:i]]
++
++def validate_interrupted_C3_row_v1(proof,row,requested):
++    """Actual failed/interrupted C3 remains failed, never relabelled success."""
++    record=proof.get("C3_resume_manifest_ref")
++    require(record is not None,"Explicit genuine full-state migration proof for interrupted original C3")
++    _,manifest,intent,bounds,terminal=resume_manifest_parts_v1(record)
++    require(requested["worker_kind"]=="C3" and requested["input_ref"]==intent["old_input_ref"]
++        and requested["job_id"]==intent["old_job_id"]==row["logical_job"]
++        and row["requested"]==requested and row["state"]=="failed"
++        and type(row.get("exit_code")) is int and row["exit_code"]!=0
++        and row.get("leader_wait_status_known") is True and row.get("owned_drain_observed") is True,
++        "Exact genuine nonzero old C3 terminal and owned drain, preserved as interrupted")
++    require(terminal.get("schema")=="C3_actual_stopped_boundary_transition_evidence_v1"
++        and terminal.get("root_authorizer")=="root_agent"
++        and terminal.get("old_job_id")==requested["job_id"]
++        and terminal.get("old_input_ref")==requested["input_ref"]
++        and terminal.get("actual_source_job_terminal_consumed") is True
++        and terminal.get("actual_source_exit_code")==row["exit_code"]
++        and terminal.get("all_old_owned_processes_drained") is True
++        and terminal.get("all_old_future_write_relaunch_capabilities_revoked") is True
++        and terminal.get("actual_boundary_ref")==manifest["old_boundary_ref"]
++        and terminal.get("actual_boundary_update_count")==manifest["actual_global_step"]
++        and any(p.get("pid")==terminal.get("actual_worker_pid")
++            and p.get("start_ticks")==terminal.get("actual_worker_start_ticks")
++            for p in row["process_identities"]),
++        "Same actual original worker, source terminal, retained boundary and explicit old-writer revocation")
++    require(0<manifest["actual_global_step"]<600 and manifest["remaining_updates"]==600-manifest["actual_global_step"]
++        and manifest["total_planned_updates"]==600 and manifest["optimizer_updates_performed"]==0,
++        "Strict complete-state retained prefix plus remaining suffix to600, no restart")
++
++def validate_C3_resume_method_v1(cap,proof,final_rows,method,spec,caps,science,request,sources,admin):
++    require(cap.get("efficient_C3_full_state_resume_authorized") is True
++        and proof.get("C3_resume_manifest_ref")==spec.get("efficient_resume_manifest_ref"),
++        "Explicit finite full-state C3 resume slot and same migration as old-controller transition")
++    integration,manifest,intent,bounds,terminal=resume_manifest_parts_v1(spec["efficient_resume_manifest_ref"])
++    old=read(intent["old_input_ref"])
++    row=final_rows[intent["old_job_id"]]
++    validate_interrupted_C3_row_v1(proof,row,row["requested"])
++    require(method["runtime_entry_ref"]==RESUME_RUNTIME_REF
++        and spec["efficient_training_caps_ref"]==manifest["bounds_ref"]
++        and method["cuda_cap_bytes"]==request["declared_limits"]["cuda_cap_bytes"]==STRICT_RESUME_CUDA_BYTES
++        and caps["max_cuda_reserved_bytes"]==spec["max_cuda_reserved_bytes"]==ORIGINAL_C3_CUDA_BYTES
++        and method["cpu_rss_cap_bytes"]==caps["max_cpu_rss_bytes"]==spec["max_cpu_rss_bytes"]==ORIGINAL_C3_RSS_BYTES,
++        "Additional24GiB abort/scheduling cap and original40GiB worker guard are distinct and unchanged")
++    require(method["job_id"]!=intent["old_job_id"] and spec["output_directory"]!=old["output_directory"]
++        and not (ROOT/spec["output_directory"]).is_relative_to(ROOT/old["output_directory"])
++        and not (ROOT/old["output_directory"]).is_relative_to(ROOT/spec["output_directory"]),
++        "Fresh resumed scientific job/output outside preserved original run")
++    required=resume_transition_refs_v1(cap["prior_controller_completion_ref"])
++    require(all(r in sources and r in request["runtime_source_refs"] for r in required),
++        "Complete actual migration/intent/terminal/bounds/qualification/source family in new operational closure")
++    direct_bindings(admin,required)
++    # This exact reviewed runtime authenticates all original science caps/data
++    # and direct bindings without importing Torch or reading checkpoint payloads.
++    require(ref(RESUME_RUNTIME_REF["path"])==RESUME_RUNTIME_REF,"Exact reviewed efficient resume runtime")
++    rs=importlib.util.spec_from_file_location("_finite_exact_C3_resume_runtime_metadata",ROOT/RESUME_RUNTIME_REF["path"])
++    runtime=importlib.util.module_from_spec(rs);sys.modules[rs.name]=runtime;rs.loader.exec_module(runtime)
++    runtime.authenticate_binding_v1(method,spec)
+ 
+ def validate_previous_controller_v1(record):
+     """Root-authenticated actual terminal/drain metadata, never an absence probe."""
+@@ -74,13 +171,17 @@
+             require(row["state"]=="cancelled" and row.get("leader_start_ticks") is None
+                 and row["process_identities"]==[] and row.get("started_unix") is None,
+                 "Only explicitly cancelled never-started queued work may remain")
++        elif row["requested"]["worker_kind"]=="C3" and proof.get("C3_resume_manifest_ref") is not None:
++            validate_interrupted_C3_row_v1(proof,row,row["requested"])
+         else:
+             require(row["state"]=="succeeded" and row["exit_code"]==0
+                 and row.get("leader_wait_status_known") is True and row.get("owned_drain_observed") is True,
+                 "Every started logical job genuinely waited and drained successfully")
+     trained={j["worker_kind"]:name for name,j in prior["jobs"].items() if j["worker_kind"] in ("H050","C3")}
+-    require(set(trained)=={"H050","C3"} and all(rows[name]["state"]=="succeeded" for name in trained.values()),
+-        "Current H050/C3 TRAIN jobs complete before future controller")
++    require(set(trained)=={"H050","C3"} and rows[trained["H050"]]["state"]=="succeeded"
++        and (rows[trained["C3"]]["state"]=="succeeded" if proof.get("C3_resume_manifest_ref") is None
++             else rows[trained["C3"]]["state"]=="failed"),
++        "Genuine H050 completion, and either completed C3 or explicit fully migrated interrupted C3")
+     return proof,rows
+ 
+ def validate_native_reuse_v1(record,method_job,transition_ref,final_rows):
+@@ -146,6 +247,9 @@
+         and isinstance(jobmap.get("jobs"),dict) and 1<=len(jobmap["jobs"])<=len(cat["slots"]),
+         "Finite explicitly root-bound job map")
+     require(set(jobmap["jobs"])==set(cap["jobs"]),"No arbitrary undeclared logical job")
++    if proof.get("C3_resume_manifest_ref") is not None:
++        require(sum(v.get("slot")=="C3_RESUME_TRAIN" for v in jobmap["jobs"].values())==1,
++            "An interrupted C3 handover must actually select its sole full-state continuation")
+     sources=list(cap["source_refs"].values())
+     direct_bindings(admin,common_required+[cap["plan_ref"],cap["finite_job_map_ref"],cap["prior_controller_completion_ref"]])
+     ids={admin["job_id"]};outputs={admin["output_directory"]};used_slots=set()
+@@ -179,8 +283,13 @@
+         for jobkey,capkey in (("cuda_cap_bytes","max_cuda_reserved_bytes"),("cpu_rss_cap_bytes","max_cpu_rss_bytes")):
+             value=limits[jobkey]
+             minimum=0 if jobkey=="cuda_cap_bytes" and contract.get("zero_cuda_cap_allowed_if_explicit") else 1
+-            require(type(value) is int and value>=minimum and value==method[jobkey]==caps[capkey]==spec[capkey],
+-                "Explicit exact original method cap, never inferred: "+jobkey)
++            if record["slot"]=="C3_RESUME_TRAIN" and jobkey=="cuda_cap_bytes":
++                require(type(value) is int and value==method[jobkey]==STRICT_RESUME_CUDA_BYTES
++                    and caps[capkey]==spec[capkey]==ORIGINAL_C3_CUDA_BYTES,
++                    "Exact24GiB additional logical cap, original40GiB scientific CUDA guard retained")
++            else:
++                require(type(value) is int and value>=minimum and value==method[jobkey]==caps[capkey]==spec[capkey],
++                    "Explicit exact original method cap, never inferred: "+jobkey)
+         for key,ceilingkey in (("cuda_cap_bytes","known_cuda_ceiling_bytes"),("cpu_rss_cap_bytes","known_cpu_ceiling_bytes")):
+             ceiling=contract[ceilingkey]
+             require(ceiling is None or limits[key]<=ceiling,"Original reviewed method ceiling retained")
+@@ -241,6 +350,8 @@
+             required=contract["required_science_source_refs"]+[contract["science_handoff_ref"]]
+             require(all(r in runtime_refs for r in required),"Frozen TGB3arm protocol/body/metric closure exact")
+             require(spec.get("frozen_scientific_handoff_ref")==contract["science_handoff_ref"],"Exact frozen TGB campaign")
++        if record["slot"]=="C3_RESUME_TRAIN":
++            validate_C3_resume_method_v1(cap,proof,final_rows,method,spec,caps,science,request,sources,admin)
+         if method["input_ref"]==cat["known_unused_native_input_ref"]:
+             require(record["slot"]=="NATIVE_MLM" and request.get("native_never_started_reuse_ref") is not None,
+                 "Retained native MLM needs explicit never-started reuse evidence")
+--- research/reviews/GPU0_declared_experiments_pool_source_20261016_v2/gpu0_declared_pool_v1.py
++++ research/reviews/GPU0_declared_C3_resume_pool_source_20261016_v1/gpu0_declared_pool_v1.py
+@@ -8,13 +8,13 @@
+ import ast,hashlib,importlib.util,json,os,sys,time,types
+ 
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-HERE="research/reviews/GPU0_declared_experiments_pool_source_20261016_v2"
++HERE="research/reviews/GPU0_declared_C3_resume_pool_source_20261016_v1"
+ SOURCE=HERE+"/gpu0_declared_pool_v1.py"
+ LAUNCHER=HERE+"/launch_declared_gpu0_v1.py"
+ DISPATCHER=HERE+"/declared_runtime_v1.py"
+ BOOTSTRAP=HERE+"/bootstrap_declared_v1.py"
+-CONTRACT_REF={"path":HERE+"/finite_jobs_v1.py","sha256":"53fb27b18c72582c86c227fb2b4687ac6a18a3d8b0df003b14f4b520bfeda4b4"}
+-CATALOGUE_REF={"path":"research/reviews/GPU0_declared_experiments_pool_source_20261016_v1/finite_catalogue.v1.json","sha256":"ee6f2da59c80295296495029ab90041e76a0b56283ca46b9e1eeecb9506310c3"}
++CONTRACT_REF={"path":HERE+"/finite_jobs_v1.py","sha256":"59eda3b4ead23163a625f5fc428da6ac3605e495dfbfccbf5d478bb22ae9736d"}
++CATALOGUE_REF={"path":HERE+"/finite_catalogue.v1.json","sha256":"8226afd683102b52f0e08e11b0d1bb2f966b36d63d2e97943cd962525b95a34d"}
+ REVIEWED="research/reviews/GPU0_shared_execution_source_20261016_v1"
+ REVIEWED_POOL_REF={"path":REVIEWED+"/gpu0_shared_pool_v1.py","sha256":"28bb690f33c2384d04f88dbacff1f910694c398c81874f9b9751336f4fb6429c"}
+ GUARD_REF={"path":REVIEWED+"/gpu0_native_guard_v1.py","sha256":"3a08d3bd84adc95aafd332bc224fdb7aa38730d6c2f48dee8108944251b7ee69"}
+@@ -48,7 +48,7 @@
+ # Only this newly loaded private legacy namespace is adapted.
+ legacy.SOURCE=SOURCE
+ legacy.LAUNCHER=LAUNCHER
+-legacy.RENEWAL_BOOTSTRAP_REF={"path":BOOTSTRAP,"sha256":"0831fbf19c63ab463f0060c7fd021f91f69fdedacee23354fac5f613b47d76db"}
++legacy.RENEWAL_BOOTSTRAP_REF={"path":BOOTSTRAP,"sha256":"da047c5af61391c25882b4e6499453ff288bc554a44e6ac911cb2b9531f752ef"}
+ 
+ def socket_name(cap):
+     token=hashlib.sha256(base.encoded(cap["plan_ref"])).hexdigest()[:16]
+@@ -66,6 +66,7 @@
+     rows += [CONTRACT_REF,CATALOGUE_REF,REVIEWED_POOL_REF,GUARD_REF,CHECKER_REF,MEMO_REF,V4_REF,
+         dict(path=legacy.GUARD,sha256=legacy.GUARD_SHA),legacy.POLICY,legacy.REPAIR,
+         legacy.RENEWAL_SOURCE_REF,cap["marker_repair_renewal_ref"],g.POLICY_REF,cap["stop_evidence_ref"]]
++    rows += contract.resume_transition_refs_v1(cap["prior_controller_completion_ref"])
+     return [r for i,r in enumerate(rows) if r not in rows[:i]]
+ 
+ def load_cap(record,allow_drain=False):
+@@ -113,7 +114,8 @@
+         "owned_termination_escalation_authorized","owned_drain_after_expiry_authorized",
+         "expires_unix","drain_expires_unix","jobs","source_refs","marker_repair_renewal_ref","GPU0_policy_ref",
+         "stop_evidence_ref","finite_job_map_ref","prior_controller_completion_ref","controller_job_id",
+-        "native_40GiB_operational_ceiling_authorized","native_72h_operational_deadline_authorized")
++        "native_40GiB_operational_ceiling_authorized","native_72h_operational_deadline_authorized",
++        "efficient_C3_full_state_resume_authorized")
+     require(plan.get("schema")=="GPU0_declared_logical_pool_plan_v1" and plan.get("status")=="active"
+         and plan.get("root_authorizer")=="root_agent" and all(plan[k]==cap[k] for k in fields),
+         "Exact root plan for every operational authority, source and finite job")
+@@ -122,7 +124,7 @@
+         "Separate safe root controller scope identity")
+     require(type(admin["reserved_new_bytes"]) is int and 32*2**20<=admin["reserved_new_bytes"]<=64*2**20
+         and admin["reservation"]["auxiliary_scopes"]==[],"Unchanged isolated32to64MiB controller checker scope")
+-    require(isinstance(cap["jobs"],dict) and 1<=len(cap["jobs"])<=min(base.MAX_JOBS,12),
++    require(isinstance(cap["jobs"],dict) and 1<=len(cap["jobs"])<=min(base.MAX_JOBS,13),
+         "Finite source-bound catalogue only")
+     contract.validate_jobs_v1(cap,required,admin,legacy.ENV_KEYS)
+     return cap
+@@ -158,7 +160,7 @@
+ launchtext=ast.get_source_segment(old,node)
+ before='"arggnn.gpu45_c3cache_h050_pool_v1"'
+ require(launchtext.count(before)==1,"Single frozen worker module literal")
+-launchtext=launchtext.replace(before,'"research.reviews.GPU0_declared_experiments_pool_source_20261016_v2.gpu0_declared_pool_v1"')
++launchtext=launchtext.replace(before,'"research.reviews.GPU0_declared_C3_resume_pool_source_20261016_v1.gpu0_declared_pool_v1"')
+ # Preserve the original queue body, adding only individual expired-queue rejection.
+ queue_anchor='            if job["state"]!="queued":continue'
+ queue_expiry=queue_anchor+'\n            original_end=contract.job_expiry_v2(job["requested"])\n            if time.time()>=original_end:\n                job.update(state="cancelled",finished_unix=time.time(),\n                    error="Original per-job input/envelope expired before launch",\n                    expiry_rejected_before_start=True,original_expires_unix=original_end)\n                self._persist()\n                continue'
+--- research/reviews/GPU0_declared_experiments_pool_source_20261016_v2/declared_runtime_v1.py
++++ research/reviews/GPU0_declared_C3_resume_pool_source_20261016_v1/declared_runtime_v1.py
+@@ -2,10 +2,10 @@
+ from pathlib import Path
+ import hashlib,importlib.util,json,os,sys,time
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-HERE="research/reviews/GPU0_declared_experiments_pool_source_20261016_v2"
++HERE="research/reviews/GPU0_declared_C3_resume_pool_source_20261016_v1"
+ SOURCE=HERE+"/declared_runtime_v1.py"
+-CONTRACT_REF={"path":HERE+"/finite_jobs_v1.py","sha256":"53fb27b18c72582c86c227fb2b4687ac6a18a3d8b0df003b14f4b520bfeda4b4"}
+-CATALOGUE_REF={"path":"research/reviews/GPU0_declared_experiments_pool_source_20261016_v1/finite_catalogue.v1.json","sha256":"ee6f2da59c80295296495029ab90041e76a0b56283ca46b9e1eeecb9506310c3"}
++CONTRACT_REF={"path":HERE+"/finite_jobs_v1.py","sha256":"59eda3b4ead23163a625f5fc428da6ac3605e495dfbfccbf5d478bb22ae9736d"}
++CATALOGUE_REF={"path":HERE+"/finite_catalogue.v1.json","sha256":"8226afd683102b52f0e08e11b0d1bb2f966b36d63d2e97943cd962525b95a34d"}
+ 
+ def require(ok,message):
+     if not ok:raise ValueError(message)
+--- research/reviews/GPU0_declared_experiments_pool_source_20261016_v2/bootstrap_declared_v1.py
++++ research/reviews/GPU0_declared_C3_resume_pool_source_20261016_v1/bootstrap_declared_v1.py
+@@ -3,7 +3,7 @@
+ import argparse,hashlib,importlib.util,json,runpy,sys
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+ REL="research/reviews/H039_marker_repair_renewal_source_20261016_v1/marker_repair_renewal_v1.py"
+-MODULE="research.reviews.GPU0_declared_experiments_pool_source_20261016_v2.gpu0_declared_pool_v1"
++MODULE="research.reviews.GPU0_declared_C3_resume_pool_source_20261016_v1.gpu0_declared_pool_v1"
+ 
+ def main(argv=None):
+     parser=argparse.ArgumentParser(description=__doc__)
+--- research/reviews/GPU0_declared_experiments_pool_source_20261016_v2/launch_declared_gpu0_v1.py
++++ research/reviews/GPU0_declared_C3_resume_pool_source_20261016_v1/launch_declared_gpu0_v1.py
+@@ -1,5 +1,5 @@
+ """New finite GPU0 route, inactive without --execute and root capability."""
+ import sys
+ sys.path[:0]=["/workspace-SR003.nfs2/ARG-GNN","/workspace-SR003.nfs2/ARG-GNN/src"]
+-from research.reviews.GPU0_declared_experiments_pool_source_20261016_v2.gpu0_declared_pool_v1 import main
++from research.reviews.GPU0_declared_C3_resume_pool_source_20261016_v1.gpu0_declared_pool_v1 import main
+ if __name__=="__main__":raise SystemExit(main())

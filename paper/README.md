@@ -1,4 +1,4 @@
-Current compiled development manuscript: [PDF](current_full_panel_working.pdf), [LaTeX source](current_full_panel_working.tex), [Overleaf source bundle](current_full_panel_overleaf_working.zip). Root compiled and visually checked all eight pages on 2026-10-16. This development draft includes completed H045, its matched own-state control and earlier H038–H043 evidence. It excludes uncompleted H050 and American comparisons. [Latest scores and remaining benchmarks](../README.md#latest-status).
+Current compiled development manuscript: [PDF](current_full_panel_working.pdf), [LaTeX source](current_full_panel_working.tex), [Overleaf source bundle](current_full_panel_overleaf_working.zip). Root compiled and visually checked all nine pages on 2026-10-16. This development draft includes completed H045, its matched own-state control, earlier H038–H043 evidence, and the frozen Danish application with both registered contrasts and chromosome sensitivity. It excludes uncompleted H050 and American comparisons. [Latest scores and remaining benchmarks](../README.md#latest-status).
 
 # Manuscript sources
 
