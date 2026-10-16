@@ -1,0 +1,48 @@
+{
+  "active_prepare_run": false,
+  "candidate_recipe_ref": {
+    "path": "research/reviews/native_v9_ROOT_preparation_script_source_20261016_v1/RECIPE.md",
+    "sha256": "0991fbd1c0451dc3b7989848411662f14a68d23df89680698c78153aff3711d7"
+  },
+  "candidate_source_ref": {
+    "path": "research/reviews/native_v9_ROOT_preparation_script_source_20261016_v1/prepare_root_v1.py",
+    "sha256": "f7ddc19a13836cf051a1070df185bca1907950a175728e0658a6826ea2ba0c75"
+  },
+  "evidence_ref": {
+    "path": "research/reviews/native_VAL000_full_state_resume_independent_review_20261016_v9/ROOT_prep_v1_inert_checks.json",
+    "sha256": "f64aadd3f85d64e00fc67c742d4fb299d6b71d019e3e0ca58b35659929caed21"
+  },
+  "execution_authorized": false,
+  "findings": [
+    {
+      "evidence": "Original common_v1.validate_request_v1 returns unaugmented science_v1 cfg. Actual science.template.json has no output_cap_bytes. Extracted actual guard AST with actual public cfg reproduces KeyError(output_cap_bytes) before fake boundary call and before any metadata write.",
+      "id": "Fprep1",
+      "issue": "Original scientific cfg lacks output_cap_bytes required by actual validate_storage_v9.",
+      "line": 61,
+      "path": "research/reviews/native_v9_ROOT_preparation_script_source_20261016_v1/prepare_root_v1.py",
+      "priority": 1,
+      "requested_change": "Pass the exact already reviewed executor argument dict(output_cap_bytes=c.CAPS['reservation_bytes']) to storage validation, preserving original config/source/runtime bindings."
+    },
+    {
+      "evidence": "save() checks only g.budget_check_v9(boundary=True,required_write_bytes=...). Actual guard check_storage_locked_v1 enforces combined reserved7GiB. Original768MiB AUX and separate scientific/prospective caps are enforced by charged_census_v1, which this script calls only after all3 writes. A combined7GiB pass does not imply the separate AUX cap. The reviewed adapter compact_v1 checks charged_census before metadata writes.",
+      "id": "Fprep2",
+      "issue": "New ROOT metadata writes lack a prewrite check of original separate AUX/output caps.",
+      "line": 63,
+      "path": "research/reviews/native_v9_ROOT_preparation_script_source_20261016_v1/prepare_root_v1.py",
+      "priority": 1,
+      "requested_change": "Before each new metadata save, run the unchanged original charged_census_v1(original_spec,required_write_bytes=len(raw)+8192), or an equivalent authenticated original cap check; preserve strict g boundary as well. The final v9 prospective census remains mandatory before continuation."
+    }
+  ],
+  "main_review_preserved_ref": {
+    "path": "research/reviews/native_VAL000_full_state_resume_independent_review_20261016_v9/review.v9.json",
+    "sha256": "0635aa2bfe723a1839487d4ad70178fd9358b823cf0f39c8287b4e83fe7c430c"
+  },
+  "observations": "Default/help CLI return0. Missing ROOT directive and wrong directive reject with parser exit2 before active function. No training, preliminary capacity helper, actual absence observation, alias operation or checkpoint tensor access exists in prep source.",
+  "preserved_main_source_verdict": "PASS_SOURCE_ONLY",
+  "real_guard_probe_accounting_or_authority_writes": false,
+  "root_must_not_run_this_prep_v1": true,
+  "schema": "native_v9_ROOT_prep_supplemental_independent_review_v1",
+  "sealed_utc": "2026-10-16T17:27:03.651311+00:00",
+  "source_only": true,
+  "verdict": "REQUEST_CHANGES_SOURCE_ONLY"
+}

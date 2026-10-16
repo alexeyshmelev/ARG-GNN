@@ -1,0 +1,17 @@
+--- research/reviews/native_v9_ROOT_preparation_script_source_20261016_v1/prepare_root_v1.py
++++ research/reviews/native_v9_ROOT_preparation_script_source_20261016_v2/prepare_root_v1.py
+@@ -58,12 +58,13 @@
+         require(now<min(end,datetime.fromisoformat(STRICT_ENTRY).timestamp()),"Original anchored work and strict entry cutoff")
+     tick()
+     g=c.original.guard_v1(q,consumer=True)
+-    g.validate_storage_v9(original_spec,cfg,storage,source_ref=c.original.ref(c.original.DRIVER),
++    g.validate_storage_v9(original_spec,dict(output_cap_bytes=c.CAPS["reservation_bytes"]),storage,source_ref=c.original.ref(c.original.DRIVER),
+         config_ref=original_spec["refs"]["config"],runtime_ref=original_spec["refs"]["runtime"])
+     def save(name,value):
+         raw=(json.dumps(value,sort_keys=True,indent=2,allow_nan=False)+"\n").encode()
+         require(len(raw)<=65536,"Compact immutable ROOT preparation metadata")
+         tick()
++        c.original.charged_census_v1(original_spec,required_write_bytes=len(raw)+8192)
+         g.budget_check_v9(storage,boundary=True,required_write_bytes=len(raw)+8192)
+         tick()
+         record=c.original.save(aux,name,value)

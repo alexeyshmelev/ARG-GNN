@@ -1,0 +1,384 @@
+--- v8_package_bound/amendment_contract_v1.py
++++ v9/amendment_contract_v1.py
+@@ -26,7 +26,7 @@
+ MINIMAL_WAIT_CAP_BYTES=65536
+ TERMINAL_RECEIPT_CAP_BYTES=8*2**20
+ OWNED_ROSTER_POLICY_REF={'path': 'research/reviews/native_VAL000_GPU0_owned_roster_source_20261016_v4/owned_roster_policy.INACTIVE.v4.json', 'sha256': 'ea1ddb59ab4248b8ba95dbbe77d25db30636cc318a4fdaebde1e1ae6e5a7344f'}
+-CHILD="same_charge_full_state_resume_v8"
++CHILD="same_charge_full_state_resume_v9"
+ AMENDMENT_REF=None
+ ORIGINAL_STATE=None
+ RESUME_STATE=None
+@@ -38,7 +38,7 @@
+ RESUME_CHECKPOINT_REF={'path': 'experiments/results/native_VAL000_full30mb_borrowed32_GPU0_v2/same_charge_owned_roster_v4/checkpoints/ep0-ba6500-rank0.pt', 'sha256': '17e266f77b9a91f6a72fcf50a4bb6551e794da86fdbe8ca382da7fccb180bce0'}
+ ROOT_PRESERVED_METADATA_REF={'path': 'research/reviews/native_v4_preserved_checkpoint_resume_root_metadata_20261016_v1/preserved_checkpoint_metadata.root_v2.json', 'sha256': '15a68643d5d940ee3b6304bc691e8aede1ac223d68b9a61581633805c0f3c7da'}
+ V4_MANIFEST_REF={'path': 'research/reviews/native_VAL000_GPU0_owned_roster_source_20261016_v4/source_manifest.v1.json', 'sha256': '4fc7f605f36d18b82ed155c24b0095a83b4b8b3a9649d8d65f81b23bc8cfae37'}
+-RESUME_POLICY_REF={'path': 'research/reviews/native_VAL000_full_state_resume_source_20261016_v9/resume_policy.INACTIVE.v5.json', 'sha256': '40dcc29613754bf43fc564eb8bb8e0af3675bc63272d7eecb19111bd12cd93b6'}
++RESUME_POLICY_REF={'path': 'research/reviews/native_VAL000_full_state_resume_source_20261016_v9/resume_policy.INACTIVE.v5.json', 'sha256': '142f457431ed58d8f8e6b133ca2b92b2b0b1bc2a356aeb9d459fbc2a502d846c'}
+ 
+ def set_amendment_v1(record):
+     global AMENDMENT_REF
+@@ -53,7 +53,7 @@
+     require(AMENDMENT_REF is not None,"Actual separate ROOT amendment ref required")
+     a=read(AMENDMENT_REF);active(a)
+     require(a.get("template_only") is not True,"Inactive templates never authorize execution")
+-    require(a.get("schema")=="native32_full_state_resume_same_charge_ROOT_amendment_v8"
++    require(a.get("schema")=="native32_full_state_resume_same_charge_ROOT_amendment_v9"
+         and a.get("root_authorizer")=="root_agent" and a.get("status")=="active"
+         and a.get("execution_authorized") is True and a.get("independent_source_review_passed") is True
+         and a.get("adapter_manifest_ref")==ref(MANIFEST) and a.get("original_input_ref")==ORIGINAL_INPUT
+@@ -91,7 +91,7 @@
+         and roster_policy["overflow_or_truncation_authorizes_success"] is False,
+         "Exact finite4096 identity/8MiB terminal policy, original30s cleanup and fully charged AUX")
+     manifest=read(a["adapter_manifest_ref"])
+-    expected=[ref(HERE+"/"+name) for name in ("__init__.py","amendment_contract_v1.py","direct_gpu0_v1.py","execution_only_v1.py","corpus_metadata_bridge_v1.py","resume_scientific_bridge_v5.py","alias_namespace_v7.py")]
++    expected=[ref(HERE+"/"+name) for name in ("__init__.py","amendment_contract_v1.py","direct_gpu0_v1.py","execution_only_v1.py","corpus_metadata_bridge_v1.py","resume_scientific_bridge_v5.py","alias_namespace_v7.py","fresh_entry_v9.py")]
+     require(manifest["new_executed_source_refs"]==expected
+         and manifest["original_source_handoff_ref"]==ORIGINAL_SOURCE_HANDOFF
+         and manifest["original_source_manifest_ref"]==original.ref(original.MANIFEST),
+@@ -273,7 +273,8 @@
+         and outer.get("all_owned_processes_and_groups_drained") is True
+         and outer.get("actual_stdout_observation_ref")==a["failed_v4_stdout_observation_ref"],
+         "Preserve genuine v4worker-15 and consumed outer0 as failure, never producer0")
+-    qualified=read(a["ROOT_resume_qualification_ref"])
++    require(a["ROOT_resume_qualification_ref"]==V8_QUALIFICATION_REF and a.get("old_ROOT_rows_are_historical_not_current_entry_evidence") is True and a.get("new_actual_entry_observations_mandatory") is True,"Historical original qualification is not fresh entry evidence")
++    qualified=read(V8_QUALIFICATION_REF)
+     require(qualified.get("schema")=="ROOT_native_VAL000_full_state_resume_qualification_v5"
+         and qualified.get("root_authorizer")=="root_agent" and qualified.get("status")=="qualified"
+         and qualified.get("template_only") is not True
+@@ -287,7 +288,7 @@
+         and qualified.get("historical_v3_descendant_coverage")=="UNKNOWN_TRUNCATED64"
+         and qualified.get("historical_v3_unknown_descendants_absent") is None
+         and qualified.get("private_FD_no_Composer_TMP_symlink_or_copy_route_reviewed") is True
+-        and qualified.get("actual_source_manifest_ref")==ref(MANIFEST),"ROOT actual post-drain full-state/FD/capacity prerequisite, not source fit")
++        and qualified.get("actual_source_manifest_ref")==V8_MANIFEST_REF,"ROOT actual post-drain full-state/FD/capacity prerequisite, not source fit")
+     require(qualified["actual_ROOT_verifier_receipt_ref"]==ROOT_PRESERVED_METADATA_REF,"Exact genuinely verified original6500 full-state metadata receipt")
+     evidence=read(ROOT_PRESERVED_METADATA_REF)
+     require(evidence["checkpoint_ref"]==RESUME_CHECKPOINT_REF and evidence["actual_verified_optimizer_updates"]==6500
+@@ -314,11 +315,13 @@
+ 
+ 
+ def validate_known_owner_scope_v6(a,qualified,failed):
++    global HISTORICAL_ROOT_SCOPE_V9
+     record=a["ROOT_known_owner_observation_bundle_ref"]
++    require(record==V8_KNOWN_BUNDLE_REF,"Exact historical v8 ROOT known-owner bundle, never relabelled current")
+     require(qualified["ROOT_known_owner_observation_bundle_ref"]==record,"One exact genuine ROOT known-owner observation bundle")
+     bundle=read(record)
+     require(bundle.get("schema")=="ROOT_native_VAL000_known_owner_observation_bundle_v6"
+-        and bundle.get("root_authorizer")=="root_agent" and bundle.get("template_only") is not True and bundle.get("source_manifest_ref")==ref(MANIFEST)
++        and bundle.get("root_authorizer")=="root_agent" and bundle.get("template_only") is not True and bundle.get("source_manifest_ref")==V8_MANIFEST_REF
+         and bundle.get("failed_v4_stdout_observation_ref")==a["failed_v4_stdout_observation_ref"]
+         and bundle.get("failed_v4_outer_terminal_ref")==a["failed_v4_outer_terminal_ref"]
+         and bundle.get("current_v4_complete_roster_identity_count")==64
+@@ -377,26 +380,27 @@
+         and pids.get("known_identity_registry_ref")==groups.get("known_identity_registry_ref")==bundle["known_identity_registry_ref"]
+         and pids.get("unknown_history_absence_asserted") is False and groups.get("unknown_history_absence_asserted") is False,
+         "Fresh targeted observations reference exact known registry without unknown-history assertion")
+-    rows=pids["observations"];grows=groups["observations"];now=datetime.now(timezone.utc)
++    rows=pids["observations"];grows=groups["observations"];historical_end=datetime.fromisoformat(read(V8_TERMINAL_REF)["recorded_utc"])
+     require(len(rows)==len(identities) and len(grows)==len(pgids),"No known observation omitted or truncated")
+     for identity,row in zip(identities,rows):
+         require(row["pid"]==identity["pid"] and row["start_ticks"]==identity["start_ticks"]
+             and row["known_identity_absent"] is True and row["method"]=="targeted PID/start or numeric ESRCH"
+             and (identity["start_ticks"] is not None or row["numeric_PID_absent"] is True)
+-            and 0<=(now-datetime.fromisoformat(row["checked_utc"])).total_seconds()<=120,
+-            "Genuine fresh known PID/start absence, unknown start requires actual numeric ESRCH")
++            and datetime.fromisoformat(row["checked_utc"]).tzinfo is not None and datetime.fromisoformat(row["checked_utc"])<=historical_end,
++            "Authenticated historical ROOT PID/start facts with original timestamps, no current-freshness claim")
+     for pgid,row in zip(pgids,grows):
+         require(row["pgid"]==pgid and row["absent"] is True and row["method"]=="targeted os.killpg(pgid,0) ESRCH"
+-            and 0<=(now-datetime.fromisoformat(row["checked_utc"])).total_seconds()<=120,
+-            "Genuine fresh absence of each known process group only")
++            and datetime.fromisoformat(row["checked_utc"]).tzinfo is not None and datetime.fromisoformat(row["checked_utc"])<=historical_end,
++            "Authenticated historical ROOT group facts with original timestamps, no current-freshness claim")
+     require(revoke.get("schema")=="ROOT_native_VAL000_permanent_cooperative_old_capability_revocation_v6"
+-        and revoke.get("root_authorizer")=="root_agent" and revoke.get("source_manifest_ref")==ref(MANIFEST)
++        and revoke.get("root_authorizer")=="root_agent" and revoke.get("source_manifest_ref")==V8_MANIFEST_REF
+         and revoke.get("all_source_referenced_old_launch_capabilities_permanently_revoked") is True
+         and revoke.get("old_original_resume_entrypoints_and_automatic_retries_revoked") is True
+         and revoke.get("new_exception_is_exact_reviewed_v8_ROOT_amendment_only") is True
+         and revoke.get("historical_files_or_failures_mutated") is False
+         and revoke.get("unknown_old_processes_absent_asserted") is False,
+         "Permanent cooperative old-capability revocation, exact reviewed new exception, unknown history remains unknown")
++    HISTORICAL_ROOT_SCOPE_V9=dict(bundle_ref=record,registry_ref=bundle["known_identity_registry_ref"],registry=copy.deepcopy(registry),current_entry_absence_established=False)
+     return dict(bundle_ref=record,known_identities=len(identities),known_groups=len(pgids),
+         historical_v3_descendant_coverage="UNKNOWN_TRUNCATED64",historical_unknown_absence=None)
+ 
+@@ -412,9 +416,9 @@
+         error="Planned writes require exact owned-scope boundary",
+         evidence_provenance="ROOT_actual_tool_stdout_no_filesystem_receipt_was_written")]
+ ALIAS_SOURCE=HERE+"/alias_namespace_v7.py"
+-ALIAS_ORIGINAL_BEFORE="ROOT_full_state_resume_v8_original_Composer_alias.before_unlink.json"
+-ALIAS_ORIGINAL_AFTER="ROOT_full_state_resume_v8_original_Composer_alias.strict_after.json"
+-ALIAS_TERMINAL_BEFORE="ROOT_full_state_resume_v8_terminal_Composer_alias.before_unlink.json"
++ALIAS_ORIGINAL_BEFORE="ROOT_full_state_resume_v9_original_Composer_alias.before_unlink.json"
++ALIAS_ORIGINAL_AFTER="ROOT_full_state_resume_v9_original_Composer_alias.strict_after.json"
++ALIAS_TERMINAL_BEFORE="ROOT_full_state_resume_v9_terminal_Composer_alias.before_unlink.json"
+ ALIAS_METADATA_CAP=65536
+ 
+ def validate_alias_authority_v7(a):
+@@ -427,6 +431,15 @@
+         and a.get("canonical_or_global_guard_change_authorized") is False
+         and a.get("regular_checkpoint_copy_or_delete_authorized") is False,
+         "Exact narrow ROOT v7 alias metadata/unlink authority, preserved failed v6 and unchanged strict guard")
++    require(a.get("preserved_actual_v8_amendment_ref")==V8_AMENDMENT_REF
++        and a.get("v8_future_launch_write_capabilities_permanently_revoked") is True
++        and a.get("genuine_v8_failed_terminal_ref")==V8_TERMINAL_REF
++        and a.get("known_target_readonly_entry_probes_authorized") is True
++        and a.get("entry_probe_scope")=="exact_finite_authenticated_known_registry_including_v8"
++        and a.get("entry_fresh_seconds")==120 and a.get("entry_probe_max_receipt_bytes")==2*2**20
++        and a.get("startup_original_alias_unlink_authorized") is False,
++        "Exact ROOT v9 fresh-entry-only probe/metadata authority and immutable v8 failure lineage")
++    validate_v8_failure_lineage_v9()
+     old=read(ROOT_V6_AMENDMENT_REF)
+     require(old.get("schema")=="native32_full_state_resume_same_charge_ROOT_amendment_v6"
+         and old.get("root_authorizer")=="root_agent" and old.get("status")=="active",
+@@ -456,8 +469,8 @@
+         storage_close_or_credit_authorized=False)
+ 
+ def alias_durable_metadata_v7(spec,g,storage,directory,name,value):
+-    require(name in (ALIAS_ORIGINAL_BEFORE,ALIAS_TERMINAL_BEFORE),
+-        "Only two exact reviewed before-unlink metadata names")
++    require(name==ALIAS_TERMINAL_BEFORE,
++        "v9 authorizes only this fresh child terminal alias metadata, no startup unlink/receipt replay")
+     expected=local(spec["original_charged_auxiliary_scope"]) if name==ALIAS_ORIGINAL_BEFORE \
+         else local(spec["worker_auxiliary_scope"])
+     require(directory==expected and directory.is_dir(),"Exact ROOT-owned original or own terminal AUX")
+@@ -490,60 +503,41 @@
+         separate_exact_ROOT_precanonical_metadata_exception=True)
+ 
+ def normalize_original_alias_v7(spec,q,g,storage):
+-    require(ORIGINAL_STATE is not None and RESUME_STATE is not None,"Actual v6 full-state prerequisite API first")
++    require(ORIGINAL_STATE is not None and RESUME_STATE is not None,"Authenticated historical full-state prerequisite first")
++    validate_v8_failure_lineage_v9()
+     module=alias_module_v7()
+-    # Fixed literal checkpoint directory, never a caller-selected historical tree.
+-    directory=local(RESUME_CHECKPOINT_REF["path"]).parent
+-    alias=directory/"latest-rank0.pt"
+-    receipt=local(spec["original_charged_auxiliary_scope"])/ALIAS_ORIGINAL_BEFORE
+-    def prove():
+-        a,_,_=active_amendment_v1()
+-        validate_resume_prerequisites_v5(a)
+-        return RESUME_STATE["current_v4_complete64_identity_and_group_drain_verified"] is True
+-    def strict():return alias_strict_boundary_v7(spec,g,storage)
+-    require(prove(),"Current factual v4 complete64 drain and fresh available known-owner evidence")
++    before=read(V8_ALIAS_BEFORE_REF);after=read(V8_ALIAS_AFTER_REF)
++    module.verify_receipt_v7(ROOT,V8_ALIAS_BEFORE_REF,before)
++    directory=local(RESUME_CHECKPOINT_REF["path"]).parent;alias=directory/"latest-rank0.pt"
++    require(before["schema"]=="native_VAL000_durable_ROOT_Composer_alias_before_unlink_v7"
++        and before["context"]["actual_execution_amendment_ref"]==V8_AMENDMENT_REF
++        and before["context"]["adapter_manifest_ref"]==V8_MANIFEST_REF
++        and before["context"]["historical_v3_descendant_coverage"]=="UNKNOWN_TRUNCATED64"
++        and before["context"]["historical_v3_unknown_descendants_absent"] is None
++        and before["target_ref"]==RESUME_CHECKPOINT_REF and before["target_identity"]==RESUME_STATE["checkpoint_identity"]
++        and before["alias"]==str(alias.relative_to(ROOT)) and before["target_text"]=="ep0-ba6500-rank0.pt"
++        and before["actual_complete_owned_writer_drain_verified"] is True
++        and before["regular_checkpoint_payload_read_or_copied"] is False,
++        "Exact immutable successful v8 original-alias before metadata and original6500 identity")
++    require(after["schema"]=="native_VAL000_exact_Composer_alias_removed_v7"
++        and after["before_unlink_metadata_ref"]==V8_ALIAS_BEFORE_REF
++        and after["alias"]==before["alias"] and after["alias_absent"] is True
++        and after["all_regular_checkpoint_metadata_unchanged"] is True
++        and after["regular_checkpoint_payload_read_copied_or_deleted"] is False
++        and after["strict_original_boundary_after_unlink"]["original_unchanged_budget_check_boundary_True_passed"] is True
++        and after["strict_original_boundary_after_unlink"]["original_whole_scope_no_follow_charge_caps_passed"] is True,
++        "Exact immutable successful v8 strict-after receipt, no normalization replay")
+     try:alias.lstat()
+-    except FileNotFoundError:
+-        # ROOT prep may have normalized once. Only this exact attempt's durable
+-        # metadata plus current original identity can authorize consuming absence.
+-        record=ref(str(receipt.relative_to(ROOT)));value=read(record)
+-        module.verify_receipt_v7(ROOT,record,value)
+-        require(value.get("schema")=="native_VAL000_durable_ROOT_Composer_alias_before_unlink_v7"
+-            and value.get("context")==alias_original_context_v7()
+-            and value.get("alias")==str(alias.relative_to(ROOT))
+-            and value.get("target_ref")==RESUME_CHECKPOINT_REF
+-            and value.get("target_identity")==RESUME_STATE["checkpoint_identity"]
+-            and value.get("actual_complete_owned_writer_drain_verified") is True
+-            and value.get("regular_checkpoint_payload_read_or_copied") is False
+-            and module.identity(local(RESUME_CHECKPOINT_REF["path"]).lstat())==RESUME_STATE["checkpoint_identity"]
+-            and module.regular_snapshot(directory)==value["regular_checkpoint_metadata_before"],
+-            "Same exact v7 attempt premetadata and unchanged original checkpoint required for existing alias absence")
+-        result=dict(schema="native_VAL000_exact_original_alias_absence_consumed_v7",
+-            before_unlink_metadata_ref=record,alias_absent=True,unlink_replayed=False,
+-            strict_original_boundary_after_unlink=strict())
+-    else:
+-        result=module.normalize_latest_v7(ROOT,directory,prove_drained=prove,
+-            preserve=lambda value:alias_durable_metadata_v7(spec,g,storage,
+-                local(spec["original_charged_auxiliary_scope"]),ALIAS_ORIGINAL_BEFORE,value),
+-            revalidate_pre_unlink=lambda:alias_readonly_guard_v7(spec,g,storage),
+-            strict_boundary=strict,max_bytes=2*2**30,max_regular_files=1,
+-            expected_target_ref=RESUME_CHECKPOINT_REF,
+-            expected_target_identity=RESUME_STATE["checkpoint_identity"],
+-            context=alias_original_context_v7())
+-    # This after-receipt is strictly guarded. It never claims new science.
+-    path=local(spec["original_charged_auxiliary_scope"])/ALIAS_ORIGINAL_AFTER
+-    if not path.exists():
+-        data=(json.dumps(result,sort_keys=True,indent=2,allow_nan=False)+"\n").encode()
+-        require(len(data)<=ALIAS_METADATA_CAP,"Bounded normalization outcome")
+-        charged_census_v1(spec,required_write_bytes=len(data)+8192)
+-        g.budget_check_v9(storage,boundary=True,required_write_bytes=len(data)+8192)
+-        active_amendment_v1()
+-        save(path.parent,path.name,result)
+-    else:
+-        prior=read(ref(str(path.relative_to(ROOT))))
+-        require(prior.get("before_unlink_metadata_ref")==result["before_unlink_metadata_ref"]
+-            and prior.get("alias_absent") is True,"Exact immutable prior normalization outcome")
+-    return result
++    except FileNotFoundError:pass
++    else:raise ValueError("Original alias reappeared, v9 has no startup unlink authority")
++    require(module.identity(local(RESUME_CHECKPOINT_REF["path"]).lstat())==RESUME_STATE["checkpoint_identity"]
++        and module.regular_snapshot(directory)==before["regular_checkpoint_metadata_before"],
++        "Every retained original6500 regular metadata unchanged, never copied or deleted")
++    return dict(schema="native_VAL000_v9_authenticated_v8_original_alias_absence",
++        v8_failed_terminal_ref=V8_TERMINAL_REF,before_unlink_metadata_ref=V8_ALIAS_BEFORE_REF,
++        strict_after_metadata_ref=V8_ALIAS_AFTER_REF,alias_absent=True,unlink_replayed=False,
++        original_regular_metadata_unchanged=True,strict_original_boundary=alias_strict_boundary_v7(spec,g,storage))
++
+ 
+ def normalize_resumed_alias_v7(spec,q,g,storage,*,prove_drained,minimal_wait_facts):
+     module=alias_module_v7()
+@@ -573,3 +567,94 @@
+             actual_minimal_wait_facts=minimal_wait_facts,
+             regular_checkpoint_content_SHA_not_claimed=True,
+             separate_exact_ROOT_precanonical_metadata_exception=True))
++
++
++V8_AMENDMENT_REF={"path":"research/reviews/native_VAL000_GPU0_borrowed32_ROOT_actual_20261016_v2/worker_aux/ROOT_same_charge_full_state_resume_v8.root_active_v1.json","sha256":"129a2e0f34668d3bffa8bb4b1214881876c59c814937d31dff1dd0a791da1bdb"}
++V8_MANIFEST_REF={"path":"research/reviews/native_VAL000_full_state_resume_source_20261016_v8/source_manifest.v1.json","sha256":"168918ab804797a3cd65562c737da3e615475b4c18a3ad9df3e3d774aad0c065"}
++V8_QUALIFICATION_REF={"path":"research/reviews/native_VAL000_GPU0_borrowed32_ROOT_actual_20261016_v2/worker_aux/ROOT_full_state_resume_v8_qualification.root_v1.json","sha256":"0099de8018b18280e1e4b92f67c96062771d69ef1cdeace2b31134f89359c04b"}
++V8_KNOWN_BUNDLE_REF={"path":"research/reviews/native_VAL000_GPU0_borrowed32_ROOT_actual_20261016_v2/worker_aux/ROOT_full_state_resume_v8_known_owner_bundle.root_v1.json","sha256":"a1a4982bf234470f02152aab03a69362976af40768fed339bc8d14cb08865e45"}
++V8_TERMINAL_REF={"path":"research/reviews/native_v8_actual_terminal_root_20261016_v1/terminal.root_v1.json","sha256":"6431f72c236aaa2268b4960d51cba9b47e2ceb531dde9b495edbdbc96628364a"}
++V8_WAIT_REF={"path":"research/reviews/native_VAL000_GPU0_borrowed32_ROOT_actual_20261016_v2/worker_aux/same_charge_full_state_resume_v8/actual_wait.json","sha256":"9d50458c8730f420fb6d2ca87641778e9590fee9f49d1a3b7eab46958b7c570e"}
++V8_LAUNCH_REF={"path":"research/reviews/native_VAL000_GPU0_borrowed32_ROOT_actual_20261016_v2/worker_aux/same_charge_full_state_resume_v8/launch.json","sha256":"02c9928047c0d31c4e6c638919795fd8409fa20d142cf48f451ee47a1cd2289a"}
++V8_ALIAS_BEFORE_REF={"path":"research/reviews/native_VAL000_GPU0_borrowed32_ROOT_actual_20261016_v2/worker_aux/ROOT_full_state_resume_v8_original_Composer_alias.before_unlink.json","sha256":"995ac216401e6e52b72b49690cdfa292fa3c000d835b6d0aa3e71fbaddf7ab6f"}
++V8_ALIAS_AFTER_REF={"path":"research/reviews/native_VAL000_GPU0_borrowed32_ROOT_actual_20261016_v2/worker_aux/ROOT_full_state_resume_v8_original_Composer_alias.strict_after.json","sha256":"82f6e374eb4b20cd0dca51e820b23b5eb78a0fee3c7ec4f108be7c455b72e159"}
++HISTORICAL_ROOT_SCOPE_V9=None
++ENTRY_REGISTRY_CACHE_V9=None
++
++def validate_v8_failure_lineage_v9():
++    terminal=read(V8_TERMINAL_REF);wait=read(V8_WAIT_REF);launch=read(V8_LAUNCH_REF)
++    require(terminal.get("schema")=="ROOT_native_resume_v8_actual_consumed_terminal_v1"
++        and terminal.get("actual_tool_session_id")==74968 and terminal.get("actual_exit_code")==0
++        and terminal.get("actual_terminal_consumed") is True and terminal.get("actual_direct_worker_returncode")==1
++        and terminal.get("actual_OS_wait_status")==256 and terminal.get("all_owned_processes_and_groups_drained") is True
++        and terminal.get("complete_owned_roster_known") is True and terminal.get("known_identity_count")==1
++        and terminal.get("actual_wait_ref")==V8_WAIT_REF and terminal.get("actual_launch_ref")==V8_LAUNCH_REF
++        and terminal.get("actual_amendment_ref")==V8_AMENDMENT_REF
++        and terminal.get("known_worker_identity")==dict(pid=3660358,start=484268347)
++        and terminal.get("actual_supervisor_pid")==3659453 and terminal.get("actual_supervisor_start_ticks")=="UNKNOWN"
++        and terminal.get("native_CUDA_context_observed_MiB")==0 and terminal.get("native_model_optimizer_restore_reached") is False
++        and terminal.get("new_optimizer_updates")==0 and terminal.get("scientific_completion_asserted") is False
++        and terminal.get("original_alias_before_metadata_ref")==V8_ALIAS_BEFORE_REF
++        and terminal.get("original_alias_strict_after_ref")==V8_ALIAS_AFTER_REF,
++        "Genuine consumed v8 outer0 is failed direct1/noCUDA/no restore, never scientific completion")
++    require(wait.get("returncode")==1 and wait.get("actual_OS_wait_status")==256
++        and wait.get("actual_direct_worker_wait") is True and wait.get("all_owned_processes_and_groups_drained") is True
++        and wait.get("complete_owned_roster_known") is True and wait.get("completed_ref") is None
++        and wait.get("adapter_manifest_ref")==V8_MANIFEST_REF and wait.get("actual_execution_amendment_ref")==V8_AMENDMENT_REF
++        and wait["ownership"]["owned_identities"]==[dict(pid=3660358,start=484268347)]
++        and wait["ownership"]["known_identity_count"]==1 and wait["ownership"]["owned_roster_truncated"] is False
++        and launch["pid"]==3660358 and launch["parent_pid"]==3659453
++        and launch["ownership"]["owned_identities"]==[dict(pid=3660358,start=484268347)],
++        "Exact preserved v8 one-identity launch/wait/drain, unknown supervisor start remains unknown")
++    return terminal,wait,launch
++
++def entry_known_registry_v9():
++    global ENTRY_REGISTRY_CACHE_V9
++    require(HISTORICAL_ROOT_SCOPE_V9 is not None,"Authenticated historical ROOT scope before new entry probes")
++    if ENTRY_REGISTRY_CACHE_V9 is not None:
++        require(ENTRY_REGISTRY_CACHE_V9["actual_execution_amendment_ref"]==current_amendment_ref_v1(),"One exact v9 registry generation")
++        return copy.deepcopy(ENTRY_REGISTRY_CACHE_V9)
++    a,_,_=active_amendment_v1()
++    terminal,wait,launch=validate_v8_failure_lineage_v9()
++    old=HISTORICAL_ROOT_SCOPE_V9["registry"];pairs=[dict(row) for row in old["identities"]];groups=list(old["process_groups"])
++    def add(pid,start):
++        row=dict(pid=pid,start_ticks=start)
++        if row not in pairs:pairs.append(row)
++    add(3660358,484268347);add(3659453,None)
++    for row in wait["group_observations"]:
++        require(type(row["pgid"]) is int and row["absent"] is True,"Only actual recorded v8 groups")
++        if row["pgid"] not in groups:groups.append(row["pgid"])
++    extra=a.get("additional_known_old_ROOT_launcher_source_refs",[])
++    require(type(extra) is list and len(extra)<=64,"Bounded explicit extra old ROOT launcher metadata only")
++    for r in extra:
++        source=read(r)
++        for key in ("pid","parent_pid","supervisor_pid"):
++            if type(source.get(key)) is int:add(source[key],None)
++        for row in source.get("ownership",{}).get("owned_identities",[]):add(row["pid"],row["start"])
++        for row in source.get("group_observations",[]):
++            if row["pgid"] not in groups:groups.append(row["pgid"])
++    require(1<=len(pairs)<=4096 and 1<=len(groups)<=4096
++        and all(type(row["pid"]) is int and row["pid"]>=2 and (row["start_ticks"] is None or type(row["start_ticks"]) is int and row["start_ticks"]>0) for row in pairs)
++        and all(type(value) is int and value>=2 for value in groups),"Exact finite known entry registry")
++    ENTRY_REGISTRY_CACHE_V9=dict(schema="native_VAL000_exact_known_entry_registry_v9",
++        actual_execution_amendment_ref=current_amendment_ref_v1(),
++        historical_ROOT_bundle_ref=V8_KNOWN_BUNDLE_REF,historical_registry_ref=HISTORICAL_ROOT_SCOPE_V9["registry_ref"],
++        new_v8_source_refs=[V8_TERMINAL_REF,V8_WAIT_REF,V8_LAUNCH_REF],additional_known_old_ROOT_launcher_source_refs=extra,
++        identities=pairs,process_groups=groups,v8_supervisor_start_ticks=None,
++        historical_v3_descendant_coverage="UNKNOWN_TRUNCATED64",unknown_historical_descendants_claimed_listed=False,
++        current_entry_absence_established_by_registry_alone=False)
++    return copy.deepcopy(ENTRY_REGISTRY_CACHE_V9)
++
++
++def make_entry_tick_v9(spec,external_tick=None):
++    a,_,q=active_amendment_v1()
++    original_end=min(datetime.fromisoformat(a["original48h_window_anchor_utc"]).timestamp()+172800,
++        datetime.fromisoformat(original.ORIGINAL_ABSOLUTE_EXPIRY).timestamp(),
++        datetime.fromisoformat(spec["expires_at_utc"]).timestamp())-CAPS["work_cutoff_margin_seconds"]
++    strict_entry=datetime.fromisoformat("2026-10-16T23:31:32.476768+00:00").timestamp()
++    def tick():
++        if external_tick is not None:external_tick()
++        require(time.time()<min(original_end,strict_entry),
++            "Actual original anchored work/entry cutoff, no reset during entry probes")
++    tick()
++    return tick
+--- v8_package_bound/execution_only_v1.py
++++ v9/execution_only_v1.py
+@@ -56,7 +56,15 @@
+     # Unchanged exact native scientific/operational child function, with explicit
+     # ROOT-amended descendant I/O arguments and the new authenticated attachment.
+     from research.reviews.native_VAL000_full_state_resume_source_20261016_v9 import resume_scientific_bridge_v5
+-    rc=resume_scientific_bridge_v5.run_resumed_native_v5(input_ref,s,q,cfg,ticket,guard)
++    from research.reviews.native_VAL000_full_state_resume_source_20261016_v9 import fresh_entry_v9
++    entry_accounting=guard_v1(q)
++    entry_tick=make_entry_tick_v9(s)
++    # Keep the unchanged native code object. Its actual nested operational
++    # before-first-CUDA event runs only after all slow native runtime/setup.
++    entry_guard=fresh_entry_v9.ExactNativeEntryGuardV9(guard,native_child_v1.run_v1,
++        capture=lambda:fresh_entry_v9.capture_entry_v9(s,q,entry_accounting,storage,stage="worker",tick=entry_tick),
++        verify=lambda record:fresh_entry_v9.require_entry_ref_v9(record,s,stage="worker",tick=entry_tick))
++    rc=resume_scientific_bridge_v5.run_resumed_native_v5(input_ref,s,q,cfg,ticket,entry_guard)
+     bridge_path=local(s["output_directory"])/"actual_execution_amendment.json"
+     bridge_receipt=dict(
+         schema="native32_actual_child_execution_source_bridge_v1",original_input_ref=input_ref,
+@@ -79,7 +87,7 @@
+     work_deadline=min(work_deadline_monotonic_v1(),stage_started+CAPS["max_seconds"]-CAPS["work_cutoff_margin_seconds"],
+         time.monotonic()+expires_unix-time.time()-CAPS["work_cutoff_margin_seconds"])
+     g=guard_v1(q)
+-    normalize_original_alias_v7(s,q,g,storage)
++    original_alias_acceptance=normalize_original_alias_v7(s,q,g,storage)
+     g.validate_storage_v9(s,dict(output_cap_bytes=CAPS["reservation_bytes"]),storage,
+         source_ref=ref(DRIVER),config_ref=s["refs"]["config"],runtime_ref=s["refs"]["runtime"])
+     out,aux=local(s["output_directory"]),local(s["worker_auxiliary_scope"])
+@@ -95,7 +103,7 @@
+     last_census=charged_census_v1(s);peak_scope=sum(last_census.values())
+     compact_v1(s,"effective_execution_view.json",dict(schema="native32_actual_explicit_execution_view_v1",
+         original_input_ref=input_ref,actual_execution_amendment_ref=current_amendment_ref_v1(),
+-        adapter_manifest_ref=ref(MANIFEST),effective_output_directory=s["output_directory"],
++        adapter_manifest_ref=ref(MANIFEST),original_alias_acceptance=original_alias_acceptance,effective_output_directory=s["output_directory"],
+         effective_admin_directory=s["worker_auxiliary_scope"],original_storage_ref=s["refs"]["storage"],
+         original_reservation_authenticates_new_adapter=False,separate_ROOT_amendment_authenticates_new_adapter=True,
+         whole_original_output_root=s["original_charged_output_directory"],whole_original_AUX_root=s["original_charged_auxiliary_scope"]),g,storage)
+@@ -188,6 +196,11 @@
+         active_amendment_v1()
+         require(cancelled is None and time.monotonic()<work_deadline,
+             "Cancelled or anchored scientific work cutoff reached before gate release")
++        from research.reviews.native_VAL000_full_state_resume_source_20261016_v9 import fresh_entry_v9
++        supervisor_entry_tick=make_entry_tick_v9(s,external_tick=lambda:require(
++            cancelled is None and time.monotonic()<work_deadline,"Actual cancellation/work cutoff before gate"))
++        supervisor_entry=fresh_entry_v9.capture_entry_v9(s,q,g,storage,stage="supervisor",tick=supervisor_entry_tick)
++        fresh_entry_v9.require_entry_ref_v9(supervisor_entry,s,stage="supervisor",tick=supervisor_entry_tick)
+         os.write(gate_write,b"G");gate_released=True;os.close(gate_write);gate_write=None
+ 
+         while True:

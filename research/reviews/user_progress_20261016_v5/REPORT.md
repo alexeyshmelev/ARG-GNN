@@ -13,3 +13,5 @@ The full1611-diploid Relate pipeline remains under actual tool41415, with its kn
 Only GPU0 is eligible. All writes remain in this repository. No disk scan or truth access was used for this update.
 
 [Revised PDF](../../../paper/current_full_panel_working.pdf) · [Overleaf bundle](../../../paper/current_full_panel_overleaf_working.zip) · [Final build/figure assessment](../paper_scientific_rewrite_20261016_v3/final_integration.root_v1.json).
+
+At 2026-10-16T17:33:29.083032+00:00, C3 has recorded 600/600 completed optimizer updates, with actual final terminal/completion still pending. Original VAL003 inference is admitted and its CPU child launch is observed under tool95470. Reviewed nativev9 is in actual ROOT preparation under tool53205, with no native launch issued. Neither adds an ancestry score. Current accounting commitment after VAL003 reservation is 978816094044 bytes, distinct from physical disk use.
