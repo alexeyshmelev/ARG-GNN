@@ -1,0 +1,7 @@
+H055 v1 independent source review found three bounded issues: low-priority malformed INFO type handling; medium-priority deadline enforcement on cached BGZF/parse paths; low-priority roster output filename mismatch. Exact file/line evidence and minimal recommendations are in review.v1.json.
+
+The reviewed GP dosage, common13 support, group/proxy signs, coordinate joins and fixed-support subject/block/chromosome denominators match the frozen descriptive estimand. Cached public chr22 metadata confirms3331 unique columns,1667 ordinary samples and every selected ordinary-index join. GP Number3 Float, INFO NumberA Float, strict-mask Flag and the reference declaration match the intended schema. Missing chr22 contig metadata is handled explicitly.
+
+The512MiB/chromosome transfer cap and16MiB/100000-row output fit remain unqualified. Wide3331-column AP-bearing source records still must be transferred and decoded. Failure must remain incomplete/inconclusive; do not thin or alter the frozen panel to make it fit. The source enforces a logical output-byte bound; root callbacks retain conservative filesystem/scope accounting.
+
+No empirical row, network request, model/GPU/accounting operation, scientific import/execution or fixture was run. The root-reported tiny v1 fixture exit0/chunk7a5fae was not duplicated. Review does not establish an empirical verdict or actual runtime/capacity qualification. All v1 files remain unchanged.

@@ -1,4 +1,4 @@
-Current full-panel working manuscript: [compiled PDF](current_full_panel_working.pdf), [LaTeX source](current_full_panel_working.tex), [Overleaf source bundle](current_full_panel_overleaf_working.zip). Root compiled and visually checked all8pages on2026-10-15. This is a development draft with unfinished scientific validation.
+Current compiled development manuscript: [PDF](current_full_panel_working.pdf), [LaTeX source](current_full_panel_working.tex), [Overleaf source bundle](current_full_panel_overleaf_working.zip). Root compiled and visually checked all eight pages on 2026-10-15. This frozen draft covers H038–H043. It does not yet incorporate the later H045–H048 results or the running H050 and American comparisons. [Latest scores and remaining benchmarks](../README.md#latest-status).
 
 # Manuscript sources
 
@@ -14,8 +14,7 @@ This is an incomplete development manuscript, with no H044 result.
 [Author status and remaining evidence gates](CURRENT_FULL_PANEL_README.md)
 and [exact evidence/source provenance](current_full_panel_provenance.json)
 record unresolved external benchmarks, independent confirmation and novelty
-assessment. Compilation, visual review and page count remain root-owned and
-unverified. The scientific goal is not complete.
+assessment. Compilation and visual review are recorded in the linked root receipt. The scientific goal remains incomplete.
 
 ## Historical methods drafts
 

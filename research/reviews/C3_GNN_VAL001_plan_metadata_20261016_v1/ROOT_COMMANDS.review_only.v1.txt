@@ -1,0 +1,98 @@
+# ROOT-ONLY COMMANDS. Source preparation did not run these commands.
+# Run on anogena from /workspace-SR003.nfs2/ARG-GNN.
+# Original --bind is intentionally not used: it selects legacy multi-GiB caps.
+# 1. Metadata-only activation with the unchanged contract's read/save/validate APIs.
+.runtime/env/bin/python -B - <<'PY'
+from pathlib import Path
+import importlib.util,json
+root=Path("/workspace-SR003.nfs2/ARG-GNN")
+legacy="research/reviews/C3_GNN_current980_executable_root_20261015_v1"
+packet="research/reviews/C3_GNN_VAL001_plan_metadata_20261016_v1"
+spec=importlib.util.spec_from_file_location("_VAL001_root_metadata_bind",root/legacy/"root_contract_v1.py")
+c=importlib.util.module_from_spec(spec);spec.loader.exec_module(c)
+inactive=dict(path=packet+"/request_plan_val_001.bootstrap_inactive.v1.json",sha256="3075577ae85a8a38136a8e03715f3747b0cbd2e253664c5e626d5d69911ca219")
+proposed_caps=dict(path=packet+"/caps_plan_val_001.proposed_inactive.json",sha256="9e5e3cdd8efa418be0a6e03d08676daa518040b81469a09c3ae052382e6b7f16")
+req=c.read(inactive);caps=c.read(proposed_caps)
+c.require(req["active"] is False and caps["active"] is False and req["phase"]==caps["phase"]=="plan_val_001","Exact inactive reviewed CPU request/caps")
+c.validate_bindings(req["phase"],req["bindings"])
+folder=root/legacy
+c.require(not (folder/"request_plan_val_001.root_active_v1.json").exists() and not (folder/"caps_plan_val_001.root_active_v1.json").exists(),"Exclusive root activation, no replay")
+caps.update(active=True)
+caps_ref=c.save(folder,"caps_plan_val_001.root_active_v1.json",caps)
+req.update(active=True,caps_ref=caps_ref)
+request_ref=c.save(folder,"request_plan_val_001.root_active_v1.json",req)
+c.validate_request(request_ref)
+runtime=c.read(req["operational_runtime_ref"])
+receipt=dict(schema="C3_GNN_VAL001_root_actual_activation_receipt_v1",root_authorizer="root_agent",
+ phase="plan_val_001",inactive_request_ref=inactive,proposed_caps_ref=proposed_caps,request_ref=request_ref,caps_ref=caps_ref,
+ operational_runtime_ref=req["operational_runtime_ref"],operational_wrapper_ref=req["operational_wrapper_ref"],
+ runtime_bootstrap_ref=req["runtime_bootstrap_ref"],renewal_source_ref=req["renewal_source_ref"],
+ renewal_certificate_ref=req["renewal_certificate_ref"],legacy_driver_ref=c.ref(c.DRIVER),
+ original_child_PYTHONPATH=runtime["original_child_PYTHONPATH"],
+ prospective_child_PYTHONPATH=runtime["actual_child_PYTHONPATH"],child_launch_has_occurred=False,
+ actual_admission=False,actual_execution=False,only_new_metadata_written=True)
+receipt_ref=c.save(root/packet,"root_activation_bootstrap_receipt.actual_v1.json",receipt)
+print(json.dumps(dict(request_ref=request_ref,caps_ref=caps_ref,activation_receipt_ref=receipt_ref)),flush=True)
+PY
+
+# 2. Scope the explicit request environment to this root shell/task.
+export ARGGNN_C3_VAL001_ROOT_REQUEST_PATH='research/reviews/C3_GNN_current980_executable_root_20261015_v1/request_plan_val_001.root_active_v1.json'
+export ARGGNN_C3_VAL001_ROOT_REQUEST_SHA256="$(.runtime/env/bin/python -B -c 'from pathlib import Path;import hashlib;print(hashlib.sha256(Path("research/reviews/C3_GNN_current980_executable_root_20261015_v1/request_plan_val_001.root_active_v1.json").read_bytes()).hexdigest())')"
+
+# 3. Root admission: wrapper installs exact existing renewal, then calls unchanged driver.main/admit.
+.runtime/env/bin/python -B research/reviews/C3_GNN_VAL001_plan_metadata_20261016_v1/root_operational_bootstrap_v1.py --admit --request "$ARGGNN_C3_VAL001_ROOT_REQUEST_PATH" --expected-request-sha256 "$ARGGNN_C3_VAL001_ROOT_REQUEST_SHA256"
+
+# 4. Root launch: capture the genuine terminal result of this setsid --wait command.
+# The unchanged supervisor creates/waits/drains the exact original CPU worker.
+# Its private subprocess proxy adds only packet/startup to that worker's PYTHONPATH.
+setsid --wait .runtime/env/bin/python -B research/reviews/C3_GNN_VAL001_plan_metadata_20261016_v1/root_operational_bootstrap_v1.py --launch --request "$ARGGNN_C3_VAL001_ROOT_REQUEST_PATH" --expected-request-sha256 "$ARGGNN_C3_VAL001_ROOT_REQUEST_SHA256"
+
+# 5. ONLY after root consumed that command's genuine terminal wait0, has independently
+# revoked every prior launch/resume/write capability, and is ready to attest both facts:
+# Set ARGGNN_C3_VAL001_ROOT_CLOSE_ATTESTATION to observed-terminal0-and-revoked.
+# This value is deliberately not set here. File presence is never terminal evidence.
+.runtime/env/bin/python -B - <<'PY'
+from pathlib import Path
+import importlib.util,json,os
+root=Path("/workspace-SR003.nfs2/ARG-GNN")
+legacy="research/reviews/C3_GNN_current980_executable_root_20261015_v1"
+spec=importlib.util.spec_from_file_location("_VAL001_root_close_approval",root/legacy/"root_contract_v1.py")
+c=importlib.util.module_from_spec(spec);spec.loader.exec_module(c)
+c.require(os.environ.get("ARGGNN_C3_VAL001_ROOT_CLOSE_ATTESTATION")=="observed-terminal0-and-revoked","Root's genuine terminal0 consumption and actual capability-revocation attestation required")
+packet,_=c.phase_paths("plan_val_001")
+admitted=c.read(c.ref(packet/"admitted.json"));wait_ref=c.ref(packet/"actual_wait.json");wait=c.read(wait_ref)
+c.require(wait["returncode"]==0 and wait["operational_failure"] is None and wait["all_owned_processes_and_groups_drained"] is True,"Genuine original successful wait/drain")
+approval=dict(schema="C3_GNN_current980_root_close_approval_v1",root_authorizer="root_agent",active=True,
+ driver_ref=c.ref(c.DRIVER),input_ref=admitted["input_ref"],actual_wait_ref=wait_ref,
+ root_actually_consumed_supervisor_terminal_wait0=True,all_prior_launch_resume_write_capabilities_revoked=True,
+ all_genuinely_owned_PIDs_and_groups_listed=True,
+ root_owned_pids=sorted(set(wait["known_owned_pids"])|{wait["supervisor_pid"]}),
+ root_owned_process_groups=sorted(set(wait["known_owned_process_groups"])|{wait["supervisor_process_group"]}))
+record=c.save(packet,"root_close_approval.actual_v1.json",approval)
+print(json.dumps(dict(root_approval_ref=record)),flush=True)
+PY
+
+export ARGGNN_C3_VAL001_ROOT_CLOSE_APPROVAL_SHA256="$(.runtime/env/bin/python -B -c 'from pathlib import Path;import hashlib;print(hashlib.sha256(Path("research/reviews/C3_GNN_current980_executable_root_20261015_v1/admitted_plan_val_001_v1/root_close_approval.actual_v1.json").read_bytes()).hexdigest())')"
+.runtime/env/bin/python -B research/reviews/C3_GNN_VAL001_plan_metadata_20261016_v1/root_operational_bootstrap_v1.py --close --request "$ARGGNN_C3_VAL001_ROOT_REQUEST_PATH" --expected-request-sha256 "$ARGGNN_C3_VAL001_ROOT_REQUEST_SHA256" --root-approval research/reviews/C3_GNN_current980_executable_root_20261015_v1/admitted_plan_val_001_v1/root_close_approval.actual_v1.json --expected-root-approval-sha256 "$ARGGNN_C3_VAL001_ROOT_CLOSE_APPROVAL_SHA256"
+
+# 6. After genuine root close, derive actual future-v3 evidence; no future hashes are prefilled.
+.runtime/env/bin/python -B - <<'PY'
+from pathlib import Path
+import importlib.util,json
+root=Path("/workspace-SR003.nfs2/ARG-GNN")
+legacy="research/reviews/C3_GNN_current980_executable_root_20261015_v1"
+future="research/reviews/C3_GNN_prefetch_ramcache_isolated980_root_20261015_v3"
+def load(rel,name):
+ spec=importlib.util.spec_from_file_location(name,root/rel/"root_contract_v1.py")
+ m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);return m
+c=load(legacy,"_VAL001_closed_metadata");v3=load(future,"_VAL001_future_v3_metadata")
+packet,output=c.phase_paths("plan_val_001")
+evidence=dict(route="current980_zero_worker",completion_ref=c.ref(root/output/"completed.json"),
+ actual_wait_ref=c.ref(packet/"actual_wait.json"),close_receipt_ref=c.ref(packet/"closed/close_receipt.json"))
+completed=c.read(evidence["completion_ref"]);result=c.read(completed["result_ref"])
+plan_ref=result["block_index_ref"]
+v3.validate_closed_plan_stage(evidence,plan_ref,"american_c3_val_001")
+record=c.save(root/"research/reviews/C3_GNN_VAL001_plan_metadata_20261016_v1","future_v3_closed_plan_evidence.actual_v1.json",
+ dict(evidence=evidence,plan_ref=plan_ref,parent_id="american_c3_val_001",future_v3_validator_passed=True))
+print(json.dumps(dict(closed_plan_evidence_ref=record)),flush=True)
+PY
