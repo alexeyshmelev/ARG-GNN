@@ -1,0 +1,332 @@
+--- research/reviews/European_outer8_preparation_source_20261016_v3/prepare_outer000_v1.py
++++ research/reviews/European_outer8_current_policy_successor_source_20261016_v1/prepare_outer000_v1.py
+@@ -3,17 +3,21 @@
+ from datetime import datetime, timezone
+ import argparse, ctypes, hashlib, importlib, importlib.util, json, os, selectors, signal, stat, subprocess, sys, time
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-HERE="research/reviews/European_outer8_preparation_source_20261016_v3"
++HERE="research/reviews/European_outer8_current_policy_successor_source_20261016_v1"
++BASE_HERE="research/reviews/European_outer8_preparation_source_20261016_v3"
+ SOURCE=HERE+"/prepare_outer000_v1.py"
+ MANIFEST=HERE+"/source_manifest.v1.json"
+-REGISTRY=HERE+"/outer8_registry.v1.json"
+-METHODS=HERE+"/frozen_method_ids.v1.json"
+-PROTOCOL=HERE+"/protocol.v1.json"
++REGISTRY=BASE_HERE+"/outer8_registry.v1.json"
++METHODS=BASE_HERE+"/frozen_method_ids.v1.json"
++PROTOCOL=BASE_HERE+"/protocol.v1.json"
+ CONFIG=dict(path="configs/expanded_full_panel_v1.json",sha256="662ba8e4613ce85b9aaec9909e873c9cddf9c62672b895e7d9e02f851d518d08")
+ PRODUCER=dict(path="src/arggnn/prepare_expanded_full_panel_v1.py",sha256="2ff091677986d5cfec2936c2acf53eeed71c957192f9f048cb47f59d3351913e")
+ ORIGINAL=dict(path="src/arggnn/prepare_ancestralpaths_full_panel_discovery_v1.py",sha256="ead823158a001dabdbf2224d812e7ef8079b6af4382f6e8e10ca0e0894760e71")
+-GUARD=dict(path="research/reviews/prospective980_Census_fit2_retention_source_20261016_v1/prospective_980gb_Census_fit2_v1.py",sha256="fab6bb67bc1f4be989df9bb16e7a3a17d24652ca8238617ca060a56cb8c89d43")
+-POLICY=dict(path="research/reviews/prospective980_Census_fit2_root_activation_20261016_v1/activation_policy.root_active_v1.json",sha256="72ff346c43f96ba8430411cfe6b2250480a3aa66fa8e3b8c904a625a0399932a")
++SELECTOR=dict(path="research/reviews/native7_H050_stopped_retention_successor_source_20261016_v1/explicit_policy_selector_v1.py",sha256="2a991ca6e2da3f4ba05888bc44e4cd53025f929abf88760aa4f93571e13bc87b")
++APPROVED={
++ "native14_stopped_retention_v3":dict(source_ref={'path': 'research/reviews/native14_stopped_retention_successor_source_20261016_v3/native14_stopped_retention_v1.py', 'sha256': '60d010e393bda25f662381051b3fd3d4e4decfa034b10c3baad3c3f30a6a196c'},manifest_ref={'path': 'research/reviews/native14_stopped_retention_successor_source_20261016_v3/source_manifest.v1.json', 'sha256': 'c2bae5575ae0e8e68e152b0edde0b7b2d53e4fc7398a3a8501ce278e23a84fa6'},policy_ref={'path': 'research/reviews/native14_stopped_retention_ROOT_activation_20261016_v3/activation_policy.root_active_v1.json', 'sha256': '72ed727feb1a824fa8f9c2b31ce374dca6728ca4e655e9562b4dedc84122f417'}),
++ "native7_H050_stopped_retention_v1":dict(source_ref={'path': 'research/reviews/native7_H050_stopped_retention_successor_source_20261016_v1/stopped_retention_v1.py', 'sha256': 'c9392ed88b76a5a6c1394d13ff78b55df83c1b16d8186d23b4d3110b46008e8f'},manifest_ref={'path': 'research/reviews/native7_H050_stopped_retention_successor_source_20261016_v1/source_manifest.v1.json', 'sha256': 'cb6c3af2858d007d74edb08742f8633ddef5f2a9cb4c6cd5b3682205fee32d88'},policy_ref=None)}
++_SELECTED_REF=_SELECTED_VALUE=_SELECTOR_MODULE=_GUARD=None
+ REPAIR=dict(path="research/reviews/H039_missing_marker_repair_v1/repair_authority_20261015.json",sha256="f6f2d628199e8be73db8b5d90d428570d8afdefeab9dc5cd94bb5eafb39247db")
+ NAMESPACE=dict(path="research/reviews/current_mutex_contention_20261015_v1/consumer_namespace_memo_v1.py",sha256="17a1377320f61c3c0cc8d3816d0259f9dae3121ed91bf7206a7ee63fcab8eb7f")
+ V4=dict(path="src/arggnn/project_budget_v4.py",sha256="a093c7d86f57fee569cb99f4712250e9505a1119f3950fa44282c7ba8c57df47")
+@@ -86,12 +90,115 @@
+          and all(type(x) is int for x in cpus) and set(cpus)<=os.sched_getaffinity(0),"Eight actually available CPU identities")
+     review=read(q["source_review_ref"])
+     need(review.get("verdict") in ("PASS","SOURCE_PASS") and review.get("source_manifest_ref")==ref(MANIFEST),"Actual independent source review")
++    prospective(q,cfg)
+     return q,cfg
+-def guard(consumer):
+-    g=load(GUARD,"_European_outer_actual_Census_child")
+-    g.configure_with_renewal_v1(REPAIR,policy_ref=POLICY)
+-    need(all(getattr(g.budget.v4,n).__module__==g.budget.v4.__name__ for n in ("canonical","file_bytes","mutex")),"Fresh original guard before role choice")
+-    if consumer:
++
++def selection(selector_ref):
++    """Read exact ROOT choice only. Does not configure or probe a guard."""
++    value=read(selector_ref)
++    need(value.get("schema")=="explicit_ROOT_storage_policy_selector_v1"
++         and value.get("active") is True and value.get("root_authorizer")=="root_agent"
++         and value.get("selector_source_ref")==SELECTOR
++         and value.get("accounting_mode") in APPROVED
++         and value.get("no_fallback_discovery_upgrade_or_in_run_swap") is True
++         and value.get("future_ROOT_adapters_only") is True
++         and value.get("scheduling_ceiling_bytes")==980000000000
++         and value.get("human_limit_bytes")==1000000000000
++         and value.get("warning_threshold_bytes")==950000000000,
++         "Exact explicit reviewed ROOT policy choice; no discovery or fallback")
++    approved=APPROVED[value["accounting_mode"]]
++    need(value.get("source_ref")==approved["source_ref"]
++         and value.get("source_manifest_ref")==approved["manifest_ref"]
++         and (approved["policy_ref"] is None or value.get("policy_ref")==approved["policy_ref"]),
++         "Exact sealed current native14v3 or separately activated reviewed child")
++    for key in ("source_ref","source_manifest_ref","measurement_source_ref","source_review_ref","repair_authority_ref"):
++        raw(value[key])
++    return value
++
++def registration(q):
++    """Authenticate the real prospective registration snapshot, not readiness flags."""
++    receipt=read(q["registration_ref"])
++    need(receipt.get("schema")=="European_outer8_prospective_registration_v1"
++         and receipt.get("root_authorizer")=="root_agent" and receipt.get("status")=="registered"
++         and receipt.get("condition")=="European_outer8_frozen_predictor_independent_confirmation_v1"
++         and receipt.get("linked_hypothesis_ids")==["H038","H050"]
++         and receipt.get("method_freeze_ref")==q["method_freeze_ref"]
++         and receipt.get("protocol_ref")==ref(PROTOCOL) and receipt.get("registry_ref")==ref(REGISTRY)
++         and receipt.get("decisions_snapshot_ref")==q["registration_decisions_ref"]
++         and receipt.get("ledger_snapshot_ref")==q["registration_ledger_ref"],
++         "Actual exact independent-confirmation registration and immutable snapshots")
++    decisions=read(q["registration_decisions_ref"])
++    entries=[d for d in decisions["decisions"] if d.get("id")==receipt["hypothesis_id"]]
++    need(len(entries)==1,"Exactly one actual registered hypothesis in decisions snapshot")
++    decision=entries[0]
++    for key in ("condition","linked_hypothesis_ids","method_freeze_ref","protocol_ref","registry_ref"):
++        need(decision.get(key)==receipt[key],"Registered independent condition "+key)
++    need(decision.get("outer_tuning_authorized") is False
++         and isinstance(decision.get("repeat_reason"),str) and decision["repeat_reason"].strip(),
++         "Explicit independent confirmation reason and no outer tuning")
++    ledger=raw(q["registration_ledger_ref"]).decode("utf-8")
++    need(receipt["hypothesis_id"] in ledger and "independent" in ledger.lower(),
++         "Actual ledger snapshot contains the independent registration")
++    stamp=datetime.fromisoformat(receipt["registered_at_utc"])
++    freeze_time=datetime.fromisoformat(read(q["method_freeze_ref"])["frozen_at_utc"])
++    need(stamp.tzinfo and freeze_time<=stamp<=datetime.fromisoformat(q["created_at_utc"]),
++         "Actual freeze and registration precede new request")
++    return receipt
++
++def prospective(q,cfg):
++    registration(q);selection(q["policy_selector_ref"])
++    runtime=read(q["runtime_ref"]);qualification=read(q["runtime_qualification_ref"])
++    need(runtime.get("schema")=="European_outer000_CPU_runtime_v1"
++         and runtime.get("device")=="cpu" and runtime.get("CUDA_VISIBLE_DEVICES")==""
++         and runtime.get("interpreter")==str(ROOT/".runtime/env/bin/python")
++         and runtime.get("config_runtime")==cfg["runtime"] and runtime.get("native_threads")==8
++         and runtime.get("cpu_ids")==q["cpu_ids"],"Actual complete original generation runtime")
++    need(qualification.get("schema")=="European_outer000_runtime_qualification_v1"
++         and qualification.get("root_authorizer")=="root_agent" and qualification.get("status")=="qualified"
++         and qualification.get("runtime_ref")==q["runtime_ref"]
++         and qualification.get("operational_manifest_ref")==ref(MANIFEST)
++         and qualification.get("config_ref")==CONFIG and qualification.get("producer_ref")==PRODUCER
++         and qualification.get("unresolved_items")==[],"Actual reviewed generation runtime qualification")
++
++def generation_direct_refs_v1(q,request_ref):
++    """Keep every returned guard separately. This is only the additional role set."""
++    return [ref(MANIFEST),ref(SOURCE),CONFIG,PRODUCER,ORIGINAL,ref(REGISTRY),ref(METHODS),ref(PROTOCOL),
++        request_ref,q["runtime_ref"],q["method_freeze_ref"],q["source_review_ref"],PIDFD,OWNED,NAMESPACE,V4,
++        SELECTOR,q["policy_selector_ref"],q["registration_ref"],q["registration_decisions_ref"],
++        q["registration_ledger_ref"],q["runtime_qualification_ref"]]
++
++def consumer_direct_refs_v1(q,stage):
++    need(stage in ("validate","score"),"Exact complete matrix consumer stage")
++    refs=[ref(MANIFEST),ref(HERE+"/check_prediction_barrier_v1.py"),ref(SOURCE),
++        ref(BASE_HERE+"/source_manifest.v1.json"),ref(PROTOCOL),
++        ref(BASE_HERE+"/outer_prediction_validator_v2.py"),ref(BASE_HERE+"/outer_adapters_v2.py"),
++        ref(BASE_HERE+"/h050_observed_bridge_v3.py"),ref(REGISTRY),ref(METHODS),NAMESPACE,V4,
++        q["root_request_ref"],q["runtime_ref"],q["method_freeze_ref"],q["entry_review_ref"],
++        q["runtime_qualification_ref"],q["bundle_ref"],SELECTOR,q["policy_selector_ref"],
++        q["registration_ref"],q["registration_decisions_ref"],q["registration_ledger_ref"]]
++    if stage=="score":
++        refs.extend([ref(BASE_HERE+"/score_outer_v2.py"),q["scorer_review_ref"],q["actual_integration_qualification_ref"]])
++    return refs
++
++
++def guard(selector_ref,consumer):
++    """Configure exact selected module once before memo. Never reselect after memo."""
++    global _SELECTED_REF,_SELECTED_VALUE,_SELECTOR_MODULE,_GUARD
++    chosen=selection(selector_ref)
++    if _GUARD is None:
++        selector=load(SELECTOR,"_European_outer_explicit_selector")
++        g=selector.load_selected_guard_v1(selector_ref)
++        need(g.MODE==chosen["accounting_mode"] and g._POLICY_REF==chosen["policy_ref"],
++             "Actual selected guard/policy identity")
++        _SELECTED_REF=selector_ref.copy();_SELECTED_VALUE=chosen;_SELECTOR_MODULE=selector;_GUARD=g
++    else:
++        need(selector_ref==_SELECTED_REF and chosen==_SELECTED_VALUE
++             and _GUARD.MODE==chosen["accounting_mode"] and _GUARD._POLICY_REF==chosen["policy_ref"],
++             "Same immutable configured selection for lifetime; no reconfigure")
++    g=_GUARD
++    if consumer and not hasattr(g,"_outer_memo"):
++        need(all(getattr(g.budget.v4,n).__module__==g.budget.v4.__name__
++                 for n in ("canonical","file_bytes","mutex")),"Fresh original guard before memo")
+         ns=load(NAMESPACE,"_European_outer_original_memo")
+         g._outer_memo=ns.install_consumer_v1(g.budget.v4,g.budget,consumer_role="read_only_consumer",
+             expected_source_path=local(V4["path"]),expected_source_sha256=V4["sha256"])
+@@ -143,28 +250,28 @@
+     need(sum(totals)<=CAPS["reservation_bytes"],"Whole owned polling cap")
+     return totals
+ def input_spec(r):
+-    s=read(r);current(s);q,cfg=request(s["root_request_ref"])
++    s=read(r);current(s);q,cfg=request(s["root_request_ref"]);chosen=selection(q["policy_selector_ref"])
+     need(r["path"]==q["packet_directory"]+"/input.json" and s["schema"]=="expanded_full_panel_v1_root_admission"
+          and s["parent_id"]==PARENT and s["allowed_stages"]==["all"] and s["output_directory"]==OUTPUT
+          and s["outer_evaluation_authorized"] is False and s["source_ref"]==PRODUCER
+          and s["config_ref"]==CONFIG and s["config_content_sha256"]==digest(cfg)
+          and s["parent_registry_sha256"]==digest(cfg["parent_registry"])
+-         and s["storage_adapter_ref"]==GUARD and s["worker_auxiliary_scope"]==q["packet_directory"]+"/worker_aux"
++         and s["storage_adapter_ref"]==chosen["source_ref"] and s["worker_auxiliary_scope"]==q["packet_directory"]+"/worker_aux"
+          and s["created_at_utc"]==q["created_at_utc"] and s["expires_at_utc"]==q["expires_at_utc"]
+-         and s["storage"]["completed_overlay_policy_ref"]==POLICY
++         and s["storage"]["completed_overlay_policy_ref"]==chosen["policy_ref"]
++         and s["policy_selector_ref"]==q["policy_selector_ref"]
++         and s["registration_ref"]==q["registration_ref"]
+          and s["storage"]["reserved_new_bytes"]==CAPS["reservation_bytes"],"Exact unchanged producer admission/storage")
+     return s,q,cfg
+ def admit(r):
+     need(Path.cwd()==ROOT and sys.dont_write_bytecode,"ROOT cwd/no bytecode")
+     q,cfg=request(r);packet=local(q["packet_directory"])
+     need(not packet.exists() and not local(OUTPUT).exists(),"Fresh first-parent scopes; no resume")
+-    g=guard(False);packet.mkdir()
+-    rt=put(packet/"runtime.json",dict(schema="European_outer000_CPU_runtime_v1",device="cpu",CUDA_VISIBLE_DEVICES="",
+-        interpreter=str(ROOT/".runtime/env/bin/python"),config_runtime=cfg["runtime"],native_threads=8,cpu_ids=q["cpu_ids"]))
++    chosen=selection(q["policy_selector_ref"]);g=guard(q["policy_selector_ref"],False);packet.mkdir()
++    rt=q["runtime_ref"]
+     impl,launcher=ref(g.budget.SOURCE_REL),ref(g.budget.LAUNCHER_REL)
+     with g.budget.v4.mutex(ROOT):state=g._state_locked(impl["sha256"],launcher["sha256"],fresh=True)
+-    consumers=g.consumer_bindings_v1(list(state[3].values()),[ref(MANIFEST),ref(SOURCE),CONFIG,PRODUCER,ORIGINAL,
+-        ref(REGISTRY),ref(METHODS),ref(PROTOCOL),r,rt,q["method_freeze_ref"],q["source_review_ref"],PIDFD,OWNED,NAMESPACE,V4])
++    consumers=g.consumer_bindings_v1(list(state[3].values()),generation_direct_refs_v1(q,r))
+     auxiliary=q["packet_directory"]+"/worker_aux"
+     own=dict(key="European_outer8/"+PARENT,output=str(local(OUTPUT)),auxiliary_scopes=[str(local(auxiliary))],
+         reserved_bytes=CAPS["reservation_bytes"],consumer_bindings=consumers)
+@@ -176,14 +283,14 @@
+     storage=dict(kind="project_budget_v9_storage_record",active=True,consumer_uses_v9_guard=True,accounting_mode=g.MODE,
+         job_id=JOB,output_directory=OUTPUT,reserved_new_bytes=CAPS["reservation_bytes"],reservation=receipt["value"],
+         initial_ledger_pins=receipt["initial_ledger_pins"],created_at_utc=q["created_at_utc"],expires_at_utc=q["expires_at_utc"],
+-        completed_overlay_policy_ref=POLICY,budget_components=dict(implementation=impl,launcher=launcher,consumer_adapter=GUARD))
++        completed_overlay_policy_ref=chosen["policy_ref"],budget_components=dict(implementation=impl,launcher=launcher,consumer_adapter=chosen["source_ref"]))
+     sr=put(packet/"storage.json",storage)
+     spec=dict(schema="expanded_full_panel_v1_root_admission",root_authorizer="root_agent",execution_authorized=True,status="active",
+         parent_id=PARENT,allowed_stages=["all"],job_id=JOB,output_directory=OUTPUT,source_ref=PRODUCER,config_ref=CONFIG,
+         config_content_sha256=digest(cfg),parent_registry_sha256=digest(cfg["parent_registry"]),runtime_ref=rt,
+-        created_at_utc=q["created_at_utc"],expires_at_utc=q["expires_at_utc"],storage=storage,storage_adapter_ref=GUARD,
++        created_at_utc=q["created_at_utc"],expires_at_utc=q["expires_at_utc"],storage=storage,storage_adapter_ref=chosen["source_ref"],
+         outer_evaluation_authorized=False,worker_auxiliary_scope=auxiliary,root_request_ref=r,
+-        registration_ref=ref(REGISTRY),no_scientific_modifications_to_original_generation=True)
++        registration_ref=q["registration_ref"],policy_selector_ref=q["policy_selector_ref"],no_scientific_modifications_to_original_generation=True)
+     ir=put(packet/"input.json",spec)
+     put(packet/"admitted.json",dict(input_ref=ir,storage_ref=sr,reserve_receipt_ref=rr,consumer_count=len(consumers),execution=False))
+     return dict(input_ref=ir,admission_only=True)
+@@ -195,7 +302,7 @@
+     for name,expected in cfg["runtime"].items():
+         if name=="python":need(sys.version_info[:2]==(3,11),"Original Python3.11")
+         else:need(importlib.import_module(name).__version__==expected,"Original runtime "+name)
+-    g=guard(True)
++    g=guard(q["policy_selector_ref"],True)
+     g.validate_storage_v9(s,dict(output_cap_bytes=CAPS["reservation_bytes"]),s["storage"],
+         source_ref=ref(SOURCE),config_ref=CONFIG,runtime_ref=s["runtime_ref"])
+     raw(PRODUCER);raw(ORIGINAL)
+@@ -208,7 +315,7 @@
+         need(names==sorted(expected),"Exact original output/private-label whitelist")
+     boundary(g,s);print(json.dumps(dict(status="prepared_original_outer000",outer_truth_scored=False)),flush=True);return 0
+ def execute(r):
+-    started=time.monotonic();s,q,cfg=input_spec(r);g=guard(True)
++    started=time.monotonic();s,q,cfg=input_spec(r);g=guard(q["policy_selector_ref"],True)
+     need(Path.cwd()==ROOT and Path(sys.executable).resolve()==(ROOT/".runtime/env/bin/python").resolve(),"Original CPU supervisor runtime")
+     need(not local(OUTPUT).exists() and not local(s["worker_auxiliary_scope"]).exists(),"Fresh one-shot execution only")
+     g.validate_storage_v9(s,dict(output_cap_bytes=CAPS["reservation_bytes"]),s["storage"],source_ref=ref(SOURCE),config_ref=CONFIG,runtime_ref=s["runtime_ref"])
+--- research/reviews/European_outer8_preparation_source_20261016_v3/check_prediction_barrier_v2.py
++++ research/reviews/European_outer8_current_policy_successor_source_20261016_v1/check_prediction_barrier_v1.py
+@@ -1,26 +1,17 @@
+ """Future ROOT-admitted observed validation/scoring; default makes no reads or calls."""
+ import argparse,json,re
+ 
++
+ def direct_refs_v3(q,request_ref,stage):
+     from . import prepare_outer000_v1 as source
+-    from .outer_prediction_validator_v2 import HERE,ref
+-    refs=[ref(HERE+"/source_manifest.v1.json"),ref(HERE+"/check_prediction_barrier_v2.py"),
+-        ref(HERE+"/prepare_outer000_v1.py"),ref(HERE+"/protocol.v1.json"),
+-        ref(HERE+"/outer_prediction_validator_v2.py"),ref(HERE+"/outer_adapters_v2.py"),
+-        ref(HERE+"/h050_observed_bridge_v3.py"),ref(HERE+"/outer8_registry.v1.json"),
+-        ref(HERE+"/frozen_method_ids.v1.json"),source.NAMESPACE,source.V4,
+-        q["root_request_ref"],q["runtime_ref"],q["method_freeze_ref"],q["entry_review_ref"],
+-        q["runtime_qualification_ref"],q["bundle_ref"]]
+-    if stage=="score":
+-        refs.extend([ref(HERE+"/score_outer_v2.py"),q["scorer_review_ref"],q["actual_integration_qualification_ref"]])
+-    return refs
++    return source.consumer_direct_refs_v1(q,stage)
+ 
+ def admitted_v3(request_ref,stage):
+     """Consume an existing real reservation; never draft/apply an admission."""
+     from pathlib import Path
+     import sys
+     from . import prepare_outer000_v1 as source
+-    from .outer_prediction_validator_v2 import ROOT,HERE,need,record,ref,ObservedReaderV2,reviewed_source
++    from research.reviews.European_outer8_preparation_source_20261016_v3.outer_prediction_validator_v2 import ROOT,HERE,need,record,ref,ObservedReaderV2,reviewed_source
+     need(stage in ("validate","score") and Path.cwd()==ROOT and sys.dont_write_bytecode,"Explicit ROOT CPU consumer runtime")
+     need(Path(sys.executable).resolve()==(ROOT/".runtime/env/bin/python").resolve(),"Qualified project interpreter")
+     path=str(record(request_ref))
+@@ -28,14 +19,16 @@
+     need(re.fullmatch(r"research/reviews/European_outer8_ROOT_actual_[A-Za-z0-9_-]+/"+leaf+r"/input\.json",path) is not None,
+         "Canonical compact actual ROOT request path")
+     q=source.read(request_ref);source.current(q)
++    chosen=source.selection(q["policy_selector_ref"]);source.freeze(q["method_freeze_ref"]);source.registration(q)
+     expected=("European_outer8_actual_validation_ROOT_request_v3" if stage=="validate" else "European_outer8_actual_scoring_ROOT_request_v2")
+     need(q["schema"]==expected and q["status"]=="active" and q["root_authorizer"]=="root_agent"
+-        and q["entry_source_ref"]==ref(HERE+"/check_prediction_barrier_v2.py")
++        and q["entry_source_ref"]==ref(source.HERE+"/check_prediction_barrier_v1.py")
+         and q["source_manifest_ref"]==ref(HERE+"/source_manifest.v1.json")
+         and q["config_ref"]==ref(HERE+"/protocol.v1.json") and q["stage"]==stage
+         and q["output_directory"]==path.rsplit("/",1)[0]+"/results"
+-        and q["storage_adapter_ref"]==source.GUARD
+-        and q["storage"]["completed_overlay_policy_ref"]==source.POLICY
++        and q["operational_manifest_ref"]==source.ref(source.MANIFEST)
++        and q["storage_adapter_ref"]==chosen["source_ref"]
++        and q["storage"]["completed_overlay_policy_ref"]==chosen["policy_ref"]
+         and type(q["output_cap_bytes"]) is int and 0<q["output_cap_bytes"]<=64*2**20,
+         "Exact current ROOT consumer admission/source/config/output")
+     need((stage=="validate" and q["observed_matrix_validation_authorized"] is True and q["outer_scoring_authorized"] is False)
+@@ -45,7 +38,8 @@
+         and intent["root_authorizer"]=="root_agent" and all(intent[k]==q[k] for k in
+         ("stage","entry_source_ref","source_manifest_ref","config_ref","runtime_ref","method_freeze_ref","entry_review_ref",
+          "runtime_qualification_ref","bundle_ref","job_id","output_directory","output_cap_bytes","created_at_utc","expires_at_utc",
+-         "outer_scoring_authorized")),"Pre-reservation actual ROOT intent binds this input; no circular self-hash")
++         "outer_scoring_authorized","operational_manifest_ref","policy_selector_ref","registration_ref",
++         "registration_decisions_ref","registration_ledger_ref")),"Pre-reservation actual ROOT intent binds this input; no circular self-hash")
+     runtime=source.read(q["runtime_ref"]);qualified=source.read(q["runtime_qualification_ref"])
+     need(runtime["schema"]=="European_outer8_CPU_consumer_runtime_v3" and runtime["device"]=="cpu"
+         and runtime["entry_source_ref"]==q["entry_source_ref"] and runtime["stage"]==stage
+@@ -53,10 +47,17 @@
+         and qualified["schema"]=="European_outer8_CPU_consumer_runtime_qualification_v3"
+         and qualified["root_authorizer"]=="root_agent" and qualified["status"]=="qualified"
+         and qualified["unresolved_items"]==[] and qualified["runtime_ref"]==q["runtime_ref"]
+-        and qualified["source_manifest_ref"]==q["source_manifest_ref"],"Genuine source-bound CPU consumer/runtime qualification")
++        and qualified["source_manifest_ref"]==q["source_manifest_ref"]
++        and qualified["operational_manifest_ref"]==q["operational_manifest_ref"],"Genuine source-bound CPU consumer/runtime qualification")
+     refs=direct_refs_v3(q,request_ref,stage)
+     need(all(r in q["storage"]["reservation"]["consumer_bindings"] for r in refs),"All actual consumer roles in real child reservation")
+-    g=source.guard(True)
++    g=source.guard(q["policy_selector_ref"],True)
++    impl=source.ref(g.budget.SOURCE_REL);launcher=source.ref(g.budget.LAUNCHER_REL)
++    with g.budget.v4.mutex(ROOT):
++        actual=g._state_locked(impl["sha256"],launcher["sha256"],fresh=False)
++    complete=g.consumer_bindings_v1(list(actual[3].values()),refs)
++    need(all(r in q["storage"]["reservation"]["consumer_bindings"] for r in complete),
++         "Every actually returned current guard and required operation role remains direct")
+     g.validate_storage_v9(q,dict(output_cap_bytes=q["output_cap_bytes"]),q["storage"],
+         source_ref=q["entry_source_ref"],config_ref=q["config_ref"],runtime_ref=q["runtime_ref"])
+     def guard(planned=0):
+@@ -65,13 +66,14 @@
+         return g.budget_check_v9(q["storage"],boundary=True,required_write_bytes=planned)
+     reader=ObservedReaderV2(guard)
+     reviewed_source(q["entry_source_ref"],q["entry_review_ref"],reader)
++    source.sources()
+     manifest=reader.decode_json(q["source_manifest_ref"])
+     for r in manifest["refs"]:reader.read(r,maximum=32*2**20)
+     return q,reader,guard
+ 
+ def run_v3(request_ref,stage):
+-    from .outer_prediction_validator_v2 import PARENTS,METHODS,need,validate_matrix
+-    from .outer_adapters_v2 import _publish_json
++    from research.reviews.European_outer8_preparation_source_20261016_v3.outer_prediction_validator_v2 import PARENTS,METHODS,need,validate_matrix
++    from research.reviews.European_outer8_preparation_source_20261016_v3.outer_adapters_v2 import _publish_json
+     from . import prepare_outer000_v1 as source
+     q,reader,guard=admitted_v3(request_ref,stage)
+     if stage=="validate":
+@@ -85,7 +87,7 @@
+             scoring_authorized=False,truth_read=False)
+         del products
+     else:
+-        from .score_outer_v2 import score_outer_v2
++        from research.reviews.European_outer8_preparation_source_20261016_v3.score_outer_v2 import score_outer_v2
+         result=score_outer_v2(request_ref,guard=guard)
+     output=source.local(q["output_directory"])
+     need(output.is_dir(),"ROOT-created actually reserved result directory")

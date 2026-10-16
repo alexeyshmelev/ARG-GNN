@@ -1,0 +1,23 @@
+# American final TreeLoom transfer audit
+
+Current AmericanC3WholeTreeGNNV1 prediction does **not** score final TreeLoom. It scores a distinct29,571-parameter backbone adapter. Its ongoing30-cell evaluation remains useful under that name, but cannot fill the final-method benchmark cell.
+
+The source chain for final European TreeLoom is DirectReadoutCutMemoryGNNV1(stable_leaf_memory) → OrderedCladeEpisodeGNNV1(own_state) → AnonymousCladeFlagControlGNNV1 → the SNP-conditioned PyG whole-tree body. Final TreeLoom has32,325parameters. C3 retains SNP-conditioned single upward/downward propagation and complete-parent bidirectional GRUs. It omits gained/lost clade conditioning, the own-state consecutive-clade residual, the second shared tree pass and the added stable-leaf sample memory. A final GRU is not that sample memory.
+
+Natural American adapters are class order EUR/EAS/AFR,1600sample identities,1000query columns,600original references, six rather than eight donor channels,15rather than19site features, five rather than six observed-leaf features and three classifier outputs. The193parameter difference is128in the site input linear layer,32in the leaf input layer and33in the output layer. Retaining both1024parameter structural residuals and513parameter memory gives an expected32,132parameters by source algebra only. No model was instantiated and this is not a measured count.
+
+The same full inferred trees and SNP observations can drive final TreeLoom. Keep every active ancestor, all1600sample sequences and exact native focal joins. Known reference labels may initialize reference features; query ancestry must remain unknown. The explicit true-query identity list must remain600..1599even if an experimental reference mask hides a reference label. The primary transfer enables all original600references. Branch support named true/aligned is observed allele concordance, not ancestry truth.
+
+Keep two different350generation boundaries: donor groups use age<350 versus age>=350; memory cut uses node_time<=350, with samples strictly older than350assigned their own sampled node. A sample exactly350is in the older donor cohort but still uses the real cut. Preserve actual node ages and root saturation, never interpolate artificial cut nodes or tune the threshold on held-out outcomes.
+
+Whole-parent context is required in three places: adjacent-tree flags/consecutive episodes, both stable-leaf memory scans, and both final GRU directions. The current C3 block encoder does not supply the first two. Computing TreeLoom independently per existing block would change the method, even if GRU carry survives. A first inactive reference implementation may instead require one complete parent and reject partial blocks, with practical memory/time explicitly unproven.
+
+Supervision and training differ materially. Europe uses span-mass CE over686queries,32x2MbTRAIN, a2880update initializer plus960new updates, seed101 and modern-span checkpoint selection. American C3 uses10000nativefocals,20x2MbTRAIN,600saved logical updates, seed70001 and native five-parent macroF1 selection at30Mb. The source plan proposes four30pass C3 stages,600updates each, fresh optimizer moments and no hidden stage-boundary checkpoint selection. It preserves American focal CE as an explicitly disclosed supervision adaptation. It does not assert equality with European training exposure or architecture-only attribution. Saved600artifact reuse needs a separate explicit lineage decision and cannot erase failed producer history.
+
+The existing C3 transfer plans and evaluation recipe were located and reused. They explicitly distinguish the backbone from full TreeLoom. No existing final-mechanism American transfer implementation was found in the scoped immediate review-metadata search. The proposed final mechanism plan is transfer_plan.inactive.v1.json. Exact source hashes are in source_refs.v1.json and source ranges in architecture_comparison.v1.json.
+
+Do not change the existing C3all30prediction barrier or its scores. New TreeLoom needs its own6checkpoints×5parents pretruth barrier, with the same native10000focal identities/support and unchanged external metric equations. No VALtruth may open until all its30cells are sealed. No partial-score shortcut or TESTevaluation is proposed.
+
+This audit read source/protocol text only. No model import/construction, checkpoint/data/truth/prediction payload read, numerical job, guard, admission, install, Git operation or current-score/paper rename occurred. Only this new review directory was written.
+
+Next action: implement the inactive full-parent C3 final-mechanism callable from this plan, preserving all mechanisms, then obtain independent source review before any representative actual training.

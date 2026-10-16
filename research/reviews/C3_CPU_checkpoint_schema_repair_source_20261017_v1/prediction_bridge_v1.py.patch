@@ -1,0 +1,29 @@
+--- research/reviews/C3_CPU_six_candidate_interleave_source_20261016_v1/prediction_bridge_v1.py
++++ research/reviews/C3_CPU_checkpoint_schema_repair_source_20261017_v1/prediction_bridge_v1.py
+@@ -17,7 +17,8 @@
+ from arggnn.american_c3_gnn_predict_isolated_v2 import (
+     completed_training_v1, eligible_checkpoint_v1)
+ from arggnn.american_c3_gnn_run_isolated_v2 import load_c3_checkpoint
+-from .six_candidate_scan_v1 import interleaved_six_focal_predictions_v1
++from research.reviews.C3_CPU_six_candidate_interleave_source_20261016_v1.six_candidate_scan_v1 import interleaved_six_focal_predictions_v1
++from arggnn.american_c3_gnn_train_v1 import scheduled_checkpoint_metadata_v1
+ 
+ 
+ def new_candidate_models_v1():
+@@ -58,8 +59,14 @@
+         same, checked = eligible_checkpoint_v1(candidate["checkpoint_ref"], training_ref)
+         require(same == training, "Each candidate has unchanged original provenance")
+         loaded = load_c3_checkpoint(candidate["checkpoint_ref"], model)
+-        require(loaded["epoch"] == checked["epoch"] == candidate["epoch"]
+-                and loaded["global_step"] == checked["global_step"] == candidate["global_step"],
++        # The original loader preserves nested trainer_state/candidate metadata.
++        # Use the original strict scheduled-checkpoint validator, as the older
++        # successful loading route does, rather than assuming flattened fields.
++        loaded_metadata = scheduled_checkpoint_metadata_v1(
++            loaded, protocol_sha256=training["protocol_sha256"])
++        require(loaded_metadata == checked
++                and loaded_metadata["epoch"] == candidate["epoch"]
++                and loaded_metadata["global_step"] == candidate["global_step"],
+                 "Strict all-parameter loading of the exact scheduled candidate")
+         metadata.append(checked)
+     records = registry(plan["focal_registry_ref"])

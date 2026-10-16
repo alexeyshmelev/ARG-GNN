@@ -1,0 +1,20 @@
+--- research/reviews/American_TreeLoom_full_mechanism_source_20261016_v1/american_treeloom_full_c3_v1.py
++++ research/reviews/American_TreeLoom_full_mechanism_source_20261017_v2/american_treeloom_full_c3_v2.py
+@@ -425,6 +425,8 @@
+     group = optimizer.param_groups[0]
+     require(group["lr"] == .001 and group["weight_decay"] == .0001
+         and group["betas"] == (.9, .999) and group["eps"] == 1e-8
++        and group["maximize"] is False and group["amsgrad"] is False
++        and all(p.requires_grad for p in model.parameters())
+         and len(group["params"]) == EXPECTED_TRAINABLE_TENSORS
+         and len({id(p) for p in group["params"]}) == EXPECTED_TRAINABLE_TENSORS
+         and {id(p) for p in group["params"]} == {id(p) for p in model.parameters()},
+@@ -440,7 +442,7 @@
+     require(bool(torch.isfinite(loss)), "Finite full-parent focal CE")
+     resource_check("TreeLoom_complete_parent_backward")
+     loss.backward()
+-    grads = [p.grad for p in model.parameters() if p.requires_grad]
++    grads = [p.grad for p in model.parameters()]
+     require(all(g is not None and bool(torch.isfinite(g).all()) for g in grads)
+         and any(bool((g != 0).any()) for g in grads),
+         "Finite connected final-mechanism gradients and nonzero global gradient")

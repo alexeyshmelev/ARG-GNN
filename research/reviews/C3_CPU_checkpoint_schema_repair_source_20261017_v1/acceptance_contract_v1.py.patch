@@ -1,0 +1,61 @@
+--- research/reviews/C3_CPU_actual_plan_lineage_integration_source_20261016_v1/acceptance_contract_v1.py
++++ research/reviews/C3_CPU_checkpoint_schema_repair_source_20261017_v1/acceptance_contract_v1.py
+@@ -4,7 +4,7 @@
+ from types import SimpleNamespace
+ import copy,hashlib,importlib.util,json,sys
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-HERE="research/reviews/C3_CPU_actual_plan_lineage_integration_source_20261016_v1"
++HERE="research/reviews/C3_CPU_checkpoint_schema_repair_source_20261017_v1"
+ SOURCE=HERE+"/acceptance_contract_v1.py"
+ DRIVER=HERE+"/root_driver_v1.py"
+ ENTRY=CPU_MAIN=HERE+"/worker_entry_v1.py"
+@@ -23,7 +23,7 @@
+ BUILDER_V2_REVIEW_REF=dict(path="research/reviews/C3_full30Mb_eval_admission_readiness_independent_review_20261016_v2/review.v2.json",sha256="81fae191708f9de9264dcd6f1adb9f98c75fb57c52e361ebf55daa1cf3675f6a")
+ PREP_HELPER_REF=dict(path="research/reviews/C3_saved600_validator_ROOT_preparation_source_20261016_v1/prepare_root_v1.py",sha256="810177e841b7bc2e3ca3ea29332826442122bd28ad0dd917661f13c7cab33781")
+ SCANNER_REF=dict(path="research/reviews/C3_CPU_six_candidate_interleave_source_20261016_v1/six_candidate_scan_v1.py",sha256="4da2db9c217b7e4cfe25f0b9c9cf6caeaf228b36e8ced978d7d7299af3607255")
+-BRIDGE_REF=dict(path="research/reviews/C3_CPU_six_candidate_interleave_source_20261016_v1/prediction_bridge_v1.py",sha256="a11553bd356c6926ae44c4fd069d23f6e1bc57fef1271e19698021c12de31b76")
++BRIDGE_REF={'path': 'research/reviews/C3_CPU_checkpoint_schema_repair_source_20261017_v1/prediction_bridge_v1.py', 'sha256': 'd8e297cc79bd3728c6023560bdfac82d89625edc544335942c365bd9b61bd37b'}
+ SCANNER_HANDOFF_REF=dict(path="research/reviews/C3_CPU_six_candidate_interleave_source_20261016_v1/source_handoff.v1.json",sha256="79fffb44dbfd55a18d97948b5ae17139cf5b93c80ac56bd0d1ed620bb9d7e89a")
+ SCANNER_REVIEW_REF=dict(path="research/reviews/C3_CPU_six_candidate_interleave_independent_review_20261016_v1/review.v1.json",sha256="59fe9754d1b453acccf8857f408b4e64288091c234b80e482e923d384f93772b")
+ SCANNER_INIT_REF={'path': 'research/reviews/C3_CPU_six_candidate_interleave_source_20261016_v1/__init__.py', 'sha256': '3f4b9b86cc002fbcb0961770ee2469fc168a57752e9e633a0197ac60e6164e39'}
+@@ -54,15 +54,18 @@
+ SELECTOR_SOURCE_REF={"path":"research/reviews/native7_H050_stopped_retention_successor_source_20261016_v1/explicit_policy_selector_v1.py","sha256":"2a991ca6e2da3f4ba05888bc44e4cd53025f929abf88760aa4f93571e13bc87b"}
+ SELECTOR_REF=SELECTED_MODE=SELECTED_JOURNAL=None
+ _SELECTOR_MODULE=None
+-PLAN_ROUTE_REGISTRY=HERE+"/plan_lineage_routes.v1.json"
++PLAN_ROUTE_REGISTRY='research/reviews/C3_CPU_actual_plan_lineage_integration_source_20261016_v1/plan_lineage_routes.v1.json'
+ APPROVED_SELECTOR_SOURCES=HERE+"/approved_selector_sources.v1.json"
+-PRIOR_INTEGRATION_HANDOFF_REF={"path":"research/reviews/C3_CPU_interleaved_guarded_integration_source_20261016_v1/source_handoff.v1.json","sha256":"8d8ed0574c0cb97e3e7c57c8158462f6a07f7471243d3a0105287b39ff63ce18"}
++PRIOR_INTEGRATION_HANDOFF_REF={'path': 'research/reviews/C3_CPU_actual_plan_lineage_integration_source_20261016_v1/source_handoff.v1.json', 'sha256': 'ce54185ecf4d324a67211836896d90aa6d73459b8786b435b0fa34626cdf9bdb'}
++PRIOR_INTEGRATION_MANIFEST_REF={'path': 'research/reviews/C3_CPU_actual_plan_lineage_integration_source_20261016_v1/source_manifest.v1.json', 'sha256': 'a700d15e02f925e2f884ff992f580d23aae53a07265f1d8b5d0d84ce905adfdf'}
++ACTIVE_POLICY_REF={'path': 'research/reviews/native7_H050_stopped_retention_ROOT_activation_20261016_v1/activation_policy.root_active_v1.json', 'sha256': '99a347af4c18c242c21b6cb84df05a36959c478b622bfcd775261a0272cb9974'}
+ def select_storage_metadata_v1(record):
+     global SELECTOR_REF,GUARD_REF,POLICY_REF,SELECTED_MODE,SELECTED_JOURNAL
+     require(SELECTOR_REF is None or SELECTOR_REF==record,"No immutable ROOT selector swap")
+     v=read(record);known=read(ref(APPROVED_SELECTOR_SOURCES))
+     require(v.get("active") is True and v.get("root_authorizer")=="root_agent"
+         and v.get("selector_source_ref")==SELECTOR_SOURCE_REF and v.get("repair_authority_ref")==REPAIR_REF
++        and v.get("policy_ref")==ACTIVE_POLICY_REF
+         and any(all(v.get(k)==val for k,val in row.items()) for row in known["approved"]),
+         "Exact known selected source/manifest/helper digests and explicit ROOT policy")
+     for k in ("source_ref","source_manifest_ref","measurement_source_ref","policy_ref","source_review_ref"):
+@@ -182,7 +185,8 @@
+         LEGACY_HANDOFF_REF,LEGACY_MAIN_REVIEW_REF,BUILDER_V2_REF,BUILDER_V2_HANDOFF_REF,
+         BUILDER_V2_REVIEW_REF,PREP_HELPER_REF,SCANNER_HANDOFF_REF,SCANNER_REVIEW_REF,
+         ref(PLAN_ROUTE_REGISTRY),ref(APPROVED_SELECTOR_SOURCES),SELECTOR_SOURCE_REF,PRIOR_INTEGRATION_HANDOFF_REF,
+-        ref(HERE+"/preserved_preparation_failure.v1.json")]+[
++        ref('research/reviews/C3_CPU_actual_plan_lineage_integration_source_20261016_v1/preserved_preparation_failure.v1.json'),PRIOR_INTEGRATION_MANIFEST_REF,
++        ref(HERE+"/preserved_prediction_failure.v1.json")]+[
+         r for route in read(ref(PLAN_ROUTE_REGISTRY))["routes"].values()
+         for r in (route["source_manifest_ref"],route["driver_ref"],route["plan_worker_ref"])]+[
+         r for row in read(ref(APPROVED_SELECTOR_SOURCES))["approved"] for r in row.values()]
+@@ -224,7 +228,8 @@
+         and value.get("fixed_old_prediction_input_refs")==OLD_INPUT_REFS
+         and value.get("plan_lineage_routes_ref")==ref(PLAN_ROUTE_REGISTRY)
+         and value.get("selector_source_ref")==SELECTOR_SOURCE_REF
+-        and value.get("predecessor_integration_handoff_ref")==PRIOR_INTEGRATION_HANDOFF_REF,
++        and value.get("predecessor_integration_handoff_ref")==PRIOR_INTEGRATION_HANDOFF_REF
++        and value.get("checkpoint_schema_bridge_ref")==BRIDGE_REF,
+         "Independent complete exact integration, mixed route, scanner and builder review")
+     return value
+ 

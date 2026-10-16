@@ -1,0 +1,97 @@
+{
+  "current_C3_prediction_scores_final_TreeLoom": false,
+  "existing_C3_model_name": "AmericanC3WholeTreeGNNV1",
+  "no_score_renaming": true,
+  "rows": [
+    {
+      "American_C3": "Same feature families with explicit C3 classes and1600 samples",
+      "European_final": "SNP calls, donor/panel frequencies and masks; sampling ages/reference labels; full inferred trees and observed branch concordance",
+      "classification": "Natural observation/class-count adapter",
+      "component": "Observed inputs",
+      "evidence": [
+        "american_c3_gnn_observations_v1.py:16-44,56-104",
+        "anonymous_clade_gnn_v1.py:90-108"
+      ]
+    },
+    {
+      "American_C3": "One whole-tree upward+recipient-excluded downward sweep",
+      "European_final": "Two fresh whole-tree upward+recipient-excluded downward sweeps with shared learned weights and gates",
+      "classification": "Material mechanism absent in existing C3",
+      "component": "Complete-tree propagation",
+      "evidence": [
+        "direct_readout_cut_memory_v1.py:131-147",
+        "american_c3_gnn_model_v1.py:76-130"
+      ]
+    },
+    {
+      "American_C3": "Absent",
+      "European_final": "Rank8 U,V,W,O; proper clade gained/lost from adjacent trees; deepest unary representative",
+      "classification": "Material mechanism absent",
+      "component": "Local clade gained/lost residual",
+      "evidence": [
+        "anonymous_clade_flag_control_v1.py:88-164,223-244"
+      ]
+    },
+    {
+      "American_C3": "Absent",
+      "European_final": "Rank8 local transform on clades in at least2 consecutive trees; own_state, not foreign_episode",
+      "classification": "Material mechanism absent",
+      "component": "Consecutive-clade own-state residual",
+      "evidence": [
+        "ordered_clade_episode_gnn_v1.py:319-357",
+        "direct_readout_cut_memory_v1.py:137-138"
+      ]
+    },
+    {
+      "American_C3": "Absent; final GRUs do not replace this mechanism",
+      "European_final": "513 parameters; cut representative upward+outside forcing; bidirectional per-haplotype physical decay; group-mean minus current forcing; injection before second sweep",
+      "classification": "Material mechanism absent",
+      "component": "Stable-leaf sample memory",
+      "evidence": [
+        "order2_cut_memory_v1.py:349-434"
+      ]
+    },
+    {
+      "American_C3": "Two separately parameterized directional width32 GRUs implementing same bidirectional equations;96\u219232\u21923 classifier",
+      "European_final": "One-layer width32-per-direction BiGRU and96\u219232\u21924 classifier, all sample sequences",
+      "classification": "Equivalent directional representation if global states/ordering preserved; output3 is task adapter",
+      "component": "Final genomic context",
+      "evidence": [
+        "anonymous_clade_flag_control_v1.py:290-304",
+        "american_c3_gnn_model_v1.py:41-45,140-166"
+      ]
+    },
+    {
+      "American_C3": "1600 sampled haplotypes,1000queries,3classes,6donor channels,15site features,5observed-leaf features",
+      "European_final": "952 sampled haplotypes,686 queries,4classes,8donor channels,19site features,6observed-leaf features",
+      "classification": "Natural observation/class-count adapter; eligibility masks must remain exact",
+      "component": "Cardinalities",
+      "evidence": [
+        "american_c3_gnn_model_v1.py:19-38",
+        "american_c3_gnn_stream_train_v1.py:66-104"
+      ]
+    },
+    {
+      "American_C3": "10000native-focal unweighted mean CE;20x2Mb TRAIN;600saved logical updates,seed70001;5x30Mb VAL macro-F1 selection",
+      "European_final": "All-query exact physical-span CE;32x2Mb TRAIN;2880initializer+960final updates,seed101; modern-span VAL selection",
+      "classification": "Material supervision, optimization and selection differences; not architecture-only attribution",
+      "component": "Training objective/budget",
+      "evidence": [
+        "paper/current_full_panel_working.tex:309-331",
+        "american_c3_gnn_train_v1.py:28-37",
+        "american_c3_gnn_stream_train_v1.py:162-247"
+      ]
+    },
+    {
+      "American_C3": "Block encoders local, directional GRU states carried globally with full BPTT",
+      "European_final": "Flags/episodes and both sample-memory directions and BiGRU use complete ordered parent",
+      "classification": "Existing C3 streaming encoder cannot be substituted for full TreeLoom without global structural/memory preparation",
+      "component": "Full-parent boundaries",
+      "evidence": [
+        "american_c3_gnn_stream_train_v1.py:162-247",
+        "order2_cut_memory_v1.py:372-419"
+      ]
+    }
+  ],
+  "schema": "American_final_TreeLoom_vs_current_C3_v1"
+}
