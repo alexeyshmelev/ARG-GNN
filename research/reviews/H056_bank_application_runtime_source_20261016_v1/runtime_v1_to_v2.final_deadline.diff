@@ -1,0 +1,109 @@
+--- runtime_v1.py
++++ runtime_v2.py
+@@ -8,7 +8,7 @@
+ 
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+ HERE="research/reviews/H056_bank_application_runtime_source_20261016_v1"
+-SOURCE=HERE+"/runtime_v1.py"
++SOURCE=HERE+"/runtime_v2.py"
+ IMPLEMENTATION="research/reviews/H056_H36_implementation_20261016_v1"
+ PROTOCOL_REF={'path': 'research/reviews/H056_frozen_H045_Danish_application_registration_20261016_v1/protocol.root_frozen_v1.json', 'sha256': '9544bdbd499bddafeb0774c67e4e86ef25535d41dd2409e710c29b679619cd6e'}
+ CHECKPOINT_REF={'path': 'experiments/results/H045_GPU5_episode_train_seed101_v1/foreign_episode.pass_30.pt', 'sha256': 'bfd8a87632015a900d9da6009d4b0ee037958460038d7949d0998e80b770796b'}
+@@ -160,6 +160,42 @@
+     need(issued.tzinfo is not None and issued<=datetime.datetime.now(datetime.timezone.utc)
+       and 0<(end-issued).total_seconds()<=DEADLINE and end<renewed,
+       "Original at-most1800s absolute authority fits authentic renewal, never reset")
++
++
++_FINAL_TIMER_V2=None
++
++def arm_final_timer_v2(started,spec):
++    """Retain a deadline flag through final receipts without interrupting waits."""
++    global _FINAL_TIMER_V2
++    need(_FINAL_TIMER_V2 is None and signal.getitimer(signal.ITIMER_REAL)==(0.,0.),
++      "Fresh original process deadline timer")
++    expiry(spec["expires_at_utc"])
++    absolute=datetime.datetime.fromisoformat(spec["expires_at_utc"].replace("Z","+00:00")).timestamp()
++    remaining=min(DEADLINE-(time.monotonic()-started),absolute-time.time())
++    need(remaining>0,"Original elapsed and absolute authority remain current")
++    state=dict(started=started,absolute=absolute,expired=False,previous=signal.getsignal(signal.SIGALRM))
++    def mark_expired(signum,frame):
++        # Polling termination and final checks act on this flag. Never break wait/receipt cleanup.
++        state["expired"]=True
++    signal.signal(signal.SIGALRM,mark_expired)
++    _FINAL_TIMER_V2=state
++    signal.setitimer(signal.ITIMER_REAL,remaining)
++    check_final_deadline_v2()
++
++def check_final_deadline_v2():
++    need(_FINAL_TIMER_V2 is not None,"Original process deadline remains installed")
++    state=_FINAL_TIMER_V2
++    need(not state["expired"] and time.monotonic()-state["started"]<DEADLINE
++      and time.time()<state["absolute"],"Original deadline includes final writes and guard")
++    need(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss*1024<=RSS,"Final own process peakRSS remains in original envelope")
++    cpu()
++
++def restore_final_timer_v2():
++    global _FINAL_TIMER_V2
++    if _FINAL_TIMER_V2 is not None:
++        signal.setitimer(signal.ITIMER_REAL,0)
++        signal.signal(signal.SIGALRM,_FINAL_TIMER_V2["previous"])
++        _FINAL_TIMER_V2=None
+ 
+ def complete_source_map(scientific,io):
+     need(isinstance(scientific["source_sha256"],dict) and isinstance(io["source_sha256"],dict),"Explicit full source maps")
+@@ -271,7 +307,8 @@
+     b=monitor_helpers()
+     def stop(signum,frame):raise b.WorkerStop("Root outer monitor requested termination")
+     signal.signal(signal.SIGTERM,stop);signal.signal(signal.SIGINT,stop)
+-    started=time.monotonic();record,spec,cfg,storage=load_input(args);m=configured_guard()
++    started=time.monotonic();record,spec,cfg,storage=load_input(args)
++    arm_final_timer_v2(started,spec);m=configured_guard()
+     startup=m.validate_storage_v9(spec,cfg,storage,source_ref=spec["producer_ref"],config_ref=spec["config_ref"],runtime_ref=spec["runtime_ref"])
+     io_manifest=metadata(spec["io_source_manifest_ref"])
+     need(startup["bindings"]==io_manifest["original_bindings"],"Original full current guard binding map")
+@@ -368,11 +405,14 @@
+       sort_keys=True,indent=2,allow_nan=False)+"\n").encode()
+     need(len(receipt)<=caps["root_worker_receipt_cap_bytes"],"Bounded root worker receipt")
+     root_receipt=writer("root_IO_worker_receipt.json",receipt,True)
++    m.budget_check_v9(storage,boundary=True)
++    check_final_deadline_v2()
+     print(json.dumps(dict(scientific_completion_ref=done,IO_worker_receipt_ref=root_receipt)),flush=True)
+     return 0
+ 
+ def launch(args):
+-    record,spec,cfg,storage=load_input(args);b=monitor_helpers();m=configured_guard()
++    launch_started=time.monotonic();record,spec,cfg,storage=load_input(args)
++    arm_final_timer_v2(launch_started,spec);b=monitor_helpers();m=configured_guard()
+     m.validate_storage_v9(spec,cfg,storage,source_ref=SCIENCE_REF,config_ref=CFG_REF,runtime_ref=spec["runtime_ref"])
+     aux=local(spec["auxiliary_directory"])
+     need(not aux.exists() and not local(spec["output_directory"]).exists(),"Single launch; fresh output and auxiliary")
+@@ -408,6 +448,7 @@
+                 rss,misses=b.observe(owned,groups);peak=max(peak,rss);races+=misses
+                 need(rss<=RSS and now-clock<=DEADLINE,"Aggregate2GB RSS soft bound or1800s deadline exceeded")
+                 expiry(spec["expires_at_utc"])
++                check_final_deadline_v2()
+             except BaseException as exc:
+                 if error is None:error=dict(type=type(exc).__name__,message=str(exc)[:2048])
+             if error is not None and term_at is None:proc.terminate();term_at=now
+@@ -466,6 +507,7 @@
+         unobserved_between_poll_processes_possible=True,wall_deadline_seconds=DEADLINE,termination_grace_seconds=30,
+         elapsed_seconds=time.monotonic()-clock,retained_stdout_ref=ref(aux/"worker_stdout.txt"),discarded_stdout_bytes=discarded))
+     m.budget_check_v9(storage,boundary=True)
++    check_final_deadline_v2()
+     need(rc==0 and error is None,"Actual empirical CPU worker failed; preserve partials/direct wait, no fallback")
+     return dict(status="completed_H056_"+spec["operation"]+"_worker_wait0_outer_root_terminal_still_required",scientific_completion_ref=ref(local(spec["output_directory"])/"completed.json"),
+         actual_wait_ref=minimal_ref,outer_wait_ref=terminal,accuracy_available=False,automatic_completed_scope_credit=False)
+@@ -506,7 +548,11 @@
+         print(json.dumps(dict(status="inactive_source_only",admissions=0,model_calls=0)));return 0
+     sys.dont_write_bytecode=True;sys.path[:0]=[str(ROOT),str(ROOT/"src")]
+     os.environ.update(ENV);cpu()
+-    result=worker(args) if args.worker else launch(args)
++    try:
++        result=worker(args) if args.worker else launch(args)
++        check_final_deadline_v2()
++    finally:
++        restore_final_timer_v2()
+     if not args.worker:print(json.dumps(result,sort_keys=True),flush=True)
+     return result if args.worker else 0
+ 

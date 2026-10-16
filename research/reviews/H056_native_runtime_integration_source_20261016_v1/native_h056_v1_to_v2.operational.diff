@@ -1,0 +1,56 @@
+--- research/reviews/H056_native_runtime_integration_source_20261016_v1/native_h056_v1.py
++++ research/reviews/H056_native_runtime_integration_source_20261016_v1/native_h056_v2.py
+@@ -8,7 +8,7 @@
+ 
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+ HERE="research/reviews/H056_native_runtime_integration_source_20261016_v1"
+-SOURCE=HERE+"/native_h056_v1.py"
++SOURCE=HERE+"/native_h056_v2.py"
+ IMPLEMENTATION="research/reviews/H056_H36_implementation_20261016_v1"
+ PROTOCOL_REF={"path":"research/reviews/H056_frozen_H045_Danish_application_registration_20261016_v1/protocol.root_frozen_v1.json","sha256":"9544bdbd499bddafeb0774c67e4e86ef25535d41dd2409e710c29b679619cd6e"}
+ PROFILE={"effective_haploid_N":30000,"mutation_rate":"1.25e-8","years_per_generation":28,"population_size_iterations_executed":0,"pre_size_only":True,"seed":414855340,"native_memory_GB":"2"}
+@@ -452,20 +452,32 @@
+         completed_ref=ref(out/"completed.json");success=True
+     except BaseException as exc:
+         error=h.error_record(exc);success=False
++    try:
++        # Never claim the current controller's own OS exit or complete old-writer absence.
++        final=dict(schema="H056_native_root_controller_result_v1",root_input_ref=root_input_ref,success=success,
++          status="completed_native_graph_qualification_root_outer_wait_required" if success else "failed_or_unsupported_preserved",
++          completed_ref=completed_ref,facts_ref=facts_ref,actual_graph_counts_ref=counts_ref,native_mapping_ref=mapping_ref,
++          graph_contract_ref=contract_ref,error=error,actual_native_wait_observations=observations,
++          controller_OS_exit_not_self_certified=True,reservation_remains_fully_charged=True,
++          all_partial_outputs_preserved=True,replay_or_phase_resume_authorized=False,finished_utc=h.utc())
++        result=None
++        if packet.is_dir():
++            result=h.save(b,packet,"controller_result.json",final)
++        # Completion/result are candidates until this final unchanged own-scope
++        # check and the root's genuine outer wait0. No writes follow this boundary.
++        if out.is_dir() and aux.is_dir():
++            final_output,_=h.file_inventory(out,stable=True)
++            final_auxiliary,_=h.file_inventory(aux,stable=True)
++            require(final_output<=caps["native_output_cap_bytes"]
++              and final_output+final_auxiliary+131072<=caps["output_cap_bytes"],
++              "Final postwrite stable output/aux caps include completion/controller result")
++        boundary(0)
++        if result is not None:
++            print(json.dumps(dict(controller_result_ref=result,success=success,final_postwrite_scope_guard_passed=True)),flush=True)
++        else:print(json.dumps(final),flush=True)
++        return 0 if success else 1
+     finally:
+         signal.setitimer(signal.ITIMER_REAL,0);signal.signal(signal.SIGALRM,prior)
+-    # Never claim the current controller's own OS exit or complete old-writer absence.
+-    final=dict(schema="H056_native_root_controller_result_v1",root_input_ref=root_input_ref,success=success,
+-      status="completed_native_graph_qualification_root_outer_wait_required" if success else "failed_or_unsupported_preserved",
+-      completed_ref=completed_ref,facts_ref=facts_ref,actual_graph_counts_ref=counts_ref,native_mapping_ref=mapping_ref,
+-      graph_contract_ref=contract_ref,error=error,actual_native_wait_observations=observations,
+-      controller_OS_exit_not_self_certified=True,reservation_remains_fully_charged=True,
+-      all_partial_outputs_preserved=True,replay_or_phase_resume_authorized=False,finished_utc=h.utc())
+-    if packet.is_dir():
+-        result=h.save(b,packet,"controller_result.json",final)
+-        print(json.dumps(dict(controller_result_ref=result,success=success)),flush=True)
+-    else:print(json.dumps(final),flush=True)
+-    return 0 if success else 1
+ 
+ def main(argv=None):
+     p=argparse.ArgumentParser(description=__doc__);p.add_argument("--execute",action="store_true")

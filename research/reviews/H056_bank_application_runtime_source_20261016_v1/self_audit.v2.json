@@ -1,0 +1,83 @@
+{
+  "actual_caps_or_runtime_fit_claimed": false,
+  "actual_counts_instantiated": false,
+  "author_reviewer": "/root/h056_native_resume_v2",
+  "created_utc": "2026-10-16T03:28:06.482348+00:00",
+  "delta_ref": {
+    "bytes": 6499,
+    "path": "research/reviews/H056_bank_application_runtime_source_20261016_v1/runtime_v1_to_v2.final_deadline.diff",
+    "sha256": "9ccad4563975149f3a54c4ed6e95db634b29a35111ac528438c3f70227757a47"
+  },
+  "exact_reverse_operational_delta_reconstructs_v1": true,
+  "findings": [
+    {
+      "finding": "V1 worker has no final guard after its last receipt. V1 launcher final guard follows writes but elapsed/absolute deadline checks stop in the prewait poll loop. Final receipt/drain phases can outlive authority without a final rejection.",
+      "id": "v1_postwrite_deadline_gap",
+      "severity": "blocking_before_execution"
+    },
+    {
+      "finding": "V2 keeps SIGALRM expiry state through worker and launcher final writes, adds a final worker budget guard and explicit own peakRSS/deadline checks after final guard in both processes and again before main returns. Timer restoration follows all final checks.",
+      "id": "v2_operational_repair",
+      "severity": "repaired_in_proposed_successor"
+    },
+    {
+      "finding": "The SIGALRM handler marks expiry without an asynchronous exception, preserving actual wait/minimal receipt/owned drain. The original poll loop continues to terminate overrunning compute. This retains a polling deadline guarantee and does not claim kernel hard quota or hardkill.",
+      "id": "cleanup_semantics",
+      "severity": "qualification"
+    },
+    {
+      "finding": "The v2 helper lives in the same single caller ref. Planned application union remains 27+15+5+1+4+1+4+3+3+1=64 refs with one roster and complete deduplication. Actual root must recompute from real original bindings, IO manifest and three bank/wait records and stop if above64. No authority is omitted to fit.",
+      "id": "symbolic_ref_union",
+      "severity": "unchanged_pending_actual_bindings"
+    },
+    {
+      "finding": "No checkpoint,27 scientific source pins, feature semantics, count formulas, roster, data selection, model equations or optimizer behavior changed. All preexisting functions except worker,launch,main are AST-identical. Source-only reverse delta reconstructs v1 exactly.",
+      "id": "science",
+      "severity": "preserved"
+    }
+  ],
+  "independent_review": false,
+  "independent_review_required": true,
+  "no_imports_fixtures_payloads_model_execution_admission_or_Git": true,
+  "original_v1_bytes_preserved": true,
+  "schema": "H056_bank_application_v2_author_self_audit_v1",
+  "unchanged_AST_definitions": [
+    "need",
+    "utc",
+    "local",
+    "ref",
+    "immutable_bytes",
+    "put",
+    "unique",
+    "expiry",
+    "cpu",
+    "monitor_helpers",
+    "metadata",
+    "source_load",
+    "ceil_mib",
+    "valid_counts",
+    "preparation_caps_v1",
+    "application_caps_v1",
+    "configured_guard",
+    "runtime_check",
+    "complete_source_map",
+    "load_input",
+    "Reader",
+    "seal_preparation_wait_v1"
+  ],
+  "v1_handoff_ref": {
+    "bytes": 5247,
+    "path": "research/reviews/H056_bank_application_runtime_source_20261016_v1/source_handoff.v1.json",
+    "sha256": "55f35f7169910ebe4f1d643fdda5d93e387d668fb05d5ab830ae77571798cba0"
+  },
+  "v1_source_ref": {
+    "bytes": 38063,
+    "path": "research/reviews/H056_bank_application_runtime_source_20261016_v1/runtime_v1.py",
+    "sha256": "28df2acc990d75123a6776c931a60a7a877928d8c545c233230c05c995f2d1f9"
+  },
+  "v2_source_ref": {
+    "bytes": 40124,
+    "path": "research/reviews/H056_bank_application_runtime_source_20261016_v1/runtime_v2.py",
+    "sha256": "647e7ce205a19b7cf5847faf45b70e18825e6d28fdc7e00907157dd3a0b0436d"
+  }
+}

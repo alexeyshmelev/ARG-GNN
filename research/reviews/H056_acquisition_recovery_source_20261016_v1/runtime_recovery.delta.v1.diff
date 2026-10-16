@@ -1,0 +1,302 @@
+--- research/reviews/H056_acquisition_runtime_source_20261016_v1/runtime_v2.py
++++ research/reviews/H056_acquisition_recovery_source_20261016_v1/runtime_v1.py
+@@ -1,30 +1,48 @@
+-"""H056-only guarded acquisition caller reusing the actual H055 guard/checker.
+-Inert on import. Root owns admission, invocation, genuine external waits and seals.
+-The first admitted acquisition qualifies BGZF/index transport before any data request.
+-Acquisition never runs a model or Relate.
++"""Fixed H056 chr20 saved-extraction recovery after actual parser wait1.
++Inert on import. Root separately admits a fresh64MiB scope and genuine waits.
++No network, extraction/re-QC replay, model or Relate execution is present.
+ """
+ from pathlib import Path
+ from datetime import datetime, timezone
+ import argparse, gzip, hashlib, importlib.util, io, json, os, re, resource, signal, stat, subprocess, sys, time
+-from urllib.request import build_opener,ProxyHandler,HTTPRedirectHandler
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-HERE="research/reviews/H056_acquisition_runtime_source_20261016_v1"
+-SOURCE=HERE+"/runtime_v2.py"
++HERE="research/reviews/H056_acquisition_recovery_source_20261016_v1"
++SOURCE=HERE+"/runtime_v1.py"
+ BASE_REF={'path': 'research/reviews/H055_CPU_runtime_source_20261016_v1/runtime_v1.py', 'sha256': '00ca41a2f5b4efb0a9d1b3c6812352c03a9f14c6dd6b4b76f6d88c738007a565'}
+-FIXED_REFS={'guard': {'path': 'research/reviews/prospective_980GB_capacity_source_v1/prospective_980gb_v1.py', 'sha256': 'fc71030865e0a3d5da31120d4daa2caa0b2d39ec7dd212b8c46c476b5a866d56'}, 'policy': {'path': 'research/reviews/prospective_980GB_capacity_source_v1/activation_policy.root_active_v1.json', 'sha256': 'eb3408004a508136aa434c0a2e02a9d14a5598a96b8483c264c93026f9326018'}, 'checker': {'path': 'research/reviews/GPU45_TRAIN_controller_execution_override_20261016_v1/controller_metadata_scope_check_v1.py', 'sha256': '2621353de0dc56f328f7f308ba17a341425ef2fc02d54739b6ccfc7d1a6ce2cf'}, 'renewal': {'path': 'research/reviews/H039_marker_repair_renewal_source_20261016_v1/marker_repair_renewal_v1.py', 'sha256': '491236877e8d71cae8bd7619880858ac501c57dd93e59479ca32dacacab20468'}, 'renewal_certificate': {'path': 'research/reviews/H039_marker_repair_renewal_source_20261016_v1/renewal_certificate.root_active_v1.json', 'sha256': '66006202094d7a3ef2b29cbec28eb93f334505b72589f09d86e4b57498162db7'}, 'repair_authority': {'path': 'research/reviews/H039_missing_marker_repair_v1/repair_authority_20261015.json', 'sha256': 'f6f2d628199e8be73db8b5d90d428570d8afdefeab9dc5cd94bb5eafb39247db'}, 'memo': {'path': 'research/reviews/resource_guard_hotpath_source_audit_v1/transaction_memo_adapter_v2.py', 'sha256': 'c972e9a779d424ceafdb258848614bf40994d1004e2c73fc5cd225ae99621364'}, 'v4': {'path': 'src/arggnn/project_budget_v4.py', 'sha256': 'a093c7d86f57fee569cb99f4712250e9505a1119f3950fa44282c7ba8c57df47'}, 'base': {'path': 'research/reviews/H055_CPU_runtime_source_20261016_v1/runtime_v1.py', 'sha256': '00ca41a2f5b4efb0a9d1b3c6812352c03a9f14c6dd6b4b76f6d88c738007a565'}, 'protocol': {'path': 'research/reviews/H056_frozen_H045_Danish_application_registration_20261016_v1/protocol.root_frozen_v1.json', 'sha256': '9544bdbd499bddafeb0774c67e4e86ef25535d41dd2409e710c29b679619cd6e'}, 'contract': {'path': 'research/reviews/H056_H36_implementation_20261016_v1/contract_v1.py', 'sha256': '4c7727e27be2dddeb698dc78ff6d7ca143d85b47187a1fdd23dc7c17217d8662'}, 'extractor': {'path': 'research/reviews/H056_H36_implementation_20261016_v1/extract_h36_v1.py', 'sha256': '52b3a3e72f6ef641bbc6b77dd5941a9343eb8e81752ce874d463ba820419c749'}, 'bridge': {'path': 'research/reviews/H056_acquisition_runtime_source_20261016_v1/bridge_all_candidates_v1.py', 'sha256': 'dbb13e97dc3fb9051abd1ec0289f0f383d85eadb36df0a893703f81460cdb53a'}, 'bgzf': {'path': 'research/reviews/H056_acquisition_runtime_source_20261016_v1/bgzf_stream_v1.py', 'sha256': 'e660043a06cc7978b16fc049cfafb9f8cf05d1be962cd7439d64b878297c9c91'}, 'readback': {'path': 'research/reviews/H056_acquisition_runtime_source_20261016_v1/serialized_readback_v1.py', 'sha256': '0deb54f25d1fb1e9bd85b2c93e642d2f12044313519ce03b5e4dfd11dec666e4'}, 'container_fixture': {'path': 'research/reviews/H056_acquisition_runtime_source_20261016_v1/container_fixture_source_v1.py', 'sha256': '14504b08dd2ddb1275b99d4678989e942a483ad1133291f9cad8edae1585650d'}, 'owned_helpers': {'path': 'research/reviews/H056_acquisition_runtime_source_20261016_v1/acquisition_owned_helpers_v1.py', 'sha256': 'e3e3349a52a9ea621efd6cac2dd108cec99e08420611d5e412625ec47773bd21'}, 'original_supervisor': {'path': 'research/reviews/H018_observed2074_native_inference_source_v2/root_inference.py', 'sha256': '3c4f0228788d6d455b2b7bc84868ac3fed5854a0cf9afe7c63e417f75949b163'}, 'map_source_metadata': {'path': 'research/reviews/H056_map_source_metadata_20261016_v1/source_metadata.root_v1.json', 'sha256': '0745c2a210d855607abb710da840b1b513d53c96adfde7a67d6f4c75700a767e'}, 'bcftools': {'path': '.runtime/official_argmix_abi210_v1/cu129/env/bin/bcftools', 'sha256': '39c08aca9485dc1e9760c5c3cc9cf56d6900a92dc6696f814a40b38a09431d9c'}, 'bgzip': {'path': '.runtime/official_argmix_abi210_v1/cu129/env/bin/bgzip', 'sha256': 'f397a01076e1c7f2d047bce51cfb687f5c270287d36b72eb4e4758d7433da786'}, 'tabix': {'path': '.runtime/official_argmix_abi210_v1/cu129/env/bin/tabix', 'sha256': 'a3fc8998fde40931fdb26ed270f6e77b9965c9fa56f54f3790f4485d7d423962'}}
++FIXED_REFS={'base': {'path': 'research/reviews/H055_CPU_runtime_source_20261016_v1/runtime_v1.py', 'sha256': '00ca41a2f5b4efb0a9d1b3c6812352c03a9f14c6dd6b4b76f6d88c738007a565'}, 'bcftools': {'path': '.runtime/official_argmix_abi210_v1/cu129/env/bin/bcftools', 'sha256': '39c08aca9485dc1e9760c5c3cc9cf56d6900a92dc6696f814a40b38a09431d9c'}, 'bgzf': {'path': 'research/reviews/H056_acquisition_runtime_source_20261016_v1/bgzf_stream_v1.py', 'sha256': 'e660043a06cc7978b16fc049cfafb9f8cf05d1be962cd7439d64b878297c9c91'}, 'bgzip': {'path': '.runtime/official_argmix_abi210_v1/cu129/env/bin/bgzip', 'sha256': 'f397a01076e1c7f2d047bce51cfb687f5c270287d36b72eb4e4758d7433da786'}, 'bridge': {'path': 'research/reviews/H056_acquisition_runtime_source_20261016_v1/bridge_all_candidates_v1.py', 'sha256': 'dbb13e97dc3fb9051abd1ec0289f0f383d85eadb36df0a893703f81460cdb53a'}, 'checker': {'path': 'research/reviews/GPU45_TRAIN_controller_execution_override_20261016_v1/controller_metadata_scope_check_v1.py', 'sha256': '2621353de0dc56f328f7f308ba17a341425ef2fc02d54739b6ccfc7d1a6ce2cf'}, 'container_fixture': {'path': 'research/reviews/H056_acquisition_runtime_source_20261016_v1/container_fixture_source_v1.py', 'sha256': '14504b08dd2ddb1275b99d4678989e942a483ad1133291f9cad8edae1585650d'}, 'contract': {'path': 'research/reviews/H056_H36_implementation_20261016_v1/contract_v1.py', 'sha256': '4c7727e27be2dddeb698dc78ff6d7ca143d85b47187a1fdd23dc7c17217d8662'}, 'extractor': {'path': 'research/reviews/H056_H36_implementation_20261016_v1/extract_h36_v1.py', 'sha256': '52b3a3e72f6ef641bbc6b77dd5941a9343eb8e81752ce874d463ba820419c749'}, 'guard': {'path': 'research/reviews/prospective_980GB_capacity_source_v1/prospective_980gb_v1.py', 'sha256': 'fc71030865e0a3d5da31120d4daa2caa0b2d39ec7dd212b8c46c476b5a866d56'}, 'map_source_metadata': {'path': 'research/reviews/H056_map_source_metadata_20261016_v1/source_metadata.root_v1.json', 'sha256': '0745c2a210d855607abb710da840b1b513d53c96adfde7a67d6f4c75700a767e'}, 'memo': {'path': 'research/reviews/resource_guard_hotpath_source_audit_v1/transaction_memo_adapter_v2.py', 'sha256': 'c972e9a779d424ceafdb258848614bf40994d1004e2c73fc5cd225ae99621364'}, 'old_actual_wait': {'path': 'research/reviews/H056_chr20_acquisition_actual_root_20261016_v1/actual_wait.root_v1.json', 'sha256': '1970e405f57bb97ee1d6c03a6daf5c917caf07b4884b66cf3f26fe5522cba43b'}, 'old_counts': {'path': 'experiments/results/H056_chr20_H36_phased_acquisition_CPU_v1/payload/counts.json', 'sha256': '7d7d4a4858f3ff58acffeb782d153f7fcc6bf34a7d130e7215421d23061989f8'}, 'old_extraction': {'path': 'experiments/results/H056_chr20_H36_phased_acquisition_CPU_v1/payload/extraction.json', 'sha256': 'bd2139a3fc4eed7577c7fda2c73997f1a37e6e5a1511a22de95057b6af53c4b6'}, 'old_failed_input': {'path': 'research/reviews/H056_chr20_acquisition_actual_root_20261016_v1/input.json', 'sha256': '83bde1eeb9974ec188ef8e609a3ebb97258f7549ad560863d88c48cd9e5d4008'}, 'old_failure_diagnosis': {'path': 'research/reviews/H056_chr20_acquisition_actual_root_20261016_v1/actual_failure_diagnosis.root_v1.json', 'sha256': 'd1a737dff0fda013bf509687b79ab865c98baa2a170a0872d9797eb7f3e841e2'}, 'old_launch': {'path': 'research/reviews/H056_chr20_acquisition_actual_root_20261016_v1/actual_launch.root_v1.json', 'sha256': '0bf860171fc0568147ce4adcc91456a1d8e779301ca729187889bcaaa5564d98'}, 'old_raw_samples': {'path': 'experiments/results/H056_chr20_H36_phased_acquisition_CPU_v1/tool_aux/VCF_samples.stdout.txt', 'sha256': '88b592676b900d5e48a7b176d90ac8aa52c75dd6abc46d5d1e7d2369f38fd580'}, 'old_runtime_source': {'path': 'research/reviews/H056_acquisition_runtime_source_20261016_v1/runtime_v2.py', 'sha256': 'fcfaf0ebda3bb14eaa5a4a23add9a53a8a627ede425370581813f3769bd2dfaf'}, 'old_tool_terminal': {'path': 'research/reviews/H056_chr20_acquisition_actual_root_20261016_v1/actual_tool_terminal.root_v1.json', 'sha256': '75db3bac6644523a65f52444164d4b7c43b76a712d4b62e78446db45ed5fe82c'}, 'original_supervisor': {'path': 'research/reviews/H018_observed2074_native_inference_source_v2/root_inference.py', 'sha256': '3c4f0228788d6d455b2b7bc84868ac3fed5854a0cf9afe7c63e417f75949b163'}, 'owned_helpers': {'path': 'research/reviews/H056_acquisition_runtime_source_20261016_v1/acquisition_owned_helpers_v1.py', 'sha256': 'e3e3349a52a9ea621efd6cac2dd108cec99e08420611d5e412625ec47773bd21'}, 'policy': {'path': 'research/reviews/prospective_980GB_capacity_source_v1/activation_policy.root_active_v1.json', 'sha256': 'eb3408004a508136aa434c0a2e02a9d14a5598a96b8483c264c93026f9326018'}, 'protocol': {'path': 'research/reviews/H056_frozen_H045_Danish_application_registration_20261016_v1/protocol.root_frozen_v1.json', 'sha256': '9544bdbd499bddafeb0774c67e4e86ef25535d41dd2409e710c29b679619cd6e'}, 'readback': {'path': 'research/reviews/H056_acquisition_runtime_source_20261016_v1/serialized_readback_v1.py', 'sha256': '0deb54f25d1fb1e9bd85b2c93e642d2f12044313519ce03b5e4dfd11dec666e4'}, 'renewal': {'path': 'research/reviews/H039_marker_repair_renewal_source_20261016_v1/marker_repair_renewal_v1.py', 'sha256': '491236877e8d71cae8bd7619880858ac501c57dd93e59479ca32dacacab20468'}, 'renewal_certificate': {'path': 'research/reviews/H039_marker_repair_renewal_source_20261016_v1/renewal_certificate.root_active_v1.json', 'sha256': '66006202094d7a3ef2b29cbec28eb93f334505b72589f09d86e4b57498162db7'}, 'repair_authority': {'path': 'research/reviews/H039_missing_marker_repair_v1/repair_authority_20261015.json', 'sha256': 'f6f2d628199e8be73db8b5d90d428570d8afdefeab9dc5cd94bb5eafb39247db'}, 'tabix': {'path': '.runtime/official_argmix_abi210_v1/cu129/env/bin/tabix', 'sha256': 'a3fc8998fde40931fdb26ed270f6e77b9965c9fa56f54f3790f4485d7d423962'}, 'v4': {'path': 'src/arggnn/project_budget_v4.py', 'sha256': 'a093c7d86f57fee569cb99f4712250e9505a1119f3950fa44282c7ba8c57df47'}}
+ RSS_CAP, DEADLINE, ROOT_METADATA_CAP=2*2**30,4*3600,512*1024
+ LOGICAL_CAP,BRIDGE_CAP=200000000,16*2**20
+ ACQUISITION_CAP=64*2**20
+ NAME=re.compile(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,63}\Z")
+ _RAN=False
+ 
++FROZEN_SUBJECTS=("Bar8","Bon002","KK1","SATP","Loschbour","Bichon","Sidelkino","NEO88",
++ "NEO866","NEO945","NEO28","NEO942","NEO790","NEO739","Gjerrild5","NEO735","NEO92","NEO870")
++FAILED_COUNTS={"candidate_sites":66525,"sites":1826,"constants":214}
++GP_WARNING=b"[W::bcf_hdr_check_sanity] GP should be declared as Number=G\n"
++
++def parse_tool_stdout_v1(label,captured):
++    """Preserve the raw log. Recognize only one documented leading GP warning."""
++    require(isinstance(captured,bytes),"Byte-only actual tool stdout/stderr")
++    recognized=[]
++    body=captured
++    if label=="VCF_samples" and body.startswith(GP_WARNING):
++        recognized.append(GP_WARNING.decode().rstrip("\n"))
++        body=body[len(GP_WARNING):]
++    expected={
++      "integrity":b"","index":b"","samples":b"fixture\n","count":b"2\n","contigs":b"20\n",
++      "VCF_integrity":b"","VCF_index":b"",
++      "VCF_samples":("\n".join(FROZEN_SUBJECTS)+"\n").encode(),
++      "VCF_count":b"66525\n","VCF_contigs":b"20\n","QC_integrity":b""}
++    require(label in expected and body==expected[label],
++            "Reject unknown, repeated or misplaced diagnostics and unexpected tool joins")
++    return body,recognized
++
++
+ def require(ok,message):
+     if not ok:
+         raise ValueError(message)
+ 
+-class NoRedirect(HTTPRedirectHandler):
+-    def redirect_request(self,req,fp,code,msg,headers,newurl):
+-        raise ValueError("H056 refuses redirects before another source request")
+ 
+ def bootstrap_base_v1():
+     p=ROOT/BASE_REF["path"]
+@@ -79,23 +97,25 @@
+     for ref in FIXED_REFS.values():
+         base.raw(ref)
+     cfg=base.read(spec["refs"]["config"])
+-    ck={"schema","root_authorizer","hypothesis_id","mode","chromosome","fixed_refs",
++    ck={"schema","root_authorizer","hypothesis_id","mode","chromosome","fixed_refs","recovery_payload_refs",
+         "asset_ref","roster_ref","map_ref","map_qualification_ref","raw_map_ref","map_semantics_ref",
+         "container_qualification_ref","device","physical_gpu","cuda_visible_devices","max_cpu_rss_bytes",
+         "global_wall_seconds","logical_extraction_cap_bytes","charged_scope_cap_bytes",
+         "max_bridge_serialized_bytes","original_scope_checker_reuse_root_authorized"}
+     mode=cfg.get("mode")
+     cap=ACQUISITION_CAP
+-    require(set(cfg)==ck and cfg["schema"]=="H056_acquisition_CPU_config_v1"
++    require(set(cfg)==ck and cfg["schema"]=="H056_acquisition_recovery_CPU_config_v1"
+             and cfg["root_authorizer"]=="root_agent" and cfg["hypothesis_id"]=="H056"
+-            and mode=="acquisition" and cfg["fixed_refs"]==FIXED_REFS
++            and mode=="recovery" and cfg["fixed_refs"]==FIXED_REFS
+             and cfg["device"]=="cpu" and cfg["physical_gpu"] is None and cfg["cuda_visible_devices"]==""
+             and cfg["max_cpu_rss_bytes"]==RSS_CAP and cfg["global_wall_seconds"]==DEADLINE
+             and cfg["logical_extraction_cap_bytes"]==LOGICAL_CAP and cfg["charged_scope_cap_bytes"]==cap
+             and cfg["max_bridge_serialized_bytes"]==BRIDGE_CAP
+             and cfg["original_scope_checker_reuse_root_authorized"] is True,"Exact fixed CPU/logical/durable resource config")
+     dynamic_names=("asset","roster","map","map_qualification","raw_map","map_semantics")
+-    require(cfg["chromosome"] in ("20","21","22"),"Prespecified H056 chromosome")
++    require(cfg["chromosome"]=="20" and cfg["container_qualification_ref"] is None
++            and isinstance(cfg["recovery_payload_refs"],dict)
++            and set(cfg["recovery_payload_refs"])=={"vcf","qc"},"Fixed firstchr20 recovery with fresh integrated container qualification")
+     dynamic={n:base.exact_ref(cfg[n+"_ref"]) for n in dynamic_names}
+     first_container=cfg["container_qualification_ref"] is None
+     if not first_container:
+@@ -197,6 +217,86 @@
+         checker=check_module.ControllerMetadataScopeV1(guard,storage)
+         require(checker.bindings==closure["original_bindings"],"Unchanged complete original startup bindings")
+         boundary(force=True)
++
++        # This is a new explicitly admitted recovery, never a success/replay of old wait1.
++        old_input=base.read(FIXED_REFS["old_failed_input"])
++        old_cfg=base.read(old_input["refs"]["config"])
++        old_storage=base.read(old_input["refs"]["storage"])
++        old_wait=base.read(FIXED_REFS["old_actual_wait"])
++        old_terminal=base.read(FIXED_REFS["old_tool_terminal"])
++        old_launch=base.read(FIXED_REFS["old_launch"])
++        old_diagnosis=base.read(FIXED_REFS["old_failure_diagnosis"])
++        old_extraction=base.read(FIXED_REFS["old_extraction"])
++        old_counts=base.read(FIXED_REFS["old_counts"])
++        old_out=base.path(old_input["output_directory"])
++        require(old_input["runtime_entry_ref"]==FIXED_REFS["old_runtime_source"]
++                and old_input["hypothesis_id"]=="H056" and old_input["registered"] is True
++                and old_input["execution_authorized"] is True and old_input["output_directory"]==
++                    "experiments/results/H056_chr20_H36_phased_acquisition_CPU_v1"
++                and old_launch["input_ref"]==FIXED_REFS["old_failed_input"]
++                and old_launch["worker_pid"]==old_wait["worker_pid"]==3216033
++                and old_launch["worker_start_ticks"]==old_wait["worker_start_ticks"]==479361377
++                and old_launch["process_group"]==old_wait["process_group"]==3216033
++                and old_wait["actual_direct_wait_observed"] is True and old_wait["returncode"]==1
++                and old_wait["actual_worker_PID_absent"] is True and old_wait["actual_owned_group_absent"] is True
++                and old_wait["output_directory"]==str(old_out.relative_to(ROOT))
++                and old_terminal["actual_tool_terminal_consumed"] is True and old_terminal["actual_exit_code"]==1
++                and old_terminal["tool_session_id"]==44386
++                and old_terminal["actual_wait_ref"]==FIXED_REFS["old_actual_wait"]
++                and old_terminal["completed_or_scientific_success_claimed"] is False
++                and old_terminal["original_failed_scope_charge_preserved"] is True,
++                "Exact genuine old failed input/runtime/tool terminalwait1/PID/start/drain lineage")
++        require(out!=old_out and out not in old_out.parents and old_out not in out.parents
++                and own["key"]!=old_storage["reservation"]["key"] and spec["job_id"]!=old_input["job_id"]
++                and old_storage["reserved_new_bytes"]==old_storage["reservation"]["reserved_bytes"]==ACQUISITION_CAP
++                and old_storage["reservation"]["output"]==str(old_out)
++                and not (old_out/"completed.json").exists(),
++                "Fresh disjoint64MiB recovery, original failed scope/charge/completion status untouched")
++        for name in dynamic_names:
++            require(cfg[name+"_ref"]==old_cfg[name+"_ref"],"Same exact old asset/roster/map/semantic binding: "+name)
++        require(old_cfg["fixed_refs"]=={k:FIXED_REFS[k] for k in old_cfg["fixed_refs"]}
++                and old_cfg["chromosome"]==cfg["chromosome"]=="20"
++                and old_cfg["mode"]=="acquisition" and old_cfg["logical_extraction_cap_bytes"]==LOGICAL_CAP
++                and old_cfg["charged_scope_cap_bytes"]==ACQUISITION_CAP,
++                "Preserve original producer/helper/scientific/resource and chromosome identities")
++        require(old_counts==dict(schema="H056_actual_acquisition_counts_v1",protocol_ref=FIXED_REFS["protocol"],
++                    chromosome="20",counts=FAILED_COUNTS)
++                and old_extraction["schema"]=="H056_H36_extraction_core_result_v1"
++                and old_extraction["status"]=="acquired_QC_qualified_root_completion_and_readback_required"
++                and old_extraction["protocol_ref"]==FIXED_REFS["protocol"] and old_extraction["chromosome"]=="20"
++                and old_extraction["counts"]==FAILED_COUNTS
++                and old_extraction["serialized_stream_encoding"]=="BGZF"
++                and old_extraction["logical_extraction_cap_bytes"]==LOGICAL_CAP
++                and old_extraction["charged_scope_cap_bytes"]==ACQUISITION_CAP
++                and old_diagnosis["schema"]=="H056_acquisition_failed_parser_diagnosis_v1"
++                and old_diagnosis["actual_outer_terminal_ref"]==FIXED_REFS["old_tool_terminal"]
++                and old_diagnosis["counts_ref"]==FIXED_REFS["old_counts"]
++                and old_diagnosis["extraction_ref"]==FIXED_REFS["old_extraction"]
++                and old_diagnosis["raw_tool_sample_output_ref"]==FIXED_REFS["old_raw_samples"]
++                and old_diagnosis["failure_after_actual_extraction_before_bridge"] is True
++                and old_diagnosis["scientific_filters_or_data_modified"] is False,
++                "Actual unchanged extracted C66525/S1826/K214 and diagnosed post-extraction parser failure")
++        original_samples=base.raw(FIXED_REFS["old_raw_samples"],4096)
++        original_body,original_diagnostic=parse_tool_stdout_v1("VCF_samples",original_samples)
++        require(original_diagnostic==[GP_WARNING.decode().rstrip("\n")],
++                "The exact prior documented GP Number3 warning must remain visible")
++        for role,name in (("vcf","H056.chr20.noAP.vcf"),("qc","regional_site_QC.tsv")):
++            info=old_extraction["stream_container_metadata"][name]
++            expected=dict(path=str((old_out/"payload"/(name+".gz")).relative_to(ROOT)),
++                          sha256=info["compressed_sha256"])
++            require(cfg["recovery_payload_refs"][role]==expected and info["encoding"]=="BGZF"
++                    and type(info["compressed_bytes"]) is int and info["compressed_bytes"]>0
++                    and type(info["logical_bytes"]) is int and info["logical_bytes"]>0,
++                    "Exact immutable old compressed payload identity from actual extraction metadata")
++        require(old_extraction["serialized_bytes"]==sum(
++            x["logical_bytes"] for x in old_extraction["stream_container_metadata"].values())
++            and old_extraction["serialized_bytes"]<=LOGICAL_CAP,"Original complete logical output, no thinning")
++        for probe in (lambda:os.kill(old_wait["worker_pid"],0),lambda:os.killpg(old_wait["process_group"],0)):
++            try:probe()
++            except ProcessLookupError:pass
++            else:raise ValueError("Exact old failed worker/group must remain absent at recovery startup")
++        # Payloads are opened only below this genuine new guard boundary.
++
+         require(not out.exists(),"Fresh output before original guarded writes")
+         out.mkdir(mode=0o700);payload.mkdir(mode=0o700);aux.mkdir(mode=0o700)
+         start_ticks=int(Path("/proc/self/stat").read_text().split(") ",1)[1].split()[19])
+@@ -229,18 +329,25 @@
+             observed,captured=helpers.supervise(proc,min(120,end-time.time()),payload,aux,65536)
+             waits.append(dict(stage=label,argv=argv,observation=observed,stdout_sha256=hashlib.sha256(captured).hexdigest()))
+             log_bytes+=len(captured)
+-            save(aux,label+".stdout.txt",captured)
++            raw_stdout_ref=save(aux,label+".stdout.txt",captured)
+             save_json(aux,label+".wait.json",observed)
+             require(observed["actual_direct_wait_observed"] is True and observed["actual_exit_code"]==0
+                     and observed["owned_group_absent_after_wait"] is True and observed["control_error"] is None,
+                     "Actual successful original tool wait and exact owned group drain")
++            clean_stdout,recognized_diagnostics=parse_tool_stdout_v1(label,captured)
++            save_json(aux,label+".parse.json",dict(schema="H056_exact_source_GP_warning_parse_v1",stage=label,
++                raw_stdout_ref=raw_stdout_ref,raw_stdout_preserved=True,
++                recognized_leading_source_diagnostics=recognized_diagnostics,
++                parsed_stdout_sha256=hashlib.sha256(clean_stdout).hexdigest(),
++                unknown_repeated_or_misplaced_diagnostics_rejected=True))
++            waits[-1]["recognized_leading_source_diagnostics"]=recognized_diagnostics
+             # Index writes bypass our serializer, but original supervisor observes full owned scopes.
+             total,_=helpers.file_inventory(payload,stable=True)
+             aux_total,_=helpers.file_inventory(aux,stable=True)
+             root_total=sum(p.stat().st_size for p in out.iterdir() if p.is_file())
+             counters["serialized_bytes"]=total+aux_total+root_total
+             boundary(force=True)
+-            return captured
++            return clean_stdout
+         tools={n:str(base.path(FIXED_REFS[n]["path"])) for n in ("bgzip","tabix","bcftools")}
+         container_worker_ref=None
+         if first_container:
+@@ -300,46 +407,35 @@
+         extractor.validate_asset_v1(asset)
+         require(asset["chromosome"]==cfg["chromosome"],"One exact configured chromosome")
+         extractor.validate_roster_identity_v1(roster)
+-        streams={}
+-        class Writer:
+-            def append(self,name,data):
+-                require(name in {"H056.chr"+cfg["chromosome"]+".noAP.vcf","regional_site_QC.tsv"} and isinstance(data,bytes),
+-                        "Only original AP-free source streams")
+-                require(counters["logical_extraction_bytes"]+len(data)<=LOGICAL_CAP,"Original200MB logical extraction cap, no thinning")
+-                if name not in streams:
+-                    p=payload/(name+".gz")
+-                    f=os.fdopen(os.open(p,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600),"wb",buffering=0)
+-                    def emit(raw,f=f):
+-                        boundary(len(raw))
+-                        written=f.write(raw)
+-                        require(written==len(raw),"Full guarded BGZF block write")
+-                        counters["serialized_bytes"]+=len(raw)
+-                    streams[name]=(f,bgzf.BGZFEncoderV1(emit))
+-                streams[name][1].append(data)
+-                counters["logical_extraction_bytes"]+=len(data)
+-        def before_request():
+-            boundary()
+-            counters["request_callbacks"]+=1
+-        try:
+-            result=extractor.execute_v1(dict(root_authorizer="root_agent",admitted=True,
+-                protocol_ref=FIXED_REFS["protocol"],roster=roster,asset=asset,opener=build_opener(ProxyHandler({}),NoRedirect()).open,
+-                before_request=before_request,writer=Writer(),output_cap_bytes=LOGICAL_CAP))
+-            compressed={}
+-            for name,(f,encoder) in streams.items():
+-                compressed[name]=encoder.close()
+-                f.flush();os.fsync(f.fileno());f.close()
+-                artifacts[name+".gz"]=artifact(payload/(name+".gz"))
+-        finally:
+-            for f,encoder in streams.values():
+-                if not f.closed:f.close()
+-        require(result["status"]=="acquired_QC_qualified_root_completion_and_readback_required",
+-                "Under1000 qualified sites remains inconclusive, no bridge/native success")
+-        counts=result["counts"]
+-        require(result["serialized_bytes"]==counters["logical_extraction_bytes"],"Independent logical extraction counter equality")
+-        result.update(serialized_stream_encoding="BGZF",stream_container_metadata=compressed,
+-                      logical_extraction_cap_bytes=LOGICAL_CAP,charged_scope_cap_bytes=cap)
+-        artifacts["extraction.json"]=save_json(payload,"extraction.json",result)
+-        artifacts["counts.json"]=save_json(payload,"counts.json",dict(schema="H056_actual_acquisition_counts_v1",protocol_ref=FIXED_REFS["protocol"],chromosome=cfg["chromosome"],counts=counts))
++
++        # Reuse exact immutable completed extraction bytes. No network or re-QC.
++        result=dict(old_extraction)
++        counts=dict(FAILED_COUNTS)
++        for role,name in (("vcf","H056.chr20.noAP.vcf"),("qc","regional_site_QC.tsv")):
++            r=cfg["recovery_payload_refs"][role]
++            info=result["stream_container_metadata"][name]
++            data=base.raw(r,24*2**20 if role=="vcf" else ACQUISITION_CAP)
++            require(len(data)==info["compressed_bytes"],"Exact prior compressed source byte count")
++            artifacts[name+".gz"]=save(payload,name+".gz",data)
++            del data
++        counters["logical_extraction_bytes"]=result["serialized_bytes"]
++        require(counters["request_callbacks"]==0,"Recovery performs no acquisition/network requests")
++        artifacts["extraction.json"]=save(payload,"extraction.json",base.raw(FIXED_REFS["old_extraction"]))
++        artifacts["counts.json"]=save(payload,"counts.json",base.raw(FIXED_REFS["old_counts"]))
++        original_diagnostic_ref=save(payload,"original_failed_VCF_samples.stdout.txt",original_samples)
++        recovery_provenance_ref=save_json(out,"recovery_provenance.json",dict(
++            schema="H056_fixed_chr20_immutable_extraction_recovery_v1",
++            old_failed_input_ref=FIXED_REFS["old_failed_input"],old_runtime_source_ref=FIXED_REFS["old_runtime_source"],
++            old_actual_wait1_ref=FIXED_REFS["old_actual_wait"],old_actual_tool_terminal1_ref=FIXED_REFS["old_tool_terminal"],
++            old_failure_diagnosis_ref=FIXED_REFS["old_failure_diagnosis"],
++            original_extraction_ref=FIXED_REFS["old_extraction"],original_counts_ref=FIXED_REFS["old_counts"],
++            immutable_old_payload_refs=cfg["recovery_payload_refs"],copied_original_diagnostic_ref=original_diagnostic_ref,
++            recognized_diagnostic=original_diagnostic,counts=FAILED_COUNTS,
++            original_failed_scope_charge_preserved=True,old_wait1_not_relabelled_success=True,
++            fresh_recovery_storage_ref=spec["refs"]["storage"],integrated_container_qualification_rerun=True,
++            logical_extraction_cap_bytes=LOGICAL_CAP,charged_scope_cap_bytes=cap,
++            network_requests_this_recovery=0,extraction_or_QC_rerun=False,
++            VCF_header_genotypes_QC_filters_sites_or_maps_modified=False),True)
+         vcf_name="H056.chr"+cfg["chromosome"]+".noAP.vcf.gz"
+         vcf=str(payload/vcf_name)
+         supervised_tool("VCF_integrity",[tools["bgzip"],"-t",vcf])
+@@ -376,13 +472,16 @@
+         completed=ref2(save_json(out,"completed.json",dict(schema="H056_acquisition_runtime_completed_v1",
+             status="completed_acquisition_bridge_and_serialized_readback_root_wait_required",
+             chromosome=cfg["chromosome"],protocol_ref=FIXED_REFS["protocol"],counts=counts,artifacts=artifacts,
+-            worker_readback_ref=result_ref,worker_qualification_ref=container_worker_ref,
++            worker_readback_ref=result_ref,worker_qualification_ref=container_worker_ref,recovery_provenance_ref=ref2(recovery_provenance_ref),
+             extraction_ref=ref2(artifacts["extraction.json"]),input_ref=root_input_ref,
+             storage_ref=spec["refs"]["storage"],map_qualification_ref=dynamic["map_qualification"],
+             original_map_source_refs={n:dynamic[n] for n in ("raw_map","map","map_semantics","map_qualification")},
+             no_native_or_model_execution=True,root_preparation_wait_verified=False,
+             peak_self_RSS_bytes=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss*1024,
+-            elapsed_seconds=time.monotonic()-started,counters_before_completion=dict(counters)),True))
++            elapsed_seconds=time.monotonic()-started,counters_before_completion=dict(counters),
++            recovered_from_actual_failed_extraction=True,network_requests_this_recovery=0,
++            original_failed_wait1_and_charge_preserved=True),True))
++        require(counters["request_callbacks"]==0,"Recovery must make zero network/acquisition requests")
+         boundary(force=True)
+         final_scope=checker.check(required=0)
+         runtime_check()

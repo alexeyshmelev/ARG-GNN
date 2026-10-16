@@ -1,0 +1,7 @@
+The recovery producer genuinely completed and root consumed actual tool session 46950 with exit0. Worker 3226427 and 11 native child identities have durable successful direct waits and original group-drain receipts. Root sealed the serialized readback and container qualification. No scientific completion alias is needed.
+
+The unchanged completed-scope close guard also requires an honest complete root-owned launcher/supervisor/worker PID roster and fresh targeted absence rows. The external Python observer launched the worker, but its numeric PID was not persisted. None appears in the bounded execution-administration JSON. Its separate admin-only writes do not remove its known launcher role from the explicit complete-roster assertion. Tool termination cannot be converted into a missing numeric PID or the guard's required fresh recheck.
+
+Closure is blocked for this scope. Keep the new recovery64MiB reservation and the originalfailed64MiB charge. No14-field close template is provided because its observation certificate cannot currently be completed honestly. The reported7.2MB retained size was not measured by this worker and is not a credit proof. Future chromosome21/22 executions should persist the external observer identity before launching.
+
+This audit read source and bounded metadata only. It imported no guard, opened no genotype payload, performed no process probe or scope stat inventory, changed no existing file and claimed no credit.

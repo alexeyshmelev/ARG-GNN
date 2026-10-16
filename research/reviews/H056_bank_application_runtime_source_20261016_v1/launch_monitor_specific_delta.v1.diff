@@ -1,0 +1,22 @@
+--- research/reviews/rootH018_IO_v1/root_io_v1.py::launch
++++ research/reviews/H056_bank_application_runtime_source_20261016_v1/runtime_v1.py::launch
+@@ -4,9 +4,10 @@
+     aux=local(spec["auxiliary_directory"])
+     need(not aux.exists() and not local(spec["output_directory"]).exists(),"Single launch; fresh output and auxiliary")
+     m.budget_check_v9(storage,boundary=True,required_write_bytes=AUX);aux.mkdir()
+-    runtime=read(spec["runtime_ref"]);env=os.environ.copy();env.update(ENV)
++    runtime=metadata(spec["runtime_ref"]);env=os.environ.copy();env.update(ENV)
++    env.update(TMPDIR=str(aux),TMP=str(aux),TEMP=str(aux))
+     rfd,wfd=os.pipe()
+-    argv=[runtime["executable"],"-B","-m","research.reviews.rootH018_IO_v1.root_io_v1","--worker",
++    argv=[runtime["executable"],"-B",str(ROOT/SOURCE),"--worker",
+         "--input",record["path"],"--expected-sha256",record["sha256"],"--monitor-parent-pid",str(os.getpid()),"--monitor-read-fd",str(rfd)]
+     proc=None;selector=None;owned={};groups={};peak=races=discarded=0;log=bytearray();error=None
+     started=utc();clock=time.monotonic();term_at=None;killed=False;rc=None;minimal_ref=None;seed_ref=None;released=False
+@@ -93,5 +94,5 @@
+         elapsed_seconds=time.monotonic()-clock,retained_stdout_ref=ref(aux/"worker_stdout.txt"),discarded_stdout_bytes=discarded))
+     m.budget_check_v9(storage,boundary=True)
+     need(rc==0 and error is None,"Actual empirical CPU worker failed; preserve partials/direct wait, no fallback")
+-    return dict(status="completed_actual_empirical_CPU_application",scientific_completion_ref=ref(local(spec["output_directory"])/"completed.json"),
++    return dict(status="completed_H056_"+spec["operation"]+"_worker_wait0_outer_root_terminal_still_required",scientific_completion_ref=ref(local(spec["output_directory"])/"completed.json"),
+         actual_wait_ref=minimal_ref,outer_wait_ref=terminal,accuracy_available=False,automatic_completed_scope_credit=False)
