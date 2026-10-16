@@ -6,6 +6,7 @@ This inventory includes historical pilots, selected-model scores, timing and par
 |---|---|---|---|---|
 | H018_H045_empirical_application_root_v1 | engineering_receipt |  | {"elapsed_seconds": 322.1410738499835} | [provenance.json](../experiments/results/H018_H045_empirical_application_root_v1/provenance.json) |
 | H018_H045_empirical_application_root_v1 | engineering_receipt |  | {"elapsed_seconds": 606.0423273565248} | [root_IO_worker_receipt.json](../experiments/results/H018_H045_empirical_application_root_v1/root_IO_worker_receipt.json) |
+| H055_Danish_genotype_corroboration_CPU_v1 | engineering_receipt | completed_H055_original_producer_and_root_binding | {"elapsed_seconds": 462.38555765524507} | [root_runtime_receipt.json](../experiments/results/H055_Danish_genotype_corroboration_CPU_v1/root_runtime_receipt.json) |
 | ancestralpaths_biological_pilot_v2 | engineering_receipt | passed | {"elapsed_seconds": 175.43534462340176} | [native_receipt.json](../experiments/results/ancestralpaths_biological_pilot_v2/native_receipt.json) |
 | ancestralpaths_native_runtime_v1 | engineering_receipt | passed | {"parameters": 26630} | [receipt.json](../experiments/results/ancestralpaths_native_runtime_v1/receipt.json) |
 | ancestralpaths_stable_readout_v1 | engineering_receipt | passed | {"elapsed_seconds": 38.83879740256816} | [receipt.json](../experiments/results/ancestralpaths_stable_readout_v1/receipt.json) |

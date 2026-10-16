@@ -1,4 +1,4 @@
-Current compiled development manuscript: [PDF](current_full_panel_working.pdf), [LaTeX source](current_full_panel_working.tex), [Overleaf source bundle](current_full_panel_overleaf_working.zip). Root compiled and visually checked all eight pages on 2026-10-15. This frozen draft covers H038–H043. It does not yet incorporate the later H045–H048 results or the running H050 and American comparisons. [Latest scores and remaining benchmarks](../README.md#latest-status).
+Current compiled development manuscript: [PDF](current_full_panel_working.pdf), [LaTeX source](current_full_panel_working.tex), [Overleaf source bundle](current_full_panel_overleaf_working.zip). Root compiled and visually checked all eight pages on 2026-10-16. This development draft includes completed H045, its matched own-state control and earlier H038–H043 evidence. It excludes uncompleted H050 and American comparisons. [Latest scores and remaining benchmarks](../README.md#latest-status).
 
 # Manuscript sources
 
@@ -7,7 +7,7 @@ Current compiled development manuscript: [PDF](current_full_panel_working.pdf), 
 [current_full_panel_working.tex](current_full_panel_working.tex) and
 [current_full_panel_refs.bib](current_full_panel_refs.bib) now describe the
 completed 476-diploid/952-haplotype, 32-TRAIN/eight-VAL whole-tree PyG comparison.
-The main evidence is H038/H040/H042 with current native AP and ARGMix.
+The evidence includes H038/H040/H042 and the completed H045 episode comparison with current native AP and ARGMix.
 A compact completed H043 control appears only in the appendix.
 This is an incomplete development manuscript, with no H044 result.
 

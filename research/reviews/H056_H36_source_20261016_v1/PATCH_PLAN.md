@@ -1,0 +1,60 @@
+# H056 H36/R16/Q20 — minimal source patch plan
+
+**Plan only, before adapter construction.** The end-to-end change crosses eight logical source boundaries and historical completion bindings; this is broader than a single model-count patch. Per root's instruction, this packet stops at a concrete patch plan for review. It contains no executable adapter, active metadata, guard, scheduler, admission or job. Every frozen existing file remains untouched.
+
+Frozen H056 protocol: `research/reviews/H056_frozen_H045_Danish_application_registration_20261016_v1/protocol.root_frozen_v1.json`, SHA256 `9544bdbd499bddafeb0774c67e4e86ef25535d41dd2409e710c29b679619cd6e`. Its recorded registration precedes opening H055 outcomes. H055's reported outcomes do not change this protocol, model, positive EHG/CHG contrasts or implementation choices.
+
+## Fixed contract
+
+Use the protocol's exact ordered18 subjects, adjacent haplotypes0/1: references first16, queries16:36. Donor classes stay ANA=(Bar8,Bon002), CHG=(KK1,SATP), WHG=(Loschbour,Bichon), EHG=(Sidelkino,NEO88); four reference haplotypes/class, all20 query labels-1, no ancestry AP or query truth. Keep source mean calBP1950/28 ages, source/native six-decimal clocks separately, and exact FP32 tip-age agreement.
+
+Acquire fresh observed phased GT for the entire H36 panel on each chr20/21/22 GRCh37 bp0[20M,30M), including a new chr22 genealogy. Reusing old H40 graph/predictions or H055 unphased dosage would change the input semantics and is not an implementation route.
+
+Keep the selected H045 foreign_episode seed101/pass30 checkpoint SHA256 `bfd8a87632015a900d9da6009d4b0ee037958460038d7949d0998e80b770796b`; all31,812 finite FP32 parameters load strictly with identical keys/shapes/values. No optimizer, fine tuning, calibration, weight transform, architecture change or new checkpoint selection.
+
+## Function-level patch set
+
+| Boundary / proposed new source | Exact predecessor functions and minimal changes |
+|---|---|
+| Acquisition: `extract_h36_v1.py` | Base the successor on `H018_R16_decode_performance_source_v1/prospective_worker_v3.py`. Parameterize declared asset/chromosome in RangeSource/TBI/header/`clean_record` and replace only old20-person/R16Q24 endpoint/registration/output identity gates in `validate_extension_v1`/`execute_v1` with exact H05618-person/R16Q20 refs. Keep original Range/BGZF/cache/ETag/request/timeout/size behavior and AP-free allowlists. Replace the duplicated pass counter at old lines429–431 with one count of serialized true rows. |
+| Corrected bridge: `bridge_h36_v1.py` | Copy only the pure `bridge_core_v2.py` logic: `frozen_identity`, `frozen_mask`, `polarize_GT_record`, `assemble_baseline`. Supply chromosome, SUBJECTS18, H36, Q20 and root-sealed actual C/S/K counts; remove94892/2074/277 data gates. Preserve literal QC0/1 parsing, every-candidate identity/order join, phased GT and biological nucleotide equivalence, AA/DA recoding, sample/date joins and independent serialized readback prerequisites. Emit41-field haps rows (5+36),27-field VCF rows (9+18),36 ages. No HS draws or constant-site drops. |
+| Native verification: `native_h36_core_v1.py` plus inactive profile | Parameterize `inference_core.py` functions `parse_anc`, `expected_observations`, `verify_native`, `parse_headers` by exact H36, chromosome and sealed counts. Replace native binary-tree79/root78/40leaf constants with2H-1=71/root70/H36, and39 internal-node offsets withH-1=35. Replace old2074/277/82960 checks with S/K/36S. Native boundaries/chunks/header byte bounds derive from sealed S and original format, not355 or2074. Reuse `cli_stages` equations/argv sequencing unchanged. |
+| Panel metadata: `panel_h36_v1.py` | Count successor of `reader_contract_proposal.py`: `panel_metadata_v1` validates exact36rows/18people, query columns16:36 and fixed donor roles; `verify_native_tip_dates_v1` checks36 clocks. Preserve the original Decimal half-even six-decimal and binary32 comparison. Reuse the native-minus1 genuine-interval transformation with actual per-chromosome site endpoints and window intersection. |
+| Observed features: `preparation_h36_v1.py` | Count-only successor of `preparation_v1.py`: FEATURE_SEMANTICS H36/R16/Q20, `prepare_arrays_v1` h36/query16:36, `to_torch_bank_v1` expected36/20. Reuse the original layout, support, donor-frequency, geometry, sites/holds and tensor dataclass equations. Keep conservative oldH40 planning terms256*N+640*S+65536 and2058*N+5120 until actual root qualification; do not claim an unmeasured saving. |
+| Source/graph reader: `reader_h36_v1.py` | Adapt `parse_original_sites_v1`, `verify_bridge_v1`, `extract_graph_v1`, `validate_config_v1`, `prepare_from_root_context_v1`: chromosome and36/20 rows are explicit; every S/K/C/T/node/edge dimension and exact coverage comes from independently sealed new stage metadata and is checked against actual bytes/arrays. Remove old355/2074/277/94892, fixed chr22 and[427,9997139] evidence. Keep original-GT-only features and node/edge-only native projection, all samples/unaries/qualified sites/holds, finite strict chronology and no inferred sample sorting. |
+| Model: `model_h36_v1.py` | One small explicit36/20 successor of `VariablePanelEpisodeInterfaceV1`/`episode_inputs_v1`. Construct the original lower PyG body with expected_haplotypes36, attach the original rank-eight flag/episode adapters, set expected_queries20 and arm foreign_episode. Reuse original H045 `encode_trees`, original variable-panel `forward_holds`, GRU/head and episode-array builder unchanged. Do not initialize40 and mutate count attributes afterward. Existing40/24 and952/686 paths may remain explicit for compatibility qualification; the H056 application accepts36/20 only. No separate learned flag model or copied encoder is needed. |
+| CPU application / summary: `apply_h36_v1.py` | Successor of `inference_v2.py.execute_v1` using the same root-injected reader/writer/stage callbacks and exact checkpoint provenance/state checks. Consume three genuinely completed new H056 banks, not the old childexit1/recovery receipt. Validate dynamic(T_c,36),(S_c,36) inputs and(T_c,20,4) outputs. Run one complete native-window sequence/chromosome, resetting only between chromosomes; preserve the original genomic normalization by log(2000001). Emit full probabilities/intervals/query IDs and the fixed H056 aggregate. Omit optional PCA/plots and their old24-query/fixed-count gates. |
+
+These are explicit fresh successors and focused diffs against the pinned predecessors, not edits or runtime monkey patches of installed/frozen sources.
+
+## Phase/QC and new evidence
+
+Freeze the original H018 conjunction for all18 people before phase acquisition: biallelic ACGT transversion, strict MASK_1000G flag, numeric INFO>=.8, external RAF-derived MAF>=.05, every exact phased0|0/0|1/1|0/1|1 GT, valid finite3-probability GP summing within.002 and maxGP>=.8, valid30-bit HS, and ancestral nucleotide in REF/ALT. FILTER stays recorded and outside this conjunction. Retain the original1000-qualified-SNP minimum per chromosome and report underqualification as inconclusive. This differs explicitly from H055's PASS/GP-dosage QC/support.
+
+The predecessor's `numeric(True)` accepts a malformed bare INFO flag as1.0. The successor should require a present scalar string before numeric parsing (also for RAF); this preserves the declared numeric-QC meaning without changing its threshold. The doubled QC counter is likewise an implementation defect to repair before new data.
+
+For each chromosome seal C=candidate rows, S=qualified sites, K=panel constants, T=native holds, native global node/edge counts, summed per-hold vertex occurrences N, unique site identities, phased/nucleotide digests and actual coverage. No old density or H05514432-SNP total substitutes for these new counts. Unique strict source position order remains a checked prerequisite; ambiguous duplicate positions fail rather than select a favorable row.
+
+Use the original qualified installed pre-size Relate condition: effective haploidN30000, mutation rate1.25e-8, years/generation28, zero population-size iterations, unchanged split-CLI stage order and numerical seed414855340. Preserve that integer as inherited seed provenance; do not pretend it is newly derived from a changed condition string. Freeze chromosome-specific map/build/units/bracketing/position translations and exact tool/runtime/source refs before acquisition/inference. No install, fitted demographic profile or seed search.
+
+The50KB old `root_inference.py` binds old bridge waits, counts, source paths, SETTINGS and completion schemas. Its `verify_request`, `read_native_headers_v1`, `admitted_inputs` and `launch` metadata bindings need a root-reviewed H056 integration delta. Preserve its genuine wait/supervise/RSS/timeout/drain/inventory/cleanup bodies and existing guard/admission primitives; do not generate another native controller or admission system. This operational binding work is precisely why the full rewrite is deferred at the plan boundary.
+
+The installed converter's historical strict lossless native-GT gate remains a historical failure. Do not copy the old failure/recovery receipt as H056 evidence, force the new strict gate to pass, or substitute native allele/AP annotations for source GT. Record actual new strict facts independently; permit a graph-only model view only after new sample/node/date/edge/topology/site-support/coverage proofs satisfy the existing scientifically valid graph-only contract. Preserve all qualified constants in source-GT features.
+
+## Frozen reduction and count-derived resources
+
+For person i, chromosome c and class a, compute
+`P[i,c,a] = sum_t bp[t,c]*(p[t,i,h0,a]+p[t,i,h1,a]) / (2*sum_t bp[t,c])`
+on all genuine native spans intersecting the fixed window. Pool chromosomes by their actual covered bp, then mean people equally within each five-person era and report later-minus-earlier for EHG and CHG, both regardless of sign. Also report each chromosome, all four classes, simplex/domain diagnostics and predeclared subject/site/chromosome deletions. Missing chromosome/person is inconclusive, never replaced or pooled away. No p-value, accuracy, mixture calibration or causal claim.
+
+Do not invent active resource caps in this plan. H36 int16 phased GT alone costs72*S_c bytes; full FP32 query probabilities cost320*T_c bytes. Add identities, topology, episodes, provenance, buffers, serialization and allocation. Keep source acquisition/network caps distinct from durable bytes. Root supplies count-derived stage caps/source closures through existing guards; overflow stops without filtering/thinning/padding or changing windows. No GPU is needed for the proposed application; any future GPU use remains separately root-owned and restricted to0.
+
+## Root-deferred implementation/qualification order
+
+1. Review this exact patch scope and freeze any necessary disclosed source-level contract differences before phased acquisition.
+2. Build the pure H36 panel/model/bridge/native-verifier/reader/preparation successors and focused diffs, then statically review them. Root owns bounded synthetic H36/20 plus old40/24 and952/686 compatibility/state-key qualification; none ran here.
+3. Bind the existing operational extraction/native/CPU route to the new reviewed source family without changing guards or constructing another controller.
+4. Root qualifies maps and source objects, admits each bounded acquisition, independently seals actual QC/readback counts, then admits native inference and verifies genuine waits plus new graph/support facts.
+5. Freeze actual dimensions/caps before bank preparation and unchanged-checkpoint CPU application. All three chromosomes must meet the declared contract; report exact tails and model domain limits.
+
+No executable adapter has been built in this plan packet. No genotype, tree, checkpoint, prediction or H055 outcome payload was opened; no network, numerical/model import, fixture, native process, guard, admission, scheduler, GPU or Git action occurred.

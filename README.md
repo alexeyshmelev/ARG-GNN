@@ -7,7 +7,7 @@ Graph neural networks for ordered collections of whole genealogical trees, with 
 [Persistent research goal and reporting requirements](research/goal_current.json). Current limits: **physical GPU 0 only**, parallel jobs allowed, and **1 TB** of storage. All project writes stay inside this server repository. GPUs 4–5 are excluded.
 
 <!-- CURRENT_SCOREBOARD_START -->
-**Scoreboard updated UTC: 2026-10-16T01:06:52.334179+00:00.** [Every current setup, all cohorts and detailed metrics](research/current_scoreboard.md) · [Native class metrics and training-lineage audit, frozen17-setup snapshot](research/reviews/root_score_report_20261015_v1/REPORT.md) · [All recorded historical/engineering metric receipts](research/all_recorded_metric_receipts.md)
+**Scoreboard updated UTC: 2026-10-16T01:54:36.756917+00:00.** [Every current setup, all cohorts and detailed metrics](research/current_scoreboard.md) · [Native class metrics and training-lineage audit, frozen17-setup snapshot](research/reviews/root_score_report_20261015_v1/REPORT.md) · [All recorded historical/engineering metric receipts](research/all_recorded_metric_receipts.md)
 
 | Current run | Device | Progress | Validation score |
 |---|---:|---|---|
@@ -19,7 +19,7 @@ Graph neural networks for ordered collections of whole genealogical trees, with 
 | Native FLARE | CPU | Author build, TRAIN000 full-site inference and prediction seal completed. Held-out VAL000 conversion: completed; actual wait0 and owned-group drain verified; native inference: completed; actual wait0 and owned-group drain verified; seal: prediction worker completed; direct wait0 and owned-group drain verified, outer tool terminal/final guard unconfirmed. | held-out score pending |
 | Our American C3 GNN | GPU0 | 20/20 exact TRAIN plans completed. Running on physical GPU 0. All 20 observed-input caches and TRAIN target joins are complete. The first scheduled durable model checkpoint is at 100 updates, so optimizer counts remain unverified. Full 600-update campaign continues. No ancestry score yet. The second original 30 Mb VAL observation plan (VAL001) is completed and closed, with 76,453 trees and 227,316 sites. No VAL targets were opened. Original VAL000 full-length GNN block plan: completed; actual wait0 and owned drain verified. | no ancestry score |
 | H049 cut-memory candidate | CPU preparation | bounded-v5 CPU preparation completed with genuine wait0/drain. Three matched 32,446-parameter arms. Full 30 passes / 960 updates per arm planned. | no fit or accuracy yet |
-| H050 stronger direct-readout candidate | GPU0 | Training on physical GPU 0. Completed 5/30 full TRAIN passes and 160/960 FP32 optimizer updates per arm (640/3,840 total). These are completed-pass lower bounds. No validation score yet. H045 predictor retained initially. Three 32,325-parameter memory arms and an unmodified 31,812-parameter continuation. 960 updates per arm, 192 prediction seals planned. Original45run interrupted byGPU0-only instruction, no validation accuracy. | full fit incomplete |
+| H050 stronger direct-readout candidate | GPU0 | Training on physical GPU 0. Completed 9/30 full TRAIN passes and 288/960 FP32 optimizer updates per arm (1152/3,840 total). These are completed-pass lower bounds. No validation score yet. H045 predictor retained initially. Three 32,325-parameter memory arms and an unmodified 31,812-parameter continuation. 960 updates per arm, 192 prediction seals planned. Original45run interrupted byGPU0-only instruction, no validation accuracy. | full fit incomplete |
 | Empirical data | CPU | H045 probabilities, ancestry proportions and genotype PCA completed for 24 query haplotypes / 12 subjects. Descriptive only, without known ancestry truth. | completed |
 
 **Completed H048:** 96.3800 ± 0.6002% graph_to_transition; 96.3886 ± 0.6098% graph_to_own_confidence_fixed_distance_chain. Both registered utility criteria failed. [Actual scores, all cohorts and provenance](research/reviews/H048_completed_comparison_root_20261015_v1/REPORT.md).
@@ -38,9 +38,9 @@ Graph neural networks for ordered collections of whole genealogical trees, with 
 
 **Next ARGMix comparison, not yet run:** A prospective 1,611-diploid paired panel with explicit reference/query roles. The official HapMapII GRCh37 chr22 map has been acquired and the generator map contract passed. Simulation and model comparison remain pending. This is a new common-data comparison, distinct from the unavailable original-table inputs. [Frozen plan and remaining adapters](research/reviews/ARGMix_published_panel_fair_comparison_source_plan_20261016_v1/HANDOFF.md).
 
-**Paper readiness:** The compiled eight-page AAAI draft covers H038–H043 and is not submission-ready. American ARGformer/FLARE scores, a larger ARGMix comparison, independent held-out confirmation, useful operator novelty, real-data corroboration and learned cross-domain evidence remain unfinished. [Draft scope](paper/README.md).
+**Paper readiness:** The compiled eight-page AAAI draft now includes H045 and its matched control. It is not submission-ready. American ARGformer/FLARE scores, a larger ARGMix comparison, independent held-out confirmation, useful operator novelty, real-data corroboration and learned cross-domain evidence remain unfinished. [Draft scope](paper/README.md).
 
-**Next biological validation, not yet run:** A prespecified Danish earlier-versus-later Neolithic contrast with matched genotype corroboration. [Candidate selection, public assets and limits](research/reviews/empirical_biological_followup_audit_20261016_v1/readiness_report.txt).
+**Danish biological corroboration:** Completed GP-only Danish corroboration over all three fixed windows, 14432 common-support SNPs. Pooled f4: -0.00223403, -0.00460966. Descriptive genotype affinity only, without independent ancestry truth or model accuracy. Neither prespecified positive-direction hypothesis was supported. [Actual results and limits](research/reviews/H055_root_actual_CPU_20261016_v1/REPORT.md).
 
 **Current GPU policy: physical GPU0 only.** Our GPU4/5 jobs have stopped and their contexts/known roots are absent. Parallel jobs onGPU0 are permitted after fresh device-bound admission. [Policy and actual stop evidence](research/reviews/GPU0_only_user_transition_root_20261016_v1/GPU0_only_policy.root_active_v1.json).
 
@@ -50,11 +50,11 @@ Graph neural networks for ordered collections of whole genealogical trees, with 
 
 **Ordered-tree mechanism status:** The frozen TRAIN-only trade audit found 22 partition changes and 21 nonzero conditional-innovation years. This establishes active input support, without a predictive-accuracy result. [Actual audit](research/reviews/TGB_trade_H051_data_integration_root_20261016_v1/actual_TRAIN_operator_support.root_v1.json). A [fresh independent literature review](research/reviews/H051_independent_priority_audit_20261016_v2/REPORT.md) identifies established conditional-mean and higher-order constructions. Generic operator novelty remains unestablished.
 
-Parallel ownership: workers prepare the biological corroboration runtime and C3 training efficiency sources. The independent biological protocol audit and H055 source review are complete. Root owns execution, metrics and Git.
+Parallel ownership: two workers implement the frozen H056 same-cohort H045 application sources. One worker updates the development manuscript proposal. Root owns execution, outcomes, metrics and Git.
 
 <!-- CURRENT_SCOREBOARD_END -->
 
-[Current 8-page AAAI working PDF](paper/current_full_panel_working.pdf) · [LaTeX source](paper/current_full_panel_working.tex) · [Overleaf working bundle](paper/current_full_panel_overleaf_working.zip). Compiled and visually checked on 2026-10-15. This is a development draft with unfinished scientific validation.
+[Current 8-page AAAI working PDF](paper/current_full_panel_working.pdf) · [LaTeX source](paper/current_full_panel_working.tex) · [Overleaf working bundle](paper/current_full_panel_overleaf_working.zip). Compiled and visually checked on 2026-10-16, now including completed H045 and its matched control. This is a development draft with unfinished scientific validation.
 
 **Best measured development result:** H045 clade-episode context reaches **96.8270 ± 0.5870% Present182 span accuracy**, versus **96.8175 ± 0.6142%** for its matched own-state arm. Both completed 30 FP32 passes and 960 updates. The gain is only **0.0096 percentage points**, below the registered 0.10 pp threshold. This condition does not establish useful cross-tree exchange or novelty. [Completed comparison and population metrics](research/reviews/H045_completed_comparison_root_20261015_v1/README.md).
 

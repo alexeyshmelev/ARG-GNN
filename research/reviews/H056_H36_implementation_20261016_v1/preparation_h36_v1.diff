@@ -1,0 +1,82 @@
+--- research/reviews/H018_empirical_reader_source_v1/preparation_v1.py
++++ research/reviews/H056_H36_implementation_20261016_v1/preparation_h36_v1.py
+@@ -1,21 +1,13 @@
+-"""Production H018 H40/R16/Q24 array preparation; pure CPU, no file/model I/O."""
++"""Production H056 H36/R16/Q20 array preparation; pure CPU, no file/model I/O."""
+ from dataclasses import fields
+ import math
+ import numpy as np
+ from arggnn import mutation_routed_tree_observations_v1 as frozen
+-from research.reviews.H018_variable_panel_adapter_source_v1.reader_contract_proposal import (
++from research.reviews.H056_H36_implementation_20261016_v1.panel_h36_v1 import (
+     panel_metadata_v1,verify_native_tip_dates_v1,need)
+ 
+-FEATURE_SEMANTICS=dict(
+-    haplotypes=40,references=16,queries=24,classes=["ANA","CHG","WHG","EHG"],
+-    site_tuple_width=19,leaf_width=6,node_width=3,edge_width=4,support_width=5,gate_width=9,
+-    age_normalization="log1p(generations)/log(10001)",
+-    genomic_normalization="log1p(bp)/log(2000001)",
+-    donor_age_split_generations=350,pseudocount=.5,
+-    donor_axes="youngerANA/CHG/WHG/EHG then olderANA/CHG/WHG/EHG",
+-    absent_donor_policy="masked_no_synthetic_donors",categorical_allele_embedding=False,
+-    native_ancestral_polarization=False,query_input_labels=-1,
+-    allowed_control=["aligned"],sham_field="identical_unused_structural_placeholder")
++from research.reviews.H056_H36_implementation_20261016_v1.contract_v1 import H,R,Q,FEATURE_SEMANTICS
++
+ 
+ def native_hold_readout_v1(intervals):
+     a=np.asarray(intervals,dtype=np.float64)
+@@ -27,18 +19,18 @@
+     return centers
+ 
+ def prepare_arrays_v1(trees,intervals,positions,genotype,allele_count,roster):
+-    """Complete H40 production contract; no fixture bypass and no site filtering."""
++    """Complete H36 production contract; no fixture bypass and no site filtering."""
+     meta=panel_metadata_v1(roster)
+     need(all(row.get("query_ancestry_truth") is None for row in roster),"No query truth input")
+     g,k=frozen._validate_alleles(genotype,allele_count)
+     x=np.asarray(positions,dtype=np.float64)
+     a=np.asarray(intervals,dtype=np.float64)
+     readout=native_hold_readout_v1(a)
+-    h=40;sid=np.arange(h,dtype=np.int64)
++    h=H;sid=np.arange(h,dtype=np.int64)
+     ref=np.asarray(meta["reference_class"],dtype=np.int64)
+     age=np.asarray(meta["source_sample_age_generations"],dtype=np.float64)
+-    qc=np.arange(16,40,dtype=np.int64)
+-    need(len(trees)==len(a) and g.shape[1]==40 and len(g)>0 and x.shape==(len(g),)
++    qc=np.arange(R,H,dtype=np.int64)
++    need(len(trees)==len(a) and g.shape[1]==H and len(g)>0 and x.shape==(len(g),)
+          and np.isfinite(x).all() and np.all(np.diff(x)>0)
+          and np.all(x>=a[0,0]) and np.all(x<a[-1,1]),
+          "Every original observed site inside genuine coverage; zero drops")
+@@ -49,7 +41,7 @@
+     offset=0;unary=0;rounded_ties=0
+     for hold,tree in enumerate(trees):
+         p,t,sn,tsid,_,depth,height,descendant,duration=frozen._layout(tree)
+-        need(set(tsid.tolist())==set(sid.tolist()),"Every hold retains exact original40 identities")
++        need(set(tsid.tolist())==set(sid.tolist()),"Every hold retains exact frozen36 identities")
+         at=dict(zip(tsid.tolist(),sn.tolist()))
+         row=np.asarray([at[int(i)] for i in sid],dtype=np.int64)
+         verify_native_tip_dates_v1(age.tolist(),t[row].tolist())
+@@ -81,7 +73,7 @@
+     upward_parent_rank=tuple(rank[parent[nodes]] for nodes in upward_children)
+     downward=frozen._level_arrays(depth)[1:]
+     logfreq,mask,panel,entropy,donor_count=frozen.observed_allele_frequency_arrays_v1(g,k,ref,age)
+-    metadata=dict(schema="H018_empirical_aligned_observations_v1",input_only=True,
++    metadata=dict(schema="H056_empirical_aligned_observations_v1",input_only=True,
+         feature_semantics=FEATURE_SEMANTICS,targets_read=False,sites_dropped=0,
+         original_sites=len(g),constant_sites=int(sum(len(np.unique(row[row>=0]))==1 for row in g)),
+         native_holds=len(trees),native_vertex_occurrences=len(parent),native_nonroot_branches=len(child),
+@@ -105,9 +97,9 @@
+     """Construct and validate the unchanged tensor dataclass only; no learned model."""
+     from arggnn.mutation_routed_whole_tree_gnn_v1 import MutationRoutedWholeTreeInputsV1,validate_inputs_v1
+     bank=MutationRoutedWholeTreeInputsV1.from_arrays(observations.model_arrays(),device="cpu")
+-    report=validate_inputs_v1(bank,expected_haplotypes=40)
+-    need(report["haplotypes"]==40 and report["queries"]==24
+-         and tuple(bank.query_column.tolist())==tuple(range(16,40)),"Exact H018 tensor interface")
++    report=validate_inputs_v1(bank,expected_haplotypes=H)
++    need(report["haplotypes"]==H and report["queries"]==Q
++         and tuple(bank.query_column.tolist())==tuple(range(R,H)),"Exact H056 tensor interface")
+     return bank,report
+ 
+ def tensor_array_bytes_v1(observations):

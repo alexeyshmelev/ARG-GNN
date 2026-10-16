@@ -1,6 +1,6 @@
 # Current scientific scoreboard
 
-Updated UTC: 2026-10-16T01:06:52.334179+00:00
+Updated UTC: 2026-10-16T01:54:36.756917+00:00
 
 [All measured cohort details](#detailed-cohort-metrics) · [Complete historical receipt inventory](all_recorded_metric_receipts.md) · [Fresh H048 novelty/cross-domain audit](../research/reviews/H048_novelty_crossdomain_fresh_20261015_v1/report.md)
 
@@ -370,6 +370,24 @@ TRAIN1987–2009/23years, VAL2010–2013/4years, TEST2014–2016/3years and675qu
 [All per-year results](../experiments/results/H052_TGB_trade_causal_native_baselines_v1/results.json) · [Frozen protocol](../research/reviews/TGB_trade_causal_baselines_root_20261016_v1/protocol.root_frozen_v1.json)
 
 **Ordered-tree mechanism status:** The frozen TRAIN-only trade audit found 22 partition changes and 21 nonzero conditional-innovation years. This establishes active input support, without a predictive-accuracy result. [Actual audit](../research/reviews/TGB_trade_H051_data_integration_root_20261016_v1/actual_TRAIN_operator_support.root_v1.json). A [fresh independent literature review](../research/reviews/H051_independent_priority_audit_20261016_v2/REPORT.md) identifies established conditional-mean and higher-order constructions. Generic operator novelty remains unestablished.
+
+
+## Danish registered genotype corroboration
+
+Completed GP-only Danish corroboration over all three fixed windows, 14432 common-support SNPs. Pooled f4: -0.00223403, -0.00460966. Descriptive genotype affinity only, without independent ancestry truth or model accuracy. Neither prespecified positive-direction hypothesis was supported.
+
+| Support | Common13 SNPs | f4(Sidelkino,Bar8) | f4(KK1,Bar8) |
+|---|---:|---:|---:|
+| chr20 | 3270 | -0.00019291 | -0.01166537 |
+| chr21 | 7066 | -0.00432352 | -0.00381045 |
+| chr22 | 4096 | -0.00025896 | -0.00035553 |
+| Pooled | 14432 | -0.00223403 | -0.00460966 |
+
+Both contrasts use later-minus-earlier and the same13-person complete GP support over the fixed three windows. Descriptive chromosome SDs: 0.00236597, 0.00579581. These are not independent uncertainty estimates. DeletingNEO92 flips the Sidelkino pooled sign. No neural model or ancestry truth was used.
+
+[Actual report and registered outcome](../research/reviews/H055_root_actual_CPU_20261016_v1/REPORT.md) · [Post-outcome biological context audit](../research/reviews/H055_actual_biological_interpretation_audit_20261016_v1/)
+
+H056 separately registers the frozenH045 model on the same10query subjects and three nominal windows. Source/cardinality qualification is pending. Existing H045 real-data output covers7of10people onchr22 only. No H056 model score exists.
 
 
 ## H046 matched continuous-flank outcome

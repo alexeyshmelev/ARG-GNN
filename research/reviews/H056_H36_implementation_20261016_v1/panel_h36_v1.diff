@@ -1,0 +1,39 @@
+--- research/reviews/H018_variable_panel_adapter_source_v1/reader_contract_proposal.py
++++ research/reviews/H056_H36_implementation_20261016_v1/panel_h36_v1.py
+@@ -1,15 +1,16 @@
+ """Pure metadata/coordinate proposal; contains no file reader or execution boundary."""
+ from decimal import Decimal,ROUND_HALF_EVEN
++from research.reviews.H056_H36_implementation_20261016_v1.contract_v1 import H,R,Q,validate_roster_identity_v1
+ import math,struct
+ CLASSES=("ANA","CHG","WHG","EHG")
+ def need(ok,message):
+     if not ok:raise ValueError(message)
+ def panel_metadata_v1(rows):
+-    need(isinstance(rows,list) and len(rows)==40,"Exactly40 original roster rows")
++    validate_roster_identity_v1(rows)
+     labels=[];ages=[];subjects=[]
+     for i,row in enumerate(rows):
+         need(row["sample_index"]==i and row["haplotype"]==i%2,"Exact persistent observed order")
+-        need(row["role"]==("reference" if i<16 else "query"),"OriginalR16/Q24 roles")
++        need(row["role"]==("reference" if i<16 else "query"),"FrozenH36/R16/Q20 roles")
+         cls=row["observed_reference_class"]
+         if i<16:
+             need(type(cls) is int and 0<=cls<4 and row["observed_cohort"]==CLASSES[cls],"Observed source class order")
+@@ -25,14 +26,14 @@
+         if i%2:
+             need(subjects[i]==subjects[i-1] and labels[i]==labels[i-1]
+               and ages[i]==ages[i-1],"Adjacent original diploid pair")
+-    need(len(set(subjects))==20 and tuple(labels.count(c) for c in range(4))==(4,4,4,4),"Original20subjects/four reference haps per source")
++    need(len(set(subjects))==18 and tuple(labels.count(c) for c in range(4))==(4,4,4,4),"Frozen18subjects/four reference haps per source")
+     counts=[sum(label==c and (age<350 if cohort==0 else age>=350)
+       for label,age in zip(labels,ages)) for cohort in range(2) for c in range(4)]
+-    return dict(haplotypes=40,reference_class=labels,query_column=list(range(16,40)),
++    return dict(haplotypes=H,reference_class=labels,query_column=list(range(R,H)),
+       source_sample_age_generations=ages,donor_group_counts=counts,
+       classes=list(CLASSES),class_counts=[4,4,4,4],source_roster_order_preserved=True)
+ def verify_native_tip_dates_v1(source_ages,native_times):
+-    need(len(source_ages)==len(native_times)==40,"Complete40 tip clocks")
++    need(len(source_ages)==len(native_times)==H,"Complete36 tip clocks")
+     f32=lambda x:struct.unpack("f",struct.pack("f",x))[0]
+     parsed=[float(format(Decimal.from_float(float(a)).quantize(Decimal("0.000001"),rounding=ROUND_HALF_EVEN),"f")) for a in source_ages]
+     need(list(native_times)==parsed,"Exact author six-decimal tip-clock semantics")

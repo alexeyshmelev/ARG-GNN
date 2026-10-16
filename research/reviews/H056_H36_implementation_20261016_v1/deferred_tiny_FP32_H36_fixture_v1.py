@@ -1,0 +1,106 @@
+"""Deferred single CPU FP32 H36 qualification. Default imports no model/numerics.
+
+Root runs once after source review. Synthetic arrays only; no real checkpoint,
+genotype/tree payload, guard, admission, optimizer or GPU operation.
+"""
+import argparse,json,os
+
+def _trees(roster,np):
+    from decimal import Decimal,ROUND_HALF_EVEN
+    from arggnn.mutation_routed_tree_observations_v1 import NativeObservedTreeV1
+    h=len(roster);ages=[float(Decimal.from_float(float(r["age_generations"])).quantize(Decimal("0.000001"),rounding=ROUND_HALF_EVEN)) for r in roster]
+    result=[]
+    for hold in range(2):
+        parents=[-1]*(2*h-1);times=ages+[0.]*(h-1);queue=list(range(h));next_node=h
+        while len(queue)>1:
+            a,b=queue.pop(0),queue.pop(0);p=next_node;next_node+=1
+            parents[a]=parents[b]=p;times[p]=max(times[a],times[b])+10.+hold
+            queue.append(p)
+        result.append(NativeObservedTreeV1(np.asarray(parents,dtype=np.int64),np.asarray(times,dtype=np.float64),
+            np.arange(h,dtype=np.int64),np.arange(h,dtype=np.int64)))
+    return result
+
+def _prepare(roster,prepare,np):
+    h=len(roster);g=np.asarray([[0]*h,[(i+1)%2 for i in range(h)],[i%2 for i in range(h)],[(i//2)%2 for i in range(h)]],dtype=np.int16)
+    arrays=prepare.prepare_arrays_v1(_trees(roster,np),np.asarray([[10.,50.],[50.,100.]]),
+        np.asarray([20.,40.,60.,90.]),g,np.asarray([2]*4,dtype=np.int64),roster)
+    bank,_=prepare.to_torch_bank_v1(arrays)
+    from arggnn.anonymous_clade_flag_control_v1 import build_clade_flag_arrays_v1,AnonymousCladeFlagsV1
+    flags,meta=build_clade_flag_arrays_v1(bank.parent.numpy(),bank.sample_index.numpy())
+    return bank,AnonymousCladeFlagsV1.from_verified_arrays(flags,meta)
+
+def run_once_v1():
+    os.environ["CUDA_VISIBLE_DEVICES"]=""
+    import numpy as np,torch
+    from research.reviews.H056_H36_implementation_20261016_v1 import preparation_h36_v1 as prep
+    from research.reviews.H056_H36_implementation_20261016_v1.contract_v1 import planned_roster_v1,CLASSES
+    from research.reviews.H056_H36_implementation_20261016_v1.model_h36_v1 import H36EpisodeInterfaceV1,episode_inputs_v1
+    from research.reviews.H018_H045_empirical_application_source_v1.variable_panel_model_v1 import VariablePanelEpisodeInterfaceV1
+    from research.reviews.H018_empirical_reader_source_v1 import preparation_v1 as old_prep
+    from research.reviews.H056_H36_implementation_20261016_v1.apply_h36_v1 import summarize_probabilities_v1
+    if torch.get_default_dtype()!=torch.float32 or torch.is_autocast_enabled() or torch.is_autocast_enabled("cpu"):
+        raise ValueError("Ordinary FP32 CPU fixture only")
+    prior=torch.random.get_rng_state().clone()
+    try:
+        torch.random.default_generator.manual_seed(560001)
+        torch.set_num_threads(1);torch.set_num_interop_threads(1)
+        reference=VariablePanelEpisodeInterfaceV1().cpu().eval().requires_grad_(False)
+        shared40=H36EpisodeInterfaceV1(expected_haplotypes=40,expected_queries=24).cpu().eval().requires_grad_(False)
+        shared36=H36EpisodeInterfaceV1().cpu().eval().requires_grad_(False)
+        original952=VariablePanelEpisodeInterfaceV1(expected_haplotypes=952,expected_queries=686).cpu().eval()
+        shared952=H36EpisodeInterfaceV1(expected_haplotypes=952,expected_queries=686).cpu().eval()
+        state=reference.state_dict()
+        for model in (shared40,shared36,original952,shared952):
+            if set(model.state_dict())!=set(state) or any(v.shape!=state[k].shape for k,v in model.state_dict().items()):
+                raise AssertionError("Count-independent original state keys/shapes")
+            if sum(p.numel() for p in model.parameters())!=31812:raise AssertionError("31812 parameters")
+            model.load_state_dict(state,strict=True)
+            if any(not torch.equal(v,state[k]) for k,v in model.state_dict().items()):raise AssertionError("Unchanged strict state values")
+        roster40=[]
+        for i in range(40):
+            cls=i//4 if i<16 else None
+            roster40.append(dict(sample_index=i,subject_id="synthetic_"+str(i//2),haplotype=i%2,
+                role="reference" if i<16 else "query",observed_reference_class=cls,
+                observed_cohort=CLASSES[cls] if cls is not None else None,
+                date_zero="calBP1950",years_per_generation=28,age_mean_cal_BP=2800.,age_generations=100.,
+                query_ancestry_truth=None,native_tree_node_id=None))
+        bank40,flags40=_prepare(roster40,old_prep,np)
+        episodes40,_=episode_inputs_v1(bank40,known_flags=flags40,max_payload_bytes=65536)
+        bank36,flags36=_prepare(planned_roster_v1(),prep,np)
+        episodes36,_=episode_inputs_v1(bank36,known_flags=flags36,max_payload_bytes=65536)
+        with torch.inference_mode():
+            old=reference(bank40,episodes=episodes40,control="aligned")
+            new=shared40(bank40,episodes=episodes40,control="aligned")
+            p36=shared36(bank36,episodes=episodes36,control="aligned").softmax(-1)
+        torch.testing.assert_close(new,old,atol=5e-6,rtol=5e-5)
+        if p36.shape!=(2,20,4) or p36.dtype!=torch.float32 or not bool(torch.isfinite(p36).all()):
+            raise AssertionError("Finite H36/Q20 output")
+        torch.testing.assert_close(p36.sum(-1),torch.ones((2,20)),atol=1e-6,rtol=0)
+        if not bool((bank36.genotype[0]==0).all()) or bank36.genotype.shape!=(4,36):
+            raise AssertionError("Synthetic constant and all four sites retained")
+        synthetic={}
+        for i,chrom in enumerate(("20","21","22")):
+            a=np.tile([.35,.2,.35,.1],(20,1))
+            a[10:]=np.asarray([.35-(i+1)*.1,.3,.35,(i+1)*.1])
+            synthetic[chrom]=dict(haplotype_proportions=a,covered_bp=i+1,
+                covered_absolute_bp0=[20000000,20000001+i],diagnostics={})
+        summary=summarize_probabilities_v1(synthetic)
+        # Earlier EHG=.1; later [.1,.2,.3] at bp weights[1,2,3].
+        expected_ehg=(.1+2*.2+3*.3)/6-.1
+        if abs(summary["primary"]["EHG"]["later_minus_earlier"]-expected_ehg)>1e-12:
+            raise AssertionError("Frozen chromosome-bp then equal-person reduction")
+        if abs(summary["primary"]["CHG"]["later_minus_earlier"]-.1)>1e-12:
+            raise AssertionError("CHG fixed class axis")
+        return dict(schema="H056_single_deferred_CPU_FP32_fixture_v1",passed=True,seed=560001,
+            model_FP32=True,optimizer_steps=0,real_checkpoint_read=False,real_payload_read=False,
+            H36_shape=list(p36.shape),H40_max_abs_logit_difference=float((new-old).abs().max()),
+            H40_atol=5e-6,H40_rtol=5e-5,H952_state_keys_shapes_values_only_not_forward=True,
+            full_parent_resource_fit_not_qualified=True,source_review_does_not_grant_execution_authority=True)
+    finally:torch.random.set_rng_state(prior)
+
+def main(argv=None):
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument("--run-once",action="store_true");args=p.parse_args(argv)
+    if not args.run_once:
+        print(json.dumps(dict(status="source_only_fixture_not_executed",Torch_imported=False)));return 0
+    print(json.dumps(run_once_v1(),sort_keys=True),flush=True);return 0
+if __name__=="__main__":raise SystemExit(main())

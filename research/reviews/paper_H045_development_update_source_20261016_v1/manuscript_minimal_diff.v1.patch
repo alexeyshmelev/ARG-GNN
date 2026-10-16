@@ -1,0 +1,231 @@
+--- paper/current_full_panel_working.tex
++++ research/reviews/paper_H045_development_update_source_20261016_v1/current_full_panel_working.proposed.tex
+@@ -1,10 +1,15 @@
+-% CURRENT FULL-PANEL WORKING DRAFT, 2026-10-15. Author-facing notes.
++% PROPOSED H045 UPDATE TO CURRENT FULL-PANEL WORKING DRAFT, 2026-10-16.
++% Source-only proposal. Existing paper files are unchanged.
++% H045 is completed development evidence with a matched own-state control.
++% Its 0.0096 pp cross-tree gain fails the registered practical utility criterion.
++% No compilation, rendering or experimental execution performed for this proposal.
++% Root must review and compile the integrated paper, with at most 20 total pages.
+ % Development manuscript, not a completed submission or success claim.
+ % Remaining gates: independent outer assessment, optimizer-seed replication,
+ % matched-input/budget attribution, original-paper benchmarks, full-panel
+ % ARGformer and external comparators, cross-domain evidence, novelty review.
+-% H043 completed results are included only as a compact control appendix.
+-% Root confirmed H043 completion. H044 results remain excluded.
++% H043 remains a compact completed control appendix. H045 is now in the main development comparison.
++% Root confirmed completed H043 and H045 evidence. H044 results remain excluded.
+ % No original-paper reproduction, universal ranking, novel-operator,
+ % significance, held-out-test, or real-data PCA claim is supported.
+ % Root must compile/render, check 6--8 main pages and <=20 total pages.
+@@ -33,7 +38,7 @@
+ \begin{document}
+ \maketitle
+ \begin{abstract}
+-Changing inferred genealogies provide a structured representation for local ancestry prediction, but strong span accuracy can conceal poor tract boundaries. We study a whole-tree graph neural pipeline on a common panel of 476 diploids, with 32 training and eight development validation simulations. The model encodes observed SNPs and known reference annotations, performs PyTorch Geometric message passing over every native tree, and processes all sampled haplotypes with a bidirectional genomic GRU. A local adapter marks exact sampled-leaf clades gained or lost between adjacent trees. On the present-day cohort, this model attains $96.5778\pm0.5954\%$ span accuracy, compared with $94.4461\pm1.1491\%$ for the current native ARGMix pipeline. The difference includes input, training and selection effects. Under matched added training and parameter count, local flags exceed a tensor clade-event model by 0.3104 percentage points, whereas tensor coupling exceeds its event-MLP control by only 0.0667 points. Boundary F1 remains $18.05\pm1.84\%$ at 1\,kb tolerance. These development results favor the simpler local structural features within the examined family and identify transition recognition and readout resolution as unresolved limitations.
++Changing inferred genealogies provide a structured representation for local ancestry prediction, but strong span accuracy can conceal poor tract boundaries. We study a whole-tree graph neural pipeline on 476 diploids, with 32 training and eight development validation simulations. The model combines observed SNP features, complete PyTorch Geometric tree sweeps and a bidirectional genomic GRU. A local adapter marks sampled-leaf clades gained or lost between adjacent trees. A completed continuation additionally pools learned states over contiguous clade episodes. It reaches $96.8270\pm0.5870\%$ present-day span accuracy, compared with $96.8175\pm0.6142\%$ for its matched own-state control and $94.4461\pm1.1491\%$ for current native ARGMix. The episode-versus-control gain is only 0.0096 percentage points and fails the registered 0.10-point utility criterion. The native-pipeline difference includes extra SNP evidence, training and checkpoint-selection effects. Episode boundary F1 remains $18.16\pm1.38\%$ at 1\,kb tolerance. These reused-validation results do not establish useful cross-tree exchange, a new operator or overall benchmark superiority.
+ \end{abstract}
+ 
+ \section{Introduction}
+@@ -43,9 +48,9 @@
+ 
+ We investigate a compact whole-tree model that retains all 952 observed haplotypes and every inferred marginal tree. Its graph computation uses PyTorch Geometric \citep{pyg2019}. A bidirectional GRU \citep{gru2014} models the complete sequence of tree contexts for each sampled haplotype. Observed SNP features and reference annotations enter the graph encoder directly. Predictions do not consume another ancestry model's outputs.
+ 
+-The empirical question is whether extra machinery for coupling changing clades is useful beyond simpler structural features. We compare a tensor interaction and a matched event MLP over the same clade-event inputs, then examine a local flag adapter with the same additional parameter count and training budget. The local adapter uses only a node's own first-sweep state and two observation-derived flags. It does not gather a neighboring tree's learned state. This distinction permits an interpretable comparison between a richer interaction and local structural conditioning.
+-
+-The completed results support three findings. First, the local-flag model has the highest present-day mean span accuracy among these completed development conditions. Second, the tensor interaction adds only a small observed difference over its matched event MLP, and the local control exceeds both. The results do not establish a distinct new neural operator. Third, high span accuracy coexists with weak tract-boundary prediction. A fixed-output diagnostic separates missing candidate boundaries from errors at boundaries the decoder could express.
++The empirical question is whether coupling learned states across changing trees is useful beyond simpler structural features. We first compare tensor clade-event interactions with matched event-MLP and node-local flag controls. A later completed H045 comparison pools states across consecutive occurrences of the same proper clade and compares this foreign context with an equal-parameter own-state arm. The latter computes the same episode pool but uses its own state in the residual. This matched comparison separates a foreign-state effect from the capacity and additional training shared by the two arms.
++
++The completed results support three findings. First, the H045 continuation reaches a larger present-day development mean than the earlier conditions, but its matched own-state control is almost identical. Second, the 0.0096-point foreign-episode gain falls below the registered 0.10-point practical criterion. Together with the small H043 neighbor-state effect, this leaves useful learned cross-tree exchange and operator novelty unestablished. Third, all of these high span scores coexist with weak tract-boundary prediction. A fixed-output diagnostic separates missing candidate boundaries from errors at boundaries the decoder could express.
+ 
+ The study uses independent simulations as the unit of partitioning and reporting. Its eight validation simulations also support checkpoint selection and architecture development. The reported variation is across those simulations from one optimizer seed per condition. Independent confirmation, broader comparators and a completed novelty assessment remain necessary before stronger claims.
+ 
+@@ -140,7 +145,7 @@
+ \draw[flow] (prob.south)--(0,-3.35)--(loss.west);
+ \draw[observed] (truth)--(loss);
+ \end{tikzpicture}
+-\caption{Actual H042 computation. The two full-tree sweeps share learned weights. Only the first upward states feed the local adapter. Dashed arrows supply structural flags or external training supervision. Adjacent trees contribute exact clade-presence flags, without transferring learned node states through the adapter. The genomic GRU processes the complete observed sequence. Query truth never enters the forward feature path. Architecture provenance is E6--E7 in Appendix~\ref{app:provenance}.}
++\caption{The inherited H042 computation. The two full-tree sweeps share learned weights. Only first upward states feed the local adapter. Dashed arrows supply structural flags or external training supervision. The H045 comparison adds the episode residual in Section~\ref{sec:episodes} before the same second sweep, while retaining the full genomic GRU. Query truth never enters the forward feature path. Architecture provenance is E6--E7 and E14 in Appendix~\ref{app:provenance}.}
+ \label{fig:architecture}
+ \end{figure*}
+ 
+@@ -161,6 +166,20 @@
+ 
+ Equation~\ref{eq:local} contains no other node's or tree's latent state. It is a local structural-feature control for the more elaborate clade-event interactions, not a claimed novel message-passing primitive.
+ 
++\subsection{Matched Clade-Episode Context}
++\label{sec:episodes}
++H045 retains the complete learned H042 model and adds a paired episode adapter. A maximal consecutive run of the same exact proper sampled-leaf clade is an episode. Reappearance after an absent tree starts a new episode. The same unary representative rule applies, without asserting biological ancestor identity. For a member $i$ with first-sweep state $h_i$ and physical span $w_i$, the foreign context excludes its own tree,
++\begin{equation}
++m_i=\frac{\sum_{j\in E(i)}w_jh_j-w_ih_i}
++           {\sum_{j\in E(i)}w_j-w_i}.
++\end{equation}
++Only episodes containing at least two trees receive an extra residual,
++\begin{equation}
++\Delta_i^{\mathrm{ep}}=
++O_e\!\left[(U_eh_i)\odot(V_em_i)+W_eh_i\right].
++\end{equation}
++The own-state arm substitutes $m_i=h_i$ on the same eligible nodes while computing the same pool. Three bias-free $32\to8$ projections and one $8\to32$ projection add 1,024 weights, for 31,812 per arm. The output projection starts at zero. The second shared tree sweep receives $b+\Delta+\Delta^{\mathrm{ep}}$. PyG sums implement the span-weighted pool, and gradients remain connected across episode members. This is an implemented conditioning comparison, not a claim of a new pooling or message-passing operator. Provenance: E13--E14.
++
+ \subsection{Complete Genomic History and Readout}
+ The second-sweep leaf contexts are concatenated with three observed geometry channels: log hold span and log distances to the preceding and following hold midpoints. The normalization denominator is $\log(2{,}000{,}001)$. A single-layer bidirectional GRU receives the resulting 35-channel sequence, with hidden width 32 in each direction. It processes all native holds for all 952 sampled haplotypes.
+ 
+@@ -182,7 +201,9 @@
+ 
+ H040 tensor and event-MLP conditions and H042 flags begin from the same selected H038 aligned checkpoint. Each completes 30 additional passes and 960 additional updates. AdamW is reset with learning rate $10^{-3}$, weight decay $10^{-4}$, betas $(0.9,0.999)$ and epsilon $10^{-8}$. Gradient norm is clipped at 1. These extensions have 30,788 parameters and use optimizer seed 101. The same added budget does not make their total exposure equal to the unextended H038 body.
+ 
+-Checkpoints at five-pass intervals are evaluated using equal-simulation present-day VAL accuracy, with the registered NLL and earlier-pass tie breaks. The selected aligned H038 checkpoint is pass 30, while zero concordance selects pass 25 although both finish pass 30. H040 and H042 select additional pass 30. VAL labels do not supply optimization gradients, but repeated development and selection on this split limit confirmatory interpretation.
++H045 begins from the same selected H042 pass-30 checkpoint in both arms, preserves its complete flag adapter and trains all body weights. Its new episode weights are identical at initialization, and each arm independently resets the same AdamW settings and completes 30 FP32 passes, or 960 further whole-simulation updates, with seed 101. Each arm therefore has 1,920 continuation updates beyond the selected H038 base. This extra exposure and its 31,812 parameters must be distinguished from H042's 30,788 parameters. Provenance: E13--E14.
++
++Checkpoints at five-pass intervals are evaluated using equal-simulation present-day VAL accuracy, with lower NLL and earlier-pass tie breaks. The aligned H038 checkpoint is pass 30, while zero concordance selects pass 25 although both finish pass 30. H040 and H042 select additional pass 30. Both H045 arms also select their additional pass 30. All 96 H045 checkpoint-parent products are sealed before validation truth is opened for scoring. VAL supplies no optimization gradients, but repeated development and selection on this split limit confirmatory interpretation.
+ 
+ \subsection{Matched Interactions and Native Baselines}
+ The H040 comparison holds its clade-event inputs, initialization protocol, 1,024 added weights and additional update budget fixed between a tensor interaction and an event MLP. Both route signed residuals through changed-clade event incidences, followed by the second shared tree sweep. The local H042 control uses the same size and added budget but substitutes the two exact local flags in Equation~\ref{eq:local}. It therefore asks whether those event interactions are needed beyond local topology-change information.
+@@ -191,11 +212,11 @@
+ 
+ Current native ARGMix retains its author implementation, with disclosed full-panel slot and metadata adaptation. It uses the released 15-reference representation without ancestor features and the native genomic sequence model. Its fit uses source seed 50 and selects epoch 9 by the original smoothed, masked, unweighted VAL batch-mean loss. Native patience is 2 with a 20-epoch cap. External full-support scoring does not replace that inner selection rule.
+ 
+-These conditions share simulation observations and physical scoring support, but they do not isolate architecture. The whole-tree model additionally consumes observed SNP features. Native row sampling, reference representations, sequence chunks, supervision, training exposure and checkpoint objectives remain method-specific. H040 and H042 also receive an additional 960 updates after the H038 warm start. Their comparison with the native pipelines is a development pipeline comparison.
++These conditions share simulation observations and physical scoring support, but they do not isolate architecture. The whole-tree models additionally consume observed SNP features. Native row sampling, reference representations, sequence chunks, supervision, training exposure and checkpoint objectives remain method-specific. H040 and H042 receive 960 additional updates after H038. H045 receives another 960 after H042. Its comparison with native pipelines is therefore a development pipeline comparison, rather than a matched-input or matched-budget operator test.
+ 
+ \section{Results}
+ \subsection{Primary Span Accuracy}
+-Table~\ref{tab:primary} gives the completed present-day results. H042 local flags attain $96.5778\pm0.5954\%$, compared with $95.4891\pm0.8338\%$ for the H038 aligned body and $94.4461\pm1.1491\%$ for current native ARGMix. The H042--ARGMix difference is 2.1317 percentage points. This is an observed difference between the specified fitted pipelines, with the input, optimization and selection qualifications above.
++Table~\ref{tab:primary} gives the completed present-day development results. H045 foreign-episode context reaches $96.8270\pm0.5870\%$, while its matched own-state control reaches $96.8175\pm0.6142\%$. Current native ARGMix reaches $94.4461\pm1.1491\%$ and the AP-derived C4 endpoint reaches $93.7830\pm0.8385\%$. The H045--ARGMix difference is 2.3809 percentage points between the specified fitted pipelines. Extra SNP inputs, continued training and different native checkpoint rules prevent attributing that gap to cross-tree exchange. The relevant matched H045 effect is only 0.0096 points.
+ 
+ \begin{table}[t]
+ \centering
+@@ -211,21 +232,23 @@
+ H040 event MLP & $96.2007\pm0.7048$ & 0.110014 \\
+ H040 tensor & $96.2674\pm0.7493$ & 0.109332 \\
+ H042 local flags & $96.5778\pm0.5954$ & 0.100656 \\
+-\bottomrule
+-\end{tabular}
+-\caption{Present-day development span accuracy, mean$\pm$sample SD across eight simulations. All models use one optimizer seed. NLL has no probability floor. Native AP is the derived C4 endpoint. H040/H042 have 960 additional updates beyond the H038 warm start. Provenance: E1--E5 and E11, Appendix~\ref{app:provenance}.}
++H045 own-state & $96.8175\pm0.6142$ & 0.092976 \\
++H045 foreign episode & $96.8270\pm0.5870$ & 0.092980 \\
++\bottomrule
++\end{tabular}
++\caption{Present-day development span accuracy, mean$\pm$sample SD across eight simulations and one optimizer seed per condition. NLL has no probability floor. Native AP is the derived C4 endpoint. H040/H042 add 960 updates after H038, and H045 adds another 960 after H042. Provenance: E1--E5, E11 and E13, Appendix~\ref{app:provenance}.}
+ \label{tab:primary}
+ \end{table}
+ 
+ 
+ The aligned H038 body exceeds zero concordance by 0.5639 percentage points at the selected checkpoints. Both runs complete 960 updates, but their selected passes differ. This result supports retaining the observed concordance features in this development condition. It does not identify an effect of all SNP information, all genealogy information, or PyG software alone.
+ 
+-The same caution applies to the extension's improvement over the H038 body. H042 changes capacity and performs two shared tree sweeps, then trains for another 960 updates. Its difference from the base score cannot be attributed entirely to the flag mechanism. The closer comparisons are the H040 tensor, H040 event-MLP and H042 local-flag conditions, which have the same added count and budget.
++The same caution applies to improvements over the H038 body. H042 changes capacity, performs two shared tree sweeps and trains for another 960 updates. H045 increases capacity again and continues the selected H042 model. These score differences cannot be assigned entirely to a structural mechanism. The closer controls match both added capacity and training within each extension family.
+ 
+ Native AncestralPaths has finite accuracy but infinite strict raw FP32 NLL on the primary cohort. One simulation places zero probability on the true class over 800 query-base pairs. We preserve this result rather than floor probabilities, exclude the simulation or silently average only finite NLLs. Accuracy and NLL measure different aspects of a prediction distribution.
+ 
+ \subsection{Local Flags Versus Clade-Event Interactions}
+-Table~\ref{tab:paired} reports paired present-day differences across the same eight simulations. Tensor coupling exceeds its matched event MLP by a mean 0.0667 percentage points, with positive differences in six of eight simulations. H042 local flags exceed the tensor condition by 0.3104 points and the event MLP by 0.3771 points, with positive differences in each of the eight simulations for these fitted models.
++Table~\ref{tab:paired} reports paired present-day differences across the same eight simulations. Tensor coupling exceeds its event MLP by 0.0667 percentage points. H042 local flags exceed tensor coupling by 0.3104 points and the event MLP by 0.3771 points. In the later H045 family, foreign episode context exceeds own-state by $0.0096\pm0.1527$ points, positive in six of eight simulations. This fails the registered practical accuracy-gain criterion of at least 0.10 points. The gate is a development utility criterion, not a significance test.
+ 
+ \begin{table}[t]
+ \centering
+@@ -237,17 +260,18 @@
+ Tensor $-$ event MLP & $0.0667\pm0.0886$ & 6/8 \\
+ Flags $-$ tensor & $0.3104\pm0.2588$ & 8/8 \\
+ Flags $-$ event MLP & $0.3771\pm0.2165$ & 8/8 \\
+-\bottomrule
+-\end{tabular}
+-\caption{Equal-simulation paired accuracy differences, mean$\pm$sample SD. Positive counts are descriptive. Both added parameter count and update budget are matched. Provenance: E2--E3.}
++H045 foreign $-$ own & $0.0096\pm0.1527$ & 6/8 \\
++\bottomrule
++\end{tabular}
++\caption{Equal-simulation paired accuracy differences, mean$\pm$sample SD. Positive counts are descriptive. Each comparison matches added parameter count and training within its family. H045 continues H042 and is a separate paired comparison. Provenance: E2--E3 and E13.}
+ \label{tab:paired}
+ \end{table}
+ 
+ 
+-These descriptive comparisons favor the simpler local condition within the examined family. They do not establish that clade-event coupling is generally ineffective. Different incidence definitions, objectives, training conditions or independent simulations could change the result. The present evidence also does not justify attributing a distinct scientific contribution to the tensor interaction itself.
++The earlier comparisons favor local flags over the examined clade-event interactions. The later episode comparison does not establish a useful foreign-state advantage over its own-state control. Different incidence definitions, objectives or independent simulations could change these results. Neither the tensor interaction nor the episode pool is supported here as a distinct new neural operator.
+ 
+ \subsection{Cohort Dependence}
+-Table~\ref{tab:cohorts} reports all registered cohorts, including the small BAA and Yam groups. H042 has a higher mean span accuracy than the current native AP and ARGMix pipelines in each listed cohort. Across all 686 queries it reaches $98.64\pm0.26\%$, while present-day accuracy is lower at $96.58\pm0.60\%$. The aggregate is therefore not interchangeable with the primary endpoint.
++Table~\ref{tab:cohorts} retains the earlier native and H042 cohort comparison, including the small BAA and Yam groups. Appendix Table~\ref{tab:episodecohorts} adds both completed H045 arms. Foreign-episode context reaches $98.7761\%$ across all 686 queries, compared with $98.7815\%$ for own-state. Its present-day score is $96.8270\%$. These aggregate and primary endpoints are not interchangeable, and the foreign condition does not uniformly exceed its matched control.
+ 
+ \begin{table*}[t]
+ \centering
+@@ -295,6 +319,8 @@
+ \end{table}
+ 
+ 
++H045 foreign-episode boundary F1 is $18.1558\pm1.3790\%$, compared with $18.0557\pm1.7761\%$ for own-state. The paired difference is $0.1001\pm0.9632$ percentage points. It does not resolve the boundary weakness, and the failed accuracy-gain criterion means that H045 does not meet both registered utility criteria. These H045 results do not replace the separate H042 event counts or the H038 fixed-output diagnostic. Provenance: E13.
++
+ Native AP has higher boundary recall than H042 in this comparison, accompanied by much lower precision. H042's larger F1 consequently should not be read as an improvement in every transition metric. For H042 the pooled counts are 4,008 true changes, 5,920 predicted changes and 892 positional matches. These pooled event counts are distinct from the equal-simulation means and SDs in the table.
+ 
+ A separate fixed-output H038 diagnostic clarifies two limitations. Of 4,008 true changes, 1,094, or 27.30\%, have no allowed native-hold readout edge within 1\,kb. Its class-agnostic hold-edge oracle recall is $72.70\pm2.80\%$. Yet 2,195 of the aligned model's 3,289 missed boundaries still have a nearby candidate. Missing readout resolution therefore explains only part of the recognition deficit.
+@@ -305,16 +331,16 @@
+ The completed aligned H038 run records 43.6 seconds per 32-simulation pass, 1,307.9 seconds in training and 1,698.5 seconds total elapsed time. Its peak CUDA allocated memory is 21.35\,GB and reserved memory is 37.16\,GB in decimal units. These are measurements of that training path, excluding full data preparation and external baseline evaluation. They neither isolate a PyG speedup nor establish the cost of H042 or the other complete pipelines.
+ 
+ \section{Discussion and Scope}
+-The results distinguish representation usefulness from a claim of architectural invention. Local changes in exact sampled-leaf clades are useful features in the present completed comparison. A node-local multiplicative adapter exceeds the examined clade-event interactions under matched added capacity and training. Established tree propagation and a full genomic recurrent model remain essential parts of the concrete system being evaluated. These results leave a simpler structural explanation viable.
++The results distinguish fitted-pipeline performance from architectural invention. Local clade-change flags exceed the earlier tensor and event-MLP conditions under matched added capacity and training. H045 subsequently improves the development span score, but almost the same improvement occurs in its own-state arm. Its 0.0096-point foreign-context effect and H043's 0.0153-point neighbor-state effect both fail their practical 0.10-point gates. Established tree propagation, local conditioning, pooling and genomic recurrence remain viable explanations of the observed performance.
+ 
+ Several limitations determine how the scores should be used. The VAL simulations have informed model selection and architecture development. A single optimizer seed cannot quantify training instability. The native comparators preserve their released methods but differ in input evidence, training units, reference choices and selection objectives. The simulated roster and the derived C4 endpoint also differ from the published ARGMix benchmark, which uses different panel, reference and evaluation conditions. Numerical comparisons with its published tables would require a separately verified recipe.
+ 
+-The task is conditional on one demographic simulation family and inferred observation pipeline. A high cohort mean does not establish robustness to genotype errors, demographic misspecification, a different reference panel or real genomes. Full-panel ARGformer, broader external baselines and cross-domain experiments remain outside the completed evidence here. A literature assessment must also separate established components from any defensible distinct contribution before a novelty claim is formulated.
++The task is conditional on one demographic simulation family and inferred observation pipeline. High cohort means do not establish robustness to genotype errors, demographic misspecification, a different reference panel or real genomes. Full-panel ARGformer and broader external comparisons remain incomplete. Separate American three-class comparisons with native ARGformer and FLARE are also unfinished, and no independent outer TEST result is reported. A literature assessment must distinguish established components from any defensible contribution before a novelty claim is formulated.
+ 
+ Boundary performance is a substantive remaining weakness. Improving the ability to express a transition inside a native hold addresses a geometric restriction, while improving transition recognition addresses failures where a suitable edge already exists. Neither follows automatically from higher span accuracy. Future evaluation should preserve the fixed physical-support scorer, count real short tracts, and use independent simulations for confirmation rather than tune a post-processing rule on the current boundary errors.
+ 
+ \section{Conclusion}
+-A compact whole-tree PyG and genomic-GRU pipeline with exact local clade-change flags reaches $96.5778\pm0.5954\%$ present-day span accuracy on eight development simulations. The local feature control exceeds the examined tensor and event-MLP extensions under matched added capacity and training. The completed comparison supports this concrete implementation choice, while weak boundary F1 and pipeline confounds limit broader interpretation. Independent assessment and matched external benchmarking remain necessary.
++The completed H045 continuation of a whole-tree PyG and genomic-GRU pipeline reaches $96.8270\pm0.5870\%$ present-day span accuracy on eight development simulations. Its matched own-state control reaches $96.8175\pm0.6142\%$. Their 0.0096-point difference fails the registered useful-gain criterion, while boundary F1 remains about 18\%. These results document a fitted development pipeline without establishing useful foreign-state exchange, a new operator or overall superiority. Independent assessment and matched external benchmarking remain necessary.
+ 
+ \bibliography{current_full_panel_refs}
+ 
+@@ -343,6 +369,29 @@
+ 
+ The same added budget and parameter count do not imply identical cohort rankings. These descriptive results supplement the registered present-day endpoint and do not redefine it.
+ 
++\section{Completed Episode Cohort Comparison}
++\begin{table}[t]
++\centering
++\small
++\begin{tabular}{lrr}
++\toprule
++Cohort & Own-state & Foreign episode \\
++\midrule
++Present & $96.82\pm0.61$ & $96.83\pm0.59$ \\
++Bronze Age & $99.17\pm0.40$ & $99.20\pm0.32$ \\
++BAA & $99.28\pm1.14$ & $99.15\pm1.25$ \\
++Neo & $99.64\pm0.09$ & $99.61\pm0.08$ \\
++Yam & $99.87\pm0.18$ & $99.90\pm0.13$ \\
++Ancient & $99.49\pm0.15$ & $99.48\pm0.13$ \\
++All queries & $98.78\pm0.26$ & $98.78\pm0.25$ \\
++\bottomrule
++\end{tabular}
++\caption{H045 cohort span accuracy (\%), mean$\pm$sample SD across eight development simulations. Both arms select pass 30 after the same H042 initialization and a further 960 updates. These are descriptive cohort results, not independent validation. Provenance: E13.}
++\label{tab:episodecohorts}
++\end{table}
++
++Own-state has the larger mean in BAA, Neo, ancient and all-query aggregates, while foreign episode has the larger present-day, Bronze Age and Yam means. The small present-day difference does not establish broad cohort or metric superiority.
++
+ \section{Completed Neighbor-State Control}
+ The completed H043 comparison supplies an additional paired control, without changing the main H042 comparison. The arms compare a paired neighboring-tree state with a matched control using its own state. Each arm finishes 30 passes and 960 full-simulation updates. The true-partner arm reaches $96.5182\pm0.6201\%$ present-day accuracy, while the own-state control reaches $96.5029\pm0.6006\%$. The paired difference is $0.0153\pm0.0920$ percentage points, positive in five of eight simulations.
+ 
+@@ -360,7 +409,7 @@
+ \section{Evidence Provenance}
+ \label{app:provenance}
+ Tables and Figure~\ref{fig:architecture} identify evidence keys below. Paths are repository-relative. Exact full SHA256 values, source versions and bibliography verification URLs are recorded in the companion
+-\path{paper/current_full_panel_provenance.json}.
++\path{paper/current_full_panel_provenance.json}. H045 additions and exact receipt hashes are recorded in the proposed addendum \path{research/reviews/paper_H045_development_update_source_20261016_v1/H045_provenance_addendum.v1.json}.
+ The records describe the current full-panel condition and must not be mixed with historical 140-diploid drafts.
+ \paragraph{E1: H038 completed base/control scores.}
+ \noindent\path{experiments/results/mutation_routed_full_panel_pyg_v1_summary_root/summary.json}\par
+@@ -397,4 +446,11 @@
+ \noindent\path{research/reviews/expanded_native_argmix_H038_score_root_v1/readonly_CPU_result_v1.json}\par
+ \paragraph{E12: Root-confirmed completed neighbor-state control.}
+ \noindent\path{research/reviews/H043_completed_comparison_root_20261015_v1/summary.json}\par
++\paragraph{E13: Completed H045 matched development evidence.}
++\noindent\path{research/reviews/H045_completed_comparison_root_20261015_v1/summary.json}\par
++\noindent\path{experiments/results/H045_GPU5_episode_train_seed101_v1/completed.json}\par
++\noindent\path{experiments/results/H045_GPU5_episode_evaluate_seed101_v1/completed.json}\par
++\paragraph{E14: Exact H045 episode model and frozen training configuration.}
++\noindent\path{src/arggnn/ordered_clade_episode_gnn_v1.py}\par
++\noindent\path{research/reviews/H045_GPU45_episode_root_source_v1/config.json}\par
+ \end{document}

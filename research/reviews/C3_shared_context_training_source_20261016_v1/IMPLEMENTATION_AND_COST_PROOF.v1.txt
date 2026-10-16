@@ -1,0 +1,49 @@
+SOURCE-ONLY handoff: C3 same-objective shared contexts, 2026-10-16
+
+State
+Ready for source review. Numerical fixture, guarded integration, full-parent memory fit, runtime and scientific outcomes are untested/pending. No current training process or frozen source was changed. This is an execution optimization of the same model/objective, with no architectural novelty claim.
+
+Algorithm and chain-rule argument
+For each unchanged complete parent, phase1 calls original encode_bank once per block under no_grad and retains FP32 CPU context leaves c_b. It copies only authenticated focal indexes and global-neighbor geometry from that same provider.get, so there is no separate get solely for row IDs.
+Phase2 runs original forward/reverse GRUs in original block orders with full hidden carries and no recurrent detach/reset. It uses original classifier, summed CE per chunk, and one mean over every10000 original focal. One total loss.backward accumulates head/GRU parameter gradients and the combined forward, reverse and direct-head adjoint g_b onto each CPU context leaf.
+Phase3 re-reads/authenticates each original observation block once, re-encodes it at unchanged weights, and backpropagates J_encoder(b)^T g_b. Then the original finite checks, one global clip at1, and one AdamW step occur. Parameter version and RNG state checks reject mutation/stochastic behavior between phases. Contexts and adjoints are discarded within the step; none cross an optimizer update.
+
+For L=G(c_1(theta_e),...,c_B(theta_e),theta_GRU,theta_head), the encoder gradient is sum_b J_b^T*(dL/dc_b). Phase2 supplies the whole derivative, including both recurrent directions and direct local readout. Thus the deliberate context leaf cut is completed by exact VJPs; it does not truncate recurrent BPTT. All updates use the same pre-update parameters. FP32 summation order and max-pooling tie subgradients can differ; bitwise gradient equivalence is not claimed.
+
+Source-defined production cost
+Let B be complete physical blocks and Q=sum_b ceil(sites_b/256).
+- Encoder entries: B value forwards + B gradient re-encodes =2B, replacing original4B.
+- Encoder backward graphs: B, replacing original2B.
+- Site-chunk/MLP entries with original checkpoint_sites=True: Q no-grad forwards + Q grad forwards + Q inner checkpoint replays =3Q, replacing original6Q.
+- Directional GRUs remain2B initial +2B replay entries and2B backward graphs.
+- Classifier remains2*ceil(10000/focal_chunk_size) forward/replay entries.
+- One full-parent loss.backward plus B encoder VJP backward calls; one optimizer step after all phases.
+- provider.get:2B, each passing the existing provider's full authentication, replacing original6B.
+These count callable entries/graphs, not kernel FLOPs or wall time. Non-reentrant checkpoint early stop may omit a replay suffix. Fixture-only no-grad logits diagnostics add head calls and are excluded from production counts. No speedup or full-run fit has been measured.
+
+Explicit tensor bounds
+memory_forecast_v1(plan) uses T=sum trees, H=1600, D=32, N=10000:
+- CPU context values V=T*H*D*4; accumulated leaf gradients another V.
+- Context CPU cap plans4V+2M, where M=max_block_trees*H*D*4: values+leaf gradients plus2V aggregate adjoint/transient planning allowance and2M block transients.
+- Directional CPU boundary values+adjoints:4*(B+1)*H*D*4; focal metadata24N+12T; focal/join/adjoint buffer allowance16*N*D*4.
+- Counted device context/history/adjoint copies:3M, plus largest GRU sequence max_block_trees*H*(D+3)*4, two hidden states and geometry.
+- One cloned observation bank is bounded from nodes, trees, sites and roster cardinalities.
+The caller must supply positive caps for all four categories; every actual parent forecast must fit. These are owned-tensor planning bounds, not a total PyTorch memory certificate. Existing immutable feature caches, model/optimizer, opaque autograd bookkeeping and GPU workspaces remain under separately admitted whole-process RSS/GPU guards. The inactive caps template has null budgets and cannot run.
+
+Compatibility and refusal boundaries
+The public step keeps original sealed-provider/external-target identities, all1600 samples/all10000 focals,2Mb complete parent, original class order, width32/site256 model and checkpoint contract. It rejects unsupported module types, dropout/other stochastic modules, buffers, parameter aliases, side-effecting hooks, autocast, reduced matmul precision and CUDA TF32. It does not switch precision or silently alter unsupported semantics.
+The integration API privately imports the pinned frozen trainer, replaces only that private step binding and its protocol description, and retains original run_train_v1 codeobject,30 epochs/600 updates, parent order, optimizer, six checkpoint candidates, failure snapshots, data joins and selection rules. New step/API source refs and root caps are included in the protocol/source closure. Old-family resume protocols consequently do not match; future resumes must belong to this reviewed source family. No global trainer patch, installed edit, launcher or admission is supplied.
+The callback receives phase/block events and completed parents return actual encoder/get counters. Durable progress still needs a separately reviewed bounded listener; this packet writes no runtime log itself.
+
+Deferred single comparison
+synthetic_fp32_comparison_deferred_v1.py contains one seed7000101 CPU FP32 comparison: two one-tree blocks, four haplotypes, two focal labels, width32, no optimizer steps. Reference is the original isolated step equations using original model methods and only H4/N2 cardinality substitution. It compares logits, mean CE and every parameter gradient against the shared engine using one fixed atol5e-5/rtol5e-4. It has no retries, tolerance search, F64, full parent or campaign. It has NOT been executed.
+
+Root-deferred command (run once only after review, from the project root):
+PYTHONPATH=/workspace-SR003.nfs2/ARG-GNN:/workspace-SR003.nfs2/ARG-GNN/src:/workspace-SR003.nfs2/ARG-GNN/scripts .runtime/env/bin/python -B research/reviews/C3_shared_context_training_source_20261016_v1/synthetic_fp32_comparison_deferred_v1.py --run-once
+
+Future integration, after separate root admission/device qualification:
+from research.reviews.C3_shared_context_training_source_20261016_v1.integration_api_v1 import make_training_callable_v1
+run_train = make_training_callable_v1(actual_root_caps_path_sha_ref)
+# Pass the same full trainer config, parent plans, external target resolver,
+# guarded writer/device/callback and audited provider factory to run_train(...).
+The active caps record grants no execution authority; root must bind this family and its transitive source/operational refs into the future guarded route. Do not swap this into the running600-update job.

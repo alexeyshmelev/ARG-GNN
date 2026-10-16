@@ -735,6 +735,7 @@ def main():
     c3_execution["status"]=c3_status
     current_gpu_policy_path="research/reviews/GPU0_only_user_transition_root_20261016_v1/GPU0_only_policy.root_active_v1.json"
     current_gpu_policy=maybe_read(current_gpu_policy_path)
+    gpu0_snapshot=None
     if current_gpu_policy and current_gpu_policy.get("allowed_physical_GPUs")==[0]:
         native_status="Historical GPU5 engineering TRAIN000 stopped at latest user request. Actual native/entry/launcher waits-15, roottool48073exit1 with expired-marker postdrain accounting error. Saved ep4-ba206000 checkpoint preserved, metadata only; full fiveepochs/savedAdam count and ancestry score unverified. Known own roots and GPU4/5contexts absent. Future experiments use onlyGPU0."
         native_execution.update(current_status=native_status,user_requested_stop=True,running=False,
@@ -785,12 +786,47 @@ def main():
             "A [fresh independent literature review](research/reviews/H051_independent_priority_audit_20261016_v2/REPORT.md) "
             "identifies established conditional-mean and higher-order constructions. Generic operator novelty remains unestablished.")
         tgb_lines += [ordered_support_note.replace("](research/","](../research/"), ""]
+    h055_root="research/reviews/H055_root_actual_CPU_20261016_v1"
+    h055_output="experiments/results/H055_Danish_genotype_corroboration_CPU_v1"
+    h055_launch=maybe_read(h055_root+"/actual_worker_launch_observation.root_v1.json")
+    h055_terminal=maybe_read(h055_root+"/actual_supervisor_tool_terminal.root_v1.json")
+    h055_complete=maybe_read(h055_output+"/completed.json")
+    h055_failure=maybe_read(h055_output+"/failed.json")
+    h055_summary=None
+    h055_status="Registered fixed-cohort Danish genotype corroboration. Acquisition pending."
+    h055_live=False
+    if h055_launch:
+        observed=known_process(h055_launch["pid"])
+        h055_live=bool(observed["present"] and observed.get("start_ticks")==h055_launch["start_ticks"])
+        h055_status=("CPU acquisition running for the fixed ten Danish queries and eight proxies over chr20/21/22 [20,30)Mb. GP-only analysis, no neural-model or ancestry-accuracy result yet."
+            if h055_live else "CPU caller terminal requires root review. No completed biological estimate claimed.")
+    if h055_terminal and h055_terminal.get("actual_terminal_consumed") is True:
+        if h055_terminal.get("actual_exit_code")==0 and h055_complete:
+            assert h055_terminal["completed_ref"]==ref(h055_output+"/completed.json")
+            assert h055_terminal["summary_ref"]==ref(h055_output+"/summary.json")
+            h055_summary=read(h055_output+"/summary.json")
+            h055_status=("Completed GP-only Danish corroboration over all three fixed windows, "
+                +str(h055_summary["primary_SNPs"])+" common-support SNPs. Pooled f4: "
+                +", ".join(f"{x:.6g}" for x in h055_summary["pooled_equal_SNP_means"])
+                +". Descriptive genotype affinity only, without independent ancestry truth or model accuracy.")
+        elif h055_terminal.get("actual_exit_code")!=0:
+            h055_status="CPU acquisition failed. Partial outputs preserved. No completed biological estimate."
+    if h055_summary and not any(h055_summary["positive_direction_observed"]):
+        h055_status+=" Neither prespecified positive-direction hypothesis was supported."
+    h055_evidence=dict(status=h055_status,running=h055_live,completed_summary=h055_summary,
+        actual_wait0=bool(h055_terminal and h055_terminal.get("actual_terminal_consumed") is True and h055_terminal.get("actual_exit_code")==0),
+        launch_ref=ref(h055_root+"/actual_worker_launch_observation.root_v1.json") if h055_launch else None,
+        terminal_ref=ref(h055_root+"/actual_supervisor_tool_terminal.root_v1.json") if h055_terminal else None,
+        protocol_ref=ref("research/reviews/Danish_genotype_corroboration_source_20261016_v2/protocol.source_frozen.inactive.v2.json"),
+        genotype_corroboration_is_not_model_validation=True,model_accuracy=None)
     result=dict(schema="ARG_GNN_current_scientific_scoreboard_v1",updated_utc=stamp,
+        H055_biological_corroboration=h055_evidence,
+        GPU0_current_execution=gpu0_snapshot,
         American_C3_GNN_execution=c3_execution,
         GPU4_shared_execution=shared_snapshot,
         current_GPU_execution_policy=current_gpu_policy,
         TGB_trade_causal_diagnostic=dict(status=tgb_status,complete=tgb_ready,results=tgb_results if tgb_ready else None,result_ref=ref(tgb_results_path) if tgb_ready else None,terminal_ref=ref(tgb_terminal_path) if tgb_ready else None,our_GNN_score=None),
-        H050_registered_candidate=dict(status=h050["status"],execution_status=h050_execution_status,canonical_metadata_binding_ref=ref(h050_binding_path) if h050_bound else None,training_budget="4arms x30passes x32parents =3840updates",actual_optimizer_updates=None,verified_optimizer_update_lower_bounds=(shared_snapshot.get("jobs",{}).get("H050-direct-readout-shared-TRAIN-v2",{}).get("updates_per_arm") if shared_snapshot else None),accuracy=None,parameters_per_arm=h050["parameters_per_arm"],VAL_products_required_before_truth=192,source_handoff_ref=h050["source_handoff_ref"],utility_criteria=h050["prospective_utility_criteria"]) if h050 else None,
+        H050_registered_candidate=dict(status=h050["status"],execution_status=h050_execution_status,canonical_metadata_binding_ref=ref(h050_binding_path) if h050_bound else None,training_budget="4arms x30passes x32parents =3840updates",actual_optimizer_updates=None,verified_optimizer_update_lower_bounds=(gpu0_snapshot.get("jobs",{}).get("H050",{}).get("optimizer_steps_verified") if gpu0_snapshot else (shared_snapshot.get("jobs",{}).get("H050-direct-readout-shared-TRAIN-v2",{}).get("updates_per_arm") if shared_snapshot else None)),accuracy=None,parameters_per_arm=h050["parameters_per_arm"],VAL_products_required_before_truth=192,source_handoff_ref=h050["source_handoff_ref"],utility_criteria=h050["prospective_utility_criteria"]) if h050 else None,
         H049_registered_candidate=dict(status=h049["status"],parameters_per_arm=32446,
             arms=h049["execution_budget"]["arms"],training_budget="30passes/960updates per arm",
             actual_optimizer_updates=None,actual_optimizer_updates_status="no_training_launch_or_verified_step_receipt",accuracy=None,preparation_status=h049_prepare_status,preparation_completion_wait0_verified=h049_prepare_verified,registered_criteria=h049["prospective_utility_criteria"]) if h049 else None,
@@ -861,6 +897,14 @@ def main():
                 ("balanced_accuracy",True),("boundary_precision",True),("boundary_recall",True),
                 ("dosage_mse_per_diploid_bp_class",False),("dosage_mae_per_diploid_bp_class",False)])+" |")
     lines+=tgb_lines
+    lines += ["", "## Danish registered genotype corroboration", "", h055_status, ""]
+    if h055_summary:
+        lines += ["| Support | Common13 SNPs | f4(Sidelkino,Bar8) | f4(KK1,Bar8) |", "|---|---:|---:|---:|"]
+        for row in h055_summary["chromosomes"]:
+            lines.append("| chr"+row["chromosome"]+" | "+str(row["SNPs"])+" | "+f"{row['means'][0]:.8f}"+" | "+f"{row['means'][1]:.8f}"+" |")
+        lines.append("| Pooled | "+str(h055_summary["primary_SNPs"])+" | "+f"{h055_summary['pooled_equal_SNP_means'][0]:.8f}"+" | "+f"{h055_summary['pooled_equal_SNP_means'][1]:.8f}"+" |")
+        lines += ["", "Both contrasts use later-minus-earlier and the same13-person complete GP support over the fixed three windows. Descriptive chromosome SDs: "+", ".join(f"{v:.8f}" for v in h055_summary["descriptive_chromosome_SD"])+". These are not independent uncertainty estimates. DeletingNEO92 flips the Sidelkino pooled sign. No neural model or ancestry truth was used.", "", "[Actual report and registered outcome](../research/reviews/H055_root_actual_CPU_20261016_v1/REPORT.md) · [Post-outcome biological context audit](../research/reviews/H055_actual_biological_interpretation_audit_20261016_v1/)", ""]
+    lines += ["H056 separately registers the frozenH045 model on the same10query subjects and three nominal windows. Source/cardinality qualification is pending. Existing H045 real-data output covers7of10people onchr22 only. No H056 model score exists.", ""]
     lines+=["","## H046 matched continuous-flank outcome","",h046_outcome,
         "[Completed H046 comparison and paired effects](../research/reviews/H046_completed_comparison_root_20261015_v1/REPORT.md).","",
         "## Live full-budget training","",
@@ -939,13 +983,13 @@ def main():
         "**Remaining biological error:** H045 recovers22.59% of true Present182 changes at1kb tolerance despite96.827% span accuracy. Across8VAL parents its selected predictions match905 changes, miss3103 and add5063extra calls. [Audited residual-error table and scope limits](research/reviews/residual_biological_errors_20261015_v1/REPORT.md).", "",
         "**Comparison contract:** Use the same observed genomes, reference/query identities, truth and scored support. Each method keeps its native representation, such as VCFs, ancestral paths or PyG tensors. Extra inputs, training changes and reconstruction differences are disclosed. Native-format differences do not postpone a shared-data comparison.","",
         "**Next ARGMix comparison, not yet run:** A prospective 1,611-diploid paired panel with explicit reference/query roles. The official HapMapII GRCh37 chr22 map has been acquired and the generator map contract passed. Simulation and model comparison remain pending. This is a new common-data comparison, distinct from the unavailable original-table inputs. [Frozen plan and remaining adapters](research/reviews/ARGMix_published_panel_fair_comparison_source_plan_20261016_v1/HANDOFF.md).","",
-        "**Paper readiness:** The compiled eight-page AAAI draft covers H038–H043 and is not submission-ready. American ARGformer/FLARE scores, a larger ARGMix comparison, independent held-out confirmation, useful operator novelty, real-data corroboration and learned cross-domain evidence remain unfinished. [Draft scope](paper/README.md).", "",
-        "**Next biological validation, not yet run:** A prespecified Danish earlier-versus-later Neolithic contrast with matched genotype corroboration. [Candidate selection, public assets and limits](research/reviews/empirical_biological_followup_audit_20261016_v1/readiness_report.txt).","",
+        "**Paper readiness:** The compiled eight-page AAAI draft now includes H045 and its matched control. It is not submission-ready. American ARGformer/FLARE scores, a larger ARGMix comparison, independent held-out confirmation, useful operator novelty, real-data corroboration and learned cross-domain evidence remain unfinished. [Draft scope](paper/README.md).", "",
+        "**Danish biological corroboration:** "+h055_status+" [Actual results and limits](research/reviews/H055_root_actual_CPU_20261016_v1/REPORT.md).","",
         "**Current GPU policy: physical GPU0 only.** Our GPU4/5 jobs have stopped and their contexts/known roots are absent. Parallel jobs onGPU0 are permitted after fresh device-bound admission. [Policy and actual stop evidence](research/reviews/GPU0_only_user_transition_root_20261016_v1/GPU0_only_policy.root_active_v1.json).","",
         "**GST and cross-domain status:** "+gst_status,"",
         "**TGB ordered cross-domain diagnostic:** "+tgb_status+" [Frozen protocol and actual per-year results](research/current_scoreboard.md#tgb-annual-trade-causal-diagnostic).","",
         ordered_support_note,"",
-        "Parallel ownership: workers prepare the biological corroboration runtime and C3 training efficiency sources. The independent biological protocol audit and H055 source review are complete. Root owns execution, metrics and Git.","","<!-- CURRENT_SCOREBOARD_END -->"]
+        "Parallel ownership: two workers implement the frozen H056 same-cohort H045 application sources. One worker updates the development manuscript proposal. Root owns execution, outcomes, metrics and Git.","","<!-- CURRENT_SCOREBOARD_END -->"]
     p=ROOT/"README.md"
     text=p.read_text()
     a="<!-- CURRENT_SCOREBOARD_START -->"
