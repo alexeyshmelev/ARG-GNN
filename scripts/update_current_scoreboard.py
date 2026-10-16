@@ -579,6 +579,20 @@ def main():
                 row["outer_terminal0_verified"]=terminal_ok
                 if not terminal_ok:
                     row["status"]="producer completed with wait0/drain, actual outer terminal remains unconfirmed"
+    for index in (3,4):
+        packet="research/reviews/American_C3_VAL003004_native14v3_preparation_source_20261016_v3/admitted_val%03d_infer_v3"%index
+        if not maybe_read(packet+"/admitted.json"):
+            continue
+        row=next(r for r in remaining_val_phases if r["parent_id"]=="american_c3_val_%03d"%index and r["stage"]=="infer")
+        row.update(root_CPU_stage("experiments/results/American_C3_val%03d_full30mb_infer_native14v3_v3"%index,packet+"/worker_aux"))
+        terminal=maybe_read(packet+"/outer_terminal.root_actual_v1.json")
+        row["actual_outer_tool_terminal_ref"]=ref(packet+"/outer_terminal.root_actual_v1.json") if terminal else None
+        row["outer_terminal0_verified"]=bool(terminal and terminal.get("actual_terminal_consumed") is True and terminal.get("actual_exit_code")==0 and terminal.get("completed_ref")==row["completion_ref"] and terminal.get("direct_wait_ref")==row["actual_wait_ref"])
+        row["operational_successor_original_science"]=True
+        if row["completed_and_wait0_verified"] and not row["outer_terminal0_verified"]:
+            row["status"]="producer completed with wait0/drain, actual outer terminal remains unconfirmed"
+        elif row["status"]=="not admitted":
+            row["status"]="admitted; worker startup pending"
     remaining_val_status="; ".join(r["parent_id"][-3:]+"/"+r["stage"]+": "+r["status"] for r in remaining_val_phases if r["status"]!="not admitted")
     remaining_val_status=remaining_val_status or "Original remaining VAL001–004 source ready; actual execution pending."
     native_launch="research/reviews/American_C3_native_MLM_amendment_v10/root_execution_admin_v2/worker_metadata/v11_root_outer_launch.json"

@@ -1,0 +1,232 @@
+--- research/reviews/native_VAL000_full_state_resume_source_20261016_v9/amendment_contract_v1.py
++++ research/reviews/native_VAL000_full_state_resume_source_20261016_v10/amendment_contract_v1.py
+@@ -7,7 +7,7 @@
+ import copy,hashlib,importlib.util,json,os,stat,sys,time
+ from research.reviews.native_VAL000_GPU0_borrowed32_source_20261016_v2.common_v1 import *
+ from research.reviews.native_VAL000_GPU0_borrowed32_source_20261016_v2 import common_v1 as original
+-HERE="research/reviews/native_VAL000_full_state_resume_source_20261016_v9"
++HERE="research/reviews/native_VAL000_full_state_resume_source_20261016_v10"
+ SOURCE=HERE+"/amendment_contract_v1.py"
+ ACTUAL_DRIVER=HERE+"/execution_only_v1.py"
+ DIRECT=HERE+"/direct_gpu0_v1.py"
+@@ -26,7 +26,7 @@
+ MINIMAL_WAIT_CAP_BYTES=65536
+ TERMINAL_RECEIPT_CAP_BYTES=8*2**20
+ OWNED_ROSTER_POLICY_REF={'path': 'research/reviews/native_VAL000_GPU0_owned_roster_source_20261016_v4/owned_roster_policy.INACTIVE.v4.json', 'sha256': 'ea1ddb59ab4248b8ba95dbbe77d25db30636cc318a4fdaebde1e1ae6e5a7344f'}
+-CHILD="same_charge_full_state_resume_v9"
++CHILD="same_charge_full_state_resume_v10"
+ AMENDMENT_REF=None
+ ORIGINAL_STATE=None
+ RESUME_STATE=None
+@@ -38,7 +38,7 @@
+ RESUME_CHECKPOINT_REF={'path': 'experiments/results/native_VAL000_full30mb_borrowed32_GPU0_v2/same_charge_owned_roster_v4/checkpoints/ep0-ba6500-rank0.pt', 'sha256': '17e266f77b9a91f6a72fcf50a4bb6551e794da86fdbe8ca382da7fccb180bce0'}
+ ROOT_PRESERVED_METADATA_REF={'path': 'research/reviews/native_v4_preserved_checkpoint_resume_root_metadata_20261016_v1/preserved_checkpoint_metadata.root_v2.json', 'sha256': '15a68643d5d940ee3b6304bc691e8aede1ac223d68b9a61581633805c0f3c7da'}
+ V4_MANIFEST_REF={'path': 'research/reviews/native_VAL000_GPU0_owned_roster_source_20261016_v4/source_manifest.v1.json', 'sha256': '4fc7f605f36d18b82ed155c24b0095a83b4b8b3a9649d8d65f81b23bc8cfae37'}
+-RESUME_POLICY_REF={'path': 'research/reviews/native_VAL000_full_state_resume_source_20261016_v9/resume_policy.INACTIVE.v5.json', 'sha256': '142f457431ed58d8f8e6b133ca2b92b2b0b1bc2a356aeb9d459fbc2a502d846c'}
++RESUME_POLICY_REF={'path': 'research/reviews/native_VAL000_full_state_resume_source_20261016_v10/resume_policy.INACTIVE.v5.json', 'sha256': '142f457431ed58d8f8e6b133ca2b92b2b0b1bc2a356aeb9d459fbc2a502d846c'}
+ 
+ def set_amendment_v1(record):
+     global AMENDMENT_REF
+@@ -53,7 +53,7 @@
+     require(AMENDMENT_REF is not None,"Actual separate ROOT amendment ref required")
+     a=read(AMENDMENT_REF);active(a)
+     require(a.get("template_only") is not True,"Inactive templates never authorize execution")
+-    require(a.get("schema")=="native32_full_state_resume_same_charge_ROOT_amendment_v9"
++    require(a.get("schema")=="native32_full_state_resume_same_charge_ROOT_amendment_v10"
+         and a.get("root_authorizer")=="root_agent" and a.get("status")=="active"
+         and a.get("execution_authorized") is True and a.get("independent_source_review_passed") is True
+         and a.get("adapter_manifest_ref")==ref(MANIFEST) and a.get("original_input_ref")==ORIGINAL_INPUT
+@@ -114,6 +114,7 @@
+         and time.time()<min(anchor+172800,datetime.fromisoformat(original.ORIGINAL_ABSOLUTE_EXPIRY).timestamp()),
+         "Original48hour window anchored before first attempt, never reset")
+     validate_alias_authority_v7(a)
++    validate_v9_failure_lineage_v10(a)
+     return a,original_s,q
+ 
+ def work_deadline_monotonic_v1():
+@@ -658,3 +659,58 @@
+             "Actual original anchored work/entry cutoff, no reset during entry probes")
+     tick()
+     return tick
++
++
++V9_ACTUAL_TERMINAL_REF={'path': 'research/reviews/native_v9_ROOT_actual_preparation_20261016_v1/execution_terminal.root_v1.json', 'sha256': '94fa7a222b63f446812f1a551fc1428a7ebbf2ca99411606c68abeb1db7b587f'}
++V9_ACTUAL_AMENDMENT_REF={'path': 'research/reviews/native_VAL000_GPU0_borrowed32_ROOT_actual_20261016_v2/worker_aux/ROOT_same_charge_full_state_resume_v9.root_active_v1.json', 'sha256': 'bc7a2db633373791e18bb83ffe403aa5e45277b34b1daaa4f2afee2855d00eb3'}
++V9_CONTROLLER_AUDIT_REF={'path': 'research/reviews/native_v9_controller_entry_failure_audit_20261016_v1/audit.v1.json', 'sha256': 'b25487fa5480ac92faf33fd51d5a33fcc451c51a19e41a1e217eb5d0a6b6178d'}
++
++def validate_v9_failure_lineage_v10(a):
++    require(a.get("preserved_actual_v9_amendment_ref")==V9_ACTUAL_AMENDMENT_REF
++        and a.get("genuine_v9_controller_entry_failed_terminal_ref")==V9_ACTUAL_TERMINAL_REF
++        and a.get("sealed_v9_controller_failure_audit_ref")==V9_CONTROLLER_AUDIT_REF
++        and a.get("v9_future_launch_write_capabilities_permanently_revoked") is True
++        and a.get("exact_recorded_failed_and_drained_C3_exit1_attachment_authorized") is True
++        and a.get("failed_C3_relabel_or_outer_success_claim_authorized") is False,
++        "Separate ROOT v10 exact failed-C3 operational authority and immutable v9 failure")
++    old=read(V9_ACTUAL_AMENDMENT_REF)
++    require(old.get("schema")=="native32_full_state_resume_same_charge_ROOT_amendment_v9"
++        and old.get("adapter_manifest_ref")==ref("research/reviews/native_VAL000_full_state_resume_source_20261016_v9/source_manifest.v1.json")
++        and old.get("original_input_ref")==ORIGINAL_INPUT
++        and old.get("fresh_child_name")=="same_charge_full_state_resume_v9",
++        "Exact consumed v9 source and namespace remain preserved")
++    terminal=read(V9_ACTUAL_TERMINAL_REF)
++    require(terminal.get("schema")=="ROOT_actual_native_v9_execution_subprocess_terminal_v1"
++        and terminal.get("actual_returncode")==1 and terminal.get("amendment_ref")==V9_ACTUAL_AMENDMENT_REF
++        and terminal.get("input_ref")==ORIGINAL_INPUT and terminal.get("no_automatic_retry") is True
++        and terminal.get("stderr")=="","Genuine failed v9 execution wrapper, no outer-success relabel")
++    packets=[json.loads(line) for line in terminal["stdout"].splitlines()]
++    require(len(packets)==4,"Exact actual bounded v9 failure stdout packets")
++    minimal=packets[0]["native32_actual_minimal_wait_facts"]
++    cleanup=packets[1]["native32_bounded_cleanup_observation"];result=packets[-1]
++    message="ValueError: Only original C3 may run/drain/finish; no native/other queued or live work"
++    for value in (minimal,cleanup):
++        require(value.get("actual_execution_amendment_ref")==V9_ACTUAL_AMENDMENT_REF
++            and value.get("actual_direct_worker_wait") is False
++            and value.get("actual_OS_wait_status") is None and value.get("returncode") is None
++            and value.get("pid") is None and value.get("operational_failure")==message
++            and value.get("complete_owned_roster_known") is False
++            and value.get("all_owned_processes_and_groups_drained") is False,
++            "v9 no-Popen NULL identity/wait and incomplete old drain remain unknown")
++    require(cleanup.get("gate_released") is False and cleanup.get("borrowed_physical_inode") is False
++        and cleanup.get("ownership",{}).get("owned_tree_constructed") is False
++        and cleanup.get("owned_identity_absence") is None
++        and result.get("status")=="FAILED_UNRESOLVED_CLEANUP" and result.get("returncode")==1
++        and result.get("actual_direct_worker_returncode") is None
++        and result.get("actual_direct_worker_wait") is False and result.get("actual_wait_ref") is None
++        and result.get("completed_ref") is None and result.get("all_owned_processes_and_groups_drained") is False
++        and result.get("no_future_stage_authorized") is True,
++        "No v9 worker, borrowed lease, gate, restore, update or complete-drain claim invented")
++    audit=read(V9_CONTROLLER_AUDIT_REF)
++    require(audit.get("status")=="SEALED_TARGETED_METADATA_AND_SOURCE_AUDIT"
++        and audit.get("v9_actual_failed_attempt",{}).get("terminal_ref")==V9_ACTUAL_TERMINAL_REF
++        and audit["v9_actual_failed_attempt"].get("amendment_ref")==V9_ACTUAL_AMENDMENT_REF
++        and audit.get("exact_v9_rejection",{}).get("failing_state")=="failed"
++        and audit["C3_recorded_terminal_lineage"].get("outer_ROOT_handle_74136_terminal_consumed") is None,
++        "Exact sealed audit binds recorded C3 failure without claiming separate outer74136 terminal")
++    return terminal,audit
+--- research/reviews/native_VAL000_full_state_resume_source_20261016_v9/direct_gpu0_v1.py
++++ research/reviews/native_VAL000_full_state_resume_source_20261016_v10/direct_gpu0_v1.py
+@@ -6,7 +6,7 @@
+ """
+ from pathlib import Path
+ import errno,fcntl,hashlib,json,os,select,socket,stat,struct,sys,time
+-from research.reviews.native_VAL000_full_state_resume_source_20261016_v9.amendment_contract_v1 import *
++from research.reviews.native_VAL000_full_state_resume_source_20261016_v10.amendment_contract_v1 import *
+ SOURCE=DIRECT
+ CONTROLLER_PID=3349405
+ CONTROLLER_START=481281638
+@@ -145,11 +145,23 @@
+     c3_rows=[j for j in registry["jobs"] if j["logical_job"]==C3_JOB]
+     require(len(c3_rows)==1 and all(j["logical_job"]==C3_JOB for j in active_jobs)
+         and c3_rows[0]["requested"]==declared
+-        and c3_rows[0]["state"] in ("running","draining","succeeded"),
++        and c3_rows[0]["state"] in ("running","draining","succeeded","failed"),
+         "Only original C3 may run/drain/finish; no native/other queued or live work")
+     if c3_rows[0]["state"]=="succeeded":
+         require(c3_rows[0].get("owned_drain_observed") is True
+             and c3_rows[0].get("exit_code")==0,"Actual successful original C3 drain")
++    if c3_rows[0]["state"]=="failed":
++        failed=c3_rows[0];audit=read(V9_CONTROLLER_AUDIT_REF)
++        recorded=[row for row in audit["registry_observation"]["jobs"] if row["logical_job"]==C3_JOB]
++        require(len(recorded)==1 and failed.get("leader_wait_status_known") is True
++            and type(failed.get("exit_code")) is int and failed["exit_code"]==1
++            and failed.get("owned_drain_observed") is True
++            and all(failed.get(key)==recorded[0].get(key) for key in (
++                "logical_job","requested","pid","leader_start_ticks","finished_unix","exit_code",
++                "leader_wait_status_known","owned_drain_observed","descendant_waits")),
++            "Only exact sealed recorded failed C3 exit1 with genuine leader wait and owned drain")
++        # This is still failed. The separate ROOT74136 outer tool terminal is
++        # unknown. Keep fixed C326GiB in capacity_v1 even after recorded drain.
+     return cap,registry,c3_rows[0],authority
+ 
+ CAPACITY_EVIDENCE_SINK=None
+--- research/reviews/native_VAL000_full_state_resume_source_20261016_v9/execution_only_v1.py
++++ research/reviews/native_VAL000_full_state_resume_source_20261016_v10/execution_only_v1.py
+@@ -4,7 +4,7 @@
+ from pathlib import Path
+ from datetime import datetime,timezone
+ import argparse,collections,ctypes,fcntl,hashlib,importlib,io,itertools,json,os,resource,selectors,signal,stat,subprocess,sys,tempfile,time
+-from research.reviews.native_VAL000_full_state_resume_source_20261016_v9.amendment_contract_v1 import *
++from research.reviews.native_VAL000_full_state_resume_source_20261016_v10.amendment_contract_v1 import *
+ 
+ class _RAMLog:
+     def __init__(self,cap):self.cap=cap;self.parts=collections.deque();self.kept=0;self.total=0
+@@ -48,15 +48,15 @@
+     ticket=read(attachment_ref)
+     require(ticket["job_id"]==s["job_id"] and ticket["borrowed_physical_inode"] is True
+         and ticket["direct_attachment_authority_ref"]==q["direct_attachment_authority_ref"],"Original job/capacity, actual fresh logical attachment")
+-    from research.reviews.native_VAL000_full_state_resume_source_20261016_v9 import direct_gpu0_v1 as direct
++    from research.reviews.native_VAL000_full_state_resume_source_20261016_v10 import direct_gpu0_v1 as direct
+     guard=direct.install_before_torch_v1(s,q,ticket)
+-    from research.reviews.native_VAL000_full_state_resume_source_20261016_v9 import corpus_metadata_bridge_v1
++    from research.reviews.native_VAL000_full_state_resume_source_20261016_v10 import corpus_metadata_bridge_v1
+     corpus_metadata_bridge_v1.install_private_authentication_bridge_v1()
+     from research.reviews.native_VAL000_GPU0_borrowed32_source_20261016_v2 import native_child_v1
+     # Unchanged exact native scientific/operational child function, with explicit
+     # ROOT-amended descendant I/O arguments and the new authenticated attachment.
+-    from research.reviews.native_VAL000_full_state_resume_source_20261016_v9 import resume_scientific_bridge_v5
+-    from research.reviews.native_VAL000_full_state_resume_source_20261016_v9 import fresh_entry_v9
++    from research.reviews.native_VAL000_full_state_resume_source_20261016_v10 import resume_scientific_bridge_v5
++    from research.reviews.native_VAL000_full_state_resume_source_20261016_v10 import fresh_entry_v9
+     entry_accounting=guard_v1(q)
+     entry_tick=make_entry_tick_v9(s)
+     # Keep the unchanged native code object. Its actual nested operational
+@@ -142,7 +142,7 @@
+             ARGGNN_BUDGET_V9_LAUNCHER_SHA256=storage["budget_components"]["launcher"]["sha256"])
+         env.update(paths)
+         if s["phase"]=="mlm":
+-            from research.reviews.native_VAL000_full_state_resume_source_20261016_v9 import direct_gpu0_v1 as direct
++            from research.reviews.native_VAL000_full_state_resume_source_20261016_v10 import direct_gpu0_v1 as direct
+             direct.install_cancellation_check_v1(lambda:require(cancelled is None and time.monotonic()<work_deadline,
+                 "Actual cancellation or anchored work cutoff during status proof"))
+             capacity_failure_counter=[0]
+@@ -173,7 +173,7 @@
+                 env.pop(name,None)
+         gate_read,gate_write=os.pipe()
+         command=[str(local(NATIVE_PYTHON_REF["path"])),"-B","-s","-m",
+-            "research.reviews.native_VAL000_full_state_resume_source_20261016_v9.execution_only_v1",
++            "research.reviews.native_VAL000_full_state_resume_source_20261016_v10.execution_only_v1",
+             "--worker-input-ref",json.dumps(input_ref,separators=(",",":")),"--gate-fd",str(gate_read)]
+         if attachment_ref is not None:command+=["--attachment-ref",json.dumps(attachment_ref,separators=(",",":"))]
+         command+=["--amendment-ref",json.dumps(current_amendment_ref_v1(),separators=(",",":"))]
+@@ -196,7 +196,7 @@
+         active_amendment_v1()
+         require(cancelled is None and time.monotonic()<work_deadline,
+             "Cancelled or anchored scientific work cutoff reached before gate release")
+-        from research.reviews.native_VAL000_full_state_resume_source_20261016_v9 import fresh_entry_v9
++        from research.reviews.native_VAL000_full_state_resume_source_20261016_v10 import fresh_entry_v9
+         supervisor_entry_tick=make_entry_tick_v9(s,external_tick=lambda:require(
+             cancelled is None and time.monotonic()<work_deadline,"Actual cancellation/work cutoff before gate"))
+         supervisor_entry=fresh_entry_v9.capture_entry_v9(s,q,g,storage,stage="supervisor",tick=supervisor_entry_tick)
+--- research/reviews/native_VAL000_full_state_resume_source_20261016_v9/corpus_metadata_bridge_v1.py
++++ research/reviews/native_VAL000_full_state_resume_source_20261016_v10/corpus_metadata_bridge_v1.py
+@@ -6,7 +6,7 @@
+ """
+ from pathlib import Path
+ import ast,sys,types
+-from research.reviews.native_VAL000_full_state_resume_source_20261016_v9 import amendment_contract_v1 as c
++from research.reviews.native_VAL000_full_state_resume_source_20261016_v10 import amendment_contract_v1 as c
+ SOURCE=c.HERE+"/corpus_metadata_bridge_v1.py"
+ AUTH_REF={"path":"research/reviews/American_C3_native_MLM_amendment_v12/corpus_auth_v2.py","sha256":"2f02c99d49502493abab82e5b6c08c8abc782538d7d821a71cd5116f62b0cd98"}
+ PRODUCER_REF={"path":"src/arggnn/american_c3_paths_v1.py","sha256":"3b32f16e0a81160852e5b93fe9033abf9bc2eeb56c3b15ca552d73f4aacf374c"}
+--- research/reviews/native_VAL000_full_state_resume_source_20261016_v9/resume_scientific_bridge_v5.py
++++ research/reviews/native_VAL000_full_state_resume_source_20261016_v10/resume_scientific_bridge_v5.py
+@@ -4,7 +4,7 @@
+ from pathlib import Path
+ from datetime import timedelta
+ import ast,copy,hashlib,os,stat,sys,types
+-from research.reviews.native_VAL000_full_state_resume_source_20261016_v9 import amendment_contract_v1 as c
++from research.reviews.native_VAL000_full_state_resume_source_20261016_v10 import amendment_contract_v1 as c
+ SOURCE=c.HERE+"/resume_scientific_bridge_v5.py"
+ def validated_composer_timestamp_v1(state):
+     outer=state.get("timestamp")
+--- research/reviews/native_VAL000_full_state_resume_source_20261016_v9/fresh_entry_v9.py
++++ research/reviews/native_VAL000_full_state_resume_source_20261016_v10/fresh_entry_v9.py
+@@ -6,7 +6,7 @@
+ from pathlib import Path
+ from datetime import datetime,timezone
+ import copy,json,os,stat,sys,time,types
+-from research.reviews.native_VAL000_full_state_resume_source_20261016_v9 import amendment_contract_v1 as c
++from research.reviews.native_VAL000_full_state_resume_source_20261016_v10 import amendment_contract_v1 as c
+ 
+ SOURCE=c.HERE+"/fresh_entry_v9.py"
+ MAX_ENTRY_BYTES=2*2**20
