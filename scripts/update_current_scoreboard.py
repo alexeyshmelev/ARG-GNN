@@ -773,6 +773,12 @@ def main():
             tgb_lines.append("| "+name+" | "+" | ".join(values)+" |")
         tgb_lines += ["", "TRAIN1987–2009/23years, VAL2010–2013/4years, TEST2014–2016/3years and675queriedcountry-years. SD is descriptive across serially dependent years, not training seeds. This causal diagnostic adapts scheduler and1986initialization and is distinct from the published leaderboard. Our ordered graph model remains pending.", "", "[All per-year results](../"+tgb_results_path+") · [Frozen protocol](../research/reviews/TGB_trade_causal_baselines_root_20261016_v1/protocol.root_frozen_v1.json)", ""]
     else:tgb_lines += [tgb_status, ""]
+    tgb_training_path="research/TGB_H051_current_training_status.json"
+    tgb_training=maybe_read(tgb_training_path)
+    if tgb_training:
+        tgb_training_note=tgb_training["summary"]+" [Actual training status]("+tgb_training_path+")."
+        tgb_status+=" "+tgb_training_note
+        tgb_lines += [tgb_training_note.replace("](research/","](../research/"), ""]
     support_path="research/reviews/TGB_trade_H051_data_integration_root_20261016_v1/actual_TRAIN_operator_support.root_v1.json"
     support=maybe_read(support_path)
     ordered_support_note=""
@@ -933,7 +939,7 @@ def main():
         lines.append(f"| {k} | {v['selected_VALID_AP']:.8f} | {v['selected_epoch']} |")
     lines+=["","Full TRAIN parsing retains10,439/10,500 reactions. This is data readiness, not a new model score. [Fresh task-semantics/transfer assessment](../"+novelty_path+").",""]+pilot_lines+["",
         "## Real data and paper","",
-        real_status+" No empirical ancestry accuracy exists. The AAAI draft is8pages and remains unfinished.","",
+        real_status+" No empirical ancestry accuracy exists. The AAAI draft is9pages and remains unfinished.","",
         "## Evidence and complete recorded inventory",""]
     for r in models:
         p=r["source_ref"]["path"]
@@ -992,7 +998,7 @@ def main():
         "**GST and cross-domain status:** "+gst_status,"",
         "**TGB ordered cross-domain diagnostic:** "+tgb_status+" [Frozen protocol and actual per-year results](research/current_scoreboard.md#tgb-annual-trade-causal-diagnostic).","",
         ordered_support_note,"",
-        "**Frozen Danish model application:** "+h056_status+" [Actual progress]("+h056_progress_path+").","","Parallel ownership: one worker repairs/reviews H056 acquisition, one prepares native/application integration and completed-scope evidence, and one develops an efficient C3 training successor. Root owns GPU0 execution, actual outcomes, figures, metrics and Git.","","<!-- CURRENT_SCOREBOARD_END -->"]
+        "**Frozen Danish model application:** "+h056_status+" [Actual progress]("+h056_progress_path+").","","Parallel ownership: workers finish the C3 continuation route, correct the modern ARGMix adapter, and prepare/review the TGB held-out evaluator. Root owns GPU0 execution, actual outcomes, metrics and Git.","","<!-- CURRENT_SCOREBOARD_END -->"]
     p=ROOT/"README.md"
     text=p.read_text()
     a="<!-- CURRENT_SCOREBOARD_START -->"

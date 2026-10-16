@@ -1,0 +1,191 @@
+{
+  "author_commit": "c2481248eb0de5fda659d68f59c51e0e27becd20",
+  "code_import_build_or_execution": false,
+  "evidence": [
+    {
+      "excerpts": [
+        {
+          "first_line": 48,
+          "last_line": 60,
+          "text": "48: # set relate.bin / parallel / recomb_map / ancestor_fasta / prepare_input\n49: pixi run argmix validate --project my_project\n50: pixi run argmix build-data --project my_project\n51: \n52: pixi run argmix build-training --project my_project --split train\n53: pixi run argmix build-training --project my_project --split val\n54: \n55: pixi run argmix train --project my_project\n56: \n57: pixi run argmix test --project my_project\n58: ```\n59: \n60: `build-training` and `train` default to `outputs/_work/{train,val}.pt`. Run both `build-training` splits before `train`."
+        }
+      ],
+      "source_ref": {
+        "path": ".runtime/author_sources/argmix_c2481248eb0d/README.md",
+        "sha256": "0fb9fccdc7331cd1a8df298217d3e9b910a36605f10f6b7bfec5585e851283e9"
+      }
+    },
+    {
+      "excerpts": [
+        {
+          "first_line": 408,
+          "last_line": 430,
+          "text": "408: def cmd_build_training(args: argparse.Namespace) -> int:\n409:     ctx = load_project(args.project)\n410:     validate_project(ctx, check_files=True)\n411:     manifest = require_dataset_manifest(ctx)\n412:     validate_dataset_manifest(ctx, manifest, check_files=True)\n413:     work_dir = ctx.work_root / \"train\"\n414:     backend_cfg = build_backend_config(ctx, manifest, work_dir)\n415:     output = resolve_project_path(\n416:         ctx.root,\n417:         args.output if args.output else str(ctx.work_root / f\"{args.split}.pt\"),\n418:     )\n419:     output.parent.mkdir(parents=True, exist_ok=True)\n420:     binary = _require_build_training_binary()\n421:     command = [\n422:         str(binary),\n423:         \"--config\",\n424:         str(backend_cfg),\n425:         \"--split\",\n426:         str(args.split),\n427:         \"--output\",\n428:         str(output),\n429:     ]\n430:     result = _run_stage_command(command)"
+        }
+      ],
+      "source_ref": {
+        "path": ".runtime/author_sources/argmix_c2481248eb0d/src/commands/data.py",
+        "sha256": "d07745cffe36230cd45ae7e3fb6a53ab26f31272ec930dfbde3414eb10a392e6"
+      }
+    },
+    {
+      "excerpts": [
+        {
+          "first_line": 264,
+          "last_line": 282,
+          "text": "264: def cmd_train(args: argparse.Namespace) -> int:\n265:     ctx = load_project(args.project)\n266:     validate_project(ctx, check_files=True)\n267:     manifest = require_dataset_manifest(ctx)\n268:     validate_dataset_manifest(ctx, manifest, check_files=True)\n269:     train_pt = resolve_project_path(\n270:         ctx.root,\n271:         args.train_pt if args.train_pt else str(ctx.work_root / \"train.pt\"),\n272:     )\n273:     val_pt = resolve_project_path(\n274:         ctx.root,\n275:         args.val_pt if args.val_pt else str(ctx.work_root / \"val.pt\"),\n276:     )\n277:     for label, path in ((\"train\", train_pt), (\"val\", val_pt)):\n278:         if not path.is_file():\n279:             raise FileNotFoundError(\n280:                 f\"Missing {label} archive: {path}. \"\n281:                 f\"Run `argmix build-training --project {ctx.root} --split {label}` first.\"\n282:             )"
+        },
+        {
+          "first_line": 335,
+          "last_line": 345,
+          "text": "335:     python_bin = get_runtime_python(ctx)\n336:     command = [\n337:         python_bin,\n338:         \"-u\",\n339:         str((REPO_ROOT / \"src\" / \"train_joint_model.py\").resolve()),\n340:         \"--config\",\n341:         str(backend_cfg),\n342:     ]\n343:     command += [\"--train-pt\", str(train_pt)]\n344:     command += [\"--val-pt\", str(val_pt)]\n345:     command += [\"--checkpoint-output\", str(checkpoint_output)]"
+        }
+      ],
+      "source_ref": {
+        "path": ".runtime/author_sources/argmix_c2481248eb0d/src/commands/model.py",
+        "sha256": "56dfa32d72796e437457bea50f5f0c437c7bdd45d02893420807ea2163a30979"
+      }
+    },
+    {
+      "excerpts": [
+        {
+          "first_line": 44,
+          "last_line": 51,
+          "text": "44:     \"processing\": {\n45:         \"backend_name\": \"fast\",\n46:         \"exclude_edge_trees\": True,\n47:         \"channel_buffer_batches\": 200,\n48:         \"subgraph_merge\": {\n49:             \"enabled\": False,\n50:             \"signature_mode\": \"ids_only\",\n51:         },"
+        },
+        {
+          "first_line": 92,
+          "last_line": 122,
+          "text": "92:     \"joint_model\": {\n93:         \"chunk_rows\": 1024,\n94:         \"chunk_stride\": 512,\n95:         \"cm_features\": {\n96:             \"include_delta_cm_prev\": False,\n97:             \"row_span_transform\": {\n98:                 \"mode\": \"raw\",\n99:                 \"median_span_cM\": None,\n100:                 \"clamp_min\": 1.0e-6,\n101:                 \"clamp_max\": 10.0,\n102:             },\n103:         },\n104:         \"gru\": {\n105:             \"hidden_size\": 128,\n106:             \"num_layers\": 1,\n107:             \"bidirectional\": True,\n108:             \"dropout\": 0.1,\n109:         },\n110:         \"train\": {\n111:             \"batch_size\": 16,\n112:             \"num_epochs\": 3,\n113:             \"learning_rate\": 2e-4,\n114:             \"weight_decay\": 1e-4,\n115:             \"label_smoothing\": 0.1,\n116:             \"early_stop_patience\": 2,\n117:             \"loss_weighting\": {\n118:                 \"mode\": \"none\",\n119:             },\n120:             \"sample_seed\": 0,\n121:             \"max_train_subgraphs\": None,\n122:             \"max_val_subgraphs\": None,"
+        }
+      ],
+      "source_ref": {
+        "path": ".runtime/author_sources/argmix_c2481248eb0d/src/argmix_project.py",
+        "sha256": "e1b6018e45e6d6e35dd88188541089c6b42382862edf7e7f296be9fccabac1d0"
+      }
+    },
+    {
+      "excerpts": [
+        {
+          "first_line": 334,
+          "last_line": 352,
+          "text": "334:     let subgraph_cap_key = if split == \"train\" {\n335:         \"max_train_subgraphs\"\n336:     } else {\n337:         \"max_val_subgraphs\"\n338:     };\n339:     let removed_row_cap_key = if split == \"train\" {\n340:         \"max_train_rows\"\n341:     } else {\n342:         \"max_val_rows\"\n343:     };\n344:     if get_opt_i64(joint_train, removed_row_cap_key).is_some() {\n345:         bail!(\"joint_model.train.{removed_row_cap_key} has been removed; use {subgraph_cap_key}\");\n346:     }\n347:     let max_subgraphs = get_opt_i64(joint_train, subgraph_cap_key)\n348:         .unwrap_or(0)\n349:         .max(0) as usize;\n350:     let sample_seed = get_i64(joint_train, \"sample_seed\", 0) as u64;\n351:     let max_haps: Option<usize> = None;\n352:     let drop_top_m_nearest = resolve_drop_top_m_nearest(joint_train, split);"
+        },
+        {
+          "first_line": 463,
+          "last_line": 481,
+          "text": "463:     for (shard_idx, spec) in specs.iter().enumerate() {\n464:         let references = abs_path(base, &spec.references);\n465:         let node_meta = read_references(&references)?;\n466:         let ref_ids: Vec<i32> = node_meta\n467:             .iter()\n468:             .filter(|(_, m)| ref_pops.contains(&m.pop))\n469:             .map(|(&nid, _)| nid)\n470:             .collect();\n471:         let available_predict: Vec<i32> = node_meta\n472:             .iter()\n473:             .filter(|(_, m)| predict_pops.contains(&m.pop))\n474:             .map(|(&nid, _)| nid)\n475:             .collect();\n476:         let predict_ids = sample_predict_ids(&available_predict, max_haps, sample_seed);\n477:         let rel = abs_path(base, &spec.rel);\n478:         let meta_for_engine: HashMap<i32, (String, i32)> = node_meta\n479:             .iter()\n480:             .map(|(&k, v)| (k, (v.pop.clone(), v.time)))\n481:             .collect();"
+        },
+        {
+          "first_line": 530,
+          "last_line": 567,
+          "text": "530:         let ts =\n531:             TreeSequence::load(rel.to_str().unwrap()).map_err(|e| anyhow!(\"load trees: {e}\"))?;\n532:         // Engine max_count stays unlimited; max_*_subgraphs is enforced as distinct intervals below.\n533:         let mut engine_fast = py_anyhow(FastSubgraphEngine::from_tree_sequence(\n534:             &ts,\n535:             max_rel_distance,\n536:             meta_for_engine,\n537:             num_refs,\n538:             num_ancs,\n539:             0,\n540:             ref_ids,\n541:             predict_ids,\n542:             Some(exclude_edge_trees),\n543:             Some(log_scale_tmrca),\n544:             drop_top_m_nearest,\n545:             None,\n546:             None,\n547:         ))?;\n548:         let mut session = py_anyhow(engine_fast.streaming_session(&ts))?;\n549:         loop {\n550:             let batch_opt = py_anyhow(session.next_batch(4096))?;\n551:             let Some(batch) = batch_opt else { break };\n552:             if batch.node_ids.is_empty() {\n553:                 continue;\n554:             }\n555:             let extracted = ExtractedBatch::from_fast(&batch, num_refs, num_ancs)\n556:                 .map_err(|e| anyhow!(\"{}\", e))?;\n557:             push_extracted_and_drain_all(&mut subgraph_merger, extracted, 4096, |eb| {\n558:                 batches_pb.inc(eb.node_ids.len() as u64);\n559:                 if append_labeled_rows_from_extracted(\n560:                     &eb,\n561:                     shard_idx as i64,\n562:                     &truth,\n563:                     &pop_id_to_token,\n564:                     &mut rows,\n565:                     &mut seen_intervals,\n566:                     max_subgraphs,\n567:                 ) {"
+        },
+        {
+          "first_line": 622,
+          "last_line": 638,
+          "text": "622:         shards_pb.inc(1);\n623:         if max_subgraphs > 0 && seen_intervals.len() >= max_subgraphs {\n624:             break;\n625:         }\n626:     }\n627: \n628:     shards_pb.finish_with_message(format!(\n629:         \"{} shard(s) finished | labeled_rows={} labeled_intervals={}\",\n630:         specs.len(),\n631:         rows.len(),\n632:         seen_intervals.len()\n633:     ));\n634: \n635:     if rows.is_empty() {\n636:         bail!(\"no labeled rows produced for split {split}\");\n637:     }\n638:     let chunks = build_chunks(&mut rows, &recomb, chunk_rows, chunk_stride)?;"
+        },
+        {
+          "first_line": 667,
+          "last_line": 711,
+          "text": "667: fn append_labeled_rows_from_extracted(\n668:     eb: &ExtractedBatch,\n669:     shard_id: i64,\n670:     truth: &TruthResolver,\n671:     pop_id_to_token: &[i64],\n672:     rows: &mut Vec<Row>,\n673:     seen_intervals: &mut HashSet<(i64, u64, u64)>,\n674:     max_subgraphs: usize,\n675: ) -> bool {\n676:     let n = eb.node_ids.len();\n677:     let seq_len = eb.seq_len;\n678:     for r in 0..n {\n679:         let node_id = eb.node_ids[r];\n680:         let interval = eb.intervals[r];\n681:         let key = interval_key(shard_id, interval.0, interval.1);\n682:         let is_new = !seen_intervals.contains(&key);\n683:         if max_subgraphs > 0 && is_new && seen_intervals.len() >= max_subgraphs {\n684:             return true;\n685:         }\n686:         let Some(label) = truth.label_for(node_id, interval.0, interval.1) else {\n687:             continue;\n688:         };\n689:         if label < 0 {\n690:             continue;\n691:         }\n692:         let p0 = r * seq_len;\n693:         let m0 = r * seq_len * seq_len;\n694:         if is_new {\n695:             seen_intervals.insert(key);\n696:         }\n697:         rows.push(Row {\n698:             shard_id,\n699:             node_id,\n700:             tree_start: interval.0,\n701:             tree_end: interval.1,\n702:             input_ids: eb.pop_ids_flat[p0..p0 + seq_len]\n703:                 .iter()\n704:                 .map(|&pid| token_for_pop_id(pid, pop_id_to_token))\n705:                 .collect(),\n706:             tmrca: eb.matrices_flat[m0..m0 + seq_len * seq_len]\n707:                 .iter()\n708:                 .map(|&x| x as i16)\n709:                 .collect(),\n710:             label,\n711:         });"
+        },
+        {
+          "first_line": 724,
+          "last_line": 777,
+          "text": "724: fn build_chunks(\n725:     rows: &mut [Row],\n726:     recomb: &RecombMap,\n727:     chunk_rows: usize,\n728:     chunk_stride: usize,\n729: ) -> Result<Chunks> {\n730:     let seq_len = rows[0].input_ids.len();\n731:     rows.sort_by(|a, b| {\n732:         (a.shard_id, a.node_id, (a.tree_start * 1e6) as i64).cmp(&(\n733:             b.shard_id,\n734:             b.node_id,\n735:             (b.tree_start * 1e6) as i64,\n736:         ))\n737:     });\n738:     let mut groups: HashMap<(i64, i32), Vec<usize>> = HashMap::new();\n739:     for (idx, row) in rows.iter().enumerate() {\n740:         groups\n741:             .entry((row.shard_id, row.node_id))\n742:             .or_default()\n743:             .push(idx);\n744:     }\n745:     let mut specs = Vec::new();\n746:     for idxs in groups.values() {\n747:         let mut start = 0;\n748:         while start < idxs.len() {\n749:             let end = (start + chunk_rows).min(idxs.len());\n750:             specs.push(idxs[start..end].to_vec());\n751:             if start + chunk_rows >= idxs.len() {\n752:                 break;\n753:             }\n754:             start += chunk_stride;\n755:         }\n756:     }\n757:     let n_chunks = specs.len();\n758:     let mut ids = vec![0i64; n_chunks * chunk_rows * seq_len];\n759:     let mut tmrca = vec![0i16; n_chunks * chunk_rows * seq_len * seq_len];\n760:     let mut labels = vec![-100i64; n_chunks * chunk_rows];\n761:     let mut mask = vec![0u8; n_chunks * chunk_rows];\n762:     let mut cm = vec![0f32; n_chunks * chunk_rows * 2];\n763:     for (c, idxs) in specs.iter().enumerate() {\n764:         let mut prev_start_cm: Option<f64> = None;\n765:         for (pos, &ri) in idxs.iter().enumerate() {\n766:             let row = &rows[ri];\n767:             let id0 = (c * chunk_rows + pos) * seq_len;\n768:             ids[id0..id0 + seq_len].copy_from_slice(&row.input_ids);\n769:             let m0 = (c * chunk_rows + pos) * seq_len * seq_len;\n770:             tmrca[m0..m0 + seq_len * seq_len].copy_from_slice(&row.tmrca);\n771:             labels[c * chunk_rows + pos] = row.label;\n772:             mask[c * chunk_rows + pos] = 1;\n773:             let start_cm = recomb.at_bp(row.tree_start);\n774:             let end_cm = recomb.at_bp(row.tree_end);\n775:             let cm0 = (c * chunk_rows + pos) * 2;\n776:             cm[cm0] = (end_cm - start_cm).max(0.0) as f32;\n777:             cm[cm0 + 1] = prev_start_cm.map(|p| start_cm - p).unwrap_or(0.0) as f32;"
+        },
+        {
+          "first_line": 900,
+          "last_line": 915,
+          "text": "900: fn read_references(path: &Path) -> Result<HashMap<i32, NodeMeta>> {\n901:     let mut out = HashMap::new();\n902:     for line in std::fs::read_to_string(path)?.lines() {\n903:         let f: Vec<&str> = line.split_whitespace().collect();\n904:         if f.len() >= 3 {\n905:             out.insert(\n906:                 f[0].parse()?,\n907:                 NodeMeta {\n908:                     pop: f[1].to_string(),\n909:                     time: f[2].parse::<f64>()? as i32,\n910:                 },\n911:             );\n912:         }\n913:     }\n914:     Ok(out)\n915: }"
+        }
+      ],
+      "source_ref": {
+        "path": ".runtime/author_sources/argmix_c2481248eb0d/src/rust/ancpath/src/bin/build_training.rs",
+        "sha256": "55c136ba40ccc4167ecdda515ac43c3f1a813631b0f1f663a9279c184a6aa81a"
+      }
+    },
+    {
+      "excerpts": [
+        {
+          "first_line": 104,
+          "last_line": 150,
+          "text": "104:     fn rebuild_sample_ref(\n105:         &mut self,\n106:         lifter: &LocalBinaryLift,\n107:         _node_time: &[i32],\n108:         preds: &[NodeId],\n109:         refs: &[NodeId],\n110:         pred_times: &[i32],\n111:     ) -> u64 {\n112:         let r_len = self.r_len;\n113:         let sample_local_lookup_failures = AtomicU64::new(0);\n114:         self.sample_ref_raw\n115:             .par_chunks_mut(r_len)\n116:             .zip(self.sample_ref_dist.par_chunks_mut(r_len))\n117:             .enumerate()\n118:             .for_each(|(p, (raw_row, dist_row))| {\n119:                 let sample_local = lifter.local_of_node(preds[p]);\n120:                 if sample_local.is_none() {\n121:                     sample_local_lookup_failures.fetch_add(1, Ordering::Relaxed);\n122:                 }\n123:                 for r in 0..r_len {\n124:                     let raw = encode_tmrca(match sample_local {\n125:                         Some(sample_local) => lifter.tmrca_from_local_sample(sample_local, refs[r]),\n126:                         None => None,\n127:                     });\n128:                     raw_row[r] = raw;\n129:                     dist_row[r] = relative_distance_uncapped(pred_times[p], raw);\n130:                 }\n131:             });\n132:         sample_local_lookup_failures.load(Ordering::Relaxed)\n133:     }\n134: \n135:     fn select_refs(\n136:         &self,\n137:         p: usize,\n138:         num_refs: usize,\n139:         drop_top_m_nearest: usize,\n140:         scratch: &mut Vec<(u32, usize)>,\n141:         out: &mut Vec<usize>,\n142:     ) {\n143:         let _ = scratch;\n144:         out.clear();\n145:         if num_refs == 0 {\n146:             return;\n147:         }\n148:         let row_start = sr_idx(p, 0, self.r_len);\n149:         let row = &self.sample_ref_dist[row_start..row_start + self.r_len];\n150:         *out = ref_selection::select_ref_indices_from_distances(row, num_refs, drop_top_m_nearest);"
+        },
+        {
+          "first_line": 206,
+          "last_line": 210,
+          "text": "206: fn relative_distance_uncapped(node_time: i32, raw_tmrca: u32) -> u32 {\n207:     if raw_tmrca == NO_TMRCA {\n208:         return NO_TMRCA;\n209:     }\n210:     (node_time as i64 - raw_tmrca as i64).unsigned_abs() as u32"
+        },
+        {
+          "first_line": 285,
+          "last_line": 299,
+          "text": "285:         let node_times: Vec<i32> = (0..node_count)\n286:             .map(|idx| {\n287:                 let node_id: NodeId = (idx as i32).into();\n288:                 ts_rel\n289:                     .nodes()\n290:                     .time(node_id)\n291:                     .map(quantize_time)\n292:                     .ok_or_else(|| {\n293:                         PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!(\n294:                             \"Failed to get time for node {:?}\",\n295:                             node_id\n296:                         ))\n297:                     })\n298:             })\n299:             .collect::<PyResult<Vec<_>>>()?;"
+        }
+      ],
+      "source_ref": {
+        "path": ".runtime/author_sources/argmix_c2481248eb0d/src/rust/ancpath/src/fast_lca/engine.rs",
+        "sha256": "1daf49d5c4ac777a2b07ddc9b5dbb85ca166739f1d2e6975d21334b0d2aafa73"
+      }
+    },
+    {
+      "excerpts": [
+        {
+          "first_line": 15,
+          "last_line": 55,
+          "text": "15: /// Select `num_refs` reference column indices from `distances[r]` (smaller = closer).\n16: pub fn select_ref_indices_from_distances(\n17:     distances: &[u32],\n18:     num_refs: usize,\n19:     drop_top_m_nearest: usize,\n20: ) -> Vec<usize> {\n21:     if num_refs == 0 || distances.is_empty() {\n22:         return Vec::new();\n23:     }\n24: \n25:     let heap_k = num_refs\n26:         .saturating_add(drop_top_m_nearest)\n27:         .min(distances.len())\n28:         .max(1);\n29: \n30:     let mut scratch: Vec<(u32, usize)> = Vec::with_capacity(heap_k);\n31:     for (r, &dist) in distances.iter().enumerate() {\n32:         let candidate = (dist, r);\n33:         if scratch.len() < heap_k {\n34:             scratch.push(candidate);\n35:             if scratch.len() == heap_k {\n36:                 sort_worst_first(&mut scratch);\n37:             }\n38:         } else if better_pair(candidate, scratch[0]) {\n39:             scratch[0] = candidate;\n40:             sort_worst_first(&mut scratch);\n41:         }\n42:     }\n43: \n44:     scratch.sort_unstable_by(|a, b| a.0.cmp(&b.0).then_with(|| a.1.cmp(&b.1)));\n45:     let mut effective_drop = drop_top_m_nearest.min(scratch.len().saturating_sub(1));\n46:     while scratch.len().saturating_sub(effective_drop) < num_refs && effective_drop > 0 {\n47:         effective_drop -= 1;\n48:     }\n49: \n50:     let mut out: Vec<usize> = scratch\n51:         .iter()\n52:         .skip(effective_drop)\n53:         .take(num_refs)\n54:         .map(|&(_, r)| r)\n55:         .collect();"
+        }
+      ],
+      "source_ref": {
+        "path": ".runtime/author_sources/argmix_c2481248eb0d/src/rust/ancpath_incremental/src/ref_selection.rs",
+        "sha256": "0638e2ac6d8eabaa08bd888cef13756d106a5a6b0629b132d282412dded39889"
+      }
+    },
+    {
+      "excerpts": [
+        {
+          "first_line": 305,
+          "last_line": 327,
+          "text": "305:     pub fn label_for(&self, node_id: i32, left: f64, right: f64) -> Option<i64> {\n306:         if self.collect_diagnostics {\n307:             self.diagnostics.borrow_mut().n_queries += 1;\n308:         }\n309: \n310:         let Some(&col) = self.col_by_node.get(&node_id) else {\n311:             self.bump_no_col();\n312:             return None;\n313:         };\n314: \n315:         if self.variant_pos.is_empty() {\n316:             self.bump_no_col();\n317:             return None;\n318:         }\n319: \n320:         let l = left.floor() as i64;\n321:         let r = right.ceil() as i64;\n322:         let lo = self.variant_pos.partition_point(|&p| p < l);\n323:         let hi = self.variant_pos.partition_point(|&p| p < r);\n324: \n325:         if hi <= lo {\n326:             self.bump_no_snps();\n327:             return None;"
+        },
+        {
+          "first_line": 431,
+          "last_line": 450,
+          "text": "431:         if let Some(th) = self.min_label_purity {\n432:             if purity < th {\n433:                 if self.collect_diagnostics {\n434:                     self.diagnostics.borrow_mut().n_low_purity += 1;\n435:                 }\n436:                 return None;\n437:             }\n438:         }\n439: \n440:         let out = if self.label_mode_majority {\n441:             majority\n442:         } else {\n443:             first\n444:         };\n445: \n446:         if self.collect_diagnostics {\n447:             self.diagnostics.borrow_mut().n_returned += 1;\n448:         }\n449: \n450:         Some(out)"
+        }
+      ],
+      "source_ref": {
+        "path": ".runtime/author_sources/argmix_c2481248eb0d/src/rust/ancpath/src/npz_truth.rs",
+        "sha256": "845e77c18c74e3bff720ecfe4449e8e1ce68cc3711f6ca78e4cb3ffb5993738a"
+      }
+    }
+  ],
+  "factual_findings": [
+    "Documented CLI build-training invokes the Rust build_training binary, whose producer uses FastSubgraphEngine.",
+    "Fast-engine node times are quantized to integer generations, but candidate rank is UNCAPPED absolute quantized-time difference, not log2. Matrix log2 encoding is separate.",
+    "Candidate distance ties use reference-vector index. The documented Rust producer derives this vector from HashMap iteration, so its order is not a recovered stable roster order. A prospective reproducible comparison must capture/freeze one actual native vector before labels and reuse it across eligibility variants.",
+    "Default max_train_subgraphs and max_val_subgraphs are None. Producer engine max_count is0. It collects all eligible labelled native rows before per-query1024/512 chunk construction.",
+    "Native training row retention depends on the resolver. With first_snp and no purity filter, absence of observed SNPs can drop intervals. Root common-midpoint supervision must not fabricate extra context labels to imitate this. Full observed inference context can be retained with supervision-100 outside exact shared targets, disclosed as common-target adaptation.",
+    "Shared100k-only rows substantively thin GRU context. The sealed old adapter is retained for audit and must not support a current-native baseline performance claim.",
+    "April paper25reference+3ancestor architecture is a separate unavailable paper-era implementation, not the documented current15reference+0ancestor transformer/BiGRU code.",
+    "Current advanced defaults set3epochs. The old adapter20epoch maximum is an explicit prospective finite choice, not the current default or a recovered paper hyperparameter."
+  ],
+  "numerical_payloads_read_or_hashed": false,
+  "old_packet_classification": "development shared-row legacy-sampler adaptation, not author-faithful current fast-producer baseline",
+  "preserved_legacy_adapter_ref": {
+    "path": "research/reviews/ARGMix_prospective1611_native_adapter_source_20261016_v1/adapter_v1.py",
+    "sha256": "6d5160ce1130081ce80f6097a7bc46de1373be77836b20938f31bf6fc2cf15d4"
+  },
+  "preserved_legacy_handoff_ref": {
+    "path": "research/reviews/ARGMix_prospective1611_native_adapter_source_20261016_v1/source_handoff.v1.json",
+    "sha256": "130ebb0ade5b2a424bf89546e5f1f051827dd24c9cd90f86451adf297c527d86"
+  },
+  "probes_guards_admissions_Git": false,
+  "schema": "ARGMix_fast_context_primary_source_correction_v1",
+  "supersedes_claims": [
+    "Legacy SampleIterator log-distance candidate rank described as documented current CLI rank",
+    "Shared100k-row GRU context described as equivalent to current uncapped native producer context"
+  ]
+}

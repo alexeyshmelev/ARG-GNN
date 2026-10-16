@@ -1,0 +1,224 @@
+--- research/reviews/H050_one_FP32_CPU_forward_qualification_source_20261016_v1/ordinary_root_cpu_v1.py
++++ research/reviews/TGB_trade_H051_CPU_runtime_source_20261016_v1/ordinary_root_cpu_v1.py
+@@ -1,22 +1,22 @@
+-"""One fixed root-admitted H050 CPU FP32 forward fixture.
+-Import is inert and stdlib only. Original C3 route sources remain unchanged.
+-Root explicitly invokes --execute once. No training, GPU lease or data payload.
++"""Root-owned complete frozen H051 CPU campaign over the original ordinary monitor.
++Import is inert, no guard, admission, payload or numerical action.
++Explicit --execute runs all3arms/100epochs, without heldout metric release.
+ """
+ from pathlib import Path
+ from datetime import datetime,timezone,timedelta
+ import argparse,hashlib,importlib.util,importlib.metadata,json,os,selectors,signal,subprocess,sys,time
+ 
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-CONTRACT_REF={'path': 'research/reviews/H050_one_FP32_CPU_forward_qualification_source_20261016_v1/contract.source_only.v1.json', 'sha256': '0253d96ea0d7f450695ca10f68d99742f0826846eef0343d0f32765a4928d189'}
++CONTRACT_REF={'path': 'research/reviews/TGB_trade_H051_CPU_runtime_source_20261016_v1/contract.source_only.v1.json', 'sha256': 'dd4d95cb5528dffc2810fff9336a708027cfba5e0c77b973305142de4959eda6'}
+ HERE=ROOT/CONTRACT_REF["path"].rsplit("/",1)[0]
+ ADMIN=HERE/"actual_admission_v1"
+-CAP=1048576
++CAP=12582912
+ META_CAP=131072
+ THREADS=4
+-RSS=2*2**30
+-WALL=300
++RSS=8*2**30
++WALL=7200
+ LOG_CAP=16384
+-RESULT_CAP=8192
++RESULT_CAP=65536
+ _RAN=False
+ 
+ def need(ok,message):
+@@ -74,10 +74,10 @@
+ def contract():
+     need(Path.cwd().resolve()==ROOT and Path(__file__).resolve()==HERE/"ordinary_root_cpu_v1.py","Exact fixed source and project cwd")
+     c=read(CONTRACT_REF)
+-    need(c["schema"]=="H050_one_new_CPU_fixture_fixed_root_contract_v1" and c["execution_authorized"] is False,"Source contract is not admission")
++    need(c["schema"]=="TGB_H051_CPU_full_campaign_fixed_contract_v1" and c["execution_authorized"] is False,"Source contract is not admission")
+     for row in c["source_binding_basis_refs"]:need(ref(row["path"])==row,"Every exact transitive science/guard source")
+     h=read(c["minimal_handoff_ref"])
+-    need(h["callable"]["source_ref"]==c["wrapper_ref"] and h["fixture"]["device"]=="cpu" and h["fixture"]["optimizer_steps"]==0,"One already reviewed fixture")
++    need(h["callable"]["source_ref"]==c["wrapper_ref"] and h["campaign"]["device"]=="cpu" and h["campaign"]["updates"]==300,"Exact frozen full campaign")
+     return c
+ 
+ def runtime():
+@@ -87,21 +87,21 @@
+     need(sys.version.split()[0]=="3.11.17","Existing pinned Python version")
+     packages={n:importlib.metadata.version(n) for n in ("torch","torch_geometric","numpy")}
+     need(packages=={"torch":"2.6.0+cu124","torch_geometric":"2.7.0","numpy":"2.4.6"},"Existing pinned numerical library versions")
+-    return dict(schema="H050_one_new_CPU_fixture_runtime_v1",executable=executable,prefix=prefix,python=sys.version.split()[0],
++    return dict(schema="TGB_H051_CPU_full_campaign_runtime_v1",executable=executable,prefix=prefix,python=sys.version.split()[0],
+                 packages=packages,CUDA_VISIBLE_DEVICES="",CPU_threads=THREADS)
+ 
+ def guard(c):
+-    renewal=load(c["fixed_refs"]["renewal"],"_H050_one_CPU_original_renewal")
++    renewal=load(c["fixed_refs"]["renewal"],"_TGB_H051_CPU_CPU_original_renewal")
+     renewal.install_renewal_v1(c["fixed_refs"]["renewal_certificate"])
+-    m=load(c["fixed_refs"]["guard"],"_H050_one_CPU_original980")
++    m=load(c["fixed_refs"]["guard"],"_TGB_H051_CPU_CPU_original980")
+     m.configure_v2(c["fixed_refs"]["repair_authority"],policy_ref=c["fixed_refs"]["policy"])
+     return m
+ 
+ def bounds(storage,m):
+-    need(storage["reserved_new_bytes"]==CAP and storage["accounting_mode"]=="prospective_980gb_v1","Exact1MiB original980 allocation")
++    need(storage["reserved_new_bytes"]==CAP and storage["accounting_mode"]=="prospective_980gb_v1","Exact12MiB original980 allocation")
+     paths=[canonical(storage["output_directory"]),*(canonical(p) for p in storage["reservation"]["auxiliary_scopes"])]
+     measured=m.budget.v4.measure_scopes(ROOT,paths)
+-    need(measured["conservative_scope_bytes"]<=CAP,"Complete owned execution scope exceeds1MiB")
++    need(measured["conservative_scope_bytes"]<=CAP,"Complete owned execution scope exceeds12MiB")
+     return measured
+ 
+ def boundary(storage,m,growth=0):
+@@ -125,7 +125,7 @@
+     c=contract()
+     ir=dict(path=args.input,sha256=args.expected_sha256)
+     spec=read(ir)
+-    need(spec["schema"]=="H050_one_new_CPU_fixture_actual_input_v1" and spec["root_authorizer"]=="root_agent"
++    need(spec["schema"]=="TGB_H051_CPU_full_campaign_actual_input_v1" and spec["root_authorizer"]=="root_agent"
+          and spec["execution_authorized"] is True and spec["GPU_authorized"] is False
+          and spec["source_ref"]==ref(__file__) and spec["contract_ref"]==CONTRACT_REF,"Actual fixed root authorization")
+     need(args.monitor_parent_pid==os.getppid(),"Actual owned outer monitor parent")
+@@ -134,7 +134,7 @@
+     actual=runtime()
+     need(read(spec["runtime_ref"])==actual,"Exact canonical worker runtime")
+     cfg=read(spec["config_ref"])
+-    need(cfg==spec["fixed_config"] and cfg["output_cap_bytes"]==CAP and cfg["wrapper_ref"]==c["wrapper_ref"],"Exact fixture/caps/config")
++    need(cfg==spec["fixed_config"] and cfg["output_cap_bytes"]==CAP and cfg["wrapper_ref"]==c["wrapper_ref"],"Exact full-campaign/caps/config")
+     closure=read(spec["closure_ref"])
+     direct=unique([*closure["bound_refs"],spec["closure_ref"]])
+     storage=read(spec["storage_ref"])
+@@ -148,7 +148,7 @@
+         need(os.environ.get(key)==expected_env[key],"Dedicated charged temporary/cache/thread environment")
+     need(not any(n in sys.modules for n in ("torch","torch_geometric","numpy")),"Fresh worker before numerical imports")
+     m=guard(c);boundary(storage,m,16384)
+-    base=load(c["monitor_helper_ref"],"_H050_one_CPU_owned_helpers_worker")
++    base=load(c["monitor_helper_ref"],"_TGB_H051_CPU_CPU_owned_helpers_worker")
+     started=spec["root_execute_monotonic"]
+     need(type(started) is float and 0<started<=time.monotonic(),"Actual original root monotonic start")
+     def resource_check(stage):
+@@ -156,17 +156,17 @@
+              and time.monotonic()-started<WALL,"Actual root CPU wall/expiry bound")
+         row=base.process_info(os.getpid())
+         need(row is not None and row["rss_bytes"]<=RSS,"Actual CPU worker RSS soft bound")
+-    resource_check("before_fixture_source")
+-    exclusive(aux/"worker_started.json",encoded(dict(schema="H050_one_CPU_actual_worker_started_v1",
++    resource_check("before_full_TGB_TRAIN_source")
++    exclusive(aux/"worker_started.json",encoded(dict(schema="TGB_H051_CPU_CPU_actual_worker_started_v1",
+         pid=os.getpid(),parent_pid=os.getppid(),input_ref=ir,started_utc=utc()),2048))
+-    module=load(c["wrapper_ref"],"_H050_one_new_CPU_qualification_wrapper")
+-    result=module.run_single_CPU_qualification_v1(resource_check=resource_check)
+-    resource_check("after_fixture")
++    module=load(c["wrapper_ref"],"_TGB_H051_CPU_new_CPU_qualification_wrapper")
++    result=module.run_training_v1(resource_check=resource_check,guard=m,storage=storage,input_ref=ir,storage_ref=spec["storage_ref"])
++    resource_check("after_full_TGB_TRAIN")
+     data=encoded(result,RESULT_CAP)
+     boundary(storage,m,len(data)+8192)
+     result_ref=exclusive(out/"result.json",data)
+     bounds(storage,m)
+-    print(json.dumps(dict(result_ref=result_ref,fixture_passed=result["fixture_result"]["passed"])),flush=True)
++    print(json.dumps(dict(result_ref=result_ref,full_campaign_complete=result["full_campaign_complete"])),flush=True)
+     return 0
+ 
+ def execute():
+@@ -187,13 +187,13 @@
+         metadata_used+=len(data)+4096
+         return exclusive(ADMIN/name,data)
+     runtime_ref=meta("runtime.actual_v1.json",own_runtime)
+-    cfg=dict(schema="H050_one_new_CPU_fixture_actual_config_v1",wrapper_ref=c["wrapper_ref"],device="cpu",
++    cfg=dict(schema="TGB_H051_CPU_full_campaign_actual_config_v1",wrapper_ref=c["wrapper_ref"],device="cpu",
+         CPU_threads=THREADS,max_aggregate_RSS_soft_bytes=RSS,wall_seconds=WALL,output_cap_bytes=CAP,
+         result_JSON_cap_bytes=RESULT_CAP,combined_log_retention_bytes=LOG_CAP,
+         temporary_and_cache_allowance_bytes=262144,source_ref=ref(__file__),contract_ref=CONTRACT_REF)
+     config_ref=meta("config.actual_v1.json",cfg)
+     direct=unique([*c["source_binding_basis_refs"],c["minimal_handoff_ref"],CONTRACT_REF,ref(__file__),runtime_ref,config_ref])
+-    closure_ref=meta("source_closure.actual_v1.json",dict(schema="H050_one_CPU_actual_source_closure_v1",bound_refs=direct))
++    closure_ref=meta("source_closure.actual_v1.json",dict(schema="TGB_H051_CPU_CPU_actual_source_closure_v1",bound_refs=direct))
+     direct=unique([*direct,closure_ref])
+     m=guard(c);b=c["original_bindings"]
+     kw=dict(expected_source_sha256=b["implementation"]["sha256"],expected_launcher_sha256=b["launcher"]["sha256"])
+@@ -213,17 +213,17 @@
+         initial_ledger_pins=receipt["initial_ledger_pins"],completed_overlay_policy_ref=c["fixed_refs"]["policy"],
+         budget_components=dict(consumer_adapter=c["fixed_refs"]["guard"],implementation=b["implementation"],launcher=b["launcher"]))
+     storage_ref=meta("storage.actual_v1.json",storage)
+-    spec=dict(schema="H050_one_new_CPU_fixture_actual_input_v1",root_authorizer="root_agent",
++    spec=dict(schema="TGB_H051_CPU_full_campaign_actual_input_v1",root_authorizer="root_agent",
+         execution_authorized=True,GPU_authorized=False,source_ref=ref(__file__),contract_ref=CONTRACT_REF,
+         job_id=c["job_id"],expires_at_utc=expires,root_execute_started_utc=wall_started.isoformat(),
+         root_execute_monotonic=started,runtime_ref=runtime_ref,config_ref=config_ref,
+         closure_ref=closure_ref,storage_ref=storage_ref,fixed_config=cfg)
+     input_ref=meta("input.root_active_v1.json",spec)
+     boundary(storage,m,131072)
+-    out.mkdir();aux.mkdir()
++    aux.mkdir()
+     for name in ("tmp","cache","torch","inductor","extensions"):(aux/name).mkdir()
+     env=child_env(aux)
+-    base=load(c["monitor_helper_ref"],"_H050_one_CPU_owned_helpers_monitor")
++    base=load(c["monitor_helper_ref"],"_TGB_H051_CPU_CPU_owned_helpers_monitor")
+     rfd,wfd=os.pipe()
+     argv=[own_runtime["executable"],"-B",str(Path(__file__).resolve()),"--worker","--input",input_ref["path"],
+           "--expected-sha256",input_ref["sha256"],"--monitor-parent-pid",str(os.getpid()),"--monitor-read-fd",str(rfd)]
+@@ -247,7 +247,7 @@
+         need(initial_RSS<=RSS,"Initial worker plus root-monitor RSS soft cap")
+         # The original pre-Popen boundary reserved this bounded launch receipt.
+         # No blocking guard call may occur after release and before monitoring.
+-        exclusive(aux/"actual_launch.json",encoded(dict(schema="H050_one_CPU_actual_owned_launch_v2",
++        exclusive(aux/"actual_launch.json",encoded(dict(schema="TGB_H051_CPU_CPU_actual_owned_launch_v2",
+             worker_pid=proc.pid,worker_identity=worker_identity,root_monitor_identity=root_identity,
+             initial_aggregate_RSS_bytes=initial_RSS,RSS_limit_bytes=RSS,
+             aggregate_includes_root_monitor=True,handshake_not_yet_released=True,
+@@ -257,7 +257,7 @@
+         selector=selectors.DefaultSelector();selector.register(proc.stdout,selectors.EVENT_READ)
+         last_scope=time.monotonic()
+         need(last_scope-started<WALL and time.time()<datetime.fromisoformat(expires).timestamp(),
+-             "Unextended300s lifetime before numerical handshake")
++             "Unextended7200s lifetime before numerical handshake")
+         os.write(wfd,(input_ref["sha256"]+"\n").encode());os.close(wfd);wfd=None
+         while proc.poll() is None:
+             now=time.monotonic()
+@@ -289,7 +289,7 @@
+                 base.signal_owned(groups,signal.SIGKILL)
+                 proc.kill();rc=proc.wait()
+             # One precharged genuine minimal terminal survives failure/expiry.
+-            exclusive(aux/"actual_wait_minimal.json",encoded(dict(schema="H050_one_CPU_actual_direct_wait_minimal_v1",
++            exclusive(aux/"actual_wait_minimal.json",encoded(dict(schema="TGB_H051_CPU_CPU_actual_direct_wait_minimal_v1",
+                 actual_direct_wait=True,pid=proc.pid,returncode=rc,worker_pgid=proc.pid,input_ref=input_ref,
+                 waited_utc=utc()),4096))
+     need(proc is not None,"No child spawned, no actual wait claimed")
+@@ -312,25 +312,26 @@
+     need(not live,"Owned group unresolved, preserve actual minimal wait")
+     boundary(storage,m,len(log)+32768)
+     log_ref=exclusive(aux/"worker_stdout.txt",bytes(log))
+-    wait_ref=exclusive(aux/"outer_wait.json",encoded(dict(schema="H050_one_CPU_actual_outer_wait_v1",
++    wait_ref=exclusive(aux/"outer_wait.json",encoded(dict(schema="TGB_H051_CPU_CPU_actual_outer_wait_v1",
+         returncode=rc,error=error,actual_direct_wait=True,worker_pid=proc.pid,input_ref=input_ref,
+         owned_process_identities=owned,owned_groups=sorted(groups),owned_groups_ESRCH=True,
+         root_monitor_identity=base.process_info(os.getpid()),original_observer_parent_pid=os.getppid(),
+         peak_aggregate_RSS_bytes=peak,RSS_soft_limit_bytes=RSS,RSS_is_polling_soft_bound=True,
+         poll_seconds=.25,proc_exit_or_task_read_races=races,stdout_ref=log_ref,
+         discarded_stdout_bytes=discarded,elapsed_seconds=time.monotonic()-started),8192))
+-    need(rc==0 and error is None,"Actual one-shot fixture failed, preserve artifacts and do not retry")
++    need(rc==0 and error is None,"Full frozen CPU campaign failed, preserve artifacts and do not retry")
+     result_ref=ref(out/"result.json")
+     result=read(result_ref,RESULT_CAP)
+-    need(result["fixture_result"]["passed"] is True and result["fixture_result"]["precision"]=="fp32"
+-         and result["fixture_result"]["optimizer_steps"]==0
+-         and result["fixture_result"]["all_four_arms"] is True
+-         and result["fixture_result"]["no_truth_read"] is True
+-         and result["fixture_result"]["no_optimization"] is True,"Genuine one FP32 fixture result")
++    need(result["schema"]=="TGB_H051_CPU_full_campaign_returned_v1" and result["full_campaign_complete"] is True
++         and result["total_models"]==3 and result["total_optimizer_updates"]==300
++         and result["TRAIN_graph_forwards"]==6900 and result["final_replay_graph_forwards"]==90
++         and result["new_qualification_runs"]==0 and result["VAL_metric_computed"] is False
++         and result["TEST_metric_computed"] is False and result["actual_external_tool_terminal_consumed"] is False,
++         "Genuine full frozen CPU training and all-heldout prediction seal, separate metric release")
+     boundary(storage,m,16384)
+-    completed=dict(schema="H050_one_new_FP32_CPU_root_completed_v1",status="completed_single_FP32_CPU_fixture",
++    completed=dict(schema="TGB_H051_CPU_full_campaign_root_completed_v1",status="completed_full_frozen_TGB_CPU_campaign_pending_external_tool_terminal",
+         input_ref=input_ref,result_ref=result_ref,actual_direct_wait_ref=ref(aux/"actual_wait_minimal.json"),
+-        actual_outer_wait_ref=wait_ref,physical_GPU_used=None,actual_fixture_passed=True,
++        actual_outer_wait_ref=wait_ref,physical_GPU_used=None,actual_full_campaign_completed=True,
+         full_training_fit_or_ancestry_accuracy_claimed=False,root_tool_terminal_consumption_still_required=True)
+     completed_ref=exclusive(out/"completed.json",encoded(completed,8192))
+     boundary(storage,m)

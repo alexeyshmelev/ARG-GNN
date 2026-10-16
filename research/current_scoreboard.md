@@ -1,6 +1,6 @@
 # Current scientific scoreboard
 
-Updated UTC: 2026-10-16T05:46:20.900010+00:00
+Updated UTC: 2026-10-16T06:05:32.623957+00:00
 
 [All measured cohort details](#detailed-cohort-metrics) · [Complete historical receipt inventory](all_recorded_metric_receipts.md) · [Fresh H048 novelty/cross-domain audit](../research/reviews/H048_novelty_crossdomain_fresh_20261015_v1/report.md)
 
@@ -369,6 +369,8 @@ TRAIN1987–2009/23years, VAL2010–2013/4years, TEST2014–2016/3years and675qu
 
 [All per-year results](../experiments/results/H052_TGB_trade_causal_native_baselines_v1/results.json) · [Frozen protocol](../research/reviews/TGB_trade_causal_baselines_root_20261016_v1/protocol.root_frozen_v1.json)
 
+The full three-arm Torch/PyG CPU campaign has launched, with 100 epochs per arm and 300 total updates planned. The exact worker is live. No completed optimizer milestone or learned score has yet been verified. [Actual training status](../research/TGB_H051_current_training_status.json).
+
 **Ordered-tree mechanism status:** The frozen TRAIN-only trade audit found 22 partition changes and 21 nonzero conditional-innovation years. This establishes active input support, without a predictive-accuracy result. [Actual audit](../research/reviews/TGB_trade_H051_data_integration_root_20261016_v1/actual_TRAIN_operator_support.root_v1.json). A [fresh independent literature review](../research/reviews/H051_independent_priority_audit_20261016_v2/REPORT.md) identifies established conditional-mean and higher-order constructions. Generic operator novelty remains unestablished.
 
 
@@ -456,7 +458,7 @@ Two European VAL simulations,280observed haplotypes,64present-day/56ancient quer
 
 ## Real data and paper
 
-H045 empirical probabilities, bp-weighted proportions and original-genotype PCA written. Actual successful wait and completion verified. Descriptive24query haplotypes/12subjects only. No known ancestry truth. No empirical ancestry accuracy exists. The AAAI draft is8pages and remains unfinished.
+H045 empirical probabilities, bp-weighted proportions and original-genotype PCA written. Actual successful wait and completion verified. Descriptive24query haplotypes/12subjects only. No known ancestry truth. No empirical ancestry accuracy exists. The AAAI draft is9pages and remains unfinished.
 
 ## Evidence and complete recorded inventory
 
