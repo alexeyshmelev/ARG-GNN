@@ -568,7 +568,7 @@ Evidence: [research/reviews/native_hold_resolution_train_registration_root_20261
 
 ## H058: Same-marker source/age/allele alignment through the full observed tree improves Present182 tract-boundary discrimination beyond equal-capacity alignment-null and continued H045 training, without material span-accuracy or NLL loss.
 
-**v2_one_hold_admitted_unlaunched_v3_source_review_passed_no_numerical_result.** Query-allele-conditioned positive path evidence, mean/max pooling and a zero-output rank8 residual before the unchanged second whole-tree PyG sweep and full genomic BiGRU. Analytic additional714 parameters. Fixed initial edge attenuation gamma0.95. This uses existing observed information.
+**actual_FP32_one_hold_PASS_full_parent_training_pending.** Query-allele-conditioned positive path evidence, mean/max pooling and a zero-output rank8 residual before the unchanged second whole-tree PyG sweep and full genomic BiGRU. Analytic additional714 parameters. Fixed initial edge attenuation gamma0.95. This uses existing observed information.
 
 **Conclusion:** No new same-marker numerical output, ancestry metric or model training exists at registration.
 

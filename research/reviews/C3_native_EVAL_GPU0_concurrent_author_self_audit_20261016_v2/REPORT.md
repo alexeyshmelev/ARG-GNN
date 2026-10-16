@@ -1,0 +1,13 @@
+# Concurrent native ARGformer and C3 EVAL v2 author self-audit
+
+PASS FOR THE CORRECTED SOURCE DELTA, SUBJECT TO INDEPENDENT REVIEW AND ACTUAL ROOT PREREQUISITES. This is an author self-audit. The same agent previously prepared the exact v2 handoff and does not claim independence. No new wrapper or source change was made.
+
+The prior F1 finding is addressed at the actual call boundaries. The bridge authenticates the actual approval, final handoff, immutable core and its own exact source before the unchanged reserve path. Its private metadata-only `unique` extension appends those four refs without dropping original roles and retains the64 cap, restoring the original helper in finally. Actual native storage and the native approval SHA in its source map are required again at finite validation and dispatch. Controller and outer helpers also include all four authorities. The immutable144-ref core excludes its own/final-handoff/future-approval hashes, avoiding a fabricated future hash or dependency cycle.
+
+All12 advertised v2 file hashes match, as do the exact core anchor, unchanged native runtime/scientific handoff, prior F1 review and all11 unchanged EVAL files. The illustrated direct unions remain52 native science,48 native outer,35 EVAL science,56 EVAL outer and45 controller, with all17 ancestor roles retained. Actual unions still require recomputation at reserve, these static counts do not admit anything.
+
+The delta changes authority/metadata joins and fresh source paths only. Native numerical science remains the original seed17 BF16 batch512 five-epoch227990-update route. EVAL still calls the unchanged full30Mb predictor for six checkpoints per parent. Its8GiB allocator fraction remains before configure_fit's first CUDA allocation, with a separate2GiB scheduler margin and inherited4GiB global headroom. GPU0, external occupancy, finite ready slots, at mostone EVAL and two logical jobs, expiry, owned waits and the original all30-seal scorer barrier remain.
+
+Current original C3 TRAIN must genuinely succeed. Its current controller must finish with actual consumed terminal, every started-job wait/drain, permanent writer revocation, targeted owned PID/group absence and canonical lease release. The source explicitly rejects an incomplete/unknown/interrupted handover. No current completion, capacity, occupancy or lease fact was inspected here.
+
+Action: obtain a different reviewer for independence, then ROOT may evaluate the unchanged genuine completion and resource prerequisites. No live source, numerical payload, job, guard/accounting, reservation or Git action occurred. Only this report was written.

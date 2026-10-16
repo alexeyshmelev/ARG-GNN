@@ -1,0 +1,1026 @@
+{
+  "H058_draft_snapshot_is_final_seal": false,
+  "H058_draft_snapshot_refs": {
+    "matrix_v1.py": {
+      "path": "research/reviews/H058_full_parent_pilot_source_20261016_v2/matrix_v1.py",
+      "sha256": "e3260efd9f0f88c3f09dedb48e41e60773d30a0aeecdbf431ed2e4d015edc967"
+    },
+    "model_v1.py": {
+      "path": "research/reviews/H058_full_parent_pilot_source_20261016_v2/model_v1.py",
+      "sha256": "a10711735da6e3125a8bd4828b4db3761504bab10bdd075c760a025b38e852e0"
+    },
+    "observations_v1.py": {
+      "path": "research/reviews/H058_full_parent_pilot_source_20261016_v2/observations_v1.py",
+      "sha256": "4b260c03645a761ffb7c4d8b0c65aa2f101af08f416adfbe7b2dedd851aa97d7"
+    },
+    "producer_v1.py": {
+      "path": "research/reviews/H058_full_parent_pilot_source_20261016_v2/producer_v1.py",
+      "sha256": "ebad1ec7c561e7107796efcd2554d6186d82e79a779dd074dde41bbb41569d3c"
+    },
+    "protocol_v1.py": {
+      "path": "research/reviews/H058_full_parent_pilot_source_20261016_v2/protocol_v1.py",
+      "sha256": "cba3114d1a060ad23f1ed0b3dc2650ed75928553341f67ce6b68467bdba7a2f1"
+    }
+  },
+  "actual_H050_input_source_pins_verified": [
+    "src/arggnn/development_execution.py",
+    "src/arggnn/biological_candidate.py",
+    "src/arggnn/biological_gst_control_v1.py",
+    "src/arggnn/train_ordered_clade_episode_v1.py",
+    "src/arggnn/train_mutation_routed_full_panel_pyg_v1.py",
+    "src/arggnn/mutation_routed_full_panel_primary_v1.py",
+    "src/arggnn/mutation_routed_full_panel_fast_reader_v1.py",
+    "src/arggnn/mutation_routed_full_panel_cache_v1.py",
+    "src/arggnn/mutation_routed_pyg_dataset_v1.py",
+    "src/arggnn/ordered_clade_episode_gnn_v1.py",
+    "src/arggnn/mutation_routed_whole_tree_gnn_v1.py",
+    "src/arggnn/mutation_routed_tree_observations_v1.py",
+    "research/reviews/H050_direct_readout_cut_memory_source_20261015_v1/direct_readout_cut_memory_v1.py",
+    "research/reviews/H050_direct_readout_cut_memory_source_20261015_v1/integration_hooks_v1.py",
+    "research/reviews/H050_direct_readout_cut_memory_source_20261015_v1/producer_integration_v1/producer_v1.py",
+    "research/reviews/H050_direct_readout_cut_memory_source_20261015_v1/producer_integration_v1/root_bridge_v1/context_factory_v1.py"
+  ],
+  "actual_runtime_policy": {
+    "configure_before_cuda_initialization": true,
+    "cublas_workspace_config": ":4096:8",
+    "cuda_matmul_allow_tf32": false,
+    "cudnn_allow_tf32": false,
+    "cudnn_benchmark": false,
+    "cudnn_deterministic": true,
+    "deterministic_algorithms": true,
+    "float32_matmul_precision": "highest",
+    "scope": "fixed runtime and hardware, no cross-platform bitwise guarantee",
+    "warn_only": false
+  },
+  "actual_torch_version": "2.6.0+cu124",
+  "candidate_config_metrics_equal_original_H050": true,
+  "candidate_config_remains_inactive": true,
+  "candidate_config_snapshot_hash_deliberately_excluded_to_avoid_final_manifest_audit_hash_cycle": true,
+  "candidate_exact_target_runtime_source_checks_resolved": true,
+  "checkpoint_payloads_read_or_hashed": false,
+  "checks": [
+    {
+      "dimension": "architecture_control",
+      "evidence": [
+        "Unmodified OrderedCladeEpisodeGNNV1 arm own_state with 31812 learned parameters",
+        "H050 continuation receives original episodes only",
+        "Draft explicit continuation instantiates identical class with strict original warm state"
+      ],
+      "status": "H050_VERIFIED_H058_DRAFT_MATCH"
+    },
+    {
+      "dimension": "data_genotype_order_support",
+      "evidence": [
+        "Exact cache manifest and all40 entry-ref dictionaries match original H038 metadata",
+        "952 original phased columns, 686 original query columns, categorical genotype -1 missing and up to4 alleles",
+        "Original 4 geometry and5 support fields, original whole trees, site/hold/phase order",
+        "Draft Dataset wraps same pinned fast_reader and to_model_inputs reconstructs original fields without transformation"
+      ],
+      "status": "H050_VERIFIED_H058_DRAFT_MATCH"
+    },
+    {
+      "dimension": "targets_and_loss",
+      "evidence": [
+        "32 TRAIN and8 VAL binding dictionaries exactly match original H038 per-parent dictionaries",
+        "native_hold_train_mass_v1 sums original 100bp-bin exact intersections to original holds, emits FP32 mass",
+        "Original exact_span_loss is negative weighted log-softmax sum divided by total mass",
+        "Candidate producer now enforces exact original phase target dictionaries plus all40 entry/source dictionaries, calls same target aggregation and loss functions"
+      ],
+      "status": "H050_VERIFIED_H058_SOURCE_MATCH_ACTUAL_RUNTIME_PENDING"
+    },
+    {
+      "dimension": "schedule_and_optimizer",
+      "evidence": [
+        "All30 completed actual orders independently match random.Random(101+pass) over original32 TRAIN parents",
+        "960 updates,32/pass, checkpoints5/10/15/20/25/30",
+        "Fresh independent AdamW lr.001 wd.0001 betas(.9,.999) eps1e-8 clipnorm1",
+        "No dropout or stochastic forward in the pinned baseline, so four-arm versus separate-arm interleaving does not change an RNG-dependent baseline objective"
+      ],
+      "status": "H050_VERIFIED_H058_SOURCE_MATCH_ACTUAL_RUNTIME_PENDING"
+    },
+    {
+      "dimension": "runtime_precision",
+      "evidence": [
+        "Actual GPU0 qualification JSON records Torch2.6.0+cu124 and fixed deterministic policy",
+        "FP32 train_one disables autocast, validates finite FP32 gradients",
+        "H058 must establish same flags preCUDA and assert exact versions, no default-based inference"
+      ],
+      "status": "H050_VERIFIED_H058_RUNTIME_PENDING"
+    },
+    {
+      "dimension": "initializer",
+      "evidence": [
+        "Exact H045 own_state pass30 file metadata ref and completion ref match",
+        "Strict state load retains all original learned tensors, original optimizer moments are discarded",
+        "Initial H050 control model-state hash e097bd33... and actual scheduled initial logits equality0 recorded",
+        "Model-state digest and serialized checkpoint-file SHA are different hash domains"
+      ],
+      "status": "H050_VERIFIED_H058_DRAFT_MATCH"
+    },
+    {
+      "dimension": "checkpoint_selection",
+      "evidence": [
+        "Six checkpoint refs copied from actual completed TRAIN metadata only",
+        "Existing saved-fit CPU selection uses original equal-parent Present182 accuracy, lowerNLL, earlierpass",
+        "CPU selected pass20, not30",
+        "CPU new96 plus originalCPUselected metrics reuse is supported only after full source/runtime/scoring identity. Alternatively explicitly authorize48 additional same-backend frozen-control products and144 barrier. Never silently convert CPU metrics into GPU-matched scores."
+      ],
+      "status": "H050_VERIFIED_CPU_REUSE_OR_SAME_BACKEND_REPLAY_WITH_FINAL_IDENTITY"
+    },
+    {
+      "dimension": "old_CPU_inference_and_metric_reuse",
+      "evidence": [
+        "Actual saved-fitCPU runtime source uses32intraop/1interop threads, Torch2.6.0+cu124/PyG2.7.0, ordinaryFP32, noCUDA initialization and no optimizer updates",
+        "All192 old products sealed before oldVAL truth, all six control checkpoints considered, exact pass20 selection",
+        "OldCPU source does not call development deterministicGPU configuration or record its flags. These must not be invented as oldCPU runtime evidence",
+        "Candidate source enforces exact target dictionaries and actualCPU32/1threads/defaultFP32/noCUDA before evaluation, with CPUruntimeproof distinct fromGPUtrainingflags"
+      ],
+      "status": "H050_VERIFIED_H058_SOURCE_MATCH_ACTUAL_RUNTIME_PENDING"
+    }
+  ],
+  "created_utc": "2026-10-16T11:30:38.504398+00:00",
+  "decision": "Source-level H050 continuation TRAIN-series identity and originalCPU metric reuse are supported against the recorded candidate source snapshot. Exact original target/entry/source dictionaries, CPU32/1thread/FP32/noCUDA and original scorer/selection requirements are now enforced in candidate code. ROOT must still authenticate the final source seal, establish actual runtime and issue actual reuse attestation/admission. No scientific execution is authorized by this audit. Unknown identity keeps comparison pending or requires separately sourced and authorized full960 original continuation.",
+  "evaluation_modes": {
+    "pending_identity_audit": {
+      "control_comparison": "pending",
+      "new_products": 96,
+      "utility_verdict": null
+    },
+    "replay_frozen_H050_checkpoints": {
+      "additional_control_products": 48,
+      "control_optimization_updates": 0,
+      "explicit_separate_root_authority_required": true,
+      "new_products": 96,
+      "no_automatic_replay": true,
+      "planned_default": false,
+      "same_inference_backend_all_arms": true,
+      "total_products_before_truth": 144
+    },
+    "reuse_original_CPU_selected_metrics": {
+      "additional_control_products": 0,
+      "conditions": [
+        "Exact unchanged frozen control checkpoints, observation/target/support and source/scorer/selection identities",
+        "New CPU inference32intraop/1interop threads, original Torch/PyG/FP32 and noCUDA",
+        "Actual ROOT attestation for complete CPU inference/scoring identity",
+        "All96 new products sealed before new VAL truth access",
+        "Report originalCPUselectedmetrics reuse explicitly, preserve pass20 historical selector and full diagnostics",
+        "Reused eightVAL parents are development evidence, no independent test claim"
+      ],
+      "control_inference_backend": "cpu",
+      "new_inference_backend": "cpu",
+      "new_products": 96,
+      "old_CPU_completion_schema": "H050_four_arm_VAL_completion_v1",
+      "old_control_history_passes": [
+        5,
+        10,
+        15,
+        20,
+        25,
+        30
+      ],
+      "old_control_optimization_updates": 0,
+      "old_control_selected_pass": 20,
+      "old_runtime": {
+        "CPU_interop_threads": 1,
+        "CPU_intraop_threads": 32,
+        "CUDA_initialized": false,
+        "autocast": false,
+        "default_dtype": "float32",
+        "torch": "2.6.0+cu124",
+        "torch_geometric": "2.7.0"
+      },
+      "old_runtime_GPU_determinism_flags_recorded": false,
+      "planned_default": true,
+      "required_old_barrier_field": "all192_RAM_seals_before_any_VAL_truth"
+    },
+    "separate_original_continuation": {
+      "explicit_separate_root_authority_required": true,
+      "full_updates": 960,
+      "no_automatic_training": true
+    }
+  },
+  "evidence_refs": {
+    "data/expanded_full_panel_pyg_cache_v5/cache/manifest.json": {
+      "path": "data/expanded_full_panel_pyg_cache_v5/cache/manifest.json",
+      "sha256": "6144bcc237cf2916fa8b4c90964f6633fa56989d73e2c8f4295675d2239469e8"
+    },
+    "experiments/results/H045_GPU5_episode_train_seed101_v1/completed.json": {
+      "path": "experiments/results/H045_GPU5_episode_train_seed101_v1/completed.json",
+      "sha256": "258c7da76aa1f693c684094569100e19a3430566c46fe9452e841eb5127f955e"
+    },
+    "experiments/results/H050_CPU_full192_savedfit_failedCLI_root_v1/completed.json": {
+      "path": "experiments/results/H050_CPU_full192_savedfit_failedCLI_root_v1/completed.json",
+      "sha256": "2e3dcb14affee5f87d9e0607745a0039647d0ca55daffa0e276bb5599a4a6763"
+    },
+    "experiments/results/H050_CPU_full192_savedfit_failedCLI_root_v1/root_CPU_runtime_receipt.json": {
+      "path": "experiments/results/H050_CPU_full192_savedfit_failedCLI_root_v1/root_CPU_runtime_receipt.json",
+      "sha256": "5ce1005fd26e51edcb2a5590d2486e9eefcccf517d226060fde26d52712b58de"
+    },
+    "experiments/results/H050_GPU0_direct_readout_train_seed101_v1/all_32_H050_observation_recipes.json": {
+      "path": "experiments/results/H050_GPU0_direct_readout_train_seed101_v1/all_32_H050_observation_recipes.json",
+      "sha256": "ce2e53a0188076c4ab40a76c92d8c0923d3833aedca5a4277c0f8f853bb85cba"
+    },
+    "experiments/results/H050_GPU0_direct_readout_train_seed101_v1/all_32_observed_RAM_episode_recipes.json": {
+      "path": "experiments/results/H050_GPU0_direct_readout_train_seed101_v1/all_32_observed_RAM_episode_recipes.json",
+      "sha256": "867013c6144ecb2fdd0fd0c3d37b30dc7b8061feea2ba08c4344877c83453287"
+    },
+    "experiments/results/H050_GPU0_direct_readout_train_seed101_v1/completed.json": {
+      "path": "experiments/results/H050_GPU0_direct_readout_train_seed101_v1/completed.json",
+      "sha256": "8df6cdcf507a067e48a9a23769cbb6718d485323f29ead6f4d767a64a55fbb8c"
+    },
+    "experiments/results/H050_GPU0_direct_readout_train_seed101_v1/cuda_qualification/qualification.json": {
+      "path": "experiments/results/H050_GPU0_direct_readout_train_seed101_v1/cuda_qualification/qualification.json",
+      "sha256": "279c701d8120e21a5fd8998a5e74a57427373dbb95c1c96e0a89c92771167b2f"
+    },
+    "research/reviews/GPU0_shared_admission_draft_20261016_v1/bound_metadata_v1/H050_config.json": {
+      "path": "research/reviews/GPU0_shared_admission_draft_20261016_v1/bound_metadata_v1/H050_config.json",
+      "sha256": "926856f74b0bf9f083baa128beedfcdbebbe7fdb9ffac3557b002397ec8f22a3"
+    },
+    "research/reviews/GPU0_shared_root_integration_20261016_v1/admitted_H050_GPU0_train_v1/input.json": {
+      "path": "research/reviews/GPU0_shared_root_integration_20261016_v1/admitted_H050_GPU0_train_v1/input.json",
+      "sha256": "1100941aaf8b1431cb0c4ea963daf568843ed1b76caa397c98bedb0fe3e57576"
+    },
+    "research/reviews/GPU0_shared_root_integration_20261016_v1/admitted_H050_GPU0_train_v1/phase_target_bindings.json": {
+      "path": "research/reviews/GPU0_shared_root_integration_20261016_v1/admitted_H050_GPU0_train_v1/phase_target_bindings.json",
+      "sha256": "3aa66440ef0b40f7a4572fac36b78114211aefc3a0b83d14d3c7d3254ca8e1fe"
+    },
+    "research/reviews/GPU0_shared_root_integration_20261016_v1/admitted_H050_GPU0_train_v1/runtime.json": {
+      "path": "research/reviews/GPU0_shared_root_integration_20261016_v1/admitted_H050_GPU0_train_v1/runtime.json",
+      "sha256": "8c76fa1dd3f33a566c87e9ab2d16c35318acc837d87afb123bc942e7c7b31df4"
+    },
+    "research/reviews/H050_CPU_evaluation_failed_CLI_successor_source_20261016_v1/root_actual_admission_v1/input.json": {
+      "path": "research/reviews/H050_CPU_evaluation_failed_CLI_successor_source_20261016_v1/root_actual_admission_v1/input.json",
+      "sha256": "5237c7f4e5504bdf04f43fd73334098519462cd1f3a634124fb7b050c28c73ab"
+    },
+    "research/reviews/H050_CPU_evaluation_failed_CLI_successor_source_20261016_v1/root_actual_metadata_v1/VAL_target_bindings.json": {
+      "path": "research/reviews/H050_CPU_evaluation_failed_CLI_successor_source_20261016_v1/root_actual_metadata_v1/VAL_target_bindings.json",
+      "sha256": "adcd0dac6fe2c131109244e6ba2e10d96a9b2386920893a29bcf63b7bfa2cc9e"
+    },
+    "research/reviews/H050_CPU_evaluation_failed_CLI_successor_source_20261016_v1/root_actual_metadata_v1/actual_tool_terminal.root_v1.json": {
+      "path": "research/reviews/H050_CPU_evaluation_failed_CLI_successor_source_20261016_v1/root_actual_metadata_v1/actual_tool_terminal.root_v1.json",
+      "sha256": "b842a3d33841332c705d5c61d3c08969de79249788e8caec27d934ad28a266fe"
+    },
+    "research/reviews/H050_CPU_evaluation_failed_CLI_successor_source_20261016_v1/root_actual_metadata_v1/runtime.json": {
+      "path": "research/reviews/H050_CPU_evaluation_failed_CLI_successor_source_20261016_v1/root_actual_metadata_v1/runtime.json",
+      "sha256": "562649fa6ba8b6c180a6884cd00b06ed8b149b3ad4f54e5f828d5a3ef10a87b6"
+    },
+    "research/reviews/H050_CPU_evaluation_failed_CLI_successor_source_20261016_v1/runtime_v1.py": {
+      "path": "research/reviews/H050_CPU_evaluation_failed_CLI_successor_source_20261016_v1/runtime_v1.py",
+      "sha256": "ee16ddcb7f4190f897a0b1b3d19d0cf8ec4da50e35d837431063fc49ece4d8c9"
+    },
+    "research/reviews/H050_completed_comparison_independent_20261016_v1/REPORT.md": {
+      "path": "research/reviews/H050_completed_comparison_independent_20261016_v1/REPORT.md",
+      "sha256": "011ca0455fca4b9febccb9c676fc6abca1d3006badb6a96f4dffdeb2c7a0b3a8"
+    },
+    "research/reviews/H050_completed_comparison_root_20261016_v1/REPORT.md": {
+      "path": "research/reviews/H050_completed_comparison_root_20261016_v1/REPORT.md",
+      "sha256": "4ef9e7b9fee8e5d8198e24ca97c043f7965d2b0a94f6d2d2ccc8bf10c8a08aa0"
+    },
+    "research/reviews/H050_direct_readout_cut_memory_source_20261015_v1/direct_readout_cut_memory_v1.py": {
+      "path": "research/reviews/H050_direct_readout_cut_memory_source_20261015_v1/direct_readout_cut_memory_v1.py",
+      "sha256": "ed7b9b889ca703a76c48f104e3f695b29bab005da9c53c3090aa29ea0b9d4ec3"
+    },
+    "research/reviews/H050_direct_readout_cut_memory_source_20261015_v1/integration_hooks_v1.py": {
+      "path": "research/reviews/H050_direct_readout_cut_memory_source_20261015_v1/integration_hooks_v1.py",
+      "sha256": "149a19842e912b1ae4b566f58424166ec9f292968e83c36724b0c499a6ae9d96"
+    },
+    "research/reviews/H050_direct_readout_cut_memory_source_20261015_v1/producer_integration_v1/producer_v1.py": {
+      "path": "research/reviews/H050_direct_readout_cut_memory_source_20261015_v1/producer_integration_v1/producer_v1.py",
+      "sha256": "1efd84ea51ed05b20e713f6a39ef33dfc08ce3921730d8ce8aa39ef184506130"
+    },
+    "research/reviews/H050_direct_readout_cut_memory_source_20261015_v1/producer_integration_v1/root_bridge_v1/context_factory_v1.py": {
+      "path": "research/reviews/H050_direct_readout_cut_memory_source_20261015_v1/producer_integration_v1/root_bridge_v1/context_factory_v1.py",
+      "sha256": "58bf94db37f8fb63afeca64352fd362ddf580d7117ef794481dfe4395f087fa2"
+    },
+    "research/reviews/biological_operator_next_fresh_20261016_v1/PROTOCOL_source_only_v2.md": {
+      "path": "research/reviews/biological_operator_next_fresh_20261016_v1/PROTOCOL_source_only_v2.md",
+      "sha256": "f24b7deacdd5faff00793ba4153a3a26142746705b09afad883deeefab5f83cb"
+    },
+    "research/reviews/expanded_full_panel_v1_root/full_panel_pyg_fits_v4/aligned/input.json": {
+      "path": "research/reviews/expanded_full_panel_v1_root/full_panel_pyg_fits_v4/aligned/input.json",
+      "sha256": "72b200f5bcfbba13d04517b4f139b22097d1944ae4d855aa6c55ccf50c64d7e6"
+    },
+    "research/reviews/expanded_full_panel_v1_root/full_panel_pyg_fits_v4/target_bindings.json": {
+      "path": "research/reviews/expanded_full_panel_v1_root/full_panel_pyg_fits_v4/target_bindings.json",
+      "sha256": "328c02f03c61bdddb227d2bb1462c1c0bea99376029f390ea21d3f24de6a701c"
+    },
+    "src/arggnn/biological_candidate.py": {
+      "path": "src/arggnn/biological_candidate.py",
+      "sha256": "6b3a25d0e59026cab7189032eb41221feb7d1bdf69e15f6c737a672dfb711dd3"
+    },
+    "src/arggnn/biological_gst_control_v1.py": {
+      "path": "src/arggnn/biological_gst_control_v1.py",
+      "sha256": "66788b41cabcb852c739505200a641bdc93fea3c9fbb642c291d52cefc77350f"
+    },
+    "src/arggnn/development_execution.py": {
+      "path": "src/arggnn/development_execution.py",
+      "sha256": "4a2f87320615eb655a7700b6bbff4a7d293b1b16749468afa46f0de2d12e276f"
+    },
+    "src/arggnn/mutation_routed_full_panel_cache_v1.py": {
+      "path": "src/arggnn/mutation_routed_full_panel_cache_v1.py",
+      "sha256": "1c1f1e5222df0e09e83b470d5375b8946cb3a89db1bc55e9d2c293a09037cb38"
+    },
+    "src/arggnn/mutation_routed_full_panel_fast_reader_v1.py": {
+      "path": "src/arggnn/mutation_routed_full_panel_fast_reader_v1.py",
+      "sha256": "d6b963dc14e1f6752e310e627faf2e4f9a2e408fcb7dab17e3439771ab227e03"
+    },
+    "src/arggnn/mutation_routed_full_panel_primary_v1.py": {
+      "path": "src/arggnn/mutation_routed_full_panel_primary_v1.py",
+      "sha256": "a94fd5af1cd10b1605f75621c36a130faa3f9d5ad71068f8b187d8e73c7e5374"
+    },
+    "src/arggnn/mutation_routed_pyg_dataset_v1.py": {
+      "path": "src/arggnn/mutation_routed_pyg_dataset_v1.py",
+      "sha256": "f7488ae9794c301d47ad66bab9caed5ff87ef09afcf96c5e48c9c00d350706ca"
+    },
+    "src/arggnn/mutation_routed_tree_observations_v1.py": {
+      "path": "src/arggnn/mutation_routed_tree_observations_v1.py",
+      "sha256": "922df286e595370ade23595420a325014e4df64aac88060e8a1a846684eab068"
+    },
+    "src/arggnn/mutation_routed_whole_tree_gnn_v1.py": {
+      "path": "src/arggnn/mutation_routed_whole_tree_gnn_v1.py",
+      "sha256": "254f5155e31f81ae675e2bd08d38c97c9bf130d47e98efa2deea4c7344d9e073"
+    },
+    "src/arggnn/ordered_clade_episode_gnn_v1.py": {
+      "path": "src/arggnn/ordered_clade_episode_gnn_v1.py",
+      "sha256": "71d93e2131858474bb7f6d0856459545dce1e6889de831b0092682f19dcbc6e6"
+    },
+    "src/arggnn/train_mutation_routed_full_panel_pyg_v1.py": {
+      "path": "src/arggnn/train_mutation_routed_full_panel_pyg_v1.py",
+      "sha256": "c01c4d9506faae7bf537282e4d722b115b3c69cc5de1d4570758136de292dae3"
+    },
+    "src/arggnn/train_ordered_clade_episode_v1.py": {
+      "path": "src/arggnn/train_ordered_clade_episode_v1.py",
+      "sha256": "f8ac3e70dc61e6d26ad7b3a7f49258851174aa4fd5c43681440453ee09cd7395"
+    }
+  },
+  "exact_original_TRAIN_target_bindings": {
+    "ap_expanded_train_000": {
+      "generation_receipt": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_000/generation.json",
+        "sha256": "92fcac6c6aea1e96617f628cb8c0d2145cf0e28b39d513e853c9892468cbf178"
+      },
+      "split": "train",
+      "truth_npz": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_000/truth/full_truth_intervals.npz",
+        "sha256": "45f5c5ae14a22bf1efd78ee36b2cca60822804409657ad1335f3015b9b282e82"
+      }
+    },
+    "ap_expanded_train_001": {
+      "generation_receipt": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_001/generation.json",
+        "sha256": "681dcd2f7797632ea4f6a4196568d83b516bb5c63beefd5edd3f936905c9a85e"
+      },
+      "split": "train",
+      "truth_npz": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_001/truth/full_truth_intervals.npz",
+        "sha256": "2804c3c3170f068e81620036c18cd0cadfb99ebc801111ae209a945396c7301b"
+      }
+    },
+    "ap_expanded_train_002": {
+      "generation_receipt": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_002/generation.json",
+        "sha256": "6dadffc893b47a90673aa4e267a585a5bfc3ca30979773362ce5682a8ea78923"
+      },
+      "split": "train",
+      "truth_npz": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_002/truth/full_truth_intervals.npz",
+        "sha256": "874e65cffac141875f73f0bfb1ed86f574b01b36485ac014c4abd465e7cf03bf"
+      }
+    },
+    "ap_expanded_train_003": {
+      "generation_receipt": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_003/generation.json",
+        "sha256": "d1dd25a02d641c5ac7f6bae8399d82c4ae58da75191eb801d17d9ebb9f1fc8c5"
+      },
+      "split": "train",
+      "truth_npz": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_003/truth/full_truth_intervals.npz",
+        "sha256": "84cc3d9d5abc9c1534a8a7639b2b8cae74ce5f12f51067cc15d9e8e1165eb0b2"
+      }
+    },
+    "ap_expanded_train_004": {
+      "generation_receipt": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_004/generation.json",
+        "sha256": "152ceb94e062ace6c86cabcbd85ac3d6cb93918295aeee0d57a7c74f11284b12"
+      },
+      "split": "train",
+      "truth_npz": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_004/truth/full_truth_intervals.npz",
+        "sha256": "e5d8bc1c93dd65bc383fae3de309f768d2d05a36925ac0b2b65e39de4cb67528"
+      }
+    },
+    "ap_expanded_train_005": {
+      "generation_receipt": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_005/generation.json",
+        "sha256": "4e16ffba2142465c60d0abca95477e02501ff9e0b6ccfe55bc921dbe2de1b5d3"
+      },
+      "split": "train",
+      "truth_npz": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_005/truth/full_truth_intervals.npz",
+        "sha256": "5196bdd20735339d7ec2dc0b5345344e3b0265fe848532068d748475a57bd942"
+      }
+    },
+    "ap_expanded_train_006": {
+      "generation_receipt": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_006/generation.json",
+        "sha256": "58228f6e579b9c5bb10bd0df79f9e162270cc8069b301f556c009e26ba7aa1f0"
+      },
+      "split": "train",
+      "truth_npz": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_006/truth/full_truth_intervals.npz",
+        "sha256": "147b006ddd3ae1baac8b62de481bb767481b3da6513ad8d9ad4de561fa3f60ec"
+      }
+    },
+    "ap_expanded_train_007": {
+      "generation_receipt": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_007/generation.json",
+        "sha256": "08c4b7247b1256c56a1678b8309d6f493d659ef18106046766a25cdc15a6792a"
+      },
+      "split": "train",
+      "truth_npz": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_007/truth/full_truth_intervals.npz",
+        "sha256": "2a3f9272d029b599eeb529c717139f2dd33f5bbbc64a04a758c25183a0993ec5"
+      }
+    },
+    "ap_expanded_train_008": {
+      "generation_receipt": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_008/generation.json",
+        "sha256": "50dbe3c052f0e3d4d6c3542deb6da7861f3f506d627e3cbf754c8710a6dd6852"
+      },
+      "split": "train",
+      "truth_npz": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_008/truth/full_truth_intervals.npz",
+        "sha256": "d7f62e234c186ba0688748049794bfa119ca32647ad98d14d256cf3af1160916"
+      }
+    },
+    "ap_expanded_train_009": {
+      "generation_receipt": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_009/generation.json",
+        "sha256": "d383368b767bb1e37a394f9503324528ce0820d71a9d0bf90a2aaf5ad7610ac1"
+      },
+      "split": "train",
+      "truth_npz": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_009/truth/full_truth_intervals.npz",
+        "sha256": "65edec044e99fd7e5fb3eafd768e61161a8c91acb4c5f2e9da1e42a202cab796"
+      }
+    },
+    "ap_expanded_train_010": {
+      "generation_receipt": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_010/generation.json",
+        "sha256": "32f0201569bb45cf302073ddfd09e040e5e628883f04049a5ee95ff4a42c3a1e"
+      },
+      "split": "train",
+      "truth_npz": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_010/truth/full_truth_intervals.npz",
+        "sha256": "5a2bff97a6ea2dae99bff47b35bf0c4e965c436355a4f715f7cb2665fb5d797f"
+      }
+    },
+    "ap_expanded_train_011": {
+      "generation_receipt": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_011/generation.json",
+        "sha256": "7c13c4a718800b1439760401d31a4a3079c6307836b900e1a1a80710f7431df0"
+      },
+      "split": "train",
+      "truth_npz": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_011/truth/full_truth_intervals.npz",
+        "sha256": "328d82f6742e04f8a125f49f4f6b8b01892663273d2493b592128d7ac7713568"
+      }
+    },
+    "ap_expanded_train_012": {
+      "generation_receipt": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_012/generation.json",
+        "sha256": "3f368e259d65e14eac40c711cc774c556a64e43a875871ae9c89d15347850b8b"
+      },
+      "split": "train",
+      "truth_npz": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_012/truth/full_truth_intervals.npz",
+        "sha256": "baebe4c045bbcb83b2ea71ba8518d9a7927a91368e0ad51422c8fcf9bfcf4fcd"
+      }
+    },
+    "ap_expanded_train_013": {
+      "generation_receipt": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_013/generation.json",
+        "sha256": "7ef2a68b94820b4162621a6232ff9e3bea6f80e9cc184a932115e46b1cd446b0"
+      },
+      "split": "train",
+      "truth_npz": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_013/truth/full_truth_intervals.npz",
+        "sha256": "dcb3007de05cf8d73fd4694a0b612ea9515be0f563aee746e323453806cfa822"
+      }
+    },
+    "ap_expanded_train_014": {
+      "generation_receipt": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_014/generation.json",
+        "sha256": "12cc7a951321e6d1de1611ad5cfeb02694f277c230f8fe95ab359bb12f4acaa2"
+      },
+      "split": "train",
+      "truth_npz": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_014/truth/full_truth_intervals.npz",
+        "sha256": "0570379ed200f212daa805401d5f8feb8e65baf51a20c0f9faea2d16be60a9ff"
+      }
+    },
+    "ap_expanded_train_015": {
+      "generation_receipt": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_015/generation.json",
+        "sha256": "185e75fa73b05d9883571fc9c2099f7ae8b4dc53109912e04967ec408022d77a"
+      },
+      "split": "train",
+      "truth_npz": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_015/truth/full_truth_intervals.npz",
+        "sha256": "751efd8410fdcced5a2e5542cc533990bfd89411c356df2032c4d601897f7d05"
+      }
+    },
+    "ap_expanded_train_016": {
+      "generation_receipt": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_016/generation.json",
+        "sha256": "e31467eb80a82ea9c3b239eab605e717a2d281a941f2648a53aad0bedd611c4a"
+      },
+      "split": "train",
+      "truth_npz": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_016/truth/full_truth_intervals.npz",
+        "sha256": "3df170c9110390c554facc3fac5185ebeb182a88dcd22eef8d065b86c5ce3651"
+      }
+    },
+    "ap_expanded_train_017": {
+      "generation_receipt": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_017/generation.json",
+        "sha256": "5592bc47373410878a343afa880a6c9a71be1ebb59b15cbb75b37f4050293bf5"
+      },
+      "split": "train",
+      "truth_npz": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_017/truth/full_truth_intervals.npz",
+        "sha256": "16084a36fe0a304388b4000361b497564eed35cdeaabf360be81e222a0a8b1d6"
+      }
+    },
+    "ap_expanded_train_018": {
+      "generation_receipt": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_018/generation.json",
+        "sha256": "2d7ee656e8985165da5b8751d242d6217aaa19aa0177f592c05dee4b4e77df00"
+      },
+      "split": "train",
+      "truth_npz": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_018/truth/full_truth_intervals.npz",
+        "sha256": "04137019b6520caa6b9ffa43a848c7153f34cb009e63d78135af5da986cf18a6"
+      }
+    },
+    "ap_expanded_train_019": {
+      "generation_receipt": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_019/generation.json",
+        "sha256": "dedad04db85ff13adfd19ea5d454a41d3b46fcce1680c35bce404decb8cde59b"
+      },
+      "split": "train",
+      "truth_npz": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_019/truth/full_truth_intervals.npz",
+        "sha256": "6bbca9b1406a93f26c90476b67dbd7458f03fdd18a517b842d3d6c1df6433a2a"
+      }
+    },
+    "ap_expanded_train_020": {
+      "generation_receipt": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_020/generation.json",
+        "sha256": "9b03630ee4b5744d9f792f76fa4cbabcf331ba7d9e5bf14d70284ad887c5ade8"
+      },
+      "split": "train",
+      "truth_npz": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_020/truth/full_truth_intervals.npz",
+        "sha256": "b99af585042b567e82ea4a33b8c5c41f75661fb898e45efe5a83771c1b66e053"
+      }
+    },
+    "ap_expanded_train_021": {
+      "generation_receipt": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_021/generation.json",
+        "sha256": "917fe883b3b1b6a57c6a966bec00f3f573512bb8d6604038dce0a87eee462a02"
+      },
+      "split": "train",
+      "truth_npz": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_021/truth/full_truth_intervals.npz",
+        "sha256": "96c538236dad94a8f210a820b075977a9d33958604d81f3f0ba7714389b0fbf1"
+      }
+    },
+    "ap_expanded_train_022": {
+      "generation_receipt": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_022/generation.json",
+        "sha256": "a4e4bba898a36462e85cbfb0f503d887aaa6fd004a54147f4db3c395baa6b764"
+      },
+      "split": "train",
+      "truth_npz": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_022/truth/full_truth_intervals.npz",
+        "sha256": "3daab1728196fcf07168cc5fe1b685a5ca8ddb745af4deac52b06697c7733424"
+      }
+    },
+    "ap_expanded_train_023": {
+      "generation_receipt": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_023/generation.json",
+        "sha256": "7c2ac301d6f41692beab33ad44aa4bd433dc91f94baeb98fc3982bb92d8e7395"
+      },
+      "split": "train",
+      "truth_npz": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_023/truth/full_truth_intervals.npz",
+        "sha256": "d82956556818287fb90ba7dd41ea5b337370e9ce683f1ec8c6a74ff89e0099a9"
+      }
+    },
+    "ap_expanded_train_024": {
+      "generation_receipt": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_024/generation.json",
+        "sha256": "5778f05b146ebf4d8629abba8729d6a14059890ce1a581683409e813258ce500"
+      },
+      "split": "train",
+      "truth_npz": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_024/truth/full_truth_intervals.npz",
+        "sha256": "22cf26db6ac507bedf80aeab105149e1ed0f3ff6575d96659f5e935c54b05855"
+      }
+    },
+    "ap_expanded_train_025": {
+      "generation_receipt": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_025/generation.json",
+        "sha256": "073613ca9ed2aa73fa470ddef0d1e9ab99c7832ab0852d514d98a9b6333bae13"
+      },
+      "split": "train",
+      "truth_npz": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_025/truth/full_truth_intervals.npz",
+        "sha256": "167653a46feee583cb4b5cb22ded87ea6595d7b90381fab4deed240ea8ae6d55"
+      }
+    },
+    "ap_expanded_train_026": {
+      "generation_receipt": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_026/generation.json",
+        "sha256": "ab4d1cd8d9d17ad0ac6be4d983594c7161204ea7a959b5dc6b27342ebe2017df"
+      },
+      "split": "train",
+      "truth_npz": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_026/truth/full_truth_intervals.npz",
+        "sha256": "f377c8db35fb070ca02b58384f7a2f3fc37fcbc2a447345dd61c7450e9cbae89"
+      }
+    },
+    "ap_expanded_train_027": {
+      "generation_receipt": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_027/generation.json",
+        "sha256": "ecc9903f4fd0f450a5bc5cb30510780e34209c3210f6ca467488575176e00ba1"
+      },
+      "split": "train",
+      "truth_npz": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_027/truth/full_truth_intervals.npz",
+        "sha256": "d557f3bf9529e424bc4d71808c569ee3e7f2e3f6783cca97f4f54730f416dd59"
+      }
+    },
+    "ap_expanded_train_028": {
+      "generation_receipt": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_028/generation.json",
+        "sha256": "3a1a7fc2ae21a577a22a95b4fe4b269fe698e415b8163024b25a2826a01f78a1"
+      },
+      "split": "train",
+      "truth_npz": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_028/truth/full_truth_intervals.npz",
+        "sha256": "6319c1f3935f41f2e633ba3a1bfd0436ce9397eea0958736189b8ca83332b3ac"
+      }
+    },
+    "ap_expanded_train_029": {
+      "generation_receipt": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_029/generation.json",
+        "sha256": "a9a78e1cf203000bc6b776c8ed3901f1654771a1e3d50ebd97555295929aa96d"
+      },
+      "split": "train",
+      "truth_npz": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_029/truth/full_truth_intervals.npz",
+        "sha256": "83067fc1b72bd7c96f845365e3d32b4c02fd4f62d19dcaca5b8e9b92174c858c"
+      }
+    },
+    "ap_expanded_train_030": {
+      "generation_receipt": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_030/generation.json",
+        "sha256": "582f71f4304bae73d10a09fac42247b53999ca0f2a89e7c867ae2fa32af4a978"
+      },
+      "split": "train",
+      "truth_npz": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_030/truth/full_truth_intervals.npz",
+        "sha256": "90fd1102d288466ce8e96f65ffb9ced9d782ef39e6895885c22b3e89aefd3198"
+      }
+    },
+    "ap_expanded_train_031": {
+      "generation_receipt": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_031/generation.json",
+        "sha256": "42b205847ef174f79b58b9a1ae4bbf44fff7001b3a7e8ec088269035177ca8d5"
+      },
+      "split": "train",
+      "truth_npz": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_train_031/truth/full_truth_intervals.npz",
+        "sha256": "af68a42a5cd5ba157c938495dc0fad52c5de18f355c3b54587f3c9558a5bfd25"
+      }
+    }
+  },
+  "exact_original_VAL_target_bindings": {
+    "ap_expanded_val_000": {
+      "generation_receipt": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_val_000/generation.json",
+        "sha256": "2e3290ea8e5fea7866244b00704d1d2280d7065349a92b7aae8ddc9363c1a137"
+      },
+      "split": "val",
+      "truth_npz": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_val_000/truth/full_truth_intervals.npz",
+        "sha256": "e36b08b042d8c5d032596cb71cf7b56b7222f6aa339eff9abc60310957b1f205"
+      }
+    },
+    "ap_expanded_val_001": {
+      "generation_receipt": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_val_001/generation.json",
+        "sha256": "45ac30e9b57f5320a47135947f1b8b9b45c2efb2c94befb4677c5434fb0e80ff"
+      },
+      "split": "val",
+      "truth_npz": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_val_001/truth/full_truth_intervals.npz",
+        "sha256": "b49085234116e64719fc803333cb20d105341d0d6f57d7fd644a62ee6922c00d"
+      }
+    },
+    "ap_expanded_val_002": {
+      "generation_receipt": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_val_002/generation.json",
+        "sha256": "6aa23012560863353db6e7b6a2848bc30961a880fd170bbb7afc37289b689129"
+      },
+      "split": "val",
+      "truth_npz": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_val_002/truth/full_truth_intervals.npz",
+        "sha256": "86ec4ce7e7d1b135f783075871a691f7ae419d3e578d059fb87ae0440fd9ee68"
+      }
+    },
+    "ap_expanded_val_003": {
+      "generation_receipt": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_val_003/generation.json",
+        "sha256": "0605ea470eda71963958e28d07bbc214a67fd500be60a0467e497f8327298c65"
+      },
+      "split": "val",
+      "truth_npz": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_val_003/truth/full_truth_intervals.npz",
+        "sha256": "dd1c9f77a4cf44d1f551ac4b9ed10ba429934ada8ff6a553955c1ef4ad9c2340"
+      }
+    },
+    "ap_expanded_val_004": {
+      "generation_receipt": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_val_004/generation.json",
+        "sha256": "ff53bc8fb5de7ffd6ea4ab65210be9c630d90e22cac3cc6cf17f4312f4fa96d5"
+      },
+      "split": "val",
+      "truth_npz": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_val_004/truth/full_truth_intervals.npz",
+        "sha256": "bb362b15bcd59e9b3bcc59a84288ee9e7cac3ab90cebaf97cb6b0a2e3d8f3047"
+      }
+    },
+    "ap_expanded_val_005": {
+      "generation_receipt": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_val_005/generation.json",
+        "sha256": "3284d33446f374437b6737019ab89a05c89f1d1b8aa7b4f6edc6e0017aa5de39"
+      },
+      "split": "val",
+      "truth_npz": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_val_005/truth/full_truth_intervals.npz",
+        "sha256": "e5113a8f72e5e693659ee207d7479ad58e907f6b3d57c9f7d439272702618cf5"
+      }
+    },
+    "ap_expanded_val_006": {
+      "generation_receipt": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_val_006/generation.json",
+        "sha256": "607b844b2ae6ce8f634fe87fe68f5941cc3bfae8eeff2406b9e18b87ac009297"
+      },
+      "split": "val",
+      "truth_npz": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_val_006/truth/full_truth_intervals.npz",
+        "sha256": "4f9503695c29e5014b046add8924d0234209a18eb21294c7d6efbb38553c20d1"
+      }
+    },
+    "ap_expanded_val_007": {
+      "generation_receipt": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_val_007/generation.json",
+        "sha256": "3c65be3ad5d013efc66faceaeec46ccb9b23add397c13e480e349e9a82976bbc"
+      },
+      "split": "val",
+      "truth_npz": {
+        "path": "data/expanded_full_panel_v1/ap_expanded_val_007/truth/full_truth_intervals.npz",
+        "sha256": "b3b938f795a2a4ac729c3aad29a15e3386af2a15af4b6e31d9e609f6098ebad2"
+      }
+    }
+  },
+  "exact_original_observation_entry_refs": {
+    "ap_expanded_train_000": {
+      "path": "data/expanded_full_panel_v1/ap_expanded_train_000/full_panel_observed_entry.json",
+      "sha256": "6e95dd61543187aa9e69db01ee4449f5e4cd1ac4f8b708c79d465b02527173a4"
+    },
+    "ap_expanded_train_001": {
+      "path": "data/expanded_full_panel_v1/ap_expanded_train_001/full_panel_observed_entry.json",
+      "sha256": "b8ba2271bdd6763038e846f90a86729c32c7098f0f9d2fb331718a435fec39d0"
+    },
+    "ap_expanded_train_002": {
+      "path": "data/expanded_full_panel_v1/ap_expanded_train_002/full_panel_observed_entry.json",
+      "sha256": "8973b7528077996c8921387c234828b4d4e5d95bed0e9b4da2648e3aee2b08bb"
+    },
+    "ap_expanded_train_003": {
+      "path": "data/expanded_full_panel_v1/ap_expanded_train_003/full_panel_observed_entry.json",
+      "sha256": "4291aff3c00aed96f3e12fda42999b52fc8a33c28476c02dd71a945ac7eefd34"
+    },
+    "ap_expanded_train_004": {
+      "path": "data/expanded_full_panel_v1/ap_expanded_train_004/full_panel_observed_entry.json",
+      "sha256": "874eeb160991c92b70f399a03a714b65ccc349e9cc3281f336dadc45039f9ab1"
+    },
+    "ap_expanded_train_005": {
+      "path": "data/expanded_full_panel_v1/ap_expanded_train_005/full_panel_observed_entry.json",
+      "sha256": "a67324bf0600201f807f58dfcd2408564b05a3df766ae6ce48c8d88e6f3d51df"
+    },
+    "ap_expanded_train_006": {
+      "path": "data/expanded_full_panel_v1/ap_expanded_train_006/full_panel_observed_entry.json",
+      "sha256": "7d7c3eccc4ed08da8099c6eb3cafb691a46429ae3b84d973279d06d19ceb04df"
+    },
+    "ap_expanded_train_007": {
+      "path": "data/expanded_full_panel_v1/ap_expanded_train_007/full_panel_observed_entry.json",
+      "sha256": "3e0b56ba6f7b2b68912b9a38e7b5a88e113ba320190f4a8e69d0eca0aefb5b37"
+    },
+    "ap_expanded_train_008": {
+      "path": "data/expanded_full_panel_v1/ap_expanded_train_008/full_panel_observed_entry.json",
+      "sha256": "cffa955a4dac9b18ee06860e461e5a5a04639753bd948868eff4f68913ac2758"
+    },
+    "ap_expanded_train_009": {
+      "path": "data/expanded_full_panel_v1/ap_expanded_train_009/full_panel_observed_entry.json",
+      "sha256": "1c442a41ae49f04ea86a99f40fd182ecc2dd49b30dd399241bb5cbd96a1e269a"
+    },
+    "ap_expanded_train_010": {
+      "path": "data/expanded_full_panel_v1/ap_expanded_train_010/full_panel_observed_entry.json",
+      "sha256": "b51465b16bfb3b801c314f76f064efa2f5e84860b76d3bc327c3d195e108863b"
+    },
+    "ap_expanded_train_011": {
+      "path": "data/expanded_full_panel_v1/ap_expanded_train_011/full_panel_observed_entry.json",
+      "sha256": "e74d4ae1aea1e714f6888457234c0869a04f8aa0041666b9ae7c2e8065f530d4"
+    },
+    "ap_expanded_train_012": {
+      "path": "data/expanded_full_panel_v1/ap_expanded_train_012/full_panel_observed_entry.json",
+      "sha256": "5275e412def4790d039650e6982b8474956cd6080770ddceedc38334615ae771"
+    },
+    "ap_expanded_train_013": {
+      "path": "data/expanded_full_panel_v1/ap_expanded_train_013/full_panel_observed_entry.json",
+      "sha256": "a8d4e398cfe014ed70228b9682fa4a1fc9812509c2d77062d74e4ab90c78c464"
+    },
+    "ap_expanded_train_014": {
+      "path": "data/expanded_full_panel_v1/ap_expanded_train_014/full_panel_observed_entry.json",
+      "sha256": "27ddd6994540df06f31e94611bae579dc9bd96d175e38ad1b5838bb4c3797f22"
+    },
+    "ap_expanded_train_015": {
+      "path": "data/expanded_full_panel_v1/ap_expanded_train_015/full_panel_observed_entry.json",
+      "sha256": "02edf54780cac4d6292d4cd9d28df68a4416a049b09a8e4c2c544527a2a65169"
+    },
+    "ap_expanded_train_016": {
+      "path": "data/expanded_full_panel_v1/ap_expanded_train_016/full_panel_observed_entry.json",
+      "sha256": "634ed481869524c4033494907ecd6d1dabd21c19a99a36e29511d858c033f91a"
+    },
+    "ap_expanded_train_017": {
+      "path": "data/expanded_full_panel_v1/ap_expanded_train_017/full_panel_observed_entry.json",
+      "sha256": "4d885b44ae3b47edba079af47b1c50271c1fc069e71f2362c787ce4dde6d1f64"
+    },
+    "ap_expanded_train_018": {
+      "path": "data/expanded_full_panel_v1/ap_expanded_train_018/full_panel_observed_entry.json",
+      "sha256": "217f0f868e1444e6697c4056118b34a07c994f89f10f754215d5a0458e96fddf"
+    },
+    "ap_expanded_train_019": {
+      "path": "data/expanded_full_panel_v1/ap_expanded_train_019/full_panel_observed_entry.json",
+      "sha256": "0afb102f011ad61d46473879f236764cfd0b0afc6598ca9b6ed75f71b271f0c0"
+    },
+    "ap_expanded_train_020": {
+      "path": "data/expanded_full_panel_v1/ap_expanded_train_020/full_panel_observed_entry.json",
+      "sha256": "922f4303e47ca2171148c95f060859c5eebed2e7eb4cc9216660c43bdc8a09f0"
+    },
+    "ap_expanded_train_021": {
+      "path": "data/expanded_full_panel_v1/ap_expanded_train_021/full_panel_observed_entry.json",
+      "sha256": "60e855b885a352f9586cfdaea5bb35ba3dea101415630a1fce642c19eda063fb"
+    },
+    "ap_expanded_train_022": {
+      "path": "data/expanded_full_panel_v1/ap_expanded_train_022/full_panel_observed_entry.json",
+      "sha256": "9e5bcecd43b21d3b4acb26941d3faecd7bae20e81dd6c7be5523e3e0737dfa2d"
+    },
+    "ap_expanded_train_023": {
+      "path": "data/expanded_full_panel_v1/ap_expanded_train_023/full_panel_observed_entry.json",
+      "sha256": "e82cd5ddb9560c4cbd2274c2e1c8d1bc3b2ee446007c71fd15be912eaa0bb3cf"
+    },
+    "ap_expanded_train_024": {
+      "path": "data/expanded_full_panel_v1/ap_expanded_train_024/full_panel_observed_entry.json",
+      "sha256": "e14dd5ad3f416351ea7a47d864e6a5a540faa57814a5e1e4a2d9bed249d74c13"
+    },
+    "ap_expanded_train_025": {
+      "path": "data/expanded_full_panel_v1/ap_expanded_train_025/full_panel_observed_entry.json",
+      "sha256": "6dab505ac93807c362224e0dbffafb33874e65bc2b986f88a77648b6ade1a778"
+    },
+    "ap_expanded_train_026": {
+      "path": "data/expanded_full_panel_v1/ap_expanded_train_026/full_panel_observed_entry.json",
+      "sha256": "ed02b352b5a67a73c2874e9e4c5d6375b95a9e833b9ee570251643e202d3763f"
+    },
+    "ap_expanded_train_027": {
+      "path": "data/expanded_full_panel_v1/ap_expanded_train_027/full_panel_observed_entry.json",
+      "sha256": "faee491d2a0d2cda0d4fd18ab55a0617c4e9e8e065d8acf8434e3ae3839b5c2b"
+    },
+    "ap_expanded_train_028": {
+      "path": "data/expanded_full_panel_v1/ap_expanded_train_028/full_panel_observed_entry.json",
+      "sha256": "063f1c1a6ac3b803206c2ce58f10b720fbdbb76248370fbf337c3c99fabb2481"
+    },
+    "ap_expanded_train_029": {
+      "path": "data/expanded_full_panel_v1/ap_expanded_train_029/full_panel_observed_entry.json",
+      "sha256": "55e4903e45ac1ced6817b14527efb74310a49698b575ded24cc2ac4dea028074"
+    },
+    "ap_expanded_train_030": {
+      "path": "data/expanded_full_panel_v1/ap_expanded_train_030/full_panel_observed_entry.json",
+      "sha256": "777672ac0c2dbaa0436b619996b77170841ea9b34a1de5bd69aad92f9cd109ed"
+    },
+    "ap_expanded_train_031": {
+      "path": "data/expanded_full_panel_v1/ap_expanded_train_031/full_panel_observed_entry.json",
+      "sha256": "dc17cc63e114fe2240c959389817b46c44b10cfd1c04c472ee291d60a005e17e"
+    },
+    "ap_expanded_val_000": {
+      "path": "data/expanded_full_panel_v1/ap_expanded_val_000/full_panel_observed_entry.json",
+      "sha256": "245d7fc8270e950fc472b5cdbfd3200704724e326b5a424c538e0a48e929b599"
+    },
+    "ap_expanded_val_001": {
+      "path": "data/expanded_full_panel_v1/ap_expanded_val_001/full_panel_observed_entry.json",
+      "sha256": "2520a95d6de69cee1caa2323c7780155d5c2ceab061c8f9fec4c4a211286ca44"
+    },
+    "ap_expanded_val_002": {
+      "path": "data/expanded_full_panel_v1/ap_expanded_val_002/full_panel_observed_entry.json",
+      "sha256": "335fb17e3a249741963f619476b3182eecbcfda951996f3dace0c72eeee775e4"
+    },
+    "ap_expanded_val_003": {
+      "path": "data/expanded_full_panel_v1/ap_expanded_val_003/full_panel_observed_entry.json",
+      "sha256": "69d0d46f95e690701e79e6f2344753afe132df20b7bf15e4002e812ec5eca3de"
+    },
+    "ap_expanded_val_004": {
+      "path": "data/expanded_full_panel_v1/ap_expanded_val_004/full_panel_observed_entry.json",
+      "sha256": "cdc9a98d56a63e20fc7a74b623fdb18b6c7bcb0aae09687db3df3e4a8649e331"
+    },
+    "ap_expanded_val_005": {
+      "path": "data/expanded_full_panel_v1/ap_expanded_val_005/full_panel_observed_entry.json",
+      "sha256": "33c7524cbb6109bd8fdf8de06172df485c342a3b387d2cd7b877f5a763553157"
+    },
+    "ap_expanded_val_006": {
+      "path": "data/expanded_full_panel_v1/ap_expanded_val_006/full_panel_observed_entry.json",
+      "sha256": "c440abbbe125e196a844323d188f24e457a0483e140a0e7373432e6c9c27a0ff"
+    },
+    "ap_expanded_val_007": {
+      "path": "data/expanded_full_panel_v1/ap_expanded_val_007/full_panel_observed_entry.json",
+      "sha256": "10c8816447041a15b1e86622841bb179880de0150a70d7cfd30e01caf2bef3a2"
+    }
+  },
+  "fallback": "Separately source and authorize full960-update original own_state continuation if scientific identity cannot be established. Do not fabricate equivalence or rerun automatically.",
+  "final_H058_reuse_admitted": false,
+  "final_source_integrity_delta_review": "Inspected strengthened historical-ref constants, exact original metric equality, initial ROOT guard before scientific imports, actual saved/reloaded AdamW counter checks and exact oldCPU completion schema/status. Original model/observation/loss/order/optimizer paths unchanged. Actual authority/runtime/admission remain pending.",
+  "frozen_continuation_checkpoint_metadata_refs": {
+    "10": {
+      "path": "experiments/results/H050_GPU0_direct_readout_train_seed101_v1/h045_continued_training.pass_10.pt",
+      "sha256": "9e47cbea722cce8f942ca5184acd2836eff78d2a7570fea0d15bc898c0627560"
+    },
+    "15": {
+      "path": "experiments/results/H050_GPU0_direct_readout_train_seed101_v1/h045_continued_training.pass_15.pt",
+      "sha256": "2b89cbb316422627efe0b5f3f2b8a7d4c69574e8a846bfbcc89a02d95ab49583"
+    },
+    "20": {
+      "path": "experiments/results/H050_GPU0_direct_readout_train_seed101_v1/h045_continued_training.pass_20.pt",
+      "sha256": "c767908293ee63d360952e2f15584f5bc73bd915249d799d18add9458ee6e37e"
+    },
+    "25": {
+      "path": "experiments/results/H050_GPU0_direct_readout_train_seed101_v1/h045_continued_training.pass_25.pt",
+      "sha256": "219f618ceec74b52717dfbfaae4e826eaaab6aa98902a30144068f3b1640c7c5"
+    },
+    "30": {
+      "path": "experiments/results/H050_GPU0_direct_readout_train_seed101_v1/h045_continued_training.pass_30.pt",
+      "sha256": "85cebb255b80cfb4d351853d250428f752f429e05a1f6820865057f4f4526fc0"
+    },
+    "5": {
+      "path": "experiments/results/H050_GPU0_direct_readout_train_seed101_v1/h045_continued_training.pass_05.pt",
+      "sha256": "fa209f8f477a2b49e70f314fdc3c4818d6b80b11744965f49452880a91c66a8d"
+    }
+  },
+  "historical_CPU_selection": {
+    "aggregation_difference": "The selector and published full diagnostics use separate scalar arithmetic paths. Both round to97.0000 percent and choose pass20. No different training run is inferred.",
+    "published_full_diagnostic_parent_mean_accuracy": 0.9700002841989144,
+    "selected_checkpoint": {
+      "path": "experiments/results/H050_GPU0_direct_readout_train_seed101_v1/h045_continued_training.pass_20.pt",
+      "sha256": "c767908293ee63d360952e2f15584f5bc73bd915249d799d18add9458ee6e37e"
+    },
+    "selected_pass": 20,
+    "selector_NLL": 0.08854074776172638,
+    "selector_accuracy": 0.9700002670288086
+  },
+  "historical_H050_train_identity_verified": true,
+  "required_final_checks": [
+    "Authenticate final writer source seal against recorded candidate source snapshot and exact original observation/source/target dictionaries",
+    "Same actual preCUDA deterministicFP32 training policy, Torch/PyG versions and original baseline source pins",
+    "Same full960 continuation schedule if independently trained, or exact six authenticated frozenH050 TRAIN checkpoints if reused",
+    "CPUreuse mode asserts32intraop/1interop, originalTorch/PyG/FP32/noCUDA and exact original inference/scorer/selection identities. Do not infer oldCPU determinismflags from GPUtraining qualification",
+    "All96 new products before newVAL truth in CPUreuse mode, historical CPUcontrol provenance disclosed",
+    "Optional48-control replay requires explicit ROOT directive and144 global pretruth barrier. Never automatically broaden or transplant CPU scores to a CUDAcomparison"
+  ],
+  "scheduling_authority": "ROOT only",
+  "schema": "H058_continuation_reuse_source_metadata_audit_v1",
+  "scientific_execution_performed": false,
+  "source_only": true,
+  "status": "SOURCE_IDENTITY_SUPPORTED_FINAL_SEAL_AND_ACTUAL_RUNTIME_PENDING",
+  "truth_prediction_or_array_payloads_read_or_hashed": false,
+  "updated_utc": "2026-10-16T11:45:48.701708+00:00",
+  "warmstart_checkpoint_metadata_ref": {
+    "path": "experiments/results/H045_GPU5_episode_train_seed101_v1/own_state.pass_30.pt",
+    "sha256": "11dc132ac1958c452fa1d2651bd261258aac6c036ebbdbe7175f235148905331"
+  },
+  "warmstart_completion_ref": {
+    "path": "experiments/results/H045_GPU5_episode_train_seed101_v1/completed.json",
+    "sha256": "258c7da76aa1f693c684094569100e19a3430566c46fe9452e841eb5127f955e"
+  }
+}

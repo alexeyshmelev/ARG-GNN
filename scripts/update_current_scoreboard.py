@@ -1036,6 +1036,19 @@ def main():
         assert successor_wait["returncode"]==0 and successor_wait["all_owned_processes_and_groups_drained"] is True
         observed_ref=prospective_successor["observed_generation_receipt_ref"]
         assert ref(observed_ref["path"])==observed_ref and read(observed_ref["path"])["complete"] is True
+        acceptance_ref=prospective_successor.get("root_acceptance_ref")
+        if acceptance_ref:
+            assert ref(acceptance_ref["path"])==acceptance_ref
+            acceptance=read(acceptance_ref["path"])
+            assert acceptance["status"]=="accepted_observed_data_for_downstream_inference"
+            assert acceptance["observed_receipt_ref"]==observed_ref
+            assert acceptance["parent_outer_returncode"]==1 and acceptance["numerical_child_returncode"]==0
+            assert acceptance["full_original_charge_retained"] is True
+            acceptance_terminal_ref=prospective_successor["actual_acceptance_tool_terminal_ref"]
+            assert ref(acceptance_terminal_ref["path"])==acceptance_terminal_ref
+            acceptance_terminal=read(acceptance_terminal_ref["path"])
+            assert acceptance_terminal["actual_terminal_consumed"] is True and acceptance_terminal["actual_exit_code"]==0
+            assert acceptance_terminal["acceptance_ref"]==acceptance_ref
         prospective_status=prospective_successor["summary"]+" Original attempt failure remains preserved separately."
     tgb_results_path="experiments/results/H052_TGB_trade_causal_native_baselines_v1/results.json"
     tgb_terminal_path="research/reviews/TGB_trade_causal_baselines_root_20261016_v1/actual_tool_terminal.root_v1.json"
@@ -1302,7 +1315,12 @@ def main():
         hist.append(f"| {r['study']} | {r['kind']} | {r.get('status','')} | {metrics} | [{Path(p).name}](../{p}) |")
     (RESEARCH/"all_recorded_metric_receipts.md").write_text("\n".join(hist)+"\n")
     table=["<!-- CURRENT_SCOREBOARD_START -->",f"**Scoreboard updated UTC: {stamp}.** [Every current setup, all cohorts and detailed metrics](research/current_scoreboard.md) · [Native class metrics and training-lineage audit, frozen17-setup snapshot](research/reviews/root_score_report_20261015_v1/REPORT.md) · [All recorded historical/engineering metric receipts](research/all_recorded_metric_receipts.md)","",
-        "| Current run | Device | Progress | Validation score |","|---|---:|---|---|"]
+        ]
+    h058_runtime=gpu0_snapshot.get("jobs",{}).get("H058",{}) if gpu0_snapshot else {}
+    if h058_runtime:
+        table+=["","**New same-marker model:** "+h058_runtime["summary"]+
+            " [Actual FP32 result](research/reviews/H058_actual_one_hold_ROOTv4_qualification_20261016_v1/REPORT.md).",""]
+    table += ["| Current run | Device | Progress | Validation score |","|---|---:|---|---|"]
     for j in jobs:
         if j["evaluation_completed"]:continue
         updates=(str(min(j["updates_per_arm"].values()))+"/960 verified updates per arm"+(" (receipt lower bound)" if j["updates_are_verified_receipt_lower_bounds"] else "")) if j["updates_per_arm"] else "optimizer updates not yet verified"

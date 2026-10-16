@@ -1,36 +1,31 @@
 # Research progress
 
-Updated UTC: 2026-10-16T11:36:59.228434+00:00.
+Updated UTC:2026-10-16T12:26:12.786994+00:00.
 
-The eleven-page AAAI draft, equations, preliminary schematic and Overleaf bundle exist. The scientific evidence is incomplete. No overall top-1, established architecture novelty or submission-ready claim is supported.
+Current focus is complete faithful comparisons and independent testing, with one registered architecture experiment retained. The full research objective and novelty requirement remain unchanged.
 
-| European shared development pipeline | Present182 span accuracy, mean ± simulation SD (%) |
+| Completed European development pipeline | Present182 span accuracy, mean ± simulation SD (%) |
 |---|---:|
-| Our stable-leaf memory | 97.0778 ± 0.5674 |
-| Our matched same-budget continued training | 97.0000 ± 0.4978 |
-| Current author ARGMix release | 94.4461 ± 1.1491 |
-| Released AncestralPaths, derived four-source endpoint | 93.7830 ± 0.8385 |
+| Our stable-leaf candidate |97.0778 ±0.5674|
+| Our same-budget continued-training control |97.0000 ±0.4978|
+| Current author ARGMix release |94.4461 ±1.1491|
+| Released AncestralPaths, derived four-source output |93.7830 ±0.8385|
 
-These scores use eight reused 2 Mb VAL simulations, one training seed and 952 haplotypes / 686 queries. Methods share scored support, but their SNP inputs, training and checkpoint selection differ. This is a pipeline comparison, without architecture-only attribution or an exact published-table reproduction.
+Eight reused2Mb validation simulations,952haplotypes/686queries,one optimizer seed. Inputs, training and selection differ across pipelines. This is not an exact published-table reproduction or architecture-only attribution. Stable-leaf memory adds0.0778percentagepoints over the matched control, with boundaryF1 lower at18.3807% versus19.0488%.
 
-Stable-leaf memory adds 0.0778 percentage points over continued training, while mean boundary F1 falls from 19.0488% to 18.3807%. The higher-order triple-support candidate fails its registered utility rules. The large difference from ARGMix does not prove the added memory mechanism is useful.
+- American C3 GNN: at least257/600 actual completed FP32 updates, durable checkpoint200, on physicalGPU0. No ancestry score yet.
+- Native American ARGformer: no completed ancestry score. Source work is preparing unchanged native training under a32GiB operational ceiling to shareGPU0 with C3. Memory fit and execution remain unproved.
+- Native FLARE: one American VAL000 score is complete,98.0100% focal accuracy and97.7151%macroF1 over10,000fixed focals. No multi-parent SD or GNN/ARGformer head-to-head table yet.
+- Larger ARGMix condition: full1,611-diploid observed dataset accepted after all7 observed products were independently stream-hashed and the final original storage guard passed. Original child0/parentouter1 monitor failure and original16GiB charge remain preserved. Relate driver source is concrete, bounded-cleanup successor awaits review, and its64GiB reservation needs legitimate unused-allowance recovery.
+- New H058 route: actual one-hold FP32 arithmetic PASS,37checks,worker0/outer0/drain. Full scientific sourcev2 passes independent review. No full-parent training or accuracy yet. One30pass/960-update-per-arm trial is planned, without a broad architecture search.
+- Independent European outer tests: eight reserved simulations remain ungenerated and untouched.
+- Cross-domain: completed TGB experiment is negative. Full paired GST comparison remains unfinished.
+- Real data: Danish application remains descriptive, without ancestry truth. Independent genotype contrasts did not support registered directions.
+- Paper: compiled11-page AAAI working draft and Overleaf bundle. Final primary tables, independent evidence, useful novelty and final fresh manuscript review remain.
 
-| Required evidence | Status |
-|---|---|
-| European development and population-level metrics | Completed, with confusion maps, NLL, boundaries and calibration in the scoreboard |
-| American ARGformer / FLARE / GNN common-data comparison | Incomplete. Native FLARE on one VAL parent: 98.0100% focal accuracy, 97.7151% macro F1 over 10,000 fixed focal records. GNN and native ARGformer ancestry scores remain unavailable |
-| American GNN training | Running on physical GPU0, at least 224/600 completed updates and durable checkpoint200 |
-| American held-out preparation | VAL002 native paths and its full30Mb GNN block plan completed. VAL003 and VAL004 full30Mb simulations completed, with inference and native paths still needed |
-| Larger ARGMix condition | Numerical generation completed for1,611 diploids over35,178,458bp. Parent monitoring failed after child wait0. Saved products have passed a source/metadata audit, separate data acceptance pending. No training or comparison score |
-| Independent European test and final uncertainty | Eight reserved outer simulations remain ungenerated. Final selected-model seed uncertainty is unfinished |
-| Useful distinct architecture | Unproved. Current added-mechanism gain is small and boundary utility worsens |
-| Cross-domain result | TGB completed, negative. Persistence exceeds all learned variants. Full GST comparison is unfinished |
-| Real-data validation | Danish application and genotype analysis completed descriptively. No ancestry truth. Independent genotype contrasts did not support the registered directions |
-| Final manuscript | Working11-page AAAI draft compiled. Final benchmark tables, final architecture figure and fresh manuscript review remain |
+The next result milestones are the American common-data ancestry table, larger native ARGMix comparison, and independent confirmation of the frozen European candidate. Training loss and arithmetic checks are never ancestry scores.
 
-The next scientific milestones are complete American head-to-head predictions, accepted larger-panel data and a faithful ARGMix comparison, then an independently confirmed useful mechanism. More prose cannot substitute for that evidence.
-
-[Current score details](current_scoreboard.md) · [Actual runtime and generation snapshot](reviews/user_progress_20261016_v3/snapshot.root_v1.json) · [Working paper](../paper/current_full_panel_working.pdf) · [Overleaf bundle](../paper/current_full_panel_overleaf_working.zip)
+[Actual H058 arithmetic result](reviews/H058_actual_one_hold_ROOTv4_qualification_20261016_v1/REPORT.md) · [Accepted larger data](reviews/prospective1611_observed_data_acceptance_root_20261016_v1/acceptance.root_v1.json) · [Current detailed scores](current_scoreboard.md) · [Working PDF](../paper/current_full_panel_working.pdf)
 
 ## ARGMix correction
 

@@ -1,0 +1,85 @@
+{
+  "commands": [
+    {
+      "argv": [
+        "/workspace-SR003.nfs2/ARG-GNN/.runtime/tools/relate/relate_v1.2.4_x86_64_static/bin/RelateFileFormats",
+        "--mode",
+        "ConvertFromVcf",
+        "--haps",
+        "/workspace-SR003.nfs2/ARG-GNN/data/ARGMix_prospective1611_Relate_accepted_train000_v2/inputs/input.haps",
+        "--sample",
+        "/workspace-SR003.nfs2/ARG-GNN/data/ARGMix_prospective1611_Relate_accepted_train000_v2/inputs/converted.sample",
+        "-i",
+        "/workspace-SR003.nfs2/ARG-GNN/data/ARGMix_prospective1611_first_train_H020v3_generated_train000_oct16_root_v1/operational_successor_train000_live_boundary_root_v1/observed/observed"
+      ],
+      "cwd": "/workspace-SR003.nfs2/ARG-GNN/data/ARGMix_prospective1611_Relate_accepted_train000_v2/native",
+      "stage": "convert_from_vcf"
+    },
+    {
+      "argv": [
+        "/workspace-SR003.nfs2/ARG-GNN/.runtime/tools/relate/relate_v1.2.4_x86_64_static/bin/RelateFileFormats",
+        "--mode",
+        "GenerateSNPAnnotations",
+        "--haps",
+        "/workspace-SR003.nfs2/ARG-GNN/data/ARGMix_prospective1611_Relate_accepted_train000_v2/inputs/input.haps",
+        "--sample",
+        "/workspace-SR003.nfs2/ARG-GNN/data/ARGMix_prospective1611_Relate_accepted_train000_v2/inputs/input.sample",
+        "--poplabels",
+        "/workspace-SR003.nfs2/ARG-GNN/data/ARGMix_prospective1611_Relate_accepted_train000_v2/inputs/input.poplabels",
+        "-o",
+        "/workspace-SR003.nfs2/ARG-GNN/data/ARGMix_prospective1611_Relate_accepted_train000_v2/inputs/input"
+      ],
+      "cwd": "/workspace-SR003.nfs2/ARG-GNN/data/ARGMix_prospective1611_Relate_accepted_train000_v2/native",
+      "stage": "annotate"
+    },
+    {
+      "argv": [
+        "/workspace-SR003.nfs2/ARG-GNN/.runtime/tools/relate/relate_v1.2.4_x86_64_static/bin/Relate",
+        "--mode",
+        "All",
+        "-m",
+        "1.25e-8",
+        "-N",
+        "30000",
+        "--memory",
+        "2",
+        "--seed",
+        "12545298",
+        "--haps",
+        "/workspace-SR003.nfs2/ARG-GNN/data/ARGMix_prospective1611_Relate_accepted_train000_v2/inputs/input.haps",
+        "--sample",
+        "/workspace-SR003.nfs2/ARG-GNN/data/ARGMix_prospective1611_Relate_accepted_train000_v2/inputs/input.sample",
+        "--sample_ages",
+        "/workspace-SR003.nfs2/ARG-GNN/data/ARGMix_prospective1611_Relate_accepted_train000_v2/inputs/sample_ages.generations",
+        "--map",
+        "/workspace-SR003.nfs2/ARG-GNN/data/ARGMix_prospective1611_Relate_accepted_train000_v2/inputs/input.map",
+        "--annot",
+        "/workspace-SR003.nfs2/ARG-GNN/data/ARGMix_prospective1611_Relate_accepted_train000_v2/inputs/input.annot",
+        "-o",
+        "inferred"
+      ],
+      "cwd": "/workspace-SR003.nfs2/ARG-GNN/data/ARGMix_prospective1611_Relate_accepted_train000_v2/native",
+      "stage": "infer_all"
+    },
+    {
+      "argv": [
+        "/workspace-SR003.nfs2/ARG-GNN/.runtime/tools/relate/relate_v1.2.4_x86_64_static/bin/RelateFileFormats",
+        "--mode",
+        "ConvertToTreeSequence",
+        "-i",
+        "inferred",
+        "-o",
+        "converted"
+      ],
+      "cwd": "/workspace-SR003.nfs2/ARG-GNN/data/ARGMix_prospective1611_Relate_accepted_train000_v2/native",
+      "stage": "convert_to_trees"
+    }
+  ],
+  "original_adapter_ref": {
+    "path": "research/reviews/ARGMix_prospective1611_Relate_adapter_20261016_v1/relate_adapter_v1.py",
+    "sha256": "66b2f0f56746530af0c7473dbf014f0f8483cdd0c101cb777e2340901f07ca1f"
+  },
+  "schema": "prospective1611_accepted_Relate_exact_native_commands_source_v1",
+  "source_only": true,
+  "unchanged_original_adapter_constructs_and_executes_these": true
+}

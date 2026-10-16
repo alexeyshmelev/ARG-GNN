@@ -1,0 +1,72 @@
+{
+  "GPU_process_probes": false,
+  "Git": false,
+  "accounting_guard_mutations": false,
+  "actual_one_hold_gate_checks_ref": {
+    "path": "research/reviews/H058_full_parent_ROOT_execution_independent_review_20261016_v1/actual_one_hold_gate_checks.v1.json",
+    "sha256": "abc01691534dabe934331ed9cbc4f46756e2a21bb75d8ea7b818ed0aafe3982c"
+  },
+  "actual_qualifier_gate_satisfiable_with_verified_compatible_terminal": true,
+  "checks_ref": {
+    "path": "research/reviews/H058_full_parent_ROOT_execution_independent_review_20261016_v1/checks.v1.json",
+    "sha256": "73674a028d11067470380c8267553a2cf1a1ea5867c4d7a048fc6f690ff47ced"
+  },
+  "context_ref": {
+    "path": "research/reviews/H058_full_parent_ROOT_execution_source_20261016_v1/context_factory_v1.py",
+    "sha256": "80ef3aac9b474363f239ddf0763862fc93f11bc33b6004c93875c15739013d19"
+  },
+  "created_utc": "2026-10-16T12:20:09.341504+00:00",
+  "direct_attachment_ref": {
+    "path": "research/reviews/H058_full_parent_ROOT_execution_source_20261016_v1/direct_gpu0_v1.py",
+    "sha256": "565142a237cef02db3a606a77604d73b01cc7bfc550689726eaec35ac394b3a2"
+  },
+  "driver_ref": {
+    "path": "research/reviews/H058_full_parent_ROOT_execution_source_20261016_v1/root_driver_v1.py",
+    "sha256": "ed0c6467a5de446991a1efd52d6c2d268323e3e3adf8bd55415a7583dd9ca656"
+  },
+  "execution_authorized": false,
+  "findings": [
+    {
+      "end_line": 285,
+      "evidence": [
+        "Main loop198-227 has no absolute drain deadline after TERM/KILL",
+        "Finally235-247 repeats until every owned process disappears; proc.wait at233 is unbounded if OwnedTree construction failed",
+        "Expiry check211 starts shutdown at authority expiry; wait receipt282 calls compact_v1 and original budget _expire then refuses post-expiry writes",
+        "require(absent)277 can precede minimal wait receipt282"
+      ],
+      "fix": "Use explicit work cutoff before expiry with enough guarded cleanup/evidence margin,finite TERM/KILL/drain/wait deadlines,and preserve genuine returncode/partial unresolved state without asserting drain or relaxing original guards",
+      "id": "R1",
+      "issue": "Post-failure worker/descendant cleanup and waits are unbounded; expiry begins shutdown too late for guarded evidence",
+      "line": 198,
+      "path": "research/reviews/H058_full_parent_ROOT_execution_source_20261016_v1/root_driver_v1.py",
+      "priority": "P1"
+    },
+    {
+      "evidence": [
+        "biological_candidate.py169-173 imports scripts/qualify_official_argformer_runtime.py from BASEFIT.gpu_runtime.nvtop_helper",
+        "Helper actual SHA8fe652f87848f4a296e3d88555998fb388f11ae5c04d0858095e70c34b10b31c is absent from ROOT44 and scientific98 refs",
+        "BASEFIT source_sha256 contains that expected hash,but this context/configure_fit path never verifies its nested dictionary"
+      ],
+      "fix": "Include the exact helper in sealed ROOT scientific/runtime source closure and authenticate its bytes before configure_fit executes it;retain direct-consumer ceiling by using authenticated closure manifests",
+      "id": "R2",
+      "issue": "configure_fit dynamically executes an unverified runtime helper absent from both source manifests",
+      "line": 41,
+      "path": "research/reviews/H058_full_parent_ROOT_execution_source_20261016_v1/context_factory_v1.py",
+      "priority": "P2"
+    }
+  ],
+  "jobs": false,
+  "schema": "H058_ROOT_driver_independent_source_review_v1",
+  "scientific_imports": false,
+  "scientific_payload_truth_checkpoint_reads": false,
+  "scientific_v2_SOURCE_PASS_unchanged": true,
+  "source_handoff_ref": {
+    "path": "research/reviews/H058_full_parent_ROOT_execution_source_20261016_v1/source_handoff.v1.json",
+    "sha256": "63855efedbdeb7d8379bea115af682839132d7c01a5a8e04a72fb67149f634a8"
+  },
+  "source_manifest_ref": {
+    "path": "research/reviews/H058_full_parent_ROOT_execution_source_20261016_v1/source_manifest.v1.json",
+    "sha256": "1cfbd2a4b44204051ea3f0f455746e89161bc10ecb71a1af216299a0a4a899bb"
+  },
+  "verdict": "SOURCE_BLOCKED"
+}

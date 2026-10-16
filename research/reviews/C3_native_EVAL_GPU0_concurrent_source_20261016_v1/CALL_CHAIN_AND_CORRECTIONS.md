@@ -1,0 +1,13 @@
+# Static call-chain audit
+
+The controller bootstrap installs the unchanged marker renewal and runs the exact new canonical pool module. The pool authenticates its contract and fixed catalogue, reuses the original reviewed GPU0 memory, lease, ownership, wait, log and drain bodies, and requires genuine successful completion of the current C3 TRAIN and genuine current-controller closure before acquiring its canonical GPU0 lease.
+
+Each exact declared outer job runs the same new pool dispatcher. The native nested method points directly to the sealed v3 native operational runtime and its original entry and IPC adapter. The ROOT bridge changes only two private admission metadata globals so the input records the actual new pool and launcher. The unchanged native runtime accepts the authenticated fresh capability and executes the original numerical route. It does not recurse through the dispatcher or call the obsolete v3 pool loader.
+
+Each EVAL nested method points directly to the frozen EVAL entry, never to the outer dispatcher. That entry validates the actual source/caps/storage/request, binds the genuine outer TRAIN completion to its exact inner primary six-checkpoint product and authenticates the full66-file science closure before numerical imports. It installs an8GiB allocator ceiling before configure_fit. It bypasses the old50GB worker and calls the unchanged existing bidirectional full-parent predictor. A single EVAL job at a time prevents multiplication of that full-parent memory state.
+
+The original queue body changes only its canonical worker module literal, individual job expiry checks and EVAL-class serialization. The original active-resource body adds individual job absolute-expiry enforcement. The original startup removes obsolete GPU2/3 lease checks and rechecks only genuine old-owned absence before the unchanged canonical lease acquisition. Generated startup, queue, resource-check and CLI text was separately reconstructed and AST-parsed, because parsing only the outer source would not validate those strings.
+
+An integration mismatch was resolved before sealing: the unsealed controller now uses `C3_EVAL_000` through `C3_EVAL_004`, exactly matching the frozen EVAL entry. This changes only slot labels. The EVAL source hashes remain unchanged.
+
+Every method keeps its original absolute authority and charge. The source-only complete direct unions include every actual17 unique ancestor binding and every required operational role, with future metadata represented only as path descriptors. No future SHA, successful job, storage availability, process absence, numerical validation, speed, prediction or accuracy is claimed by this static review.
