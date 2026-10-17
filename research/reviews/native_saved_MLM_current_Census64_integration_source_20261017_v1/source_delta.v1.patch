@@ -1,0 +1,737 @@
+--- research/reviews/native_VAL000_downstream_execution_source_20261016_v2/__init__.py
++++ research/reviews/native_saved_MLM_current_Census64_integration_source_20261017_v1/__init__.py
+@@ -1 +1 @@
+-"""Inert, concrete guarded native downstream execution consumers."""
++"""Inactive future current-Census64 saved-MLM operational integration."""
+--- research/reviews/native_VAL000_downstream_execution_source_20261016_v2/contract_v1.py
++++ research/reviews/native_saved_MLM_current_Census64_integration_source_20261017_v1/contract_v1.py
+@@ -1,5 +1,5 @@
+ """Concrete downstream storage/phase contract. No import-time execution.
+-The65GiB master reservation binds this source/config/runtime. A separate exact
++The64GiB master reservation binds this source/config/runtime. A separate exact
+ ROOT stage authority binds later genuine prerequisites, never fabricated success.
+ """
+ from pathlib import Path
+@@ -7,10 +7,11 @@
+ import copy,hashlib,importlib.util,json,os,stat,sys,time
+ from research.reviews.native_VAL000_GPU0_borrowed32_source_20261016_v2 import common_v1 as original
+ ROOT=original.ROOT
+-HERE="research/reviews/native_VAL000_downstream_execution_source_20261016_v2"
++HERE="research/reviews/native_saved_MLM_current_Census64_integration_source_20261017_v1"
+ DRIVER=HERE+"/execution_v1.py";DIRECT=HERE+"/direct_gpu0_v1.py";CONTEXT=HERE+"/worker_context_v1.py"
+ MANIFEST=HERE+"/source_manifest.v1.json"
+-GUARD=original.GUARD;POLICY=original.POLICY
++GUARD={'path': 'research/reviews/Census_observation_two_scope_retention_source_20261017_v1/census_observation_retention_v1.py', 'sha256': '72f6dc51844b2a261b581f5e69bd2a22982e6244c059f24549747a7b851faeeb'}
++POLICY=None;SELECTOR_REF=None;_SELECTED_GUARD=None;_SELECTOR_VALUE=None;_CONSUMER_MEMO=None
+ GPU0_UUID=original.GPU0_UUID;BASE_POOL=original.BASE_POOL;GPU0_GUARD=original.GPU0_GUARD
+ PIDFD=original.PIDFD;OWNED=original.OWNED;NATIVE_PYTHON_REF=original.NATIVE_PYTHON_REF
+ AUTHOR_ROOT=original.AUTHOR_ROOT;AUTHOR_MANIFEST_REF=original.AUTHOR_MANIFEST_REF
+@@ -24,10 +25,10 @@
+ IO_REVIEW_REF={"path":"research/reviews/native_VAL000_downstream_IO_efficiency_independent_review_20261016_v1/review.v1.json","sha256":"ea66a23c0d182e63c11cdfc2de8911d25d3637c2077b0b64977b27d905b27c4e"}
+ GPU_PHASES=("contrastive","embedding_contrastive_train","embedding_contrastive_val","embedding_query_paths_train","embedding_query_paths_val","RAM_retrieve_and_seal")
+ PHASES=GPU_PHASES+("finalize",)
+-BASE_CAPS=dict(reservation_bytes=65*2**30,log_bytes=4*2**20,max_seconds=172800,
++BASE_CAPS=dict(reservation_bytes=64*2**30,log_bytes=4*2**20,max_seconds=172800,
+  max_cpu_rss_bytes=384*2**30,headroom_bytes=4*2**30,cleanup_seconds=30,work_cutoff_margin_seconds=300,
+  terminal_evidence_margin_seconds=150,max_checkpoint_bytes=3*2**30,max_checkpoint_files=2)
+-EXPECTED_CONFIG=dict(schema="native_VAL000_downstream_full_scientific_config_v1",output_cap_bytes=65*2**30,
++EXPECTED_CONFIG=dict(schema="native_VAL000_downstream_full_scientific_config_v1",output_cap_bytes=64*2**30,
+  IO_policy_ref=IO_POLICY_REF,allowed_phases=list(PHASES),
+  scientific_protocol=dict(contrastive=dict(epochs=1,updates=2135,batch=4096,microbatch=4096,precision="fp32",seed=36,temperature=.3,
+  save_interval="20ba",save_num_checkpoints_to_keep=1,uniform_class_weight_fallback=True),
+@@ -59,6 +60,8 @@
+ def active_amendment_v1():
+     require(ROOT_INPUT_REF is not None,"Exact actual ROOT stage input")
+     s=read(ROOT_INPUT_REF);q=read(s["root_stage_request_ref"]);master=read(q["master_input_ref"])
++    require(q["storage_policy_selector_ref"]==s["storage_policy_selector_ref"]==master["storage_policy_selector_ref"],"Exact master/phase selector, no live route substitution")
++    configure_selector_v1(master["storage_policy_selector_ref"])
+     active(s);active(q);active(master)
+     require(q["source_manifest_ref"]==ref(MANIFEST) and master["source_manifest_ref"]==ref(MANIFEST)
+         and q["source_review_passed"] is True and master["source_review_passed"] is True,
+@@ -66,7 +69,7 @@
+     for r in (q["source_review_ref"],master["source_review_ref"]):
+         review=read(r)
+         candidate=review.get("candidate_manifest_ref",review.get("candidate_source_manifest_ref",review.get("source_manifest_ref")))
+-        require(candidate==ref(MANIFEST) and review.get("verdict") in ("PASS_SOURCE_ONLY","PASS_SOURCE_OPTION_ONLY_EXECUTION_NOT_AUTHORIZED"),
++        require(candidate==ref(MANIFEST) and review.get("independent")is True and review.get("verdict")in("SOURCE_PASS","PASS_SOURCE_ONLY","PASS") and review.get("blockers",review.get("blocking_findings"))==[],
+             "Actual independent source review binds this exact manifest")
+     end=min(datetime.fromisoformat(q["created_at_utc"]).timestamp()+q["caps"]["max_seconds"],
+         datetime.fromisoformat(q["expires_at_utc"]).timestamp(),datetime.fromisoformat(master["expires_at_utc"]).timestamp())
+@@ -124,17 +127,20 @@
+     manifest=read(ref(MANIFEST))
+     for r in manifest["executed_source_refs"]+manifest["source_authentication_refs"]:raw(r)
+     require(master["capacity_guard_ref"]==GUARD and master["capacity_policy_ref"]==POLICY
+-        and master["original_MLM7GiB_scope_extended"] is False and master["future_storage_reserved_bytes"]==65*2**30
++        and master["original_MLM7GiB_scope_extended"] is False and master["future_storage_reserved_bytes"]==64*2**30
++        and master["saved_MLM_route"]is True and master["saved_MLM_scientific_integration_ref"]==SAVED_INTEGRATION_REF
++        and master["saved_MLM_scientific_binding_bridge_ref"]==ref(SCIENCE_BINDING)
+         and master["operational_IO_source_ref"]==IO_SOURCE_REF and master["operational_IO_policy_ref"]==IO_POLICY_REF
+         and master["owned_roster_policy_ref"]==OWNED_ROSTER_POLICY_REF,
+-        "Fresh actual65GiB reservation with reviewed I/O and finite4096 policy, not original7GiB")
++        "Fresh actual64GiB reservation with reviewed I/O and finite4096 policy, not original7GiB")
+     raw(IO_REVIEW_REF);require(read(IO_REVIEW_REF)["verdict"]=="PASS_SOURCE_OPTION_ONLY_EXECUTION_NOT_AUTHORIZED","Exact source-option review, not launch authority")
+     config=read(master["config_ref"]);storage=read(master["storage_ref"])
+     require(config==EXPECTED_CONFIG,"Exact frozen downstream scientific/cap configuration, no hidden fallback")
+     require(storage["job_id"]==master["job_id"] and storage["output_directory"]==master["output_directory"]
+-        and storage["reserved_new_bytes"]==65*2**30 and storage["completed_overlay_policy_ref"]==POLICY
++        and storage["reserved_new_bytes"]==64*2**30 and storage["reservation"]["reserved_bytes"]==64*2**30
++        and storage["accounting_mode"]==CENSUS_MODE and storage["storage_policy_selector_ref"]==SELECTOR_REF and storage["completed_overlay_policy_ref"]==POLICY
+         and storage["budget_components"]["consumer_adapter"]==GUARD
+-        and storage["reservation"]["auxiliary_scopes"]==[str(local(master["worker_auxiliary_scope"]))],"Actual fresh current Census-fit2 child65GiB charge")
++        and storage["reservation"]["auxiliary_scopes"]==[str(local(master["worker_auxiliary_scope"]))],"Actual fresh current Census-fit2 child64GiB charge")
+     bindings=storage["reservation"]["consumer_bindings"]
+     require(len(bindings)<=64 and all(r in bindings for r in (ref(MANIFEST),ref(DRIVER),master["config_ref"],master["runtime_ref"])),
+         "Original64 direct binding ceiling, master source/config/runtime actually admitted")
+@@ -162,7 +168,10 @@
+         and q["operational_IO_source_ref"]==IO_SOURCE_REF and q["operational_IO_policy_ref"]==IO_POLICY_REF
+         and q["ROOT_context_source_ref"]==ref(CONTEXT) and q["keep1_rotation_of_new_scope_authorized"] is True
+         and q["original_author_recipe_claimed_exact"] is False
+-        and q["prerequisites"]["MLM"]==master["MLM_prerequisites"],"Exact science/I/O/context authority and frozen real MLM prerequisite")
++        and q["prerequisites"]["MLM"]==master["MLM_prerequisites"]
++        and q["ROOT_saved_MLM_artifact_acceptance_ref"]==master["ROOT_saved_MLM_artifact_acceptance_ref"]
++        and q["saved_MLM_scientific_integration_ref"]==master["saved_MLM_scientific_integration_ref"]
++        and master["MLM_prerequisites"]==dict(saved_artifact_acceptance_ref=master["ROOT_saved_MLM_artifact_acceptance_ref"],historical_MLM_outer_exit_code=1),"Exact science/I/O/context authority and frozen real MLM prerequisite")
+     frozen_science_metadata_v1()
+     STATE=(copy.deepcopy(master),copy.deepcopy(storage),copy.deepcopy(q),copy.deepcopy(s))
+     return s,q,config,storage,config
+@@ -172,17 +181,19 @@
+     def validate_storage_v9(self,s,cfg,storage,*,source_ref,config_ref,runtime_ref):
+         active_amendment_v1();master,stored,q,actual=STATE
+         require(storage==stored and source_ref==ref(DRIVER) and config_ref==master["config_ref"] and runtime_ref==master["runtime_ref"]
+-            and s["job_id"]==actual["job_id"],"Original65GiB master binding plus exact ROOT late-prerequisite phase authority")
+-        value=self.real.validate_storage_v9(master,dict(output_cap_bytes=65*2**30),stored,
++            and s["job_id"]==actual["job_id"],"Original64GiB master binding plus exact ROOT late-prerequisite phase authority")
++        value=self.real.validate_storage_v9(master,dict(output_cap_bytes=64*2**30),stored,
+             source_ref=source_ref,config_ref=config_ref,runtime_ref=runtime_ref)
+         active_amendment_v1();return value
+     def budget_check_v9(self,storage,**kwargs):
+-        active_amendment_v1();require(storage==STATE[1],"Exact unchanged current65GiB storage")
++        active_amendment_v1();require(storage==STATE[1],"Exact unchanged current64GiB storage")
+         value=self.real.budget_check_v9(storage,**kwargs);active_amendment_v1();return value
+ 
+ def guard_v1(q,*,consumer=True):
+-    require(consumer is True and STATE is not None,"Read/check consumer only, no admission/close mutations")
+-    return MasterStorageGuard(original.guard_v1(q,consumer=True))
++ require(consumer is True and STATE is not None,"Read/check consumer only, no admission/close mutations")
++ configure_selector_v1(q["storage_policy_selector_ref"])
++ require(q["capacity_guard_ref"]==GUARD and q["capacity_policy_ref"]==POLICY,"Same actual selected child for phase and storage")
++ return MasterStorageGuard(selected_guard_v1(consumer=True))
+ 
+ def charged_census_v1(spec,*,required_write_bytes=0):
+     require(STATE is not None,"Actual separately charged master roots")
+@@ -197,7 +208,7 @@
+         totals[group]+=size
+     current="embedding" if spec["phase"].startswith("embedding_") else ("RAM_retrieve_and_seal" if spec["phase"]=="finalize" else spec["phase"])
+     require(all(v+(required_write_bytes if k==current else 0)<=group_caps[k] for k,v in totals.items())
+-        and sum(totals.values())+required_write_bytes<=65*2**30,"Whole output+TMP/AUX/cache/log65GiB and per-group failstop")
++        and sum(totals.values())+required_write_bytes<=64*2**30,"Whole output+TMP/AUX/cache/log64GiB and per-group failstop")
+     checkpoints=[(parts,n,kind) for parts,n,kind in output if parts and parts[0]=="contrastive" and "checkpoints" in parts]
+     regular=[n-4096 for parts,n,kind in checkpoints if kind=="regular" and parts[-1].endswith(".pt")]
+     require(len(regular)<=2 and max(regular,default=0)<=3*2**30,"Actual peak2regular full contrastive checkpoints,3GiB/file")
+@@ -249,3 +260,50 @@
+             and value.get("all_six_scientific_stages_actual_wait0_and_consumed_outer0") is True
+             and value.get("master_completion_ref") is not None,
+             "Actual CPU aggregation of genuine complete scientific pipeline, not a fabricated worker wait")
++
++CENSUS_MODE='Census_observation_two_scope_retention_v1'
++CENSUS_MANIFEST_REF={'path': 'research/reviews/Census_observation_two_scope_retention_source_20261017_v1/source_manifest.v1.json', 'sha256': 'e0d5e04703410f9e2f89336a9059fe73dc2fe948240ea9425bc4e928a5793405'}
++CENSUS_MEASUREMENT_REF={'path': 'research/reviews/Census_observation_two_scope_retention_source_20261017_v1/single_root_retained_nodes_v1.py', 'sha256': 'd23f6f24517090367f5fa8437ce86c6139bcff1b03ede44ffd08df14e0bab926'}
++SAVED_INTEGRATION_REF={'path': 'research/reviews/native_VAL000_contrastive_saved_MLM_integration_source_20261017_v2/saved_mlm_integration_v1.py', 'sha256': '651e18d11d99083a60face804a3d50b9f1d48bcc83d3b6e0c2dbf827ae12b324'}
++SAVED_SCIENTIFIC_ENTRY_REF={'path': 'research/reviews/native_VAL000_contrastive_saved_MLM_integration_source_20261017_v2/scientific_entry_v1.py', 'sha256': 'e1986b32edd4732b56599ea71bc8a5cddec397d0bf4df622f09af7b5a94999a1'}
++SAVED_SCIENCE_REVIEW_REF={'path': 'research/reviews/native_VAL000_contrastive_saved_MLM_integration_independent_20261017_v2/review.v2.json', 'sha256': '250b54d82a72602094d1e855e0fac37034029a87fcd29fe814cb37c022c52a63'}
++
++SCIENCE_BINDING=HERE+"/science_binding_v1.py"
++BUILDER=HERE+"/root_builder_v1.py"
++def configure_selector_v1(selector_ref):
++ global POLICY,SELECTOR_REF,_SELECTED_GUARD,_SELECTOR_VALUE
++ require(type(selector_ref)is dict and set(selector_ref)=={"path","sha256"},"Exact actual future Census selector path/SHA supplied by ROOT")
++ value=read(selector_ref)
++ require(value.get("active")is True and value.get("root_authorizer")=="root_agent"
++  and value.get("source_ref")==value.get("selector_source_ref")==GUARD
++  and value.get("source_manifest_ref")==CENSUS_MANIFEST_REF
++  and value.get("measurement_source_ref")==CENSUS_MEASUREMENT_REF and value.get("accounting_mode")==CENSUS_MODE,
++  "Exact reviewed planned Census source/manifest/helper, never unrelated old route")
++ for r in(selector_ref,GUARD,CENSUS_MANIFEST_REF,CENSUS_MEASUREMENT_REF,value["policy_ref"],value["source_review_ref"]):raw(r)
++ if SELECTOR_REF is not None:
++  require(SELECTOR_REF==selector_ref and _SELECTOR_VALUE==value and POLICY==value["policy_ref"],
++   "Immutable actual selector/policy/source for this interpreter")
++  require(_SELECTED_GUARD is not None and _SELECTED_GUARD._SELECTOR_REF==SELECTOR_REF,"Same configured guard singleton")
++  return _SELECTED_GUARD
++ policy=read(value["policy_ref"])
++ require(policy.get("active")is True and policy.get("source_ref")==GUARD and policy.get("journal")==value["journal"]
++  and policy.get("source_manifest_ref")==CENSUS_MANIFEST_REF and policy.get("measurement_source_ref")==CENSUS_MEASUREMENT_REF,
++  "Actual independently activated exact child policy")
++ g=load(GUARD,"_saved_MLM_actual_Census64_guard")
++ selected=g.load_selected_guard_v1(selector_ref)
++ require(selected is g,"Actual combined child selector returns its own same guard singleton")
++ SELECTOR_REF=copy.deepcopy(selector_ref);POLICY=copy.deepcopy(value["policy_ref"]);_SELECTOR_VALUE=copy.deepcopy(value);_SELECTED_GUARD=g
++ return g
++def selected_guard_v1(*,consumer):
++ global _CONSUMER_MEMO
++ require(type(consumer)is bool and _SELECTED_GUARD is not None,"Explicit existing selected guard role")
++ g=_SELECTED_GUARD
++ if not consumer:
++  require(_CONSUMER_MEMO is None and all(getattr(g.budget.v4,n).__module__==g.budget.v4.__name__ for n in("canonical","file_bytes","mutex")),
++   "Fresh original unwrapped ROOT mutation interpreter; no consumer memo")
++  return g
++ if _CONSUMER_MEMO is None:
++  namespace=load(original.NAMESPACE_MEMO,"_saved_MLM_exact_consumer_namespace_memo")
++  _CONSUMER_MEMO=namespace.install_consumer_v1(g.budget.v4,g.budget,consumer_role="read_only_consumer",
++   expected_source_path=ROOT/original.V4["path"],expected_source_sha256=original.V4["sha256"])
++ return g
+--- research/reviews/native_VAL000_downstream_execution_source_20261016_v2/direct_gpu0_v1.py
++++ research/reviews/native_saved_MLM_current_Census64_integration_source_20261017_v1/direct_gpu0_v1.py
+@@ -6,8 +6,8 @@
+ """
+ from pathlib import Path
+ import errno,fcntl,hashlib,json,os,select,socket,stat,struct,sys,time
+-from research.reviews.native_VAL000_downstream_execution_source_20261016_v2.contract_v1 import *
+-from research.reviews.native_VAL000_downstream_execution_source_20261016_v2 import contract_v1 as c
++from research.reviews.native_saved_MLM_current_Census64_integration_source_20261017_v1.contract_v1 import *
++from research.reviews.native_saved_MLM_current_Census64_integration_source_20261017_v1 import contract_v1 as c
+ SOURCE=DIRECT
+ CONTROLLER_PID=CONTROLLER_START=C3_JOB=CURRENT_CAP=None
+ C3_ENVELOPE_MIB=0
+--- research/reviews/native_VAL000_downstream_execution_source_20261016_v2/execution_v1.py
++++ research/reviews/native_saved_MLM_current_Census64_integration_source_20261017_v1/execution_v1.py
+@@ -4,8 +4,8 @@
+ from pathlib import Path
+ from datetime import datetime,timezone
+ import argparse,collections,ctypes,fcntl,hashlib,importlib,io,itertools,json,os,resource,selectors,signal,stat,subprocess,sys,tempfile,time
+-from research.reviews.native_VAL000_downstream_execution_source_20261016_v2.contract_v1 import *
+-from research.reviews.native_VAL000_downstream_execution_source_20261016_v2 import contract_v1 as c
++from research.reviews.native_saved_MLM_current_Census64_integration_source_20261017_v1.contract_v1 import *
++from research.reviews.native_saved_MLM_current_Census64_integration_source_20261017_v1 import contract_v1 as c
+ 
+ class _RAMLog:
+     def __init__(self,cap):self.cap=cap;self.parts=collections.deque();self.kept=0;self.total=0
+@@ -45,16 +45,16 @@
+     tempfile.tempdir=paths["TMPDIR"]
+     if s["phase"]=="finalize":
+         require(attachment_ref is None and os.environ.get("CUDA_VISIBLE_DEVICES")=="","Finalizer has no GPU attachment")
+-        from research.reviews.native_VAL000_downstream_execution_source_20261016_v2.worker_context_v1 import finalize_worker_v1
++        from research.reviews.native_saved_MLM_current_Census64_integration_source_20261017_v1.worker_context_v1 import finalize_worker_v1
+         finalize_worker_v1(input_ref,s,q,cfg,storage)
+         return 0
+     require(attachment_ref["path"]==s["worker_auxiliary_scope"]+"/attachment.json","Actual fresh source-bound phase attachment")
+     ticket=read(attachment_ref)
+     require(ticket["job_id"]==s["job_id"] and ticket["borrowed_physical_inode"] is True
+         and ticket["direct_attachment_authority_ref"]==q["direct_attachment_authority_ref"],"Actual admitted phase attachment")
+-    from research.reviews.native_VAL000_downstream_execution_source_20261016_v2 import direct_gpu0_v1 as direct
++    from research.reviews.native_saved_MLM_current_Census64_integration_source_20261017_v1 import direct_gpu0_v1 as direct
+     native=direct.install_before_torch_v1(s,q,ticket)
+-    from research.reviews.native_VAL000_downstream_execution_source_20261016_v2.worker_context_v1 import NativeContext
++    from research.reviews.native_saved_MLM_current_Census64_integration_source_20261017_v1.worker_context_v1 import NativeContext
+     context=NativeContext(input_ref,s,q,cfg,storage,ticket,native)
+     context.run()
+     return 0
+@@ -64,7 +64,7 @@
+     stage_started=time.monotonic()
+     require(Path.cwd()==ROOT and sys.dont_write_bytecode,"Exact ROOT cwd/no bytecode")
+     s,q,cfg,storage,protocol=validate_input_v1(input_ref)
+-    from research.reviews.native_VAL000_downstream_execution_source_20261016_v2.worker_context_v1 import check_external_prerequisites_v1
++    from research.reviews.native_saved_MLM_current_Census64_integration_source_20261017_v1.worker_context_v1 import check_external_prerequisites_v1
+     check_external_prerequisites_v1(q)
+ 
+     require(Path(sys.executable).resolve()==(ROOT/".runtime/env/bin/python").resolve(),"Original pinned runtime interpreter")
+@@ -128,7 +128,7 @@
+             ARGGNN_BUDGET_V9_LAUNCHER_SHA256=storage["budget_components"]["launcher"]["sha256"])
+         env.update(paths)
+         if s["phase"] in GPU_PHASES:
+-            from research.reviews.native_VAL000_downstream_execution_source_20261016_v2 import direct_gpu0_v1 as direct
++            from research.reviews.native_saved_MLM_current_Census64_integration_source_20261017_v1 import direct_gpu0_v1 as direct
+             direct.install_cancellation_check_v1(lambda:require(cancelled is None and time.monotonic()<work_deadline,
+                 "Actual cancellation or anchored work cutoff during status proof"))
+             physical_fd,logical_fd,ticket=direct.attach_v1(s,q)
+@@ -144,7 +144,7 @@
+                 env.pop(name,None)
+         gate_read,gate_write=os.pipe()
+         command=[str(local(NATIVE_PYTHON_REF["path"])),"-B","-s","-m",
+-            "research.reviews.native_VAL000_downstream_execution_source_20261016_v2.execution_v1",
++            "research.reviews.native_saved_MLM_current_Census64_integration_source_20261017_v1.execution_v1",
+             "--worker-input-ref",json.dumps(input_ref,separators=(",",":")),"--gate-fd",str(gate_read)]
+         if attachment_ref is not None:command+=["--attachment-ref",json.dumps(attachment_ref,separators=(",",":"))]
+         command+=["--amendment-ref",json.dumps(current_amendment_ref_v1(),separators=(",",":"))]
+@@ -396,6 +396,9 @@
+         final=charged_census_v1(s);peak_scope=max(peak_scope,sum(final.values()))
+         wait_ref=compact_v1(s,"actual_wait.json",dict(observation,
+             schema="downstream_fixed_full_parent_actual_wait_v2",completed_ref=completed_ref,
++            actual_direct_child_wait=raw_status is not None,child_completion_ref=completed_ref,
++            process_group_ESRCH=drained and bool(observations) and all(r.get("absent")is True for r in observations),
++            saved_MLM_wait_aliases_derived_from_same_actual_wait_and_full_owned_drain=True,
+             operational_failure=failure,no_future_stage_authorized=failure is not None,
+             actual_wait_minimal_ref=minimal,log_ref=log_ref,peak_combined_owned_RSS_bytes=peak,
+             sampled_peak_scope_bytes=peak_scope,final_scope_census=final,
+@@ -431,7 +434,7 @@
+         return worker_v1(json.loads(args.worker_input_ref),args.gate_fd,json.loads(args.attachment_ref) if args.attachment_ref is not None else None)
+     require(args.input_ref is not None,"Exact original input ref required")
+     require(json.loads(args.input_ref)==json.loads(args.amendment_ref),"ROOT phase input is the exact actual phase authority binding")
+-    from research.reviews.native_VAL000_downstream_execution_source_20261016_v2.worker_context_v1 import PendingPrerequisites
++    from research.reviews.native_saved_MLM_current_Census64_integration_source_20261017_v1.worker_context_v1 import PendingPrerequisites
+     try:result=execute_v1(json.loads(args.input_ref))
+     except PendingPrerequisites as exc:
+         print(json.dumps(dict(status="PENDING_GENUINE_EXTERNAL_PREREQUISITES",reason=str(exc),worker_spawned=False,
+--- research/reviews/native_VAL000_downstream_execution_source_20261016_v2/worker_context_v1.py
++++ research/reviews/native_saved_MLM_current_Census64_integration_source_20261017_v1/worker_context_v1.py
+@@ -4,9 +4,10 @@
+ from pathlib import Path
+ import ast,copy,hashlib,importlib,importlib.util,json,os,resource,stat,sys,types
+ from datetime import timedelta
+-from research.reviews.native_VAL000_downstream_execution_source_20261016_v2 import contract_v1 as c
++from research.reviews.native_saved_MLM_current_Census64_integration_source_20261017_v1 import contract_v1 as c
+ ROOT=c.ROOT
+-IPC_NAMESPACE_BY_PHASE_V2={'contrastive': 'val000_ds2_cl', 'embedding_contrastive_train': 'val000_ds2_ect', 'embedding_contrastive_val': 'val000_ds2_ecv', 'embedding_query_paths_train': 'val000_ds2_eqt', 'embedding_query_paths_val': 'val000_ds2_eqv', 'RAM_retrieve_and_seal': 'val000_ds2_ret', 'finalize': 'val000_ds2_fin'}
++from . import science_binding_v1 as saved_science
++IPC_NAMESPACE_BY_PHASE_V2={'contrastive': 'val000_c64_cl', 'embedding_contrastive_train': 'val000_c64_ect', 'embedding_contrastive_val': 'val000_c64_ecv', 'embedding_query_paths_train': 'val000_c64_eqt', 'embedding_query_paths_val': 'val000_c64_eqv', 'RAM_retrieve_and_seal': 'val000_c64_ret', 'finalize': 'val000_c64_fin'}
+ 
+ def phase_namespace_v2(phase):
+     c.require(phase in IPC_NAMESPACE_BY_PHASE_V2,"Only one explicit original downstream phase namespace")
+@@ -79,6 +80,14 @@
+         and outer.get("actual_wait_ref")==bundle["wait_ref"]
+         and type(outer.get("actual_tool_session_id")) is int and outer["actual_tool_session_id"]>0,
+         "Actual successful source-bound worker/OS wait, full current roster/group drain and consumed genuine outer0")
++    if stage=="contrastive":
++        c.require(wait.get("actual_direct_child_wait")is True and wait.get("child_completion_ref")==bundle["completion_ref"]
++            and wait.get("process_group_ESRCH")is True
++            and outer.get("schema")=="native_saved_MLM_downstream_actual_outer_terminal_v1"
++            and outer.get("terminal_consumed")is True and outer.get("actual_tool_terminal_exit_code")==0
++            and type(outer.get("tool_session_id"))is int and outer["tool_session_id"]==outer["actual_tool_session_id"]
++            and outer.get("child_completion_ref")==bundle["completion_ref"],
++            "Same actual contrastive wait/completion/consumed outer0/session in both original and saved qualification fields")
+     if stage=="mlm":
+         c.require(wait.get("owned_roster_policy_ref")==c.OWNED_ROSTER_POLICY_REF,"Reviewed4096 native MLM lifecycle lineage, no truncated64 completion")
+         actual_authority=c.read(wait["actual_execution_amendment_ref"])
+@@ -105,33 +114,43 @@
+ class PendingPrerequisites(ValueError):pass
+ 
+ def check_external_prerequisites_v1(q):
+-    prerequisites=q["prerequisites"]
+-    needed=["MLM"]+([] if q["phase"]=="contrastive" else ["contrastive"])
+-    if q["phase"] in ("RAM_retrieve_and_seal","finalize"):needed.append("embeddings")
+-    if q["phase"]=="finalize":needed.append("RAM_retrieve_and_seal")
+-    missing=[name for name in needed if prerequisites.get(name) is None]
+-    if missing:raise PendingPrerequisites("Genuine external prerequisite refs absent: "+",".join(missing))
+-    base=source_stages_v1();mlm=prerequisite_metadata_v1(prerequisites["MLM"],"mlm")
+-    base.full_mlm_metadata_prerequisite_v1(**mlm)
+-    if q["phase"]!="contrastive":
+-        contrastive=prerequisite_metadata_v1(prerequisites["contrastive"],"contrastive")
+-        base.full_contrastive_metadata_prerequisite_v1(initializer_checkpoint_ref=mlm["checkpoint_ref"],**contrastive)
+-    if q["phase"] in ("RAM_retrieve_and_seal","finalize"):
+-        c.require(set(prerequisites["embeddings"])=={"contrastive/train","contrastive/val","query_paths/train","query_paths/val"},"All four genuinely completed embedding prerequisites")
+-        for key,bundle in prerequisites["embeddings"].items():
+-            child,wait,outer=prerequisite_metadata_v1(bundle,"embedding")
+-            view,split=key.split("/")
+-            c.require(child["stage"]=="embedding" and child["view"]==view and child["split"]==split
+-                and child["checkpoint_ref"]==contrastive["checkpoint_ref"]
+-                and child["raw_dataset_ref"]==c.read(c.PREP_REF)["native_dataset_refs"][key]
+-                and child["row_order_ref"]==c.read(c.PREP_REF)["full_path_id_order_refs"][key],"Actual same-checkpoint full native embedding lineage")
+-    if q["phase"]=="finalize":
+-        final,wait,outer=prerequisite_metadata_v1(prerequisites["RAM_retrieve_and_seal"],"RAM_retrieve_and_seal")
+-        c.require(final["status"]=="completed_native_RAM_retrieval_and_truth_free_seal"
+-            and final["full_reference_rows"]==9721236 and final["full_query_rows"]==10000
+-            and final["checkpoint_ref"]==contrastive["checkpoint_ref"]
+-            and final["native_top1_arithmetic_or_ties_modified"] is False,"Genuine completed original native top1/seal, no invented score")
+-    return mlm
++ prerequisites=q["prerequisites"]
++ needed=[]if q["phase"]=="contrastive"else["contrastive"]
++ if q["phase"]in("RAM_retrieve_and_seal","finalize"):needed.append("embeddings")
++ if q["phase"]=="finalize":needed.append("RAM_retrieve_and_seal")
++ missing=[name for name in needed if prerequisites.get(name)is None]
++ if q.get("ROOT_saved_MLM_artifact_acceptance_ref")is None:missing.append("ROOT_saved_MLM_artifact_acceptance")
++ if q["phase"]!="contrastive"and q.get("saved_MLM_qualification_ref")is None:missing.append("saved_MLM_qualification")
++ if missing:raise PendingPrerequisites("Genuine external prerequisite refs absent: "+",".join(missing))
++ integration=saved_science.integration_v1(q["storage_policy_selector_ref"])
++ binding=dict(storage_policy_selector_ref=q["storage_policy_selector_ref"],saved_MLM_integration_source_ref=c.SAVED_INTEGRATION_REF,
++  ROOT_saved_MLM_artifact_acceptance_ref=q["ROOT_saved_MLM_artifact_acceptance_ref"])
++ integration.bind_stage_v1(binding,binding)
++ bridge,eligible,checkpoint=integration.saved_acceptance_v1(binding,binding)
++ mlm=dict(checkpoint_ref=checkpoint,saved_artifact_only=True,saved_MLM_eligibility=eligible.record(),historical_MLM_outer_exit_code=1,
++  ROOT_saved_MLM_artifact_acceptance_ref=q["ROOT_saved_MLM_artifact_acceptance_ref"])
++ if q["phase"]!="contrastive":
++  qualified=integration.fit_completion_dispatch_v1(q["saved_MLM_qualification_ref"],q["saved_MLM_qualification_spec"])
++  contrastive=prerequisite_metadata_v1(prerequisites["contrastive"],"contrastive")
++  c.require(contrastive["checkpoint_ref"]==qualified["phases"]["contrastive"]["checkpoint_ref"]
++   and prerequisites["contrastive"]["completion_ref"]==qualified["phases"]["contrastive"]["child_completion_ref"]
++   and prerequisites["contrastive"]["wait_ref"]==qualified["phases"]["contrastive"]["actual_wait_ref"]
++   and prerequisites["contrastive"]["outer_terminal_ref"]==qualified["phases"]["contrastive"]["consumed_outer_ref"],
++   "Same genuine separately qualified contrastive completion/wait/outer0; no legacy MLM success")
++ if q["phase"]in("RAM_retrieve_and_seal","finalize"):
++  c.require(set(prerequisites["embeddings"])=={"contrastive/train","contrastive/val","query_paths/train","query_paths/val"},"All four full embedding products")
++  prep=c.read(c.PREP_REF)
++  for key,bundle in prerequisites["embeddings"].items():
++   child,wait,outer=prerequisite_metadata_v1(bundle,"embedding");view,split=key.split("/")
++   c.require(child["stage"]=="embedding"and child["view"]==view and child["split"]==split
++    and child["checkpoint_ref"]==contrastive["checkpoint_ref"]and child["raw_dataset_ref"]==prep["native_dataset_refs"][key]
++    and child["row_order_ref"]==prep["full_path_id_order_refs"][key],"Actual same-checkpoint complete original embeddings")
++ if q["phase"]=="finalize":
++  final,wait,outer=prerequisite_metadata_v1(prerequisites["RAM_retrieve_and_seal"],"RAM_retrieve_and_seal")
++  c.require(final["status"]=="completed_native_RAM_retrieval_and_truth_free_seal"and final["full_reference_rows"]==9721236
++   and final["full_query_rows"]==10000 and final["checkpoint_ref"]==contrastive["checkpoint_ref"]
++   and final["native_top1_arithmetic_or_ties_modified"]is False,"Genuine full RAM-native seal before finalizer")
++ return mlm
+ 
+ def stable_reference_v1(path):
+     path=c.local(path);before=path.lstat()
+@@ -181,15 +200,14 @@
+ 
+ class NativeContext:
+     def __init__(self,input_ref,s,q,cfg,storage,ticket,native_guard):
+-        self.input_ref=input_ref;self.s=s;self.q=q;self.cfg=cfg;self.storage=storage
+-        self.ticket=ticket;self.native_guard=native_guard;self.g=c.guard_v1(q);self.writer=GuardedWriter(s,q,self.g,storage)
+-        self.base=source_stages_v1();self.prepared=None;self.verify_imports=None;self.helper=None;self.authenticated_inputs=None
+-        self.prep,self.pcfg,self.counts=c.frozen_science_metadata_v1()
+-        check_external_prerequisites_v1(q)
+-        self.MLM=prerequisite_metadata_v1(q["prerequisites"]["MLM"],"mlm")
+-        self.contrastive=None if s["phase"]=="contrastive" else prerequisite_metadata_v1(q["prerequisites"]["contrastive"],"contrastive")
+-        self.fit_view_descriptor=dict(schema="native_VAL000_authenticated_fit_virtual_metadata_v1",MLM=q["prerequisites"]["MLM"],contrastive=q["prerequisites"].get("contrastive"))
+-        self.embedding_view_descriptor=dict(schema="native_VAL000_authenticated_four_embeddings_virtual_metadata_v1",items=q["prerequisites"].get("embeddings"))
++     self.input_ref=input_ref;self.s=s;self.q=q;self.cfg=cfg;self.storage=storage
++     self.ticket=ticket;self.native_guard=native_guard;self.g=c.guard_v1(q);self.writer=GuardedWriter(s,q,self.g,storage)
++     self.base=source_stages_v1();self.prepared=None;self.verify_imports=None;self.helper=None;self.authenticated_inputs=None
++     self.prep,self.pcfg,self.counts=c.frozen_science_metadata_v1()
++     self.MLM=check_external_prerequisites_v1(q)
++     self.contrastive=None if s["phase"]=="contrastive"else prerequisite_metadata_v1(q["prerequisites"]["contrastive"],"contrastive")
++     self.fit_view_descriptor=q.get("saved_MLM_qualification_ref")
++     self.embedding_view_descriptor=dict(schema="native_VAL000_authenticated_four_embeddings_virtual_metadata_v1",items=q["prerequisites"].get("embeddings"))
+     def fast_guard(self,event):
+         c.active_amendment_v1();self.native_guard.apply_and_validate_title()
+         lease=self.native_guard.validate_lease()
+@@ -222,7 +240,7 @@
+         identity=native_child_v1._actual_context_uuid(c.original,lease,torch)
+         verify();self.fast_guard("after_first_actual_CUDA_UUID_context")
+         checkpoint_validation={}
+-        for stage,metadata in (("mlm",self.MLM),("contrastive",self.contrastive)):
++        for stage,metadata in (("contrastive",self.contrastive),):
+             if metadata is None:continue
+             checkpoint=metadata["checkpoint_ref"]
+             c.require(stable_reference_v1(ROOT/checkpoint["path"])==checkpoint,"Exact actual prerequisite checkpoint bytes")
+@@ -233,7 +251,8 @@
+             checkpoint_validation[stage]=result
+         self.writer.save("actual_saved_optimizer_prerequisite_verification.json",dict(schema="native_VAL000_actual_checkpoint_optimizer_validation_v1",
+             stages=checkpoint_validation,runtime_inventory=inventory,actual_GPU_UUID_identity=identity,
+-            no_optimizer_job_or_accuracy_claim=True,all_prerequisite_workers_waited_and_drained=True))
++            no_optimizer_job_or_accuracy_claim=True,all_prerequisite_workers_waited_and_drained=False,
++            saved_MLM_historical_outer_exit_code_preserved=1,saved_MLM_payload_not_hashed_or_loaded_before_original_inline_initialization=True))
+         self.confirm_authenticated_inputs()
+         self.helper=native_child_v1;self.verify_imports=verify
+         self.prepared=dict(torch=torch,OmegaConf=OmegaConf,physical_gpu=0,runtime_inventory_passed=True,
+@@ -275,10 +294,8 @@
+         c.require(spec["refs"]["counts"]==c.COUNTS_REF and prep==self.prep,"Exact actual counts callback")
+         return self.counts
+     def fit_callback(self,record,spec):
+-        c.require(record==self.fit_view_descriptor and self.contrastive is not None,"Explicit genuine fit virtual metadata, never a fake file/SHA receipt")
+-        self.base.full_mlm_metadata_prerequisite_v1(**self.MLM)
+-        self.base.full_contrastive_metadata_prerequisite_v1(initializer_checkpoint_ref=self.MLM["checkpoint_ref"],**self.contrastive)
+-        return dict(schema="native_VAL000_fit_metadata_compatibility_view_v1",phases=dict(mlm=dict(checkpoint_ref=self.MLM["checkpoint_ref"]),contrastive=dict(checkpoint_ref=self.contrastive["checkpoint_ref"])))
++     c.require(record==self.fit_view_descriptor and self.contrastive is not None,"Actual separate saved-MLM qualification ref, no synthetic full-fit wrapper")
++     return saved_science.integration_v1(self.q["storage_policy_selector_ref"]).fit_completion_dispatch_v1(record,spec)
+     def metadata_callback(self,record):
+         if record==self.embedding_view_descriptor:
+             check_external_prerequisites_v1(self.q);outputs={}
+@@ -300,6 +317,10 @@
+             separate_future_storage_admission_ref=self.storage["reservation"]["root_admission"],original_MLM_7GiB_scope_extended=False,
+             ROOT_context_source_ref=c.ref(c.CONTEXT),operational_IO_source_ref=c.IO_SOURCE_REF,operational_IO_policy_ref=c.IO_POLICY_REF,
+             keep1_rotation_of_new_scope_authorized=True,original_author_recipe_claimed_exact=False)
++        request.update(storage_policy_selector_ref=self.q["storage_policy_selector_ref"],saved_MLM_integration_source_ref=c.SAVED_INTEGRATION_REF,
++            scientific_selector_binding_bridge_ref=c.ref(c.SCIENCE_BINDING),
++            ROOT_saved_MLM_artifact_acceptance_ref=self.q["ROOT_saved_MLM_artifact_acceptance_ref"],
++            saved_MLM_qualification_ref=self.q.get("saved_MLM_qualification_ref"))
+         if phase=="embedding":request.update(view=self.q["view"],split=self.q["split"])
+         def validate(actual):c.require(actual==request,"Exact ROOT-authorized actual scientific request mapping");c.active_amendment_v1()
+         ctx=dict(root_authorizer="root_agent",admitted=True,validate_phase_authority_v1=validate,fast_guard=self.fast_guard,
+@@ -310,22 +331,27 @@
+             authenticate_native_inputs_once_v1=self.authenticate_inputs,prepared_metadata=self.prep,boundary_guard=self.writer.boundary,
+             validated_VAL000_preparation_v1=self.preparation_callback,validated_VAL000_counts_v1=self.counts_callback,
+             validated_VAL000_fit_completion_v1=self.fit_callback,validated_VAL000_metadata=self.metadata_callback)
++        ctx.update(storage_policy_selector_ref=self.q["storage_policy_selector_ref"],saved_MLM_integration_source_ref=c.SAVED_INTEGRATION_REF,
++            scientific_selector_binding_bridge_ref=c.ref(c.SCIENCE_BINDING),
++            ROOT_saved_MLM_artifact_acceptance_ref=self.q["ROOT_saved_MLM_artifact_acceptance_ref"],
++            saved_MLM_qualification_spec=self.q.get("saved_MLM_qualification_spec"))
+         if self.contrastive is not None:ctx["contrastive_prerequisite_metadata"]=self.contrastive
+         return ctx,request
+     def run(self):
+-        self.fast_guard("before_own_native_output")
+-        c.require(not self.writer.path.exists(),"Genuinely fresh native phase output")
+-        self.writer.boundary("before_native_output_mkdir",required_write_bytes=8192);self.writer.path.mkdir()
+-        limit=3*2**30 if self.s["phase"]=="contrastive" else (48*2**30 if self.s["phase"].startswith("embedding_") else 256*2**20)
+-        resource.setrlimit(resource.RLIMIT_FSIZE,(limit,limit))
+-        ctx,request=self.context_and_request()
+-        if self.s["phase"]=="contrastive":return source_IO_v1().contrastive_keep1_v1(ctx,request)
+-        if self.s["phase"].startswith("embedding_"):
+-            self.authenticate_inputs(c.PREP_REF,c.COUNTS_REF)
+-            return self.base.embedding_v1(ctx,request)
+-        spec=dict(parent_id=c.PARENT,refs=dict(preparation=c.PREP_REF,preparation_config=c.PREP_CONFIG_REF,counts=c.COUNTS_REF,
+-            fit_completion=self.fit_view_descriptor,embedding_completion=self.embedding_view_descriptor))
+-        return source_IO_v1().RAM_retrieval_and_seal_v1(ctx,request,spec,dict(max_embedding_input_bytes=48*2**30))
++     self.fast_guard("before_own_native_output")
++     c.require(not self.writer.path.exists(),"Genuinely fresh native phase output")
++     self.writer.boundary("before_native_output_mkdir",required_write_bytes=8192);self.writer.path.mkdir()
++     limit=3*2**30 if self.s["phase"]=="contrastive"else(48*2**30 if self.s["phase"].startswith("embedding_")else 256*2**20)
++     resource.setrlimit(resource.RLIMIT_FSIZE,(limit,limit))
++     ctx,request=self.context_and_request();integration=saved_science.integration_v1(self.q["storage_policy_selector_ref"])
++     if self.s["phase"]=="contrastive":
++      return saved_science.entry_v1(self.q["storage_policy_selector_ref"]).contrastive_keep1_saved_MLM_v1(ctx,request)
++     if self.s["phase"].startswith("embedding_"):
++      self.authenticate_inputs(c.PREP_REF,c.COUNTS_REF)
++      return integration.embedding_v1(ctx,request)
++     spec=dict(parent_id=c.PARENT,refs=dict(preparation=c.PREP_REF,preparation_config=c.PREP_CONFIG_REF,counts=c.COUNTS_REF,
++      fit_completion=self.fit_view_descriptor,saved_MLM_qualification=self.fit_view_descriptor,embedding_completion=self.embedding_view_descriptor))
++     return integration.RAM_retrieval_and_seal_v1(ctx,request,spec,dict(max_embedding_input_bytes=48*2**30))
+ 
+ 
+ def finalize_worker_v1(input_ref,s,q,cfg,storage):
+--- /dev/null
++++ research/reviews/native_saved_MLM_current_Census64_integration_source_20261017_v1/root_builder_v1.py
+@@ -0,0 +1,208 @@
++"""Inactive-by-default ROOT metadata builder. Actual operations require exact active reviewed ROOT requests."""
++from pathlib import Path
++from datetime import datetime,timezone
++import argparse,copy,json,os,re,stat,sys
++from . import contract_v1 as c
++from . import science_binding_v1 as science
++from .worker_context_v1 import check_external_prerequisites_v1,prerequisite_metadata_v1,PendingPrerequisites
++MAX_ROOT_RECORD_BYTES=524288
++MAX_ROOT_RECORD_FILES=64
++CONFIG=c.HERE+"/scientific_config.FROZEN.v1.json"
++def _request_v1(record,action):
++ q=c.read(record);c.active(q)
++ c.require(q.get("schema")=="native_saved_MLM_Census64_ROOT_request_v1"and q.get("action")==action
++  and q.get("source_manifest_ref")==c.ref(c.MANIFEST),"Exact reviewed ROOT builder request action/source")
++ review=c.read(q["source_review_ref"])
++ candidate=review.get("candidate_manifest_ref",review.get("candidate_source_manifest_ref",review.get("source_manifest_ref")))
++ c.require(candidate==c.ref(c.MANIFEST)and review.get("independent")is True
++  and review.get("verdict")in("SOURCE_PASS","PASS_SOURCE_ONLY","PASS")
++  and review.get("blockers",review.get("blocking_findings"))==[],"Whole operational integration review, no cap-only authority")
++ c.configure_selector_v1(q["storage_policy_selector_ref"])
++ c.require(q["capacity_guard_ref"]==c.GUARD and q["capacity_policy_ref"]==c.POLICY,
++  "ROOT explicitly supplies same actual activated Census policy and selector, no inferred route")
++ return q
++def _record_directory_v1(instance):
++ c.require(type(instance)is str and re.fullmatch("[a-z][a-z0-9_]{0,39}",instance)is not None,"Exact fresh bounded ROOT instance")
++ return c.local("research/reviews/native_saved_MLM_Census64_ROOT_records_"+instance)
++def _record_budget_v1(directory,additional=0):
++ total=0;count=0
++ def scan(p,depth):
++  nonlocal total,count
++  total+=4096
++  c.require(depth<=1 and p.is_dir()and not p.is_symlink(),"Bounded canonical own ROOT metadata directory")
++  for child in p.iterdir():
++   c.require(not child.is_symlink(),"No linked ROOT record")
++   if child.is_dir():scan(child,depth+1);continue
++   st=child.lstat();c.require(stat.S_ISREG(st.st_mode)and child.suffix==".json"and st.st_nlink==1 and st.st_size<=65536,"Only bounded own JSON records")
++   total+=st.st_size+4096;count+=1
++ if directory.exists():scan(directory,0)
++ c.require(total+additional<=MAX_ROOT_RECORD_BYTES and count<MAX_ROOT_RECORD_FILES,
++  "ROOT record metadata stays within unchanged512KiB reservation-event allowance")
++def _save_v1(directory,name,value):
++ raw=(json.dumps(value,sort_keys=True,indent=2,allow_nan=False)+"\n").encode()
++ c.require(len(raw)<=65536,"Bounded ROOT metadata, not scientific output")
++ _record_budget_v1(directory.parent if directory.name.startswith("phase_")else directory,len(raw)+8192)
++ return c.save(directory,name,value)
++def _science_request_bindings_v1(q):
++ return dict(ROOT_saved_MLM_artifact_acceptance_ref=q["ROOT_saved_MLM_artifact_acceptance_ref"],
++  saved_MLM_scientific_integration_ref=c.SAVED_INTEGRATION_REF,
++  storage_policy_selector_ref=q["storage_policy_selector_ref"])
++def qualification_spec_v1(record):
++ return dict(parent_id=c.PARENT,refs=dict(preparation=c.PREP_REF,preparation_config=c.PREP_CONFIG_REF,counts=c.COUNTS_REF,
++  saved_MLM_qualification=record,fit_completion=record))
++def master_metadata_v1(q,*,config_ref,storage_ref,request_ref):
++ instance=q["instance"];job="native-saved-MLM-Census64-"+instance
++ return dict(schema="native_VAL000_downstream_ROOT_master_input_v1",root_authorizer="root_agent",status="active",template_only=False,
++  execution_authorized=True,source_review_passed=True,source_review_ref=q["source_review_ref"],source_manifest_ref=c.ref(c.MANIFEST),
++  created_at_utc=q["created_at_utc"],expires_at_utc=q["expires_at_utc"],job_id=job,
++  output_directory="experiments/results/native_saved_MLM_Census64_"+instance,
++  worker_auxiliary_scope=".runtime/tmp/native_saved_MLM_Census64_"+instance,
++  future_storage_reserved_bytes=64*2**30,original_MLM7GiB_scope_extended=False,
++  capacity_guard_ref=c.GUARD,capacity_policy_ref=c.POLICY,storage_policy_selector_ref=q["storage_policy_selector_ref"],
++  config_ref=config_ref,runtime_ref=c.original.RUNTIME_REF,storage_ref=storage_ref,ROOT_master_request_ref=request_ref,
++  ROOT_record_directory=str(_record_directory_v1(instance).relative_to(c.ROOT)),
++  saved_MLM_route=True,saved_MLM_scientific_integration_ref=c.SAVED_INTEGRATION_REF,
++  saved_MLM_scientific_binding_bridge_ref=c.ref(c.SCIENCE_BINDING),
++  ROOT_saved_MLM_artifact_acceptance_ref=q["ROOT_saved_MLM_artifact_acceptance_ref"],
++  MLM_prerequisites=dict(saved_artifact_acceptance_ref=q["ROOT_saved_MLM_artifact_acceptance_ref"],historical_MLM_outer_exit_code=1),
++  operational_IO_source_ref=c.IO_SOURCE_REF,operational_IO_policy_ref=c.IO_POLICY_REF,owned_roster_policy_ref=c.OWNED_ROSTER_POLICY_REF)
++def phase_metadata_v1(q,master,master_ref):
++ phase=q["phase"];c.require(phase in c.PHASES,"Only original seven stages")
++ c.require(datetime.fromisoformat(master["created_at_utc"])<=datetime.fromisoformat(q["created_at_utc"])
++  and datetime.fromisoformat(q["expires_at_utc"])<=datetime.fromisoformat(master["expires_at_utc"]),
++  "Fresh phase interval remains inside genuine master, no clock extension")
++ cap=q["max_cuda_reserved_bytes"]
++ c.require(type(cap)is int and((phase=="finalize"and cap==0)or(phase in c.GPU_PHASES and 0<cap<=74*2**30)),
++  "Exact finite ROOT GPU0 allocator request; no fit claim")
++ prerequisites=copy.deepcopy(q["prerequisites"]);prerequisites["MLM"]=copy.deepcopy(master["MLM_prerequisites"])
++ qual=q.get("saved_MLM_qualification_ref")
++ request=dict(schema="native_VAL000_downstream_ROOT_phase_authority_v1",root_authorizer="root_agent",status="active",template_only=False,
++  execution_authorized=True,source_review_passed=True,source_review_ref=q["source_review_ref"],source_manifest_ref=c.ref(c.MANIFEST),
++  master_input_ref=master_ref,created_at_utc=q["created_at_utc"],expires_at_utc=q["expires_at_utc"],phase=phase,
++  job_id=master["job_id"]+"/"+phase,runtime_ref=master["runtime_ref"],config_ref=master["config_ref"],
++  capacity_guard_ref=c.GUARD,capacity_policy_ref=c.POLICY,storage_policy_selector_ref=master["storage_policy_selector_ref"],
++  caps=dict(c.BASE_CAPS,max_cuda_reserved_bytes=cap),automatic_restart_authorized=False,partial_scientific_success_authorized=False,
++  operational_IO_source_ref=c.IO_SOURCE_REF,operational_IO_policy_ref=c.IO_POLICY_REF,ROOT_context_source_ref=c.ref(c.CONTEXT),
++  keep1_rotation_of_new_scope_authorized=True,original_author_recipe_claimed_exact=False,prerequisites=prerequisites,
++  ROOT_saved_MLM_artifact_acceptance_ref=master["ROOT_saved_MLM_artifact_acceptance_ref"],
++  saved_MLM_scientific_integration_ref=c.SAVED_INTEGRATION_REF,saved_MLM_qualification_ref=qual,
++  saved_MLM_qualification_spec=None if qual is None else qualification_spec_v1(qual),
++  direct_attachment_authority_ref=q.get("direct_attachment_authority_ref"),controller_binding_ref=q.get("controller_binding_ref"))
++ if phase.startswith("embedding_"):
++  view,split=phase[len("embedding_"):].rsplit("_",1);request.update(view=view,split=split)
++ return request
++def prepare_master_v1(request_ref):
++ q=_request_v1(request_ref,"prepare_master");directory=_record_directory_v1(q["instance"])
++ c.require(not directory.exists(),"Fresh immutable ROOT master records, no retry")
++ config_ref=c.ref(CONFIG);c.require(c.read(config_ref)==c.EXPECTED_CONFIG,"Actual frozen64GiB config and all original scientific predicates")
++ # Source-pinned saved-artifact eligibility is metadata only; never hash/load its checkpoint.
++ pre=dict(phase="contrastive",prerequisites={},**_science_request_bindings_v1(q))
++ check_external_prerequisites_v1(pre)
++ g=c.selected_guard_v1(consumer=False)
++ implementation=g._json(c.POLICY)["implementation_ref"];launcher=g._json(c.POLICY)["launcher_ref"]
++ c.raw(implementation);c.raw(launcher)
++ c.require(not directory.exists(),"Still fresh before ROOT metadata creation");directory.mkdir()
++ master=master_metadata_v1(q,config_ref=config_ref,storage_ref=None,request_ref=request_ref)
++ reservation=dict(key="H056/"+master["job_id"],output=str(c.local(master["output_directory"])),
++  auxiliary_scopes=[str(c.local(master["worker_auxiliary_scope"]))],reserved_bytes=64*2**30)
++ manifest=c.read(c.ref(c.MANIFEST))
++ for r in manifest["executed_source_refs"]+manifest["source_authentication_refs"]:c.raw(r)
++ direct=[c.GUARD,c.ref(c.MANIFEST),config_ref,master["runtime_ref"],request_ref,q["source_review_ref"],
++  q["ROOT_saved_MLM_artifact_acceptance_ref"],c.SAVED_INTEGRATION_REF,c.SAVED_SCIENTIFIC_ENTRY_REF,c.SAVED_SCIENCE_REVIEW_REF]
++ direct+=manifest["executed_source_refs"]
++ with g.budget.v4.mutex(c.ROOT):
++  state=g._state_locked(implementation["sha256"],launcher["sha256"],fresh=True)
++  reservation["consumer_bindings"]=g.consumer_bindings_v1(list(state[3].values()),direct)
++  authority=g.operation_draft_v1("reserve",reservation,expected_before=g._pins(state[2]),bindings=state[3])
++  authority.update(active=True,expires_at_utc=q["expires_at_utc"])
++  authority_ref=_save_v1(directory,"reserve_authority.json",authority)
++ receipt=g.apply_reserve_v1(authority_ref,expected_source_sha256=implementation["sha256"],expected_launcher_sha256=launcher["sha256"])
++ receipt_ref=_save_v1(directory,"reserve_receipt.json",receipt)
++ own=receipt["value"]
++ storage=dict(kind="project_budget_v9_storage_record",active=True,consumer_uses_v9_guard=True,
++  accounting_mode=g.MODE,job_id=master["job_id"],output_directory=master["output_directory"],
++  reserved_new_bytes=64*2**30,reservation=own,created_at_utc=q["created_at_utc"],expires_at_utc=q["expires_at_utc"],
++  budget_components=dict(implementation=implementation,launcher=launcher,consumer_adapter=c.GUARD),
++  completed_overlay_policy_ref=c.POLICY,storage_policy_selector_ref=q["storage_policy_selector_ref"],
++  initial_ledger_pins=receipt["initial_ledger_pins"])
++ storage_ref=_save_v1(directory,"storage.json",storage);master["storage_ref"]=storage_ref
++ master_ref=_save_v1(directory,"master_input.json",master)
++ admitted=_save_v1(directory,"admitted.json",dict(schema="native_saved_MLM_Census64_master_admitted_v1",
++  master_input_ref=master_ref,reserve_receipt_ref=receipt_ref,consumer_binding_count=len(own["consumer_bindings"]),
++  whole_scope_reservation_bytes=64*2**30,scientific_execution_started=False,measured_fit=False))
++ return dict(status="MASTER_ADMITTED_ONLY",master_input_ref=master_ref,admitted_ref=admitted,reserve_receipt_ref=receipt_ref,
++  scientific_execution_started=False,automatic_phase_execution=False)
++def _master_v1(record,q):
++ master=c.read(record);c.active(master)
++ c.require(master["source_manifest_ref"]==c.ref(c.MANIFEST)and master["storage_policy_selector_ref"]==q["storage_policy_selector_ref"]
++  and master["capacity_guard_ref"]==c.GUARD and master["capacity_policy_ref"]==c.POLICY
++  and master["saved_MLM_route"]is True and master["future_storage_reserved_bytes"]==64*2**30
++  and master["source_review_ref"]==q["source_review_ref"] and master["source_review_passed"]is True
++  and master["config_ref"]==c.ref(CONFIG) and c.read(master["config_ref"])==c.EXPECTED_CONFIG
++  and master["runtime_ref"]==c.original.RUNTIME_REF
++  and master["saved_MLM_scientific_integration_ref"]==c.SAVED_INTEGRATION_REF
++  and master["saved_MLM_scientific_binding_bridge_ref"]==c.ref(c.SCIENCE_BINDING)
++  and master["MLM_prerequisites"]==dict(saved_artifact_acceptance_ref=master["ROOT_saved_MLM_artifact_acceptance_ref"],historical_MLM_outer_exit_code=1),
++  "Exact actual same master/selector/source and64GiB charge")
++ storage=c.read(master["storage_ref"])
++ c.require(storage["accounting_mode"]==c.CENSUS_MODE and storage["storage_policy_selector_ref"]==q["storage_policy_selector_ref"]
++  and storage["reserved_new_bytes"]==storage["reservation"]["reserved_bytes"]==64*2**30
++  and storage["reservation"]["auxiliary_scopes"]==[str(c.local(master["worker_auxiliary_scope"]))],
++  "Same actual Census64 whole-scope stored reservation")
++ g=c.selected_guard_v1(consumer=False)
++ g.validate_storage_v9(master,dict(output_cap_bytes=64*2**30),storage,source_ref=c.ref(c.DRIVER),
++  config_ref=master["config_ref"],runtime_ref=master["runtime_ref"])
++ return master
++def prepare_phase_v1(request_ref):
++ q=_request_v1(request_ref,"prepare_phase");master=_master_v1(q["master_input_ref"],q)
++ authority=phase_metadata_v1(q,master,q["master_input_ref"])
++ check_external_prerequisites_v1(authority)
++ directory=c.local(master["ROOT_record_directory"])/("phase_"+q["phase"])
++ c.require(not directory.exists(),"Fresh single phase preparation; no replay");directory.mkdir()
++ authority_ref=_save_v1(directory,"phase_authority.json",authority)
++ phase=q["phase"]
++ spec=dict(schema="native_VAL000_downstream_ROOT_phase_input_v1",root_authorizer="root_agent",status="active",template_only=False,
++  execution_authorized=True,created_at_utc=q["created_at_utc"],expires_at_utc=q["expires_at_utc"],
++  root_stage_request_ref=authority_ref,job_id=authority["job_id"],phase=phase,
++  output_directory=master["output_directory"]+"/"+phase,worker_auxiliary_scope=master["worker_auxiliary_scope"]+"/"+phase,
++  storage_policy_selector_ref=q["storage_policy_selector_ref"],
++  refs=dict(config=master["config_ref"],runtime=master["runtime_ref"],storage=master["storage_ref"]))
++ input_ref=_save_v1(directory,"input.json",spec)
++ c.set_amendment_v1(input_ref);c.validate_input_v1(input_ref)
++ argv=["setsid",str(c.ROOT/".runtime/env/bin/python"),"-B","-s","-m",c.HERE.replace("/",".")+".execution_v1",
++  "--execute","--input-ref",json.dumps(input_ref),"--amendment-ref",json.dumps(input_ref)]
++ prepared=_save_v1(directory,"prepared.json",dict(schema="native_saved_MLM_Census64_phase_prepared_v1",input_ref=input_ref,
++  phase=phase,execute_argv=argv,scientific_execution_started=False,measured_fit=False))
++ return dict(status="PHASE_PREPARED_ONLY",input_ref=input_ref,prepared_ref=prepared,execute_argv=argv,automatic_execution=False)
++def prepare_qualification_v1(request_ref):
++ q=_request_v1(request_ref,"prepare_qualification");master=_master_v1(q["master_input_ref"],q)
++ integration=science.integration_v1(q["storage_policy_selector_ref"])
++ bundle=q["contrastive_prerequisite"]
++ metadata=prerequisite_metadata_v1(bundle,"contrastive")
++ done,wait,outer=metadata["completion"],metadata["wait"],metadata["outer"]
++ c.require(done["saved_MLM_initialization_ref"]==q["initialization_ref"],"Actual new contrastive inline initialization ref")
++ qualification=integration.qualify_saved_MLM_for_embeddings_v1(initialization_ref=q["initialization_ref"],
++  contrastive_completion_ref=bundle["completion_ref"],contrastive_wait_ref=bundle["wait_ref"],consumed_outer_ref=bundle["outer_terminal_ref"])
++ g=c.selected_guard_v1(consumer=False);storage=c.read(master["storage_ref"])
++ g.validate_storage_v9(master,dict(output_cap_bytes=64*2**30),storage,source_ref=c.ref(c.DRIVER),
++  config_ref=master["config_ref"],runtime_ref=master["runtime_ref"])
++ g.budget_check_v9(storage,boundary=True,required_write_bytes=65536+8192)
++ directory=c.local(master["ROOT_record_directory"]);record=_save_v1(directory,"saved_MLM_qualification.json",qualification)
++ return dict(status="SEPARATE_SAVED_MLM_QUALIFICATION_ONLY",qualification_ref=record,historical_MLM_outer_exit_code=1,
++  scientific_execution_authorized=False,close_or_credit_authorized=False)
++def main(argv=None):
++ p=argparse.ArgumentParser(description=__doc__);a=p.add_mutually_exclusive_group()
++ a.add_argument("--prepare-master-ref");a.add_argument("--prepare-phase-ref");a.add_argument("--qualify-ref")
++ args=p.parse_args(argv)
++ if not any((args.prepare_master_ref,args.prepare_phase_ref,args.qualify_ref)):
++  print(json.dumps(dict(status="SOURCE_ONLY_INACTIVE",admission=False,execution=False)));return 0
++ c.require(sys.platform.startswith("linux")and sys.dont_write_bytecode and not any(n in sys.modules for n in("torch","torch_geometric")),
++  "Fresh ROOT Linux stdlib metadata interpreter")
++ try:
++  if args.prepare_master_ref:result=prepare_master_v1(json.loads(args.prepare_master_ref))
++  elif args.prepare_phase_ref:result=prepare_phase_v1(json.loads(args.prepare_phase_ref))
++  else:result=prepare_qualification_v1(json.loads(args.qualify_ref))
++ except PendingPrerequisites as exc:
++  print(json.dumps(dict(status="PENDING_GENUINE_PREREQUISITES",reason=str(exc),no_launch=True,no_automatic_continuation=True)));return 2
++ print(json.dumps(result,sort_keys=True));return 0
++if __name__=="__main__":raise SystemExit(main())
+--- /dev/null
++++ research/reviews/native_saved_MLM_current_Census64_integration_source_20261017_v1/science_binding_v1.py
+@@ -0,0 +1,41 @@
++"""Private source-authenticated selector binding only; passed scientific bodies remain exact."""
++import ast,copy,importlib.util,sys
++from . import contract_v1 as c
++_INTEGRATION=_ENTRY=None
++_SELECTED=None
++def integration_v1(selector_ref):
++ global _INTEGRATION,_SELECTED
++ c.configure_selector_v1(selector_ref)
++ if _INTEGRATION is not None:
++  c.require(_SELECTED==selector_ref,"Same scientific binding selector for lifetime")
++  return _INTEGRATION
++ c.raw(c.SAVED_SCIENCE_REVIEW_REF);review=c.read(c.SAVED_SCIENCE_REVIEW_REF)
++ c.require(review.get("verdict")=="SOURCE_PASS"and review.get("blocking_findings",review.get("blockers",[]))==[],
++  "Passed saved-MLM scientific integration review stays separate from operational review")
++ module=c.load(c.SAVED_INTEGRATION_REF,"_Census64_original_saved_MLM_scientific_integration")
++ source=c.raw(c.SAVED_INTEGRATION_REF).decode();tree=ast.parse(source)
++ fn=copy.deepcopy(next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=="bind_stage_v1"))
++ target=ast.dump(ast.parse('PINS["current_selector"]',mode="eval").body,include_attributes=False);count=[0]
++ class ActualSelector(ast.NodeTransformer):
++  def visit_Subscript(self,node):
++   if ast.dump(node,include_attributes=False)==target:
++    count[0]+=1;return ast.copy_location(ast.Name(id="_actual_Census_selector_ref_v1",ctx=ast.Load()),node)
++   return self.generic_visit(node)
++ fn=ActualSelector().visit(fn);c.require(count[0]==2,"Only two exact original selector-comparison operands change")
++ ns=module.__dict__;ns["_actual_Census_selector_ref_v1"]=copy.deepcopy(selector_ref);ast.fix_missing_locations(fn)
++ exec(compile(ast.Module(body=[fn],type_ignores=[]),str(c.local(c.SCIENCE_BINDING))+":actual_selector_operands","exec"),ns)
++ _SELECTED=copy.deepcopy(selector_ref);_INTEGRATION=module
++ return module
++def entry_v1(selector_ref):
++ global _ENTRY
++ integration=integration_v1(selector_ref)
++ if _ENTRY is None:
++  source=c.raw(c.SAVED_SCIENTIFIC_ENTRY_REF).decode();tree=ast.parse(source)
++  matches=[n for n in tree.body if isinstance(n,ast.ImportFrom)and any(a.asname=="integration"for a in n.names)]
++  c.require(len(matches)==1,"Only original scientific entry integration import is operationally bound")
++  tree.body=[ast.Assign(targets=[ast.Name(id="integration",ctx=ast.Store())],value=ast.Name(id="_actual_scientific_integration_v1",ctx=ast.Load()))if n is matches[0]else n for n in tree.body]
++  ast.fix_missing_locations(tree);module=type(integration)("_Census64_original_scientific_entry")
++  module.__dict__["_actual_scientific_integration_v1"]=integration
++  exec(compile(tree,str(c.local(c.SAVED_SCIENTIFIC_ENTRY_REF["path"]))+":same_private_integration_import","exec"),module.__dict__)
++  _ENTRY=module
++ return _ENTRY

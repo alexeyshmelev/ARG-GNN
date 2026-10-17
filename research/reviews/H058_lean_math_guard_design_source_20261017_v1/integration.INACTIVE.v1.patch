@@ -1,0 +1,51 @@
+--- a/research/reviews/H058_GPU0_full_training_successor_source_20261017_v7/context_factory_v1.py
++++ b/research/reviews/H058_GPU0_full_training_successor_source_20261017_v7/context_factory_v1.py
+@@ -75,6 +75,10 @@
+         active(spec);active(q);require_work_window_v2(spec);resources()
+         require(time.monotonic()-started<CAPS["max_seconds"],"Original24h deadline")
+         charged_census_v1(spec);g.budget_check_v9(storage,boundary=False)
++    def math_guard():
++        active(spec);active(q);require_work_window_v2(spec);resources()
++        require(time.monotonic()-started<CAPS["max_seconds"],"Original24h deadline")
++        charged_census_v1(spec)
+     from arggnn import train_ordered_clade_episode_v1 as h45
+     h45.science()
+     def before_episode(pid,bank,declared):
+@@ -99,6 +103,10 @@
+     import numpy as np
+     from research.reviews.H058_full_parent_CPU_execution_source_20261017_v1.writer_helpers_v1 import make_jsonable_v1
+     output._H058_jsonable=make_jsonable_v1(torch,np)
++    if spec["phase"]=="train":
++        # INACTIVE prototype: a fresh source closure/review/admission is required.
++        from research.reviews.H058_lean_math_guard_design_source_20261017_v1.lean_math_guard_v1 import MathEffectGateV1
++        ctx["_H058_math_gate"]=MathEffectGateV1(guard,math_guard,torch,protocol.ARMS)
+     guard();output.save("ROOT_started.json",dict(schema="H058_fixed_full_parent_ROOT_started_v1",
+         input_ref=record,phase=spec["phase"],device=str(device),physical_gpu=ctx["physical_gpu"],
+         scientific_output_cap_bytes=CAPS["scientific_output_bytes"],whole_scope_reservation_bytes=CAPS["reservation_bytes"],
+--- a/research/reviews/H058_GPU0_full_training_successor_source_20261017_v7/producer_v1.py
++++ b/research/reviews/H058_GPU0_full_training_successor_source_20261017_v7/producer_v1.py
+@@ -215,8 +215,10 @@
+     try:
+         # Exact existing Torch/PyG full-parent objective/backward/clip/AdamW step.
+         observations.validate_scheduled_cache_v1(ctx,bank,payload)
+-        row=h45.train_one(value,optimizer,bank,mass,payload,ctx["guard"],
+-            qualify=first,after_optimizer_step=counted)
++        def actual_step(bound_guard):
++            return h45.train_one(value,optimizer,bank,mass,payload,bound_guard,
++                qualify=first,after_optimizer_step=counted)
++        row=ctx["_H058_math_gate"].run_step(arm,first,actual_step)
+         observations.validate_scheduled_cache_v1(ctx,bank,payload)
+     finally:
+         for handle in handles:handle.remove()
+--- a/research/reviews/H058_GPU0_full_training_successor_source_20261017_v7/root_driver_v1.py
++++ b/research/reviews/H058_GPU0_full_training_successor_source_20261017_v7/root_driver_v1.py
+@@ -205,6 +205,9 @@
+             ARGGNN_COMPLETED_CREDITS_POLICY_REF=json.dumps(POLICY),
+             ARGGNN_BUDGET_V9_SOURCE_SHA256=storage["budget_components"]["implementation"]["sha256"],
+             ARGGNN_BUDGET_V9_LAUNCHER_SHA256=storage["budget_components"]["launcher"]["sha256"])
++        # INACTIVE prototype: controls precede every Torch/CUDA import.
++        env.update(CUDA_CACHE_DISABLE="1",USE_PYTORCH_KERNEL_CACHE="0",
++            PYTORCH_JIT="0",TORCH_COMPILE_DISABLE="1",TORCHDYNAMO_DISABLE="1")
+         env.update(paths)
+         if s["phase"]=="train":
+             from research.reviews.H058_GPU0_full_training_successor_source_20261017_v7 import direct_gpu0_v1 as direct

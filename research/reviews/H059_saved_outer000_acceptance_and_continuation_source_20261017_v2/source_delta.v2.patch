@@ -1,0 +1,271 @@
+--- v1-package-normalized/saved_outer000_v1.py
++++ v2/saved_outer000_v1.py
+@@ -81,6 +81,26 @@
+  for row in value["known_PID_observations"]+value["known_group_observations"]:
+   t=datetime.fromisoformat(row["checked_utc"]);need(t.tzinfo and 0<=(now-t).total_seconds()<=120,"Fresh known absence required")
+  return value
++def admission_preflight_values_v2(value,q,request_ref,qualification,revocation,driver_ref,*,now=None):
++ """Immutable admission-time relation; NEVER current <=120s freshness later."""
++ need(type(value)is dict and set(value)=={"schema","root_authorizer","status","initial_admission_preflight_only",
++  "checked_at_utc","request_ref","qualification_ref","old_writer_revocation_ref","qualification_observed_at_utc",
++  "revoked_at_utc","driver_source_ref","qualification_max_age_seconds"},"Typed exact admission preflight evidence")
++ need(value["schema"]=="H059_original_readonly_scope_admission_preflight_v2"and value["root_authorizer"]=="root_agent"
++  and value["status"]=="PASS"and value["initial_admission_preflight_only"]is True
++  and type(value["qualification_max_age_seconds"])is int and value["qualification_max_age_seconds"]==120
++  and value["request_ref"]==request_ref and value["qualification_ref"]==q["original_readonly_scope_qualification_ref"]
++  and value["old_writer_revocation_ref"]==q["old_writer_revocation_ref"]and value["driver_source_ref"]==driver_ref,
++  "Preflight binds exact request/source/qualification/revocation")
++ need(value["qualification_observed_at_utc"]==qualification["observed_at_utc"]
++  and value["revoked_at_utc"]==revocation["revoked_at_utc"],"Original observed and revoked times preserved")
++ checked=datetime.fromisoformat(value["checked_at_utc"]);observed=datetime.fromisoformat(value["qualification_observed_at_utc"])
++ revoked=datetime.fromisoformat(value["revoked_at_utc"]);created=datetime.fromisoformat(q["created_at_utc"])
++ now=datetime.now(timezone.utc)if now is None else now
++ need(all(x.tzinfo is not None for x in(checked,observed,revoked,created,now))and created<=checked<=now
++  and revoked<=observed<=checked and 0<=(checked-observed).total_seconds()<=120,
++  "Post-revocation qualification was fresh at initial admission preflight only")
++ return value
+ def stream_observed_v1(record,guard,deadline,*,maximum=4000000000):
+  path=Path(record["path"])
+  need(not path.is_absolute()and ".."not in path.parts and path.parts[:3]==tuple(Path(BASE).parts)
+@@ -144,6 +164,8 @@
+  result=read(a["validation_result_ref"]);wait=read(a["validator_wait_ref"]);terminal=read(a["validator_ROOT_terminal_ref"])
+  driver_ref=ref(HERE+"/validation_driver_v1.py");completion=read(a["validator_completion_ref"]);admission=read(a["validator_input_ref"])
+  validator_request=read(admission["root_request_ref"])
++ admission_preflight_values_v2(admission["admission_preflight_v2"],validator_request,admission["root_request_ref"],
++  read(validator_request["original_readonly_scope_qualification_ref"]),read(validator_request["old_writer_revocation_ref"]),driver_ref)
+  need(review.get("validator_driver_source_ref")==driver_ref
+   and admission["schema"]=="H059_saved_outer000_validator_admission_v1"
+   and admission["source_ref"]==driver_ref and admission["operational_source_ref"]==driver_ref
+@@ -151,7 +173,9 @@
+   and completion["schema"]=="H059_saved_outer000_validator_completion_v1"
+   and completion["input_ref"]==a["validator_input_ref"]and completion["driver_source_ref"]==driver_ref
+   and completion["validation_result_ref"]==a["validation_result_ref"]and completion["original_history"]==HISTORY
+-  and validator_request["old_writer_revocation_ref"]==a["old_writer_revocation_ref"]==result["old_writer_revocation_ref"],
++  and validator_request["old_writer_revocation_ref"]==a["old_writer_revocation_ref"]==result["old_writer_revocation_ref"]
++  and result["original_readonly_scope_qualification_ref"]==validator_request["original_readonly_scope_qualification_ref"]
++  and result["admission_preflight_v2"]==admission["admission_preflight_v2"],
+   "Actual dedicated reviewed validator input and completion bind the result")
+  need(result["schema"]=="H059_saved_outer000_observed_validation_result_v1"and result["status"]=="VALIDATED_SAVED_OBSERVED_ONLY"
+   and result["original_history"]==HISTORY and result["completion_ref"]==COMPLETION
+--- v1-package-normalized/validation_driver_v1.py
++++ v2/validation_driver_v1.py
+@@ -1,7 +1,7 @@
+ """One fixed remaining reserved European outer parent. Default inert; ROOT-only future admission."""
+ from pathlib import Path
+ from datetime import datetime, timezone
+-import argparse, ctypes, hashlib, importlib, importlib.util, itertools, json, os, selectors, signal, stat, subprocess, sys, time
++import argparse, ctypes, resource, hashlib, importlib, importlib.util, itertools, json, os, selectors, signal, stat, subprocess, sys, time
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+ HERE="research/reviews/H059_saved_outer000_acceptance_and_continuation_source_20261017_v2"
+ BASE_HERE="research/reviews/European_outer8_preparation_source_20261016_v3"
+@@ -27,9 +27,9 @@
+ PIDFD=dict(path="research/reviews/American_C3_native_MLM_full_source_v5/pidfd_backend_v1.py",sha256="61be5d89357d1b95611e0ba26dd39d381ececf3ce6a36c347507cdc062373eca")
+ OWNED=dict(path="research/reviews/American_C3_native_MLM_amendment_v12/owned_lifecycle_v2.py",sha256="93d71acc40f1037d0b37acb2ca0859300ea4bd9741409e9bd00ca21bf100d633")
+ PARENT="ap_expanded_outer_000"
+-OUTPUT="experiments/results/H059_saved_outer000_validator_root01_oct17"
+-JOB="H059-saved-outer000-dedicated-CPU-validator-root01-oct17"
+-CAPS=dict(reservation_bytes=32*2**20,output_bytes=8*2**20,auxiliary_bytes=8*2**20,root_packet_bytes=4*2**20,cpu_threads=1,rss_bytes=4*2**30,wall_seconds=900,cleanup_seconds=30,work_reserve_seconds=300,evidence_reserve_seconds=150,log_bytes=2**20)
++OUTPUT="experiments/results/H059_saved_outer000_validator_root02_oct17"
++JOB="H059-saved-outer000-dedicated-CPU-validator-root02-oct17"
++CAPS=dict(reservation_bytes=32*2**20,output_bytes=8*2**20,auxiliary_bytes=8*2**20,root_packet_bytes=4*2**20,cpu_threads=1,rss_bytes=4*2**30,wall_seconds=10800,setup_seconds=7200,validation_work_seconds=600,post_validation_write_seconds=1800,cleanup_seconds=30,work_reserve_seconds=300,evidence_reserve_seconds=150,log_bytes=2**20)
+ OBSERVED=["genotypes.vcf","sample_manifest.json","sample_order.txt","sample_ages.generations",
+           "population_labels.txt","site_coordinate_manifest.json","uniform_recombination_map.txt",
+           "scoring_coordinates.npz","observation_manifest.json"]
+@@ -79,9 +79,9 @@
+         and q.get("generation_or_Relate_rerun_authorized")is False and q.get("GPU_authorized")is False
+         and q.get("outer_scoring_authorized")is False and q.get("source_manifest_ref")==ref(MANIFEST)
+         and q.get("caps")==CAPS and q.get("parent_id")==PARENT and q.get("output_directory")==OUTPUT
+-        and q.get("preparation_directory")=="research/reviews/H059_saved_outer000_validator_ROOT_preparation_root01_oct17"
+-        and q.get("packet_directory")=="research/reviews/H059_saved_outer000_validator_ROOT_actual_root01_oct17"
+-        and q.get("proposed_reservation_key")=="H059/saved-outer000-validator-root01-oct17"
++        and q.get("preparation_directory")=="research/reviews/H059_saved_outer000_validator_ROOT_preparation_root02_oct17"
++        and q.get("packet_directory")=="research/reviews/H059_saved_outer000_validator_ROOT_actual_root02_oct17"
++        and q.get("proposed_reservation_key")=="H059/saved-outer000-validator-root02-oct17"
+         and q.get("automatic_retry_or_reseed")is False,"Dedicated original-history-preserving CPU validator")
+     need(local(r["path"]).parent==local(q["preparation_directory"])and local(q["preparation_directory"]).is_dir(),"Existing separate immutable ROOT staging")
+     cpus=q["cpu_ids"];need(isinstance(cpus,list)and len(cpus)==1 and type(cpus[0])is int and set(cpus)<=os.sched_getaffinity(0),"One genuine CPU identity")
+@@ -108,13 +108,27 @@
+         and qualification["original_charge_retained"]is True and qualification["historical_monitoring_gap_recovered"]is False,
+         "Separate actual ROOT full old-scope read-only guard/cap qualification, never renewed execution")
+     t=datetime.fromisoformat(qualification["observed_at_utc"]);now=datetime.now(timezone.utc)
+-    need(t.tzinfo and 0<=(now-t).total_seconds()<=120 and qualification["old_writer_revocation_ref"]==q["old_writer_revocation_ref"]
++    need(t.tzinfo and t<=now and qualification["old_writer_revocation_ref"]==q["old_writer_revocation_ref"]
+         and datetime.fromisoformat(revocation["revoked_at_utc"])<=t
+         and qualification["original_storage_ref"]==dict(path="research/reviews/European_outer000_ROOT_actual_Relate64_20261017_v1/storage.json",sha256="b7e2e7d9e73a0f986abbe358077042adcfda18aab53996aeca838d39dfc4f416"),
+-        "Fresh exact old-scope read-only qualification")
++        "Exact immutable old-scope qualification; freshness belongs to admission preflight")
+     selection(q["policy_selector_ref"])
+     cfg=read(CONFIG);return q,cfg
+ 
++def saved_module_v2():
++    return importlib.import_module(HERE.replace("/",".")+".saved_outer000_v1")
++def admission_preflight_v2(q,request_ref):
++    stamp=datetime.now(timezone.utc).isoformat()
++    qualification=read(q["original_readonly_scope_qualification_ref"]);revocation=read(q["old_writer_revocation_ref"])
++    proof=dict(schema="H059_original_readonly_scope_admission_preflight_v2",root_authorizer="root_agent",status="PASS",
++        initial_admission_preflight_only=True,checked_at_utc=stamp,request_ref=request_ref,
++        qualification_ref=q["original_readonly_scope_qualification_ref"],old_writer_revocation_ref=q["old_writer_revocation_ref"],
++        qualification_observed_at_utc=qualification["observed_at_utc"],revoked_at_utc=revocation["revoked_at_utc"],
++        driver_source_ref=ref(SOURCE),qualification_max_age_seconds=120)
++    return saved_module_v2().admission_preflight_values_v2(proof,q,request_ref,qualification,revocation,ref(SOURCE))
++def validate_admission_preflight_v2(proof,q,request_ref):
++    return saved_module_v2().admission_preflight_values_v2(proof,q,request_ref,
++        read(q["original_readonly_scope_qualification_ref"]),read(q["old_writer_revocation_ref"]),ref(SOURCE))
+ def selection(selector_ref):
+     """Only ROOT's explicit separately activated reviewed Census child; never discover or fall back."""
+     value=read(selector_ref)
+@@ -266,6 +280,18 @@
+     totals.append(admin)
+     need(sum(totals)<=CAPS["reservation_bytes"],"Whole scientific+packet+AUX polling cap")
+     return totals
++def write_boundary_v2(g,spec,planned=0,target="output",*,deadline):
++    need(time.monotonic()<deadline,"Finite accounting/write window before guard")
++    result=boundary(g,spec,planned,target)
++    need(time.monotonic()<deadline,"Finite accounting/write window after guard")
++    return result
++def readonly_boundary_v2(spec,deadline):
++    """Read-only chunks: existing current/time/scope/RSS, no ledger replay."""
++    current(spec)
++    need(time.monotonic()<deadline,"Finite read-only validation work")
++    sample_scope(spec)
++    need(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss*1024<=CAPS["rss_bytes"],"Validator RSS fail-stop")
++    current(spec)
+ def input_spec(r):
+     s=read(r);current(s);q,cfg=request(s["root_request_ref"]);chosen=selection(q["policy_selector_ref"])
+     need(r["path"]==q["packet_directory"]+"/input.json"and s["schema"]=="H059_saved_outer000_validator_admission_v1"
+@@ -280,10 +306,13 @@
+         and s["storage"]["reservation"]["auxiliary_scopes"]==[str(local(q["packet_directory"]))]
+         and s["storage"]["storage_policy_selector_ref"]==q["policy_selector_ref"]
+         and s["worker_auxiliary_scope"]==q["packet_directory"]+"/worker_aux","Exact newly admitted dedicated validator storage/source/output")
++    validate_admission_preflight_v2(s["admission_preflight_v2"],q,s["root_request_ref"])
+     return s,q,cfg
+ def admit(r):
+     need(Path.cwd()==ROOT and sys.dont_write_bytecode and sys.flags.no_user_site,"ROOT exact cwd/-B/-s")
+-    q,cfg=request(r);packet=local(q["packet_directory"]);prep=local(q["preparation_directory"])
++    initial_request=read(r);preflight=admission_preflight_v2(initial_request,r)
++    q,cfg=request(r);need(q==initial_request,"Immutable request through initial preflight")
++    packet=local(q["packet_directory"]);prep=local(q["preparation_directory"])
+     need(not packet.exists() and not local(OUTPUT).exists(),"Whole packet/output absent before reserve")
+     chosen=selection(q["policy_selector_ref"]);g=guard(q["policy_selector_ref"],False)
+     impl,launcher=ref(g.budget.SOURCE_REL),ref(g.budget.LAUNCHER_REL)
+@@ -313,7 +342,8 @@
+         created_at_utc=q["created_at_utc"],expires_at_utc=q["expires_at_utc"],storage=storage,storage_adapter_ref=chosen["source_ref"],
+         outer_evaluation_authorized=False,worker_auxiliary_scope=auxiliary,root_request_ref=r,
+         registration_ref=q["registration_ref"],policy_selector_ref=q["policy_selector_ref"],no_scientific_modifications_to_original_generation=True,
+-        operational_source_ref=ref(SOURCE),operational_manifest_ref=ref(MANIFEST),source_handoff_ref=ref(HERE+"/source_handoff.v1.json"))
++        operational_source_ref=ref(SOURCE),operational_manifest_ref=ref(MANIFEST),source_handoff_ref=ref(HERE+"/source_handoff.v1.json"),
++        admission_preflight_v2=preflight)
+     ir=put(packet/"input.json",spec);input_spec(ir)
+     put(packet/"admitted.json",dict(input_ref=ir,storage_ref=sr,reserve_receipt_ref=reserve_ref,consumer_count=len(consumers),execution=False))
+     return dict(input_ref=ir,admission_only=True,execution_argv=["setsid",str(ROOT/".runtime/env/bin/python"),"-B","-s","-m",
+@@ -327,6 +357,9 @@
+     return complete
+ def worker(r,gate_fd):
+     need(os.read(gate_fd,1)==b"G","Dedicated validator owned gate");os.close(gate_fd)
++    setup_deadline=float(os.environ["H059_VALIDATOR_SETUP_DEADLINE_MONOTONIC"])
++    work_deadline=float(os.environ["H059_VALIDATOR_WORK_DEADLINE_MONOTONIC"])
++    need(time.monotonic()<setup_deadline<work_deadline,"Finite supervisor setup/work clocks")
+     s,q,cfg=input_spec(r)
+     need(os.environ.get("CUDA_VISIBLE_DEVICES")==""and os.getpid()==os.getpgrp()==os.getsid(0),"Owned CPU-only validator session")
+     os.sched_setaffinity(0,set(q["cpu_ids"]))
+@@ -336,15 +369,21 @@
+     g=guard(q["policy_selector_ref"],True)
+     g.validate_storage_v9(s,dict(output_cap_bytes=CAPS["reservation_bytes"]),s["storage"],
+         source_ref=ref(SOURCE),config_ref=CONFIG,runtime_ref=s["runtime_ref"])
+-    verify_generation_roles_v1(s,q,g);boundary(g,s,32768);local(OUTPUT).mkdir()
++    verify_generation_roles_v1(s,q,g);write_boundary_v2(g,s,32768,deadline=setup_deadline);local(OUTPUT).mkdir()
+     saved=importlib.import_module(HERE.replace("/",".")+".saved_outer000_v1")
+-    result=saved.validate_saved_v1(read,ref,lambda:boundary(g,s),wall_seconds=CAPS["wall_seconds"]-CAPS["work_reserve_seconds"])
+-    result.update(old_writer_revocation_ref=q["old_writer_revocation_ref"],original_readonly_scope_qualification_ref=q["original_readonly_scope_qualification_ref"])
+-    boundary(g,s,32768);result_ref=put(local(OUTPUT)/"validation_result.json",result)
++    need(time.monotonic()<setup_deadline and time.monotonic()+CAPS["validation_work_seconds"]+
++        CAPS["post_validation_write_seconds"]<work_deadline,"Setup preserves full validation and final-write allowances")
++    result=saved.validate_saved_v1(read,ref,lambda:readonly_boundary_v2(s,work_deadline),wall_seconds=CAPS["validation_work_seconds"])
++    write_deadline=min(work_deadline,time.monotonic()+CAPS["post_validation_write_seconds"])
++    result.update(old_writer_revocation_ref=q["old_writer_revocation_ref"],original_readonly_scope_qualification_ref=q["original_readonly_scope_qualification_ref"],admission_preflight_v2=s["admission_preflight_v2"])
++    write_boundary_v2(g,s,32768,deadline=write_deadline)
++    result_ref=put(local(OUTPUT)/"validation_result.json",result)
+     completed=dict(schema="H059_saved_outer000_validator_completion_v1",parent_id=PARENT,input_ref=r,
+         driver_source_ref=ref(SOURCE),validation_result_ref=result_ref,original_history=saved.HISTORY,
+         original_scope_completion_or_credit=False,private_truth_opened=False)
+-    boundary(g,s,32768);put(local(OUTPUT)/"completed.json",completed)
++    write_boundary_v2(g,s,32768,deadline=write_deadline)
++    put(local(OUTPUT)/"completed.json",completed)
++    need(time.monotonic()<write_deadline,"Final writes completed inside allowance")
+     return 0
+ def rss_identity_v1(owned,identity):
+     before=owned._stat(identity["pid"])
+@@ -359,6 +398,7 @@
+ 
+ def execute(r):
+     started=time.monotonic();s,q,cfg=input_spec(r);g=guard(q["policy_selector_ref"],True)
++    overall_deadline=min(started+CAPS["wall_seconds"],time.monotonic()+datetime.fromisoformat(s["expires_at_utc"]).timestamp()-time.time())
+     need(Path.cwd()==ROOT and Path(sys.executable).resolve()==(ROOT/".runtime/env/bin/python").resolve(),"Original CPU supervisor runtime")
+     need(not local(OUTPUT).exists() and not local(s["worker_auxiliary_scope"]).exists(),"Fresh one-shot execution only")
+     g.validate_storage_v9(s,dict(output_cap_bytes=CAPS["reservation_bytes"]),s["storage"],source_ref=ref(SOURCE),config_ref=CONFIG,runtime_ref=s["runtime_ref"])
+@@ -376,7 +416,10 @@
+         PYTHONPATH=os.pathsep.join([str(ROOT),str(ROOT/"src"),str(ROOT/"scripts")]),
+         TMPDIR=str(aux/"tmp"),TMP=str(aux/"tmp"),TEMP=str(aux/"tmp"),OMP_NUM_THREADS="1",MKL_NUM_THREADS="1")
+     deadline=min(started+CAPS["wall_seconds"]-300,time.monotonic()+datetime.fromisoformat(s["expires_at_utc"]).timestamp()-time.time()-300)
++    setup_deadline=min(started+CAPS["setup_seconds"],deadline-CAPS["validation_work_seconds"]-CAPS["post_validation_write_seconds"])
++    env.update(H059_VALIDATOR_SETUP_DEADLINE_MONOTONIC=str(setup_deadline),H059_VALIDATOR_WORK_DEADLINE_MONOTONIC=str(deadline))
+     try:
++        need(time.monotonic()<setup_deadline,"Finite supervisor setup before launch")
+         proc=subprocess.Popen([str(ROOT/".runtime/env/bin/python"),"-B","-m",HERE.replace("/",".")+".validation_driver_v1",
+             "--worker-ref",json.dumps(r),"--gate-fd",str(gate_read)],cwd=ROOT,env=env,stdout=subprocess.PIPE,
+             stderr=subprocess.STDOUT,start_new_session=True,pass_fds=(gate_read,),bufsize=0)
+@@ -472,7 +515,7 @@
+         cleanup_seconds=time.monotonic()-stop,cleanup_deadline_seconds=CAPS["cleanup_seconds"])
+     minimal={k:observation[k]for k in ("schema","input_ref","pid","actual_direct_worker_wait","actual_OS_wait_status","returncode","all_owned_processes_and_groups_drained","operational_failure","complete_owned_roster_known","known_identity_count","adopted_wait_count","adopted_waits_truncated","cleanup_seconds","cleanup_deadline_seconds")}
+     try:
+-        boundary(g,s,32768,target="aux");put(aux/"actual_wait_minimal.json",minimal,cap=32768)
++        write_boundary_v2(g,s,32768,target="aux",deadline=overall_deadline);put(aux/"actual_wait_minimal.json",minimal,cap=32768)
+     except BaseException as exc:print(json.dumps(dict(minimal_actual_wait=minimal,minimal_write_error=str(exc)[:500])),flush=True)
+     print(json.dumps(observation,sort_keys=True),flush=True)
+     if not drained or time.time()+150>=datetime.fromisoformat(s["expires_at_utc"]).timestamp():
+@@ -483,8 +526,8 @@
+         need(completed["schema"]=="H059_saved_outer000_validator_completion_v1"and completed["input_ref"]==r
+             and completed["driver_source_ref"]==ref(SOURCE)and completed["original_scope_completion_or_credit"]is False,"Dedicated observed validator completion only")
+         observation.update(completion_ref=cp,driver_source_ref=ref(SOURCE))
+-        boundary(g,s,32768,target="aux");wr=put(aux/"actual_wait.json",observation,cap=16*2**20)
+-        boundary(g,s,len(tail)*6+8192,target="aux");put(aux/"worker_log.json",dict(tail=bytes(tail).decode(errors="replace"),retained_raw_bytes=len(tail)),cap=16*2**20)
++        write_boundary_v2(g,s,32768,target="aux",deadline=overall_deadline);wr=put(aux/"actual_wait.json",observation,cap=16*2**20)
++        write_boundary_v2(g,s,len(tail)*6+8192,target="aux",deadline=overall_deadline);put(aux/"worker_log.json",dict(tail=bytes(tail).decode(errors="replace"),retained_raw_bytes=len(tail)),cap=16*2**20)
+         return dict(status="PREPARED" if failure is None else "FAILED",returncode=0 if failure is None else 1,
+             actual_wait_ref=wr,completed_ref=cp,validation_result_ref=completed["validation_result_ref"],outer_tool_terminal_consumed=False,outer_truth_scored=False)
+     except BaseException as exc:
+--- v1-package-normalized/ROOT_saved_validator.INACTIVE.template.v1.json
++++ v2/ROOT_saved_validator.INACTIVE.template.v1.json
+@@ -8,10 +8,13 @@
+     "evidence_reserve_seconds": 150,
+     "log_bytes": 1048576,
+     "output_bytes": 8388608,
++    "post_validation_write_seconds": 1800,
+     "reservation_bytes": 33554432,
+     "root_packet_bytes": 4194304,
+     "rss_bytes": 4294967296,
+-    "wall_seconds": 900,
++    "setup_seconds": 7200,
++    "validation_work_seconds": 600,
++    "wall_seconds": 10800,
+     "work_reserve_seconds": 300
+   },
+   "cpu_ids": [],
+@@ -25,13 +28,13 @@
+   "old_writer_revocation_ref": null,
+   "original_readonly_scope_qualification_ref": null,
+   "outer_scoring_authorized": false,
+-  "output_directory": "experiments/results/H059_saved_outer000_validator_root01_oct17",
+-  "packet_directory": "research/reviews/H059_saved_outer000_validator_ROOT_actual_root01_oct17",
++  "output_directory": "experiments/results/H059_saved_outer000_validator_root02_oct17",
++  "packet_directory": "research/reviews/H059_saved_outer000_validator_ROOT_actual_root02_oct17",
+   "parent_id": "ap_expanded_outer_000",
+   "policy_selector_ref": null,
+-  "preparation_directory": "research/reviews/H059_saved_outer000_validator_ROOT_preparation_root01_oct17",
++  "preparation_directory": "research/reviews/H059_saved_outer000_validator_ROOT_preparation_root02_oct17",
+   "prior_preparation_routes_cooperatively_revoked": false,
+-  "proposed_reservation_key": "H059/saved-outer000-validator-root01-oct17",
++  "proposed_reservation_key": "H059/saved-outer000-validator-root02-oct17",
+   "registration_decisions_ref": {
+     "path": "research/reviews/European_outer8_ROOT_freeze_20261017_v1/experiment_decisions.snapshot.json",
+     "sha256": "8146dd77bd55aac3797c2f077e87b26e1e56d16fc53357fd256f973712c9992e"
