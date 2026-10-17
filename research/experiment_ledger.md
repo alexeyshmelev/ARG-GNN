@@ -568,9 +568,9 @@ Evidence: [research/reviews/native_hold_resolution_train_registration_root_20261
 
 ## H058: Same-marker source/age/allele alignment through the full observed tree improves Present182 tract-boundary discrimination beyond equal-capacity alignment-null and continued H045 training, without material span-accuracy or NLL loss.
 
-**full_GPU0_v4_source_review_passed_admission_pending.** Query-allele-conditioned positive path evidence, mean/max pooling and a zero-output rank8 residual before the unchanged second whole-tree PyG sweep and full genomic BiGRU. Analytic additional714 parameters. Fixed initial edge attenuation gamma0.95. This uses existing observed information.
+**stopped_for_frozen_TreeLoom_benchmark_scope.** Query-allele-conditioned positive path evidence, mean/max pooling and a zero-output rank8 residual before the unchanged second whole-tree PyG sweep and full genomic BiGRU. Analytic additional714 parameters. Fixed initial edge attenuation gamma0.95. This uses existing observed information.
 
-**Conclusion:** The slow full-parent CPU run was deliberately stopped by exact supervisor pidfdTERM and genuinely drained. Its child wait-15 and outer24151exit1 remain recorded. Final optimizer totals are UNKNOWN, with genuine1+1 lower bounds. A fresh full1920-update GPU0 run from original H045 warmstart is being prepared, without CPU state transfer or a new accuracy result.
+**Conclusion:** Separate same-marker architecture route stopped under latest frozen-model directive. Genuine outer241, worker-15 and complete owned drain, with original title failure preserved. No new verified update or score. Files and charges preserved, no retry.
 
 **Next/repeat rule:** Do not replay an unchanged answered pilot. If either matched control defeats the registered utility rule, stop this condition and preserve its result. Extra seeds follow only a convincing full-budget pilot.
 
@@ -608,10 +608,20 @@ Evidence: [research/reviews/H061_Chickenpox_current_core_registration_20261017_v
 
 ## ordered_marker_placement_v2: Matched pre-versus-post-second-tree-sweep ordered-marker evidence placement
 
-**actual_admission0_full1920_CPU_supervisor_launched.** Two aligned ordered-marker arms with 33,966 parameters each. Identical evidence enters before or after the second complete tree pass. Original 32 TRAIN parents, 30 passes, 960 updates per arm and 1,920 total. CPU 128-159, 32 threads, FP32, Torch and PyG. All 96 VAL predictions must precede either arm VAL truth.
+**stop_requested_for_frozen_TreeLoom_scope_actual_terminal_pending.** Two aligned ordered-marker arms with 33,966 parameters each. Identical evidence enters before or after the second complete tree pass. Original 32 TRAIN parents, 30 passes, 960 updates per arm and 1,920 total. CPU 128-159, 32 threads, FP32, Torch and PyG. All 96 VAL predictions must precede either arm VAL truth.
 
-**Conclusion:** Actual admission returned 0 with all 63 bindings. The exact emitted full training supervisor is launched once. Both aligned placement arms retain 960 scheduled updates each on 32 original TRAIN parents. No optimizer counter, ancestry accuracy or full fit is verified yet. All 96 later VAL prediction products must precede either arm VAL truth.
+**Conclusion:** ROOT signalled exact owned worker3943291/start488211434 through pidfd under frozen-model scope. Genuine supervisor terminal and drain remain pending. Preserve all files, charges and unknown training totals. No score or automatic retry.
 
 **Next/repeat rule:** A separate evidence-placement hypothesis with both arms aligned. It differs from H058 aligned versus alignment-null. Do not relabel H058, rerun answered pilots, change science or release VAL/TEST truth through this TRAIN admission.
 
 Evidence: [research/reviews/ordered_marker_full_learning_integration_source_20261017_v1/PROTOCOL.INACTIVE.v1.json](../research/reviews/ordered_marker_full_learning_integration_source_20261017_v1/PROTOCOL.INACTIVE.v1.json), [research/reviews/ordered_marker_CPU_ROOT_preparation_root01_oct17_v1/actual_admission_outer_consumed.root_v1.json](../research/reviews/ordered_marker_CPU_ROOT_preparation_root01_oct17_v1/actual_admission_outer_consumed.root_v1.json), [research/reviews/ordered_marker_CPU_ROOT_preparation_root01_oct17_v1/ROOT_actual_execution_invocation.root_v1.json](../research/reviews/ordered_marker_CPU_ROOT_preparation_root01_oct17_v1/ROOT_actual_execution_invocation.root_v1.json).
+
+## H062: How does the frozen selected TreeLoom pipeline compare with native local ancestry methods when trained on full30Mb American simulations and evaluated on the same frozen observed parents, references, queries, truth and focal support?
+
+**registered_full30Mb_data_code_under_independent_review_no_training_started.** Selected H050 stable_leaf_memory TreeLoom operators, task-specific3-class dimensional plumbing. Original author-based American1600haplotype30Mb simulation condition,20TRAIN parents and5scored held-out parents,600reference and1000query haplotypes,10000focals. Internal representations and original competitor schedules may differ, observed data/query support stay matched.
+
+**Conclusion:** Registered before execution. Frozen full30Mb TRAIN001 generator source is under independent review. Earlier integration revisions were blocked before runtime and remain preserved. No full30Mb training, accuracy or benchmark ranking is available.
+
+**Next/repeat rule:** New training-length condition30Mb instead of H06020x2Mb, preserving frozen architecture. Complete missing original TRAIN001-019 only, reuse full30Mb TRAIN000. No replay of completed cells or architecture selection using benchmark truth.
+
+Evidence: [research/reviews/frozen_benchmark_training_ready_20261017_v1/train001_simulate_v4/source_manifest.v4.json](../research/reviews/frozen_benchmark_training_ready_20261017_v1/train001_simulate_v4/source_manifest.v4.json), [research/reviews/frozen_benchmark_training_ready_20261017_v1/train001_simulate_v4/source_RAM_join_audit.v4.json](../research/reviews/frozen_benchmark_training_ready_20261017_v1/train001_simulate_v4/source_RAM_join_audit.v4.json), [research/reviews/research_execution_ROOT_20261017_v34/H062_TRAIN001_ROOT_directive.root_active_v1.json](../research/reviews/research_execution_ROOT_20261017_v34/H062_TRAIN001_ROOT_directive.root_active_v1.json).
