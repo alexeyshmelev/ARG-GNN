@@ -1,0 +1,296 @@
+--- v1_package_normalized/contract_v1.py
++++ v2/contract_v1.py
+@@ -12,8 +12,8 @@
+ GPU_PHASES=tuple("predict_val_%03d"%i for i in range(3));PHASES=GPU_PHASES+("matrix",)
+ BASE_CAPS=dict(CPU_threads=32,dataloader_workers=0,reservation_bytes=32*2**20,log_bytes=256*2**10,max_seconds=86400,max_cpu_rss_bytes=128*2**30,headroom_bytes=4*2**30,cleanup_seconds=30,work_cutoff_margin_seconds=300,terminal_evidence_margin_seconds=150,max_checkpoint_bytes=3*2**30,max_checkpoint_files=2)
+ CAPS=dict(BASE_CAPS,max_cuda_reserved_bytes=0)
+-OWNED_ROSTER_CAP=4096;MINIMAL_WAIT_CAP_BYTES=65536;TERMINAL_RECEIPT_CAP_BYTES=8*2**20
+-OWNED_ROSTER_POLICY_REF=original.OWNED_ROSTER_POLICY_REF if hasattr(original,"OWNED_ROSTER_POLICY_REF")else {"path":"research/reviews/native_VAL000_GPU0_owned_roster_source_20261016_v4/owned_roster_policy.INACTIVE.v4.json","sha256":"ea1ddb59ab4248b8ba95dbbe77d25db30636cc318a4fdaebde1e1ae6e5a7344f"}
++OWNED_LIMITS_V8=dict(pending=1024,discoveries=2**28,groups=65536,adopted_waits=2**28,history_rows=16)
++MINIMAL_WAIT_CAP_BYTES=65536;TERMINAL_RECEIPT_CAP_BYTES=8*2**20
+ GPU0_UUID=original.GPU0_UUID;BASE_POOL=original.BASE_POOL;GPU0_GUARD=original.GPU0_GUARD;PIDFD=original.PIDFD;OWNED=original.OWNED;NATIVE_PYTHON_REF=dict(path=".runtime/env/bin/python3.11",runtime_metadata_ref=RUNTIME_REF)
+ require=original.require;local=original.local;read=original.read;raw=original.raw;ref=original.ref;load=original.load;save=original.save
+ PINS=None;ROOT_INPUT_REF=None;STATE=None;GUARD=None;POLICY=None;SELECTOR_REF=None;_GUARD=None;_MEMO=None
+@@ -114,6 +114,33 @@
+  return e,q
+ def caps_v1(phase):return dict(BASE_CAPS,max_cuda_reserved_bytes=8*2**30 if phase in GPU_PHASES else 0)
+ def config_v1(phase):return dict(schema="C3_remaining_cells_operational_config_v1",output_cap_bytes=32*2**20,phase=phase,caps=caps_v1(phase),scientific_body_changed=False)
++def owned_drain_values_v2(wait):
++ require(wait.get("schema")=="C3_remaining_cells_actual_wait_v2"and wait.get("owned_roster_policy_ref")==ref(DRIVER)and wait.get("owned_roster_policy")==OWNED_LIMITS_V8,"Exact executed bounded-live ownership policy")
++ own=wait["ownership"];groups=wait["group_absence_summary"];adopted=wait["adopted_waits"]
++ require(own.get("complete_owned_roster_known")is True and own.get("owned_roster_truncated")is False
++  and own.get("current_owned_identities")==[]and own.get("limits")==OWNED_LIMITS_V8
++  and own.get("retired_exact_identities_confirmed_absent_or_replaced")is True
++  and wait.get("owned_identity_absence")is True and wait.get("group_observations_summarized")is True,"Complete bounded current roster and exact identity retirement")
++ discovered=own["discovered_identity_history"]["count"];retired=own["retired_identity_history"]["count"];count=own["group_count"]
++ require(type(discovered)is int and 1<=discovered<=OWNED_LIMITS_V8["discoveries"]
++  and type(retired)is int and retired==discovered
++  and sum(own["retirement_reasons"].values())==retired
++  and type(count)is int and 1<=count<=OWNED_LIMITS_V8["groups"],"Every discovered exact identity retired; every group retained")
++ require(groups.get("all_owned_groups_observed_absent")is True and groups.get("scan_finished_within_deadline")is True and groups.get("errors")==[]
++  and all(type(groups.get(k))is int for k in("expected_group_count","observed_group_count","absent_group_count"))
++  and groups.get("expected_group_count")==groups.get("observed_group_count")==groups.get("absent_group_count")==count
++  and groups["history"]["count"]==count,"All retained groups genuinely observed ESRCH within original cleanup")
++ require(type(adopted["count"])is int and 0<=adopted["count"]<=OWNED_LIMITS_V8["adopted_waits"]
++  and adopted["nonzero_returncodes"]==0,"No omitted nonzero adopted OS wait")
++ histories=[own["discovered_identity_history"],own["retired_identity_history"],own["reused_numeric_PID_history"],groups["history"],adopted]
++ for history in histories:
++  digest=history["ordered_chain_sha256"]
++  require(len(history["first"])<=16 and len(history["last"])<=16 and history["full_historical_roster_serialized"]is False
++   and type(digest)is str and len(digest)==64 and all(c in "0123456789abcdef"for c in digest),"Bounded first/last/count/digest ownership evidence")
++ require(wait["group_observations"]==groups["history"]["first"]+groups["history"]["last"]
++  and wait["group_observations"]and all(r.get("absent")is True for r in wait["group_observations"]),"Retained group samples bind full group absence summary")
++ return wait
++
+ def new_stage_values_v1(e, parent, election, pending):
+     require(set(e) == {'input_ref', 'completion_ref', 'wait_ref', 'outer_ref'}, 'Exact new successful remaining stage evidence')
+     s = read(e['input_ref'])
+@@ -121,6 +148,7 @@
+     done = read(e['completion_ref'])
+     wait = read(e['wait_ref'])
+     outer = read(e['outer_ref'])
++    owned_drain_values_v2(wait)
+     require(s['source_manifest_ref'] == ref(MANIFEST) and q['source_manifest_ref'] == ref(MANIFEST) and (s['phase'] == q['phase'] == 'predict_val_' + parent[-3:]) and (q['cell_election_ref'] == election) and (q['parent_id'] == parent) and (q['pending_epochs'] == pending), 'Exact same source/election/parent/pending actual new producer')
+     require(done['status'] == 'completed_C3_remaining_cells' and done['parent_id'] == PARENT and (done['original_VAL_parent_id'] == parent) and (done['child_input_ref'] == e['input_ref']) and (done['actual_execution_source_manifest_ref'] == ref(MANIFEST)) and (done['cell_election_ref'] == election) and (done['epochs'] == pending) and (done['training_completion_ref'] == tref_v1()) and (done['query_ancestry_truth_opened'] is False), 'Genuine own exact completed new cells')
+     require(type(wait.get('returncode')) is int and wait['returncode'] == 0 and (wait['actual_direct_worker_wait'] is True) and (wait['actual_OS_wait_status'] == 0) and (wait['all_owned_processes_and_groups_drained'] is True) and (wait['complete_owned_roster_known'] is True) and (wait['completed_ref'] == e['completion_ref']) and (wait['input_ref'] == e['input_ref']) and (wait['adapter_manifest_ref'] == ref(MANIFEST)) and (wait['operational_failure'] is None) and wait['group_observations'] and all((x['absent'] is True for x in wait['group_observations'])), 'New GPU cells require actual OSwait0 and complete owned drain')
+--- v1_package_normalized/execution_v1.py
++++ v2/execution_v1.py
+@@ -6,6 +6,95 @@
+ import argparse, collections, ctypes, fcntl, hashlib, importlib, io, itertools, json, os, resource, selectors, signal, stat, subprocess, sys, tempfile, time
+ from research.reviews.C3_remaining_cells_GPU0_source_20261017_v2.contract_v1 import *
+ from research.reviews.C3_remaining_cells_GPU0_source_20261017_v2 import contract_v1 as c
++
++class _HistoryV8:
++    def __init__(self):
++        self.total=0;self.first=[];self.last=collections.deque(maxlen=OWNED_LIMITS_V8["history_rows"])
++        self.digest=hashlib.sha256(b"H058-v8-bounded-history-v1").digest();self.nonzero=0
++    def add(self,row):
++        data=json.dumps(row,sort_keys=True,separators=(",",":"),allow_nan=False).encode()
++        self.digest=hashlib.sha256(self.digest+len(data).to_bytes(8,"big")+data).digest();self.total+=1
++        if len(self.first)<OWNED_LIMITS_V8["history_rows"]:self.first.append(dict(row))
++        self.last.append(dict(row));self.nonzero+=int(row.get("returncode",0)!=0)
++    def evidence(self):
++        return dict(count=self.total,first=self.first,last=list(self.last),ordered_chain_sha256=self.digest.hex(),
++            nonzero_returncodes=self.nonzero,full_historical_roster_serialized=False)
++
++class _PendingV8(dict):
++    def __init__(self,wrapper):self.wrapper=wrapper
++    def __setitem__(self,pid,row):
++        if pid not in self:
++            w=self.wrapper
++            if len(self)>=OWNED_LIMITS_V8["pending"] or w.discovered.total>=OWNED_LIMITS_V8["discoveries"]:
++                w.complete=False;raise ValueError("Finite v8 pending/discovery identity bound; incomplete ownership")
++            if row["group"] not in w.groups and len(w.groups)>=OWNED_LIMITS_V8["groups"]:
++                w.complete=False;raise ValueError("Finite v8 owned-group bound; incomplete ownership")
++            w.groups.add(row["group"]);w.discovered.add(dict(pid=pid,start=row["start"],group=row["group"]))
++        super().__setitem__(pid,row)
++
++class OwnedLifecycleV8:
++    """Reuse original ancestry discovery; retire only exact identities proven gone/replaced."""
++    def __init__(self,backend,leader,**kwargs):
++        self.backend=backend;self.complete=True;self.groups=set()
++        self.discovered=_HistoryV8();self.retired=_HistoryV8();self.reused=_HistoryV8()
++        self.retirement_reasons=dict(absent=0,replaced=0)
++        self.original=backend.OwnedTree(leader,**kwargs)
++        initial=self.original.known;self.original.known=_PendingV8(self)
++        for pid,row in initial.items():self.original.known[pid]=row
++    @property
++    def known(self):return self.original.known
++    def _retire(self):
++        for pid,row in list(self.known.items()):
++            actual=self.original.read_stat(pid)
++            if actual is None or not self.backend._same(actual,row):
++                reason="absent" if actual is None else "replaced"
++                self.retired.add(dict(pid=pid,start=row["start"],group=row["group"],reason=reason))
++                self.retirement_reasons[reason]+=1;del self.known[pid]
++        # Zombies remain pending until a genuine wait/absence; no guessed reaping.
++    def refresh(self):
++        try:
++            self._retire();self.original.refresh();self._retire()
++            for pid in sorted(self.original.reused):self.reused.add(dict(pid=pid,excluded=True))
++            self.original.reused.clear()
++            return self
++        except BaseException:
++            self.complete=False;raise
++    def live(self):
++        self.refresh()
++        return [pid for pid,row in self.known.items()
++            if self.backend._same(actual:=self.original.read_stat(pid),row) and actual["state"] not in ("Z","X")]
++    def identities_absent(self):
++        self.refresh()
++        return self.complete and not self.known
++    def evidence(self):
++        groups=sorted(self.groups);encoded=json.dumps(groups,separators=(",",":")).encode()
++        return dict(owned_tree_constructed=True,complete_owned_roster_known=self.complete,
++            owned_roster_truncated=not self.complete,
++            current_owned_identities=[dict(pid=p,start=r["start"],group=r["group"],state=r["state"])
++                for p,r in sorted(self.known.items())],
++            discovered_identity_history=self.discovered.evidence(),retired_identity_history=self.retired.evidence(),
++            retirement_reasons=self.retirement_reasons,reused_numeric_PID_history=self.reused.evidence(),
++            historical_roster_summarized=True,retired_exact_identities_confirmed_absent_or_replaced=True,
++            group_count=len(groups),group_set_sha256=hashlib.sha256(encoded).hexdigest(),
++            group_first=groups[:16],group_last=groups[-16:],limits=OWNED_LIMITS_V8,
++            signals_use_pidfd_only=True,no_numeric_group_signals=True)
++
++def observe_groups_v8(tree,deadline):
++    history=_HistoryV8();absent=0;errors=[]
++    for group in sorted(tree.groups):
++        if time.monotonic()>=deadline:break
++        gone=None
++        try:os.killpg(group,0)
++        except ProcessLookupError:gone=True
++        except OSError as exc:
++            if len(errors)<16:errors.append(type(exc).__name__+": "+str(exc)[:512])
++        else:gone=False
++        absent+=int(gone is True)
++        history.add(dict(pgid=group,absent=gone,method="targeted ESRCH within original aggregate cleanup allowance"))
++    finished_within_deadline=time.monotonic()<=deadline
++    return dict(history=history.evidence(),expected_group_count=len(tree.groups),observed_group_count=history.total,
++        absent_group_count=absent,errors=errors,scan_finished_within_deadline=finished_within_deadline,
++        all_owned_groups_observed_absent=finished_within_deadline and bool(tree.groups) and history.total==len(tree.groups)==absent)
+ 
+ class _RAMLog:
+ 
+@@ -112,15 +201,14 @@
+     proc = tree = leader_seed = None
+     failure = cancelled = None
+     peak = 0
+-    adopted = []
++    adopted = _HistoryV8()
+     original = {}
+     pipe_nonblocking = pipe_eof = gate_released = False
+     raw_status = None
+     cleanup_errors = []
+     identity_absence = None
+     observations = []
+-    adopted_wait_count = 0
+-    adopted_waits_truncated = False
++    group_scan = None
+     gate_read = gate_write = physical_fd = logical_fd = None
+     attachment_ref = None
+     start = stage_started
+@@ -168,7 +256,7 @@
+         pipe_nonblocking = True
+         leader_seed = owned._stat(proc.pid)
+         require(leader_seed is not None and leader_seed['ppid'] == os.getpid() and (leader_seed['group'] == leader_seed['session'] == proc.pid), 'Actual direct new-session identity seed')
+-        tree = owned.OwnedTree(proc.pid)
++        tree = OwnedLifecycleV8(owned,proc.pid)
+         compact_v1(s, 'launch.json', dict(schema='downstream_fixed_full_parent_actual_child_launch_v1', pid=proc.pid, parent_pid=os.getpid(), input_ref=input_ref, command=command, ownership=tree.evidence(), gate_still_closed=True, attachment_ref=attachment_ref, borrowed_physical_inode=attachment_ref is not None, controller_inheritance_claimed=False), g, storage)
+         selector.register(proc.stdout, selectors.EVENT_READ)
+         active_amendment_v1()
+@@ -182,7 +270,7 @@
+             require(time.monotonic() < work_deadline, 'Pre-expiry scientific work cutoff; cleanup/evidence reserve retained')
+             terminal = os.waitid(os.P_PID, proc.pid, os.WEXITED | os.WNOHANG | os.WNOWAIT)
+             tree.refresh()
+-            require(len(tree.known) <= OWNED_ROSTER_CAP, 'Bounded fixed downstream owned process identities')
++            require(tree.complete, 'Complete bounded-live downstream ownership')
+             peak = max(peak, rss_identity_v1(owned, parent_identity) + sum((rss_identity_v1(owned, r) for r in tree.known.values())))
+             require(peak <= CAPS['max_cpu_rss_bytes'], 'Combined owned RSS cap')
+             last_census = charged_census_v1(s)
+@@ -247,12 +335,11 @@
+                             proc.returncode = os.waitstatus_to_exitcode(status)
+                     if tree is not None:
+                         tree.refresh()
+-                        require(len(tree.known) <= OWNED_ROSTER_CAP, 'Bounded fixed downstream cleanup identities')
+                 except BaseException as exc:
+                     note_cleanup(exc)
+-                rows = list(itertools.islice(tree.known.values(), OWNED_ROSTER_CAP)) if tree is not None else [leader_seed] if leader_seed else []
++                rows = list(tree.known.values()) if tree is not None else [leader_seed] if leader_seed else []
+                 signum = signal.SIGTERM if time.monotonic() - cleanup_started < 10 else signal.SIGKILL
+-                for row in rows[:OWNED_ROSTER_CAP]:
++                for row in rows:
+                     if time.monotonic() >= cleanup_deadline:
+                         break
+                     try:
+@@ -270,12 +357,10 @@
+                             break
+                         if pid == 0:
+                             break
+-                        adopted_wait_count += 1
+-                        if len(adopted) < OWNED_ROSTER_CAP:
+-                            adopted.append(dict(pid=pid, status=status, returncode=os.waitstatus_to_exitcode(status)))
+-                        else:
+-                            adopted_waits_truncated = True
+-                            failure = failure or 'More than4096 adopted downstream wait identities, retained statuses truncated'
++                        adopted.add(dict(pid=pid,status=status,returncode=os.waitstatus_to_exitcode(status)))
++                        if adopted.total>OWNED_LIMITS_V8["adopted_waits"]:
++                            if tree is not None:tree.complete=False
++                            failure=failure or "Finite adopted-wait bound; continue genuine reaping"
+                 try:
+                     retain_pipe()
+                     if raw_status is not None and tree is None:
+@@ -283,20 +368,9 @@
+                     if raw_status is not None and tree is not None and (time.monotonic() < cleanup_deadline):
+                         identity_absence = tree.identities_absent() and (not owned._children(os.getpid()))
+                         if identity_absence and pipe_eof:
+-                            observations = []
+-                            for group in sorted({r['group'] for r in list(itertools.islice(tree.known.values(), OWNED_ROSTER_CAP))[:OWNED_ROSTER_CAP]}):
+-                                gone = None
+-                                if time.monotonic() < cleanup_deadline:
+-                                    try:
+-                                        os.killpg(group, 0)
+-                                    except ProcessLookupError:
+-                                        gone = True
+-                                    except OSError as exc:
+-                                        note_cleanup(exc)
+-                                    else:
+-                                        gone = False
+-                                observations.append(dict(pgid=group, absent=gone, method='targeted ESRCH within aggregate cleanup deadline' if gone is not None else 'not asserted; aggregate cleanup deadline exhausted'))
+-                            if observations and all((r['absent'] is True for r in observations)):
++                            group_scan=observe_groups_v8(tree,cleanup_deadline)
++                            observations=group_scan["history"]["first"]+group_scan["history"]["last"]
++                            if group_scan["all_owned_groups_observed_absent"]:
+                                 break
+                 except BaseException as exc:
+                     note_cleanup(exc)
+@@ -320,16 +394,16 @@
+         failure = failure or 'No worker spawned'
+     if raw_status is None:
+         failure = failure or 'Direct OS wait unknown after finite cleanup'
+-    if not observations:
+-        rows = list(itertools.islice(tree.known.values(), OWNED_ROSTER_CAP))[:OWNED_ROSTER_CAP] if tree is not None else [leader_seed] if leader_seed else []
+-        observations = [dict(pgid=group, absent=None, method='not asserted; owned cleanup incomplete') for group in sorted({r['group'] for r in rows})]
+-    roster_complete = tree is not None and len(tree.known) <= OWNED_ROSTER_CAP and (not adopted_waits_truncated) and (adopted_wait_count == len(adopted) <= OWNED_ROSTER_CAP)
+-    drained = raw_status is not None and roster_complete and (identity_absence is True) and pipe_eof and all((r['absent'] is True for r in observations))
++    if group_scan is None:
++        group_scan=dict(all_owned_groups_observed_absent=False,expected_group_count=len(tree.groups)if tree else None,
++            observed_group_count=0,absent_group_count=0,method="not asserted; owned cleanup incomplete")
++    roster_complete=tree is not None and tree.complete and adopted.total<=OWNED_LIMITS_V8["adopted_waits"]
++    drained=raw_status is not None and roster_complete and identity_absence is True and pipe_eof and group_scan["all_owned_groups_observed_absent"]
+     if not drained:
+         failure = failure or 'Finite cleanup ended without genuine wait and complete owned absence'
+     if rc is not None and rc != 0:
+         failure = failure or 'Actual worker exit ' + str(rc)
+-    if any((r['returncode'] != 0 for r in adopted)):
++    if adopted.nonzero:
+         failure = failure or 'Nonzero actual adopted descendant wait'
+     for fd in (physical_fd, logical_fd):
+         if fd is not None:
+@@ -337,13 +411,11 @@
+                 os.close(fd)
+             except OSError as exc:
+                 failure = failure or 'Attachment descriptor close: ' + str(exc)[:1000]
+-    if tree is not None and len(tree.known) <= OWNED_ROSTER_CAP:
+-        ownership = tree.evidence()
+-    else:
+-        ownership = dict(owned_tree_constructed=tree is not None, actual_direct_identity_seed=leader_seed, complete_owned_roster_known=False, retained_owned_identities=[dict(pid=row['pid'], start=row['start']) for row in itertools.islice(tree.known.values(), OWNED_ROSTER_CAP)] if tree is not None else [], owned_roster_truncated=tree is not None, signals_use_pidfd_only=True)
+-    ownership.update(cumulative_identity_cap=OWNED_ROSTER_CAP, complete_owned_roster_known=roster_complete, owned_roster_truncated=tree is not None and (not roster_complete), known_identity_count=len(tree.known) if tree is not None else None, adopted_wait_count=adopted_wait_count, retained_adopted_wait_count=len(adopted), adopted_waits_truncated=adopted_waits_truncated)
+-    observation = dict(schema='downstream_fixed_full_parent_bounded_cleanup_observation_v2', input_ref=input_ref, actual_execution_amendment_ref=current_amendment_ref_v1(), adapter_manifest_ref=ref(MANIFEST), original_storage_ref=s['refs']['storage'], whole_original_roots_measured=True, master_reservation_authenticates_execution_sources=True, separate_ROOT_phase_authority_authenticates_later_prerequisites=True, pid=proc.pid if proc is not None else None, returncode=rc, actual_OS_wait_status=raw_status, actual_direct_worker_wait=raw_status is not None, all_owned_processes_and_groups_drained=drained, owned_identity_absence=identity_absence, group_observations=observations, ownership=ownership, adopted_waits=adopted, adopted_wait_count=adopted_wait_count, adopted_waits_truncated=adopted_waits_truncated, operational_failure=failure, gate_released=gate_released, pipe_EOF_observed=pipe_eof, owned_roster_policy_ref=OWNED_ROSTER_POLICY_REF, complete_owned_roster_known=roster_complete, cleanup_errors=cleanup_errors, cleanup_deadline_seconds=CAPS['cleanup_seconds'], cleanup_seconds=cleanup_finished - cleanup_started, elapsed_seconds=time.monotonic() - start, work_cutoff_margin_seconds=CAPS['work_cutoff_margin_seconds'], terminal_evidence_margin_seconds=CAPS['terminal_evidence_margin_seconds'], actual_authority_seconds_remaining=expires_unix - time.time(), no_future_stage_authorized=failure is not None or not drained, storage_close_or_credit_authorized=False, borrowed_physical_inode=attachment_ref is not None, controller_inheritance_claimed=False)
+-    minimal_facts = dict(schema='downstream_actual_bounded_minimal_wait_facts_v4', input_ref=input_ref, actual_execution_amendment_ref=current_amendment_ref_v1(), adapter_manifest_ref=ref(MANIFEST), original_storage_ref=s['refs']['storage'], pid=proc.pid if proc is not None else None, actual_OS_wait_status=raw_status, returncode=rc, actual_direct_worker_wait=raw_status is not None, all_owned_processes_and_groups_drained=drained, complete_owned_roster_known=roster_complete, known_identity_count=len(tree.known) if tree is not None else None, adopted_wait_count=adopted_wait_count, retained_adopted_wait_count=len(adopted), adopted_waits_truncated=adopted_waits_truncated, cumulative_owned_identity_cap=OWNED_ROSTER_CAP, owned_roster_policy_ref=OWNED_ROSTER_POLICY_REF, operational_failure=failure, cleanup_deadline_seconds=CAPS['cleanup_seconds'], cleanup_seconds=cleanup_finished - cleanup_started, pipe_EOF_observed=pipe_eof, minimal_wait_only_not_scientific_completion=True, full_terminal_evidence_still_required=True, no_future_stage_authorized=True, storage_close_or_credit_authorized=False)
++    ownership=tree.evidence()if tree is not None else dict(owned_tree_constructed=False,
++        actual_direct_identity_seed=leader_seed,complete_owned_roster_known=False,owned_roster_truncated=True,signals_use_pidfd_only=True)
++    ownership.update(complete_owned_roster_known=roster_complete,known_identity_count=len(tree.known)if tree else None)
++    observation = dict(schema='C3_remaining_cells_bounded_cleanup_observation_v2', input_ref=input_ref, actual_execution_amendment_ref=current_amendment_ref_v1(), adapter_manifest_ref=ref(MANIFEST), original_storage_ref=s['refs']['storage'], whole_original_roots_measured=True, master_reservation_authenticates_execution_sources=True, separate_ROOT_phase_authority_authenticates_later_prerequisites=True, pid=proc.pid if proc is not None else None, returncode=rc, actual_OS_wait_status=raw_status, actual_direct_worker_wait=raw_status is not None, all_owned_processes_and_groups_drained=drained, owned_identity_absence=identity_absence, group_observations=observations, ownership=ownership, adopted_waits=adopted.evidence(), group_absence_summary=group_scan, group_observations_summarized=True, operational_failure=failure, gate_released=gate_released, pipe_EOF_observed=pipe_eof, owned_roster_policy_ref=ref(DRIVER), owned_roster_policy=OWNED_LIMITS_V8, complete_owned_roster_known=roster_complete, cleanup_errors=cleanup_errors, cleanup_deadline_seconds=CAPS['cleanup_seconds'], cleanup_seconds=cleanup_finished - cleanup_started, elapsed_seconds=time.monotonic() - start, work_cutoff_margin_seconds=CAPS['work_cutoff_margin_seconds'], terminal_evidence_margin_seconds=CAPS['terminal_evidence_margin_seconds'], actual_authority_seconds_remaining=expires_unix - time.time(), no_future_stage_authorized=failure is not None or not drained, storage_close_or_credit_authorized=False, borrowed_physical_inode=attachment_ref is not None, controller_inheritance_claimed=False)
++    minimal_facts = dict(schema='C3_remaining_cells_actual_minimal_wait_facts_v2', input_ref=input_ref, actual_execution_amendment_ref=current_amendment_ref_v1(), adapter_manifest_ref=ref(MANIFEST), original_storage_ref=s['refs']['storage'], pid=proc.pid if proc is not None else None, actual_OS_wait_status=raw_status, returncode=rc, actual_direct_worker_wait=raw_status is not None, all_owned_processes_and_groups_drained=drained, complete_owned_roster_known=roster_complete, known_identity_count=len(tree.known) if tree is not None else None, adopted_wait_count=adopted.total, adopted_wait_nonzero_count=adopted.nonzero, pending_owned_identity_cap=OWNED_LIMITS_V8['pending'], discovered_owned_identity_count=tree.discovered.total if tree else None, retired_owned_identity_count=tree.retired.total if tree else None, group_absence_summary=group_scan, owned_roster_policy_ref=ref(DRIVER), owned_roster_policy=OWNED_LIMITS_V8, operational_failure=failure, cleanup_deadline_seconds=CAPS['cleanup_seconds'], cleanup_seconds=cleanup_finished - cleanup_started, pipe_EOF_observed=pipe_eof, minimal_wait_only_not_scientific_completion=True, full_terminal_evidence_still_required=True, no_future_stage_authorized=True, storage_close_or_credit_authorized=False)
+     require(len((json.dumps(minimal_facts, sort_keys=True, indent=2, allow_nan=False) + '\n').encode()) <= MINIMAL_WAIT_CAP_BYTES, 'Bounded actual minimal wait facts, no ownership-array dependency')
+     print(json.dumps(dict(downstream_actual_minimal_wait_facts=minimal_facts), sort_keys=True), flush=True)
+     print(json.dumps(dict(downstream_bounded_cleanup_observation=observation), sort_keys=True), flush=True)
+@@ -382,7 +454,7 @@
+         log_ref = compact_v1(s, 'worker_log.json', logs.record(), g, storage, cap=16 * 2 ** 20)
+         final = charged_census_v1(s)
+         peak_scope = max(peak_scope, sum(final.values()))
+-        wait_ref = compact_v1(s, 'actual_wait.json', dict(observation, schema='downstream_fixed_full_parent_actual_wait_v2', completed_ref=completed_ref, actual_direct_child_wait=raw_status is not None, child_completion_ref=completed_ref, process_group_ESRCH=drained and bool(observations) and all((r.get('absent') is True for r in observations)), saved_MLM_wait_aliases_derived_from_same_actual_wait_and_full_owned_drain=True, operational_failure=failure, no_future_stage_authorized=failure is not None, actual_wait_minimal_ref=minimal, log_ref=log_ref, peak_combined_owned_RSS_bytes=peak, sampled_peak_scope_bytes=peak_scope, final_scope_census=final, capacity_samples=capacity_samples, last_capacity_sample=last_capacity, outer_tool_terminal_consumed=False, automatic_close_or_credit=False), g, storage, cap=TERMINAL_RECEIPT_CAP_BYTES)
++        wait_ref = compact_v1(s, 'actual_wait.json', dict(observation, schema='C3_remaining_cells_actual_wait_v2', completed_ref=completed_ref, actual_direct_child_wait=raw_status is not None, child_completion_ref=completed_ref, process_group_ESRCH=drained and group_scan['all_owned_groups_observed_absent'], saved_MLM_wait_aliases_derived_from_same_actual_wait_and_full_owned_drain=True, operational_failure=failure, no_future_stage_authorized=failure is not None, actual_wait_minimal_ref=minimal, log_ref=log_ref, peak_combined_owned_RSS_bytes=peak, sampled_peak_scope_bytes=peak_scope, final_scope_census=final, capacity_samples=capacity_samples, last_capacity_sample=last_capacity, outer_tool_terminal_consumed=False, automatic_close_or_credit=False), g, storage, cap=TERMINAL_RECEIPT_CAP_BYTES)
+         g.budget_check_v9(storage, boundary=True)
+     except BaseException as exc:
+         failure = failure or 'Strict terminal evidence failed: ' + type(exc).__name__ + ': ' + str(exc)[:2000]

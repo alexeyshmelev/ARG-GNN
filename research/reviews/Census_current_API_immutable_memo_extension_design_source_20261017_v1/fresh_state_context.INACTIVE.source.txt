@@ -1,0 +1,32 @@
+"""INACTIVE design method only. Requires a newly reviewed current-Census source bridge.
+Not a callable integration: constructor/exclusion/source joins are specified in PROPOSAL.md.
+No original caller, accepted memo, current guard or live operation is changed.
+"""
+# Future namespace: exact accepted memo v2 helpers/globals + contextmanager.
+@contextmanager
+def fresh_state_context_v1(self, *, expected_source_sha256, expected_launcher_sha256):
+    global _ACTIVE
+    need(not _ACTIVE, "No nested memo; this context owns the one original mutex")
+    self._check()  # exact Census bridge + original v4/budget callable authentication
+    original_mutex = self.v4.mutex
+    _ACTIVE = True
+    try:
+        with original_mutex(ROOT):
+            tx = _Transaction(ROOT, self.v4, self.budget, self.allow,
+                uncached_paths=self.current_uncached_paths)
+            try:
+                tx.install()
+                state = self.guard._state_locked(expected_source_sha256,
+                    expected_launcher_sha256, fresh=True)
+                # Current manifest/source bridge are always read through originals.
+                manifest = tx.original["bound"](ROOT, self.manifest_ref, True)
+                need(manifest.get("source_sha256", {}).get(SOURCE) == self.adapter_ref["sha256"],
+                    "Exact direct integration manifest and original accepted memo source")
+                source_bytes(self.adapter_ref)  # bridge also authenticated by exact source wrapper
+                tx.finish()  # original bytes + original canonical validation, cache disabled
+            finally:
+                self.counts = dict(tx.counts)
+                tx.close()  # all patches/cache removed BEFORE original staging body
+            yield state  # mutex remains held; capture/observations/authority body stays original
+    finally:
+        _ACTIVE = False

@@ -1,0 +1,1150 @@
+--- research/reviews/native_saved_MLM_current_Census64_integration_source_20261017_v2/execution_v1.py
++++ research/reviews/C3_remaining_cells_GPU0_source_20261017_v1/execution_v1.py
+@@ -2,444 +2,422 @@
+ Original storage guard binding and new ROOT adapter authentication are distinct.
+ """
+ from pathlib import Path
+-from datetime import datetime,timezone
+-import argparse,collections,ctypes,fcntl,hashlib,importlib,io,itertools,json,os,resource,selectors,signal,stat,subprocess,sys,tempfile,time
+-from research.reviews.native_saved_MLM_current_Census64_integration_source_20261017_v2.contract_v1 import *
+-from research.reviews.native_saved_MLM_current_Census64_integration_source_20261017_v2 import contract_v1 as c
++from datetime import datetime, timezone
++import argparse, collections, ctypes, fcntl, hashlib, importlib, io, itertools, json, os, resource, selectors, signal, stat, subprocess, sys, tempfile, time
++from research.reviews.C3_remaining_cells_GPU0_source_20261017_v1.contract_v1 import *
++from research.reviews.C3_remaining_cells_GPU0_source_20261017_v1 import contract_v1 as c
+ 
+ class _RAMLog:
+-    def __init__(self,cap):self.cap=cap;self.parts=collections.deque();self.kept=0;self.total=0
+-    def add(self,data):
+-        self.total+=len(data);self.parts.append(data);self.kept+=len(data)
+-        while self.parts and self.kept>self.cap:
+-            first=self.parts.popleft();over=self.kept-self.cap
+-            if len(first)>over:self.parts.appendleft(first[over:]);self.kept-=over
+-            else:self.kept-=len(first)
++
++    def __init__(self, cap):
++        self.cap = cap
++        self.parts = collections.deque()
++        self.kept = 0
++        self.total = 0
++
++    def add(self, data):
++        self.total += len(data)
++        self.parts.append(data)
++        self.kept += len(data)
++        while self.parts and self.kept > self.cap:
++            first = self.parts.popleft()
++            over = self.kept - self.cap
++            if len(first) > over:
++                self.parts.appendleft(first[over:])
++                self.kept -= over
++            else:
++                self.kept -= len(first)
++
+     def record(self):
+-        return dict(tail=b"".join(self.parts).decode("utf-8",errors="replace"),
+-            total_pipe_bytes=self.total,retained_raw_bytes=self.kept,cap_bytes=self.cap,
+-            discarded_earlier_bytes=self.total-self.kept,buffered_in_RAM_until_actual_drain=True)
++        return dict(tail=b''.join(self.parts).decode('utf-8', errors='replace'), total_pipe_bytes=self.total, retained_raw_bytes=self.kept, cap_bytes=self.cap, discarded_earlier_bytes=self.total - self.kept, buffered_in_RAM_until_actual_drain=True)
+ 
+ def _subreaper():
+-    libc=ctypes.CDLL(None,use_errno=True)
+-    require(libc.prctl(36,1,0,0,0)==0,"Linux subreaper needed to adopt/drain native DataLoader descendants")
++    libc = ctypes.CDLL(None, use_errno=True)
++    require(libc.prctl(36, 1, 0, 0, 0) == 0, 'Linux subreaper needed to adopt/drain native DataLoader descendants')
+ 
+ def _children():
+-    raw=Path("/proc/self/task/%d/children"%os.getpid()).read_text().strip()
++    raw = Path('/proc/self/task/%d/children' % os.getpid()).read_text().strip()
+     return [int(p) for p in raw.split()] if raw else []
+ 
+-def rss_identity_v1(owned,identity):
+-    if not owned._same(owned._stat(identity['pid']),identity):return 0
+-    try:pages=int(Path('/proc/%d/statm'%identity['pid']).read_text().split()[1])
+-    except (FileNotFoundError,ProcessLookupError):return 0
+-    require(owned._same(owned._stat(identity['pid']),identity),'RSS observation identity changed')
+-    return pages*os.sysconf('SC_PAGE_SIZE')
+-
+-def worker_v1(input_ref,gate_fd,attachment_ref):
+-    require(os.read(gate_fd,1)==b"G","No scientific worker before actual parent launch receipt")
++def rss_identity_v1(owned, identity):
++    before = owned._stat(identity['pid'])
++    if before is None:
++        return 0
++    require(owned._same(before, identity), 'RSS observation identity changed')
++    try:
++        pages = int(Path('/proc/%d/statm' % identity['pid']).read_text().split()[1])
++    except (FileNotFoundError, ProcessLookupError):
++        return 0
++    after = owned._stat(identity['pid'])
++    if after is None:
++        return 0
++    require(owned._same(after, identity), 'RSS observation identity changed')
++    return pages * os.sysconf('SC_PAGE_SIZE')
++
++def worker_v1(input_ref, gate_fd, attachment_ref):
++    require(os.read(gate_fd, 1) == b'G', 'Actual parent-owned launch gate')
+     os.close(gate_fd)
+-    s,q,cfg,storage,_=validate_input_v1(input_ref)
+-    require(Path.cwd()==ROOT and os.getpid()==os.getpgrp()==os.getsid(0) and sys.dont_write_bytecode,"Fresh actual owned native session")
+-    paths=worker_env_paths_v1(s)
+-    require(all(os.environ.get(k)==v and Path(v).resolve()==Path(v) and Path(v).is_dir() for k,v in paths.items()),"Every actual cache/TMP path belongs to charged new phaseAUX")
+-    tempfile.tempdir=paths["TMPDIR"]
+-    if s["phase"]=="finalize":
+-        require(attachment_ref is None and os.environ.get("CUDA_VISIBLE_DEVICES")=="","Finalizer has no GPU attachment")
+-        from research.reviews.native_saved_MLM_current_Census64_integration_source_20261017_v2.worker_context_v1 import finalize_worker_v1
+-        finalize_worker_v1(input_ref,s,q,cfg,storage)
++    (s, q, cfg, storage, _) = validate_input_v1(input_ref)
++    require(Path.cwd() == ROOT and os.getpid() == os.getpgrp() == os.getsid(0) and sys.dont_write_bytecode, 'Fresh owned worker session')
++    paths = worker_env_paths_v1(s)
++    require(all((os.environ.get(k) == v and Path(v).resolve() == Path(v) and Path(v).is_dir() for (k, v) in paths.items())), 'All own TMP/cache paths charged')
++    tempfile.tempdir = paths['TMPDIR']
++    from research.reviews.C3_remaining_cells_GPU0_source_20261017_v1 import worker_v1 as worker
++    if s['phase'] == 'matrix':
++        require(attachment_ref is None and os.environ.get('CUDA_VISIBLE_DEVICES') == '', 'CPU-only matrix has no GPU attachment')
++        worker.run_matrix_v1(input_ref, s, q, cfg, storage)
+         return 0
+-    require(attachment_ref["path"]==s["worker_auxiliary_scope"]+"/attachment.json","Actual fresh source-bound phase attachment")
+-    ticket=read(attachment_ref)
+-    require(ticket["job_id"]==s["job_id"] and ticket["borrowed_physical_inode"] is True
+-        and ticket["direct_attachment_authority_ref"]==q["direct_attachment_authority_ref"],"Actual admitted phase attachment")
+-    from research.reviews.native_saved_MLM_current_Census64_integration_source_20261017_v2 import direct_gpu0_v1 as direct
+-    native=direct.install_before_torch_v1(s,q,ticket)
+-    from research.reviews.native_saved_MLM_current_Census64_integration_source_20261017_v2.worker_context_v1 import NativeContext
+-    context=NativeContext(input_ref,s,q,cfg,storage,ticket,native)
+-    context.run()
++    require(attachment_ref['path'] == s['worker_auxiliary_scope'] + '/attachment.json', 'Exact own attachment')
++    ticket = read(attachment_ref)
++    require(ticket['job_id'] == s['job_id'] and ticket['direct_attachment_authority_ref'] == q['direct_attachment_authority_ref'], 'Exact actual new attachment')
++    from research.reviews.C3_remaining_cells_GPU0_source_20261017_v1 import direct_gpu0_v1 as direct
++    native = direct.install_before_torch_v1(s, q, ticket)
++    worker.run_prediction_v1(input_ref, s, q, cfg, storage, ticket, native)
+     return 0
+ 
+-
+ def execute_v1(input_ref):
+-    stage_started=time.monotonic()
+-    require(Path.cwd()==ROOT and sys.dont_write_bytecode,"Exact ROOT cwd/no bytecode")
+-    s,q,cfg,storage,protocol=validate_input_v1(input_ref)
+-    from research.reviews.native_saved_MLM_current_Census64_integration_source_20261017_v2.worker_context_v1 import check_external_prerequisites_v1
++    stage_started = time.monotonic()
++    require(Path.cwd() == ROOT and sys.dont_write_bytecode, 'Exact ROOT cwd/no bytecode')
++    (s, q, cfg, storage, protocol) = validate_input_v1(input_ref)
++    from research.reviews.C3_remaining_cells_GPU0_source_20261017_v1.worker_v1 import check_external_prerequisites_v1
+     check_external_prerequisites_v1(q)
+-
+-    require(Path(sys.executable).resolve()==(ROOT/".runtime/env/bin/python").resolve(),"Original pinned runtime interpreter")
++    require(Path(sys.executable).resolve() == (ROOT / '.runtime/env/bin/python').resolve(), 'Original pinned runtime interpreter')
+     require_work_window_v2(s)
+-    expires_unix=datetime.fromisoformat(s["expires_at_utc"]).timestamp()
+-    work_deadline=min(work_deadline_monotonic_v1(),stage_started+CAPS["max_seconds"]-CAPS["work_cutoff_margin_seconds"],
+-        time.monotonic()+expires_unix-time.time()-CAPS["work_cutoff_margin_seconds"])
+-    g=guard_v1(q)
+-    g.validate_storage_v9(s,dict(output_cap_bytes=CAPS["reservation_bytes"]),storage,
+-        source_ref=ref(DRIVER),config_ref=s["refs"]["config"],runtime_ref=s["refs"]["runtime"])
+-    prepare_master_parents_v1(s,g,storage)
+-    out,aux=local(s["output_directory"]),local(s["worker_auxiliary_scope"])
+-    require(not out.exists() and not aux.exists(),"Fresh exclusive science output/AUX, no replay")
+-    paths=worker_env_paths_v1(s)
+-    directories=sorted({Path(v) for v in paths.values()},key=lambda p:(len(p.parts),str(p)))
+-    g.budget_check_v9(storage,boundary=True,required_write_bytes=(2+len(directories))*8192)
+-    active_amendment_v1()  # Original guard/census may have consumed lifetime.
++    expires_unix = datetime.fromisoformat(s['expires_at_utc']).timestamp()
++    work_deadline = min(work_deadline_monotonic_v1(), stage_started + CAPS['max_seconds'] - CAPS['work_cutoff_margin_seconds'], time.monotonic() + expires_unix - time.time() - CAPS['work_cutoff_margin_seconds'])
++    g = guard_v1(q)
++    g.validate_storage_v9(s, dict(output_cap_bytes=CAPS['reservation_bytes']), storage, source_ref=ref(DRIVER), config_ref=s['refs']['config'], runtime_ref=s['refs']['runtime'])
++    prepare_master_parents_v1(s, g, storage)
++    (out, aux) = (local(s['output_directory']), local(s['worker_auxiliary_scope']))
++    require(not out.exists() and (not aux.exists()), 'Fresh exclusive science output/AUX, no replay')
++    paths = worker_env_paths_v1(s)
++    directories = sorted({Path(v) for v in paths.values()}, key=lambda p: (len(p.parts), str(p)))
++    g.budget_check_v9(storage, boundary=True, required_write_bytes=(2 + len(directories)) * 8192)
++    active_amendment_v1()
+     aux.mkdir()
+     for directory in directories:
+         active_amendment_v1()
+         directory.mkdir()
+-    last_census=charged_census_v1(s);peak_scope=sum(last_census.values())
+-    compact_v1(s,"effective_execution_view.json",dict(schema="downstream_actual_explicit_execution_view_v1",
+-        original_input_ref=input_ref,actual_execution_amendment_ref=current_amendment_ref_v1(),
+-        adapter_manifest_ref=ref(MANIFEST),effective_output_directory=s["output_directory"],
+-        effective_admin_directory=s["worker_auxiliary_scope"],original_storage_ref=s["refs"]["storage"],
+-        master_reservation_authenticates_execution_sources=True,separate_ROOT_phase_authority_authenticates_later_prerequisites=True,
+-        whole_original_output_root=c.STATE[0]["output_directory"],whole_original_AUX_root=c.STATE[0]["worker_auxiliary_scope"]),g,storage)
+-    load(PIDFD,"pidfd_backend_v1");owned=load(OWNED,"_downstream_original_full_parent_owned_lifecycle")
+-    sys.modules["pidfd_backend_v1"].self_probe_v1()
+-    require(not owned._children(os.getpid()),"Supervisor has no unrelated children");_subreaper()
+-    parent_identity=owned._stat(os.getpid());logs=_RAMLog(CAPS["log_bytes"]);selector=selectors.DefaultSelector()
+-    proc=tree=leader_seed=None;failure=cancelled=None;peak=0;adopted=[];original={}
+-    pipe_nonblocking=pipe_eof=gate_released=False
+-    raw_status=None;cleanup_errors=[];identity_absence=None;observations=[]
+-    adopted_wait_count=0;adopted_waits_truncated=False
+-    gate_read=gate_write=physical_fd=logical_fd=None;attachment_ref=None;start=stage_started
+-    capacity_samples=0;last_capacity=None;next_capacity=0.
+-    def stop(sig,frame):
++    last_census = charged_census_v1(s)
++    peak_scope = sum(last_census.values())
++    compact_v1(s, 'effective_execution_view.json', dict(schema='downstream_actual_explicit_execution_view_v1', original_input_ref=input_ref, actual_execution_amendment_ref=current_amendment_ref_v1(), adapter_manifest_ref=ref(MANIFEST), effective_output_directory=s['output_directory'], effective_admin_directory=s['worker_auxiliary_scope'], original_storage_ref=s['refs']['storage'], master_reservation_authenticates_execution_sources=True, separate_ROOT_phase_authority_authenticates_later_prerequisites=True, whole_original_output_root=c.STATE[0]['output_directory'], whole_original_AUX_root=c.STATE[0]['worker_auxiliary_scope']), g, storage)
++    load(PIDFD, 'pidfd_backend_v1')
++    owned = load(OWNED, '_downstream_original_full_parent_owned_lifecycle')
++    sys.modules['pidfd_backend_v1'].self_probe_v1()
++    require(not owned._children(os.getpid()), 'Supervisor has no unrelated children')
++    _subreaper()
++    parent_identity = owned._stat(os.getpid())
++    logs = _RAMLog(CAPS['log_bytes'])
++    selector = selectors.DefaultSelector()
++    proc = tree = leader_seed = None
++    failure = cancelled = None
++    peak = 0
++    adopted = []
++    original = {}
++    pipe_nonblocking = pipe_eof = gate_released = False
++    raw_status = None
++    cleanup_errors = []
++    identity_absence = None
++    observations = []
++    adopted_wait_count = 0
++    adopted_waits_truncated = False
++    gate_read = gate_write = physical_fd = logical_fd = None
++    attachment_ref = None
++    start = stage_started
++    capacity_samples = 0
++    last_capacity = None
++    next_capacity = 0.0
++
++    def stop(sig, frame):
+         nonlocal cancelled
+-        cancelled=sig
++        cancelled = sig
+     try:
+-        for sig in (signal.SIGTERM,signal.SIGINT):original[sig]=signal.signal(sig,stop)
+-        env=os.environ.copy()
+-        env.pop("PYTHONHOME",None)
+-        for name in ("RANK","LOCAL_RANK","WORLD_SIZE","LOCAL_WORLD_SIZE","NODE_RANK","MASTER_ADDR","MASTER_PORT"):
+-            env.pop(name,None)
+-        env.update(HF_HUB_OFFLINE="1",TRANSFORMERS_OFFLINE="1",HF_HUB_DISABLE_TELEMETRY="1",WANDB_MODE="disabled",
+-            HF_DATASETS_OFFLINE="1",PIP_NO_INDEX="1",PIP_DISABLE_PIP_VERSION_CHECK="1",CUDA_CACHE_MAXSIZE=str(256*2**20),
+-            CONDA_PREFIX=str(local(".runtime/conda/envs/argformer_native_v1")),BLIS_NUM_THREADS="4")
+-        env["PATH"]=str(local(".runtime/conda/envs/argformer_native_v1")/"bin")+os.pathsep+env.get("PATH","")
+-        env.update(PYTHONDONTWRITEBYTECODE="1",PYTHONNOUSERSITE="1",
+-            PYTHONPATH="",
+-            OMP_NUM_THREADS="32" if s["phase"]=="RAM_retrieve_and_seal" else "4",
+-            MKL_NUM_THREADS="32" if s["phase"]=="RAM_retrieve_and_seal" else "4",
+-            OPENBLAS_NUM_THREADS="32" if s["phase"]=="RAM_retrieve_and_seal" else "4",
+-            NUMEXPR_NUM_THREADS="32" if s["phase"]=="RAM_retrieve_and_seal" else "4",
+-            ARGGNN_LOGICAL_JOB_NAME=s["job_id"],
+-            ARGGNN_COMPLETED_CREDITS_POLICY_REF=json.dumps(q["capacity_policy_ref"]),
+-            ARGGNN_BUDGET_V9_SOURCE_SHA256=storage["budget_components"]["implementation"]["sha256"],
+-            ARGGNN_BUDGET_V9_LAUNCHER_SHA256=storage["budget_components"]["launcher"]["sha256"])
++        for sig in (signal.SIGTERM, signal.SIGINT):
++            original[sig] = signal.signal(sig, stop)
++        env = os.environ.copy()
++        env.pop('PYTHONHOME', None)
++        for name in ('RANK', 'LOCAL_RANK', 'WORLD_SIZE', 'LOCAL_WORLD_SIZE', 'NODE_RANK', 'MASTER_ADDR', 'MASTER_PORT'):
++            env.pop(name, None)
++        env.update(HF_HUB_OFFLINE='1', TRANSFORMERS_OFFLINE='1', HF_HUB_DISABLE_TELEMETRY='1', WANDB_MODE='disabled', HF_DATASETS_OFFLINE='1', PIP_NO_INDEX='1', PIP_DISABLE_PIP_VERSION_CHECK='1', CUDA_CACHE_MAXSIZE=str(256 * 2 ** 20), VIRTUAL_ENV=str(local('.runtime/env')), BLIS_NUM_THREADS='32')
++        env['PATH'] = str(local('.runtime/env') / 'bin') + os.pathsep + env.get('PATH', '')
++        env.update(PYTHONDONTWRITEBYTECODE='1', PYTHONNOUSERSITE='1', PYTHONPATH='', OMP_NUM_THREADS='32', MKL_NUM_THREADS='32', OPENBLAS_NUM_THREADS='32', NUMEXPR_NUM_THREADS='32', ARGGNN_LOGICAL_JOB_NAME=s['job_id'], ARGGNN_COMPLETED_CREDITS_POLICY_REF=json.dumps(q['capacity_policy_ref']), ARGGNN_BUDGET_V9_SOURCE_SHA256=storage['budget_components']['implementation']['sha256'], ARGGNN_BUDGET_V9_LAUNCHER_SHA256=storage['budget_components']['launcher']['sha256'])
+         env.update(paths)
+-        if s["phase"] in GPU_PHASES:
+-            from research.reviews.native_saved_MLM_current_Census64_integration_source_20261017_v2 import direct_gpu0_v1 as direct
+-            direct.install_cancellation_check_v1(lambda:require(cancelled is None and time.monotonic()<work_deadline,
+-                "Actual cancellation or anchored work cutoff during status proof"))
+-            physical_fd,logical_fd,ticket=direct.attach_v1(s,q)
+-            attachment_ref=compact_v1(s,"attachment.json",ticket,g,storage)
+-            env.update(CUDA_VISIBLE_DEVICES=GPU0_UUID,ARGGNN_PHYSICAL_GPU="0",
+-                ARGGNN_GPU_LEASE=str(local(".runtime/locks/gpu_0.lock")),
+-                ARGGNN_GPU_LEASE_FD=str(physical_fd),downstream_LOGICAL_LOCK_FD=str(logical_fd),
+-                ARGGNN_JOB_NAME=ticket["physical_lease_metadata"]["job"])
+-            last_capacity=ticket["capacity_at_attachment"];capacity_samples=1
++        if s['phase'] in GPU_PHASES:
++            from research.reviews.C3_remaining_cells_GPU0_source_20261017_v1 import direct_gpu0_v1 as direct
++            direct.install_cancellation_check_v1(lambda : require(cancelled is None and time.monotonic() < work_deadline, 'Actual cancellation or anchored work cutoff during status proof'))
++            (physical_fd, logical_fd, ticket) = direct.attach_v1(s, q)
++            attachment_ref = compact_v1(s, 'attachment.json', ticket, g, storage)
++            env.update(CUDA_VISIBLE_DEVICES=GPU0_UUID, ARGGNN_PHYSICAL_GPU='0', ARGGNN_GPU_LEASE=str(local('.runtime/locks/gpu_0.lock')), ARGGNN_GPU_LEASE_FD=str(physical_fd), downstream_LOGICAL_LOCK_FD=str(logical_fd), ARGGNN_JOB_NAME=ticket['physical_lease_metadata']['job'])
++            last_capacity = ticket['capacity_at_attachment']
++            capacity_samples = 1
+         else:
+-            env["CUDA_VISIBLE_DEVICES"]=""
+-            for name in ("ARGGNN_PHYSICAL_GPU","ARGGNN_GPU_LEASE","ARGGNN_GPU_LEASE_FD","downstream_LOGICAL_LOCK_FD","ARGGNN_JOB_NAME"):
+-                env.pop(name,None)
+-        gate_read,gate_write=os.pipe()
+-        command=[str(local(NATIVE_PYTHON_REF["path"])),"-B","-s","-m",
+-            "research.reviews.native_saved_MLM_current_Census64_integration_source_20261017_v2.execution_v1",
+-            "--worker-input-ref",json.dumps(input_ref,separators=(",",":")),"--gate-fd",str(gate_read)]
+-        if attachment_ref is not None:command+=["--attachment-ref",json.dumps(attachment_ref,separators=(",",":"))]
+-        command+=["--amendment-ref",json.dumps(current_amendment_ref_v1(),separators=(",",":"))]
+-        inherited=tuple(fd for fd in (gate_read,physical_fd,logical_fd) if fd is not None)
+-        require(time.monotonic()<work_deadline,"No child launch inside cleanup/evidence reserve")
+-        proc=subprocess.Popen(command,cwd=ROOT,env=env,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,
+-            bufsize=0,start_new_session=True,pass_fds=inherited)
+-        os.close(gate_read);gate_read=None
+-        # Make pipe reads nonblocking before any ownership operation can fail.
+-        os.set_blocking(proc.stdout.fileno(),False);pipe_nonblocking=True
+-        leader_seed=owned._stat(proc.pid)
+-        require(leader_seed is not None and leader_seed["ppid"]==os.getpid()
+-            and leader_seed["group"]==leader_seed["session"]==proc.pid,"Actual direct new-session identity seed")
+-        tree=owned.OwnedTree(proc.pid)
+-        compact_v1(s,"launch.json",dict(schema="downstream_fixed_full_parent_actual_child_launch_v1",
+-            pid=proc.pid,parent_pid=os.getpid(),input_ref=input_ref,command=command,
+-            ownership=tree.evidence(),gate_still_closed=True,attachment_ref=attachment_ref,
+-            borrowed_physical_inode=attachment_ref is not None,controller_inheritance_claimed=False),g,storage)
+-        selector.register(proc.stdout,selectors.EVENT_READ)
++            env['CUDA_VISIBLE_DEVICES'] = ''
++            for name in ('ARGGNN_PHYSICAL_GPU', 'ARGGNN_GPU_LEASE', 'ARGGNN_GPU_LEASE_FD', 'downstream_LOGICAL_LOCK_FD', 'ARGGNN_JOB_NAME'):
++                env.pop(name, None)
++        (gate_read, gate_write) = os.pipe()
++        command = [str(local(NATIVE_PYTHON_REF['path'])), '-B', '-s', '-m', 'research.reviews.C3_remaining_cells_GPU0_source_20261017_v1.execution_v1', '--worker-input-ref', json.dumps(input_ref, separators=(',', ':')), '--gate-fd', str(gate_read)]
++        if attachment_ref is not None:
++            command += ['--attachment-ref', json.dumps(attachment_ref, separators=(',', ':'))]
++        command += ['--amendment-ref', json.dumps(current_amendment_ref_v1(), separators=(',', ':'))]
++        inherited = tuple((fd for fd in (gate_read, physical_fd, logical_fd) if fd is not None))
++        require(time.monotonic() < work_deadline, 'No child launch inside cleanup/evidence reserve')
++        proc = subprocess.Popen(command, cwd=ROOT, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=0, start_new_session=True, pass_fds=inherited)
++        os.close(gate_read)
++        gate_read = None
++        os.set_blocking(proc.stdout.fileno(), False)
++        pipe_nonblocking = True
++        leader_seed = owned._stat(proc.pid)
++        require(leader_seed is not None and leader_seed['ppid'] == os.getpid() and (leader_seed['group'] == leader_seed['session'] == proc.pid), 'Actual direct new-session identity seed')
++        tree = owned.OwnedTree(proc.pid)
++        compact_v1(s, 'launch.json', dict(schema='downstream_fixed_full_parent_actual_child_launch_v1', pid=proc.pid, parent_pid=os.getpid(), input_ref=input_ref, command=command, ownership=tree.evidence(), gate_still_closed=True, attachment_ref=attachment_ref, borrowed_physical_inode=attachment_ref is not None, controller_inheritance_claimed=False), g, storage)
++        selector.register(proc.stdout, selectors.EVENT_READ)
+         active_amendment_v1()
+-        require(cancelled is None and time.monotonic()<work_deadline,
+-            "Cancelled or anchored scientific work cutoff reached before gate release")
+-        os.write(gate_write,b"G");gate_released=True;os.close(gate_write);gate_write=None
+-
++        require(cancelled is None and time.monotonic() < work_deadline, 'Cancelled or anchored scientific work cutoff reached before gate release')
++        os.write(gate_write, b'G')
++        gate_released = True
++        os.close(gate_write)
++        gate_write = None
+         while True:
+-            require(cancelled is None,"ROOT cancellation signal "+str(cancelled))
+-            require(time.monotonic()<work_deadline,"Pre-expiry scientific work cutoff; cleanup/evidence reserve retained")
+-            terminal=os.waitid(os.P_PID,proc.pid,os.WEXITED|os.WNOHANG|os.WNOWAIT)
++            require(cancelled is None, 'ROOT cancellation signal ' + str(cancelled))
++            require(time.monotonic() < work_deadline, 'Pre-expiry scientific work cutoff; cleanup/evidence reserve retained')
++            terminal = os.waitid(os.P_PID, proc.pid, os.WEXITED | os.WNOHANG | os.WNOWAIT)
+             tree.refresh()
+-            require(len(tree.known)<=OWNED_ROSTER_CAP,"Bounded fixed downstream owned process identities")
+-            peak=max(peak,rss_identity_v1(owned,parent_identity)+
+-                sum(rss_identity_v1(owned,r) for r in tree.known.values()))
+-            require(peak<=CAPS["max_cpu_rss_bytes"],"Combined owned RSS cap")
+-            last_census=charged_census_v1(s);peak_scope=max(peak_scope,sum(last_census.values()))
+-            if s["phase"] in GPU_PHASES and time.monotonic()>=next_capacity:
+-                last_capacity=direct.capacity_v1(q,direct.base_v1(),worker_pid=proc.pid)
+-                direct.check_attachment_v1(q,ticket,physical_fd,logical_fd)
+-                capacity_samples+=1;next_capacity=time.monotonic()+2
+-            # Direct exit transfers immediately to one finite cleanup allowance.
++            require(len(tree.known) <= OWNED_ROSTER_CAP, 'Bounded fixed downstream owned process identities')
++            peak = max(peak, rss_identity_v1(owned, parent_identity) + sum((rss_identity_v1(owned, r) for r in tree.known.values())))
++            require(peak <= CAPS['max_cpu_rss_bytes'], 'Combined owned RSS cap')
++            last_census = charged_census_v1(s)
++            peak_scope = max(peak_scope, sum(last_census.values()))
++            if s['phase'] in GPU_PHASES and time.monotonic() >= next_capacity:
++                last_capacity = direct.capacity_v1(q, direct.base_v1(), worker_pid=proc.pid)
++                direct.check_attachment_v1(q, ticket, physical_fd, logical_fd)
++                capacity_samples += 1
++                next_capacity = time.monotonic() + 2
+             if terminal is not None:
+-                if any(pid!=proc.pid for pid in tree.live()):
+-                    failure=failure or "Direct worker exited with live owned descendants"
++                if any((pid != proc.pid for pid in tree.live())):
++                    failure = failure or 'Direct worker exited with live owned descendants'
+                 break
+-            for key,_ in selector.select(timeout=.2):
+-                data=os.read(key.fileobj.fileno(),65536)
+-                if data:logs.add(data)
+-                else:pipe_eof=True;selector.unregister(key.fileobj)
++            for (key, _) in selector.select(timeout=0.2):
++                data = os.read(key.fileobj.fileno(), 65536)
++                if data:
++                    logs.add(data)
++                else:
++                    pipe_eof = True
++                    selector.unregister(key.fileobj)
+     except BaseException as exc:
+-        failure=failure or type(exc).__name__+": "+str(exc)[:2000]
++        failure = failure or type(exc).__name__ + ': ' + str(exc)[:2000]
+     finally:
+-        # A single aggregate allowance covers direct OS wait, all known-owned
+-        # PIDFD TERM/KILL, descendant waits, pipe drain and absence observations.
+-        cleanup_started=time.monotonic()
+-        cleanup_deadline=cleanup_started+CAPS["cleanup_seconds"]
+-        for fd in (gate_read,gate_write):
++        cleanup_started = time.monotonic()
++        cleanup_deadline = cleanup_started + CAPS['cleanup_seconds']
++        for fd in (gate_read, gate_write):
+             if fd is not None:
+-                try:os.close(fd)
++                try:
++                    os.close(fd)
+                 except OSError as exc:
+-                    if len(cleanup_errors)<16:cleanup_errors.append(type(exc).__name__+": "+str(exc)[:1000])
++                    if len(cleanup_errors) < 16:
++                        cleanup_errors.append(type(exc).__name__ + ': ' + str(exc)[:1000])
++
+         def retain_pipe():
+             nonlocal pipe_eof
+-            if proc is None or proc.stdout is None or not pipe_nonblocking:return
++            if proc is None or proc.stdout is None or (not pipe_nonblocking):
++                return
+             for _ in range(4):
+-                try:data=os.read(proc.stdout.fileno(),65536)
+-                except BlockingIOError:break
+-                if not data:pipe_eof=True;break
++                try:
++                    data = os.read(proc.stdout.fileno(), 65536)
++                except BlockingIOError:
++                    break
++                if not data:
++                    pipe_eof = True
++                    break
+                 logs.add(data)
++
+         def note_cleanup(exc):
+             nonlocal failure
+-            message=type(exc).__name__+": "+str(exc)[:1000]
+-            failure=failure or "Owned cleanup observation failed: "+message
+-            if len(cleanup_errors)<16:cleanup_errors.append(message)
++            message = type(exc).__name__ + ': ' + str(exc)[:1000]
++            failure = failure or 'Owned cleanup observation failed: ' + message
++            if len(cleanup_errors) < 16:
++                cleanup_errors.append(message)
+         if proc is not None:
+-            while time.monotonic()<cleanup_deadline:
++            while time.monotonic() < cleanup_deadline:
+                 try:
+                     if raw_status is None:
+-                        waited,status=os.waitpid(proc.pid,os.WNOHANG)
+-                        require(waited in (0,proc.pid),"Only actual direct child OS wait")
+-                        if waited==proc.pid:
+-                            raw_status=status;proc.returncode=os.waitstatus_to_exitcode(status)
++                        (waited, status) = os.waitpid(proc.pid, os.WNOHANG)
++                        require(waited in (0, proc.pid), 'Only actual direct child OS wait')
++                        if waited == proc.pid:
++                            raw_status = status
++                            proc.returncode = os.waitstatus_to_exitcode(status)
+                     if tree is not None:
+-                        tree.refresh();require(len(tree.known)<=OWNED_ROSTER_CAP,"Bounded fixed downstream cleanup identities")
+-                except BaseException as exc:note_cleanup(exc)
+-                # Known identities remain signalable even when tree.refresh
+-                # failed. Never signal a guessed PID, group or unrelated job.
+-                rows=list(itertools.islice(tree.known.values(),OWNED_ROSTER_CAP)) if tree is not None else ([leader_seed] if leader_seed else [])
+-                signum=signal.SIGTERM if time.monotonic()-cleanup_started<10 else signal.SIGKILL
++                        tree.refresh()
++                        require(len(tree.known) <= OWNED_ROSTER_CAP, 'Bounded fixed downstream cleanup identities')
++                except BaseException as exc:
++                    note_cleanup(exc)
++                rows = list(itertools.islice(tree.known.values(), OWNED_ROSTER_CAP)) if tree is not None else [leader_seed] if leader_seed else []
++                signum = signal.SIGTERM if time.monotonic() - cleanup_started < 10 else signal.SIGKILL
+                 for row in rows[:OWNED_ROSTER_CAP]:
+-                    if time.monotonic()>=cleanup_deadline:break
+-                    try:owned.signal_identity(row,signum)
+-                    except BaseException as exc:note_cleanup(exc)
++                    if time.monotonic() >= cleanup_deadline:
++                        break
++                    try:
++                        owned.signal_identity(row, signum)
++                    except BaseException as exc:
++                        note_cleanup(exc)
+                 if raw_status is not None:
+-                    while time.monotonic()<cleanup_deadline:
+-                        try:pid,status=os.waitpid(-1,os.WNOHANG)
+-                        except ChildProcessError:break
+-                        except BaseException as exc:note_cleanup(exc);break
+-                        if pid==0:break
+-                        adopted_wait_count+=1
+-                        if len(adopted)<OWNED_ROSTER_CAP:
+-                            adopted.append(dict(pid=pid,status=status,returncode=os.waitstatus_to_exitcode(status)))
++                    while time.monotonic() < cleanup_deadline:
++                        try:
++                            (pid, status) = os.waitpid(-1, os.WNOHANG)
++                        except ChildProcessError:
++                            break
++                        except BaseException as exc:
++                            note_cleanup(exc)
++                            break
++                        if pid == 0:
++                            break
++                        adopted_wait_count += 1
++                        if len(adopted) < OWNED_ROSTER_CAP:
++                            adopted.append(dict(pid=pid, status=status, returncode=os.waitstatus_to_exitcode(status)))
+                         else:
+-                            adopted_waits_truncated=True
+-                            failure=failure or "More than4096 adopted downstream wait identities, retained statuses truncated"
++                            adopted_waits_truncated = True
++                            failure = failure or 'More than4096 adopted downstream wait identities, retained statuses truncated'
+                 try:
+                     retain_pipe()
+                     if raw_status is not None and tree is None:
+-                        # Without the required ownership object, never infer
+-                        # complete drain or authorize any later stage.
+                         break
+-                    if raw_status is not None and tree is not None and time.monotonic()<cleanup_deadline:
+-                        identity_absence=tree.identities_absent() and not owned._children(os.getpid())
++                    if raw_status is not None and tree is not None and (time.monotonic() < cleanup_deadline):
++                        identity_absence = tree.identities_absent() and (not owned._children(os.getpid()))
+                         if identity_absence and pipe_eof:
+-                            observations=[]
+-                            for group in sorted({r["group"] for r in list(itertools.islice(tree.known.values(),OWNED_ROSTER_CAP))[:OWNED_ROSTER_CAP]}):
+-                                gone=None
+-                                if time.monotonic()<cleanup_deadline:
+-                                    try:os.killpg(group,0)
+-                                    except ProcessLookupError:gone=True
+-                                    except OSError as exc:note_cleanup(exc)
+-                                    else:gone=False
+-                                observations.append(dict(pgid=group,absent=gone,
+-                                    method="targeted ESRCH within aggregate cleanup deadline" if gone is not None
+-                                        else "not asserted; aggregate cleanup deadline exhausted"))
+-                            if observations and all(r["absent"] is True for r in observations):
++                            observations = []
++                            for group in sorted({r['group'] for r in list(itertools.islice(tree.known.values(), OWNED_ROSTER_CAP))[:OWNED_ROSTER_CAP]}):
++                                gone = None
++                                if time.monotonic() < cleanup_deadline:
++                                    try:
++                                        os.killpg(group, 0)
++                                    except ProcessLookupError:
++                                        gone = True
++                                    except OSError as exc:
++                                        note_cleanup(exc)
++                                    else:
++                                        gone = False
++                                observations.append(dict(pgid=group, absent=gone, method='targeted ESRCH within aggregate cleanup deadline' if gone is not None else 'not asserted; aggregate cleanup deadline exhausted'))
++                            if observations and all((r['absent'] is True for r in observations)):
+                                 break
+-                except BaseException as exc:note_cleanup(exc)
+-                time.sleep(min(.05,max(0.,cleanup_deadline-time.monotonic())))
+-            if time.monotonic()<cleanup_deadline:
+-                try:retain_pipe()
+-                except BaseException as exc:note_cleanup(exc)
++                except BaseException as exc:
++                    note_cleanup(exc)
++                time.sleep(min(0.05, max(0.0, cleanup_deadline - time.monotonic())))
++            if time.monotonic() < cleanup_deadline:
++                try:
++                    retain_pipe()
++                except BaseException as exc:
++                    note_cleanup(exc)
+             if proc.stdout is not None:
+-                try:proc.stdout.close()
+-                except OSError as exc:note_cleanup(exc)
++                try:
++                    proc.stdout.close()
++                except OSError as exc:
++                    note_cleanup(exc)
+         selector.close()
+-        for sig,handler in original.items():signal.signal(sig,handler)
+-        cleanup_finished=time.monotonic()
+-    rc=os.waitstatus_to_exitcode(raw_status) if raw_status is not None else None
+-    if proc is None:failure=failure or "No worker spawned"
+-    if raw_status is None:failure=failure or "Direct OS wait unknown after finite cleanup"
+-    # Retain only observations genuinely made inside the single cleanup
+-    # allowance. No process/group probe is started after that deadline.
++        for (sig, handler) in original.items():
++            signal.signal(sig, handler)
++        cleanup_finished = time.monotonic()
++    rc = os.waitstatus_to_exitcode(raw_status) if raw_status is not None else None
++    if proc is None:
++        failure = failure or 'No worker spawned'
++    if raw_status is None:
++        failure = failure or 'Direct OS wait unknown after finite cleanup'
+     if not observations:
+-        rows=list(itertools.islice(tree.known.values(),OWNED_ROSTER_CAP))[:OWNED_ROSTER_CAP] if tree is not None else ([leader_seed] if leader_seed else [])
+-        observations=[dict(pgid=group,absent=None,method="not asserted; owned cleanup incomplete")
+-            for group in sorted({r["group"] for r in rows})]
+-    roster_complete=tree is not None and len(tree.known)<=OWNED_ROSTER_CAP and not adopted_waits_truncated \
+-        and adopted_wait_count==len(adopted)<=OWNED_ROSTER_CAP
+-    drained=raw_status is not None and roster_complete and identity_absence is True and pipe_eof         and all(r["absent"] is True for r in observations)
+-    if not drained:failure=failure or "Finite cleanup ended without genuine wait and complete owned absence"
+-    if rc is not None and rc!=0:failure=failure or "Actual worker exit "+str(rc)
+-    if any(r["returncode"]!=0 for r in adopted):failure=failure or "Nonzero actual adopted descendant wait"
+-    # Closing our borrowed OFD never unlocks the old controller's distinct OFD.
+-    # If child cleanup is unresolved, its inherited logical descriptor is not
+-    # declared released and no storage close/credit or later work is permitted.
+-    for fd in (physical_fd,logical_fd):
++        rows = list(itertools.islice(tree.known.values(), OWNED_ROSTER_CAP))[:OWNED_ROSTER_CAP] if tree is not None else [leader_seed] if leader_seed else []
++        observations = [dict(pgid=group, absent=None, method='not asserted; owned cleanup incomplete') for group in sorted({r['group'] for r in rows})]
++    roster_complete = tree is not None and len(tree.known) <= OWNED_ROSTER_CAP and (not adopted_waits_truncated) and (adopted_wait_count == len(adopted) <= OWNED_ROSTER_CAP)
++    drained = raw_status is not None and roster_complete and (identity_absence is True) and pipe_eof and all((r['absent'] is True for r in observations))
++    if not drained:
++        failure = failure or 'Finite cleanup ended without genuine wait and complete owned absence'
++    if rc is not None and rc != 0:
++        failure = failure or 'Actual worker exit ' + str(rc)
++    if any((r['returncode'] != 0 for r in adopted)):
++        failure = failure or 'Nonzero actual adopted descendant wait'
++    for fd in (physical_fd, logical_fd):
+         if fd is not None:
+-            try:os.close(fd)
+-            except OSError as exc:failure=failure or "Attachment descriptor close: "+str(exc)[:1000]
+-    if tree is not None and len(tree.known)<=OWNED_ROSTER_CAP:
+-        ownership=tree.evidence()
++            try:
++                os.close(fd)
++            except OSError as exc:
++                failure = failure or 'Attachment descriptor close: ' + str(exc)[:1000]
++    if tree is not None and len(tree.known) <= OWNED_ROSTER_CAP:
++        ownership = tree.evidence()
+     else:
+-        ownership=dict(owned_tree_constructed=tree is not None,
+-            actual_direct_identity_seed=leader_seed,complete_owned_roster_known=False,
+-            retained_owned_identities=[dict(pid=row["pid"],start=row["start"])
+-                for row in itertools.islice(tree.known.values(),OWNED_ROSTER_CAP)] if tree is not None else [],
+-            owned_roster_truncated=tree is not None,signals_use_pidfd_only=True)
+-    ownership.update(cumulative_identity_cap=OWNED_ROSTER_CAP,
+-        complete_owned_roster_known=roster_complete,owned_roster_truncated=tree is not None and not roster_complete,
+-        known_identity_count=len(tree.known) if tree is not None else None,adopted_wait_count=adopted_wait_count,
+-        retained_adopted_wait_count=len(adopted),adopted_waits_truncated=adopted_waits_truncated)
+-    observation=dict(schema="downstream_fixed_full_parent_bounded_cleanup_observation_v2",input_ref=input_ref,
+-        actual_execution_amendment_ref=current_amendment_ref_v1(),adapter_manifest_ref=ref(MANIFEST),
+-        original_storage_ref=s["refs"]["storage"],whole_original_roots_measured=True,
+-        master_reservation_authenticates_execution_sources=True,separate_ROOT_phase_authority_authenticates_later_prerequisites=True,
+-        pid=proc.pid if proc is not None else None,returncode=rc,actual_OS_wait_status=raw_status,
+-        actual_direct_worker_wait=raw_status is not None,all_owned_processes_and_groups_drained=drained,
+-        owned_identity_absence=identity_absence,group_observations=observations,ownership=ownership,
+-        adopted_waits=adopted,adopted_wait_count=adopted_wait_count,adopted_waits_truncated=adopted_waits_truncated,
+-        operational_failure=failure,gate_released=gate_released,pipe_EOF_observed=pipe_eof,
+-        owned_roster_policy_ref=OWNED_ROSTER_POLICY_REF,complete_owned_roster_known=roster_complete,
+-        cleanup_errors=cleanup_errors,cleanup_deadline_seconds=CAPS["cleanup_seconds"],
+-        cleanup_seconds=cleanup_finished-cleanup_started,elapsed_seconds=time.monotonic()-start,
+-        work_cutoff_margin_seconds=CAPS["work_cutoff_margin_seconds"],
+-        terminal_evidence_margin_seconds=CAPS["terminal_evidence_margin_seconds"],
+-        actual_authority_seconds_remaining=expires_unix-time.time(),
+-        no_future_stage_authorized=failure is not None or not drained,
+-        storage_close_or_credit_authorized=False,
+-        borrowed_physical_inode=attachment_ref is not None,controller_inheritance_claimed=False)
+-    minimal_facts=dict(schema="downstream_actual_bounded_minimal_wait_facts_v4",input_ref=input_ref,
+-        actual_execution_amendment_ref=current_amendment_ref_v1(),adapter_manifest_ref=ref(MANIFEST),
+-        original_storage_ref=s["refs"]["storage"],pid=proc.pid if proc is not None else None,
+-        actual_OS_wait_status=raw_status,returncode=rc,actual_direct_worker_wait=raw_status is not None,
+-        all_owned_processes_and_groups_drained=drained,complete_owned_roster_known=roster_complete,
+-        known_identity_count=len(tree.known) if tree is not None else None,adopted_wait_count=adopted_wait_count,
+-        retained_adopted_wait_count=len(adopted),adopted_waits_truncated=adopted_waits_truncated,
+-        cumulative_owned_identity_cap=OWNED_ROSTER_CAP,owned_roster_policy_ref=OWNED_ROSTER_POLICY_REF,
+-        operational_failure=failure,cleanup_deadline_seconds=CAPS["cleanup_seconds"],
+-        cleanup_seconds=cleanup_finished-cleanup_started,pipe_EOF_observed=pipe_eof,
+-        minimal_wait_only_not_scientific_completion=True,full_terminal_evidence_still_required=True,
+-        no_future_stage_authorized=True,storage_close_or_credit_authorized=False)
+-    # Always preserve actual or explicitly unknown wait/status facts before any
+-    # large serialization, namespace operation or strict filesystem check.
+-    require(len((json.dumps(minimal_facts,sort_keys=True,indent=2,allow_nan=False)+"\n").encode())<=MINIMAL_WAIT_CAP_BYTES,
+-        "Bounded actual minimal wait facts, no ownership-array dependency")
+-    print(json.dumps(dict(downstream_actual_minimal_wait_facts=minimal_facts),sort_keys=True),flush=True)
+-    # Stdout preserves genuine/unknown OS-wait evidence even when unresolved
+-    # writers or expired authority prohibit another strict filesystem write.
+-    print(json.dumps(dict(downstream_bounded_cleanup_observation=observation),sort_keys=True),flush=True)
+-    evidence_ready=time.time()+CAPS["terminal_evidence_margin_seconds"]<expires_unix
+-    if not drained or raw_status is None or not evidence_ready:
+-        if not evidence_ready:failure=failure or "Terminal-evidence reserve no longer available"
+-        partial_log=logs.record()
+-        print(json.dumps(dict(downstream_unresolved_cleanup_log=dict(tail=partial_log["tail"][-8192:],
+-            total_pipe_bytes=partial_log["total_pipe_bytes"],retained_raw_bytes=partial_log["retained_raw_bytes"],
+-            no_filesystem_write_or_later_stage=True)),sort_keys=True),flush=True)
+-        return dict(status="FAILED_UNRESOLVED_CLEANUP" if not drained else "FAILED_TERMINAL_EVIDENCE_MARGIN",
+-            completed_ref=None,actual_wait_ref=None,returncode=rc if rc not in (None,0) else 1,
+-            actual_direct_worker_returncode=rc,actual_direct_worker_wait=raw_status is not None,
+-            all_owned_processes_and_groups_drained=drained,operational_failure=failure,
+-            no_future_stage_authorized=True,actual_outer_tool_terminal_still_required=True)
+-    minimal=completed_ref=wait_ref=None
++        ownership = dict(owned_tree_constructed=tree is not None, actual_direct_identity_seed=leader_seed, complete_owned_roster_known=False, retained_owned_identities=[dict(pid=row['pid'], start=row['start']) for row in itertools.islice(tree.known.values(), OWNED_ROSTER_CAP)] if tree is not None else [], owned_roster_truncated=tree is not None, signals_use_pidfd_only=True)
++    ownership.update(cumulative_identity_cap=OWNED_ROSTER_CAP, complete_owned_roster_known=roster_complete, owned_roster_truncated=tree is not None and (not roster_complete), known_identity_count=len(tree.known) if tree is not None else None, adopted_wait_count=adopted_wait_count, retained_adopted_wait_count=len(adopted), adopted_waits_truncated=adopted_waits_truncated)
++    observation = dict(schema='downstream_fixed_full_parent_bounded_cleanup_observation_v2', input_ref=input_ref, actual_execution_amendment_ref=current_amendment_ref_v1(), adapter_manifest_ref=ref(MANIFEST), original_storage_ref=s['refs']['storage'], whole_original_roots_measured=True, master_reservation_authenticates_execution_sources=True, separate_ROOT_phase_authority_authenticates_later_prerequisites=True, pid=proc.pid if proc is not None else None, returncode=rc, actual_OS_wait_status=raw_status, actual_direct_worker_wait=raw_status is not None, all_owned_processes_and_groups_drained=drained, owned_identity_absence=identity_absence, group_observations=observations, ownership=ownership, adopted_waits=adopted, adopted_wait_count=adopted_wait_count, adopted_waits_truncated=adopted_waits_truncated, operational_failure=failure, gate_released=gate_released, pipe_EOF_observed=pipe_eof, owned_roster_policy_ref=OWNED_ROSTER_POLICY_REF, complete_owned_roster_known=roster_complete, cleanup_errors=cleanup_errors, cleanup_deadline_seconds=CAPS['cleanup_seconds'], cleanup_seconds=cleanup_finished - cleanup_started, elapsed_seconds=time.monotonic() - start, work_cutoff_margin_seconds=CAPS['work_cutoff_margin_seconds'], terminal_evidence_margin_seconds=CAPS['terminal_evidence_margin_seconds'], actual_authority_seconds_remaining=expires_unix - time.time(), no_future_stage_authorized=failure is not None or not drained, storage_close_or_credit_authorized=False, borrowed_physical_inode=attachment_ref is not None, controller_inheritance_claimed=False)
++    minimal_facts = dict(schema='downstream_actual_bounded_minimal_wait_facts_v4', input_ref=input_ref, actual_execution_amendment_ref=current_amendment_ref_v1(), adapter_manifest_ref=ref(MANIFEST), original_storage_ref=s['refs']['storage'], pid=proc.pid if proc is not None else None, actual_OS_wait_status=raw_status, returncode=rc, actual_direct_worker_wait=raw_status is not None, all_owned_processes_and_groups_drained=drained, complete_owned_roster_known=roster_complete, known_identity_count=len(tree.known) if tree is not None else None, adopted_wait_count=adopted_wait_count, retained_adopted_wait_count=len(adopted), adopted_waits_truncated=adopted_waits_truncated, cumulative_owned_identity_cap=OWNED_ROSTER_CAP, owned_roster_policy_ref=OWNED_ROSTER_POLICY_REF, operational_failure=failure, cleanup_deadline_seconds=CAPS['cleanup_seconds'], cleanup_seconds=cleanup_finished - cleanup_started, pipe_EOF_observed=pipe_eof, minimal_wait_only_not_scientific_completion=True, full_terminal_evidence_still_required=True, no_future_stage_authorized=True, storage_close_or_credit_authorized=False)
++    require(len((json.dumps(minimal_facts, sort_keys=True, indent=2, allow_nan=False) + '\n').encode()) <= MINIMAL_WAIT_CAP_BYTES, 'Bounded actual minimal wait facts, no ownership-array dependency')
++    print(json.dumps(dict(downstream_actual_minimal_wait_facts=minimal_facts), sort_keys=True), flush=True)
++    print(json.dumps(dict(downstream_bounded_cleanup_observation=observation), sort_keys=True), flush=True)
++    evidence_ready = time.time() + CAPS['terminal_evidence_margin_seconds'] < expires_unix
++    if not drained or raw_status is None or (not evidence_ready):
++        if not evidence_ready:
++            failure = failure or 'Terminal-evidence reserve no longer available'
++        partial_log = logs.record()
++        print(json.dumps(dict(downstream_unresolved_cleanup_log=dict(tail=partial_log['tail'][-8192:], total_pipe_bytes=partial_log['total_pipe_bytes'], retained_raw_bytes=partial_log['retained_raw_bytes'], no_filesystem_write_or_later_stage=True)), sort_keys=True), flush=True)
++        return dict(status='FAILED_UNRESOLVED_CLEANUP' if not drained else 'FAILED_TERMINAL_EVIDENCE_MARGIN', completed_ref=None, actual_wait_ref=None, returncode=rc if rc not in (None, 0) else 1, actual_direct_worker_returncode=rc, actual_direct_worker_wait=raw_status is not None, all_owned_processes_and_groups_drained=drained, operational_failure=failure, no_future_stage_authorized=True, actual_outer_tool_terminal_still_required=True)
++    minimal = completed_ref = wait_ref = None
+     try:
+-        minimal=compact_v1(s,"actual_wait_minimal.json",minimal_facts,g,storage,cap=MINIMAL_WAIT_CAP_BYTES)
+-        # The compact genuine wait survives any later full-evidence overflow.
+-        # Quiescent namespace and prospective authority margin established.
+-        # Minimal honest OS wait precedes every later scientific inspection.
+-        namespace=load({"path":"research/reviews/American_C3_native_MLM_amendment_v12/terminal_namespace_v12.py","sha256":"51cb8950ae0f86dd0721ebd413cc9270753e8bc66408e45b437f8e2d28a8498d"},"_downstream_postdrain_namespace")
+-        alias_counter=[0]
++        minimal = compact_v1(s, 'actual_wait_minimal.json', minimal_facts, g, storage, cap=MINIMAL_WAIT_CAP_BYTES)
++        namespace = load({'path': 'research/reviews/American_C3_native_MLM_amendment_v12/terminal_namespace_v12.py', 'sha256': '51cb8950ae0f86dd0721ebd413cc9270753e8bc66408e45b437f8e2d28a8498d'}, '_downstream_postdrain_namespace')
++        alias_counter = [0]
++
+         def preserve_alias(value):
+-            alias_counter[0]+=1
+-            charged_census_v1(s,required_write_bytes=65536+8192)
++            alias_counter[0] += 1
++            charged_census_v1(s, required_write_bytes=65536 + 8192)
+             active_amendment_v1()
+-            save(aux,"native_alias_%02d.json"%alias_counter[0],value)
++            save(aux, 'native_alias_%02d.json' % alias_counter[0], value)
++
+         def authorized_drained_v1():
+             active_amendment_v1()
+             return drained
+-        if s["phase"]=="contrastive":
+-            namespace.normalize_latest(out/"checkpoints",prove_drained=authorized_drained_v1,
+-                preserve=preserve_alias,max_bytes=CAPS["max_checkpoint_bytes"])
+-        g.budget_check_v9(storage,boundary=True,required_write_bytes=8*2**20)
+-        completed_path=out/"completed.json"
+-        completed_ref=ref(str(completed_path.relative_to(ROOT))) if completed_path.is_file() else None
+-        if completed_ref is None:failure=failure or "No scientific completion"
++        if s['phase'] == 'contrastive':
++            namespace.normalize_latest(out / 'checkpoints', prove_drained=authorized_drained_v1, preserve=preserve_alias, max_bytes=CAPS['max_checkpoint_bytes'])
++        g.budget_check_v9(storage, boundary=True, required_write_bytes=8 * 2 ** 20)
++        completed_path = out / 'completed.json'
++        completed_ref = ref(str(completed_path.relative_to(ROOT))) if completed_path.is_file() else None
++        if completed_ref is None:
++            failure = failure or 'No scientific completion'
+         if completed_ref is not None:
+-            actual=read(completed_ref)
+-            validate_child_completion_v1(actual,s,q)
+-
+-        log_ref=compact_v1(s,"worker_log.json",logs.record(),g,storage,cap=16*2**20)
+-        final=charged_census_v1(s);peak_scope=max(peak_scope,sum(final.values()))
+-        wait_ref=compact_v1(s,"actual_wait.json",dict(observation,
+-            schema="downstream_fixed_full_parent_actual_wait_v2",completed_ref=completed_ref,
+-            actual_direct_child_wait=raw_status is not None,child_completion_ref=completed_ref,
+-            process_group_ESRCH=drained and bool(observations) and all(r.get("absent")is True for r in observations),
+-            saved_MLM_wait_aliases_derived_from_same_actual_wait_and_full_owned_drain=True,
+-            operational_failure=failure,no_future_stage_authorized=failure is not None,
+-            actual_wait_minimal_ref=minimal,log_ref=log_ref,peak_combined_owned_RSS_bytes=peak,
+-            sampled_peak_scope_bytes=peak_scope,final_scope_census=final,
+-            capacity_samples=capacity_samples,last_capacity_sample=last_capacity,
+-            outer_tool_terminal_consumed=False,automatic_close_or_credit=False),g,storage,cap=TERMINAL_RECEIPT_CAP_BYTES)
+-        g.budget_check_v9(storage,boundary=True)
++            actual = read(completed_ref)
++            validate_child_completion_v1(actual, s, q)
++        log_ref = compact_v1(s, 'worker_log.json', logs.record(), g, storage, cap=16 * 2 ** 20)
++        final = charged_census_v1(s)
++        peak_scope = max(peak_scope, sum(final.values()))
++        wait_ref = compact_v1(s, 'actual_wait.json', dict(observation, schema='downstream_fixed_full_parent_actual_wait_v2', completed_ref=completed_ref, actual_direct_child_wait=raw_status is not None, child_completion_ref=completed_ref, process_group_ESRCH=drained and bool(observations) and all((r.get('absent') is True for r in observations)), saved_MLM_wait_aliases_derived_from_same_actual_wait_and_full_owned_drain=True, operational_failure=failure, no_future_stage_authorized=failure is not None, actual_wait_minimal_ref=minimal, log_ref=log_ref, peak_combined_owned_RSS_bytes=peak, sampled_peak_scope_bytes=peak_scope, final_scope_census=final, capacity_samples=capacity_samples, last_capacity_sample=last_capacity, outer_tool_terminal_consumed=False, automatic_close_or_credit=False), g, storage, cap=TERMINAL_RECEIPT_CAP_BYTES)
++        g.budget_check_v9(storage, boundary=True)
+     except BaseException as exc:
+-        failure=failure or "Strict terminal evidence failed: "+type(exc).__name__+": "+str(exc)[:2000]
+-        print(json.dumps(dict(downstream_terminal_evidence_failed=observation,
+-            failure=failure,actual_wait_minimal_ref=minimal,no_future_stage_authorized=True),sort_keys=True),flush=True)
+-    return dict(status="PASS" if failure is None else "FAILED",completed_ref=completed_ref,
+-        actual_wait_ref=wait_ref,actual_wait_minimal_ref=minimal,
+-        returncode=0 if failure is None else (rc if rc not in (None,0) else 1),
+-        actual_direct_worker_returncode=rc,all_owned_processes_and_groups_drained=drained,
+-        no_future_stage_authorized=failure is not None,actual_outer_tool_terminal_still_required=True)
++        failure = failure or 'Strict terminal evidence failed: ' + type(exc).__name__ + ': ' + str(exc)[:2000]
++        print(json.dumps(dict(downstream_terminal_evidence_failed=observation, failure=failure, actual_wait_minimal_ref=minimal, no_future_stage_authorized=True), sort_keys=True), flush=True)
++    return dict(status='PASS' if failure is None else 'FAILED', completed_ref=completed_ref, actual_wait_ref=wait_ref, actual_wait_minimal_ref=minimal, returncode=0 if failure is None else rc if rc not in (None, 0) else 1, actual_direct_worker_returncode=rc, all_owned_processes_and_groups_drained=drained, no_future_stage_authorized=failure is not None, actual_outer_tool_terminal_still_required=True)
+ 
+ def main(argv=None):
+-    parser=argparse.ArgumentParser(description=__doc__)
+-    actions=parser.add_mutually_exclusive_group()
+-    actions.add_argument("--execute",action="store_true");actions.add_argument("--worker-input-ref")
+-    parser.add_argument("--input-ref");parser.add_argument("--amendment-ref")
+-    parser.add_argument("--gate-fd",type=int);parser.add_argument("--attachment-ref")
+-    args=parser.parse_args(argv)
+-    if not(args.execute or args.worker_input_ref):
+-        print(json.dumps(dict(status="SOURCE_ONLY_INACTIVE",execution=False,admission=False)));return 0
+-    require(sys.platform.startswith("linux") and sys.dont_write_bytecode
+-        and not any(n in sys.modules for n in ("torch","torch_geometric")),"Fresh Linux stdlib entry")
+-    require(args.amendment_ref is not None,"Separate exact ROOT execution amendment required")
++    parser = argparse.ArgumentParser(description=__doc__)
++    actions = parser.add_mutually_exclusive_group()
++    actions.add_argument('--execute', action='store_true')
++    actions.add_argument('--worker-input-ref')
++    parser.add_argument('--input-ref')
++    parser.add_argument('--amendment-ref')
++    parser.add_argument('--gate-fd', type=int)
++    parser.add_argument('--attachment-ref')
++    args = parser.parse_args(argv)
++    if not (args.execute or args.worker_input_ref):
++        print(json.dumps(dict(status='SOURCE_ONLY_INACTIVE', execution=False, admission=False)))
++        return 0
++    require(sys.platform.startswith('linux') and sys.dont_write_bytecode and (not any((n in sys.modules for n in ('torch', 'torch_geometric')))), 'Fresh Linux stdlib entry')
++    require(args.amendment_ref is not None, 'Separate exact ROOT execution amendment required')
+     set_amendment_v1(json.loads(args.amendment_ref))
+-    sys.path[:0]=[str(ROOT),str(ROOT/"src"),str(ROOT/"scripts")]
++    sys.path[:0] = [str(ROOT), str(ROOT / 'src'), str(ROOT / 'scripts')]
+     if args.worker_input_ref:
+-        require(args.gate_fd is not None,"Actual parent-owned launch gate")
+-        return worker_v1(json.loads(args.worker_input_ref),args.gate_fd,json.loads(args.attachment_ref) if args.attachment_ref is not None else None)
+-    require(args.input_ref is not None,"Exact original input ref required")
+-    require(json.loads(args.input_ref)==json.loads(args.amendment_ref),"ROOT phase input is the exact actual phase authority binding")
+-    from research.reviews.native_saved_MLM_current_Census64_integration_source_20261017_v2.worker_context_v1 import PendingPrerequisites
+-    try:result=execute_v1(json.loads(args.input_ref))
++        require(args.gate_fd is not None, 'Actual parent-owned launch gate')
++        return worker_v1(json.loads(args.worker_input_ref), args.gate_fd, json.loads(args.attachment_ref) if args.attachment_ref is not None else None)
++    require(args.input_ref is not None, 'Exact original input ref required')
++    require(json.loads(args.input_ref) == json.loads(args.amendment_ref), 'ROOT phase input is the exact actual phase authority binding')
++    from research.reviews.C3_remaining_cells_GPU0_source_20261017_v1.worker_v1 import PendingPrerequisites
++    try:
++        result = execute_v1(json.loads(args.input_ref))
+     except PendingPrerequisites as exc:
+-        print(json.dumps(dict(status="PENDING_GENUINE_EXTERNAL_PREREQUISITES",reason=str(exc),worker_spawned=False,
+-            resource_attachment_created=False,scientific_completion=False,no_automatic_continuation=True)),flush=True)
++        print(json.dumps(dict(status='PENDING_GENUINE_EXTERNAL_PREREQUISITES', reason=str(exc), worker_spawned=False, resource_attachment_created=False, scientific_completion=False, no_automatic_continuation=True)), flush=True)
+         return 2
+-    print(json.dumps(result,sort_keys=True),flush=True)
+-    return result["returncode"]
+-if __name__=="__main__":raise SystemExit(main())
++    print(json.dumps(result, sort_keys=True), flush=True)
++    return result['returncode']
++if __name__ == '__main__':
++    raise SystemExit(main())
+--- research/reviews/H058_GPU0_full_training_successor_source_20261017_v7/direct_gpu0_v1.py
++++ research/reviews/C3_remaining_cells_GPU0_source_20261017_v1/direct_gpu0_v1.py
+@@ -1,251 +1,118 @@
+-"""One H058 borrowed-inode GPU0 attachment, no dispatcher/controller replacement.
+-
+-The existing controller remains the exclusive physical-lock owner. This adapter
+-borrows an authenticated descriptor to that inode and owns ONLY H058's fresh
+-logical lock/process tree. It never claims inheritance from the old controller.
+-"""
++"""Fresh8GiB evaluator borrows the held GPU0 inode; existing H058/controller remain unchanged."""
+ from pathlib import Path
+ import fcntl,hashlib,json,os,stat,sys,time
+-from research.reviews.H058_GPU0_full_training_successor_source_20261017_v7.common_v1 import *
+-SOURCE=DIRECT
+-CONTROLLER_PID=3349405
+-CONTROLLER_START=481281638
+-C3_JOB="C3-GNN-efficient-resume-GPU0-TRAIN-v1"
+-CURRENT_CAP={"path":"research/reviews/C3_module_route_repair_root_20261016_v1/controller/capability.root_active_v1.json","sha256":"4b781d0d88814508a02037c5935bb1dc6406a203cfa99939db4dabb5c04c9870"}
++from .contract_v1 import *
++from . import contract_v1 as c
++SOURCE=DIRECT;CONTROLLER_PID=3349405;CONTROLLER_START=481281638
++_PEER=None;CANCEL_CHECK=None
++def install_cancellation_check_v1(callback):
++ global CANCEL_CHECK
++ require(callable(callback),"Finite actual caller cancellation callback");CANCEL_CHECK=callback
++def base_v1():return load(BASE_POOL,"_C3_remaining_original_pool")
++def peer_module_v1():
++ global _PEER
++ if _PEER is None:_PEER=load(c.pins_v1()["pins"]["H058_DIRECT"],"_C3_remaining_unchanged_H058_guard")
++ return _PEER
++def controller_v1(q,base):
++ if CANCEL_CHECK is not None:CANCEL_CHECK()
++ e,hq=c.peer_values_v1(q["peer_launch_capsule_ref"])
++ try:row=base.proc_identity(e["worker_identity"]["pid"])
++ except (FileNotFoundError,ProcessLookupError):row=None
++ require(e.get("terminal_peer_absence_preserves_full30GiB")is True,"Peer disappearance never releases its full reserved envelope")
++ if row is not None:require(row["uid"]==os.getuid()and row["start_ticks"]==e["worker_identity"]["start"]and row["state"]not in("Z","X"),"Exact live peer PID/start/UID; positive reuse fails closed")
++ a=read(q["direct_attachment_authority_ref"]);active(a)
++ require(a.get("schema")=="C3_remaining_ROOT_direct_attachment_v1"and a.get("job_id")==q["job_id"]and a.get("peer_launch_capsule_ref")==q["peer_launch_capsule_ref"]and a.get("borrowed_physical_inode_attachment_authorized")is True and a.get("old_controller_and_H058_preserved")is True and a.get("old_controller_submissions_remain_revoked")is True and a.get("evaluator_cuda_bytes")==8*2**30 and a.get("evaluator_margin_bytes")==2*2**30 and a.get("C3_reserved_bytes")==26*2**30 and a.get("H058_reserved_bytes")==30*2**30 and a.get("headroom_bytes")==4*2**30,"Separate exact direct-borrow authority, never reuse/relabel C3 slot")
++ cap,registry,c3,oldauth=peer_module_v1().controller_v1(hq,base)
++ require(datetime.fromisoformat(q["expires_at_utc"])<=datetime.fromisoformat(hq["expires_at_utc"]),"New borrower cannot outlive peer/controller authority")
++ return cap,registry,c3,a
++def capacity_v1(q,base,*,worker_pid=None):
++ controller_v1(q,base);e,hq=c.peer_values_v1(q["peer_launch_capsule_ref"])
++ sample=peer_module_v1().capacity_v1(hq,base,worker_pid=e["worker_identity"]["pid"])
++ gpu=sample["GPU0"]
++ try:peer_now=base.proc_identity(e["worker_identity"]["pid"])
++ except (FileNotFoundError,ProcessLookupError):peer_now=None
++ if peer_now is None:require(not any(r["pid"]==e["worker_identity"]["pid"]for r in gpu["compute"]),"Absent peer PID cannot retain an unexplained CUDA context")
++ else:require(peer_now["uid"]==os.getuid()and peer_now["start_ticks"]==e["worker_identity"]["start"],"Peer identity remains exact after capacity sample")
++ mine=[r for r in gpu["compute"]if worker_pid is not None and r["pid"]==worker_pid]
++ require(len(mine)<=1 and all(r["name"]=="AI Auto Research Pipeline Test"for r in mine),"Own exact titled evaluator CUDA identity")
++ own=sum(r["used_mib"]for r in mine);limit=10*1024
++ require(own<=limit,"8GiB allocator plus2GiB nonTorch evaluator envelope")
++ unfilled=max(0,limit-own);projected=sample["projected_mib"]+unfilled;free_required=sample["actual_free_required_mib"]+unfilled
++ require(projected<=gpu["total_mib"]and gpu["total_mib"]-gpu["used_mib"]>=free_required,"Preserve C3_26+H058_30+EVAL_10+4headroom plus actual external/driver occupancy")
++ return dict(schema="C3_remaining_conservative_GPU0_capacity_v1",GPU0=gpu,original_unchanged_H058_capacity_sample=sample,evaluator_observed_mib=own,evaluator_cap_plus_margin_mib=limit,projected_mib=projected,actual_free_required_mib=free_required,observed_unix=time.time(),C3_slot_reused=False)
+ 
+-def base_v1():return load(BASE_POOL,"_H058_original_pool_primitives")
+ 
+ def held_writable_probe_v1(path):
+-    # NFS flock requires a writable independently opened descriptor. EBADF,
+-    # EACCES, ENOLCK and every error other than EAGAIN/EWOULDBLOCK propagate.
+-    with path.open("r+") as probe:
+-        try:fcntl.flock(probe,fcntl.LOCK_EX|fcntl.LOCK_NB)
+-        except BlockingIOError:return True
++    with path.open('r+') as probe:
++        try:
++            fcntl.flock(probe, fcntl.LOCK_EX | fcntl.LOCK_NB)
++        except BlockingIOError:
++            return True
+         else:
+-            fcntl.flock(probe,fcntl.LOCK_UN)
+-            raise RuntimeError("Expected physical/logical exclusion lock is unheld")
++            fcntl.flock(probe, fcntl.LOCK_UN)
++            raise RuntimeError('Expected physical/logical exclusion lock is unheld')
+ 
+-def controller_v1(q,base):
+-    authority=read(q["direct_attachment_authority_ref"]);active(authority)
+-    require(authority.get("schema")=="H058_fixed_GPU0_direct_attachment_authority_v1"
+-        and authority.get("root_authorizer")=="root_agent" and authority.get("status")=="active"
+-        and authority.get("borrowed_physical_inode_attachment_authorized") is True
+-        and authority.get("additional_old_controller_submissions_revoked_while_H058_attached") is True
+-        and authority.get("old_controller_preserved_until_H058_drained") is True
+-        and authority.get("controller_pid")==CONTROLLER_PID
+-        and authority.get("controller_start_ticks")==CONTROLLER_START
+-        and authority.get("controller_capability_ref")==CURRENT_CAP
+-        and authority.get("H058_job_id")==q["job_id"]
+-        and authority.get("C3_fixed_envelope_bytes")==26*2**30
+-        and authority.get("H058_max_cuda_reserved_bytes")==28*2**30
+-        and authority.get("H058_non_Torch_margin_bytes")==2*2**30
+-        and authority.get("headroom_bytes")==4*2**30
+-        and authority.get("all_old_native_launch_resume_write_routes_permanently_revoked") is True
+-        and authority.get("native_resource_disposition_ref")==q["native_resource_disposition_ref"],
+-        "Fresh exact ROOT borrowed attachment after genuine native terminal and owned drain")
+-    native=validate_native_resource_disposition_v1(q,fresh=False)
+-    for saved in native["native_process_identities"]:
+-        require(set(saved)=={"pid","start_ticks","uid"},"Exact known native PID/start/UID identity")
+-        try:now=base.proc_identity(saved["pid"])
+-        except (FileNotFoundError,ProcessLookupError):continue
+-        require(not(now["uid"]==saved["uid"] and now["start_ticks"]==saved["start_ticks"]
+-            and now["state"] not in ("Z","X")),"Known native identity still live; never attach H058")
+-    for group in native["native_process_groups"]:
+-        try:os.killpg(group,0)
+-        except ProcessLookupError:pass
+-        else:raise ValueError("Known prior native process group still exists; never attach H058")
+-    cap=read(CURRENT_CAP);row=base.proc_identity(CONTROLLER_PID)
+-    require(time.time()<cap["expires_unix"]
+-        and datetime.fromisoformat(q["expires_at_utc"]).timestamp()<=cap["expires_unix"],
+-        "Fresh H058 interval remains within preserved controller authority")
+-    require(row["uid"]==os.getuid() and row["start_ticks"]==CONTROLLER_START
+-        and row["state"] not in ("Z","X") and cap["gpu_uuid"]==GPU0_UUID
+-        and cap["physical_gpu"]==0,"Current exact live preserved GPU0 controller")
+-    declared=cap["jobs"][C3_JOB]
+-    require(declared["cuda_cap_bytes"]==24*2**30 and declared["margin_mib"]==2048
+-        and declared["peak_mib"]==26*1024,"Retain entire C3 24+2GiB envelope")
+-    storage=read(cap["controller_storage_ref"])
+-    registry_path=local(storage["output_directory"]+"/registry.json")
+-    require(registry_path.is_file() and not registry_path.is_symlink()
+-        and registry_path.stat().st_size<=32*2**20,"Bounded unchanged controller registry")
+-    registry=json.loads(registry_path.read_bytes())
+-    terminal=read(q["controller_terminal_qualification_ref"]);active(terminal)
+-    require(terminal.get("schema")=="H058_ROOT_preserved_terminal_controller_v1"
+-        and terminal.get("root_authorizer")=="root_agent"
+-        and terminal.get("controller_pid")==CONTROLLER_PID
+-        and terminal.get("controller_start_ticks")==CONTROLLER_START
+-        and terminal.get("controller_capability_ref")==CURRENT_CAP
+-        and terminal.get("all_old_controller_submissions_revoked") is True
+-        and terminal.get("unknown_original_outer74136_preserved") is True
+-        and terminal.get("controller_preserved") is True,
+-        "Actual future ROOT terminal-table evidence, never controller restart or history rewrite")
+-    audited=read(terminal["registry_snapshot_ref"])
+-    require(registry["controller"]["pid"]==CONTROLLER_PID
+-        and registry["controller"]["start_ticks"]==CONTROLLER_START
+-        and registry["physical_gpu"]==0 and registry["lifecycle"]=="running"
+-        and registry["safety_error"] is None and not registry["ambiguous_descendants_or_lease_holders"]
+-        and registry.get("capability_ref")==CURRENT_CAP
+-        and registry["jobs"]==audited["jobs"],
+-        "Exact terminal job table; timestamp is historical, not a refreshed heartbeat")
+-    active_jobs=[j for j in registry["jobs"] if j["state"] in ("queued","launching","running","draining")]
+-    c3=[j for j in registry["jobs"] if j["logical_job"]==C3_JOB]
+-    require(not active_jobs and len(c3)==1 and c3[0]["requested"]==declared
+-        and c3[0]["state"]=="failed" and c3[0].get("exit_code")==1
+-        and c3[0].get("leader_wait_status_known") is True and c3[0].get("owned_drain_observed") is True,
+-        "Preserve genuine recorded C3 failed exit1/wait/drain and fixed26GiB reservation")
+-    return cap,registry,c3[0],authority
+-
+-class GPUCapacityFailureV3(ValueError):
+-    def __init__(self,message,sample):
+-        super().__init__(message);self.capacity_sample=sample
+-
+-def bounded_capacity_failure_v3(gpu,observed_unix,metrics,error):
+-    """Bounded actual GPU0 metadata only; capacity decisions still use the full inventory."""
+-    rows=[]
+-    for app in gpu["compute"][:8]:
+-        name=str(app["name"])
+-        rows.append(dict(pid=app["pid"],used_mib=app["used_mib"],name=name[:96],name_truncated=len(name)>96))
+-    result=dict(schema="H058_bounded_failing_GPU0_capacity_sample_v3",observed_unix=observed_unix,
+-        physical_gpu=gpu["index"],gpu_uuid=gpu["uuid"],total_mib=gpu["total_mib"],used_mib=gpu["used_mib"],
+-        compute_count=len(gpu["compute"]),retained_compute=rows,compute_rows_truncated=len(gpu["compute"])>len(rows),
+-        computed_metrics=metrics,capacity_checks_passed=False,original_failure_type=type(error).__name__,
+-        original_failure=str(error)[:384],record_limit_bytes=4096,
+-        raw_capacity_decisions_used_complete_inventory=True)
+-    while len(json.dumps(result,sort_keys=True,ensure_ascii=True,allow_nan=False).encode())>4096:
+-        if result["retained_compute"]:
+-            result["retained_compute"].pop();result["compute_rows_truncated"]=True
+-        elif len(result["original_failure"])>32:result["original_failure"]=result["original_failure"][:32]
+-        else:raise ValueError("Unexpected capacity metadata exceeds bounded operational record")
+-    return result
+-
+-def capacity_v1(q,base,*,worker_pid=None):
+-    observed_gpu=None;observed_unix=None;metrics=dict(classification_complete=False)
+-    try:
+-        cap,registry,c3,authority=controller_v1(q,base)
+-        rows=base.real_inventory()
+-        rows=[r for r in rows if r["index"]==0]
+-        require(len(rows)==1 and rows[0]["uuid"]==GPU0_UUID,"ActualGPU0 inventory UUID")
+-        gpu=rows[0];known={}
+-        native=validate_native_resource_disposition_v1(q,fresh=False)
+-        native_pids={r["pid"] for r in native["native_process_identities"]}
+-        require(not any(app["pid"] in native_pids for app in gpu["compute"]),
+-            "Prior native roster GPU0 PID contexts must be absent; reused numeric PIDs conservatively block")
+-        observed_gpu=gpu;observed_unix=time.time()
+-        for saved in c3["process_identities"]:
+-            try:now=base.proc_identity(saved["pid"])
+-            except (FileNotFoundError,ProcessLookupError):continue
+-            if now["uid"]==saved["uid"]==os.getuid() and now["start_ticks"]==saved["start_ticks"] and now["state"] not in ("Z","X"):
+-                known[now["pid"]]="C3"
+-        c3_mib=h058_mib=0;external=[]
+-        for app in gpu["compute"]:
+-            if app["pid"] in known:
+-                require(app["name"]=="AI Auto Research Pipeline Test","KnownC3 actual CUDA title")
+-                c3_mib+=app["used_mib"]
+-            elif worker_pid is not None and app["pid"]==worker_pid:
+-                require(app["name"]=="AI Auto Research Pipeline Test","H058 actual CUDA title")
+-                h058_mib+=app["used_mib"]
+-            else:external.append(dict(app))
+-        metrics.update(classification_complete=True,C3_observed_mib=c3_mib,H058_observed_mib=h058_mib)
+-        require(c3_mib<=26*1024,"C3 actual usage inside original26GiB envelope")
+-        peak_mib=(q["caps"]["max_cuda_reserved_bytes"]+2*2**30+2**20-1)//2**20
+-        metrics.update(H058_cap_plus_margin_mib=peak_mib)
+-        require(h058_mib<=peak_mib,"H058 actual usage inside cap plus2GiB margin")
+-        external_mib=max(sum(a["used_mib"] for a in external),
+-            gpu["used_mib"]-c3_mib-h058_mib,0)
+-        projected=26*1024+peak_mib+external_mib+4096
+-        free_required=max(0,26*1024-c3_mib)+max(0,peak_mib-h058_mib)+4096
+-        metrics.update(external_and_driver_mib=external_mib,projected_mib=projected,actual_free_required_mib=free_required)
+-        require(projected<=gpu["total_mib"] and gpu["total_mib"]-gpu["used_mib"]>=free_required,
+-            "Actual external+all unfilled C3/H058 envelopes+4GiB headroom fitGPU0")
+-        return dict(schema="H058_fixed_GPU0_capacity_sample_v1",observed_unix=time.time(),
+-            GPU0=gpu,C3_fixed_envelope_mib=26*1024,H058_cap_plus_margin_mib=peak_mib,
+-            C3_observed_mib=c3_mib,H058_observed_mib=h058_mib,external_compute=external,
+-            external_and_driver_mib=external_mib,projected_mib=projected,
+-            actual_free_required_mib=free_required,headroom_mib=4096,
+-            registry_updated_unix=registry["updated_unix"],controller_capability_ref=CURRENT_CAP)
+-    except Exception as exc:
+-        if observed_gpu is None:raise
+-        raise GPUCapacityFailureV3(str(exc),bounded_capacity_failure_v3(observed_gpu,observed_unix,metrics,exc)) from exc
+-
+-def attach_v1(spec,q):
+-    require(spec["phase"]=="train","Only fixed TRAIN uses GPU0 attachment")
+-    base=base_v1();physical=local(".runtime/locks/gpu_0.lock")
+-    logical_path=local(spec["worker_auxiliary_scope"]+"/H058_GPU0.logical.lock")
+-    physical_fd=logical_fd=None
+-    with base.lock_file(ROOT,"scheduler.lock") as mutex:
+-        fcntl.flock(mutex,fcntl.LOCK_EX)
++def attach_v1(spec, q):
++    require(spec['phase'] in GPU_PHASES, 'Only exact remaining-cell prediction attaches GPU0')
++    base = base_v1()
++    physical = local('.runtime/locks/gpu_0.lock')
++    logical_path = local(spec['worker_auxiliary_scope'] + '/C3_remaining_GPU0.logical.lock')
++    physical_fd = logical_fd = None
++    with base.lock_file(ROOT, 'scheduler.lock') as mutex:
++        fcntl.flock(mutex, fcntl.LOCK_EX)
+         try:
+-            cap,registry,c3,authority=controller_v1(q,base)
+-            physical_fd=os.open(physical,os.O_RDWR|os.O_NOFOLLOW)
+-            st=os.fstat(physical_fd);named=physical.lstat()
+-            require(stat.S_ISREG(st.st_mode) and st.st_nlink==1
+-                and (st.st_dev,st.st_ino)==(named.st_dev,named.st_ino),"Original canonical physical inode")
+-            raw_bytes=os.pread(physical_fd,65536,0)
+-            require(len(raw_bytes)==st.st_size and hashlib.sha256(raw_bytes).hexdigest()==registry["lease_sha256"],
+-                "Original registry-bound physical lease bytes")
+-            metadata=json.loads(raw_bytes)
+-            require(metadata==registry["lease_metadata"] and metadata["launcher_pid"]==CONTROLLER_PID
+-                and metadata["gpu"]==0 and metadata["uuid"]==GPU0_UUID,"Original actual physical lease identity")
++            (cap, registry, c3, authority) = controller_v1(q, base)
++            physical_fd = os.open(physical, os.O_RDWR | os.O_NOFOLLOW)
++            st = os.fstat(physical_fd)
++            named = physical.lstat()
++            require(stat.S_ISREG(st.st_mode) and st.st_nlink == 1 and ((st.st_dev, st.st_ino) == (named.st_dev, named.st_ino)), 'Original canonical physical inode')
++            raw_bytes = os.pread(physical_fd, 65536, 0)
++            require(len(raw_bytes) == st.st_size and hashlib.sha256(raw_bytes).hexdigest() == registry['lease_sha256'], 'Original registry-bound physical lease bytes')
++            metadata = json.loads(raw_bytes)
++            require(metadata == registry['lease_metadata'] and metadata['launcher_pid'] == CONTROLLER_PID and (metadata['gpu'] == 0) and (metadata['uuid'] == GPU0_UUID), 'Original actual physical lease identity')
+             held_writable_probe_v1(physical)
+-            logical_fd=os.open(logical_path,os.O_RDWR|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600)
+-            fcntl.flock(logical_fd,fcntl.LOCK_EX|fcntl.LOCK_NB)
+-            capacity=capacity_v1(q,base)
+-            ticket=dict(schema="H058_borrowed_GPU0_attachment_v1",job_id=spec["job_id"],
+-                physical_gpu=0,gpu_uuid=GPU0_UUID,borrowed_physical_inode=True,
+-                physical_exclusive_lock_owner="unchanged_original_controller",
+-                controller_pid=CONTROLLER_PID,controller_start_ticks=CONTROLLER_START,
+-                physical_inode=st.st_ino,physical_device=st.st_dev,
+-                physical_lease_sha256=hashlib.sha256(raw_bytes).hexdigest(),
+-                physical_lease_metadata=metadata,logical_lock_path=str(logical_path),
+-                logical_inode=os.fstat(logical_fd).st_ino,logical_device=os.fstat(logical_fd).st_dev,
+-                H058_logical_lock_owned_by_supervisor=True,capacity_at_attachment=capacity,
+-                direct_attachment_authority_ref=q["direct_attachment_authority_ref"])
+-            return physical_fd,logical_fd,ticket
++            logical_fd = os.open(logical_path, os.O_RDWR | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 384)
++            fcntl.flock(logical_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
++            capacity = capacity_v1(q, base)
++            ticket = dict(schema='C3_remaining_borrowed_GPU0_attachment_v1', job_id=spec['job_id'], physical_gpu=0, gpu_uuid=GPU0_UUID, borrowed_physical_inode=True, physical_exclusive_lock_owner='unchanged_original_controller', controller_pid=CONTROLLER_PID, controller_start_ticks=CONTROLLER_START, physical_inode=st.st_ino, physical_device=st.st_dev, physical_lease_sha256=hashlib.sha256(raw_bytes).hexdigest(), physical_lease_metadata=metadata, logical_lock_path=str(logical_path), logical_inode=os.fstat(logical_fd).st_ino, logical_device=os.fstat(logical_fd).st_dev, C3_remaining_logical_lock_owned_by_supervisor=True, capacity_at_attachment=capacity, direct_attachment_authority_ref=q['direct_attachment_authority_ref'])
++            return (physical_fd, logical_fd, ticket)
+         except BaseException:
+-            for fd in (physical_fd,logical_fd):
+-                if fd is not None:os.close(fd)
++            for fd in (physical_fd, logical_fd):
++                if fd is not None:
++                    os.close(fd)
+             raise
+ 
+-def install_before_torch_v1(spec,q,ticket):
+-    require(not any(n in sys.modules for n in ("torch","torch_geometric")),"Direct lease/title install before science")
+-    g=load(GPU0_GUARD,"_H058_original_GPU0_guard");native=g.install_before_torch_v1()
+-    original=native.validate_lease;base=base_v1()
+-    logical_fd=int(os.environ["H058_LOGICAL_LOCK_FD"])
+-    physical_fd=int(os.environ["ARGGNN_GPU_LEASE_FD"])
++def install_before_torch_v1(spec, q, ticket):
++    require(not any((n in sys.modules for n in ('torch', 'torch_geometric'))), 'Direct lease/title install before science')
++    g = load(GPU0_GUARD, '_H058_original_GPU0_guard')
++    native = g.install_before_torch_v1()
++    original = native.validate_lease
++    base = base_v1()
++    logical_fd = int(os.environ['downstream_LOGICAL_LOCK_FD'])
++    physical_fd = int(os.environ['ARGGNN_GPU_LEASE_FD'])
++
+     def validate_lease(environ=None):
+-        lease=original(environ)
+-        require(lease["lease_fd"]==physical_fd
+-            and lease["lease_inode"]==ticket["physical_inode"]
+-            and lease["lease_device"]==ticket["physical_device"]
+-            and lease["lease_metadata_sha256"]==ticket["physical_lease_sha256"]
+-            and lease["launcher_metadata"]==ticket["physical_lease_metadata"],
+-            "Stable authenticated borrowed physical inode, never controller inheritance")
+-        controller_v1(q,base)
+-        st=os.fstat(logical_fd);path=Path(ticket["logical_lock_path"]);named=path.lstat()
+-        require(stat.S_ISREG(st.st_mode) and (st.st_dev,st.st_ino)==(named.st_dev,named.st_ino)
+-            ==(ticket["logical_device"],ticket["logical_inode"]),"Actual inherited H058 logical lock descriptor")
++        lease = original(environ)
++        require(lease['lease_fd'] == physical_fd and lease['lease_inode'] == ticket['physical_inode'] and (lease['lease_device'] == ticket['physical_device']) and (lease['lease_metadata_sha256'] == ticket['physical_lease_sha256']) and (lease['launcher_metadata'] == ticket['physical_lease_metadata']), 'Stable authenticated borrowed physical inode, never controller inheritance')
++        controller_v1(q, base)
++        st = os.fstat(logical_fd)
++        path = Path(ticket['logical_lock_path'])
++        named = path.lstat()
++        require(stat.S_ISREG(st.st_mode) and (st.st_dev, st.st_ino) == (named.st_dev, named.st_ino) == (ticket['logical_device'], ticket['logical_inode']), 'Actual inherited H058 logical lock descriptor')
+         held_writable_probe_v1(path)
+-        # Reuse the existing current inventory/capacity boundary. configure_fit
+-        # invokes this wrapped lease function before its first CUDA call.
+-        capacity_v1(q,base,worker_pid=os.getpid())
+-        return dict(lease,borrowed_physical_inode=True,
+-            physical_exclusive_lock_owned_by_current_controller=True,
+-            H058_logical_lock_inode=ticket["logical_inode"],
+-            H058_direct_attachment_source_ref=ref(SOURCE))
+-    native.validate_lease=validate_lease
+-    validate_lease();native.apply_and_validate_title()
++        capacity_v1(q, base, worker_pid=os.getpid())
++        return dict(lease, borrowed_physical_inode=True, physical_exclusive_lock_owned_by_current_controller=True, C3_remaining_logical_lock_inode=ticket['logical_inode'], C3_remaining_direct_attachment_source_ref=ref(SOURCE))
++    native.validate_lease = validate_lease
++    validate_lease()
++    native.apply_and_validate_title()
+     return native
+ 
+-def check_attachment_v1(q,ticket,physical_fd,logical_fd):
+-    controller_v1(q,base_v1())
+-    for fd,path,device,inode in (
+-        (physical_fd,local(".runtime/locks/gpu_0.lock"),ticket["physical_device"],ticket["physical_inode"]),
+-        (logical_fd,Path(ticket["logical_lock_path"]),ticket["logical_device"],ticket["logical_inode"])):
+-        opened=os.fstat(fd);named=path.lstat()
+-        require(stat.S_ISREG(opened.st_mode) and (opened.st_dev,opened.st_ino)
+-            ==(named.st_dev,named.st_ino)==(device,inode),"Stable actual physical/logical inode identity")
++def check_attachment_v1(q, ticket, physical_fd, logical_fd):
++    controller_v1(q, base_v1())
++    for (fd, path, device, inode) in ((physical_fd, local('.runtime/locks/gpu_0.lock'), ticket['physical_device'], ticket['physical_inode']), (logical_fd, Path(ticket['logical_lock_path']), ticket['logical_device'], ticket['logical_inode'])):
++        opened = os.fstat(fd)
++        named = path.lstat()
++        require(stat.S_ISREG(opened.st_mode) and (opened.st_dev, opened.st_ino) == (named.st_dev, named.st_ino) == (device, inode), 'Stable actual physical/logical inode identity')
+         held_writable_probe_v1(path)
+-    contents=os.pread(physical_fd,65536,0)
+-    require(len(contents)==os.fstat(physical_fd).st_size
+-        and hashlib.sha256(contents).hexdigest()==ticket["physical_lease_sha256"],
+-        "Actual original physical lease bytes unchanged")
++    contents = os.pread(physical_fd, 65536, 0)
++    require(len(contents) == os.fstat(physical_fd).st_size and hashlib.sha256(contents).hexdigest() == ticket['physical_lease_sha256'], 'Actual original physical lease bytes unchanged')
