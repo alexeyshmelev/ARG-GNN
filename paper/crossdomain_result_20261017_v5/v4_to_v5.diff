@@ -1,0 +1,24 @@
+--- paper/_build_H061_scientific_20261017_v4/current_full_panel_working.tex
++++ paper/crossdomain_result_20261017_v5/current_full_panel_working.candidate.v5.tex
+@@ -408,7 +408,7 @@
+ 
+ \subsection{County Forecasting with the Adapted Core}
+ \label{app:countyforecasting}
+-We tested adapted TreeLoom cores on the UCI Hungarian Chickenpox Cases series\footnote{\url{https://doi.org/10.24432/C5103B}.}. County nodes aggregate neighbor means through two graph passes with shared weights. A scalar readout predicts the next count from 52 observed weeks. Chronological splits have 313 training, 78 validation and 79 test targets over 20 counties. Training observations define the scaler. We fit each arm from three initializations for 40 epochs, totaling 4,800 AdamW updates. Checkpoints minimize validation MAE. Full adds 513 memory parameters to NoMem. Frozen models use observed histories without refitting.
++TreeLoom's adapted GNN, county memory and recurrent core forecast UCI Hungarian Chickenpox Cases\footnote{\url{https://doi.org/10.24432/C5103B}.}. Two graph passes share weights. Six fits of 40 epochs each use three initialization seeds per arm, totaling 4,800 updates. Evaluation covers 20 counties and 79 test weeks, using 52 observed weeks per forecast and validation MAE selection before TEST.
+ 
+ \begin{table}[!htbp]
+ \centering
+@@ -424,10 +424,10 @@
+ Ridge ($\alpha=1000$) &$18.959$&$27.298$\\
+ \bottomrule
+ \end{tabular}
+-\caption{Errors in cases over 79 test weeks and 20 counties. Adapted cores report mean$\pm$sample SD over three initializations, conditional on one graph and series. Controls are fixed, with ridge regularization chosen before testing. Bold marks the lowest mean.}
++\caption{Errors in cases, mean$\pm$sample SD across seeds. Bold marks the lowest mean.}
+ \label{tab:countyforecasting}
+ \end{table}
+ 
+-Memory lowers RMSE but raises MAE (Table~\ref{tab:countyforecasting}), failing the prespecified 2\% MAE gain and paired uncertainty criteria. The paired MAE difference between Full and NoMem is $+0.260$ cases, with conditional 95\% interval $[0.105,0.427]$ from 10,000 circular resamples of 13 weeks. Permuting the first 51 history weeks with the latest fixed increases both MAEs, supporting reliance on order.
++Memory fails the prespecified 2\% MAE and paired uncertainty criteria despite lower RMSE (Table~\ref{tab:countyforecasting}). Paired Full-minus-NoMem MAE is $+0.260$ cases, with conditional 95\% interval $[0.105,0.427]$ from 10,000 circular resamples of 13 weeks. Shuffling the first 51 history weeks with the latest fixed raises both MAEs, supporting reliance on order only. Uncertainty is conditional on this one fixed county graph and series.
+ 
+ \end{document}

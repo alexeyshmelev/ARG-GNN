@@ -33,7 +33,7 @@ The main paper presents the final model and completed baselines, with one inform
 **Current focus:** complete primary same-data benchmarks and independent tests. Keep one registered architecture trial, with no broad tuning search. Current development leadership does not establish overall top-1 or novel-operator utility.
 
 <!-- CURRENT_SCOREBOARD_START -->
-**Scoreboard updated UTC: 2026-10-17T04:01:01.033413+00:00.** [Every current setup, all cohorts and detailed metrics](research/current_scoreboard.md) · [Native class metrics and training-lineage audit, frozen17-setup snapshot](research/reviews/root_score_report_20261015_v1/REPORT.md) · [All recorded historical/engineering metric receipts](research/all_recorded_metric_receipts.md)
+**Scoreboard updated UTC: 2026-10-17T04:06:39.728799+00:00.** [Every current setup, all cohorts and detailed metrics](research/current_scoreboard.md) · [Native class metrics and training-lineage audit, frozen17-setup snapshot](research/reviews/root_score_report_20261015_v1/REPORT.md) · [All recorded historical/engineering metric receipts](research/all_recorded_metric_receipts.md)
 
 
 **New same-marker model:** Repaired H058 has prepared all32 full TRAIN parents before target reading, retaining original trees/sites/haplotypes/queries. The complete packed preparation cache is built, with a19.63GB forecast including Python allowance under its32GiB cap. Supervisor24151 remains live. Both aligned/null arms retain30passes and1920scheduled updates total. No optimizer counter or ancestry score is verified yet. Ordered-marker placement is a separate live experiment, not an H058 result. [Actual FP32 result](research/reviews/H058_actual_one_hold_ROOTv4_qualification_20261016_v1/REPORT.md).

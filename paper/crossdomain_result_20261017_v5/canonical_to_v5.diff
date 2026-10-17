@@ -1,0 +1,31 @@
+--- paper/current_full_panel_working.tex
++++ paper/crossdomain_result_20261017_v5/current_full_panel_working.candidate.v5.tex
+@@ -406,4 +406,28 @@
+ 
+ Assignments weighted equally across people integrated over physical span are 14.27 percentage points higher for EHG and 5.52 points higher for CHG in the later group. EHG has a positive contrast on each chromosome. CHG depends on chromosome 21 and changes to $-0.68$ points when it is omitted. Separate genotype affinity contrasts from the same imputation resource do not support the registered directions. There is no local ancestry truth or calibration of the model's outputs as mixture fractions. These descriptive predictions therefore illustrate application to empirical genealogies and do not validate the historical interpretation.
+ 
++\subsection{County Forecasting with the Adapted Core}
++\label{app:countyforecasting}
++TreeLoom's adapted GNN, county memory and recurrent core forecast UCI Hungarian Chickenpox Cases\footnote{\url{https://doi.org/10.24432/C5103B}.}. Two graph passes share weights. Six fits of 40 epochs each use three initialization seeds per arm, totaling 4,800 updates. Evaluation covers 20 counties and 79 test weeks, using 52 observed weeks per forecast and validation MAE selection before TEST.
++
++\begin{table}[!htbp]
++\centering
++\small
++\begin{tabular}{@{}lrr@{}}
++\toprule
++Condition & MAE $\downarrow$ & RMSE $\downarrow$\\
++\midrule
++TreeLoom core &$13.908\pm0.243$&$\best{24.269\pm0.094}$\\
++NoMem core &$\best{13.648\pm0.051}$&$24.408\pm0.106$\\
++Last value &$17.497$&$31.412$\\
++Seasonal lag 52 &$20.022$&$33.840$\\
++Ridge ($\alpha=1000$) &$18.959$&$27.298$\\
++\bottomrule
++\end{tabular}
++\caption{Errors in cases, mean$\pm$sample SD across seeds. Bold marks the lowest mean.}
++\label{tab:countyforecasting}
++\end{table}
++
++Memory fails the prespecified 2\% MAE and paired uncertainty criteria despite lower RMSE (Table~\ref{tab:countyforecasting}). Paired Full-minus-NoMem MAE is $+0.260$ cases, with conditional 95\% interval $[0.105,0.427]$ from 10,000 circular resamples of 13 weeks. Shuffling the first 51 history weeks with the latest fixed raises both MAEs, supporting reliance on order only. Uncertainty is conditional on this one fixed county graph and series.
++
+ \end{document}

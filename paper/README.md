@@ -8,8 +8,10 @@ Figure 1 on page 3 is an editable vector schematic. Recorded edges and genomic s
 
 Main results compare the selected final model with completed author pipelines and show one meaningful matched memory ablation. The developmental catalogue stays in the experiment record. Best comparable values are bold, including the higher boundary F1 of TreeLoom-NoMem. All scientific table values, equation bodies and visible scientific TODOs are unchanged by the editorial revision.
 
-The canonical source and independently extracted Overleaf bundle compile successfully. All nine pages were visually inspected, and every bundle page is pixel-identical to the canonical render. There are no overfull or unresolved-reference warnings. [Build and integration](../research/reviews/paper_simplification_ROOT_20261017_v9/final_integration.root_v1.json).
+The canonical source and independently extracted Overleaf bundle compile successfully. All nine pages were visually inspected, and every bundle page is pixel-identical to the canonical render. There are no overfull or unresolved-reference warnings. [Editorial integration](../research/reviews/paper_simplification_ROOT_20261017_v9/final_integration.root_v1.json) · [Latest supplement build and integration](../research/reviews/H061_paper_ROOT_integration_20261017_v1/final_integration.root_v5.json).
 
 This is a development manuscript. The eight European validation simulations were reused for model selection, with one optimizer seed. The evaluated ARGMix release and AncestralPaths archive differ materially from the publication recipes. Native American comparisons, larger European panels, independent tests, useful architecture novelty and biological corroboration remain unfinished. No overall top-1 claim is established.
 
 [Detailed scores](../research/current_scoreboard.md) · [Comparator fidelity](../research/reviews/competitor_fidelity_user_audit_20261016_v1/comparison_matrix.md) · [Provenance](current_full_panel_provenance.json).
+
+The added county forecasting supplement reports the completed UCI Chickenpox TEST evaluation. Sample memory lowers RMSE but worsens MAE and fails the registered utility criterion. It does not establish generic memory improvement. The new page9 was visually inspected, pages1–8 remain pixel-identical, and the Overleaf bundle matches every canonical page.
