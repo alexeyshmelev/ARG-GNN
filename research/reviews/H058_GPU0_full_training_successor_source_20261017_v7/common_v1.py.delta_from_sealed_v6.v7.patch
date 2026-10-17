@@ -1,0 +1,39 @@
+--- research/reviews/H058_GPU0_full_training_successor_source_20261017_v6/common_v1.py
++++ research/reviews/H058_GPU0_full_training_successor_source_20261017_v7/common_v1.py
+@@ -3,7 +3,7 @@
+ from datetime import datetime,timezone
+ import ast,hashlib,importlib,importlib.util,io,json,os,stat,sys,time,types
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-HERE="research/reviews/H058_GPU0_full_training_successor_source_20261017_v6"
++HERE="research/reviews/H058_GPU0_full_training_successor_source_20261017_v7"
+ SOURCE=HERE+"/common_v1.py"
+ DRIVER=HERE+"/root_driver_v1.py"
+ CONTEXT=HERE+"/context_factory_v1.py"
+@@ -273,14 +273,14 @@
+         and q.get("root_authorizer")=="root_agent" and q.get("execution_authorized") is True
+         and q.get("phase") in FIXED_PHASES and q.get("source_review_passed") is True
+         and q["adapter_manifest_ref"]==ref(MANIFEST),"Explicit fresh reviewed H058 ROOT request")
+-    require(q["packet_directory"].startswith("research/reviews/H058_GPU0_v6_ROOT_actual_")
+-        and q["output_directory"].startswith("experiments/results/H058_GPU0_v6_full_parent_")
+-        and q["job_id"]=="H058-GPU0-v6-fulltrain-"+q["instance_id"]
++    require(q["packet_directory"].startswith("research/reviews/H058_GPU0_v7_ROOT_actual_")
++        and q["output_directory"].startswith("experiments/results/H058_GPU0_v7_full_parent_")
++        and q["job_id"]=="H058-GPU0-v7-fulltrain-"+q["instance_id"]
+         and q["instance_id"] and all(ch in "abcdefghijklmnopqrstuvwxyz0123456789_-" for ch in q["instance_id"]),
+         "Separate fresh finite GPU0 namespaces")
+     preparation=local(q["preparation_directory"])
+     require(preparation==local(record["path"]).parent and preparation.is_dir()
+-        and q["preparation_directory"].startswith("research/reviews/H058_GPU0_v6_ROOT_preparation_")
++        and q["preparation_directory"].startswith("research/reviews/H058_GPU0_v7_ROOT_preparation_")
+         and all(preparation!=local(q[key]) and not preparation.is_relative_to(local(q[key]))
+             and not local(q[key]).is_relative_to(preparation) for key in ("packet_directory","output_directory")),
+         "Staging outside never-reserved packet/output")
+@@ -458,7 +458,7 @@
+         and q.get("fit_clock_compatibility_v5")==fit_clock_acceptance_v5()
+         and q["schema"]=="H058_GPU0_cached_full_parent_ROOT_request_v1"
+         and q["root_authorizer"]=="root_agent" and q["execution_authorized"] is True
+-        and q["phase"]=="train" and q["job_id"]=="H058-GPU0-v6-fulltrain-"+q["instance_id"]
++        and q["phase"]=="train" and q["job_id"]=="H058-GPU0-v7-fulltrain-"+q["instance_id"]
+         and q["adapter_manifest_ref"]==ref(MANIFEST),
+         "Explicit separately reviewed v5 compatibility for exact original actual ROOT clocks/job")
+     current=read(cfg["full_training_directive_ref"])

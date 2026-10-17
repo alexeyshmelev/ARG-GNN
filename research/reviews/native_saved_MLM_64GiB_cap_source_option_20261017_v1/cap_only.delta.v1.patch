@@ -1,0 +1,69 @@
+--- research/reviews/native_VAL000_downstream_execution_source_20261016_v2/contract_v1.py
++++ research/reviews/native_saved_MLM_64GiB_cap_source_option_20261017_v1/contract_CAP64.PROPOSED.v1.py
+@@ -1,5 +1,5 @@
+ """Concrete downstream storage/phase contract. No import-time execution.
+-The65GiB master reservation binds this source/config/runtime. A separate exact
++The64GiB master reservation binds this source/config/runtime. A separate exact
+ ROOT stage authority binds later genuine prerequisites, never fabricated success.
+ """
+ from pathlib import Path
+@@ -24,10 +24,10 @@
+ IO_REVIEW_REF={"path":"research/reviews/native_VAL000_downstream_IO_efficiency_independent_review_20261016_v1/review.v1.json","sha256":"ea66a23c0d182e63c11cdfc2de8911d25d3637c2077b0b64977b27d905b27c4e"}
+ GPU_PHASES=("contrastive","embedding_contrastive_train","embedding_contrastive_val","embedding_query_paths_train","embedding_query_paths_val","RAM_retrieve_and_seal")
+ PHASES=GPU_PHASES+("finalize",)
+-BASE_CAPS=dict(reservation_bytes=65*2**30,log_bytes=4*2**20,max_seconds=172800,
++BASE_CAPS=dict(reservation_bytes=64*2**30,log_bytes=4*2**20,max_seconds=172800,
+  max_cpu_rss_bytes=384*2**30,headroom_bytes=4*2**30,cleanup_seconds=30,work_cutoff_margin_seconds=300,
+  terminal_evidence_margin_seconds=150,max_checkpoint_bytes=3*2**30,max_checkpoint_files=2)
+-EXPECTED_CONFIG=dict(schema="native_VAL000_downstream_full_scientific_config_v1",output_cap_bytes=65*2**30,
++EXPECTED_CONFIG=dict(schema="native_VAL000_downstream_full_scientific_config_v1",output_cap_bytes=64*2**30,
+  IO_policy_ref=IO_POLICY_REF,allowed_phases=list(PHASES),
+  scientific_protocol=dict(contrastive=dict(epochs=1,updates=2135,batch=4096,microbatch=4096,precision="fp32",seed=36,temperature=.3,
+  save_interval="20ba",save_num_checkpoints_to_keep=1,uniform_class_weight_fallback=True),
+@@ -124,17 +124,17 @@
+     manifest=read(ref(MANIFEST))
+     for r in manifest["executed_source_refs"]+manifest["source_authentication_refs"]:raw(r)
+     require(master["capacity_guard_ref"]==GUARD and master["capacity_policy_ref"]==POLICY
+-        and master["original_MLM7GiB_scope_extended"] is False and master["future_storage_reserved_bytes"]==65*2**30
++        and master["original_MLM7GiB_scope_extended"] is False and master["future_storage_reserved_bytes"]==64*2**30
+         and master["operational_IO_source_ref"]==IO_SOURCE_REF and master["operational_IO_policy_ref"]==IO_POLICY_REF
+         and master["owned_roster_policy_ref"]==OWNED_ROSTER_POLICY_REF,
+-        "Fresh actual65GiB reservation with reviewed I/O and finite4096 policy, not original7GiB")
++        "Fresh actual64GiB reservation with reviewed I/O and finite4096 policy, not original7GiB")
+     raw(IO_REVIEW_REF);require(read(IO_REVIEW_REF)["verdict"]=="PASS_SOURCE_OPTION_ONLY_EXECUTION_NOT_AUTHORIZED","Exact source-option review, not launch authority")
+     config=read(master["config_ref"]);storage=read(master["storage_ref"])
+     require(config==EXPECTED_CONFIG,"Exact frozen downstream scientific/cap configuration, no hidden fallback")
+     require(storage["job_id"]==master["job_id"] and storage["output_directory"]==master["output_directory"]
+-        and storage["reserved_new_bytes"]==65*2**30 and storage["completed_overlay_policy_ref"]==POLICY
++        and storage["reserved_new_bytes"]==64*2**30 and storage["completed_overlay_policy_ref"]==POLICY
+         and storage["budget_components"]["consumer_adapter"]==GUARD
+-        and storage["reservation"]["auxiliary_scopes"]==[str(local(master["worker_auxiliary_scope"]))],"Actual fresh current Census-fit2 child65GiB charge")
++        and storage["reservation"]["auxiliary_scopes"]==[str(local(master["worker_auxiliary_scope"]))],"Actual fresh current Census-fit2 child64GiB charge")
+     bindings=storage["reservation"]["consumer_bindings"]
+     require(len(bindings)<=64 and all(r in bindings for r in (ref(MANIFEST),ref(DRIVER),master["config_ref"],master["runtime_ref"])),
+         "Original64 direct binding ceiling, master source/config/runtime actually admitted")
+@@ -172,12 +172,12 @@
+     def validate_storage_v9(self,s,cfg,storage,*,source_ref,config_ref,runtime_ref):
+         active_amendment_v1();master,stored,q,actual=STATE
+         require(storage==stored and source_ref==ref(DRIVER) and config_ref==master["config_ref"] and runtime_ref==master["runtime_ref"]
+-            and s["job_id"]==actual["job_id"],"Original65GiB master binding plus exact ROOT late-prerequisite phase authority")
+-        value=self.real.validate_storage_v9(master,dict(output_cap_bytes=65*2**30),stored,
++            and s["job_id"]==actual["job_id"],"Original64GiB master binding plus exact ROOT late-prerequisite phase authority")
++        value=self.real.validate_storage_v9(master,dict(output_cap_bytes=64*2**30),stored,
+             source_ref=source_ref,config_ref=config_ref,runtime_ref=runtime_ref)
+         active_amendment_v1();return value
+     def budget_check_v9(self,storage,**kwargs):
+-        active_amendment_v1();require(storage==STATE[1],"Exact unchanged current65GiB storage")
++        active_amendment_v1();require(storage==STATE[1],"Exact unchanged current64GiB storage")
+         value=self.real.budget_check_v9(storage,**kwargs);active_amendment_v1();return value
+ 
+ def guard_v1(q,*,consumer=True):
+@@ -197,7 +197,7 @@
+         totals[group]+=size
+     current="embedding" if spec["phase"].startswith("embedding_") else ("RAM_retrieve_and_seal" if spec["phase"]=="finalize" else spec["phase"])
+     require(all(v+(required_write_bytes if k==current else 0)<=group_caps[k] for k,v in totals.items())
+-        and sum(totals.values())+required_write_bytes<=65*2**30,"Whole output+TMP/AUX/cache/log65GiB and per-group failstop")
++        and sum(totals.values())+required_write_bytes<=64*2**30,"Whole output+TMP/AUX/cache/log64GiB and per-group failstop")
+     checkpoints=[(parts,n,kind) for parts,n,kind in output if parts and parts[0]=="contrastive" and "checkpoints" in parts]
+     regular=[n-4096 for parts,n,kind in checkpoints if kind=="regular" and parts[-1].endswith(".pt")]
+     require(len(regular)<=2 and max(regular,default=0)<=3*2**30,"Actual peak2regular full contrastive checkpoints,3GiB/file")

@@ -1,0 +1,9 @@
+The exact v5 failure is root_driver_v1.py:118, called by the combined-owned RSS scan at lines248–249. The function verifies PID/start, reads /proc/PID/statm, then requires another identity match. The pinned owned_lifecycle._stat returns None only for ENOENT/ESRCH, and _same(None,expected) is false. Thus a normal disappearance/reap after the statm read is converted into the fatal identity-change error. Short-lived inventory subprocesses are a source-supported possible participant, not an identified actual offending PID.
+
+The preserved failure does not record which RSS PID failed or its second identity row. It cannot distinguish a disappeared process from positive PID reuse at that instant. The known roster's empty reused list is not proof about the unrecorded failing second read. No broader host audit is warranted.
+
+Genuine final wait fbbc0517..., minimal0f1ced5c..., log21d56985... and ROOTv25 fbdcf92e... now bind actual tool47121 outer241, directworker-15, complete owned drain/EOF,0.3977430956second cleanup, no completion and final optimizer totals UNKNOWN_no_new_update_verified. The log contains only a resource-tracker shutdown warning. Zero verified updates is not zero actual final updates.
+
+The new source-only v6 captures both pre/post identity observations. It returns0 only for confirmed absence, requires PID/start equality for every positive observation, retains existing statm ENOENT/ESRCH handling and propagates permission/unknown IO/malformed data errors. The positive pre-read mismatch now also fails instead of being silently treated as zero. Combined-owned128GiB RSS, source/clock/native/lease/capacity/scope/finite cleanup and science guards stay in force.
+
+The diagnosis made no process/GPU/resource observations, numerical or payload reads, source edits to old/live packets, ROOT metadata, admission, launch or Git changes. V6 is inactive and awaits fresh independent review and separate ROOT authority.

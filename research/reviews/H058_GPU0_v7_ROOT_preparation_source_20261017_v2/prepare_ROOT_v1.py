@@ -1,0 +1,147 @@
+"""Inactive ROOT-only H058v7 metadata preparer. Default invocation performs no writes/probes."""
+from pathlib import Path
+from datetime import datetime,timezone
+import argparse,copy,hashlib,importlib,json,os,sys
+ROOT=Path('/workspace-SR003.nfs2/ARG-GNN')
+HERE='research/reviews/H058_GPU0_v7_ROOT_preparation_source_20261017_v2'
+SOURCE=HERE+'/prepare_ROOT_v1.py'
+MANIFEST=HERE+'/source_manifest.v1.json'
+CANDIDATE='research/reviews/H058_GPU0_full_training_successor_source_20261017_v7'
+CANDIDATE_DRIVER_REF={'path':CANDIDATE+'/root_driver_v1.py','sha256':'738850d9ab66eb93ff70abd3f06712241d53b4de924e54b72d0231d1c38409c8'}
+CANDIDATE_MANIFEST_REF={'path':CANDIDATE+'/source_manifest.v1.json','sha256':'16c978785ed8b36a07390e6c6cf4cc2f3ecf53ef370673c6d8dd08edd1a29156'}
+DIRECTIVE='ROOT authorizes one fresh H058v7 full-budget metadata preparation with original clocks and genuine v5 failure preserved; no reservation or execution by this helper'
+P=None
+def ref(p):
+ b=(ROOT/p).read_bytes();return {'path':p,'sha256':hashlib.sha256(b).hexdigest()}
+def read(r):
+ b=(ROOT/r['path']).read_bytes();assert hashlib.sha256(b).hexdigest()==r['sha256'];return json.loads(b)
+def save(name,v):
+ p=P/name
+ with p.open('x') as f:json.dump(v,f,indent=2,sort_keys=True);f.write('\n')
+ return ref(str(p.relative_to(ROOT)))
+def context_v1(review_ref):
+ review=read(review_ref)
+ assert review['independent'] is True and review['verdict']=='SOURCE_PASS' and review['blockers']==[]
+ assert review['source_ref']==CANDIDATE_DRIVER_REF and review['source_manifest_ref']==CANDIDATE_MANIFEST_REF
+ assert review['ROOT_preparation_source_ref']==ref(SOURCE)
+ assert review['ROOT_preparation_source_manifest_ref']==ref(MANIFEST)
+ ns=CANDIDATE.replace('/','.')
+ c=importlib.import_module(ns+'.common_v1');d=importlib.import_module(ns+'.direct_gpu0_v1')
+ assert ref(c.DRIVER)==CANDIDATE_DRIVER_REF and ref(c.MANIFEST)==CANDIDATE_MANIFEST_REF
+ assert c.HERE==d.HERE==CANDIDATE and d.SOURCE==c.DIRECT
+ assert d.validate_native_resource_disposition_v1 is c.validate_native_resource_disposition_v1
+ q=read(ref(c.HERE+'/ROOT_request.INACTIVE.template.v1.json'))
+ assert not (ROOT/q['preparation_directory']).exists()
+ assert not (ROOT/q['packet_directory']).exists() and not (ROOT/q['output_directory']).exists()
+ old=read(c.CLOCK_ROOT_REQUEST_V4);oldcfg=read(old['config_ref'])
+ assert (q['created_at_utc'],q['expires_at_utc'])==(old['created_at_utc'],old['expires_at_utc'])
+ return ns,c,d,q,old,oldcfg
+def observe_v1(c,d,old):
+ """Actual ROOT only. Separate IO phase, never called by source/RAM metadata tests."""
+ base=d.base_v1()
+ native=read(old['native_resource_disposition_ref'])
+ oldabsence=read(native['fresh_targeted_native_absence_ref'])
+ rows=[]
+ for expected in native['native_process_identities']:
+  try:observed=base.proc_identity(expected['pid'])
+  except (FileNotFoundError,ProcessLookupError):observed=None
+  live=bool(observed and observed['uid']==expected['uid'] and observed['start_ticks']==expected['start_ticks'] and observed['state'] not in ('Z','X'))
+  assert not live
+  rows.append(dict(expected=expected,observed=observed,exact_old_identity_live=live))
+ groups=[]
+ for pgid in native['native_process_groups']:
+  try:os.killpg(pgid,0)
+  except ProcessLookupError:pass
+  else:raise ValueError('Original native process group remains present')
+  groups.append(dict(pgid=pgid,absent=True,method='targeted os.killpg(pgid,0) ESRCH',checked_utc=datetime.now(timezone.utc).isoformat()))
+ gpu=[r for r in base.real_inventory() if r['index']==0]
+ assert len(gpu)==1 and gpu[0]['uuid']==d.GPU0_UUID
+ assert not any(x['pid'] in {r['pid'] for r in native['native_process_identities']} for x in gpu[0]['compute'])
+ observed_at=datetime.now(timezone.utc).isoformat()
+ cap=read(d.CURRENT_CAP);controller_storage=read(cap['controller_storage_ref'])
+ registry=json.loads((ROOT/controller_storage['output_directory']/'registry.json').read_bytes())
+ return dict(native=native,oldabsence=oldabsence,rows=rows,groups=groups,GPU0=gpu[0],observed_at_utc=observed_at,registry=registry),base
+def metadata_v1(review_ref,c,d,q,old,oldcfg,observation):
+ """Complete original metadata construction with supplied observation IO result.
+
+The ROOT wrapper always obtains this observation through observe_v1.
+Independent review can execute this exact construction with RAM IO and fixtures.
+No guard/process/GPU/accounting call occurs in this function.
+"""
+ global P
+ P=ROOT/q['preparation_directory'];assert not P.exists()
+ assert not (ROOT/q['packet_directory']).exists() and not (ROOT/q['output_directory']).exists()
+ created=q['created_at_utc'];expires=q['expires_at_utc']
+ assert (created,expires)==(old['created_at_utc'],old['expires_at_utc'])
+ P.mkdir()
+ handoff=read(q['science_handoff_ref'])
+ cfg=copy.deepcopy(oldcfg)
+ cfg['producer_ref']=handoff['producer_ref'];cfg['source_manifest_ref']=handoff['source_manifest_ref']
+ for k,name in [('runtime_equivalence_ref','runtime_equivalence.root_active_v1.json'),('layout_resource_proof_ref','layout_resource_proof.root_active_v1.json')]:
+  cfg[k]=save(name,read(oldcfg[k]))
+ directive=read(oldcfg['full_training_directive_ref']);directive['GPU_entry_ref']=cfg['producer_ref']
+ cfg['full_training_directive_ref']=save('full_training_directive.root_active_v1.json',directive)
+ q['config_ref']=save('scientific_config.root_active_v1.json',cfg)
+ prior=read(old['prior_H058_CPU_disposition_ref'])
+ prior.update(new_gpu_request_job_id=q['job_id'],new_full_GPU_budget_explicitly_authorized=True,
+  old_launch_resume_write_routes_revoked=True,old_files_charges_clocks_and_counters_preserved=True,
+  prior_GPU_v4_actual_wait_ref=c.PRIOR_V4_ACTUAL_WAIT_REF,
+  prior_GPU_v4_actual_outer_terminal_ref=c.PRIOR_V4_ACTUAL_OUTER_REF,
+  prior_GPU_v4_files_charges_clocks_and_failure_preserved=True,
+  prior_GPU_v5_actual_wait_ref=c.PRIOR_V5_ACTUAL_WAIT_REF,
+  prior_GPU_v5_actual_outer_terminal_ref=c.PRIOR_V5_ACTUAL_OUTER_REF,
+  prior_GPU_v5_files_charges_clocks_sources_and_failure_preserved=True,
+  prior_GPU_v5_future_launch_resume_write_routes_permanently_revoked=True,
+  prior_GPU_v5_actual_optimizer_steps={'same_marker_aligned':None,'same_marker_alignment_null':None},
+  prior_GPU_v5_final_optimizer_totals_status='UNKNOWN_no_new_update_verified',
+  no_CPU_or_GPU_optimizer_state_transfer=True,new_GPU_budget=1920,new_GPU_budget_per_arm=960,
+  created_at_utc=created,expires_at_utc=expires,
+  repeat_reason='V5 genuine directworker-15/outer241/drain/no completion after supervisor RSS observation identity failure. Final v5 optimizer totals remain UNKNOWN with no new update verified. Separately reviewed v7 full unfinished cell preserves original clocks, all32parents/1920updates, original H045 warmstart and fresh separate optimizers; no old state transfer or automatic replay.')
+ q['prior_H058_CPU_disposition_ref']=save('prior_CPU_and_GPU_disposition.root_active_v1.json',prior)
+ native=copy.deepcopy(observation['native']);absence=copy.deepcopy(observation['oldabsence'])
+ absence.update(actual_identity_observations=copy.deepcopy(observation['rows']),
+  actual_process_group_observations=copy.deepcopy(observation['groups']),
+  actual_GPU0_inventory=copy.deepcopy(observation['GPU0']),observed_at_utc=observation['observed_at_utc'])
+ absence_ref=save('native_targeted_absence.root_active_v1.json',absence)
+ native.update(adapter_manifest_ref=ref(c.MANIFEST),H058_job_id=q['job_id'],
+  fresh_targeted_native_absence_ref=absence_ref,observed_at_utc=observation['observed_at_utc'],
+  created_at_utc=created,expires_at_utc=expires)
+ q['native_resource_disposition_ref']=save('native_resource_disposition.root_active_v1.json',native)
+ registry_ref=save('controller_registry.actual_snapshot.v1.json',observation['registry'])
+ terminal=read(old['controller_terminal_qualification_ref']);terminal['registry_snapshot_ref']=registry_ref
+ q['controller_terminal_qualification_ref']=save('controller_terminal.root_active_v1.json',terminal)
+ authority=read(old['direct_attachment_authority_ref'])
+ authority.update(H058_job_id=q['job_id'],native_resource_disposition_ref=q['native_resource_disposition_ref'])
+ q['direct_attachment_authority_ref']=save('direct_attachment_authority.root_active_v1.json',authority)
+ q.update(status='active',execution_authorized=True,source_review_passed=True,source_review_ref=review_ref)
+ q['fit_clock_compatibility_v5']['accepted']=True
+ request_ref=save('ROOT_request.root_active_v1.json',q)
+ c.validate_request_v1(request_ref)
+ return request_ref,q,absence_ref
+def prepare_ROOT_v1(review_ref):
+ ns,c,d,q,old,oldcfg=context_v1(review_ref)
+ observation,base=observe_v1(c,d,old)
+ request_ref,q,absence_ref=metadata_v1(review_ref,c,d,q,old,oldcfg,observation)
+ capacity=d.capacity_v1(q,base)
+ summary_ref=save('ROOT_preparation_summary.root_v1.json',dict(
+  schema='ROOT_H058_GPU0_v7_actual_preparation_v1',root_authorizer='root_agent',
+  actual_prepared_utc=datetime.now(timezone.utc).isoformat(),request_ref=request_ref,
+  source_review_ref=review_ref,ROOT_preparation_source_ref=ref(SOURCE),
+  ROOT_preparation_source_manifest_ref=ref(MANIFEST),actual_native_absence_ref=absence_ref,
+  actual_GPU0_capacity=capacity,metadata_preflight='PASS',no_reserve_or_science=True,
+  created_at_utc=q['created_at_utc'],expires_at_utc=q['expires_at_utc'],
+  original_files_charges_clocks_and_failures_preserved=True,new_full_scope_budget_authorized=True,
+  clock_compatibility_accepted_only_for_exact_new_v7=True,prior_v5_actual_final_optimizer_totals='UNKNOWN_no_new_update_verified'))
+ return dict(request_ref=request_ref,summary_ref=summary_ref,no_reserve_or_science=True,
+  admit_argv=[str(ROOT/'.runtime/env/bin/python'),'-B','-s','-m',ns+'.root_driver_v1',
+   '--admit','--request-ref',json.dumps(request_ref,separators=(',',':'))])
+def main(argv=None):
+ p=argparse.ArgumentParser(description=__doc__)
+ p.add_argument('--prepare-root',action='store_true');p.add_argument('--review-ref');p.add_argument('--root-directive')
+ a=p.parse_args(argv)
+ if not a.prepare_root:
+  print(json.dumps(dict(status='SOURCE_ONLY_INACTIVE',ROOT_metadata_created=False,resource_probes=False,admission=False,execution=False)));return 0
+ assert a.root_directive==DIRECTIVE and a.review_ref,'Separate explicit ROOT preparation directive and full source/helper review required'
+ print(json.dumps(prepare_ROOT_v1(json.loads(a.review_ref)),sort_keys=True),flush=True);return 0
+if __name__=='__main__':raise SystemExit(main())
+

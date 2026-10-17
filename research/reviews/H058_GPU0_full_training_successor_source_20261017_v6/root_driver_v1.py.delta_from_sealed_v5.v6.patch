@@ -1,0 +1,19 @@
+--- research/reviews/H058_GPU0_full_training_successor_source_20261017_v5/root_driver_v1.py
++++ research/reviews/H058_GPU0_full_training_successor_source_20261017_v6/root_driver_v1.py
+@@ -112,10 +112,14 @@
+     return [int(p) for p in raw.split()] if raw else []
+ 
+ def rss_identity_v1(owned,identity):
+-    if not owned._same(owned._stat(identity['pid']),identity):return 0
++    before=owned._stat(identity['pid'])
++    if before is None:return 0
++    require(owned._same(before,identity),'RSS observation identity changed')
+     try:pages=int(Path('/proc/%d/statm'%identity['pid']).read_text().split()[1])
+     except (FileNotFoundError,ProcessLookupError):return 0
+-    require(owned._same(owned._stat(identity['pid']),identity),'RSS observation identity changed')
++    after=owned._stat(identity['pid'])
++    if after is None:return 0
++    require(owned._same(after,identity),'RSS observation identity changed')
+     return pages*os.sysconf('SC_PAGE_SIZE')
+ 
+ def worker_v1(input_ref,gate_fd,attachment_ref):

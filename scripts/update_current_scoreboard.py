@@ -1639,7 +1639,7 @@ def main():
         "| Original American VAL000 | CPU | Full 30 Mb simulation, inference and 10k-focal/native-path preparation completed. Same 600 references and 1,000 queries. | predictions pending |",
         "| Original American VAL001–004 | CPU | "+remaining_val_status+" | no ancestry score |",
         "| Native ARGformer | "+native_device+" | "+native_brief+" | pending |",
-        "| Native ARGformer held-out VAL000 | CPU | Original per-ARG six-dataset counts: "+val000_native_counts["status"]+". Separate native fit follows actual counts. | no ancestry score |",
+        "| Native ARGformer held-out VAL000 | CPU | Original per-ARG six-dataset counts: "+val000_native_counts["status"]+". See the Native ARGformer row for current MLM and downstream status. | no ancestry score |",
         "| Native FLARE | CPU | "+flare_val_score_status+" Author build, TRAIN000 full-site inference and prediction seal completed. Held-out VAL000 conversion: "+flare_val_conversion["status"]+"; native inference: "+flare_val_native["status"]+"; seal: "+flare_val_seal["status"]+". | "+flare_val_score_label+" |",
         "| Our American C3 GNN | "+c3_device+" | "+str(focal_ready)+"/20 exact TRAIN plans completed. "+c3_status.rstrip(".")+". Original VAL000 full-length GNN block plan: "+gnn_VAL000_plan["status"]+". | no ancestry score |",
         "| Full American TreeLoom versus NoMem | CPU | "+h060_status+" | no ancestry score |",
