@@ -1,0 +1,203 @@
+--- sealed_v2/contract_v1.py
++++ inactive_v3_namespace_normalized/contract_v1.py
+@@ -9,7 +9,7 @@
+ PARENT="American_C3_short20_TRAIN_original5VAL"
+ RUNTIME_REF={'path': 'research/reviews/ARGformer_American_C3_implementation_20261015_v1/shared_cpu_runtime_metadata.json', 'sha256': 'e0944a1c2c4b2a26d2edfe68fad11db691b4b6853ebeddd8e3b79692b43fa602'}
+ VAL=tuple("american_c3_val_%03d"%i for i in range(5));EPOCHS=(5,10,15,20,25,30)
+-GPU_PHASES=tuple("predict_val_%03d"%i for i in (1,2));PHASES=GPU_PHASES+("matrix",)
++GPU_PHASES=tuple("predict_val_%03d"%i for i in (0,1,2));PHASES=GPU_PHASES+("matrix",)
+ BASE_CAPS=dict(CPU_threads=32,dataloader_workers=0,reservation_bytes=32*2**20,log_bytes=256*2**10,max_seconds=86400,max_cpu_rss_bytes=128*2**30,headroom_bytes=4*2**30,cleanup_seconds=30,work_cutoff_margin_seconds=300,terminal_evidence_margin_seconds=150,max_checkpoint_bytes=3*2**30,max_checkpoint_files=2)
+ CAPS=dict(BASE_CAPS,max_cuda_reserved_bytes=0)
+ OWNED_LIMITS_V8=dict(pending=1024,discoveries=2**28,groups=65536,adopted_waits=2**28,history_rows=16)
+@@ -164,7 +164,7 @@
+   "Exact current peer PID/start from genuine launch, never guessed")
+  return e,q
+ def caps_v1(phase):return dict(BASE_CAPS,max_cuda_reserved_bytes=8*2**30 if phase in GPU_PHASES else 0)
+-def config_v1(phase):return dict(schema="C3_prepared_feature_operational_config_v6",output_cap_bytes=32*2**20,phase=phase,caps=caps_v1(phase),model_checkpoint_recurrence_and_scorer_unchanged=True,preprocessing_implementation_changed=True,FP32_support_preprocessing_adaptation="accepted_v3_compensated_FP32")
++def config_v1(phase):return dict(schema="C3_prepared_feature_operational_config_v7",output_cap_bytes=32*2**20,phase=phase,caps=caps_v1(phase),model_checkpoint_recurrence_and_scorer_unchanged=True,preprocessing_implementation_changed=True,FP32_support_preprocessing_adaptation="accepted_v3_compensated_FP32")
+ def owned_drain_values_v2(wait,expected_driver=None):
+  if expected_driver is None:expected_driver=ref(DRIVER)
+  require(wait.get("schema")=="C3_remaining_cells_actual_wait_v2"and wait.get("owned_roster_policy_ref")==expected_driver and wait.get("owned_roster_policy")==OWNED_LIMITS_V8,"Exact executed bounded-live ownership policy")
+@@ -197,16 +197,13 @@
+     require(set(e) == {'input_ref', 'completion_ref', 'wait_ref', 'outer_ref'}, 'Exact new successful remaining stage evidence')
+     s = read(e['input_ref'])
+     q = read(s['root_stage_request_ref'])
++    prior_v5_failure_resolution_values_v3(q,historical=True)
+     done = read(e['completion_ref'])
+     wait = read(e['wait_ref'])
+     outer = read(e['outer_ref'])
+-    pins=pins_v1()
+-    if parent==VAL[0]:
+-        expected_manifest=pins["preserved_v5_manifest"];expected_driver=pins["preserved_v5_execution"]
+-        require(e["input_ref"]==pins["preserved_v5_VAL000_input"],"Only exact preserved v5VAL000 input")
+-    else:
+-        require(parent in VAL[1:3],"Only v6VAL001/002 new stages")
+-        expected_manifest=ref(MANIFEST);expected_driver=ref(DRIVER)
++    require(parent in VAL[:3] and pending==[30],"Only fresh full-parent epoch30 VAL000/001/002 stages")
++    require(e["input_ref"]!=pins_v1()["preserved_v5_VAL000_input"],"Stopped failed v5 input is historical, never a successful new stage")
++    expected_manifest=ref(MANIFEST);expected_driver=ref(DRIVER)
+     source_review=read(q["source_review_ref"])
+     require(source_review.get("independent")is True and source_review.get("verdict")=="SOURCE_PASS"
+       and source_review.get("blockers")==[]
+@@ -230,14 +227,14 @@
+ 
+ def registration_values_v5(q,request_ref):
+  r=q["registration_ref"];require(type(r)is dict and set(r)=={"path","sha256"}
+-  and r["path"].startswith("research/reviews/C3_prepared_feature_v6_ROOT_preparation_")
+-  and request_ref["path"].startswith("research/reviews/C3_prepared_feature_v6_ROOT_preparation_"),
++  and r["path"].startswith("research/reviews/C3_prepared_feature_v7_ROOT_preparation_")
++  and request_ref["path"].startswith("research/reviews/C3_prepared_feature_v7_ROOT_preparation_"),
+   "Fresh v5 registration and request namespace")
+  v=read(r);active(v);p=pins_v1()["pins"]
+- require(v.get("schema")=="C3_prepared_feature_v6_ROOT_registration_v1"
+-  and all(v.get(k)==q.get(k) for k in ("source_manifest_ref","source_review_ref","phase","job_id","output_directory","worker_auxiliary_scope","cell_election_ref","peer_launch_capsule_ref"))
++ require(v.get("schema")=="C3_prepared_feature_v7_ROOT_registration_v1"
++  and all(v.get(k)==q.get(k) for k in ("source_manifest_ref","source_review_ref","phase","job_id","output_directory","worker_auxiliary_scope","cell_election_ref","peer_launch_capsule_ref","prior_v5_stop_ref","prior_v5_known_targets_ref","prior_v5_resolution_ref"))
+   and v.get("C3_v3_permanent_revocation_ref")==p["C3_V3_REVOCATION"]
+-  and v.get("fresh_v6_admission_and_one_shot_caller_required")is True
++  and v.get("fresh_v7_admission_and_one_shot_caller_required")is True
+   and v.get("old_v3_charge_preserved_bytes")==32*2**20
+   and v.get("old_v3_Python_supervisor_wait")=="UNKNOWN"
+   and v.get("old_v3_authority_or_admission_reuse_authorized")is False
+@@ -249,6 +246,77 @@
+   and rev.get("does_not_release_any_old_storage_charge")is True,
+   "ROOT permanent revocation and unknown original Python wait preserved")
+  return v
++def prior_v5_failure_resolution_values_v3(q,*,historical=False):
++ p=pins_v1()
++ require(q.get("prior_v5_stop_ref")==p["prior_v5_stop"],"Exact genuine stopped failed v5 record")
++ stop=read(p["prior_v5_stop"])
++ require(stop.get("schema")=="ROOT_C3_v5_actual_stop_outer1_unresolved_cleanup_v1"
++  and stop.get("root_authorizer")=="root_agent"and stop.get("actual_terminal_consumed")is True
++  and type(stop.get("actual_outer_exit_code"))is int and stop["actual_outer_exit_code"]==1
++  and stop.get("actual_tool_session_id")==87405 and stop.get("actual_direct_worker_wait")is True
++  and stop.get("actual_direct_worker_returncode")==-15 and stop.get("actual_worker_OS_wait_status")==15
++  and stop.get("actual_saved_wait_ref")is None
++  and stop.get("original_all_owned_processes_and_groups_drained")is False
++  and stop.get("full_historical_descendant_drain_not_claimed")is True
++  and stop.get("owned_output_files")==[]
++  and stop.get("all_files_and_full_original_charge_preserved")is True
++  and stop.get("storage_close_or_credit_authorized")is False
++  and stop.get("new_prediction_or_retry_authorized")is False,
++  "Genuine outer1 and worker SIGTERM wait, old full drain remains unproven and full charge preserved")
++ for key in ("prior_v5_known_targets_ref","prior_v5_resolution_ref"):
++  row=q.get(key)
++  require(type(row)is dict and set(row)=={"path","sha256"}
++   and row["path"].startswith("research/reviews/C3_prepared_feature_v7_ROOT_preparation_"),
++   "Fresh exact ROOT prior-v5 proof/resolution namespace")
++ proof=read(q["prior_v5_known_targets_ref"])
++ require(proof.get("schema")=="ROOT_C3_v5_known_targets_poststop_observation_v1"
++  and proof.get("root_authorizer")=="root_agent"and proof.get("actual_observation")is True
++  and proof.get("stopped_failure_ref")==p["prior_v5_stop"]
++  and proof.get("old_v5_input_ref")==p["preserved_v5_VAL000_input"]
++  and proof.get("known_root_observations")==[
++   dict(pid=66065,expected_start=491497125,present=False),
++   dict(pid=70270,expected_start=491547684,present=False),
++   dict(pid=66030,expected_start=None,present=False)]
++  and all(type(row.get("pid"))is int and row.get("present")is False for row in proof["known_root_observations"])
++  and proof.get("known_positive_group_observations")==[dict(pgid=66065,absent=True),dict(pgid=70270,absent=True)]
++  and all(type(row.get("pgid"))is int and row.get("absent")is True for row in proof["known_positive_group_observations"])
++  and proof.get("only_listed_known_targets_observed")is True
++  and proof.get("historical_descendant_drain_proven")is False
++  and proof.get("storage_close_or_credit_authorized")is False,
++  "Fresh known-root and positive-group absence proof is not full historical descendant drain")
++ proof_time=datetime.fromisoformat(proof["utc"]);request_time=datetime.fromisoformat(q["created_at_utc"])
++ require(datetime.fromisoformat(stop["utc"])<=proof_time<=request_time
++  and 0<=(request_time-proof_time).total_seconds()<=300,
++  "Known-target proof after actual stop and within300seconds before new ROOT request")
++ resolution=read(q["prior_v5_resolution_ref"])
++ require(type(historical)is bool,"Explicit completed-stage history role")
++ if historical:
++  require(resolution.get("root_authorizer")=="root_agent"and resolution.get("status",resolution.get("active"))in("active",True)
++   and resolution.get("template_only")is not True,"Genuine finite original ROOT resolution retained as completed-stage history")
++ else:active(resolution)
++ require(resolution.get("schema")=="C3_prepared_feature_v7_ROOT_prior_v5_resolution_v1"
++  and resolution.get("stopped_failure_ref")==p["prior_v5_stop"]
++  and resolution.get("known_targets_ref")==q["prior_v5_known_targets_ref"]
++  and resolution.get("old_v5_input_ref")==p["preserved_v5_VAL000_input"]
++  and resolution.get("old_v5_source_manifest_ref")==p["preserved_v5_manifest"]
++  and resolution.get("old_v5_execution_ref")==p["preserved_v5_execution"]
++  and all(resolution.get(k)==q.get(k)for k in("source_manifest_ref","source_review_ref","phase","job_id",
++    "output_directory","worker_auxiliary_scope","cell_election_ref"))
++  and resolution.get("all_old_v5_future_execution_resume_retry_write_routes_revoked")is True
++  and resolution.get("old_v5_historical_descendant_drain")=="UNPROVEN"
++  and resolution.get("residual_historical_uncertainty_accepted_for_new_phase_only")is True
++  and resolution.get("does_not_certify_old_drain_or_cleanup_success")is True
++  and resolution.get("new_exact_phase_adoption_authorized")is True
++  and resolution.get("all_old_files_and_full_original_charge_preserved")is True
++  and resolution.get("storage_close_or_credit_authorized")is False
++  and resolution.get("old_authority_admission_or_output_reuse_authorized")is False
++  and resolution.get("state_or_output_migration_authorized")is False
++  and resolution.get("automatic_retry_authorized")is False
++  and datetime.fromisoformat(resolution["created_at_utc"])<=request_time
++  and datetime.fromisoformat(q["expires_at_utc"])<=datetime.fromisoformat(resolution["expires_at_utc"]),
++  "Separate finite ROOT exact-phase resolution preserves uncertainty, revokes old route and never grants credit or migration")
++ return stop,proof,resolution
++
+ def accepted_feature_component_values_v2():
+  p=pins_v1()
+  review=read(p["feature_review"])
+@@ -267,13 +335,18 @@
+ def validate_request_v1(record):
+  q=read(record);active(q);registration_values_v5(q,record)
+  require(0<(datetime.fromisoformat(q["expires_at_utc"])-datetime.fromisoformat(q["created_at_utc"])).total_seconds()<=86400,"At most original24h scientific interval")
+- require(type(q["job_id"])is str and q["job_id"].startswith("C3prepared-v6-") and q["output_directory"].startswith("experiments/results/C3_prepared_feature_GPU0_v6_")and q["worker_auxiliary_scope"].startswith("research/reviews/C3_prepared_feature_GPU0_ROOT_v6_")and q["worker_auxiliary_scope"].endswith("/worker_aux"),"Fresh own output/packet roots outside every old producer")
++ require(type(q["job_id"])is str and q["job_id"].startswith("C3prepared-v7-") and q["output_directory"].startswith("experiments/results/C3_prepared_feature_GPU0_v7_")and q["worker_auxiliary_scope"].startswith("research/reviews/C3_prepared_feature_GPU0_ROOT_v7_")and q["worker_auxiliary_scope"].endswith("/worker_aux"),"Fresh own output/packet roots outside every old producer")
+  require(q.get("schema")=="C3_remaining_cells_ROOT_request_v1"and q.get("execution_authorized")is True and q.get("source_manifest_ref")==ref(MANIFEST)and q.get("phase")in PHASES and "truth"not in q and "VAL_truth_capability"not in q and "TEST"not in q,"Exact inactive-until-ROOT original remaining-cell or matrix authority")
+- review_v1(q["source_review_ref"]);manifest_v1();configure_selector_v1(q)
++ review_v1(q["source_review_ref"]);manifest_v1()
++ prior_v5_failure_resolution_values_v3(q)
++ configure_selector_v1(q)
+  accepted_feature_component_values_v2()
+ 
+  require(q["capacity_guard_ref"]==GUARD and q["capacity_policy_ref"]==POLICY and q["caps"]==caps_v1(q["phase"]),"Exact selected Census and original fixed finite8GiB evaluator/CPU matrix caps")
+  e,retained,pending=election_values_v1(q["cell_election_ref"])
++ require(sum(len(v)for v in retained.values())==27
++  and all(pending[parent]==([30]if parent in VAL[:3]else[])for parent in VAL),
++  "Exact preserved27retained plus only3unfinished epoch30cells")
+  require(q.get("original_CPU_jobs_or_live_H058_mutation_authorized")is False and q.get("automatic_restart_or_fallback")is False,"No live job/controller changes or automatic work")
+  if q["phase"]in GPU_PHASES:
+   parent=VAL[int(q["phase"][-3:])]
+@@ -330,12 +403,28 @@
+  if s["phase"]in GPU_PHASES:require(v["epochs"]==q["pending_epochs"],"Only requested pending cells completed")
+ 
+ ROOT_RECORD_CAP=454656
+-def record_budget_v1(directory,extra=0):
++def record_budget_v1(directory,extra=0,*,worker_auxiliary_scope=None):
+  total=4096;count=0
++ require(type(extra)is int and extra>=0,"Nonnegative actual ROOT metadata write allowance")
++ if worker_auxiliary_scope is not None:
++  require(worker_auxiliary_scope.parent==directory and worker_auxiliary_scope.name=="worker_aux",
++   "Only exact own separately charged worker_aux child directory")
+  if directory.exists():
+   for p in directory.iterdir():
+-   require(p.is_file()and not p.is_symlink()and p.suffix==".json"and p.lstat().st_nlink==1 and p.stat().st_size<=65536,"Own bounded flat ROOT metadata only")
+-   total+=p.stat().st_size+4096;count+=1
++   if worker_auxiliary_scope is not None and p==worker_auxiliary_scope:
++    st=p.lstat()
++    require(stat.S_ISDIR(st.st_mode)and not p.is_symlink(),"Exact nonsymlink charged AUX directory node")
++    fd=os.open(p,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
++    try:
++     opened=os.fstat(fd);named=p.lstat()
++     require(stat.S_ISDIR(opened.st_mode)and stat.S_ISDIR(named.st_mode)
++      and (st.st_dev,st.st_ino)==(opened.st_dev,opened.st_ino)==(named.st_dev,named.st_ino),
++      "Stable canonical nofollow identity for only charged AUX directory node")
++    finally:os.close(fd)
++    total+=4096;count+=1
++   else:
++    require(p.is_file()and not p.is_symlink()and p.suffix==".json"and p.lstat().st_nlink==1 and p.stat().st_size<=65536,"Own bounded flat ROOT metadata only")
++    total+=p.stat().st_size+4096;count+=1
+  require(total+extra<=ROOT_RECORD_CAP and count<64,"Combined ROOT records plus65536event+4096node within524288 allowance")
+ def root_save_v1(directory,name,v):
+  data=(json.dumps(v,sort_keys=True,indent=2,allow_nan=False)+"\n").encode()
+@@ -421,7 +510,6 @@
+  return plans
+ 
+ def per_parent_source_policy_v6():
+- p=pins_v1()
+- return {VAL[0]:dict(input_ref=p["preserved_v5_VAL000_input"],source_manifest_ref=p["preserved_v5_manifest"],execution_ref=p["preserved_v5_execution"]),
+-  VAL[1]:dict(source_manifest_ref=ref(MANIFEST),execution_ref=ref(DRIVER)),
+-  VAL[2]:dict(source_manifest_ref=ref(MANIFEST),execution_ref=ref(DRIVER))}
++ return {parent:dict(source_manifest_ref=ref(MANIFEST),execution_ref=ref(DRIVER),
++  stopped_failed_v5_input_historical_only=pins_v1()["preserved_v5_VAL000_input"],
++  prior_v5_stop_ref=pins_v1()["prior_v5_stop"])for parent in VAL[:3]}

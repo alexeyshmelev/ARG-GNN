@@ -1,0 +1,54 @@
+--- sealed_v2/execution_v1.py
++++ inactive_v3_namespace_normalized/execution_v1.py
+@@ -51,7 +51,7 @@
+ class OwnedLifecycleV8:
+     """Reuse original ancestry discovery; retire only exact identities proven gone/replaced."""
+     def __init__(self,backend,leader,**kwargs):
+-        self.backend=backend;self.complete=True;self.groups=set()
++        self.backend=backend;self.complete=True;self.groups=set();self.invalid_groups=_HistoryV8()
+         self.discovered=_HistoryV8();self.retired=_HistoryV8();self.reused=_HistoryV8()
+         self.retirement_reasons=dict(absent=0,replaced=0)
+         self.original=backend.OwnedTree(leader,**kwargs)
+@@ -61,6 +61,12 @@
+         self.original.read_stat=self.read_stat_v9
+     def remember_group_v9(self,row,*,strict=True):
+         group=row["group"]
++        if type(group)is not int or group<=0:
++            self.complete=False
++            self.invalid_groups.add(dict(pid=row.get("pid"),start=row.get("start"),state=row.get("state"),
++                raw_group=repr(group)[:128],raw_group_type=type(group).__name__,
++                nonpositive_or_invalid_group=True,group_absence_inferred=False))
++            return False
+         if group not in self.groups and len(self.groups)>=OWNED_LIMITS_V8["groups"]:
+             self.complete=False
+             if strict:raise ValueError("Finite v9 observed owned-group bound; incomplete ownership")
+@@ -108,6 +114,8 @@
+             discovered_identity_history=self.discovered.evidence(),retired_identity_history=self.retired.evidence(),
+             retirement_reasons=self.retirement_reasons,reused_numeric_PID_history=self.reused.evidence(),
+             historical_roster_summarized=True,retired_exact_identities_confirmed_absent_or_replaced=True,
++            invalid_group_observation_history=self.invalid_groups.evidence(),
++            nonpositive_group_syscalls_forbidden=True,invalid_group_makes_ownership_permanently_incomplete=True,
+             group_count=len(groups),group_set_sha256=hashlib.sha256(encoded).hexdigest(),
+             group_first=groups[:16],group_last=groups[-16:],limits=OWNED_LIMITS_V8,
+             signals_use_pidfd_only=True,no_numeric_group_signals=True)
+@@ -117,6 +125,11 @@
+     for group in sorted(tree.groups):
+         if time.monotonic()>=deadline:break
+         gone=None
++        if type(group)is not int or group<=0:
++            tree.complete=False
++            if len(errors)<16:errors.append("Invalid owned group rejected without syscall")
++            history.add(dict(pgid=group,absent=None,method="invalid group rejected without syscall"))
++            continue
+         try:os.killpg(group,0)
+         except ProcessLookupError:gone=True
+         except OSError as exc:
+@@ -500,7 +513,7 @@
+     path=directory/name
+     data=(json.dumps(value,sort_keys=True,indent=2,allow_nan=False)+'\n').encode()
+     require(len(data)<=65536,'Original compact ROOT metadata cap')
+-    record_budget_v1(directory,len(data)+8192)
++    record_budget_v1(directory,len(data)+8192,worker_auxiliary_scope=local(s["worker_auxiliary_scope"]))
+     fd=os.open(path,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600)
+     with os.fdopen(fd,'wb') as stream:
+         require(stream.write(data)==len(data),'Complete immutable caller record')

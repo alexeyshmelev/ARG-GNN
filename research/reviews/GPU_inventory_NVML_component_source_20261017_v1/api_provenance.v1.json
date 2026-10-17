@@ -1,0 +1,126 @@
+{
+  "ABI_limit": "Public source structure/prototype provenance plus RAM pointer tests does not prove the actual installed driver ABI, library identity, permissions, name equivalence or runtime latency. ROOT must qualify these separately.",
+  "created_at_utc": "2026-10-17T15:03:34.870706+00:00",
+  "declarations": [
+    {
+      "line": 4450,
+      "symbol": "nvmlInit_v2",
+      "text": "nvmlReturn_t DECLDIR nvmlInit_v2(void);"
+    },
+    {
+      "line": 4500,
+      "symbol": "nvmlShutdown",
+      "text": "nvmlReturn_t DECLDIR nvmlShutdown(void);"
+    },
+    {
+      "line": 5096,
+      "symbol": "nvmlDeviceGetCount_v2",
+      "text": "nvmlReturn_t DECLDIR nvmlDeviceGetCount_v2(unsigned int *deviceCount);"
+    },
+    {
+      "line": 5164,
+      "symbol": "nvmlDeviceGetHandleByIndex_v2",
+      "text": "nvmlReturn_t DECLDIR nvmlDeviceGetHandleByIndex_v2(unsigned int index, nvmlDevice_t *device);"
+    },
+    {
+      "line": 5360,
+      "symbol": "nvmlDeviceGetIndex",
+      "text": "nvmlReturn_t DECLDIR nvmlDeviceGetIndex(nvmlDevice_t device, unsigned int *index);"
+    },
+    {
+      "line": 5709,
+      "symbol": "nvmlDeviceGetUUID",
+      "text": "nvmlReturn_t DECLDIR nvmlDeviceGetUUID(nvmlDevice_t device, char *uuid, unsigned int length);"
+    },
+    {
+      "line": 7282,
+      "symbol": "nvmlDeviceGetMemoryInfo",
+      "text": "nvmlReturn_t DECLDIR nvmlDeviceGetMemoryInfo(nvmlDevice_t device, nvmlMemory_t *memory);"
+    },
+    {
+      "line": 7716,
+      "symbol": "nvmlDeviceGetUtilizationRates",
+      "text": "nvmlReturn_t DECLDIR nvmlDeviceGetUtilizationRates(nvmlDevice_t device, nvmlUtilization_t *utilization);"
+    },
+    {
+      "line": 13807,
+      "symbol": "nvmlDeviceGetMigMode",
+      "text": "nvmlReturn_t DECLDIR nvmlDeviceGetMigMode(nvmlDevice_t device, unsigned int *currentMode, unsigned int *pendingMode);"
+    },
+    {
+      "line": 8032,
+      "symbol": "nvmlDeviceGetComputeRunningProcesses_v3",
+      "text": "nvmlReturn_t DECLDIR nvmlDeviceGetComputeRunningProcesses_v3(nvmlDevice_t device, unsigned int *infoCount, nvmlProcessInfo_t *infos);"
+    },
+    {
+      "line": 4796,
+      "symbol": "nvmlSystemGetProcessName",
+      "text": "nvmlReturn_t DECLDIR nvmlSystemGetProcessName(unsigned int pid, char *name, unsigned int length);"
+    }
+  ],
+  "execution_authority": false,
+  "existing_binding_source_observation": {
+    "decision": "No pynvml is visible to the prescribed no-user-site project runtime. Use the small source ctypes binding, rather than enabling or modifying the unrelated user site.",
+    "external_module_imported": false,
+    "external_source_read_only": true,
+    "external_user_site_sha256": "5b7d66009922a16f382d88241c37a01faa82a1ac3aa28776041cd228f5801f13",
+    "external_user_site_source": "/home/jovyan/.local/lib/python3.11/site-packages/pynvml.py",
+    "no_user_site_flag": "-s (matches project PYTHONNOUSERSITE=1)",
+    "packages_installed": 0,
+    "project_import_spec_for_pynvml": null,
+    "project_interpreter": ".runtime/env/bin/python",
+    "user_site_enabled_for_candidate": false
+  },
+  "official_manual_refs": [
+    {
+      "excerpt": "It is thread-safe and provides the underlying functionality for the NVIDIA System Management Interface (nvidia-smi).",
+      "read_sha256": "7fcb533b4de4ad56f2058dc91612fdf1c4678826d68e717962bdd9b7ee26fc64",
+      "url": "https://docs.nvidia.com/deploy/nvml-api/index.html"
+    },
+    {
+      "exact_CLI_memory_rounding_proved": false,
+      "read_sha256": "017647ae72b332a94e01e6d9672d1d82367e56de1d0685132eb91a972035b17e",
+      "url": "https://docs.nvidia.com/deploy/nvidia-smi/index.html"
+    }
+  ],
+  "primary_public_source": {
+    "bytes": 880103,
+    "commit": "6b38eea7ed6854b19001f44231e9385661e90c46",
+    "repository": "NVIDIA/go-nvml",
+    "sha256": "c5de65a896402f4770b14e12128016ff974104b569ac08b4ba2aee8e66f5d9bf",
+    "url": "https://raw.githubusercontent.com/NVIDIA/go-nvml/6b38eea7ed6854b19001f44231e9385661e90c46/pkg/nvml/nvml.h",
+    "whole_header_copied_into_repository": false
+  },
+  "public_semantics": [
+    {
+      "lines": "7992-8032",
+      "meaning": "Compute API returns active compute contexts, not graphics; usedGpuMemory is bytes; size query may return SUCCESS only for empty list or INSUFFICIENT_SIZE with required count; list can change; permission/not-supported/unknown errors are errors; MIG aggregate access may require privileges."
+    },
+    {
+      "lines": "4777-4796",
+      "meaning": "Process-name API may crop to caller buffer, ANSI encoding, and may fail for disappeared or inaccessible processes. Candidate uses large bounded buffer, rejects saturation/decoding/unknown errors, and never drops the process."
+    },
+    {
+      "lines": "13786-13807",
+      "meaning": "MIG query returns current/pending modes or explicit NOT_SUPPORTED when device lacks MIG support. Enabled, pending and all other errors reject the inventory."
+    },
+    {
+      "lines": "1519-1537",
+      "meaning": "NVML_SUCCESS=0; NOT_SUPPORTED=3; NO_PERMISSION=4; INSUFFICIENT_SIZE=7. Device/process memory NOT_AVAILABLE sentinel is not admitted."
+    }
+  ],
+  "schema": "NVML_public_API_provenance_v1",
+  "source_only": true,
+  "structure_excerpts": [
+    {
+      "first_line": 251,
+      "last_line": 267,
+      "text": "typedef struct nvmlUtilization_st\n{\n    unsigned int gpu;                //!< Percent of time over the past sample period during which one or more kernels was executing on the GPU\n    unsigned int memory;             //!< Percent of time over the past sample period during which global (device) memory was being read or written\n} nvmlUtilization_t;\n\n/**\n * Memory allocation information for a device (v1).\n * The total amount is equal to the sum of the amounts of free and used memory.\n */\ntypedef struct nvmlMemory_st\n{\n    unsigned long long total;        //!< Total physical device memory (in bytes)\n    unsigned long long free;         //!< Unallocated device memory (in bytes)\n    unsigned long long used;         //!< Sum of Reserved and Allocated device memory (in bytes).\n                                     //!< Note that the driver/GPU always sets aside a small amount of memory for bookkeeping\n} nvmlMemory_t;"
+    },
+    {
+      "first_line": 352,
+      "last_line": 373,
+      "text": "typedef struct nvmlProcessInfo_v1_st\n{\n    unsigned int        pid;                //!< Process ID\n    unsigned long long  usedGpuMemory;      //!< Amount of used GPU memory in bytes.\n                                            //! Under WDDM, \\ref NVML_VALUE_NOT_AVAILABLE is always reported\n                                            //! because Windows KMD manages all the memory and not the NVIDIA driver\n} nvmlProcessInfo_v1_t;\n\n/**\n * Information about running compute processes on the GPU\n */\ntypedef struct nvmlProcessInfo_v2_st\n{\n    unsigned int        pid;                //!< Process ID\n    unsigned long long  usedGpuMemory;      //!< Amount of used GPU memory in bytes.\n                                            //! Under WDDM, \\ref NVML_VALUE_NOT_AVAILABLE is always reported\n                                            //! because Windows KMD manages all the memory and not the NVIDIA driver\n    unsigned int        gpuInstanceId;      //!< If MIG is enabled, stores a valid GPU instance ID. gpuInstanceId is set to\n                                            //  0xFFFFFFFF otherwise.\n    unsigned int        computeInstanceId;  //!< If MIG is enabled, stores a valid compute instance ID. computeInstanceId is set to\n                                            //  0xFFFFFFFF otherwise.\n} nvmlProcessInfo_v2_t, nvmlProcessInfo_t;"
+    }
+  ]
+}

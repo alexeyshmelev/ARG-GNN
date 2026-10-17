@@ -1,0 +1,190 @@
+{
+  "RAM_result_ref": {
+    "path": "research/reviews/GPU_inventory_NVML_component_source_20261017_v1/contract_RAM.result.v1.json",
+    "sha256": "cbbe0cf036730848bf806c9920c8b6b7cbfedefb01187b471dd9b978be8754e2"
+  },
+  "RAM_test_ref": {
+    "path": "research/reviews/GPU_inventory_NVML_component_source_20261017_v1/contract_RAM_v1.py",
+    "sha256": "61ce29fa7f956a81e19373dd277652f32907ac9481e9bf8bbc9fedabcc23eb8c"
+  },
+  "bounds": {
+    "cooperative_total_elapsed_seconds": 30,
+    "max_complete_array_attempts": 4,
+    "max_devices": 64,
+    "max_processes_per_device": 8192,
+    "max_processes_whole_inventory": 8192,
+    "max_total_name_UTF8_bytes": 4194304,
+    "name_buffer_bytes": 65536,
+    "over_limit_action": "Reject, never truncate or return a partial list"
+  },
+  "candidate_source_ref": {
+    "path": "research/reviews/GPU_inventory_NVML_component_source_20261017_v1/nvml_inventory_v1.py",
+    "sha256": "3a5bf067a4a5aaa4ce48cc4be379eca2149428307abebb94dc5221963920b147"
+  },
+  "conversion": {
+    "conditional_monotonicity_proof": "At identical underlying byte/process samples with all process memories integral MiB and identical classifications, device-used ceiling and total floor are no more permissive than floor/nearest/ceiling device display rounding. H058 external=max(sum(external), used-c3-h058, 0), projected and actual-free inequalities become harder or equal when used increases or total decreases. C3 evaluator checks use the same process MiB and add its unchanged unfilled 10GiB envelope. Actual CLI API mapping and non-atomic sample timing remain unverified.",
+    "device_total": "floor(bytes / 2**20)",
+    "device_used": "ceil(bytes / 2**20)",
+    "nonintegral_process_compatibility_unproved": true,
+    "old_CLI_exact_rounding_assumed": false,
+    "per_process_used": "Require bytes exactly divisible by 2**20, then exact quotient. Any nonintegral or unavailable process memory rejects the complete call.",
+    "why_no_generic_process_rounding": "Original consumers use one used_mib value both for cap upper bounds and subtracting known occupancy. Rounding upward can understate unfilled envelopes/residual occupancy, while rounding downward can hide an over-cap process. This provider rejects the ambiguity instead of changing those predicates."
+  },
+  "created_at_utc": "2026-10-17T15:03:34.870706+00:00",
+  "diagnosis_ref": {
+    "path": "research/reviews/C3_v5_stop_lifecycle_source_diagnosis_20261017_v1/polling_supplement.v1.json",
+    "sha256": "f265f9f537f54ac3c5595c778d36f33e06d8f4032fdba5e14d110122b8fa07ad"
+  },
+  "exact_original_interfaces": [
+    {
+      "first_line": 110,
+      "last_line": 140,
+      "path": "src/arggnn/gpu_pool_v1.py",
+      "sha256": "ae1e0494ab672cfa3017759460eb06a4b4789eaef54928496c3c80314adcc0e1",
+      "symbol": "real_inventory"
+    },
+    {
+      "first_line": 143,
+      "last_line": 174,
+      "path": "src/arggnn/gpu_pool_v1.py",
+      "sha256": "ae1e0494ab672cfa3017759460eb06a4b4789eaef54928496c3c80314adcc0e1",
+      "symbol": "checked_inventory"
+    },
+    {
+      "first_line": 121,
+      "last_line": 168,
+      "path": "research/reviews/H058_GPU0_full_training_successor_source_20261017_v9/direct_gpu0_v1.py",
+      "sha256": "615465f93b76d00b84b663a92d4ca072ff4208a527ceccf3a45983a6856e0080",
+      "symbol": "capacity_v1"
+    },
+    {
+      "first_line": 28,
+      "last_line": 42,
+      "path": "research/reviews/C3_remaining_cells_GPU0_source_20261017_v5/direct_gpu0_v1.py",
+      "sha256": "ae0b51362ce61ab1054df10ea92025a1be5de4642a5030a2f8c87bbbe2103fa2",
+      "symbol": "capacity_v1"
+    },
+    {
+      "first_line": 85,
+      "last_line": 108,
+      "path": "research/reviews/C3_remaining_cells_GPU0_source_20261017_v5/direct_gpu0_v1.py",
+      "sha256": "ae0b51362ce61ab1054df10ea92025a1be5de4642a5030a2f8c87bbbe2103fa2",
+      "symbol": "install_before_torch_v1"
+    }
+  ],
+  "execution_authority": false,
+  "freshness": {
+    "call_sites_changed": 0,
+    "capacity_predicates_changed": 0,
+    "frequency_evidence": "Component does not schedule checks. Exact cadence can only be proved by the future complete integration. Keep every original loader boundary, every prepared-feature added boundary and supervisor interval (2 seconds).",
+    "init_and_shutdown": "Balanced on every callable invocation, including failure after successful init.",
+    "original_boundary_frequency_changed": false,
+    "physical_metadata_stability": "Recheck device count, index, UUID and MIG mode at end. No atomic driver snapshot or PID/start assertion is claimed.",
+    "value_caches": 0
+  },
+  "independent": false,
+  "no_claims": [
+    "No actual NVML/driver API or CUDA context was created by this work",
+    "No actual nvidia-smi or process/guard/resource/state probes were run",
+    "No scientific data, arrays, checkpoints, training or inference were read/run",
+    "No actual speedup, GPU fit, successful capacity admission or ancestry result",
+    "No retrospective attribution of old process churn, invalid rows, failures or drain",
+    "No complete pipeline review, runtime equivalence, integration, activation or rollout"
+  ],
+  "original_queries": [
+    {
+      "fields": "index,uuid,memory.used,memory.total,utilization.gpu",
+      "option": "--query-gpu"
+    },
+    {
+      "fields": "gpu_uuid,pid,process_name,used_memory",
+      "option": "--query-compute-apps"
+    }
+  ],
+  "original_query_options": {
+    "capture_output": true,
+    "check": true,
+    "shell": false,
+    "text": true,
+    "timeout_seconds_per_subprocess": 15
+  },
+  "original_source_refs": [
+    {
+      "path": "src/arggnn/gpu_pool_v1.py",
+      "sha256": "ae1e0494ab672cfa3017759460eb06a4b4789eaef54928496c3c80314adcc0e1"
+    },
+    {
+      "path": "research/reviews/C3_remaining_cells_GPU0_source_20261017_v5/direct_gpu0_v1.py",
+      "sha256": "ae0b51362ce61ab1054df10ea92025a1be5de4642a5030a2f8c87bbbe2103fa2"
+    },
+    {
+      "path": "research/reviews/C3_remaining_cells_GPU0_source_20261017_v5/worker_v1.py",
+      "sha256": "da713031ef56561b8e692302ca5625f7e83a30bfba1dc938d7b2cc37f05eb76b"
+    },
+    {
+      "path": "research/reviews/C3_remaining_cells_GPU0_source_20261017_v5/execution_v1.py",
+      "sha256": "45ef6e108854c1b91ce09ab641e77553808488ae6257670613223942342c5de8"
+    },
+    {
+      "path": "research/reviews/H058_GPU0_full_training_successor_source_20261017_v9/direct_gpu0_v1.py",
+      "sha256": "615465f93b76d00b84b663a92d4ca072ff4208a527ceccf3a45983a6856e0080"
+    },
+    {
+      "path": "research/reviews/GPU0_shared_execution_source_20261016_v1/gpu0_native_guard_v1.py",
+      "sha256": "3a08d3bd84adc95aafd332bc224fdb7aa38730d6c2f48dee8108944251b7ee69"
+    },
+    {
+      "path": "research/reviews/C3_prepared_feature_future_integration_source_20261017_v2/worker_v1.py",
+      "sha256": "185e6024cef3df824bb15c8dc5c6d67baea2bf0bcd9c73c7afc7159c77cfa11e"
+    }
+  ],
+  "output_contract": {
+    "device_uuid": "canonical lowercase physical GPU UUID",
+    "exact_device_fields": [
+      "index",
+      "uuid",
+      "used_mib",
+      "total_mib",
+      "utilization",
+      "compute"
+    ],
+    "exact_process_fields": [
+      "pid",
+      "name",
+      "used_mib"
+    ],
+    "memory_unit": "integer binary MiB (2**20 bytes)",
+    "no_graphics_process_list_added": true,
+    "non_compute_occupancy_retained_through_device_used": true,
+    "outer": "list in physical enumeration order, complete all-device inventory"
+  },
+  "policy": {
+    "GPU0_UUID": "GPU-ff06ca1f-403a-f2d0-b584-71e177452667",
+    "controller_lease_title_storage_guards": "Unchanged, not invoked by these RAM tests.",
+    "only_project_eligible_physical_GPU": 0,
+    "original_base_historical_ALLOWED_GPUS": "Never mutate or activate historical (2,3,4,5) base eligibility. Only separately reviewed current GPU0 consumers can use a private callable seam.",
+    "other_devices": "Retain complete metadata in the returned schema. Querying them does not authorize their use."
+  },
+  "schema": "GPU_inventory_NVML_source_contract_v1",
+  "source_only": true,
+  "status": "INACTIVE_SOURCE_COMPONENT_RAM_PASS",
+  "strict_errors": [
+    "Missing required public NVML symbol or unsupported ABI",
+    "Any NVML query error except documented MIG NOT_SUPPORTED",
+    "Empty/missing GPU0, unexpected GPU0 UUID, duplicate physical index/UUID",
+    "Enabled/pending/unknown MIG or non-sentinel process instance IDs",
+    "Unavailable/inconsistent total/free/used memory or invalid utilization",
+    "Duplicate per-device process PID, invalid PID, incomplete process fields",
+    "Any vanished/inaccessible/undecodable/empty/placeholder/truncated process name: never skip a row",
+    "Nonintegral compute MiB, unknown process memory, over-limit complete metadata",
+    "Unstable physical identity or exhausted complete-array growth attempts",
+    "Cooperative elapsed budget exceeded or shutdown error"
+  ],
+  "timeout": {
+    "adoption_blocker": true,
+    "candidate": "Cooperative before/after elapsed checks with 30-second aggregate budget, including lock/init/shutdown. A blocked NVML C call cannot be forcibly interrupted by this component.",
+    "hard_timeout_equivalent": false,
+    "original": "Two independent subprocess.run calls each have timeout=15.",
+    "requirement": "A separate reviewed integration must preserve required wall cutoff and owned cleanup under an unresponsive driver. Do not silently remove the original timeout contract or label late-return checks as hard containment."
+  }
+}
