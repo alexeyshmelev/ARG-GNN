@@ -1,0 +1,5 @@
+Independent SOURCE_PASS for exact C3v3 source handoff326aae32, runtime manifestdbf53b95 and auditb2c9ad6e. Prior v2 same-identity group blocker is resolved and all four H058v9 helper slices match exactly.
+
+46 aggregate source/negative checks with22 negative fixtures passed. Complete actual request/prepare/input joins preserve47roles,64GPU and62matrix direct unions. The bounded matrix fixture selects26 retained plus4 fresh cells and reaches the unchanged all30 barrier. Three actual-supervisor RAM cases confirm changed-group wait evidence joins the C3 drain contract. Only selected partial author RAM fixture definitions were reused, with writers suppressed and no massive campaign. One owned checker signature mismatch was diagnosed, preserved and repaired.
+
+No runtime authority, fit or readiness claim follows. Original live CPU jobs, failed producer history, scopes, caps, files and clocks remain untouched. ROOT owns actual terminal/revocation/election/admission/capacity/lease checks and every actual launch or later truth/scoring release.
