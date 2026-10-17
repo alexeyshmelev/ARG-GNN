@@ -30,6 +30,9 @@ def main(argv=None):
     commands = parser.add_subparsers(dest="command", required=True)
     commands.add_parser("methods")
     commands.add_parser("protocols")
+    commands.add_parser("paper-recipes")
+    paper = commands.add_parser("paper-plan")
+    paper.add_argument("recipe")
     commands.add_parser("status")
     for name in ("plan", "validate"):
         p = commands.add_parser(name)
@@ -44,6 +47,11 @@ def main(argv=None):
         if args.command == "methods":
             from .methods import list_methods
             result = list_methods()
+        elif args.command == "paper-recipes":
+            result = [p.stem for p in sorted((ROOT / "configs/benchmarks/recipes").glob("*.json"))]
+        elif args.command == "paper-plan":
+            from .paired import registered_plan
+            result = registered_plan(args.recipe)
         elif args.command == "protocols":
             result = [{"id": p.stem, "comparison_kind": read_json(p)["comparison_kind"]}
                       for p in sorted((ROOT / "configs/benchmarks/protocols").glob("*.json"))]

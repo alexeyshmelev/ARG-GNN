@@ -10,8 +10,8 @@ From the dedicated server repository:
 source scripts/project_env.sh
 export PYTHONPATH=.:src:scripts
 .runtime/env/bin/python -B -s -m arggnn.benchmarking methods
-.runtime/env/bin/python -B -s -m arggnn.benchmarking protocols
-.runtime/env/bin/python -B -s -m arggnn.benchmarking plan american_c3_full30mb
+.runtime/env/bin/python -B -s -m arggnn.benchmarking paper-recipes
+.runtime/env/bin/python -B -s -m arggnn.benchmarking paper-plan ancestralpaths_european
 .runtime/env/bin/python -B -s -m arggnn.benchmarking status
 ```
 
@@ -23,6 +23,8 @@ These commands read small configuration and source metadata. They do not open sc
 |---|---|
 | `src/arggnn/benchmarking/contracts.py` | Protocol, provenance, common support and approval contracts |
 | `methods.py`, `treeloom.py` | Actual method adapters and the selected model API |
+| `paired.py`, `argformer_recipe.py`, `european_recipes.py` | Source-backed paper recipes and one shared observed parent per paired comparison |
+| `targets.py` | Sampled-example TRAIN targets bound to the parent and sampling registry |
 | `data.py` | Ordered observed-parent descriptors and CPU data-loading policy |
 | `scheduler.py`, `idle_preflight.py` | Persistent single-GPU queue and cheap blocked-resource checks |
 | `metrics.py` | Common ancestry metrics and paired-support validation |
@@ -42,6 +44,8 @@ A protocol fixes independent simulation parents before sampling trees, windows o
 American three-source ancestry and European four-source ancestry are separate tasks. Native AncestralPaths six-path probabilities can be collapsed to four sources only through an explicit partition. That is a derived endpoint. It is not the native six-path task.
 
 Record each method's training regime, author source revision, settings, checkpoint selection and any adaptation. Native ARGformer learns from observed data per ARG. TreeLoom amortizes supervised learning over training simulations. This is a pipeline comparison. It does not isolate architecture as the only cause of a difference.
+
+[Paper recipes](paper_benchmark_recipes.md) are separate from the old reconstruction protocols. Native AncestralPaths six-path targets and sampled-example supervision have maintained interfaces. The historical exact-span loss remains confined to protocols that specify it. A native TRAIN sampler may use declared class quotas. Evaluation support must be fixed without query truth and before predictions.
 
 A reconstructed common-data experiment is labelled as such. Missing publication parameters block an exact-paper reproduction claim. The current ARGMix release differs from its original preprint. Released AncestralPaths code differs from the paper's stated network. These differences remain visible.
 
@@ -80,4 +84,13 @@ export CUDA_VISIBLE_DEVICES=""
 .runtime/env/bin/python -B -s -m unittest discover -s tests -p "test_benchmark_*.py"
 ```
 
+Also run `test_paper_*.py` and `test_european_recipes.py` with the same environment. The latter verifies the configurable generator through an in-memory fake simulator and writer. The sampled-loss smoke test imports CPU Torch for a tiny analytic loss/gradient check. Planning imports no scientific runtime.
+
 The suite uses tiny synthetic labels and metadata plus fake process runners. It does not perform a benchmark, train a model, read real genotype/truth payloads or allocate CUDA memory.
+
+Last verification, 18 October 2026: 137 focused tests passed in 4.15 seconds.
+The final shared-input integration adjustment then passed all 14 affected tests.
+All three paper-plan commands and the status command passed without importing
+Torch, NumPy, msprime or tskit. The tiny sampled-loss test used CPU Torch and
+left CUDA uninitialized. Independent source review passed for code preparation.
+No benchmark queue exists and execution approval remains false.

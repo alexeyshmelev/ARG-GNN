@@ -10,7 +10,9 @@ The maintained interface is [src/arggnn/benchmarking](src/arggnn/benchmarking). 
 
 - [Workflow and release procedure](docs/benchmark_workflow.md)
 - [Method implementations and adaptations](docs/benchmark_methods.md)
-- [Protocol configurations](configs/benchmarks/protocols)
+- [Paper recipes and remaining scientific gaps](docs/paper_benchmark_recipes.md)
+- [Model lineage and lessons](docs/model_history.md)
+- [Historical reconstruction protocols](configs/benchmarks/protocols)
 - [Execution hold](configs/benchmarks/execution_policy.json)
 - [Complete prior research history](docs/research_history_before_benchmark_refactor_20261018.md)
 
@@ -22,10 +24,12 @@ On anogena, inside the dedicated repository:
 source scripts/project_env.sh
 export PYTHONPATH=.:src:scripts
 .runtime/env/bin/python -B -s -m arggnn.benchmarking methods
-.runtime/env/bin/python -B -s -m arggnn.benchmarking protocols
-.runtime/env/bin/python -B -s -m arggnn.benchmarking plan american_c3_full30mb
+.runtime/env/bin/python -B -s -m arggnn.benchmarking paper-recipes
+.runtime/env/bin/python -B -s -m arggnn.benchmarking paper-plan ancestralpaths_european
 .runtime/env/bin/python -B -s -m arggnn.benchmarking status
 ```
+
+The new paper plans generate each independent simulation once and share its observations, reference/query panel and frozen evaluation targets across methods. They preserve the native three-source, four-source and six-path tasks separately. Fresh seeds are permitted. The AP generator now supports the paper's 200 Mb length, complete age roster and 170-generation BAA event. Other material publication gaps remain listed in the plan and [recipe notes](docs/paper_benchmark_recipes.md).
 
 These commands inspect small metadata. They do not train models or load scientific datasets. The plan reports missing data products, method constraints and unresolved publication details. Production enqueue also stays closed until the real per-family admission adapters are integrated and reviewed. This release prepares and smoke-tests the interfaces and does not claim launch readiness. A historical admission never overrides the current user hold.
 

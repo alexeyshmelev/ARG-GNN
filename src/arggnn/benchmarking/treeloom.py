@@ -113,12 +113,13 @@ EUROPEAN_MODEL_REF = {
 EUROPEAN_CONDITIONS = {
     "european_c4_prospective1611": "ARGMix_prospective1611",
     "european_c4_expanded": "benchmark_european_c4_expanded",
+    "ancestralpaths_paper200mb_native6": "AP_paper_scale_200Mb_native6",
 }
 _european_implementation = None
 
 
 def _european_module():
-    """Load unchanged C4 equations privately; add only the explicit2Mb binding."""
+    """Load unchanged European equations with explicit endpoint/length bindings."""
     global _european_implementation
     verify_implementation()
     if _european_implementation is None:
@@ -191,7 +192,7 @@ def _install_european_bounded_history(memory, *, resource_check, profile):
 
 def build_european_model(protocol_id, *, execution_mode="bounded_history",
                          resource_check=None, profile=None):
-    """Construct real C4 H050 math on CPU; never import the C3-specific executor.
+    """Construct frozen European H050 math, including the native six-path head.
 
     bounded_history reuses the pinned class-independent recurrence/VJP. It does
     not claim bounded observation/tree storage or measured European GPU fit.
@@ -214,13 +215,15 @@ def build_european_model(protocol_id, *, execution_mode="bounded_history",
 
 
 def make_european_bundle(bank, episodes, cut, *, protocol_id, parent_id, split, source_refs):
-    """Bind caller-prepared complete observations to the actual C4 model API."""
+    """Bind complete observations to the frozen European model API."""
     if protocol_id not in EUROPEAN_CONDITIONS:
         raise ValueError("Explicit supported European protocol required")
     implementation = _european_module()
     memory = implementation.memory_core
+    native_split = {"train": "train", "validation": "val_prediction",
+                    "test": "evaluation_prediction"}.get(split, split)
     bundle = implementation.FrozenEuropeanBundleV1(
-        bank, episodes, cut, EUROPEAN_CONDITIONS[protocol_id], parent_id, split,
+        bank, episodes, cut, EUROPEAN_CONDITIONS[protocol_id], parent_id, native_split,
         dict(source_refs), memory._stamps(implementation._bank_tensors(bank)),
         memory._stamps(implementation._episode_tensors(episodes)))
     bundle.validate()
@@ -228,7 +231,7 @@ def make_european_bundle(bank, episodes, cut, *, protocol_id, parent_id, split, 
 
 
 def european_forward(model, bundle, *, resource_check):
-    """Original complete C4 forward under a future admitted worker."""
+    """Original complete European forward under a future admitted worker."""
     if not callable(resource_check):
         raise ValueError("The admitted worker resource callback is required")
     implementation = _european_module()
@@ -241,14 +244,32 @@ def european_forward(model, bundle, *, resource_check):
 
 
 def train_european_step(model, bundle, target_mass, optimizer, *, resource_check):
-    """One whole-parent C4 update, retaining the existing exact-span loss.
+    """Retain the historical exact-span objective for its declared protocols."""
+    from arggnn.biological_gst_control_v1 import exact_span_loss
+    return _train_european_update(model, bundle, target_mass, optimizer,
+                                  resource_check=resource_check, loss_function=exact_span_loss)
+
+
+def train_european_sampled_step(model, bundle, targets, optimizer, *, resource_check, sampled_registry_ref):
+    """Paper-style sampled-example objective on the same frozen TreeLoom model."""
+    from .targets import SampledFocalTargets, sampled_focal_loss
+    if (not isinstance(targets, SampledFocalTargets)
+            or tuple(model.output_classes) != targets.class_order):
+        raise ValueError("Training label classes must match the native task output head")
+    targets.validate_binding(parent_id=bundle.parent_id, split=bundle.split,
+                             sampled_registry_ref=sampled_registry_ref)
+    return _train_european_update(model, bundle, targets, optimizer,
+                                  resource_check=resource_check, loss_function=sampled_focal_loss)
+
+
+def _train_european_update(model, bundle, targets, optimizer, *, resource_check, loss_function):
+    """One whole-parent update with its explicitly selected supervision objective.
 
     The caller separately joins TRAIN targets and owns the finite protocol,
     parent order, checkpoint barrier and actual GPU0 admission. No labels enter
     make_european_bundle. This function performs no file or checkpoint reads.
     """
     import torch
-    from arggnn.biological_gst_control_v1 import exact_span_loss
     if bundle.split != "train" or type(optimizer) is not torch.optim.AdamW:
         raise ValueError("Genuine TRAIN parent and native AdamW required")
     params = list(model.parameters())
@@ -264,9 +285,9 @@ def train_european_step(model, bundle, target_mass, optimizer, *, resource_check
     optimizer.zero_grad(set_to_none=True)
     with torch.autocast(device_type=next(model.parameters()).device.type, enabled=False):
         logits = european_forward(model, bundle, resource_check=resource_check)
-        loss = exact_span_loss(logits, target_mass)
+        loss = loss_function(logits, targets)
     if not bool(torch.isfinite(loss)):
-        raise ValueError("Finite whole-parent exact-span loss required")
+        raise ValueError("Finite whole-parent training loss required")
     resource_check("benchmark_European_TreeLoom_backward")
     loss.backward()
     if any(p.grad is None or not bool(torch.isfinite(p.grad).all()) for p in params):
