@@ -1,6 +1,6 @@
 # Current scientific scoreboard
 
-Updated UTC: 2026-10-17T01:27:59.012488+00:00
+Updated UTC: 2026-10-17T02:19:58.805820+00:00
 
 [All measured cohort details](#detailed-cohort-metrics) · [Complete historical receipt inventory](all_recorded_metric_receipts.md) · [Fresh H048 novelty/cross-domain audit](../research/reviews/H048_novelty_crossdomain_fresh_20261015_v1/report.md)
 
@@ -480,11 +480,11 @@ Completed all3models x100epochs/100updates,300totalupdates. TEST NDCG@10: first_
 
 ## H061 Chickenpox selected validation training milestone
 
-All six Chickenpox fits completed and TRAIN completion was genuinely accepted: 40 epochs and 800 updates each, 4800 total. Selected VAL MAE is 15.968411 ± 0.061488 cases for TreeLoom and 16.059604 ± 0.075709 for NoMem across three initialization seeds. The TRAIN-only fixed comparator freeze passed actual admission0 with all 62 bindings and its exact supervisor was launched once. Freeze completion, TEST predictions and separate TEST scoring remain pending. These are forecasts, not ancestry accuracy.
+All six Chickenpox fits and the TRAIN-only comparator freeze completed with actual worker/supervisor 0, owned drain and ROOT acceptance. Each core fit trained 40 epochs and 800 updates, for 4,800 total. Selected VAL MAE is 15.968411 +/- 0.061488 cases for TreeLoom and 16.059604 +/- 0.075709 for NoMem, with sample SD across three initialization seeds. TEST prediction passed actual admission 0 with all 63 bindings, and its exact supervisor is launched. All 6 candidate, 6 chronology and 3 fixed-comparator predictions must complete before separate TEST scoring. No TEST score or ancestry accuracy is available.
 
 Full selected VAL MAE 15.968411 ± 0.061488 (n=3) cases; RMSE 25.520040 ± 0.261292 (n=3) cases (3/3 initialization seeds); NoMem selected VAL MAE 16.059604 ± 0.075709 (n=3) cases; RMSE 25.929755 ± 0.270482 (n=3) cases (3/3 initialization seeds). Sample SD is across completed seeds at their own selected epoch; TEST withheld.
 
-These are selected validation count forecasts on 78 weeks and all 20 counties, using 52 past weeks and a TRAIN-only scaler. They are not TEST results or ancestry accuracy. TRAIN completion accepted after actual worker/supervisor 0 and owned drain. Comparator freeze and separately authorized TEST prediction/scoring remain pending. Registered budget: AdamW learning rate 0.001, weight decay 0.0001, six fits of 40 epochs and 800 updates each, 4,800 total updates; CPU 223, one thread, FP32.
+These are selected validation count forecasts on 78 weeks and all 20 counties, using 52 past weeks and a TRAIN-only scaler. They are not TEST results or ancestry accuracy. TRAIN and the TRAIN-only comparator freeze are accepted after actual worker/supervisor 0 and owned drain. TEST prediction and scoring states are reported above. Registered budget: AdamW learning rate 0.001, weight decay 0.0001, six fits of 40 epochs and 800 updates each, 4,800 total updates; CPU 223, one thread, FP32.
 
 Snapshot UTC: 2026-10-17T00:18:22.218161+00:00; 6/6 completed fits of 40 epochs, 4800/4800 updates verified from completed-fit metadata.
 
@@ -549,7 +549,7 @@ H048 retains 31,933 parameters per arm and a fixed 30-pass/960-update schedule. 
 
 | Method | Current ancestry scores | Status |
 |---|---|---|
-| Native ARGformer | unavailable | Native ARGformer remains running on physical GPU 0. A stable read-only saved checkpoint observation verifies 156,500 of 227,990 AdamW updates across all 77 optimizer parameter states, 65,500 more than the prior 91,000 audit and 134,500 since the current 22,000-step resume. Full training and ancestry scoring remain incomplete. This counter is not ancestry accuracy. |
+| Native ARGformer | unavailable | Native ARGformer remains running on physical GPU 0. A stable read-only saved checkpoint verifies 170,000 of 227,990 AdamW updates across all 77 optimizer parameter states, 13,500 more than the prior 156,500 audit and 148,000 since the current 22,000-step resume. Full training and ancestry scoring remain incomplete. This counter is not ancestry accuracy. |
 | Native ARGformer dataset counts | not an accuracy run | completed; actual count producer wait0 and drain verified |
 | Native FLARE | 98.0100% focal accuracy | Completed fixed native-call score on one VAL parent, not a multi-parent paper-table reproduction. Macro F1 97.7151%. Held-out VAL000 conversion: completed; actual wait0 and owned-group drain verified. Inference: completed; actual wait0 and owned-group drain verified. Prediction seal: prediction worker completed; direct wait0 and owned-group drain verified, outer tool terminal/final guard unconfirmed. The GNN/ARGformer comparison remains pending. |
 | Our C3 GNN | unavailable | All five original 30 Mb observation plans completed and closed. Five prediction supervisors remain live. ROOT authenticated 6 of30 complete checkpoint-by-parent prediction products, each on the original10000focals, before any validation truth. This is the earlier saved600 backbone, not final TreeLoom. No ancestry score yet. Original full 30 Mb VAL000 observation preparation is complete. Full prespecified prediction/scoring gate pending. |

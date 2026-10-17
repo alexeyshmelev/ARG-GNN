@@ -1,0 +1,13 @@
+# ROOT handoff for reviewed FLARE v3
+
+Authenticate this review manifest and review.v3.json, then authenticate the exact current driver, source manifest and handoff. Use this independent SOURCE_PASS envelope in the original reviewed(record) contract. The prior v2 blocked package and its reproduction remain immutable; its sole late-evidence logging blocker is resolved in v3.
+
+The initial future scope is one separately ROOT-authorized fresh VAL001 conversion. Preserve failed tool12977, all old scopes/files/key/clocks and its889641408-byte charge. Cancellation signal and exact converted sites for that old attempt remain UNKNOWN; it is no completion or resume point. ROOT must explicitly accept/revoke its old launch/resume/write capabilities through the exact prior-failure acceptance join.
+
+Follow the authenticated v3 source ROOT_RECIPE.md for fresh disjoint preparation/packet/output namespaces, original target metadata and registration, the exact current Relate selector, independent review, runtime and separate directive/request. Preserve all original scientific settings,227316 sites,1600 haplotypes,600reference/1000query,10000focals, gzip behavior, CPU/RSS/output caps and all scientific barriers.
+
+VAL001 convert request/directive phase_budget must remain setup7200/scientific3600/wall4200/combined11400/evidence300/authority-margin600 seconds. Admission and execution entry require the whole combined budget plus margin; READY requires the full original work budget plus margin. These are failstops, not measured setup/capacity fits. Complete role union is60 for convert,63 for native and64 for seal; actual future roles must still fit the original64 ceiling with no omissions.
+
+ROOT alone owns fresh current metadata, capacity, authority and any actual admission/execution. Only genuine admission0 permits its exact emitted one-shot execution argv. Consume real worker/adopted and outer terminal outcomes, require complete owned drain and genuine full converter completion, and preserve every operational failure. V3 late-evidence output retains the current signal/cutoff/exception and any prior failure while still returning1. No ordinary close/credit, native/seal continuation, remaining VAL truth, TEST, scoring, retry/resume or ranking is authorized here. Later stages retain separate original predecessor/close/barrier requirements.
+
+This source review ran no entrypoint, guard, actual state/mutex/resource/process observation, payload or private-truth read, numerical import/test, admission/job/install or Git operation. Real elapsed improvement and setup fit remain unmeasured.

@@ -1,0 +1,5 @@
+# Blocked v2 source handoff
+
+Do not activate this candidate. The sole blocker is FLARE_V2_LATE_EVIDENCE_STALE_CLOCK in root_driver_v1.py lines317–319: the terminal evidence catch returns failure1 but prints earlier clock and operational_failure fields. Exact AST-only fixtures preserve the known late cancellation15 and evidence-cutoff metadata in the fixture input, and demonstrate that the printed observation loses them. Genuine wait/drain facts and failure status remain truthful.
+
+Preserve v2 and this blocked review unchanged. ROOT has directed fresh v3 containing only the late-evidence metadata refresh and required fresh source identity joins. Review that exact delta and authenticated current references against the whole v2 source checks; no new bridge or numerical campaign is needed. A v3 SOURCE_PASS must still be separate from any future ROOT authority, admission or execution. The intended first future operation remains a separately authorized fresh VAL001 conversion with original full science and caps. No live operation, guard, payload read or numerical work ran here.
