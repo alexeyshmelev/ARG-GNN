@@ -1,0 +1,11 @@
+# ROOT source-only batch admin preparation
+
+This builder only turns ROOT's explicit fresh measurements and authorization into compact immutable authority metadata and corrected argv. It imports no project/guard module and performs no resource/process/slot/GPU/accounting probes. Default invocation is inactive. The builder itself is newly authored; its11 author RAM checks are not an independent review of the builder. The separately sealed batch SOURCE_PASS covers the actual3 batch executables/manifest.
+
+ROOT must hold exclusive accounting mutation coordination until the actual batch coordinator is registered. Fill the inactive actual-parameter template with an actual scope_id, two disjoint available8CPU lanes, genuine admissible_new_bytes>=33554432, aware actual_capacity_observed_at_utc within5minutes, finite expires_at_utc<=48hours, and true explicit once/exclusivity/manual-coordinator/corrected-command declarations. Fresh measurements remain ROOT's responsibility; the builder never invents them.
+
+Run ROOT_batch_admin_builder_v1.py with --build-once-parameters-json containing that exact actual JSON. It exclusively creates ROOT_once_<scope>/actual_parameters.json and batch_authority.json and prints admission_argv. It does NOT admit. Under ROOT external monitored execution, run that printed argv once from the repository with PYTHONPATH=.:src:scripts. Consume genuine admissionOS0; do not replay uncertainty. Original admission checks actual affinity/source/pass/capacity metadata and genuinely registers32MiB and coordinator. The actual resulting input_ref comes only from that command.
+
+Given the genuine admitted input_ref, --run-argv-from-admitted-input-ref prints the corrected v2 run argv only. ROOT consumes genuine admissionOS0 before launching the returned batch input in a dedicated externally monitored session. Original run_batch performs live journal/coordinator checks. Every manual ROOT accounting capture+authority+apply uses worker_entry_v1.accounting_transaction(genuine_input_ref). The final batch external terminal remains mandatory before later stages/eventual admin close.
+
+No new source is loaded inside the admitted producer route; builder provenance is captured by this sealed handoff and produced immutable authority. The batch source manifest remains6742dc3b8841d7b2ebfbcdce64aaf2d362548b1d1133eaf42b82b1e1ff6a868a.

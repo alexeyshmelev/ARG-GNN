@@ -41,3 +41,14 @@ VAL003 seal50140 and VAL004 seal48034 both returned0, with original scientific w
 ## Full-length data launcher actual failure
 
 H062 v4 admission80281 returned1 before reserve. The original budget validator rejects .lock synchronization files as source/runtime authority bindings. ROOT authenticated that the complete22event original journal and47roles are unchanged, no reservation receipt/input/scientific output exists, and no simulation worker started. The old request/names/source/review/failure remain preserved and cannot be replayed. A minimal fresh v5 repairs binding representation while retaining the original two-producer locks. Independent review will exercise the full original reserve request validator. No full30Mb model training is running yet.
+
+
+## Latest accepted full-length progress,17October
+
+Native FLARE finished all five original30Mb validation parents. Accuracy is98.0960 ± 0.3442%, macro F197.9196 ± 0.4059%. Population F1 is97.5579 ± 0.4452% EUR,98.6101 ± 0.2463% EAS and97.5909 ± 0.6883% AFR. These equal-parent means and sample SD use10,000 fixed focal targets per parent, ddof1, with previously exposed VAL000 retained. Native hard calls and raw rounded posterior values are unchanged. Raw ANP NLL is infinite because true-class zeros were retained. Exact publication-table reproduction is not claimed. The genuine score worker/direct/outer0 and full drain are accepted in FLARE_all5_v2_score_actual_outer0_consumed.root_v1.json.
+
+Full30Mb TRAIN001 simulation completed with worker/supervisor/outer0 and drain. Original ordinary close retained445,702,144bytes and released6,554,297,856bytes, confirmed against all27original journal events. No files were deleted. TRAIN001 inference supervisor258023/worker258730 and remaining18simulation controller261136 have been launched. All future ROOT accounting uses the actual batchv3 coordinator from admitted inputdfd6ced4... .
+
+Frozen TreeLoom qualification admitted0 but parent33236 returned1 before scientific worker/CUDA, due30s owner-status RPC timeout while the empty controller repeatedly blocked on global accounting. No optimizer update or ancestry score was produced. The failed namespace/64MiBcharge remain preserved and its future routes revoked. A new service adapter is being prepared while all nine scientific trainer modules, architecture, runtime and config stay frozen. The old empty owner was stopped by exact pidfd signals after known borrowers drained. Actual owner worker-9 and supervisor1 must remain nonzero.
+
+The older H060 global-only transfer also returned1 before optimization at an aggregate JSON cap, with drain. Its failure is preserved without replay. CPU all20 preparation and full600 continuation sources are under independent review, with concrete blocked cases retained. Substantial600-update training, American TreeLoom/ARGformer scores and overall superiority are still unproved.

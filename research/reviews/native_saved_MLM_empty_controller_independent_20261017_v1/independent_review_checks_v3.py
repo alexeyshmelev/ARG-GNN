@@ -474,10 +474,10 @@ def independent_v3_timing():
     b=ast.parse((ROOT/V2/'empty_gpu0_controller_v1.py').read_text().replace(V2,old))
     def age_node(tree):
         fn=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='serve_v1')
-        return fn,fn.body[4]
+        return fn,next(n for n in fn.body if isinstance(n,ast.Expr)and isinstance(n.value,ast.Call)and any(isinstance(a,ast.Constant)and isinstance(a.value,str)and ('known-root certificate120s' in a.value or 'Finite ROOT-authorized known-root roster' in a.value)for a in n.value.args))
     old_fn,old_age=age_node(a);new_fn,new_age=age_node(b)
     assert '120' in ast.unparse(old_age)and 'Finite ROOT-authorized' in ast.unparse(new_age)
-    old_fn.body[4]=new_age
+    old_fn.body[old_fn.body.index(old_age)]=new_age
     assert ast.dump(a,include_attributes=False)==ast.dump(b,include_attributes=False)
     CHECKS.append('v3_complete_owner_AST_only_namespace_and_exact_timing_predicate_delta')
     assert (ROOT/old/'owner_parent_v1.py').read_bytes()==(ROOT/V2/'owner_parent_v1.py').read_bytes()

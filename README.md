@@ -21,10 +21,40 @@ The main paper presents the selected final model, completed competitors and coho
 | ARGMix, European local ancestry | Current author release on shared reconstructed 2 Mb simulations. TreeLoom 97.0778 ± 0.5674%, ARGMix 94.4461 ± 1.1491% modern span accuracy over eight reused validation parents. | Publication conditions include a different cohort, error model, recombination map and 25 references plus 3 ancestors. The public release uses 15 references and no ancestors. Independent tests and publication-condition experiments remain unfinished. This is no exact paper-table reproduction. |
 | AncestralPaths, European local ancestry | Released dense network on those shared simulations, 93.7830 ± 0.8385% on a derived four-source span endpoint. | The paper describes a CNN and 200 Mb sequences. Recovering that recipe and testing its native six-path endpoint remain necessary. The four-source conversion and sampling difference are disclosed. |
 | ARGformer, American local ancestry | Native per-ARG self-supervised training completed five epochs for one 30 Mb parent. The existing saved model will be reused. | Native contrastive training, embeddings, retrieval and ancestry scoring are unfinished. All five parents are needed for the planned comparison. No American ARGformer accuracy is available. |
-| FLARE, American local ancestry | Native inference completed all five 30 Mb parents. All five prediction files are ready for scoring. VAL000 alone scored 98.0100% focal accuracy and 97.7151% macro F1. | Score the frozen common focal positions across all five completed prediction files. This is a common-data reconstruction, with publication evaluator details still unresolved. |
-| Frozen TreeLoom, American local ancestry | The selected architecture is frozen. Original full 30 Mb TRAIN000 data are available and TRAIN001 simulation is running. Existing H060 remains a separate 2 Mb to 30 Mb transfer experiment. | Complete the 20 full-length TRAIN parents, train the fixed model for 30 passes and score the same five observed VAL parents, queries and focal support as native competitors. No American TreeLoom ancestry score is available. |
+| FLARE, American local ancestry | Native inference and scoring completed all five30Mb VAL parents. Accuracy98.0960 ± 0.3442%, macro F197.9196 ± 0.4059%. | TreeLoom and ARGformer scores on the identical focal targets remain pending. This is a common-data reconstruction, with publication evaluator details unresolved. |
+| Frozen TreeLoom, American local ancestry | The selected architecture is frozen. Original full30Mb TRAIN000 data are available and TRAIN001 simulation completed. Inference and the remaining simulation controller were launched. Existing H060 remains a separate 2 Mb to 30 Mb transfer experiment. | Complete the 20 full-length TRAIN parents, train the fixed model for 30 passes and score the same five observed VAL parents, queries and focal support as native competitors. No American TreeLoom ancestry score is available. |
 
 SD above is across eight simulation parents, with one optimizer seed. These European development gains do not establish superiority on the papers' original benchmarks. [Detailed source and algorithm audit](research/reviews/competitor_fidelity_user_audit_20261016_v1/comparison_matrix.md) · [Simulation audit](research/reviews/European_simulation_primary_source_audit_20261017_v1/REPORT.md).
+
+<!-- FROZEN_BENCHMARK_PROGRESS_START -->
+## Frozen benchmark execution
+
+Updated UTC: 2026-10-17T18:10:58.985078+00:00. Physical GPU 0 only.
+
+| Stage | Current verified status |
+|---|---|
+| Frozen TreeLoom architecture | Unchanged H050 stable_leaf_memory model. Full-length bounded execution preserves original equations. |
+| Full TreeLoom training | Not started. Fixed budget:20 complete30Mb TRAIN parents,30 passes,600 updates, fresh weights. Requires successful complete-parent qualification and all20 prepared observations. |
+| Full-length American data | TRAIN000 ready. TRAIN001 simulation completed and closed successfully. TRAIN001 inference supervisor launched. Remaining18 simulation controller launched, units queued before admission. |
+| Native ARGformer | Five native MLM epochs/227,990 saved updates completed for VAL000 only. Saved artifact accepted for contrastive initialization. Contrastive training, embeddings and ancestry scores pending. |
+| Native FLARE | All five30Mb VAL predictions scored successfully.50,000 fixed focal targets total. Metrics below. |
+| Old short-to-long transfer | H060 global-only v2 failed before optimization at JSON observation-record limit. Failure preserved. No automatic retry. |
+| Remaining CPU preparation | Continuation covers37 inference/native-path stages. First source version blocked in independent review; corrected actual metadata-entry checks in progress. |
+| TreeLoom GPU qualification | Failed before model worker/CUDA: owner status RPC blocked by periodic global bookkeeping. Zero optimizer updates. Owner service correction in progress. |
+
+**Native FLARE, five American validation simulations:** accuracy 98.0960 ± 0.3442% and macro F1 97.9196 ± 0.4059%.
+
+| Population | Precision % | Recall % | F1 % |
+|---|---:|---:|---:|
+| EUR | 97.3671 ± 0.5621 | 97.7505 ± 0.4517 | 97.5579 ± 0.4452 |
+| EAS | 98.5230 ± 0.2364 | 98.6975 ± 0.2639 | 98.6101 ± 0.2463 |
+| AFR | 98.2167 ± 0.5343 | 96.9760 ± 1.0077 | 97.5909 ± 0.6883 |
+
+Equal weight per simulation, 10,000 fixed focal records each. SD is across five simulation parents, with ddof 1. VAL000 was previously exposed. This is a common-data development comparison, with no exact publication-table reproduction claimed.
+[Complete aggregate](experiments/results/FLARE_original5VAL_aggregate_root02_memo_oct17/FLARE_original5VAL_descriptive_aggregate.json).
+
+The substantial TreeLoom schedule is 20 full 30 Mb TRAIN parents and 30 passes, or 600 complete-parent updates from fresh weights. A disposable one-update check is not representative training. No overall top-1 claim is established.
+<!-- FROZEN_BENCHMARK_PROGRESS_END -->
 
 ## Latest status
 
@@ -34,26 +64,26 @@ SD above is across eight simulation parents, with one optimizer seed. These Euro
 
 **Latest completed European development result:** modern span accuracy is **97.0778 ± 0.5674%** for TreeLoom, **94.4461 ± 1.1491%** for current ARGMix and **93.7830 ± 0.8385%** for the released dense AncestralPaths model on the derived four source endpoint. TreeLoom-NoMem reaches **97.0000 ± 0.4978%** and has higher boundary F1: **19.0488 ± 1.4275%**, versus **18.3807 ± 1.3141%** for TreeLoom. These are eight reused validation simulations and one optimizer seed. Inputs and training differ between pipelines. [Detailed results and interpretation](research/reviews/H050_completed_comparison_root_20261016_v1/REPORT.md).
 
-**Native ARGformer status:** completed pretraining for one 30 Mb ARG, with **227,990 saved AdamW updates** over five epochs. The saved checkpoint will be reused. Contrastive training and ancestry scoring have not started. A launch timing issue was identified before starting the new GPU 0 owner, and its narrow operational correction is being prepared. The original successful worker and failed final supervisor check remain separately recorded. [Timing finding](research/reviews/native_saved_MLM_empty_controller_independent_20261017_v1/review.v2.timing_blocker.addendum.v1.json).
+**Native ARGformer status:** five native MLM epochs produced 227,990 saved updates for one full30Mb VAL000 ARG. Its checkpoint is accepted for contrastive initialization, with the original successful worker and failed supervisor preserved. Contrastive training, embeddings and ancestry scoring are pending. The GPU owner service is being corrected after a status RPC timeout before TreeLoom's model worker started.
 
-**American comparison:** all five original 30 Mb observation plans and all five native FLARE prediction files are complete. The all-five FLARE payload freeze is running before aggregate scoring. Frozen TreeLoom training is being prepared on full-length simulations. The earlier backbone's 27 saved predictions are retained as historical products and do not stand in for the frozen model. No American TreeLoom or ARGformer accuracy is available yet.
+**American comparison:** native FLARE scored all five full30Mb validation simulations: **98.0960 ± 0.3442% accuracy** and **97.9196 ± 0.4059% macro F1**, with sample SD across five parents. Each parent has10,000 fixed common focal targets. Frozen TreeLoom full-length training and native ARGformer ancestry scores remain pending.
 
-**Full model transfer:** H060 global-only v2 remains live with 1,200 additional updates scheduled, 600 per arm over 20 original TRAIN parents. No new optimizer update or ancestry score is verified. The older legacy-fast run failed before training while saving an oversized observation-barrier record. The failure is preserved and a compact durable commitment is an inactive future repair. [Diagnosis](research/reviews/H060_legacy_fast_failure_diagnosis_20261017_v1/diagnosis.v1.json).
+**Full model transfer:** H060 global-only v2 failed before its first optimizer update when the full observation record exceeded its JSON limit. Actual outer1 and owned drain are recorded. No new update or ancestry score was verified, and this route is not being replayed.
 
 **Current-core cross-domain trial, H061:** six 40-epoch fits completed 4,800 updates. On the fixed 79-week/20-county TEST, Full MAE is 13.907918 ± 0.242561 cases and NoMem 13.648097 ± 0.050932. Full has lower RMSE, 24.268971 ± 0.094496 versus 24.408159 ± 0.106380 cases. Sample SD spans three initialization seeds. The registered memory utility criterion failed. [Accepted scores](research/reviews/H061_score_ROOT_acceptance_20261017_v1/score_acceptance.root_active_v1.json).
 
-**Remaining FLARE benchmark:** native inference is complete for **all five** original American VAL simulations, with actual successful worker/outer waits and owned drain. **Five of five** prediction products are sealed. All five prediction finalizations completed. VAL003/004 worker and outer waits returned0 with owned drain. Aggregate scoring is next. No new multi-parent score is available. VAL000 remains 98.0100% accuracy and 97.7151% macro F1. [Current execution](research/reviews/research_execution_ROOT_20261017_v34/REPORT.md).
+**Completed FLARE benchmark:** all five original native prediction products were scored with worker and outer0 plus full drain. F1 is97.5579 ± 0.4452% EUR,98.6101 ± 0.2463% EAS and97.5909 ± 0.6883% AFR. SD is across five simulations. Raw rounded native posteriors include zero true-class probabilities, so their unfloored NLL is infinite. [Complete metrics](experiments/results/FLARE_original5VAL_aggregate_root02_memo_oct17/FLARE_original5VAL_descriptive_aggregate.json).
 
 **Independent European test:** the first of eight reserved parents passed its dedicated saved-observation validator with worker and outer exit 0 plus owned drain, then separate observed-only artifact acceptance. The original supervisor failure and unknown historical worker/drain are preserved. All 952 samples, 686 queries and the original scoring grid were validated without regenerating observations or opening test truth. Seven other parents and all test scoring remain unfinished. [Observed-data acceptance](research/reviews/research_execution_ROOT_20261017_v30/H059_saved_outer000_observed_artifact_acceptance.root_active_v1.json).
 
-**Frozen model:** TreeLoom H050 stable_leaf_memory is fixed, with final epoch 30 fixed before the five scored American parents' truth. The full 30 Mb TRAIN001 simulation is running on CPU. This is data generation, not neural training. TRAIN000 will be reused. The separate H060 transfer uses 20 × 2 Mb TRAIN simulations. [Actual full-length launch](research/reviews/research_execution_ROOT_20261017_v34/H062_TRAIN001_v5_execution_once_invocation.root_v1.json).
+**Frozen model:** TreeLoom H050 stable_leaf_memory is fixed, with final epoch30 fixed before scoring its American predictions. Full30Mb TRAIN001 simulation completed, inference was launched, and the remaining18 simulation controller was launched. The bounded complete-TRAIN000 qualification failed before model code because the empty GPU owner's periodic accounting blocked its status reply. Zero updates were made. The owner service is being repaired. The600-update training run has not started.
 
 **European simulation source audit:** the complete public 476-person age roster and all 40 TRAIN/VAL seed records are now traced. Our condition uses the released 2 Mb example, while the AncestralPaths paper describes 200 Mb. The paper and code also differ at the BAA pulse, 170 versus 169 generations. The ARGMix 1,611-person panel, empirical map, genotype error and demographic perturbations remain distinct. [Exact primary-source findings](research/reviews/European_simulation_primary_source_audit_20261017_v1/REPORT.md). This does not establish publication reproduction.
 
 **Current focus:** benchmark the frozen selected TreeLoom architecture under the publication conditions where recoverable, with independent tests and native competitors. H062 adds full 30 Mb American training. The architecture search is stopped. Current European development results establish no overall top-1 or novel-operator utility.
 
 <!-- CURRENT_SCOREBOARD_START -->
-**Scoreboard updated UTC: 2026-10-17T16:52:22.350707+00:00.** [Every current setup, all cohorts and detailed metrics](research/current_scoreboard.md) · [Native class metrics and training-lineage audit, frozen17-setup snapshot](research/reviews/root_score_report_20261015_v1/REPORT.md) · [All recorded historical/engineering metric receipts](research/all_recorded_metric_receipts.md)
+**Scoreboard updated UTC: 2026-10-17T18:11:28.578297+00:00.** [Every current setup, all cohorts and detailed metrics](research/current_scoreboard.md) · [Native class metrics and training-lineage audit, frozen17-setup snapshot](research/reviews/root_score_report_20261015_v1/REPORT.md) · [All recorded historical/engineering metric receipts](research/all_recorded_metric_receipts.md)
 
 
 **New same-marker model:** H058 architecture variant stopped under the frozen TreeLoom benchmark directive. Actual outer241, worker-15 and complete owned drain are verified. No new update or ancestry score was verified. All files, charges and original failure are preserved, with no retry. [Actual FP32 result](research/reviews/H058_actual_one_hold_ROOTv4_qualification_20261016_v1/REPORT.md).

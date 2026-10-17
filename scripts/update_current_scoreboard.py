@@ -1740,6 +1740,8 @@ def main():
     text="".join(completion_row+"\n" if line.startswith(completion_prefix) else line
         for line in text.splitlines(keepends=True))
     p.write_text(text)
+    from update_frozen_benchmark_progress import publish
+    publish()
     print(json.dumps(dict(current_setups=len(models),cohorts=len(COHORTS),recorded_metric_receipts=len(inventory),live_jobs=jobs,updated_utc=stamp)),flush=True)
 if __name__=="__main__":
     main()
