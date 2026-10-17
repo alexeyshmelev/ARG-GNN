@@ -1,0 +1,168 @@
+--- research/reviews/H058_GPU0_full_training_successor_source_20261017_v4/common_v1.py
++++ research/reviews/H058_GPU0_full_training_successor_source_20261017_v5/common_v1.py
+@@ -3,7 +3,7 @@
+ from datetime import datetime,timezone
+ import ast,hashlib,importlib,importlib.util,io,json,os,stat,sys,time,types
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-HERE="research/reviews/H058_GPU0_full_training_successor_source_20261017_v4"
++HERE="research/reviews/H058_GPU0_full_training_successor_source_20261017_v5"
+ SOURCE=HERE+"/common_v1.py"
+ DRIVER=HERE+"/root_driver_v1.py"
+ CONTEXT=HERE+"/context_factory_v1.py"
+@@ -273,14 +273,14 @@
+         and q.get("root_authorizer")=="root_agent" and q.get("execution_authorized") is True
+         and q.get("phase") in FIXED_PHASES and q.get("source_review_passed") is True
+         and q["adapter_manifest_ref"]==ref(MANIFEST),"Explicit fresh reviewed H058 ROOT request")
+-    require(q["packet_directory"].startswith("research/reviews/H058_GPU0_v4_ROOT_actual_")
+-        and q["output_directory"].startswith("experiments/results/H058_GPU0_v4_full_parent_")
+-        and q["job_id"]=="H058-GPU0-v4-fulltrain-"+q["instance_id"]
++    require(q["packet_directory"].startswith("research/reviews/H058_GPU0_v5_ROOT_actual_")
++        and q["output_directory"].startswith("experiments/results/H058_GPU0_v5_full_parent_")
++        and q["job_id"]=="H058-GPU0-v5-fulltrain-"+q["instance_id"]
+         and q["instance_id"] and all(ch in "abcdefghijklmnopqrstuvwxyz0123456789_-" for ch in q["instance_id"]),
+         "Separate fresh finite GPU0 namespaces")
+     preparation=local(q["preparation_directory"])
+     require(preparation==local(record["path"]).parent and preparation.is_dir()
+-        and q["preparation_directory"].startswith("research/reviews/H058_GPU0_v4_ROOT_preparation_")
++        and q["preparation_directory"].startswith("research/reviews/H058_GPU0_v5_ROOT_preparation_")
+         and all(preparation!=local(q[key]) and not preparation.is_relative_to(local(q[key]))
+             and not local(q[key]).is_relative_to(preparation) for key in ("packet_directory","output_directory")),
+         "Staging outside never-reserved packet/output")
+@@ -300,6 +300,7 @@
+         and isinstance(prior.get("actual_optimizer_steps"),dict)
+         and prior.get("repeat_reason"),"ROOT must account for actual CPU outcome before new complete GPU fit")
+     raw(prior["actual_wait_ref"]);raw(prior["actual_outer_terminal_ref"])
++    validate_prior_v4_terminal_v5(prior)
+     require({k:v for k,v in q["caps"].items() if k!="max_cuda_reserved_bytes"}
+         =={k:v for k,v in CAPS.items() if k!="max_cuda_reserved_bytes"}
+         and type(q["caps"]["max_cuda_reserved_bytes"]) is int
+@@ -313,6 +314,7 @@
+         and review.get("source_manifest_ref")==ref(MANIFEST)
+         and review.get("blockers")==[],"Actual complete independent source review before admission")
+     cfg,producer,protocol,manifest=science_v1(q);validate_gate_v1(cfg,protocol,q["phase"],q["caps"])
++    validate_root_fit_clock_v5(q,cfg)
+     if q["phase"]=="evaluate":
+         completion=read(q["train_completion_ref"]);train_wait=read(q["train_actual_wait_ref"])
+         require(completion.get("schema")=="H058_full_parent_train_completion_v1"
+@@ -420,3 +422,121 @@
+             and record in refs,"Executed BASEFIT source agrees with reviewed aggregate ROOT manifest")
+         raw(record)
+     return value
++
++
++# V5 isolated fit-clock compatibility; old fit sources and all historical clocks remain immutable.
++FIT_ACTIVE_SOURCE_V5={'path': 'src/arggnn/census_tsinfer_fit_v1.py', 'sha256': 'fd55aaa6b8f88983514ff6888ad2efbadca4ee8b2e3acabd09fbd4a361b5acf3'}
++H036_RESOURCE_SOURCE_V5={'path': 'src/arggnn/train_mutation_routed_whole_tree_gnn_v1.py', 'sha256': 'bdc02b048b061031f9fb06bedb41668b1851347574e8188f18ef97c1355fd1e6'}
++SOURCE_AUTHENTICATOR_V5={'path': 'research/reviews/ROOT_mutation_transaction_memo_source_20261017_v1/root_mutation_memo_v1.py', 'sha256': '2923df9f5a48e76da0b59e6394f31d0b8f901c214a76cc62d65969d010655d98'}
++CLOCK_ROOT_REQUEST_V4={'path': 'research/reviews/H058_GPU0_v4_ROOT_preparation_root02_oct17/ROOT_request.root_active_v1.json', 'sha256': '5840e2b5e175fd4eb32f230115c75c4a2d0940b578604ed8ace2ea511eac38d7'}
++CLOCK_ROOT_INPUT_V4={'path': 'research/reviews/H058_GPU0_v4_ROOT_actual_root02_oct17/input.json', 'sha256': '67c31e1a61d1ce7aa46db45104b69aa020d4a32b0a38375d886c763d17f55d73'}
++CLOCK_ROOT_DIRECTIVE_V4={'path': 'research/reviews/H058_GPU0_v4_ROOT_preparation_root02_oct17/full_training_directive.root_active_v1.json', 'sha256': 'c90a6714352de3f8ace20ffad8f136696221ea4bc59f07b5df5e097a3f2ed8ae'}
++
++def fit_clock_acceptance_v5():
++    return dict(schema="H058_ROOT_actual_interval_fit_clock_compatibility_v5",accepted=True,
++        compatibility_source_ref=ref(SOURCE),original_ROOT_request_ref=CLOCK_ROOT_REQUEST_V4,
++        original_ROOT_input_ref=CLOCK_ROOT_INPUT_V4,original_ROOT_directive_ref=CLOCK_ROOT_DIRECTIVE_V4,
++        original_fit_source_ref=FIT_ACTIVE_SOURCE_V5,original_resource_source_ref=H036_RESOURCE_SOURCE_V5,
++        new_v5_scope_only=True,historical_clock_or_admission_mutation_authorized=False)
++
++def validate_root_fit_clock_v5(q,cfg):
++    """Use the genuine reviewed ROOT interval, never a newly invented duration cap."""
++    original=read(CLOCK_ROOT_REQUEST_V4);admitted=read(CLOCK_ROOT_INPUT_V4)
++    directive=read(CLOCK_ROOT_DIRECTIVE_V4);oldcfg=read(original["config_ref"])
++    require(original["root_authorizer"]==admitted["root_authorizer"]==directive["root_authorizer"]=="root_agent"
++        and original["caps"]==q["caps"]==CAPS
++        and admitted["root_stage_request_ref"]==CLOCK_ROOT_REQUEST_V4
++        and admitted["refs"]["config"]==original["config_ref"]
++        and oldcfg["full_training_directive_ref"]==CLOCK_ROOT_DIRECTIVE_V4
++        and oldcfg["scientific_protocol"]==cfg["scientific_protocol"]==directive["scientific_protocol"]
++        and directive["full30pass_training_authorized"] is True
++        and directive["extra_probe_updates_authorized"] is False,
++        "Exact genuine ROOT clock lineage, unchanged full scientific protocol and caps")
++    clocks=("created_at_utc","expires_at_utc")
++    require(all(original[k]==admitted[k]==directive[k]==q[k] for k in clocks)
++        and q.get("fit_clock_compatibility_v5")==fit_clock_acceptance_v5()
++        and q["schema"]=="H058_GPU0_cached_full_parent_ROOT_request_v1"
++        and q["root_authorizer"]=="root_agent" and q["execution_authorized"] is True
++        and q["phase"]=="train" and q["job_id"]=="H058-GPU0-v5-fulltrain-"+q["instance_id"]
++        and q["adapter_manifest_ref"]==ref(MANIFEST),
++        "Explicit separately reviewed v5 compatibility for exact original actual ROOT clocks/job")
++    current=read(cfg["full_training_directive_ref"])
++    require(all(current[k]==q[k] for k in clocks) and current["root_authorizer"]=="root_agent"
++        and current["status"]=="active" and current["full30pass_training_authorized"] is True
++        and current["extra_probe_updates_authorized"] is False
++        and current["scientific_protocol"]==directive["scientific_protocol"]
++        and current["device"]=="cuda" and current["physical_gpu"]==0
++        and current["GPU_entry_ref"]==cfg["producer_ref"]==ref(HERE+"/producer_v1.py"),
++        "New ROOT directive explicitly binds exact inherited finite interval and v5 scientific producer")
++    active(q);active(current);require_work_window_v2(q)
++    return current
++
++def fit_source_authenticator_v5():
++    auth=load(SOURCE_AUTHENTICATOR_V5,"_H058_v5_existing_source_authenticator")
++    auth.functions_from_source(auth,SOURCE_AUTHENTICATOR_V5,("source_bytes","functions_from_source"))
++    return auth
++
++def root_fit_clock_view_v5(record,spec,q,cfg,fit):
++    """A bound clock callback, no edits to fit globals, spec fields or source."""
++    validate_root_fit_clock_v5(q,cfg)
++    require(read(record)==spec and read(spec["root_stage_request_ref"])==q
++        and record["path"]==q["packet_directory"]+"/input.json"
++        and read(spec["refs"]["config"])==cfg
++        and spec["schema"]=="H058_full_parent_ROOT_input_v1" and spec["status"]=="active"
++        and spec["root_authorizer"]=="root_agent" and spec["execution_authorized"] is True
++        and spec["hypothesis_id"]=="H058" and spec["phase"]==q["phase"]=="train"
++        and spec["job_id"]==q["job_id"] and spec["output_directory"]==q["output_directory"]
++        and spec["producer_ref"]==cfg["producer_ref"]
++        and spec["main_source_ref"]==ref(DRIVER) and spec["root_context_module_ref"]==ref(CONTEXT)
++        and spec["physical_gpu"]==0 and spec["device"]=="cuda"
++        and spec["max_cpu_rss_bytes"]==CAPS["max_cpu_rss_bytes"]
++        and spec["max_cuda_reserved_bytes"]==CAPS["max_cuda_reserved_bytes"]
++        and all(spec[k]==q[k] for k in ("created_at_utc","expires_at_utc")),
++        "Only exact authenticated actual admitted v5 input, ROOT request, clock and resource identity")
++    fit_source_authenticator_v5().functions_from_source(fit,FIT_ACTIVE_SOURCE_V5,("_check_active_v1",))
++    encoded=lambda value:json.dumps(value,sort_keys=True,separators=(",",":"),allow_nan=False)
++    frozen=(encoded(spec),encoded(q),encoded(cfg))
++    def checked(candidate):
++        require(candidate is spec and (encoded(spec),encoded(q),encoded(cfg))==frozen,
++            "Exact new v5 admitted spec/request/config remain unchanged in isolated fit view")
++        active(spec);active(q);require_work_window_v2(spec)
++    return checked
++
++def root_resources_view_v5(h036,fit,clock):
++    """Original resource bytecode with only a private fit clock callback view."""
++    auth=fit_source_authenticator_v5()
++    original,node=auth.functions_from_source(h036,H036_RESOURCE_SOURCE_V5,("lightweight_resources_v1",))["lightweight_resources_v1"]
++    require(original.__globals__["fit"] is fit and callable(clock),"Exact unchanged original fit/resource linkage")
++    class FitClockView:
++        def __getattr__(self,name):
++            return clock if name=="_check_active_v1" else getattr(fit,name)
++    view=FitClockView()
++    result=types.FunctionType(original.__code__,dict(original.__globals__,fit=view),original.__name__,original.__defaults__,original.__closure__)
++    result.__kwdefaults__=dict(original.__kwdefaults__) if original.__kwdefaults__ is not None else None
++    return result
++
++PRIOR_V4_ACTUAL_WAIT_REF={'path': 'research/reviews/H058_GPU0_v4_ROOT_actual_root02_oct17/worker_aux/actual_wait.json', 'sha256': '8bdb647255ac08defd1cfcfd8044afa7695dabecbf081584fd96c72cb82facab'}
++
++def validate_prior_v4_terminal_v5(prior):
++    require(prior.get("prior_GPU_v4_actual_wait_ref")==PRIOR_V4_ACTUAL_WAIT_REF
++        and prior.get("prior_GPU_v4_actual_outer_terminal_ref")==PRIOR_V4_ACTUAL_OUTER_REF
++        and prior.get("prior_GPU_v4_files_charges_clocks_and_failure_preserved") is True,
++        "Actual failed v4 wait lineage and every old file/charge/clock/failure preserved")
++    wait=read(PRIOR_V4_ACTUAL_WAIT_REF);outer=read(prior["prior_GPU_v4_actual_outer_terminal_ref"])
++    require(wait.get("input_ref")==CLOCK_ROOT_INPUT_V4 and wait.get("returncode")==1
++        and wait.get("actual_direct_worker_wait") is True
++        and wait.get("all_owned_processes_and_groups_drained") is True
++        and wait.get("owned_identity_absence") is True and wait.get("pipe_EOF_observed") is True
++        and wait.get("completed_ref") is None and wait.get("operational_failure")=="Actual worker exit 1",
++        "Genuine v4 directworker1, full drain/EOF and no completion remain unchanged")
++    require(outer.get("tool_session_id")==8959
++        and outer.get("actual_wait_ref")==PRIOR_V4_ACTUAL_WAIT_REF
++        and outer.get("actual_terminal_consumed") is True
++        and type(outer.get("actual_exit_code")) is int
++        and outer.get("actual_direct_worker_returncode")==1
++        and outer.get("all_owned_processes_and_groups_drained") is True
++        and outer.get("completed_ref") is None and outer.get("successful_outer_terminal_claimed") is False
++        and outer.get("automatic_retry_authorized") is False,
++        "ROOT must consume genuine actual8959 terminal without relabeling failed v4 as success")
++
++PRIOR_V4_ACTUAL_OUTER_REF={'path': 'research/reviews/research_execution_ROOT_20261017_v23/H058_GPU0_v4_actual_outer_terminal_consumed.root_v1.json', 'sha256': 'fcc274d414a33b8aa7c9d84d71aa46ea106cabeb41e268af4d1b61470ab53c1c'}

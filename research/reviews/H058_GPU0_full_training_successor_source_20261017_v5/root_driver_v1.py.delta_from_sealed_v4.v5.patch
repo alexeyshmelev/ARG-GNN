@@ -1,0 +1,51 @@
+--- research/reviews/H058_GPU0_full_training_successor_source_20261017_v4/root_driver_v1.py
++++ research/reviews/H058_GPU0_full_training_successor_source_20261017_v5/root_driver_v1.py
+@@ -2,7 +2,7 @@
+ from pathlib import Path
+ from datetime import datetime,timezone
+ import argparse,collections,ctypes,fcntl,hashlib,importlib,io,itertools,json,os,resource,selectors,signal,stat,subprocess,sys,tempfile,time
+-from research.reviews.H058_GPU0_full_training_successor_source_20261017_v4.common_v1 import *
++from research.reviews.H058_GPU0_full_training_successor_source_20261017_v5.common_v1 import *
+ SOURCE=DRIVER
+ 
+ def mutation_memo_v1(g,q):
+@@ -49,7 +49,7 @@
+         q["science_handoff_ref"],q["source_review_ref"],cfg["source_manifest_ref"],producer,runtime,closure,BASEFIT]
+     needed+=[GUARD,POLICY,REPAIR,RENEWAL,CERT,MEMO,NAMESPACE_MEMO,V4,PIDFD,OWNED,BASE_POOL,GPU0_GUARD]
+     if q["phase"]=="train":
+-        from research.reviews.H058_GPU0_full_training_successor_source_20261017_v4 import direct_gpu0_v1 as direct
++        from research.reviews.H058_GPU0_full_training_successor_source_20261017_v5 import direct_gpu0_v1 as direct
+         needed+=[q["direct_attachment_authority_ref"],direct.CURRENT_CAP,q["native_resource_disposition_ref"]]
+     consumers=unique([*state[3].values(),*needed])
+     auxiliary=q["packet_directory"]+"/worker_aux"
+@@ -135,10 +135,10 @@
+         ticket=read(attachment_ref)
+         require(ticket["job_id"]==s["job_id"] and ticket["borrowed_physical_inode"] is True
+             and ticket["direct_attachment_authority_ref"]==q["direct_attachment_authority_ref"],"Actual separately admitted attachment")
+-        from research.reviews.H058_GPU0_full_training_successor_source_20261017_v4 import direct_gpu0_v1 as direct
++        from research.reviews.H058_GPU0_full_training_successor_source_20261017_v5 import direct_gpu0_v1 as direct
+         direct.install_before_torch_v1(s,q,ticket)
+     else:require(attachment_ref is None and os.environ.get("CUDA_VISIBLE_DEVICES")=="","CPU evaluation no physical attachment")
+-    from research.reviews.H058_GPU0_full_training_successor_source_20261017_v4 import context_factory_v1
++    from research.reviews.H058_GPU0_full_training_successor_source_20261017_v5 import context_factory_v1
+     ctx=context_factory_v1.build_context_v1(input_ref,s)
+     package=cfg["producer_ref"]["path"].removesuffix(".py").replace("/",".")
+     producer=importlib.import_module(package)
+@@ -203,7 +203,7 @@
+             ARGGNN_BUDGET_V9_LAUNCHER_SHA256=storage["budget_components"]["launcher"]["sha256"])
+         env.update(paths)
+         if s["phase"]=="train":
+-            from research.reviews.H058_GPU0_full_training_successor_source_20261017_v4 import direct_gpu0_v1 as direct
++            from research.reviews.H058_GPU0_full_training_successor_source_20261017_v5 import direct_gpu0_v1 as direct
+             physical_fd,logical_fd,ticket=direct.attach_v1(s,q)
+             attachment_ref=compact_v1(s,"attachment.json",ticket,g,storage)
+             env.update(CUDA_VISIBLE_DEVICES=GPU0_UUID,ARGGNN_PHYSICAL_GPU="0",
+@@ -217,7 +217,7 @@
+                 env.pop(name,None)
+         gate_read,gate_write=os.pipe()
+         command=[str(ROOT/".runtime/env/bin/python"),"-B","-m",
+-            "research.reviews.H058_GPU0_full_training_successor_source_20261017_v4.root_driver_v1",
++            "research.reviews.H058_GPU0_full_training_successor_source_20261017_v5.root_driver_v1",
+             "--worker-input-ref",json.dumps(input_ref,separators=(",",":")),"--gate-fd",str(gate_read)]
+         if attachment_ref is not None:command+=["--attachment-ref",json.dumps(attachment_ref,separators=(",",":"))]
+         inherited=tuple(fd for fd in (gate_read,physical_fd,logical_fd) if fd is not None)

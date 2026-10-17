@@ -1,0 +1,164 @@
+{
+  "actual_close_or_journal_acceptance_granted": false,
+  "actual_conversion": {
+    "common_focal_records": 10000,
+    "completed_ref": {
+      "path": "data/FLARE_original_remaining_VAL001_convert_3h_setupv4_20261017_v1/completed.json",
+      "sha256": "3d8b6c3711bda0bd0224d57bd3210aabdcebdb707a26051b3b21bdd149b33366"
+    },
+    "drained": true,
+    "exact_v4_driver_worker_source_mapping_verified": true,
+    "input_ref": {
+      "path": "research/reviews/FLARE_remaining_ROOT_actual_VAL001_convert_3h_setupv4_20261017_v1/input.json",
+      "sha256": "95ca4f5bff8bd6723a0cfcfeb233e7517db10d24b443e8b70c78d5b1979492bd"
+    },
+    "input_sites": 227316,
+    "native_expected_markers": 26609,
+    "operational_failure": null,
+    "query_haplotypes": 1000,
+    "reference_haplotypes": 600,
+    "wait_ref": {
+      "path": "research/reviews/FLARE_remaining_ROOT_actual_VAL001_convert_3h_setupv4_20261017_v1/worker_aux/actual_wait.json",
+      "sha256": "51613247e73166fbbff8e4c1e0f70130924f4e73be9ba86a0ad1ed631bf50391"
+    },
+    "worker_returncode": 0
+  },
+  "all_verified_baseline_files_unchanged_at_seal": true,
+  "blockers": [
+    {
+      "RAM_reproduction_ref": {
+        "path": "research/reviews/FLARE_VAL001_native_seal_predecessor_bridge_independent_20261017_v1/independent_source_ram_results.v1.json",
+        "sha256": "69fb669d01544d1ce6d2b9b824d88bfe1013c52631f4ecc58c509c5aa1aa4148"
+      },
+      "actual": "Original validate_request calls sources(), which unconditionally iterates m[\"metadata_refs\"]. The candidate source_manifest has no metadata_refs key, so exact inherited validation raises KeyError before predecessor validation, resource guard calls or admission.",
+      "candidate_manifest_ref": {
+        "path": "research/reviews/FLARE_VAL001_native_seal_predecessor_bridge_source_20261017_v1/source_manifest.v1.json",
+        "sha256": "28d80573af0047d0da56344a0f9cc3a242795aee682047ebbc4106ba66c329fa"
+      },
+      "id": "B1",
+      "locations": [
+        {
+          "line": 30,
+          "path": "research/reviews/FLARE_original_remaining_CPU_execution_source_20261017_v1/root_contract_v1.py"
+        },
+        {
+          "line": 108,
+          "path": "research/reviews/FLARE_original_remaining_CPU_execution_source_20261017_v1/root_contract_v1.py"
+        },
+        {
+          "line": 33,
+          "path": "research/reviews/FLARE_original_remaining_CPU_execution_source_20261017_v2/root_driver_v1.py"
+        },
+        {
+          "line": 34,
+          "path": "research/reviews/FLARE_VAL001_native_seal_predecessor_bridge_source_20261017_v1/root_driver_v1.py"
+        }
+      ],
+      "minimum_correction": "Carry forward the exact148-entry metadata_refs list from the pinned inherited v2 source manifest and reseal the new candidate. Preserve the original source/metadata validator; do not skip it or replace inherited references with an empty list.",
+      "priority": 1,
+      "severity": "BLOCKING_MANIFEST_SCHEMA",
+      "title": "New manifest omits metadata_refs required by the inherited request validator",
+      "trigger": "Any new native/seal request through the candidate wrapper after its preceding metadata predicates. The wrapper rebinds the inherited engine and contract to its new manifest."
+    }
+  ],
+  "blocking_findings": [
+    {
+      "RAM_reproduction_ref": {
+        "path": "research/reviews/FLARE_VAL001_native_seal_predecessor_bridge_independent_20261017_v1/independent_source_ram_results.v1.json",
+        "sha256": "69fb669d01544d1ce6d2b9b824d88bfe1013c52631f4ecc58c509c5aa1aa4148"
+      },
+      "actual": "Original validate_request calls sources(), which unconditionally iterates m[\"metadata_refs\"]. The candidate source_manifest has no metadata_refs key, so exact inherited validation raises KeyError before predecessor validation, resource guard calls or admission.",
+      "candidate_manifest_ref": {
+        "path": "research/reviews/FLARE_VAL001_native_seal_predecessor_bridge_source_20261017_v1/source_manifest.v1.json",
+        "sha256": "28d80573af0047d0da56344a0f9cc3a242795aee682047ebbc4106ba66c329fa"
+      },
+      "id": "B1",
+      "locations": [
+        {
+          "line": 30,
+          "path": "research/reviews/FLARE_original_remaining_CPU_execution_source_20261017_v1/root_contract_v1.py"
+        },
+        {
+          "line": 108,
+          "path": "research/reviews/FLARE_original_remaining_CPU_execution_source_20261017_v1/root_contract_v1.py"
+        },
+        {
+          "line": 33,
+          "path": "research/reviews/FLARE_original_remaining_CPU_execution_source_20261017_v2/root_driver_v1.py"
+        },
+        {
+          "line": 34,
+          "path": "research/reviews/FLARE_VAL001_native_seal_predecessor_bridge_source_20261017_v1/root_driver_v1.py"
+        }
+      ],
+      "minimum_correction": "Carry forward the exact148-entry metadata_refs list from the pinned inherited v2 source manifest and reseal the new candidate. Preserve the original source/metadata validator; do not skip it or replace inherited references with an empty list.",
+      "priority": 1,
+      "severity": "BLOCKING_MANIFEST_SCHEMA",
+      "title": "New manifest omits metadata_refs required by the inherited request validator",
+      "trigger": "Any new native/seal request through the candidate wrapper after its preceding metadata predicates. The wrapper rebinds the inherited engine and contract to its new manifest."
+    }
+  ],
+  "bridge_ref": {
+    "path": "research/reviews/FLARE_VAL001_native_seal_predecessor_bridge_source_20261017_v1/predecessor_bridge_v1.py",
+    "sha256": "ba2614534f40a81f727fd3e3176c5f04864c8de1977d011de3b559a25da16d4b"
+  },
+  "candidate_tests_reproduced_ref": {
+    "path": "research/reviews/FLARE_VAL001_native_seal_predecessor_bridge_independent_20261017_v1/candidate_source_check_reproduced.v1.json",
+    "sha256": "192be416702c159da07209dde95775a0bb48cff641243b158fe82f4bb647e75a"
+  },
+  "conversion91032_outer0_status": "ROOT_SUPPLIED_CONSUMED0_NO_NEW_TERMINAL_OBSERVATION_BY_REVIEW",
+  "created_utc": "2026-10-17T07:48:28.441925+00:00",
+  "execution_authorized": false,
+  "guard_process_GPU_resource_admission_launch_Git_or_raw_payload_access": false,
+  "independent": true,
+  "native_cap_metadata": {
+    "basis_ref": {
+      "path": "research/reviews/FLARE_original_VAL001004_completion_source_20261017_v1/VAL000_basis.v1.json",
+      "sha256": "c73926ff4c22b2f0f11b6081d60e6ea0bb6d2444c109883d7155d6208cc33d81"
+    },
+    "case": "actual26609native_markers_distinct_from227316inputsites",
+    "native_output_cap": 1997355311,
+    "native_scope_with_8MiB_packet": 2005743919,
+    "native_vcf_cap": 871184687
+  },
+  "ordinary_close96129_status": "PENDING_PER_ROOT_NO_SUCCESS_ASSUMED",
+  "report_ref": {
+    "path": "research/reviews/FLARE_VAL001_native_seal_predecessor_bridge_independent_20261017_v1/report.v1.txt",
+    "sha256": "baf49a01e561d718be298c9fe9585347b21b193758bbc2a31e0dd7f54d90a4f2"
+  },
+  "schema": "independent_FLARE_VAL001_native_seal_predecessor_bridge_source_review_v1",
+  "seven_join_source_findings": "Only B1 blocks whole integration; exact3operand stage bridge, pinned v4 producer and source map, genuine future terminal/ordinaryclose/currentjournal prerequisites, native/seal-only wrapper, unchanged worker/context/science/caps, marker26609vsinput227316 and all4pretruth barrier otherwise preserved.",
+  "source_closure_ref": {
+    "path": "research/reviews/FLARE_VAL001_native_seal_predecessor_bridge_independent_20261017_v1/source_closure.v1.json",
+    "sha256": "d6b0a55dcefe5ca93581ec5f1f36653cb55714ecbac95dac7d9fb8432535919a"
+  },
+  "source_handoff_ref": {
+    "path": "research/reviews/FLARE_VAL001_native_seal_predecessor_bridge_source_20261017_v1/source_handoff.v1.json",
+    "sha256": "de7140fd2e1055477e3baa3b599e431c3d93bef0360e21cec772ca15ea393c3d"
+  },
+  "source_manifest_ref": {
+    "path": "research/reviews/FLARE_VAL001_native_seal_predecessor_bridge_source_20261017_v1/source_manifest.v1.json",
+    "sha256": "28d80573af0047d0da56344a0f9cc3a242795aee682047ebbc4106ba66c329fa"
+  },
+  "source_only": true,
+  "source_ref": {
+    "path": "research/reviews/FLARE_VAL001_native_seal_predecessor_bridge_source_20261017_v1/root_driver_v1.py",
+    "sha256": "bef92c307f629977fcfae4fe7cb3244e4bcb42d9652fb06c14cbf468a94dcb6f"
+  },
+  "test_results_ref": {
+    "path": "research/reviews/FLARE_VAL001_native_seal_predecessor_bridge_independent_20261017_v1/independent_source_ram_results.v1.json",
+    "sha256": "69fb669d01544d1ce6d2b9b824d88bfe1013c52631f4ecc58c509c5aa1aa4148"
+  },
+  "test_source_ref": {
+    "path": "research/reviews/FLARE_VAL001_native_seal_predecessor_bridge_independent_20261017_v1/independent_source_ram_tests_v1.py",
+    "sha256": "3de8ac0fa459b2a3591fd0d9eb4a2e4b584b5ce60126ecea9cae69cf46450c37"
+  },
+  "tests": {
+    "candidate_reproduced": 34,
+    "independent": 20,
+    "manifest_schema_failure_reproduced": true,
+    "total": 54
+  },
+  "verdict": "SOURCE_BLOCKED",
+  "writes_only_assigned_review_directory": true
+}
