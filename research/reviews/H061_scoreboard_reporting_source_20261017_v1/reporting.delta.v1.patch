@@ -1,0 +1,256 @@
+--- a/scripts/update_current_scoreboard.py
++++ b/scripts/update_current_scoreboard.py
+@@ -103,6 +103,201 @@
+         parts.append(label+" selected VAL MAE "+fmt(row["selected_VAL_MAE_cases"])+" cases; RMSE "+fmt(row["selected_VAL_RMSE_cases"])+
+             " cases ("+str(row["seed_count"])+"/3 initialization seeds)")
+     return "; ".join(parts)+". Sample SD is across completed seeds at their own selected epoch; TEST withheld"
++
++H061_SCORE_ACCEPTANCE=dict(
++    path="research/reviews/H061_score_ROOT_acceptance_20261017_v1/score_acceptance.root_active_v1.json",
++    sha256="100a5745a6ab055f722f7b754cfa8eb0e1a4d35af116ba06aeb237ebb1d2ff04")
++
++
++def h061_accepted_test(entry):
++    """Release scored JSON only through ROOT's exact consumed score acceptance."""
++    pending=dict(ready=False,status="H061 TEST metrics pending ROOT's matching consumed score acceptance.")
++    record=entry.get("score_acceptance_ref")
++    if not record:return pending
++    def require(ok,message):
++        if not ok:raise ValueError(message)
++    def checked(record):
++        require(isinstance(record,dict) and set(record)=={"path","sha256"},"Exact H061 JSON path/SHA reference required")
++        name=record["path"];relative=Path(name)
++        require(isinstance(name,str) and not relative.is_absolute() and ".." not in relative.parts
++            and relative.suffix==".json" and name.startswith(("research/","experiments/results/")),
++            "Contained H061 scored metadata only")
++        path=ROOT/relative
++        require(path.resolve()==path and path.is_file() and not path.is_symlink()
++            and path.stat().st_nlink==1 and path.stat().st_size<=2*2**20,"Canonical bounded H061 score metadata")
++        raw=path.read_bytes()
++        require(hashlib.sha256(raw).hexdigest()==record["sha256"],"H061 scored metadata SHA mismatch")
++        return json.loads(raw)
++    def finite(value):
++        return type(value) in (int,float) and math.isfinite(value)
++    try:
++        require(record==H061_SCORE_ACCEPTANCE,"Only the exact ROOT-accepted H061 TEST result")
++        accepted=checked(record)
++        require(accepted.get("schema")=="H061_postselection_outer_acceptance_v1"
++            and accepted.get("accepted") is True and accepted.get("root_authorizer")=="root_agent"
++            and accepted.get("stage")=="score" and accepted.get("outer_terminal_consumed") is True
++            and accepted.get("outer_terminal_exit_code")==0,"H061 actual score outer 0 must be accepted")
++        terminal=checked(accepted["actual_outer_terminal_ref"])
++        require(terminal.get("schema")=="ROOT_H061_score_actual_tool_terminal_consumed_v1"
++            and terminal.get("actual_terminal_consumed") is True and terminal.get("actual_exit_code")==0,
++            "H061 genuine outer tool 0 must be consumed")
++        outer=checked(terminal["subprocess_terminal_ref"]);argv=outer.get("argv",[])
++        require(outer.get("schema")=="ROOT_H061_score_actual_execution_wait_v1"
++            and outer.get("actual_returncode")==0 and "--execute-ref" in argv
++            and json.loads(argv[argv.index("--execute-ref")+1])==accepted["input_ref"]
++            and argv[-2:]==["--consumer","H061"],"H061 consumed terminal must join the actual score execution")
++        worker=checked(accepted["actual_wait_ref"])
++        require(worker.get("schema")=="TreeLoom_Chickenpox_CPU_actual_wait_v1"
++            and worker.get("returncode")==0 and worker.get("actual_OS_wait_status")==0
++            and worker.get("actual_direct_worker_wait") is True and worker.get("actual_direct_launcher_wait") is True
++            and worker.get("all_owned_processes_and_groups_drained") is True and worker.get("operational_failure") is None
++            and worker.get("cleanup_errors")==[] and all(r.get("returncode")==0 for r in worker.get("adopted_waits",[]))
++            and bool(worker.get("group_observations")) and all(r.get("absent") is True for r in worker["group_observations"])
++            and worker.get("TEST_scoring_authorized") is True and worker.get("TEST_scoring_completed") is True
++            and worker.get("postselection_stage")=="score" and worker.get("input_ref")==accepted["input_ref"]
++            and worker.get("completed_ref")==accepted["completed_ref"],"H061 genuine score worker 0 and owned drain required")
++        completed=checked(accepted["completed_ref"]);score_completion=checked(accepted["score_completion_ref"])
++        require(completed.get("status")=="completed_H061_postselection_CPU_stage"
++            and completed.get("stage")=="score" and completed.get("phase")=="postselection"
++            and completed.get("parent_id")=="Chickenpox_current_TreeLoom_core"
++            and completed.get("input_ref")==accepted["input_ref"] and completed.get("result_ref")==accepted["score_completion_ref"]
++            and accepted["completed_ref"]["path"]==accepted["output_directory"]+"/completed.json"
++            and score_completion.get("status")=="completed_H061_score" and score_completion.get("stage")=="score"
++            and score_completion.get("TEST_accessed") is True and score_completion.get("TEST_scored") is True
++            and score_completion.get("new_core_fits")==0 and score_completion.get("new_optimizer_updates")==0
++            and score_completion.get("barrier_ref")==accepted["score_barrier_ref"],"Exact completed H061 score lineage")
++        inp=checked(accepted["input_ref"])
++        require(inp.get("schema")=="H061_postselection_admitted_input_v1" and inp.get("stage")=="score"
++            and inp.get("phase")=="postselection" and inp.get("parent_id")=="Chickenpox_current_TreeLoom_core"
++            and inp.get("output_directory")==accepted["output_directory"]
++            and inp.get("root_driver_ref")==completed.get("root_driver_ref"),"H061 actual admitted score input")
++        barrier=checked(accepted["score_barrier_ref"])
++        require(barrier.get("schema")=="H061_score_release_barrier_v1" and barrier.get("TEST_scored") is True
++            and barrier.get("scores_ref")==accepted["scores_ref"],"H061 exact score release barrier")
++        # Scored values are not opened until actual outer/worker acceptance and barrier pass.
++        scores=checked(accepted["scores_ref"])
++        require(scores.get("schema")=="H061_complete_score_report_v1" and scores.get("TEST_scored") is True
++            and scores.get("all15products_authenticated_before_scoring") is True
++            and all(scores.get(k)==barrier.get(k) for k in
++                ("prediction_barrier_ref","selection_barrier_ref","registration_ref","source_protocol_ref")),
++            "All 15 complete H061 prediction products must precede scoring")
++        prediction=checked(scores["prediction_barrier_ref"]);selection=checked(scores["selection_barrier_ref"])
++        registration=checked(scores["registration_ref"]);protocol=checked(scores["source_protocol_ref"])
++        require(registration.get("schema")=="H061_Chickenpox_current_core_scientific_registration_v1"
++            and registration.get("hypothesis_id")=="H061" and registration.get("root_authorizer")=="root_agent"
++            and registration.get("source_protocol_ref")==scores["source_protocol_ref"]
++            and registration.get("new_fits")==6 and registration.get("new_optimizer_updates")==4800
++            and registration.get("epochs_each")==40 and registration.get("updates_each")==800
++            and protocol.get("schema")=="TreeLoom_current_core_Chickenpox_completion_protocol_source_v1"
++            and protocol["splits"]["test_target_indices"]==[443,522]
++            and protocol["splits"]["scaler_fit_rows"]==[0,365]
++            and protocol["dataset"]["node_count"]==20 and protocol["dataset"]["history"]==52,
++            "Frozen H061 registration, complete budget and original 79 by 20 TEST protocol")
++        seeds=(101,202,303);arms=("full","no_memory")
++        pairs={(seed,arm) for seed in seeds for arm in arms}
++        require(prediction.get("schema")=="H061_complete_prediction_barrier_v1"
++            and prediction.get("TEST_scored") is False and prediction.get("no_metrics_or_truth_scorer_called") is True
++            and prediction.get("selection_barrier_ref")==scores["selection_barrier_ref"]
++            and prediction.get("registration_ref")==scores["registration_ref"]
++            and prediction.get("source_protocol_ref")==scores["source_protocol_ref"]
++            and selection.get("schema")=="H061_TRAIN_six_selection_barrier_v1"
++            and selection.get("TEST_accessed") is False and selection.get("registration_ref")==scores["registration_ref"]
++            and selection.get("source_protocol_ref")==scores["source_protocol_ref"]
++            and {(r["seed"],r["arm"]) for r in selection["selected_products"]}==pairs
++            and len(selection["selected_products"])==6,"All six frozen selected states before TEST")
++        products=prediction["predictions"]+prediction["chronology_predictions"]+prediction["comparator_predictions"]
++        comparators=("last_value","seasonal_lag52","ridge_alpha1000_from_prior_pilot")
++        selected={(r["seed"],r["arm"]):dict(path=r["path"],sha256=r["sha256"]) for r in selection["selected_products"]}
++        require(len(prediction["predictions"])==len(prediction["chronology_predictions"])==6
++            and {(r["seed"],r["arm"]) for r in prediction["predictions"]}==pairs
++            and {(r["seed"],r["arm"]) for r in prediction["chronology_predictions"]}==pairs
++            and all(r["selected_checkpoint_ref"]==selected[r["seed"],r["arm"]]
++                for r in prediction["predictions"]+prediction["chronology_predictions"])
++            and len(prediction["comparator_predictions"])==3
++            and {r["comparator"] for r in prediction["comparator_predictions"]}==set(comparators)
++            and len(products)==len({r["path"] for r in products})==15
++            and all(isinstance(r.get("sha256"),str) and len(r["sha256"])==64 for r in products),
++            "Six chronological, six diagnostic and three comparator products, without payload reads")
++        counties=scores["county_order"];targets=list(range(443,522))
++        require(len(counties)==len(set(counties))==20 and scores["target_indices"]==targets
++            and prediction.get("county_order")==counties and prediction.get("target_indices")==targets
++            and protocol["dataset"]["county_order"]==counties
++            and registration.get("TEST_target_range")==[443,522]
++            and set(scores["aggregate"])==set(arms) and set(scores["comparator_scores"])==set(comparators)
++            and len(scores["core_scores"])==6 and {(r["seed"],r["arm"]) for r in scores["core_scores"]}==pairs,
++            "Same complete 79 TEST weeks and 20 counties for every method")
++        for row in scores["core_scores"]+list(scores["comparator_scores"].values()):
++            require(row.get("forecast_weeks")==79 and len(row["per_county_mae"])==20 and len(row["per_week_mae"])==79
++                and row.get("prediction_clipping")=="none"
++                and all(finite(row[k]) and row[k]>=0 for k in ("mae_cases","rmse_cases")),"Finite complete original-unit H061 metrics")
++        for arm in arms:
++            for metric in ("mae_cases","rmse_cases"):
++                row=scores["aggregate"][arm][metric]
++                require(row.get("seeds")==list(seeds) and finite(row["mean"]) and row["mean"]>=0
++                    and finite(row["sample_SD"]) and row["sample_SD"]>=0,"Three-seed sample SD in case-count units")
++        interval=scores["paired_block_interval"];ci=interval["interval95_cases"]
++        require(interval.get("block_weeks")==13 and interval.get("draws")==10000 and interval.get("seed")==7721
++            and len(ci)==2 and all(finite(x) for x in ci) and ci[0]<=ci[1]
++            and finite(interval["mean_delta_mae_cases"]),"Registered conditional temporal block interval")
++        full=scores["aggregate"]["full"];nomem=scores["aggregate"]["no_memory"]
++        criteria=dict(mean_MAE_at_most_098_NoMem=full["mae_cases"]["mean"]<=.98*nomem["mae_cases"]["mean"],
++            upper95_paired_delta_below_zero=ci[1]<0,mean_RMSE_no_worse=full["rmse_cases"]["mean"]<=nomem["rmse_cases"]["mean"])
++        require(scores.get("utility_criteria")==criteria and scores.get("memory_utility_gate_passed") is all(criteria.values())
++            and scores.get("memory_utility_gate_passed") is False
++            and scores.get("result")=="negative_completion_retained_without_tuning_or_replay"
++            and all(v.get("legacy_GRU_status")=="unavailable_payload_not_accepted"
++                for v in (scores,score_completion,barrier,prediction)),"Registered failed memory utility; no accepted legacy GRU")
++        return dict(ready=True,status="H061 TEST scoring completed and ROOT accepted after consumed outer 0, worker 0 and owned drain; registered memory utility gate failed.",
++            acceptance_ref=record,scores_ref=accepted["scores_ref"],score_barrier_ref=accepted["score_barrier_ref"],
++            actual_outer_terminal_ref=accepted["actual_outer_terminal_ref"],actual_wait_ref=accepted["actual_wait_ref"],
++            scores=scores,support=dict(TEST_weeks=79,counties=20,forecasts=1580,history_weeks=52),
++            SD_unit="cases; sample SD across three initialization seeds conditional on one county graph/time series")
++    except (OSError,ValueError,KeyError,TypeError,IndexError,OverflowError) as error:
++        pending["validation_error"]=str(error)
++        return pending
++
++
++def h061_test_summary(evaluation):
++    if not evaluation.get("ready"):return None
++    scores=evaluation["scores"];aggregate=scores["aggregate"]
++    best={metric:min(aggregate[a][metric]["mean"] for a in aggregate) for metric in ("mae_cases","rmse_cases")}
++    parts=[]
++    for arm,label in (("full","Full"),("no_memory","NoMem")):
++        values=[]
++        for metric,name in (("mae_cases","MAE"),("rmse_cases","RMSE")):
++            value=fmt(aggregate[arm][metric])
++            if aggregate[arm][metric]["mean"]==best[metric]:value="**"+value+"**"
++            values.append(name+" "+value)
++        parts.append(label+" TEST "+", ".join(values)+" cases")
++    interval=scores["paired_block_interval"];ci=interval["interval95_cases"]
++    return "; ".join(parts)+". Sample SD in cases across three initialization seeds on one fixed series; 79 weeks × 20 counties. Full−NoMem MAE "+f"{interval['mean_delta_mae_cases']:+.6f}"+" cases, conditional 95% 13-week block interval ["+f"{ci[0]:+.6f}, {ci[1]:+.6f}"+"]. Registered memory utility failed"
++
++
++def h061_test_lines(evaluation):
++    if not evaluation.get("ready"):return []
++    scores=evaluation["scores"];rows=[]
++    for arm,label in (("full","Full"),("no_memory","NoMem")):
++        rows.append((label,scores["aggregate"][arm]))
++    for name,label in (("last_value","Last value"),("seasonal_lag52","Seasonal lag 52"),("ridge_alpha1000_from_prior_pilot","Ridge α=1000, frozen prior pilot")):
++        rows.append((label,{metric:dict(mean=scores["comparator_scores"][name][metric],sample_SD=None) for metric in ("mae_cases","rmse_cases")}))
++    best={metric:min(row[metric]["mean"] for _,row in rows) for metric in ("mae_cases","rmse_cases")}
++    lines=["","## H061 Chickenpox accepted TEST outcome","",evaluation["status"],"",
++        "Rolling one-week-ahead forecasts on all 79 TEST weeks (indices 443–521) and 20 counties: 1,580 forecasts per method, with 52 observed past weeks and a TRAIN-only scaler. Lower is better. Bold marks the best value within these five comparable methods for each metric.","",
++        "| Method | TEST MAE (cases) ± seed SD | TEST RMSE (cases) ± seed SD |",
++        "|---|---:|---:|"]
++    for label,row in rows:
++        values=[("**"+fmt(row[metric])+"**" if row[metric]["mean"]==best[metric] else fmt(row[metric])) for metric in ("mae_cases","rmse_cases")]
++        lines.append("| "+label+" | "+" | ".join(values)+" |")
++    interval=scores["paired_block_interval"];ci=interval["interval95_cases"]
++    lines+=["","SD is sample SD in case-count units across initialization seeds 101, 202 and 303, conditional on one fixed county graph/time series. Fixed comparators have one prediction product each, so seed SD is unavailable.",
++        "The registered memory-utility gate failed: Full mean MAE ≤ 0.98 × NoMem: failed; upper 95% paired interval below zero: failed; mean RMSE no worse: passed. Full-minus-NoMem MAE "+f"{interval['mean_delta_mae_cases']:+.6f}"+
++        " cases, conditional 95% circular 13-week block interval ["+f"{ci[0]:+.6f}, {ci[1]:+.6f}"+
++        "] (10,000 draws). This interval describes one time series, not independent populations.",
++        "All 15 frozen products preceded scoring. Six 40-epoch fits completed 800 AdamW updates each (4,800 total), learning rate 0.001 and weight decay 0.0001; CPU, one thread, FP32. No new fit or update occurred during scoring. Legacy GRU is unavailable because its payload was not accepted. No broad superiority, ancestry-transfer or novelty claim follows.",
++        "Negative completion retained without tuning or replay. The selected VAL milestone below is historical evidence recorded before TEST release.","",
++        "[Accepted TEST scores](../"+evaluation["scores_ref"]["path"]+") · [ROOT consumed-terminal acceptance](../"+evaluation["acceptance_ref"]["path"]+") · [Frozen protocol](../"+scores["registration_ref"]["path"]+")",""]
++    return lines
++
+ 
+ def h050_completed_evaluation():
+     """Read scored JSON only after the exact consumed CPU outer-terminal proof."""
+@@ -1078,13 +1273,23 @@
+     h061_runtime=h061_training_snapshot(gpu0_snapshot or maybe_read(H050_RUNTIME_STATUS) or {})
+     h061_status=h061_runtime["summary"]
+     h061_val_summary=h061_forecast_summary(h061_runtime)
++    h061_test=h061_accepted_test(h061_runtime)
++    h061_runtime["TEST_evaluation"]=h061_test
++    h061_current_summary=h061_test_summary(h061_test) or h061_val_summary
++    h061_current_anchor="h061-chickenpox-accepted-test-outcome" if h061_test["ready"] else "h061-chickenpox-selected-validation-training-milestone"
++    if h061_test["ready"] or h061_runtime.get("score_acceptance_ref"):h061_status=h061_test["status"]
++    if h061_test["ready"]:h061_runtime["summary"]=h061_status
++    h061_runtime["current_forecast_summary"]=h061_current_summary
+     if h061_runtime.get("postselection_freeze_state")=="completed_actual_outer0_and_ROOT_accepted":
+         h061_acceptance_text="TRAIN and the TRAIN-only comparator freeze are accepted after actual worker/supervisor 0 and owned drain. TEST prediction and scoring states are reported above."
+     elif h061_runtime.get("overall_job_completion_accepted") is True:
+         h061_acceptance_text="TRAIN completion accepted after actual worker/supervisor 0 and owned drain. Comparator freeze and separately authorized TEST prediction/scoring remain pending."
+     else:
+         h061_acceptance_text="Overall completion is unaccepted pending genuine wait/drain and consumed outer-terminal acceptance."
+-    h061_lines=["", "## H061 Chickenpox selected validation training milestone", "", h061_status, "", h061_val_summary+".", "",
++    if h061_test["ready"]:
++        h061_acceptance_text="This subsection retains the pre-TEST milestone. The accepted TEST outcome is reported above."
++    h061_historical_status=("Historical selected VAL milestone, recorded before TEST release." if h061_test["ready"] else h061_status)
++    h061_lines=h061_test_lines(h061_test)+["", "## H061 Chickenpox selected validation training milestone", "", h061_historical_status, "", h061_val_summary+".", "",
+         "These are selected validation count forecasts on 78 weeks and all 20 counties, using 52 past weeks and a TRAIN-only scaler. They are not TEST results or ancestry accuracy. "+h061_acceptance_text+" Registered budget: AdamW learning rate 0.001, weight decay 0.0001, six fits of 40 epochs and 800 updates each, 4,800 total updates; CPU 223, one thread, FP32.", ""]
+     h061_milestone=h061_runtime.get("training_milestone")
+     if h061_milestone:
+@@ -1418,7 +1623,7 @@
+     if h058_runtime:
+         table+=["","**New same-marker model:** "+h058_runtime["summary"]+
+             " [Actual FP32 result](research/reviews/H058_actual_one_hold_ROOTv4_qualification_20261016_v1/REPORT.md).",""]
+-    table += ["| Current run | Device | Progress | Validation score |","|---|---:|---|---|"]
++    table += ["| Current run | Device | Progress | Current measured score |","|---|---:|---|---|"]
+     for j in jobs:
+         if j["evaluation_completed"]:continue
+         updates=(str(min(j["updates_per_arm"].values()))+"/960 verified updates per arm"+(" (receipt lower bound)" if j["updates_are_verified_receipt_lower_bounds"] else "")) if j["updates_per_arm"] else "optimizer updates not yet verified"
+@@ -1438,7 +1643,7 @@
+         "| Native FLARE | CPU | "+flare_val_score_status+" Author build, TRAIN000 full-site inference and prediction seal completed. Held-out VAL000 conversion: "+flare_val_conversion["status"]+"; native inference: "+flare_val_native["status"]+"; seal: "+flare_val_seal["status"]+". | "+flare_val_score_label+" |",
+         "| Our American C3 GNN | "+c3_device+" | "+str(focal_ready)+"/20 exact TRAIN plans completed. "+c3_status.rstrip(".")+". Original VAL000 full-length GNN block plan: "+gnn_VAL000_plan["status"]+". | no ancestry score |",
+         "| Full American TreeLoom versus NoMem | CPU | "+h060_status+" | no ancestry score |",
+-        "| TreeLoom Chickenpox Full/NoMem (H061) | CPU | "+h061_status.replace("|","\\|")+" | "+h061_val_summary+" |",
++        "| TreeLoom Chickenpox Full/NoMem (H061) | CPU | "+h061_status.replace("|","\\|")+" | "+h061_current_summary+" |",
+         "| H049 cut-memory candidate | CPU preparation | "+h049_prepare_status+". Three matched 32,446-parameter arms. Full 30 passes / 960 updates per arm planned. | no fit or accuracy yet |",
+         "| TreeLoom memory comparison | "+h050_device+" | "+h050_execution_status.rstrip(".")+". H045 own-state predictor retained initially, three 32,325-parameter memory arms and a 31,812-parameter continuation. "+("192 prediction seals verified, original GPU0 TRAIN CLI exit 1 preserved." if h050_evaluation["ready"] else "192 prediction seals required before scoring, ancestry metrics pending.")+" | "+h050_scores+" |",
+         "| Empirical data | CPU | H045 probabilities, ancestry proportions and genotype PCA completed for 24 query haplotypes / 12 subjects. Descriptive only, without known ancestry truth. | completed |","",
+@@ -1497,7 +1702,7 @@
+             "**Native FLARE:** "+flare_status+" Held-out VAL000 conversion: "+flare_val_conversion["status"]+".","",
+             "**Original remaining American VAL:** "+remaining_val_status+".","",
+             "**H050 saved-fit CPU evaluation:** "+h050_execution_status+" Present182: "+h050_scores+". [All four arms, seven cohorts and paired utility](research/current_scoreboard.md#h050-matched-direct-readout-outcome).","",
+-            "**H061 Chickenpox CPU:** "+h061_status+" "+h061_val_summary+". [Selected validation milestone](research/current_scoreboard.md#h061-chickenpox-selected-validation-training-milestone).","",
++            "**H061 Chickenpox CPU:** "+h061_status+" "+h061_current_summary+". [H061 current outcome and historical selected VAL](research/current_scoreboard.md#"+h061_current_anchor+").","",
+             "**Completed H046:** "+h046_outcome+" [Results](research/reviews/H046_completed_comparison_root_20261015_v1/REPORT.md).","",
+             "**Completed H047:** original-risk96.7777±0.5970%, balanced-risk96.7576±0.5287%. Both30passes/960updates. Registered accuracy benefit not met. [Results](research/reviews/H047_completed_comparison_root_20261015_v1/REPORT.md).","",
+             "**American GNN preparation:** "+fanout_status+". "+wave_text+" "+c3_status+".","",

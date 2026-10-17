@@ -1,0 +1,59 @@
+--- research/reviews/H058_full_parent_CPU_runtime_wrapper_source_20261017_v2/worker_entry_v1.py
++++ research/reviews/ordered_marker_full_learning_integration_source_20261017_v1/worker_entry_v1.py
+@@ -1,7 +1,7 @@
+ """Inactive actual CPU worker. No scientific import before admitted ROOT gate."""
+ from pathlib import Path
+ import argparse,hashlib,importlib,json,io,os,re,resource,stat,sys,time
+-from research.reviews.H058_full_parent_CPU_runtime_wrapper_source_20261017_v2 import root_contract_v1 as c
++from research.reviews.ordered_marker_full_learning_integration_source_20261017_v1 import root_contract_v1 as c
+ ROOT=c.ROOT
+ def jsonable_runtime_v1(value, torch, np):
+  """Bind serialization to the actual initialized local runtime, never lazy legacy globals."""
+@@ -28,11 +28,11 @@
+  def save(self,name,value,kind="json"):
+   self.fast("before_actual_bounded_serialization")
+   c.require(isinstance(name,str)and Path(name).name==name and name not in self.names,"One exclusive flat product name")
+-  allowed_json={"ROOT_started.json","all_32_H058_observation_recipes.json","CPU_complete_phase_preparation_cache.json",
+-   "initialization.json","same_marker_aligned.first_scheduled_step.json","same_marker_alignment_null.first_scheduled_step.json",
++  allowed_json={"ROOT_started.json","all_32_ordered_marker_observation_recipes.json","CPU_complete_phase_preparation_cache.json",
++   "initialization.json","ordered_marker_tree_feedback.first_scheduled_step.json","ordered_marker_sample_readout.first_scheduled_step.json",
+    "completed.json","failed.json","worker_failure.json","ROOT_completed.json"}
+   if kind=="torch":
+-   c.require(re.fullmatch(r"same_marker_(aligned|alignment_null)\.pass_(05|10|15|20|25|30)\.pt",name)is not None,
++   c.require(re.fullmatch(r"ordered_marker_(tree_feedback|sample_readout)\.pass_(05|10|15|20|25|30)\.pt",name)is not None,
+     "Twelve original per-arm checkpoints only")
+    c.require(self.torch_files<c.CAPS["maximum_torch_files"],"At most12original H058checkpoints")
+    buffer=CappedBuffer(c.CAPS["checkpoint_serialized_bytes"]);self.torch.save(value,buffer);data=buffer.getvalue()
+@@ -81,11 +81,11 @@
+    and set(os.sched_getaffinity(0))==set(q["cpu_ids"]),"CPU/32threads/interop1/affinity remain exact")
+   return dict(event=event,no_storage_scan_or_journal_call=True)
+  writer=BoundedWriter(s,q,g,fast,torch,lambda value:jsonable_runtime_v1(value,torch,np))
+- writer.save("ROOT_started.json",dict(status="started_H058_actual_complete32parent_CPU_TRAIN",input_ref=record,
++ writer.save("ROOT_started.json",dict(status="started_ordered_marker_actual_complete32parent_CPU_TRAIN",input_ref=record,
+   updates_per_arm=960,total_updates=1920,first_scheduled_checks_timed_inline=True,standalone_probe=False,
+   device="cpu",physical_gpu=None,CPU_threads=32,prepared_cache_cap_bytes=32*2**30,VAL_truth_authorized=False,TEST_deferred=True))
+  try:
+-  b=c.binding();c.context(q["training_context_ref"])
++  b=c.binding();c.context(q["training_context_ref"]);c.validate_scientific_declarations(q["scientific_config"])
+   from arggnn.census_tsinfer_fit_v1 import ConsumerReaderV1
+   base=ConsumerReaderV1()
+   train=c.read(b["original_TRAIN_bindings_ref"])["parents"]
+@@ -104,15 +104,15 @@
+   c.require(ctx["phase"]=="train"and set(ctx["bindings"])==set(c.TRAIN),"Only original32TRAIN target authority")
+   runner=importlib.import_module(b["runner_module"])
+   fast("before_actual_complete960_eacharm")
+-  result=runner.run_context_v1(ctx,record)
++  result=runner.run_context_v2(ctx,record)
+   fast("after_actual_complete960_eacharm")
+-  c.require(result["steps"]=={"same_marker_aligned":960,"same_marker_alignment_null":960}
++  c.require(result["steps"]=={"ordered_marker_tree_feedback":960,"ordered_marker_sample_readout":960}
+    and result["VAL_truth_read"]is False and result["outer_truth_read"]is False,"Actual complete1920updates; no VAL/outer")
+   return writer.save("ROOT_completed.json",dict(status=c.STATUSES[c.PHASE],parent_id=c.PARENT,phase=c.PHASE,
+    input_ref=record,root_driver_ref=c.ref(c.DRIVER),result_ref=c.ref(s["output_directory"]+"/completed.json"),
+    updates_per_arm=960,total_updates=1920,device="cpu",physical_gpu=None,TEST_deferred=True,automatic_close_or_credit=False))
+  except BaseException as error:
+-  try:writer.save("worker_failure.json",dict(status="failed_H058_actual_complete_CPU_training",exception_type=type(error).__name__,
++  try:writer.save("worker_failure.json",dict(status="failed_ordered_marker_actual_complete_CPU_training",exception_type=type(error).__name__,
+    message=str(error)[:2000],no_success_or_automatic_retry_claimed=True))
+   except BaseException:pass
+   raise

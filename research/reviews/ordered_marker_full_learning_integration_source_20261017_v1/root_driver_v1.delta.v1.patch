@@ -1,0 +1,95 @@
+--- research/reviews/H058_full_parent_CPU_runtime_wrapper_source_20261017_v2/root_driver_v1.py
++++ research/reviews/ordered_marker_full_learning_integration_source_20261017_v1/root_driver_v1.py
+@@ -2,7 +2,7 @@
+ from pathlib import Path
+ from datetime import datetime,timezone
+ import argparse,ctypes,difflib,hashlib,json,os,signal,stat,subprocess,sys,time
+-from research.reviews.H058_full_parent_CPU_runtime_wrapper_source_20261017_v2 import root_contract_v1 as c
++from research.reviews.ordered_marker_full_learning_integration_source_20261017_v1 import root_contract_v1 as c
+ ROOT=c.ROOT;HERE=c.HERE;SOURCE=c.DRIVER;PIDFD=c.PIDFD;OWNED=c.OWNED
+ need=c.require;local=c.local;ref=c.ref;read=c.read;load=c.load;put=c.put;current=c.current;guard=c.guard
+ CAPS={};OUTPUT=PARENT=CONFIG=None
+@@ -11,9 +11,10 @@
+  s,q,cfg=c.input_spec(record);CAPS=c.CAPS;OUTPUT=s["output_directory"];PARENT=c.PARENT;CONFIG=s["refs"]["config"]
+  return s,q,cfg
+ def validate_completion(value,q):
+- need(value["status"]==c.STATUSES[c.PHASE]and value["parent_id"]==c.PARENT,"Exact H058CPU completion envelope")
+- result=read(value["result_ref"]);arms=("same_marker_aligned","same_marker_alignment_null")
+- need(result["status"]=="completed_fixed30pass_full_TRAIN"and result["hypothesis_id"]=="H058"
++ need(value["status"]==c.STATUSES[c.PHASE]and value["parent_id"]==c.PARENT,"Exact ordered_markerCPU completion envelope")
++ result=read(value["result_ref"]);arms=("ordered_marker_tree_feedback","ordered_marker_sample_readout")
++ need(result.get("schema")=="ordered_marker_placement_train_completion_v2"and result.get("producer_ref")==c.binding()["runner_source_ref"]
++  and result.get("source_manifest_ref")==c.binding()["source_manifest_ref"]and result["status"]=="completed_fixed30pass_full_TRAIN"and result["hypothesis_id"]=="ordered_marker_placement_v2"
+   and result["steps"]=={arm:960 for arm in arms}and result["arms"]==list(arms)
+   and [row["pass_index"]for row in result["history"]]==list(range(1,31))and set(result["checkpoint_groups"])=={"5","10","15","20","25","30"}
+   and all(set(rows)==set(arms)for rows in result["checkpoint_groups"].values())
+@@ -21,20 +22,35 @@
+   and result["scientific_protocol"]==q["scientific_config"]["scientific_protocol"]
+   and result["VAL_truth_read"]is False and result["outer_truth_read"]is False and result["disposable_updates"]==0,
+   "Actual full32parents x30passes/960each/1920total, no qualification substitute")
++def _make_root_mutation_memo(g,q):
++ """Authenticate the reviewed memo through the existing direct integration manifest."""
++ spec=c.binding()["transaction_memo"];manifest=read(q["source_manifest_ref"]);pins=manifest["source_sha256"]
++ for key in("source_ref","source_manifest_ref","source_handoff_ref","independent_review_ref","independent_review_manifest_ref"):
++  record=spec[key]
++  need(pins.get(record["path"])==record["sha256"],"Exact transitive memo/component-review closure")
++  c.raw(record)
++ review=read(spec["independent_review_ref"])
++ need(review.get("verdict")=="SOURCE_PASS"and review.get("source_only")is True
++  and review.get("source_ref")==spec["source_ref"],"Independent exact memo component SOURCE_PASS")
++ cache_refs=[dict(path=path,sha256=sha)for path,sha in sorted(pins.items())
++  if Path(path).suffix in(".py",".sh")and path.split("/")[0]in("src","scripts","research")]
++ memo=load(spec["source_ref"],"_fresh_ROOT_transaction_memo")
++ return memo.RootMutationMemo(g,integration_manifest_ref=q["source_manifest_ref"],adapter_ref=spec["source_ref"],cache_refs=cache_refs)
++
+ def admit(request_ref):
+  q,caps,_=c.validate_request(request_ref);packet=local(q["packet_directory"]);output=q["output_directory"]
+  need(set(q["cpu_ids"])<=os.sched_getaffinity(0),"ROOT supplies32actually available CPU identities")
+  need(not packet.exists()and not local(output).exists(),"Fresh exclusive one-shot packet/output")
+- g=guard(False);preparation=local(q["preparation_directory"]);stem=packet.name
++ g=guard(False);memo=_make_root_mutation_memo(g,q);preparation=local(q["preparation_directory"]);stem=packet.name
+  put(preparation/(stem+".scientific_config.json"),q["scientific_config"])
+  cfgref=put(preparation/(stem+".config.json"),c.make_config(q,caps));sources=c.sources()["source_sha256"]
+  closure=put(preparation/(stem+".source_and_input_closure.json"),dict(source_sha256=sources,root_stage_request_ref=request_ref))
+  implementation=ref(g.budget.SOURCE_REL);launcher=ref(g.budget.LAUNCHER_REL)
+- with g.budget.v4.mutex(ROOT):state=g._state_locked(implementation["sha256"],launcher["sha256"],fresh=True)
++ state=memo.read_state_v1(expected_source_sha256=implementation["sha256"],expected_launcher_sha256=launcher["sha256"])
+  consumers=g.consumer_bindings_v1(list(state[3].values()),c.direct_roles(request_ref,q,cfgref,closure))
+- need(len(consumers)<=64,"Complete original returned guard roles and H058direct union<=64 before reserve")
+- job="H058-full-parent-CPU-"+packet.name
+- reserve=dict(key="H058/"+job,output=str(ROOT/output),auxiliary_scopes=[str(packet)],
++ need(len(consumers)<=64,"Complete original returned guard roles and ordered_markerdirect union<=64 before reserve")
++ job="ordered_marker-full-parent-CPU-"+packet.name
++ reserve=dict(key="ordered_marker/"+job,output=str(ROOT/output),auxiliary_scopes=[str(packet)],
+   reserved_bytes=caps["reservation_bytes"],consumer_bindings=consumers)
+  # Exact original read-only schema/type/hash preflight over every returned/current role.
+  # This precedes authority creation and reservation accounting mutation.
+@@ -44,7 +60,7 @@
+  authority=g.operation_draft_v1("reserve",reserve,expected_before=g._pins(state[2]),bindings=state[3])
+  authority.update(active=True,expires_at_utc=q["expires_at_utc"])
+  ar=put(preparation/(stem+".reserve_authority.json"),authority)
+- receipt=g.apply_reserve_v1(ar,expected_source_sha256=implementation["sha256"],expected_launcher_sha256=launcher["sha256"])
++ receipt=memo.reserve_v1(ar,expected_source_sha256=implementation["sha256"],expected_launcher_sha256=launcher["sha256"])
+  need(not packet.exists() and not local(output).exists(),"Reserved target paths remain absent before exclusive creation")
+  packet.mkdir()
+  rr=put(packet/"reserve_receipt.json",receipt)
+@@ -54,8 +70,8 @@
+   completed_overlay_policy_ref=c.POLICY_REF,storage_policy_selector_ref=c.SELECTOR_REF,
+   budget_components=dict(implementation=implementation,launcher=launcher,consumer_adapter=c.GUARD_REF))
+  sr=put(packet/"storage.json",storage)
+- s=dict(schema="H058_full_parent_CPU_admitted_input_v1",status="active",active=True,root_authorizer="root_agent",execution_authorized=True,
+-  GPU_authorized=False,physical_gpu=None,parent_id=c.PARENT,phase=c.PHASE,stage="train",job_id=job,packet_directory=q["packet_directory"],
++ s=dict(schema="ordered_marker_full_parent_CPU_admitted_input_v1",status="active",active=True,root_authorizer="root_agent",execution_authorized=True,
++  hypothesis_id=c.HYPOTHESIS,GPU_authorized=False,physical_gpu=None,parent_id=c.PARENT,phase=c.PHASE,stage="train",job_id=job,packet_directory=q["packet_directory"],
+   output_directory=output,worker_auxiliary_scope=q["packet_directory"]+"/worker_aux",root_stage_request_ref=request_ref,
+   root_driver_ref=ref(SOURCE),main_source_ref=ref(c.ENTRY),source_sha256=sources,transitive_source_closure_ref=closure,
+   refs=dict(config=cfgref,runtime=q["runtime_ref"],storage=sr),runtime_ref=q["runtime_ref"],storage=storage,
+@@ -215,7 +231,7 @@
+     drained=status is not None and absence and eof and bool(groups) and all(x["absent"] is True for x in groups)
+     if not drained:failure=failure or "Unresolved owned drain/wait"
+     if rc!=0 or any(x["returncode"]!=0 for x in adopted):failure=failure or "Genuine nonzero/unknown child wait"
+-    observation=dict(schema="H058_full_parent_CPU_actual_wait_v1",input_ref=r,pid=None if proc is None else proc.pid,
++    observation=dict(schema="ordered_marker_full_parent_CPU_actual_wait_v1",input_ref=r,pid=None if proc is None else proc.pid,
+         actual_direct_worker_wait=status is not None,actual_OS_wait_status=status,returncode=rc,
+         all_owned_processes_and_groups_drained=drained,group_observations=groups,adopted_waits=adopted,
+         operational_failure=failure,cleanup_errors=errors,outer_truth_scored=False,automatic_close_or_credit=False)
