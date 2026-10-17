@@ -60,9 +60,9 @@ Figure~\ref{fig:architecture} shows the model. An encoder of observed data initi
 \begin{figure*}[!t]
 \centering
 \includegraphics[width=\textwidth]{figures/TreeLoom_architecture.pdf}
-\caption{\textbf{a,} Toy ARG ribbons follow recorded edges from parent to child over genomic spans. Diamonds mark recombination.
-\textbf{b,} Marginal trees suppress unary nodes. References $r_1$--$r_4$ are circles. Query $q_1$ is a magenta square. Abbreviated inputs show observed alleles, ancestry vectors ordered [Ana, CHG, WHG, EHG], and unknown ancestry (?). $[\tau,0,0]$ shows age and zero root/sample status indicators for a nonroot nonsampled ancestor. The encoder summarizes all observed sites.
-\textbf{c,} The MLP initializes each node $b_v$. Tree edges define both GNN traversals. Representative GNN icons denote complete upward/downward traversals with shared weights and observed gates. $\Delta_{\rm str}$ sums structural residuals for each node. Separate sample memory scans the same sampled identities in both genomic directions, including averaging within the current group and centering (Methods). Linear projects this correction to the current group representative. Both residuals are added to the original base before traversal two. All sample embeddings remain aligned. A BiGRU with one layer also receives interval geometry $I_t$. Concatenation combines local and recurrent embeddings before classification. Colored probabilities and argmax calls illustrate $q_1$, not fitted predictions.}
+\caption{\textbf{a,} Recorded toy ARG edges span genomic intervals. Diamonds mark recombination.
+\textbf{b,} Marginal trees suppress unary nodes. Circles are references $r_1$--$r_4$, magenta squares query $q_1$. Inputs show alleles, reference ancestry [Ana, CHG, WHG, EHG], unknown query ancestry (?), and node age $\tau$ with status flags.
+\textbf{c,} An MLP initializes node states $b_v$. Each GNN traverses every $T_t$ upward and downward. Both passes share weights $\theta$ and observed gates. Icons represent operators, not fixed topologies. $\Delta_{\rm str}$ combines structural residuals. Bidirectional exponential moving averages (EMA) carry sample history with span decay. Group averaging and centering precede Linear (Methods). Both corrections add to $b_v$ before pass 2. A BiGRU with one layer processes aligned sample embeddings and interval geometry. Concatenation joins local and recurrent embeddings for classification. Tracks illustrate $q_1$ probabilities and calls over $I_t$, not fitted predictions.}
 \label{fig:architecture}
 \end{figure*}
 

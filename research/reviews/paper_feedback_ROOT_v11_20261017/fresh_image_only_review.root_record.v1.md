@@ -1,0 +1,9 @@
+# Fresh image-only reading of Figure 1 v11
+
+ROOT concise record of the independent agent figure_v11_blind_reader, whose full response is retained in this chat. The agent received only the exact PNG, without manuscript, caption, code, AGENTS or prior reviews. The image SHA is acc176d66e4c0d6985f591503dde16988bc093bca7a47816ad5b8febbd6b6459.
+
+The reader interpreted local genealogies over genomic intervals, observed binary alleles and node age/status features, known one-hot reference ancestries and an unknown query label. It traced input MLP to the first upward/downward GNN, the structural and bidirectional EMA branches, a linear memory correction, addition with the base state, the second shared GNN, aligned sample embeddings, one-layer BiGRU plus interval information, concatenation with a local bypass, final MLP probabilities and argmax ancestry. It correctly read the illustrated query call as WHG in all three intervals.
+
+Query identity was strong through magenta tips, rows and output. Reference identity was recoverable by labels despite changing leaf order. Interval hatches and T1/T2/T3 labels maintained the tree sequence, while miniature GNN icons had no individually traceable gray leaves. The relation between intervals and trees was implied by order and hatching.
+
+No clear text-arrow collision was found. Main blocks and routes were distinguishable at seven inches. Tiny branch arrows, pale gray connections and vector divisions required close inspection. The reader could not infer exact feature packing, flag definitions, message aggregation, EMA equation, spacing treatment, objective, numerical probabilities or detailed reference influence. It interpreted the diagram as an overall computation graph, not a complete mathematical specification. These limits are retained, not relabelled as complete architecture recovery.

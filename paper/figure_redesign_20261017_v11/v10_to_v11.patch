@@ -1,0 +1,103 @@
+--- v10/build_figure.py
++++ v11/build_figure.py
+@@ -1,4 +1,4 @@
+-"""TreeLoom v10: editable, static scientific schematic. No model execution.
++"""TreeLoom v11: editable, static scientific schematic. No model execution.
+ All outputs and caches stay in this directory. Runtime: existing repository venv.
+ """
+ from pathlib import Path
+@@ -158,7 +158,7 @@
+         x,_=pp[q]
+         ax.add_patch(Rectangle((x-.055,4.82),.11,.145,fc=GENO,ec="#a6b4c1",lw=.45,zorder=4))
+         txt(x,4.893,str(int(full.genotype_matrix()[i,q])),7.0,zorder=5)
+-    txt(cx,4.70,f"$g_{{{i+1},q}}$",7.2,c=MUTED)
++    txt(cx,4.70,"Observed alleles",7.0,c=MUTED)
+ # One ancestry vector per persistent sample, shared by all three trees.
+ axorder=[1,2,4,0,3]; axcenters=[3.06,3.85,4.64,5.43,6.22]
+ for q,cx in zip(axorder,axcenters):
+@@ -179,6 +179,7 @@
+     x=p[0]+.16+j*.11
+     ax.add_patch(Rectangle((x,p[1]+.095),.11,.15,fc=FAINT,ec=LIGHT,lw=.45))
+     txt(x+.055,p[1]+.17,s,7.0)
++txt(p[0]+.325,p[1]+.34,"Node age / flags",7.0,c=MUTED)
+ # All observations, not just a chosen tip, feed the encoder.
+ # Sole panel-b output leaves the enclosing group at its left edge, rather
+ # than attaching to only the ancestry row at the bottom.
+@@ -212,15 +213,15 @@
+             if direction=="down":start,end=end,start
+             arrow(start,end,INK,.55,2.6)
+     for u,(x,y) in p.items():dot(x,y,u if u in ROW else None,r=.0115)
+-def gnn(x,y):
++def gnn(x,y,pass_number):
+     box(x,y,1.16,.84,"#fbfcfe",ec="#bacbd8",lw=.85)
+-    txt(x+.58,y+.72,r"GNN$_\theta$",8.3)
++    txt(x+.58,y+.72,f"Pass {pass_number}: "+r"GNN$_\theta$($T_t$)",7.1)
+     message_tree(x+.28,y+.24,direction="up")
+     message_tree(x+.86,y+.24,direction="down")
+     txt(x+.28,y+.10,"Up",7.3)
+     txt(x+.86,y+.10,"Down",7.3)
+     arrow((x+.42,y+.10),(x+.66,y+.10),INK,.75,4.8)
+-gnn(1.37,3.19)
++gnn(1.37,3.19,1)
+ line([(2.53,3.645),(2.79,3.645)],INK,.85)
+ dot(2.79,3.645,r=.020)
+ # The original base, not the first pass output, is the residual source.
+@@ -233,7 +234,7 @@
+ arrow((4.18,3.645),(5.88,3.645),ms=5)
+ # Independent same-sample scans before pass two.
+ box(3.14,2.18,1.95,.94,FAINT,ec="#bacbd8",lw=.85)
+-txt(4.115,3.015,"Sample memory",8.0)
++txt(4.115,3.015,"Bidirectional EMA",8.0)
+ memcols=[3.68,4.23,4.78]
+ for j,x in enumerate(memcols):txt(x,2.82,f"$T_{j+1}$",7.0)
+ memys=[2.66-.105*k for k in range(5)]
+@@ -252,9 +253,10 @@
+ ax.add_patch(Circle((5.99,3.645),.095,fc="white",ec=INK,lw=.9,zorder=5))
+ txt(5.99,3.645,"+",10,zorder=6)
+ # Orthogonal return lane, kept clear of all labels and scan rows.
+-route([(6.085,3.645),(6.77,3.645),(6.77,1.98),(.84,1.98),(.84,1.62)],INK,.85,5.5)
++route([(6.085,3.645),(6.24,3.645),(6.24,1.98),(.84,1.98),(.84,1.62)],INK,.85,5.5)
+ # Second complete shared traversal.
+-gnn(.26,.78)
++gnn(.26,.78,2)
++txt(.84,.63,r"shared $\theta$",7.1,c=MUTED)
+ arrow((1.42,1.245),(1.60,1.245),ms=5)
+ 
+ # Readout retains every sample; rows follow the same identity permutation.
+@@ -309,7 +311,9 @@
+ txt(6.345,.665,"argmax",7.0)
+ arrow((6.345,.81),(6.345,.77),MUTED,.7,4.4)
+ arrow((6.345,.56),(6.345,.48),MUTED,.7,4.4)
+-txt(6.345,.19,r"$q_1$",7.6,c=QUERY)
++txt(5.78,.41,r"$q_1$",7.6,ha="right",c=QUERY)
++for i,(l,r) in enumerate(zip(breaks[:-1],breaks[1:])):
++    txt(px0+(px1-px0)*(l+r)/20000,.21,f"$I_{i+1}$",7.2)
+ # Shared class key, with ancestry hues reserved for known labels and outputs.
+ for j,name in enumerate(ANAMES):
+     x=.33+j*.67
+@@ -329,7 +333,7 @@
+ assert not outside,outside
+ assert min(t.get_fontsize() for t in texts)>=7
+ (OUT/"text_layout_bounds.json").write_text(json.dumps(bounds,indent=2)+"\n")
+-metadata={"revision":"v10_whole_observed_input_collector","figure_inches":[W,H],
++metadata={"revision":"v11_operation_and_interval_clarity","figure_inches":[W,H],
+  "minimum_font_pt":min(t.get_fontsize() for t in texts),"panel_titles":False,
+  "panels":["a","b","c"],"trees":3,"samples":5,"genomic_breakpoints_bp":breaks,
+  "ARG_native_edge_surfaces":native_polys,"ARG_edge_surface_count":len(native_polys),
+@@ -338,13 +342,14 @@
+  "query_identity":"magenta open square and magenta sample row; all others neutral",
+  "feature_values":"actual hypothetical 0/1 genotypes on toy ARG, one site per interval; supplied schematic known source labels; query ancestry unknown",
+  "memory_display_order":[NAMES[q] for q in ROW],"sample_readout_display_order":[NAMES[q] for q in ROW],
+- "weight_sharing":"both complete Up/Down blocks use theta; not two unrelated graph layers",
++ "weight_sharing":"explicit Pass1/Pass2 headers, GNN_theta(T_t) at both stages, and shared theta label; every local tree receives both complete Up/Down passes",
+  "residual":"original base + current-node structural residual + sample-memory residual before second traversal",
+- "memory_abstraction":"five independent same-sample forward/reverse rows; cut pooling, centering, decay defined in Methods; displayed Linear is real memory output projection",
++ "memory_abstraction":"Bidirectional EMA names the actual same-sample forward/reverse span-decay operation; group averaging and centering remain in Methods; Linear is the real output projection",
+  "readout":"all sample embeddings -> one-layer BiGRU plus local skip -> concat -> MLP -> four probabilities; q1 selected only for displayed track",
+  "geometry_input":"native interval strip abbreviates log-scaled span and neighboring center distances",
+  "no_graph_pooling":True,"output_probs":"illustrative, not a model run","operation_marker":"root executed once; not duplicated",
+  "observed_input_collector":"single frame around all panel-b observed input glyphs and one connected exit to MLP; edges separately define GNN traversals",
++ "clarity_changes":{"alleles":"familiar Observed alleles label replaces opaque g notation","internal_features":"Node age / flags label above the actual tau,0,0 callout","per_tree":"both headers explicitly name GNN_theta(T_t) and numbered passes","output":"I1,I2,I3 label the exact intervals below the q1 call track","shortened_return_route":"outer x coordinate6.77 to6.24, no layer or junction changes"},
+  "validation":{"exact_trees":True,"native_ARG_edges_only":True,"strict_parent_age":True,"minimum_font_7pt":True,"no_text_outside_canvas":True}}
+ (OUT/"figure_metadata.json").write_text(json.dumps(metadata,indent=2)+"\n")
+ print(json.dumps(metadata,indent=2))
