@@ -546,7 +546,68 @@ def native_flare_val000_completed_score():
         status="Completed fixed native-call score on one VAL parent, not a multi-parent paper-table reproduction.")
 
 
+def publish_prepared_snapshot():
+    """Publish already-scored summaries and the user hold, with no scoring."""
+    import re
+    policy=read("configs/benchmarks/execution_policy.json")
+    status=read("research/frozen_benchmark_status.json")
+    snapshot=read("research/current_scoreboard.json")
+    held=policy.get("benchmark_execution_approved") is not True
+    snapshot["benchmark_preparation"]={
+        "execution_held_by_user":held,
+        "policy":policy,
+        "scientific_admission_families_released":False,
+        "historical_execution_fields_are_not_current_process_observations":True,
+        "updated_utc":status["updated_utc"],
+    }
+    selected=[("H050 stable_leaf_memory","TreeLoom"),
+              ("H050 h045_continued_training","TreeLoom-NoMem"),
+              ("Current native ARGMix","Released ARGMix"),
+              ("Native AncestralPaths derived C4","AncestralPaths, derived C4")]
+    by_name={row["name"]:row for row in snapshot["models"]}
+    metrics=("accuracy","nll","boundary_f1")
+    best={}
+    for key in metrics:
+        vals=[by_name[name]["cohorts"][PRIMARY][key]["mean"] for name,_ in selected]
+        numeric=[x for x in vals if isinstance(x,(int,float)) and math.isfinite(x)]
+        best[key]=(min(numeric) if key=="nll" else max(numeric)) if numeric else None
+    lines=["<!-- CURRENT_SCOREBOARD_START -->","## Completed comparison", "",
+           "Benchmark execution is held pending user approval. No scientific jobs are scheduled by this refactor.","",
+           "European development panel: eight reused simulation parents. Values are equal-parent means ± sample SD. These common-data results do not establish exact publication reproduction or independent test performance.","",
+           "| Method | Present-day span accuracy % ↑ | NLL ↓ | Boundary F1 at 1 kb % ↑ |",
+           "|---|---:|---:|---:|"]
+    for name,label in selected:
+        values=by_name[name]["cohorts"][PRIMARY]
+        cells=[]
+        for key in metrics:
+            value=fmt(values[key],key!="nll")
+            if best[key] is not None and values[key]["mean"]==best[key]:
+                value="**"+value+"**"
+            cells.append(value)
+        lines.append("| "+label+" | "+" | ".join(cells)+" |")
+    lines += ["", "TreeLoom-NoMem removes the persistent sample memory and retains the matched continued-training control. AncestralPaths C4 is an explicit collapse of six native path classes. Native hard calls and raw zero posterior probabilities are retained.","",
+              "Native FLARE's completed American three-source results appear above. TreeLoom and native ARGformer on the same American support remain pending. GST expanded fitting is not implemented. There are no new scores from this code preparation.","",
+              "[All recorded setup and cohort metrics](research/current_scoreboard.json) · [Prior research and results](docs/research_history_before_benchmark_refactor_20261018.md)",
+              "<!-- CURRENT_SCOREBOARD_END -->"]
+    block="\n".join(lines)
+    p=ROOT/"README.md"
+    text,count=re.subn(r"<!-- CURRENT_SCOREBOARD_START -->.*?<!-- CURRENT_SCOREBOARD_END -->",
+                      lambda _:block,p.read_text(),count=1,flags=re.S)
+    if count!=1:raise ValueError("Expected one maintained scoreboard section")
+    p.write_text(text)
+    detail=block.replace("<!-- CURRENT_SCOREBOARD_START -->","# Current benchmark status")
+    detail=detail.replace("<!-- CURRENT_SCOREBOARD_END -->","")
+    detail=detail.replace("](research/","](").replace("](docs/","](../docs/")
+    (ROOT/"research/current_scoreboard.md").write_text(detail+"\n")
+    (ROOT/"research/current_scoreboard.json").write_text(json.dumps(snapshot,indent=2,sort_keys=True)+"\n")
+    from update_frozen_benchmark_progress import publish
+    publish()
+    print(json.dumps(dict(status="preparation_only",execution_held=held,new_scores=0,jobs_started=0)))
+
+
 def main():
+    if (ROOT/"configs/benchmarks/methods.json").exists():
+        return publish_prepared_snapshot()
     import importlib.util
     normalization_path=ROOT/"research/reviews/current_score_reporting_audit_20261015_v1/normalization_reference_v1.py"
     normalization_spec=importlib.util.spec_from_file_location("_scored_cells_reporting_normalization",normalization_path)
