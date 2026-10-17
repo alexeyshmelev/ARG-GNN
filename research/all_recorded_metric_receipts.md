@@ -233,6 +233,8 @@ This inventory includes historical pilots, selected-model scores, timing and par
 | TreeLoom_Chickenpox_CPU_20261017_v1 | engineering_receipt |  | {"parameters": 24865} | [selection_seed101_no_memory.json](../experiments/results/TreeLoom_Chickenpox_CPU_20261017_v1/selection_seed101_no_memory.json) |
 | TreeLoom_Chickenpox_CPU_20261017_v1 | engineering_receipt |  | {"parameters": 25378} | [selection_seed202_full.json](../experiments/results/TreeLoom_Chickenpox_CPU_20261017_v1/selection_seed202_full.json) |
 | TreeLoom_Chickenpox_CPU_20261017_v1 | engineering_receipt |  | {"parameters": 24865} | [selection_seed202_no_memory.json](../experiments/results/TreeLoom_Chickenpox_CPU_20261017_v1/selection_seed202_no_memory.json) |
+| TreeLoom_Chickenpox_CPU_20261017_v1 | engineering_receipt |  | {"parameters": 25378} | [selection_seed303_full.json](../experiments/results/TreeLoom_Chickenpox_CPU_20261017_v1/selection_seed303_full.json) |
+| TreeLoom_Chickenpox_CPU_20261017_v1 | engineering_receipt |  | {"parameters": 24865} | [selection_seed303_no_memory.json](../experiments/results/TreeLoom_Chickenpox_CPU_20261017_v1/selection_seed303_no_memory.json) |
 | ancestralpaths_biological_pilot_v2 | engineering_receipt | passed | {"elapsed_seconds": 175.43534462340176} | [native_receipt.json](../experiments/results/ancestralpaths_biological_pilot_v2/native_receipt.json) |
 | ancestralpaths_native_runtime_v1 | engineering_receipt | passed | {"parameters": 26630} | [receipt.json](../experiments/results/ancestralpaths_native_runtime_v1/receipt.json) |
 | ancestralpaths_stable_readout_v1 | engineering_receipt | passed | {"elapsed_seconds": 38.83879740256816} | [receipt.json](../experiments/results/ancestralpaths_stable_readout_v1/receipt.json) |

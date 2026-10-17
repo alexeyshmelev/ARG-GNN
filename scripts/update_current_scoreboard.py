@@ -1078,8 +1078,9 @@ def main():
     h061_runtime=h061_training_snapshot(gpu0_snapshot or maybe_read(H050_RUNTIME_STATUS) or {})
     h061_status=h061_runtime["summary"]
     h061_val_summary=h061_forecast_summary(h061_runtime)
+    h061_acceptance_text=("TRAIN completion accepted after actual worker/supervisor 0 and owned drain. Comparator freeze and separately authorized TEST prediction/scoring remain pending." if h061_runtime.get("overall_job_completion_accepted") is True else "Overall completion is unaccepted pending genuine wait/drain and consumed outer-terminal acceptance.")
     h061_lines=["", "## H061 Chickenpox selected validation training milestone", "", h061_status, "", h061_val_summary+".", "",
-        "These are selected validation count forecasts on 78 weeks and all 20 counties, using 52 past weeks and a TRAIN-only scaler. They are not TEST results or ancestry accuracy. At this milestone snapshot, overall completion is unaccepted pending genuine wait/drain and consumed outer-terminal acceptance. Registered budget: AdamW learning rate 0.001, weight decay 0.0001, six fits of 40 epochs and 800 updates each, 4,800 total updates; CPU 223, one thread, FP32.", ""]
+        "These are selected validation count forecasts on 78 weeks and all 20 counties, using 52 past weeks and a TRAIN-only scaler. They are not TEST results or ancestry accuracy. "+h061_acceptance_text+" Registered budget: AdamW learning rate 0.001, weight decay 0.0001, six fits of 40 epochs and 800 updates each, 4,800 total updates; CPU 223, one thread, FP32.", ""]
     h061_milestone=h061_runtime.get("training_milestone")
     if h061_milestone:
         h061_lines += ["Snapshot UTC: "+h061_milestone["snapshot_utc"]+"; "+str(h061_milestone["completed_fit_count"])+"/6 completed fits of 40 epochs, "+

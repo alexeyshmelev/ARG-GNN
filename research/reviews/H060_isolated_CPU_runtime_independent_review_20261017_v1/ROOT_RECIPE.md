@@ -1,0 +1,19 @@
+# Concrete ROOT handoff after independent SOURCE_PASS
+
+1. Bind review.v1.json from this directory as source_review_ref. Bind the exact source manifest dd549708d11d06a1c1583197c5f837b77544a2146badbd9c5a161f2059446b3b and source handoff 0245786927fc31dad5f21d84e6911a0374b0756756e727942ee9134242e90a30 from research/reviews/H060_isolated_CPU_runtime_source_20261017_v1. The compatible scientific runner is e6d5e6b1a303f9e62c30bb6918e3b0e2e55e291a847f3c6dd63d7a9779cabf6d, with scientific review 9d877a03eec54245d9840ab26304bb869f7998d85fca150f58ee66a4940bc813.
+
+2. ROOT selects the actually current active native7/H050 or reviewed Relate64 selector, using its exact active record/policy and every returned direct role. Do not select a parent whose future mutations ROOT has revoked. Preserve original 980 GB ceiling / 1 TB human limit / 950 GB warning and all old files, clocks, failures and charges. No discovered/default/fallback selector, claimed credit or live migration is allowed.
+
+3. ROOT supplies actual qualified shared CPU runtime and 32 CPU IDs, zero CUDA, interop1, FP32, zero data workers. Preserve 128 GiB whole-owned RSS, 96 GiB complete-parent cache, 64,000,000 nodes, 20,000 holds, 2 GiB episode-payload failstop and 32,000,000-byte truth decompression cap. These values are bounds, not measured fits. Do not add a neural/FP64/update canary.
+
+4. Create one new preparation directory beginning research/reviews/H060_isolated_CPU_ROOT_preparation_. Stage actual immutable request, directive, runtime, qualification, training context and H060 registration snapshots there. Use a new created_at_utc/expires_at_utc interval that initially leaves more than 87,300 seconds; preserve all older clocks. Choose new never-reserved packet research/reviews/H060_isolated_CPU_ROOT_actual_<fresh> and output experiments/results/H060_isolated_CPU_<fresh>. Both charged targets remain absent through reserve. ROOT must not pre-create the driver's packet-basename .config.json, .source_and_input_closure.json or .reserve_authority.json staging products.
+
+5. Copy the inactive scientific config and change only execution_enabled=true plus the permitted operational failstops. Request and directive must match exactly. Keep accepted saved600 backbone, all 20 TRAIN plans/joins, seed70001/order70002, both arms, 30 passes, 600 additional updates per arm / 1,200 total, all focal support, original AdamW/CE/clip and six paired checkpoints. Keep all 40 native isolated zero-site intervals. No resume, fallback, pruning, fake roots/edges or workload reduction.
+
+6. From /workspace-SR003.nfs2/ARG-GNN, run only:
+.runtime/env/bin/python -B -s -m research.reviews.H060_isolated_CPU_runtime_source_20261017_v1.root_driver_v1 --admit-ref '<exact actual JSON request ref>'
+The driver stages metadata outside charged targets, verifies the current guard and complete union at or below 64 refs, preflights original scope types/hashes/freshness, and reserves exactly 33,554,432 bytes. Consume the genuine admission terminal. Only outer0 permits running its exact emitted execution_argv once; do not construct a manual worker command.
+
+7. Preserve finite 86,700-second supervisor wall bound, 86,400-second scientific failstop, work/cleanup/evidence reserves, startup gate and owned lifecycle. Total storage stays 25 MiB output + 5 MiB AUX + 2 MiB packet, within 32 MiB; at most seven 3 MiB checkpoint serializations and 3 MiB aggregate JSON. First real update checks and timing occur inside scheduled full training.
+
+8. Consume the genuine supervisor terminal and retain actual worker wait/drain. Success requires both full 600-update arms, all six paired checkpoints, complete envelopes and actual exit0/drain; metadata alone proves no completion. Later scoring still requires all 60 matched VAL prediction seals before either arm VAL truth/selection, with TEST deferred. No automatic retry, close, credit or next stage.

@@ -1,0 +1,120 @@
+--- research/reviews/American_TreeLoom_matched_CPU_execution_source_20261017_v5/root_contract_v1.py
++++ research/reviews/H060_isolated_CPU_runtime_source_20261017_v1/root_contract_v1.py
+@@ -3,7 +3,7 @@
+ from datetime import datetime,timezone
+ import copy,hashlib,importlib.util,json,sys
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-REL=HERE="research/reviews/American_TreeLoom_matched_CPU_execution_source_20261017_v5"
++REL=HERE="research/reviews/H060_isolated_CPU_runtime_source_20261017_v1"
+ SOURCE=HERE+"/root_contract_v1.py";DRIVER=HERE+"/root_driver_v1.py";ENTRY=HERE+"/worker_entry_v1.py"
+ MANIFEST=HERE+"/source_manifest.v1.json";HANDOFF=HERE+"/source_handoff.v1.json"
+ PHASE="train_matched";PARENT="American_C3_short20_TRAIN_TreeLoom_matched"
+@@ -25,23 +25,54 @@
+  for path,sha in m["source_sha256"].items():raw(dict(path=path,sha256=sha))
+  return m
+ def selected(record):
+- v=read(record)
+- require(v.get("active")is True and v.get("root_authorizer")=="root_agent"and v.get("selector_source_ref")==SELECTOR
+-  and v.get("source_ref")==GUARD_REF and v.get("policy_ref")==POLICY_REF
+-  and v.get("accounting_mode")=="native7_H050_stopped_retention_v1"
++ # Read only the explicit ROOT record. No guard is imported/configured here.
++ profiles=read(ref(HERE+"/storage_profiles.v1.json"));v=read(record);profile=profiles.get(v.get("accounting_mode"))
++ require(profile is not None and v.get("schema")=="explicit_ROOT_storage_policy_selector_v1"
++  and v.get("active")is True and v.get("root_authorizer")=="root_agent"
++  and all(v.get(k)==profile[k]for k in("selector_source_ref","source_ref","source_manifest_ref","source_review_ref",
++   "measurement_source_ref","repair_authority_ref"))
+   and v.get("scheduling_ceiling_bytes")==980000000000 and v.get("human_limit_bytes")==1000000000000
+   and v.get("warning_threshold_bytes")==950000000000
+-  and v.get("no_fallback_discovery_upgrade_or_in_run_swap")is True and v.get("future_ROOT_adapters_only")is True,"Exact explicitly active reviewed child; no fallback")
++  and v.get("no_fallback_discovery_upgrade_or_in_run_swap")is True
++  and v.get("future_ROOT_adapters_only")is True
++  and v.get("existing_adapters_runs_and_storage_records_unchanged")is True,
++  "Exactly one of two source-pinned ROOT selector interfaces; no discovery/fallback")
++ if profile.get("selected_record_ref")is not None:
++  require(record==profile["selected_record_ref"]and v["policy_ref"]==profile["policy_ref"],"Exact known native7 active selector/policy")
++ else:
++  require(v.get("one_new_direct_guard_selector_capsule")is True
++   and v.get("journal")==".runtime/storage/Relate_failed64GiB_retention_v1",
++   "Only reviewed Relate64 single-capsule successor")
++  policy=read(v["policy_ref"]);activation=read(policy["root_activation_ref"])
++  require(policy.get("active")is True and policy.get("root_authorizer")=="root_agent"
++   and all(policy.get(k)==v[k]for k in("source_ref","source_manifest_ref","source_review_ref","measurement_source_ref"))
++   and policy.get("selector_source_ref")==profile["selector_source_ref"]
++   and policy.get("scheduling_ceiling_bytes")==980000000000 and policy.get("human_limit_bytes")==1000000000000
++   and policy.get("warning_threshold_bytes")==950000000000
++   and activation.get("active")is True and activation.get("root_authorizer")=="root_agent"
++   and activation.get("source_ref")==profile["source_ref"]and activation.get("source_manifest_ref")==profile["source_manifest_ref"],
++   "Actual separately ROOT-activated exact successor, never inactive/planning authority")
++ for key in("selector_source_ref","source_ref","source_manifest_ref","source_review_ref","measurement_source_ref","repair_authority_ref"):
++  raw(v[key])
+  return v
++
+ def bind_selector(record):
+- global SELECTOR_REF,_CHOSEN
+- v=selected(record);require(SELECTOR_REF is None or(SELECTOR_REF==record and _CHOSEN==v),"Immutable lifetime ROOT selector")
+- SELECTOR_REF=copy.deepcopy(record);_CHOSEN=copy.deepcopy(v);return v
++ global SELECTOR_REF,_CHOSEN,SELECTOR,GUARD_REF,POLICY_REF
++ v=selected(record)
++ require(SELECTOR_REF is None or(SELECTOR_REF==record and _CHOSEN==v),"Immutable lifetime selector/source/policy; never swap")
++ SELECTOR_REF=copy.deepcopy(record);_CHOSEN=copy.deepcopy(v)
++ SELECTOR=copy.deepcopy(v["selector_source_ref"]);GUARD_REF=copy.deepcopy(v["source_ref"]);POLICY_REF=copy.deepcopy(v["policy_ref"])
++ return v
++
+ def guard(consumer):
+- require(SELECTOR_REF is not None,"ROOT selector before guard/memo")
+- # Exact reviewed cache-before-memo implementation; select only our child.
+- _h.selection=selected
++ require(SELECTOR_REF is not None and _CHOSEN is not None,"Explicit ROOT selection before guard/memo")
++ require(SELECTOR==_CHOSEN["selector_source_ref"]and GUARD_REF==_CHOSEN["source_ref"]
++  and POLICY_REF==_CHOSEN["policy_ref"],"Same lifetime selected source/policy identity")
++ # Only the explicit module choice changes. Original cache-before-memo ordering,
++ # returned singleton, consumer memo and every direct guard role remain unchanged.
++ _h.selection=selected;_h.SELECTOR=copy.deepcopy(SELECTOR)
+  return _h.guard(SELECTOR_REF,consumer)
++
+ def validate_config(cfg):
+  b=binding();defaults=b["inactive_defaults"];op=set(b["operational_config_keys"])
+  require(set(cfg)==set(defaults)and cfg.get("execution_enabled")is True
+@@ -55,13 +86,17 @@
+   and v.get("runner_source_ref")==b["runner_source_ref"]and v.get("protocol_ref")==b["protocol_ref"]
+   and v.get("blockers")==[],"Actual complete independent CPU source review")
+ def scientific_review(record):
+- b=binding();require(record==b["scientific_review_ref"],"Exact published cache-v2 independent review bytes")
++ b=binding();require(record==b["scientific_review_ref"],"Exact published isolated-hold compatibility independent review")
+  v=read(record);raw(b["scientific_review_manifest_ref"])
+  norm=lambda r:dict(path=r["path"],sha256=r["sha256"])
+  require(v.get("status")=="SOURCE_PASS"and v.get("independent_review")is True
+   and norm(v["candidate_manifest_ref"])==b["source_manifest_ref"]
+   and norm(v["candidate_protocol_ref"])==b["protocol_ref"]
+-  and any(norm(r)==b["runner_source_ref"]for r in v["candidate_source_refs"]),"Exact reviewed cached runner/protocol/source closure")
++   and norm(v["candidate_handoff_ref"])==b["source_handoff_ref"]
++   and norm(v["candidate_scientific_pins_ref"])==b["scientific_source_pins_ref"]
++   and norm(v["candidate_compatibility_protocol_ref"])==b["compatibility_protocol_ref"]
++   and v.get("blockers")==[]
++  and any(norm(r)==b["runner_source_ref"]for r in v["candidate_source_refs"]),"Exact reviewed isolated-compatible runner/protocol/source closure")
+ def context(record):
+  v=read(record);b=binding();original=read(b["original_training_request_ref"])["bindings"]
+  require(v.get("schema")=="TreeLoom_original20_TRAIN_context_v1"and v.get("root_authorizer")=="root_agent"
+@@ -92,10 +127,10 @@
+   and q.get("automatic_retry_resume_or_fallback")is False and q.get("standalone_token_update_qualification")is False,"Exact fresh CPU-only full-budget ROOT request")
+  preparation=local(q["preparation_directory"]);packet=local(q["packet_directory"]);output=local(q["output_directory"])
+  require(preparation==local(record["path"]).parent and preparation.is_dir()
+-  and q["preparation_directory"].startswith("research/reviews/TreeLoom_matched_CPU_ROOT_preparation_")
++  and q["preparation_directory"].startswith("research/reviews/H060_isolated_CPU_ROOT_preparation_")
+   and not any(preparation==p or preparation in p.parents or p in preparation.parents for p in (packet,output)),"Separate existing ROOT request/preparation directory; never a reserved target scope")
+- require(q["packet_directory"].startswith("research/reviews/TreeLoom_matched_CPU_ROOT_")
+-  and q["output_directory"].startswith("experiments/results/TreeLoom_matched_CPU_")
++ require(q["packet_directory"].startswith("research/reviews/H060_isolated_CPU_ROOT_actual_")
++  and q["output_directory"].startswith("experiments/results/H060_isolated_CPU_")
+   and type(q["cpu_ids"])is list and len(q["cpu_ids"])==len(set(q["cpu_ids"]))==32
+   and all(type(x)is int and x>=0 for x in q["cpu_ids"]),"Fresh canonical scopes and32CPU identities")
+  reviewed(q["source_review_ref"]);scientific_review(q["scientific_review_ref"]);registration(q);context(q["training_context_ref"]);validate_config(q["scientific_config"])
+@@ -117,7 +152,7 @@
+  b=binding()
+  return [ref(MANIFEST),ref(SOURCE),ref(DRIVER),ref(ENTRY),ref(HANDOFF),b["runner_source_ref"],b["protocol_ref"],
+   q["source_review_ref"],q["scientific_review_ref"],q["runtime_ref"],q["runtime_qualification_ref"],cfgref,q["root_directive_ref"],
+-  request_ref,q["registration_ref"],q["registration_decisions_ref"],q["training_context_ref"],closure,SELECTOR,q["storage_policy_selector_ref"],NAMESPACE,PIDFD,OWNED,SUPERVISOR]
++  request_ref,q["registration_ref"],q["registration_decisions_ref"],q["training_context_ref"],closure,DEPS["SELECTOR"],q["storage_policy_selector_ref"],NAMESPACE,PIDFD,OWNED,SUPERVISOR]
+ def make_config(q,caps):
+  return dict(schema="TreeLoom_matched_CPU_operational_config_v1",scientific_config=q["scientific_config"],caps=caps,
+   short_tmp_directory=q["packet_directory"]+"/worker_aux/tmp",training_context_ref=q["training_context_ref"])

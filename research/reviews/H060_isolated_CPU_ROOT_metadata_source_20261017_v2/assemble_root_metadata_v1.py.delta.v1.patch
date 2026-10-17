@@ -1,0 +1,36 @@
+--- research/reviews/H060_isolated_CPU_ROOT_metadata_source_20261017_v1/assemble_root_metadata_v1.py
++++ research/reviews/H060_isolated_CPU_ROOT_metadata_source_20261017_v2/assemble_root_metadata_v1.py
+@@ -8,7 +8,7 @@
+ from datetime import datetime,timezone,timedelta
+ import argparse,ast,copy,hashlib,json,os,stat,sys
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-HERE="research/reviews/H060_isolated_CPU_ROOT_metadata_source_20261017_v1"
++HERE="research/reviews/H060_isolated_CPU_ROOT_metadata_source_20261017_v2"
+ WRAPPER="research/reviews/H060_isolated_CPU_runtime_source_20261017_v1"
+ SOURCE=HERE+"/assemble_root_metadata_v1.py"
+ FLAGS=dict(backend="cpu",intraop_threads=32,interop_threads=1,default_dtype="torch.float32",CUDA_initialized=False,
+@@ -77,6 +77,16 @@
+   TRAIN=tuple("american_c3_short_train_%03d"%i for i in range(20)))
+  exec(compile(ast.fix_missing_locations(ast.Module(body=functions,type_ignores=[])),"sealed_H060_metadata_predicates_only","exec"),scope)
+  return scope
++def validate_scope_spellings(qin):
++ """Reject normalization before any source/dependency read or staging mutation."""
++ scopes=(("preparation_directory","research/reviews","H060_isolated_CPU_ROOT_preparation_"),
++  ("packet_directory","research/reviews","H060_isolated_CPU_ROOT_actual_"),
++  ("output_directory","experiments/results","H060_isolated_CPU_"))
++ for field,parent,prefix in scopes:
++  name=qin[field]
++  require(type(name)is str and not Path(name).is_absolute()and name==str(Path(name))
++   and ".."not in Path(name).parts and Path(name).parent==Path(parent)
++   and name.startswith(parent+"/"+prefix),"Exact canonical literal repository-relative "+field)
+ def plan_stage(qin,instruction_ref):
+  """Pure planning plus explicit bounded metadata reads; no mutation/observations."""
+  expected={"schema","root_authorizer","staging_authorized","issue_full_TRAIN_request","current_CPU_capacity_confirmed",
+@@ -87,6 +97,7 @@
+   and qin.get("root_authorizer")=="root_agent"and all(qin.get(k)is True for k in("staging_authorized",
+    "issue_full_TRAIN_request","current_CPU_capacity_confirmed","current_runtime_settings_confirmed","never_used_paths_confirmed")),
+   "Explicit actual SHA-bound ROOT staging/full-budget/current assertions required")
++ validate_scope_spellings(qin)
+  cpus=qin["cpu_ids"]
+  require(isinstance(cpus,list)and len(cpus)==len(set(cpus))==32 and all(type(i)is int and i>=0 for i in cpus)
+   and encoded(qin["runtime_flags"])==encoded(FLAGS),"Exact ROOT-supplied32CPU IDs and accepted CPU32/interop1/FP32/noCUDA/package declarations")
