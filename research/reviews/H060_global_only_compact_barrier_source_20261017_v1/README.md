@@ -1,0 +1,13 @@
+# Inactive compact durable H060 barrier
+
+This is a preventative source packet for a fresh future global-only successor. It does not change running execution 71501, retry legacy-fast, raise caps or infer that current global-only v2 fails.
+
+The legacy-fast failure exceeded the original aggregate JSON cap while saving its observation barrier, before target joins or updates. Global-only v2 has a different barrier but retains shared per-hold preparation metadata under the same cap. The source dependency audit shows that original target factories/gates consume the full in-memory barrier; checkpoints and completion carry its saved artifact ref and full canonical hash without reloading that file in this route.
+
+The helper writes a distinct durable commitment schema. It commits to the exact canonical JSON of the complete future barrier, full per-parent seals/preparation metadata, every source ref, tensor identity, native-support counts and structural-list lengths/hashes. The original full object and arrays remain in memory and every original validator/target gate receives them unchanged. No data, tree, node, sample, focal, parent, update or barrier is removed. New future source identities are bound honestly; no current/historical barrier hash equality is asserted.
+
+Only the source-ref set, protocol disclosure and durable save operand differ in the runner. All training/target math, 20-parent barrier, 600 updates per arm, six checkpoints, full 1,200 new calls, all-60 matched prediction seals and original all-30 flag remain. Original 3 MiB JSON, 25 MiB output and 32 MiB reservation limits remain; the helper adds a 256 KiB compact-file bound.
+
+Twelve author positive checks and four negatives passed. An explicitly synthetic 5,471,380-byte metadata barrier is rejected by the unchanged writer; its 92,792-byte commitment passes. The complete runner/write control flow reaches 20 target gates, 600 calls per arm and six paired checkpoints using RAM operative/scientific providers. These are source-fixture results, not a numerical qualification, performance benchmark or real output-fit result. The initial own missing-arm fixture diagnostic is preserved.
+
+This packet is inactive and supplies no ROOT command, authority or independent pass. A fresh complete ROOT worker/caller/scientific/control/runtime/source join and independent review are required before future admission. Existing sources, jobs, failure history, scopes, charges and clocks are unchanged. External artifact readers must explicitly support the distinct compact schema; it is not accepted as a replacement by original in-memory barrier validators.

@@ -1,0 +1,27 @@
+# Inactive C3 CPU feature candidate contract
+
+This is a standalone data-pipeline engineering component. It grants no execution authority and changes no live source. It is not a new machine-learning contribution.
+
+The entry points are `ImmutableTreeLayoutCacheV1`, `branch_support_batched_v1`, `encode_block_prepared_v1` and `ImmutableBlockFeatureCacheV1` in `prepared_cpu_features_v2.py`.
+
+The caller supplies an exact immutable observation/plan/tree identity tuple. A future integration must bind it to authenticated original observation and plan references plus the original tree/block index. Content digests cover parent links, node times, sample nodes and sample IDs. Block controls additionally bind chronological intervals, complete genotype/allele/position arrays, reference labels, sample ages, query columns and encoding options. Caching never grants authenticity to a caller-selected key.
+
+Tree layout is derived once using the original C3 helper, including its isolated-sample forest rule. The cache retains copied layout arrays and PyG propagation indices, checks their content on reuse and rejects same-key drift. The original layout itself runs once per tree, not once per SNP. The optimization replaces the original per-SNP Python vertex/postorder loop with exact integer descendant-allele accumulation over height levels using PyG sum aggregation and a bounded SNP tile. It preserves allele-split selection, complementary splits, unary ties, missing-call behavior and branch output meanings. Output branch summaries accumulate in FP32 rather than the original FP64 accumulator followed by FP32 conversion. That explicit numerical adaptation is evaluated with rtol=atol=2e-6.
+
+The original block encoder code object is invoked with a private globals dictionary that locally substitutes only the prepared layout and batched branch-support functions. Existing module globals and source files are never patched. The dependency source hashes pin that original encoder. Every remaining input feature equation is unchanged. Prepared CPU banks own cloned tensors and are checked by content digest before reuse, including mutation through NumPy aliases. Cache hits return the same CPU bank. They do not cache learned embeddings, GRU states, posteriors or targets.
+
+Both caches have explicit entry and tensor-byte caps, LRU eviction and no filesystem spill. A prospective layout allowance and prospective original C3 feature-bank allowance reject oversized complete items. The branch helper checks a conservative named tensor working allowance before its tile allocations. These allowances are not a measured bound for the PyTorch allocator, interpreter, external caller references or complete process RSS. A caller can retain an evicted bank, so a future integration must account for its full object lifetimes and actual resource envelope.
+
+The future C3 block API preserves the registered per-block limits of32trees,250,000vertices,4,096sites,1,600haplotypes and3classes. Smaller self-created fixtures are allowed only for engineering tests. Full30Mb evaluation must still retain all76,527trees,228,477sites,1,600sample columns and10,000original focal records for VAL000. This component returns original bank fields only. Focal rows, focal sample columns, genomic geometry and recurrence traversal remain upstream and must retain their exact original joins. No nonfocal tree may be skipped.
+
+Direction-independent CPU banks may be reused across opposite scans and saved checkpoints with identical observations. Learned tree embeddings cannot be shared across different checkpoint weights. An LRU smaller than a complete chromosome may reuse only the retained tail when reverse scanning begins. This prototype makes no full-parent cache-fit or throughput claim. The live C3 allocation, original expiry, guards, caps, source lineage and pending-cell election remain unchanged.
+
+## Synthetic evidence
+
+`synthetic_test_v2.py` ran CPU only with one Torch thread, CUDA hidden and no CUDA initialization. It created four trees with32haplotypes and129sites each. Cases cover binary, unary, nonbinary and isolated trees,2-4alleles, missing calls, all-missing sites, monomorphic sites, a rare allele, zero sites and a reversed sample-identity axis.
+
+All21 bank dataclass fields matched the original. Integer tensors, levels, genotype and masks matched exactly. Floating tensors were FP32 and satisfied the ordinary tolerance. Maximum branch-summary absolute difference was2.9802322387695312e-08. One feature build and one reuse returned the same bank object. Six negative cases rejected source-input drift, topology drift, cached bank mutation through a NumPy alias, propagation-index mutation and insufficient tile/bank allowances.
+
+The v2 microtiming used three repeats on one self-created32haplotype/129site tree. Median original branch support was0.0192101402s and tiled PyG support0.0090301484s. The individual observations are retained, including original outlier0.0509514976s. This is a bounded fixture timing, not a speedup claim for a30Mb parent, a GPU job, training or complete inference.
+
+The prior v1 source, test and successful receipt are preserved. V2 adds prospective feature/layout checks, propagation-index mutation detection and empty/degenerate/permuted-axis fixtures. No original data, truth, guard, model forward or optimizer was accessed. No v6 route, source-lineage bridge, runtime adoption, job restart, Git action or research score was produced.

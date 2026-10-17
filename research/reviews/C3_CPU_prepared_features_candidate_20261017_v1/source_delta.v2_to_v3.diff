@@ -1,0 +1,57 @@
+--- blocked_v2
++++ stable_FP32_v3
+@@ -135,13 +135,22 @@
+         return record
+ 
+ 
++def _compensated_add_(output, correction, branches, channel, increment):
++    """Bounded FP32 Kahan update across site-tile/allele partial sums."""
++    previous = output[branches, channel]
++    residual = increment - correction[branches, channel]
++    updated = previous + residual
++    correction[branches, channel] = (updated - previous) - residual
++    output[branches, channel] = updated
++
++
+ def branch_support_batched_v1(tree, genotype, allele_count, sample_ids, *,
+                               layout_cache, tree_key, site_tile=32,
+                               max_working_bytes=64 * 2**20):
+     """Same branch summaries with integer PyG count propagation for site tiles.
+ 
+     All observed sites, alleles, branches and minimum-discrepancy ties remain.
+-    FP32 aggregation replaces the original FP64 accumulator before FP32 output.
++    Compensated FP32 aggregation replaces the original FP64 accumulator.
+     This is an explicit numerical adaptation, tested at ordinary FP32 tolerance.
+     """
+     require(type(site_tile) is int and 0 < site_tile <= 256
+@@ -169,10 +178,11 @@
+     # Conservative named tensor working set allowance, excluding bounded layout,
+     # original caller-owned inputs and PyTorch allocator overhead.
+     tile = min(site_tile, max(1, len(g)))
+-    allowance = 512 * (n + h + 1) * tile + 64 * n
++    allowance = 512 * (n + h + 1) * tile + 96 * n
+     require(allowance <= max_working_bytes,
+             "Prospective complete site-tile tensor working allowance")
+     output = torch.zeros((n, 5), dtype=torch.float32)
++    correction = torch.zeros((n, 3), dtype=torch.float32)
+     splits = 0
+     propagation = _CountPropagation()
+     with torch.inference_mode():
+@@ -206,11 +216,14 @@
+                 winners = mismatch == minimum[None]
+                 winner_count = winners.sum(0).clamp_min(1).to(torch.float32)
+                 weight = winners.to(torch.float32) * eligible[None] / winner_count[None]
+-                output[branches, 0] += (weight * (minimum == 0)[None]).sum(1)
++                _compensated_add_(output, correction, branches, 0,
++                    (weight * (minimum == 0)[None]).sum(1))
+                 quality = 1 - minimum.to(torch.float32) / denominator
+-                output[branches, 1] += (weight * quality[None]).sum(1)
++                _compensated_add_(output, correction, branches, 1,
++                    (weight * quality[None]).sum(1))
+                 discrepancy = mismatch.to(torch.float32) / denominator[None]
+-                output[branches, 2] += (discrepancy * eligible[None]).sum(1)
++                _compensated_add_(output, correction, branches, 2,
++                    (discrepancy * eligible[None]).sum(1))
+                 splits += int(eligible.sum())
+         if splits:
+             output[branches, :3] /= splits

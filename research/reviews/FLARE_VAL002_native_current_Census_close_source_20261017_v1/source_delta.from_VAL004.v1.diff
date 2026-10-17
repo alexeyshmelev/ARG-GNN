@@ -1,0 +1,115 @@
+--- passed_VAL004_conversion/close_ROOT_v1.py
++++ new_VAL002_native/close_ROOT_v1.py
+@@ -1,9 +1,9 @@
+-"""Inactive one-shot ordinary completed close for exact actual FLARE VAL004 conversion."""
++"""Inactive one-shot ordinary completed close for exact actual FLARE VAL002 native."""
+ from pathlib import Path
+ from datetime import datetime,timezone
+ import argparse,hashlib,importlib.util,json,os,stat,sys
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-HERE="research/reviews/FLARE_VAL004_conversion_current_Census_close_source_20261017_v1"
++HERE="research/reviews/FLARE_VAL002_native_current_Census_close_source_20261017_v1"
+ SOURCE=HERE+"/close_ROOT_v1.py";MANIFEST=HERE+"/source_manifest.v1.json"
+ def need(ok,message):
+  if not ok:raise ValueError(message)
+@@ -26,8 +26,8 @@
+ def metadata_join(p):
+  inp=read(p["input"]);wait=read(p["wait"]);done=read(p["completed"]);outer=read(p["outer"])
+  launch=read(p["launch"]);storage=read(p["storage"]);q=read(p["original_request"]);own=storage["reservation"]
+- need(inp["parent_id"]==q["parent_id"]==wait["parent_id"]==done["parent_id"]=="american_c3_val_004"
+-  and inp["phase"]==q["phase"]==wait["phase"]=="convert_american_c3_val_004"and q["stage"]=="convert","Exact original VAL004 conversion")
++ need(inp["parent_id"]==q["parent_id"]==wait["parent_id"]==done["parent_id"]=="american_c3_val_002"
++  and inp["phase"]==q["phase"]==wait["phase"]=="native_american_c3_val_002"and q["stage"]=="native","Exact original VAL002 native")
+  need(inp["root_driver_ref"]==p["producer_driver"]and inp["main_source_ref"]==p["producer_worker"]
+   and inp["source_sha256"].get(p["producer_driver"]["path"])==p["producer_driver"]["sha256"]
+   and inp["source_sha256"].get(p["producer_worker"]["path"])==p["producer_worker"]["sha256"]
+@@ -43,12 +43,33 @@
+  need(outer["root_authorizer"]=="root_agent"and outer["actual_terminal_consumed"]is True
+   and type(outer["actual_exit_code"])is int and outer["actual_exit_code"]==0
+   and outer["actual_outer_exit_code"]==0 and outer["actual_direct_worker_returncode"]==0
+-  and outer["tool_session_id"]==outer["actual_tool_session_id"]==82340
++  and outer["tool_session_id"]==outer["actual_tool_session_id"]==6358
+   and outer["input_ref"]==p["input"]and outer["actual_wait_ref"]==p["wait"]and outer["completed_ref"]==p["completed"]
+-  and outer["all_owned_processes_and_groups_drained"]is True,"Exact consumed ROOT82340 outer0, never a guessed future wait")
+- need(done["status"]=="completed_C3_FLARE_observation_conversion"and done["query_ancestry_truth_opened"]is False
++  and outer["all_owned_processes_and_groups_drained"]is True,"Exact consumed ROOT6358 outer0, never a guessed future wait")
++ need(done["status"]=="completed_C3_native_FLARE"and done["query_ancestry_truth_opened"]is False
+   and launch["pid"]==wait["pid"]==wait["actual_worker_scientific_entry"]["pid"]
+   and wait["actual_worker_scientific_entry"]["input_ref"]==p["input"],"Actual completion and same worker/input")
++ spawn=read(p["direct_spawn"]);direct=read(p["direct_supervisor_wait"])
++ issued=read(p["issued_once"]);admission=read(p["admission_receipt"]);admission_outer=read(p["admission_outer"])
++ need(p["producer_driver"]==p["producer_worker"],"Actual native driver and embedded worker consolidate in same authenticated source")
++ expected_argv=["setsid",str(ROOT/".runtime/env/bin/python"),"-B","-s","-m",p["producer_driver"]["path"][:-3].replace("/", "."),"--execute-ref"]
++ argv=spawn["argv"]
++ need(spawn.get("actual")is True and type(spawn.get("pid"))is int
++  and argv[:-1]==expected_argv and json.loads(argv[-1])==p["input"]
++  and issued.get("root_authorizer")=="root_agent"and issued.get("input_ref")==p["input"]
++  and issued.get("all_ROOT_mutations_serialized")is True and issued.get("no_automatic_retry")is True
++  and issued.get("actual_once_execution_argv")==argv==admission.get("execution_argv")
++  and admission.get("admission_only")is True and admission.get("input_ref")==p["input"]
++  and admission.get("consumer_binding_count")==63,"Actual issued once, admitted and directly spawned exact native argv")
++ stat_text=spawn["proc_stat"];pid_text,rest=stat_text.split(" (",1);command,tail=rest.rsplit(") ",1);fields=tail.split()
++ need(int(pid_text)==spawn["pid"] and len(fields)>=20 and int(fields[19])==491728067
++  and direct.get("pid")==spawn["pid"]==wait["supervisor_pid"]==92246
++  and direct.get("actual_direct_wait")is True and type(direct.get("actual_returncode"))is int
++  and direct["actual_returncode"]==0,"Genuine direct supervisor PID/start and actual wait0")
++ need(admission_outer.get("root_authorizer")=="root_agent"and admission_outer.get("actual_terminal_consumed")is True
++  and admission_outer.get("input_ref")==p["input"]and type(admission_outer.get("actual_exit_code"))is int
++  and admission_outer["actual_exit_code"]==0 and admission_outer.get("actual_tool_session_id")==93291,
++  "Genuine consumed actual admission outer0")
+  launch_rows=launch["ownership"]["owned_identities"]
+  need(launch["ownership"]["signals_use_pidfd_only"]is True and launch["ownership"]["no_numeric_group_signals"]is True
+   and any(r["pid"]==launch["pid"]and type(r["start"])is int for r in launch_rows)
+@@ -64,10 +85,10 @@
+   and storage["completed_overlay_policy_ref"]==p["policy"]and storage["budget_components"]["consumer_adapter"]==p["guard"]
+   and storage["budget_components"]["implementation"]==p["implementation"]and storage["budget_components"]["launcher"]==p["launcher"]
+   and storage["accounting_mode"]=="Census_observation_two_scope_retention_v1","Exact current child original storage lineage")
+- need(own["key"]==p["reservation_key"]and own["reserved_bytes"]==storage["reserved_new_bytes"]==898402844
++ need(own["key"]==p["reservation_key"]and own["reserved_bytes"]==storage["reserved_new_bytes"]==2021479363
+   and own["output"]==str(local(inp["output_directory"]))and own["auxiliary_scopes"]==[str(local(inp["packet_directory"]))]
+   and q["output_directory"]==inp["output_directory"]and q["packet_directory"]==inp["packet_directory"]
+-  and len(own["consumer_bindings"])==62,"Entire original immutable reservation and both scopes preserved")
++  and len(own["consumer_bindings"])==63,"Entire original immutable reservation and both scopes preserved")
+  return inp,wait,done,launch,storage,own,pids,group_ids
+ def current(value):
+  now=datetime.now(timezone.utc);a=datetime.fromisoformat(value["created_at_utc"]);b=datetime.fromisoformat(value["expires_at_utc"])
+@@ -78,7 +99,7 @@
+   direct_wait_ref=p["wait"],wait_pid_locator=["pid"],wait_exit_locator=["returncode"],
+   wait_identity=dict(pid=launch["pid"],input_ref=p["input"],returncode=0,actual_OS_wait_status=0,
+    actual_direct_worker_wait=True,all_owned_processes_and_groups_drained=True,completed_ref=p["completed"]),
+-  completed_ref=p["completed"],completed_identity=dict(status="completed_C3_FLARE_observation_conversion",parent_id="american_c3_val_004"),
++  completed_ref=p["completed"],completed_identity=dict(status="completed_C3_native_FLARE",parent_id="american_c3_val_002"),
+   observation_ref=observation_ref)
+ def close_once(authorization_ref):
+  need(Path.cwd()==ROOT and sys.dont_write_bytecode and sys.flags.no_user_site and sys.flags.optimize==0,"Fresh ROOT -B -s nonoptimized interpreter")
+@@ -87,7 +108,7 @@
+  auth=read(authorization_ref);current(auth);review=read(auth["source_review_ref"])
+  need(review.get("independent")is True and review.get("verdict")=="SOURCE_PASS"and review.get("blockers")==[]
+   and review.get("source_ref")==ref(SOURCE)and review.get("source_manifest_ref")==ref(MANIFEST),"Fresh independent exact close source pass")
+- need(auth.get("schema")=="ROOT_FLARE_VAL004_current_Census_ordinary_close_once_authorization_v1"
++ need(auth.get("schema")=="ROOT_FLARE_VAL002_native_current_Census_ordinary_close_once_authorization_v1"
+   and auth.get("root_authorizer")=="root_agent"and auth.get("active")is True and auth.get("once_authorized")is True
+   and auth.get("operation")=="close_completed"and auth.get("source_manifest_ref")==ref(MANIFEST)
+   and auth.get("input_ref")==p["input"]and auth.get("direct_wait_ref")==p["wait"]and auth.get("completed_ref")==p["completed"]
+@@ -97,7 +118,7 @@
+   and auth.get("preserve_all_files_and_original_reservations")is True and auth.get("no_retry_retirement_or_new_quota_framework")is True,"Exact ROOT ordinary close once authority")
+  inp,wait,done,launch,storage,own,pids,group_ids=metadata_join(p)
+  rev=read(auth["permanent_route_revocation_ref"])
+- need(rev.get("schema")=="ROOT_FLARE_VAL004_completed_conversion_permanent_route_revocation_v1"
++ need(rev.get("schema")=="ROOT_FLARE_VAL002_completed_native_permanent_route_revocation_v1"
+   and rev.get("root_authorizer")=="root_agent"and rev.get("active")is True
+   and rev.get("input_ref")==p["input"]and rev.get("direct_wait_ref")==p["wait"]and rev.get("completed_ref")==p["completed"]
+   and rev.get("actual_outer_terminal_ref")==p["outer"]and rev.get("reservation_key")==own["key"]
+@@ -105,10 +126,10 @@
+   and rev.get("packet_directory")==inp["packet_directory"]and rev.get("all_original_launch_resume_retry_write_routes_permanently_revoked")is True
+   and rev.get("preserve_all_files_original_clocks_failures_and_reservations")is True,"Separate exact permanent ROOT original-route revocation")
+  stamp=datetime.fromisoformat(rev["revoked_at_utc"]);need(stamp.tzinfo and stamp<=datetime.now(timezone.utc),"Actual nonfuture permanent revocation time")
+- directory=local(auth["run_directory"]);need(str(directory.relative_to(ROOT)).startswith("research/reviews/FLARE_VAL004_conversion_ROOT_close_Census_"),"Fresh ROOT close administrative scope")
++ directory=local(auth["run_directory"]);need(str(directory.relative_to(ROOT)).startswith("research/reviews/FLARE_VAL002_native_ROOT_close_Census_"),"Fresh ROOT close administrative scope")
+  directory.mkdir() # Exclusive: consumes this invocation before guard import, state or probes. Never reuse after uncertainty.
+  save(directory,"invocation.json",dict(authorization_ref=authorization_ref,source_manifest_ref=ref(MANIFEST),automatic_retry=False))
+- raw(p["guard"]);sp=importlib.util.spec_from_file_location("_ROOT_FLARE_VAL004_exact_current_Census_close",local(p["guard"]["path"]))
++ raw(p["guard"]);sp=importlib.util.spec_from_file_location("_ROOT_FLARE_VAL002_native_exact_current_Census_close",local(p["guard"]["path"]))
+  module=importlib.util.module_from_spec(sp);sys.modules[sp.name]=module;sp.loader.exec_module(module)
+  g=module.load_selected_guard_v1(p["selector"])
+  need(g is module and g.MODE=="Census_observation_two_scope_retention_v1"and g._POLICY_REF==p["policy"],"Exact selected current guard, never old Relate64 configuration")

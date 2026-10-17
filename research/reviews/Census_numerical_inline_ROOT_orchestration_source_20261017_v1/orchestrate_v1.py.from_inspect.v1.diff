@@ -1,0 +1,76 @@
+--- research/reviews/Census_inspect_inline_ROOT_orchestration_source_20261017_v1/orchestrate_v1.py
++++ research/reviews/Census_numerical_inline_ROOT_orchestration_source_20261017_v1/orchestrate_v1.py
+@@ -3,8 +3,8 @@
+ from datetime import datetime,timezone
+ import argparse,hashlib,json,os,stat,sys,threading,traceback,types
+ ROOT=Path('/workspace-SR003.nfs2/ARG-GNN')
+-DIRECTORY='research/reviews/Census_retention_inline_ROOT_actual_inspect_root01_oct17'
+-KEY='census_tsinfer_observation_v1/census-tsinfer-inspect-v1'
++DIRECTORY='research/reviews/Census_retention_inline_ROOT_actual_numerical_root01_oct17'
++KEY='census_tsinfer_observation_v1/census-tsinfer-numerical-v1'
+ CALLBACK=DIRECTORY+'/ROOT_authorize_inline_retirement.root_v1.py'
+ SOURCE=DIRECTORY+'/ROOT_retire_once.root_v1.py'
+ INSTRUCTION=DIRECTORY+'/ROOT_instruction.root_active_v1.json'
+@@ -22,7 +22,7 @@
+ HELPER={'path':'research/reviews/Census_retention_inline_source_20261017_v1/inline_ROOT_retire_v1.py','sha256':'bc4235d3dcedb0b3ed9058cd70826c47eb3f243b132dac26dcb232d84f488d21'}
+ SELECTOR={'path':'research/reviews/Census_observation_ROOT_activation_20261017_v1/explicit_child_selector.root_active_v1.json','sha256':'fd05d8934ed29eed39f7e60121a33e48fbeb0106991e76690664ca96355692e4'}
+ POLICY={'path':'research/reviews/Census_observation_ROOT_activation_20261017_v1/activation_policy.root_active_v1.json','sha256':'5e82c0895c43b77d7e69d440fa9b09dbe19f7f2565b3ae9f866d0075e6f9fad5'}
+-REVOCATION={'path':'research/reviews/Census_observation_ROOT_actual_inspect_retention_20261017_v1/permanent_writer_revocation.root_active_v1.json','sha256':'56affb17278daf23bdb50c649052ee83a880f791af7b8dc06eec2903bc897042'}
++REVOCATION={'path':'research/reviews/Census_numerical_permanent_revocation_ROOT_20261017_v1/permanent_writer_revocation.root_active_v1.json','sha256':'c7a4411960259dc536e25bbc2b0f19f4540301d9186413b0eb91b5a9e5cb019e'}
+ IMPLEMENTATION_SHA='483d78bf2ef3c917d65ecf1dde5a7809bfadc21194c9f9a90394ce5c532fdd5e'
+ LAUNCHER_SHA='a8049bc103afb1cbbbce6f8fc3707a21de9613b23034599641b688994fc5caa3'
+ def need(ok,message):
+@@ -99,12 +99,12 @@
+         and instruction['operation_wall_seconds']==300 and instruction['fresh_target_seconds']==120
+         and isinstance(instruction['expected_before'],dict)
+         and isinstance(instruction['expected_guard_roles'],dict)
+-        and len(instruction['expected_guard_roles'])==47,'Exact inspect integration and explicit ROOT prefix/all47roles')
++        and len(instruction['expected_guard_roles'])==47,'Exact numerical integration and explicit ROOT prefix/all47roles')
+     now=datetime.now(timezone.utc)
+     need(stamp(instruction['created_at_utc'])<=now<stamp(instruction['expires_at_utc']),'Finite unchanged ROOT deadline')
+     manifest=document(instruction['source_manifest_ref'])
+     source_ref={'path':SOURCE,'sha256':manifest['source_sha256'][SOURCE]}
+-    expected=dict(schema='ROOT_one_Census_inspect_inline_actual_operation_intent_v1',
++    expected=dict(schema='ROOT_one_Census_numerical_inline_actual_operation_intent_v1',
+         active=True,root_authorizer='root_agent',key=KEY,metadata_directory=DIRECTORY,
+         instruction_path=INSTRUCTION,source_manifest_ref=instruction['source_manifest_ref'],
+         whole_join_review_ref=instruction['whole_join_review_ref'],orchestration_source_ref=source_ref,
+@@ -146,7 +146,7 @@
+     need('scripts.project_budget_v9' not in sys.modules,'Select before any original guard or memo construction')
+     instruction=controls(instruction_ref,intent_ref)
+     # Exclusive invocation consumption precedes imports/configuration; any uncertainty stops this attempt.
+-    put('invocation',dict(schema='Census_inspect_inline_actual_invocation_v1',
++    put('invocation',dict(schema='Census_numerical_inline_actual_invocation_v1',
+         instruction_ref=instruction_ref,intent_ref=intent_ref,key=KEY,
+         pid=os.getpid(),created_at_utc=datetime.now(timezone.utc).isoformat(),
+         automatic_retry=False,credit_accepted=False))
+@@ -154,17 +154,17 @@
+     try:
+         if str(ROOT) not in sys.path:
+             sys.path.insert(0,str(ROOT))
+-        guard=load(GUARD,'_ROOT_actual_Census_inspect_guard_v1')
++        guard=load(GUARD,'_ROOT_actual_Census_numerical_guard_v1')
+         guard=guard.load_selected_guard_v1(SELECTOR)
+         phase='construct_exact_reviewed_inline_helper'
+-        helper_module=load(HELPER,'_ROOT_actual_Census_inspect_inline_helper_v1')
++        helper_module=load(HELPER,'_ROOT_actual_Census_numerical_inline_helper_v1')
+         helper=helper_module.InlineRootRetireStoppedMemo(guard,root_instruction_ref=instruction_ref)
+         phase='one_actual_original_mutex_retirement'
+         receipt=helper.apply_retire_stopped_v1(expected_source_sha256=IMPLEMENTATION_SHA,
+             expected_launcher_sha256=LAUNCHER_SHA)
+         phase='persist_actual_receipt_pending_ROOT_final_acceptance'
+         receipt_ref=put('receipt',receipt)
+-        result=dict(schema='Census_inspect_inline_actual_outcome_v1',key=KEY,
++        result=dict(schema='Census_numerical_inline_actual_outcome_v1',key=KEY,
+             instruction_ref=instruction_ref,intent_ref=intent_ref,receipt_ref=receipt_ref,
+             receipt_kind=receipt.get('kind'),retained_bytes=receipt.get('retained_bytes'),
+             receipt_credit_bytes=receipt.get('credit_bytes'),projected_bytes=receipt.get('projected_bytes'),
+@@ -174,7 +174,7 @@
+         put('result',result)
+         return result
+     except BaseException:
+-        failure=dict(schema='Census_inspect_inline_actual_failure_v1',phase=phase,
++        failure=dict(schema='Census_numerical_inline_actual_failure_v1',phase=phase,
+             instruction_ref=instruction_ref,intent_ref=intent_ref,key=KEY,
+             created_at_utc=datetime.now(timezone.utc).isoformat(),traceback=traceback.format_exc()[-16384:],
+             automatic_retry=False,credit_accepted=False,

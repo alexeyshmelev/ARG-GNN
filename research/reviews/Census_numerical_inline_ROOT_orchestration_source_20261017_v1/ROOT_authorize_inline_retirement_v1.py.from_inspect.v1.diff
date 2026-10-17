@@ -1,0 +1,58 @@
+--- research/reviews/Census_inspect_inline_ROOT_orchestration_source_20261017_v1/ROOT_authorize_inline_retirement_v1.py
++++ research/reviews/Census_numerical_inline_ROOT_orchestration_source_20261017_v1/ROOT_authorize_inline_retirement_v1.py
+@@ -1,4 +1,4 @@
+-"""Inactive inspect-only ROOT callback source. No work occurs at import."""
++"""Inactive numerical-only ROOT callback source. No work occurs at import."""
+ def authorize_inline_ROOT_retirement_v1(*,guard,context,finite):
+     from datetime import datetime, timezone
+     import hashlib, json, os, stat
+@@ -6,14 +6,14 @@
+     def need(ok,message):
+         if not ok:
+             raise ValueError(message)
+-    directory='research/reviews/Census_retention_inline_ROOT_actual_inspect_root01_oct17'
+-    key='census_tsinfer_observation_v1/census-tsinfer-inspect-v1'
++    directory='research/reviews/Census_retention_inline_ROOT_actual_numerical_root01_oct17'
++    key='census_tsinfer_observation_v1/census-tsinfer-numerical-v1'
+     paths={kind:directory+'/'+name for kind,name in (
+         ('attempt','inline_attempt.root_v1.json'),
+         ('observation','known_target_observation.root_active_v1.json'),
+         ('authority','retirement_authority.root_active_v1.json'))}
+-    revocation_ref={'path':'research/reviews/Census_observation_ROOT_actual_inspect_retention_20261017_v1/permanent_writer_revocation.root_active_v1.json',
+-        'sha256':'56affb17278daf23bdb50c649052ee83a880f791af7b8dc06eec2903bc897042'}
++    revocation_ref={'path':'research/reviews/Census_numerical_permanent_revocation_ROOT_20261017_v1/permanent_writer_revocation.root_active_v1.json',
++        'sha256':'c7a4411960259dc536e25bbc2b0f19f4540301d9186413b0eb91b5a9e5cb019e'}
+     selector_ref={'path':'research/reviews/Census_observation_ROOT_activation_20261017_v1/explicit_child_selector.root_active_v1.json',
+         'sha256':'fd05d8934ed29eed39f7e60121a33e48fbeb0106991e76690664ca96355692e4'}
+     policy_ref={'path':'research/reviews/Census_observation_ROOT_activation_20261017_v1/activation_policy.root_active_v1.json',
+@@ -22,7 +22,7 @@
+         'fresh_metadata_paths','permanent_revocation_ref'},'Exact original callback context')
+     need(str(guard.ROOT)=='/workspace-SR003.nfs2/ARG-GNN' and context['key']==key
+         and context['fresh_metadata_paths']==paths and context['permanent_revocation_ref']==revocation_ref,
+-        'Exact inspect target, permanent revocation and immutable control names')
++        'Exact numerical target, permanent revocation and immutable control names')
+     need(guard._SELECTOR_REF==selector_ref and guard._POLICY_REF==policy_ref
+         and guard.OPERATION_WALL_SECONDS==300 and guard.FRESH_TARGET_SECONDS==120,
+         'Exact current Census and unchanged original deadlines')
+@@ -43,15 +43,15 @@
+     own=context['original_reservation']
+     target=guard._target(key)
+     need(own==target['original_reservation'] and own['key']==key
+-        and guard.budget.digest(own)=='2cb83077f3379ad31322d01542270b6431e8ee88b8138f560ee7c9e31b971128'
++        and guard.budget.digest(own)=='e79a7c7b3806576efda20f606eb16fd0dbfd8f5fd4e7d14511cfe2a5785c16e5'
+         and own['reserved_bytes']==20000000000 and own['auxiliary_scopes']==[]
+         and own['output']==str(guard.ROOT)+'/experiments/results/'+key
+-        and target['original_expiry_unchanged']=='2026-10-11T10:28:47.092270+00:00'
++        and target['original_expiry_unchanged']=='2026-10-11T11:40:36.315986+00:00'
+         and target['known_PID_start_rows']==[
+-            {'pid':1275252,'role':'original_supervisor','start_ticks':435988585},
+-            {'pid':1275253,'role':'original_worker','start_ticks':435988592}]
+-        and target['known_process_groups']==[1275253],
+-        'Same original inspect reservation, sole scope, expiry and known identities')
++            {'pid':1306271,'role':'original_supervisor','start_ticks':436412146},
++            {'pid':1306272,'role':'original_worker','start_ticks':436412154}]
++        and target['known_process_groups']==[1306272],
++        'Same original numerical reservation, sole scope, expiry and known identities')
+     revocation=guard._revocation(revocation_ref,key)
+     finite()
+     facts=guard._observe_targets(target)
