@@ -1,0 +1,13 @@
+--- pinned_original_RAM_retrieval_and_seal_v1
++++ private_saved_MLM_branch_only_RAM_retrieval_and_seal_v1
+@@ -5,9 +5,7 @@
+         and spec["refs"]["counts"]==base.REFS["counts"]
+         and cfg["max_embedding_input_bytes"]==policy["resource_failstop_proposal"]["maximum_single_embedding_input_bytes"],
+         "Exact actual VAL000 full source metadata and bounded original embedding reads")
+-    mlm=base.full_mlm_metadata_prerequisite_v1(**ctx["MLM_prerequisite_metadata"])
+-    contrastive=base.full_contrastive_metadata_prerequisite_v1(initializer_checkpoint_ref=mlm,
+-        **ctx["contrastive_prerequisite_metadata"])
++    contrastive=_qualified_contrastive_checkpoint_v2
+     prepared,helper=base._native_v1(ctx)
+     require(prepared["torch"].cuda.is_available() and prepared["torch"].cuda.device_count()==1,
+         "Actual held GPU0 retrieval, no CPU fallback")

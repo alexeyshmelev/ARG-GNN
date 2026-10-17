@@ -1,0 +1,30 @@
+--- ORIGINAL_PINNED_H058v4/root_driver_v1.py
++++ FUTURE_REVIEWED_COPY_ONLY/root_driver_v1.py
+@@ -3,6 +3,7 @@
+ from datetime import datetime,timezone
+ import argparse,collections,ctypes,fcntl,hashlib,importlib,io,itertools,json,os,resource,selectors,signal,stat,subprocess,sys,tempfile,time
+ from research.reviews.H058_GPU0_full_training_successor_source_20261017_v4.common_v1 import *
++from research.reviews.guard_latency_minimal_reuse_source_20261017_v1.startup_reuse_v1 import validate_storage_with_growth_v1
+ SOURCE=DRIVER
+ 
+ def mutation_memo_v1(g,q):
+@@ -164,13 +165,16 @@
+     work_deadline=min(stage_started+CAPS["max_seconds"]-CAPS["work_cutoff_margin_seconds"],
+         time.monotonic()+expires_unix-time.time()-CAPS["work_cutoff_margin_seconds"])
+     g=guard_v1()
+-    g.validate_storage_v9(s,dict(output_cap_bytes=CAPS["reservation_bytes"]),storage,
+-        source_ref=ref(DRIVER),config_ref=s["refs"]["config"],runtime_ref=s["refs"]["runtime"])
+     out,aux=local(s["output_directory"]),local(s["worker_auxiliary_scope"])
+     require(not out.exists() and not aux.exists(),"Fresh exclusive science output/AUX, no replay")
+     paths=worker_env_paths_v1(s)
+     directories=sorted({Path(v) for v in paths.values()},key=lambda p:(len(p.parts),str(p)))
+-    g.budget_check_v9(storage,boundary=True,required_write_bytes=(2+len(directories))*8192)
++    base_spec=read(ref(HERE+"/dependencies.v1.json"))["mutation_memo"]
++    base_module=load(base_spec["source_ref"],"_H058_startup_existing_source_authenticator")
++    validate_storage_with_growth_v1(g,base_module,base_ref=base_spec["source_ref"],spec=s,
++        cfg=dict(output_cap_bytes=CAPS["reservation_bytes"]),storage=storage,
++        source_ref=ref(DRIVER),config_ref=s["refs"]["config"],runtime_ref=s["refs"]["runtime"],
++        required_write_bytes=(2+len(directories))*8192)
+     aux.mkdir()
+     for directory in directories:directory.mkdir()
+     last_census=charged_census_v1(s);peak_scope=sum(last_census.values())

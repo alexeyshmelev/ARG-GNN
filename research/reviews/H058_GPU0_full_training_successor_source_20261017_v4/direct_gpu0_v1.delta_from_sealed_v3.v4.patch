@@ -1,0 +1,43 @@
+--- research/reviews/H058_GPU0_full_training_successor_source_20261017_v3/direct_gpu0_v1.py
++++ research/reviews/H058_GPU0_full_training_successor_source_20261017_v4/direct_gpu0_v1.py
+@@ -6,7 +6,7 @@
+ """
+ from pathlib import Path
+ import fcntl,hashlib,json,os,stat,sys,time
+-from research.reviews.H058_GPU0_full_training_successor_source_20261017_v3.common_v1 import *
++from research.reviews.H058_GPU0_full_training_successor_source_20261017_v4.common_v1 import *
+ SOURCE=DIRECT
+ CONTROLLER_PID=3349405
+ CONTROLLER_START=481281638
+@@ -50,6 +50,10 @@
+         except (FileNotFoundError,ProcessLookupError):continue
+         require(not(now["uid"]==saved["uid"] and now["start_ticks"]==saved["start_ticks"]
+             and now["state"] not in ("Z","X")),"Known native identity still live; never attach H058")
++    for group in native["native_process_groups"]:
++        try:os.killpg(group,0)
++        except ProcessLookupError:pass
++        else:raise ValueError("Known prior native process group still exists; never attach H058")
+     cap=read(CURRENT_CAP);row=base.proc_identity(CONTROLLER_PID)
+     require(time.time()<cap["expires_unix"]
+         and datetime.fromisoformat(q["expires_at_utc"]).timestamp()<=cap["expires_unix"],
+@@ -122,6 +126,10 @@
+         rows=[r for r in rows if r["index"]==0]
+         require(len(rows)==1 and rows[0]["uuid"]==GPU0_UUID,"ActualGPU0 inventory UUID")
+         gpu=rows[0];known={}
++        native=validate_native_resource_disposition_v1(q,fresh=False)
++        native_pids={r["pid"] for r in native["native_process_identities"]}
++        require(not any(app["pid"] in native_pids for app in gpu["compute"]),
++            "Prior native roster GPU0 PID contexts must be absent; reused numeric PIDs conservatively block")
+         observed_gpu=gpu;observed_unix=time.time()
+         for saved in c3["process_identities"]:
+             try:now=base.proc_identity(saved["pid"])
+@@ -217,6 +225,9 @@
+         require(stat.S_ISREG(st.st_mode) and (st.st_dev,st.st_ino)==(named.st_dev,named.st_ino)
+             ==(ticket["logical_device"],ticket["logical_inode"]),"Actual inherited H058 logical lock descriptor")
+         held_writable_probe_v1(path)
++        # Reuse the existing current inventory/capacity boundary. configure_fit
++        # invokes this wrapped lease function before its first CUDA call.
++        capacity_v1(q,base,worker_pid=os.getpid())
+         return dict(lease,borrowed_physical_inode=True,
+             physical_exclusive_lock_owned_by_current_controller=True,
+             H058_logical_lock_inode=ticket["logical_inode"],

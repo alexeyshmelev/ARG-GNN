@@ -1,0 +1,56 @@
+--- research/reviews/native_VAL000_contrastive_saved_MLM_integration_source_20261017_v1/saved_mlm_integration_v1.py
++++ research/reviews/native_VAL000_contrastive_saved_MLM_integration_source_20261017_v2/saved_mlm_integration_v1.py
+@@ -6,7 +6,7 @@
+ from datetime import timedelta
+ import ast,copy,hashlib,importlib.util,json,sys,types
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-HERE="research/reviews/native_VAL000_contrastive_saved_MLM_integration_source_20261017_v1"
++HERE="research/reviews/native_VAL000_contrastive_saved_MLM_integration_source_20261017_v2"
+ SOURCE=HERE+"/saved_mlm_integration_v1.py"
+ PINS={'bridge': {'path': 'research/reviews/native_VAL000_saved_MLM_acceptance_bridge_source_20261017_v1/saved_mlm_bridge_v1.py', 'sha256': '5810041797592fa414d57747607f646a3eee1050d0373df5412b7dd4b1b63d97'}, 'bridge_handoff': {'path': 'research/reviews/native_VAL000_saved_MLM_acceptance_bridge_source_20261017_v1/source_handoff.v1.json', 'sha256': 'd60c2f5b760f8d4ab7b735084229513fbdce2289654fb6d3c94c175562006e33'}, 'bridge_review': {'path': 'research/reviews/native_VAL000_saved_MLM_bridge_independent_20261017_v1/review.v1.json', 'sha256': '85e2d75ea0ccc83aea290700b2c445094900ab2063545dc119fa3bedc7114c60'}, 'stages': {'path': 'research/reviews/native_VAL000_downstream_scientific_stages_source_20261016_v1/scientific_stages_v1.py', 'sha256': '455704b88e9247021c09566609801838f88a118420cde856e487aaef4cee30da'}, 'io': {'path': 'research/reviews/native_VAL000_downstream_IO_efficiency_source_20261016_v1/efficient_downstream_v1.py', 'sha256': 'bab7057a958e9cfd51f503b5680034c0067226a661b820eb42bb16c7133a94b9'}, 'helper': {'path': 'research/reviews/native_VAL000_GPU0_borrowed32_source_20261016_v2/native_child_v1.py', 'sha256': 'f2770222f02979b6064a7f1ffea80953cd234114c96ddde0845372479292379e'}, 'legacy_contract': {'path': 'src/arggnn/american_c3_native_contract_v1.py', 'sha256': 'b14d7293b93904a9f23276b69ee66288e8b943285fe500eb22755aa288168212'}, 'legacy_run': {'path': 'src/arggnn/american_c3_native_run_v1.py', 'sha256': '65653b2522978d20341e35ab9e36610a75024a29931026961a5bc4b759fab2cc'}, 'nested_reference': {'path': 'research/reviews/native_VAL000_full_state_resume_source_20261016_v12/resume_scientific_bridge_v5.py', 'sha256': 'c52af58d30df80ca3888fac7f94c993847e35d03d0f5a6f7f0adc9467ca19ea4'}, 'original_downstream': {'path': 'research/reviews/native_VAL000_downstream_execution_source_20261016_v2/source_handoff.v2.json', 'sha256': '16931e9fe3663ac3460eb8cf9a33b35843fc65ddbc4dac9673539c3465db1553'}, 'current_selector': {'path': 'research/reviews/Relate_failed64GiB_retention_ROOT_activation_20261017_v1/explicit_child_selector.root_active_v1.json', 'sha256': 'e27d47a22d0da1b2e8f0bdf0818cb2c6c473d8c9ddb5424618bf97e704928642'}}
+ _BRIDGE=None
+@@ -31,7 +31,7 @@
+ 
+ def load_source_v1(role):
+     r=PINS[role];raw=_bytes(r)
+-    name="_saved_MLM_integration_"+role
++    name="_saved_MLM_integration_v2_"+role
+     spec=importlib.util.spec_from_file_location(name,ROOT/r["path"])
+     module=importlib.util.module_from_spec(spec);sys.modules[name]=module
+     exec(compile(raw,str(ROOT/r["path"]),"exec"),module.__dict__)
+@@ -183,10 +183,29 @@
+     exec(compile(ast.Module(body=[fn],type_ignores=[]),str(ROOT/SOURCE)+":separate_embedding_qualifier","exec"),ns)
+     return ns["embedding_v1"](ctx,request)
+ 
++def saved_RAM_retrieval_function_v2(io,checkpoint):
++    """Private original retrieval clone: only its two prerequisite assignments change."""
++    source=_bytes(PINS["io"]).decode()
++    fn=copy.deepcopy(next(n for n in ast.parse(source).body if isinstance(n,ast.FunctionDef)
++        and n.name=="RAM_retrieval_and_seal_v1"))
++    indexes=[i for i,n in enumerate(fn.body) if isinstance(n,ast.Assign)
++        and any(isinstance(t,ast.Name) and t.id in ("mlm","contrastive") for t in n.targets)]
++    expected=ast.parse('mlm=base.full_mlm_metadata_prerequisite_v1(**ctx["MLM_prerequisite_metadata"])\ncontrastive=base.full_contrastive_metadata_prerequisite_v1(initializer_checkpoint_ref=mlm,**ctx["contrastive_prerequisite_metadata"])').body
++    require(len(indexes)==2 and indexes[1]==indexes[0]+1
++        and all(ast.dump(fn.body[i],include_attributes=False)==ast.dump(n,include_attributes=False)
++            for i,n in zip(indexes,expected)),"Only the two exact adjacent original retrieval prerequisites change")
++    fn.body[indexes[0]:indexes[1]+1]=ast.parse("contrastive=_qualified_contrastive_checkpoint_v2").body
++    ns=dict(io.RAM_retrieval_and_seal_v1.__globals__,_qualified_contrastive_checkpoint_v2=checkpoint)
++    ast.fix_missing_locations(fn)
++    exec(compile(ast.Module(body=[fn],type_ignores=[]),str(ROOT/SOURCE)+":separate_retrieval_qualifier","exec"),ns)
++    return ns["RAM_retrieval_and_seal_v1"]
++
+ def RAM_retrieval_and_seal_v1(ctx,request,spec,cfg):
+-    """Original complete row concat/retrieval/seal bytecode; explicit fit dispatch only."""
+-    bind_stage_v1(ctx,request)
+-    if spec["refs"].get("saved_MLM_qualification") is not None:
+-        fit_completion_dispatch_v1(spec["refs"]["fit_completion"],spec)
+-        ctx=dict(ctx,validated_VAL000_fit_completion_v1=fit_completion_dispatch_v1)
+-    return load_source_v1("io").RAM_retrieval_and_seal_v1(ctx,request,spec,cfg)
++    """Original full RAM concat/retrieval/seal; explicit separately qualified checkpoint."""
++    bind_stage_v1(ctx,request);io=load_source_v1("io")
++    if spec["refs"].get("saved_MLM_qualification") is None:
++        return io.RAM_retrieval_and_seal_v1(ctx,request,spec,cfg)
++    qualified=fit_completion_dispatch_v1(spec["refs"]["fit_completion"],spec)
++    checkpoint=qualified["phases"]["contrastive"]["checkpoint_ref"]
++    ctx=dict(ctx,validated_VAL000_fit_completion_v1=fit_completion_dispatch_v1)
++    return saved_RAM_retrieval_function_v2(io,checkpoint)(ctx,request,spec,cfg)
