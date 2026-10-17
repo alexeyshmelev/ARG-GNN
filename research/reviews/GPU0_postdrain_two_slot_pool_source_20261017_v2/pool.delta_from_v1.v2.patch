@@ -1,0 +1,33 @@
+--- research/reviews/GPU0_postdrain_two_slot_pool_source_20261017_v1/pool_v1.py
++++ research/reviews/GPU0_postdrain_two_slot_pool_source_20261017_v2/pool_v1.py
+@@ -62,10 +62,10 @@
+             return _new_start(self)
+         def _memory(self,incoming=0):
+             value=super()._memory(incoming)
+-            # This is intentionally stronger than the old admission-only handling:
+-            # unexpected external growth/headroom loss fails active owned work too.
++            # Fail active owned work without throwing across inherited poll/wait.
++            # External occupancy may persist after an owned child has exited.
+             if not incoming and any(j["state"]in legacy.ACTIVE for j in self.jobs.values())and value["blocked_by"]:
+-                raise RuntimeError("Periodic active pool capacity failed: "+",".join(value["blocked_by"]))
++                self._fail_owned_supervision("Periodic active pool capacity failed: "+",".join(value["blocked_by"]))
+             return value
+         def _owned_resource_check(self):
+             super()._owned_resource_check()
+@@ -115,6 +115,16 @@
+     ns=dict(vars(legacy),MODULE=MODULE,c=c,load_cap=legacy.load_cap,guarded_check=c.guarded_check_v1,POLICY=h.POLICY)
+     exec(compile(body,"<postdrain_original_queue_exact_worker_route>","exec"),ns)
+     PostdrainController._launch_queue=ns["_launch_queue"]
++    # Preserve every original tick operation and exception boundary. A failure
++    # already requested by _memory/_process_scan must remain visible, while the
++    # original unconditional owned polls, adopted waits and drain checks proceed.
++    fn=next(n for n in node.body if isinstance(n,ast.FunctionDef)and n.name=="tick")
++    body=ast.get_source_segment(text,fn)
++    require(body.count("                self.safety_error=None")==1,"One exact inherited transient-error reset")
++    body=body.replace("                self.safety_error=None","                if self.lifecycle==\"running\":self.safety_error=None")
++    ns=dict(vars(legacy),time=time)
++    exec(compile(body,"<postdrain_original_tick_preserve_failure_drain>","exec"),ns)
++    PostdrainController.tick=ns["tick"]
+     return PostdrainController,reviewed
+ 
+ 

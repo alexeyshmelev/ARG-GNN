@@ -1,0 +1,15 @@
+# Fresh FLARE VAL001 conversion v4 — inactive3h condition
+
+This is a concrete inactive source for one new never-reserved full VAL001 conversion. ROOT explicitly authorized proposing a10800-second scientific window because the genuine setupv3 attempt spent3370.956 recorded seconds in37 completed budget boundaries within its3600-second scientific window and remained unfinished. That timing combines lock waiting and validation. The final cutoff stack proves waiting in the original flock at that instant.
+
+This is an operational completion condition. No efficiency gain, expected completion time, performance fit or paper runtime result is claimed. The original author converter remains byte-identical: all227316 sites,1600 samples,30Mb,600 reference/1000 query haplotypes and10000 native focal records. Every4096-site budget check and all original writer/storage/source checks remain. Conversion restarts fully in a distinct new scope. Old partial products are never reused.
+
+The fresh envelope is7200 setup +10800 science + the original600-second wall overhead =18600 combined seconds. Conversion wall cap is11400 seconds. The original30-second cleanup,300-second evidence reserve and600-second ROOT authority margin retain their existing semantics. Fresh actual authority must strictly exceed19200 seconds. Neither old attempt's clock is extended. Native/seal budgets are unchanged and this v4 interface permits only VAL001 convert.
+
+The complete new reservation remains889641408 bytes:881252800 output bytes plus the original8MiB packet/AUX/private allowance. FourCPU, zeroCUDA,4GiB RSS, all logging/TMP/file/source guards and original owned gate/wait/drain/completion machinery remain. The existing reviewed transaction-local consumer memo2 and every original guard call remain. No added memo or guard framework is supplied.
+
+The worker adds two success/failure-log scalars around each original budget call: boundary_wall_seconds and boundary_process_cpu_seconds. Wall time includes waiting, IO, validation and final memo checks. Process CPU excludes children and is not an IO or lock timer. Their difference does not isolate contention.
+
+Both genuine failures remain distinct:12977outer1/direct-15 with its recorded unknown cancellation/exact-sites history, and97739outer1/worker1 with owned drain, no completion and scientific cutoff interrupted in flock. Every old file, full charge, scope, key, clock and unknown remains. New execution requires genuine ROOT acceptance/revocation metadata for both failures, prospective registration, whole independent review and current fresh admission. Templates contain no authority.
+
+The new driver is research.reviews.FLARE_original_remaining_CPU_execution_source_20261017_v4.root_driver_v1. See ROOT_RECIPE.md, source_map.v1.json and the two exact review diffs. Eleven stdlib AST/handwritten-metadata checks passed, including67 rejected malformed metadata cases and the full60/64 role fixture. No project/guard/runtime import, resource/process operation, numerical probe/payload, conversion, retry, install or Git action was performed by this source task.

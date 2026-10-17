@@ -1,0 +1,100 @@
+{
+  "admission_authorized": false,
+  "blockers": [
+    "Periodic capacity failure prevents the inherited wait/drain path"
+  ],
+  "controller_handover_authorized": false,
+  "created_at_utc": "2026-10-17T04:46:57.919175+00:00",
+  "execution_authorized": false,
+  "findings": [
+    {
+      "body": "The new _memory override raises whenever an active job sees blocked_by, and legacy.ACTIVE includes draining. In the actual inherited Shared45Controller.tick, both memory calls precede completion of child.poll/owned-drain finalization. If unrelated external usage keeps capacity blocked, every draining tick throws before polling an already-exited owned leader. Owned pidfd signals continue, but the genuine leader wait, job drain record and controller close cannot progress until unrelated external capacity recovers. This makes the proposed persistent-capacity failstop unable to complete its required owned drain independently of external jobs.",
+      "end_line": 68,
+      "file": "research/reviews/GPU0_postdrain_two_slot_pool_source_20261017_v1/pool_v1.py",
+      "inherited_call_lines": {
+        "first_memory": 563,
+        "leader_poll": 568,
+        "second_memory": 571
+      },
+      "inherited_tick_ref": {
+        "path": "src/arggnn/gpu45_c3cache_h050_pool_v1.py",
+        "sha256": "d3279c6208737371031330f4bef9325199ba20c86f0f7d8e930c134b128d29fb"
+      },
+      "line": 67,
+      "priority": "P1",
+      "reproduction": "The independent checker compiles only the exact new factory and extracted unchanged Shared0 _memory plus Shared45 tick/_fail_owned_supervision/_service_termination against handwritten RAM doubles. On an 80GiB fake GPU with preserved external50GiB and a30GiB H058 reservation+4GiB headroom, an already-exited child receives zero poll calls over three draining ticks while signal-service counters advance1,3,5. It remains in children throughout. Only after external capacity becomes clear does the next tick poll once, finalize the failed job and close.",
+      "required_repair": "Preserve the active capacity predicate and owned-only abort, but route the capacity violation into recorded resource-abort/draining state without throwing ahead of mandatory leader polling, adopted waits and terminal drain checks. Add a RAM-only inherited-tick test where the capacity blocker persists after the owned child exits, and prove leader wait/drain/close finish while external usage remains unchanged. No production failure probe is needed.",
+      "title": "Periodic capacity failure prevents the inherited wait/drain path"
+    }
+  ],
+  "independent": true,
+  "independent_checks_ref": {
+    "path": "research/reviews/GPU0_two_slot_full_join_independent_oct17_v1/independent_checks.v1.json",
+    "sha256": "f4a5d6d4d3854d2aff0e53918ce5be336cf5f4ac7285891c36b24b4c4ae4e224"
+  },
+  "independent_checks_source_ref": {
+    "path": "research/reviews/GPU0_two_slot_full_join_independent_oct17_v1/independent_checks.v1.py",
+    "sha256": "005906f1f25ec2e7617d46b4b90b8894c4eb97daf53ecabf8afe1c16078b6834"
+  },
+  "limits": [
+    "Source pass is withheld until the concrete drain-progress blocker is repaired and the repaired complete source is independently reviewed.",
+    "No current completion, terminal, absence, fit, capacity, timing, admission or authority was fabricated or activated. Existing work remains untouched.",
+    "The explicitly missing native scientific runner is a declared seam limitation, not an additional defect in this inactive H058-only runnable capsule; no parallel native readiness is accepted.",
+    "Static role arithmetic remains a proposed64-ref union against preserved current metadata; the actual future current returned guard union must be recomputed before reserve and overflow must reject."
+  ],
+  "native_attachment_seam_ref": {
+    "path": "research/reviews/GPU0_postdrain_two_slot_pool_source_20261017_v1/native_attachment_seam_v1.py",
+    "sha256": "e67d1a4ac406bc6a2167169dbd6f62f616e8d9a789eea48aba16cd81f8a278c1"
+  },
+  "native_slot_execution_authorized": false,
+  "packet_manifest_ref": {
+    "path": "research/reviews/GPU0_postdrain_two_slot_pool_source_20261017_v1/MANIFEST.v1.json",
+    "sha256": "d8635d0dcfa52e8483a678e43c9759dcc33d20c5ef61c806cf714e7ac2b6dd4a"
+  },
+  "pool_contract_ref": {
+    "path": "research/reviews/GPU0_postdrain_two_slot_pool_source_20261017_v1/pool_contract_v1.py",
+    "sha256": "05cf21cd0a97166f07676ccca40176cc46dbfc80d0076d150c9e6f1be83eea7c"
+  },
+  "pool_source_ref": {
+    "path": "research/reviews/GPU0_postdrain_two_slot_pool_source_20261017_v1/pool_v1.py",
+    "sha256": "e08e8f7323c6babc350e20a49bc26d0795b51a8ce84bd4f6423335bff4533f0a"
+  },
+  "preserved_constraints_inspected": [
+    "GPU0-only UUID and one distinct physical GPU; all actual external/driver usage and4GiB headroom counted.",
+    "No C3 compute slots only after genuine old drain/closure; old C3 failed1 and original scientific outer74136UNKNOWN remain historical.",
+    "H05832TRAIN/30passes/960per arm/1920total/32526FP32parameters each and original initializer/null/targets/loss/tree sweeps/BiGRU/96VAL-before-truth protocol.",
+    "Fresh32MiB controller scope and256MiB H058 whole scope,192MiB science/60MiB AUX/4MiB packet,128GiB H058 RSS,28GiB allocator+2GiB margin,2GiB controller RSS and original64 direct-role ceiling; no measured fit claim.",
+    "Every prior source/scope/charge/clock/failure and unrelated live/external job is preserved. Native slot cannot be enabled in this sealed source by changing an authority."
+  ],
+  "reviewer": "relate_inline_whole_join_independent_oct17",
+  "schema": "GPU0_postdrain_complete_independent_review_v1",
+  "source_handoff_ref": {
+    "path": "research/reviews/GPU0_postdrain_two_slot_pool_source_20261017_v1/source_handoff.v1.json",
+    "sha256": "dc7cd9408be5819bc8a180884f072c634501293db07f3163535a0673cdf5205a"
+  },
+  "source_manifest_ref": {
+    "path": "research/reviews/GPU0_postdrain_two_slot_pool_source_20261017_v1/source_manifest.v1.json",
+    "sha256": "396e656eab6196110d26427667191cbaed129e8fb7273c16f52ed02bb7752b8c"
+  },
+  "source_map_ref": {
+    "path": "research/reviews/GPU0_postdrain_two_slot_pool_source_20261017_v1/SOURCE_MAP.v1.json",
+    "sha256": "b93839a68be3a38c57fcd13a2f0f7a1a0130958e643369f6ccaf4764f5b5c55b"
+  },
+  "source_only": true,
+  "source_ref": {
+    "path": "research/reviews/GPU0_postdrain_two_slot_pool_source_20261017_v1/root_driver_v1.py",
+    "sha256": "f293841fffaf67f28117f14e555a7b791dd41c1a6b0d959c25a0e4bc402a31c2"
+  },
+  "verdict": "SOURCE_BLOCKED",
+  "verification": [
+    "Read applicable remote AGENTS.md; all writes confined to the dedicated independent review directory. No production/project module import, admission, journal mutation, source modification, GPU/process/mutex/probe operation, scientific/numerical execution or Git operation.",
+    "Requested source manifest396e656eab6196110d26427667191cbaed129e8fb7273c16f52ed02bb7752b8c and handoffdc7cd9408be5819bc8a180884f072c634501293db07f3163535a0673cdf5205a authenticate. All248 source refs match the source map, totaling4,162,934 static bytes; all197 Python ASTs parse.",
+    "All46 packet files authenticate with exact recorded sizes and340,300 total bytes. All seven predecessor delta files exactly match recomputed source diffs. Actual extracted start/queue adaptations compile against RAM fakes.",
+    "Producer, GPU observations and context ASTs are exactly preserved after namespace substitution from sealed H058v2. New science/body budget changes are absent in this pool fork.",
+    "Inspected controller admission, H058 admission, concrete slot submission, worker dispatcher, direct attachment, current selector/guard/source roles, all active capacity accounting, finite work/drain/absolute clocks, and original owned wait/TERM-KILL/pidfd/service integration.",
+    "Inspected strict handover requirements for complete current/still-authorized old-borrower inventory, actual original waits/drain/consumed terminals, current native full227990 gate, targeted old-owner absence, permanent cooperative revocation, exact old closed registry and actual controller outer0.",
+    "Inspected exact old canonical GPU0 inode open without O_CREAT, new exclusive flock under the original scheduler mutex, old-generation hash/dev/inode validation and writable independent exclusion before new metadata writes. No live adoption, old inode unlink/recreation or external signalling path is added.",
+    "Native slot remains unconditionally disabled by capability validation and lacks a runner/launch. Its seam authenticates original author loader/cardinality metadata and derives full5epoch counts from actual original per-parent cardinality and batch512/drop_last. The inherited512 pool identity limit and separate future4096/full runner review are disclosed.",
+    "Confirmed one joined lifecycle blocker using unchanged inherited memory/tick code and exact new override against RAM doubles. No real PID, process wait, resource inventory, lock, source import or accounting API was invoked."
+  ]
+}

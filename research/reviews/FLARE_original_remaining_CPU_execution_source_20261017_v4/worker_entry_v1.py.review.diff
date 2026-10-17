@@ -1,0 +1,21 @@
+--- research/reviews/FLARE_original_remaining_CPU_execution_source_20261017_v3/worker_entry_v1.py
++++ research/reviews/FLARE_original_remaining_CPU_execution_source_20261017_v4/worker_entry_v1.py
+@@ -51,9 +51,17 @@
+   c.require(os.environ.get('CUDA_VISIBLE_DEVICES')==''and set(os.sched_getaffinity(0))==set(q['cpu_ids']),'CPU-only exact4CPU affinity')
+  class Adapter:
+   def __getattr__(self,name):return getattr(g,name)
+   def budget_check_v9(self,*args,**kwargs):
+-   fast();progress('original_guard_boundary_begin');value=g.budget_check_v9(*args,**kwargs);progress('original_guard_boundary_end');fast();return value
++   fast();progress('original_guard_boundary_begin')
++   wall_start=time.monotonic();cpu_start=time.process_time()
++   try:value=g.budget_check_v9(*args,**kwargs)
++   except BaseException:
++    progress('original_guard_boundary_failed',boundary_wall_seconds=time.monotonic()-wall_start,boundary_process_cpu_seconds=time.process_time()-cpu_start)
++    raise
++   wall_seconds=time.monotonic()-wall_start;process_cpu_seconds=time.process_time()-cpu_start
++   progress('original_guard_boundary_end',boundary_wall_seconds=wall_seconds,boundary_process_cpu_seconds=process_cpu_seconds)
++   fast();return value
+  try:
+   progress('scientific_entry',phase_origin_monotonic=origin,scientific_deadline_monotonic=deadline)
+   class ProgressWriter(context.WaitWriter):
+    def prepare(self,name,budget_bytes):

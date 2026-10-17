@@ -1,0 +1,114 @@
+--- research/reviews/FLARE_original_remaining_CPU_execution_source_20261017_v3/root_driver_v1.py
++++ research/reviews/FLARE_original_remaining_CPU_execution_source_20261017_v4/root_driver_v1.py
+@@ -1,10 +1,10 @@
+-"""Inactive FLARE successor: separate finite setup, genuine ready gate, one initial storage replay."""
++"""Inactive fresh VAL001 conversion: authorized3h work condition, unchanged guarded converter."""
+ from pathlib import Path
+ from datetime import datetime,timezone
+ import argparse,ast,copy,ctypes,hashlib,importlib,importlib.util,json,os,signal,stat,subprocess,sys,time,types
+ ROOT=Path('/workspace-SR003.nfs2/ARG-GNN')
+-HERE='research/reviews/FLARE_original_remaining_CPU_execution_source_20261017_v3'
++HERE='research/reviews/FLARE_original_remaining_CPU_execution_source_20261017_v4'
+ SOURCE=HERE+'/root_driver_v1.py';ENTRY=HERE+'/worker_entry_v1.py'
+ MANIFEST=HERE+'/source_manifest.v1.json';HANDOFF=HERE+'/source_handoff.v1.json'
+ SETUP_SECONDS=7200;EVIDENCE_RESERVE=300;ORIGINAL_MARGIN=600
+ CAPS={};OUTPUT=PARENT=CONFIG=None
+@@ -24,14 +24,22 @@
+  raw(record);sp=importlib.util.spec_from_file_location(name,local(record['path']));m=importlib.util.module_from_spec(sp);sys.modules[name]=m;sp.loader.exec_module(m);return m
+ 
+ def phase_budget(stage):
+  need(stage in('convert','native','seal'),'Original scientific stage')
+- science=14400 if stage=='native'else 3600;wall=science+600
++ science=10800 if stage=='convert'else 14400 if stage=='native'else 3600;wall=science+600
+  return dict(setup_seconds=SETUP_SECONDS,scientific_seconds=science,wall_seconds=wall,combined_seconds=SETUP_SECONDS+wall,evidence_reserve_seconds=300,authority_margin_seconds=600)
+ 
+ def contract():
+  b=bindings();c=load(b['original_contract_ref'],'_FLARE_phase_original_contract');selector=load(b['selector_protocol_contract_ref'],'_FLARE_phase_selector_protocol')
+  c.HERE=HERE;c.SOURCE=c.DRIVER=SOURCE;c.ENTRY=ENTRY;c.MANIFEST=MANIFEST;c.HANDOFF=HANDOFF
++ c.STAGES=('convert',);c.VAL=('american_c3_val_001',)
++ original_stage_caps=c.stage_caps
++ def stage_caps(stage,cfg):
++  caps=original_stage_caps(stage,cfg)
++  c.require(stage=='convert'and caps==b['predecessor_convert_caps'],'Exact unchanged full VAL001 conversion resources')
++  caps.update(scientific_seconds=10800,wall_seconds=11400)
++  return caps
++ c.stage_caps=stage_caps
+  def selected(record):
+   value=selector.selected(record);c.require(value['source_ref']==b['selected_child_source_ref']and value['selector_source_ref']==b['selected_child_source_ref']and value['accounting_mode']=='Relate_failed64GiB_retention_v1','Exact actual current child only');return value
+  def bind_selector(record):
+   v=selected(record);selector.bind_selector(record)
+@@ -55,22 +63,71 @@
+    and all(type(v.get(k))is type(old[k])and v.get(k)==old[k]for k in('original_input_ref','original_request_ref','old_created_at_utc','old_expires_at_utc','old_reservation_key','actual_wait_ref','outer_wait_ref','outer_tool','outer_returncode','direct_worker_returncode','owned_drain','completed_ref','old_charge_bytes','recorded_operational_failure','actual_cancel_signal','exact_sites_written'))
+    and v.get('old_launch_resume_write_authority_revoked')is True and v.get('old_files_scopes_key_charge_clocks_and_failure_unchanged')is True
+    and v.get('original_conversion_unsealed')is True,'Genuine exact failed12977 acceptance, no completion/cause/credit relabel')
+   for key in('original_input_ref','original_request_ref','actual_wait_ref','outer_wait_ref'):c.raw(old[key])
++  latest=b['setupv3_failure'];accepted=v.get('latest_setupv3_failure_acceptance')
++  c.require(isinstance(accepted,dict)and accepted.get('schema')=='ROOT_FLARE_setupv3_failed_unsealed_acceptance_v1'
++   and accepted.get('root_authorizer')=='root_agent'and accepted.get('accepted')is True
++   and all(type(accepted.get(k))is type(value)and accepted.get(k)==value for k,value in latest.items())
++   and accepted.get('old_launch_resume_write_authority_revoked')is True
++   and accepted.get('old_files_scopes_key_charge_clocks_and_failure_unchanged')is True
++   and accepted.get('original_conversion_unsealed')is True,
++   'Genuine exact97739outer1 worker1/drain acceptance; no old clock extension, reuse, credit or success')
++  for key in('original_input_ref','original_request_ref','actual_wait_ref','outer_wait_ref','failure_diagnosis_ref'):c.raw(latest[key])
+  original_validate=c.validate_request
+  def validate_request(record):
+-  q=c.read(record);budget=phase_budget(q.get('stage'))
+-  c.require(q.get('phase_budget')==budget,'Exact fixed7200 setup and original stage-specific work caps')
++  q=c.read(record)
++  c.require(q.get('stage')=='convert'and q.get('parent_id')=='american_c3_val_001',
++   'Only one fresh full VAL001 conversion condition; no native, seal, scoring or other parent')
++  budget=phase_budget(q.get('stage'))
++  c.require(q.get('storage_policy_selector_ref')==b['actual_selector_metadata_ref'],'Exact current Relate selector only')
++  c.require(all(q.get(k)==value for k,value in b['fresh_namespaces'].items()),
++   'Exact distinct never-reserved v4 preparation/packet/output only')
++  c.require(q.get('proposed_reservation_key')==b['fresh_reservation_key']
++   and b['fresh_reservation_key']=='H041/FLARE-original-convert-'+Path(q['packet_directory']).name,
++   'Exact fresh key derived by unchanged admission')
++  condition=b['fresh_condition']
++  c.require(all(type(q.get(k))is type(value)and q.get(k)==value for k,value in condition.items()),
++   'Fresh3h operational completion condition; no partial reuse or efficiency/runtime-result claim')
++  for prior in b['all_failed_namespaces']:
++   c.require(all(not(c.local(q[k])==c.local(v)or c.local(q[k]).is_relative_to(c.local(v))or c.local(v).is_relative_to(c.local(q[k])))
++    for k in('preparation_directory','packet_directory','output_directory')for v in prior.values()),
++    'Both historical failed scopes remain fully disjoint and unchanged')
++  c.require(q.get('phase_budget')==budget,'Exact7200setup+10800conversion+600walloverhead=18600combined; original evidence/cleanup margins')
+   for key in('preparation_directory','packet_directory','output_directory'):
+    p=c.local(q[key])
+    for old in b['excluded_namespaces'].values():
+     o=c.local(old);c.require(p!=o and not p.is_relative_to(o)and not o.is_relative_to(p),'Every fresh namespace disjoint from every old namespace')
+   failure_acceptance(q['prior_failure_acceptance_ref']);directive=c.read(q['root_directive_ref'])
+-  c.require(directive.get('phase_budget')==budget and directive.get('prior_failure_acceptance_ref')==q['prior_failure_acceptance_ref'],'Separate ROOT directive binds fresh phase budget/failure')
++  c.require(directive.get('phase_budget')==budget and directive.get('prior_failure_acceptance_ref')==q['prior_failure_acceptance_ref']
++   and directive.get('proposed_reservation_key')==b['fresh_reservation_key']
++   and all(type(directive.get(k))is type(value)and directive.get(k)==value for k,value in condition.items()),
++   'Separate genuine ROOT directive binds fresh3h condition, exact key and both failures')
++  registration=c.read(q['registration_ref']);registered=registration.get('fresh_completion_condition_registration')
++  c.require(isinstance(registered,dict)and registered.get('schema')=='FLARE_fresh3h_VAL001_completion_condition_registration_v4'
++   and registered.get('root_authorizer')=='root_agent'and registered.get('registered_before_request')is True
++   and registered.get('source_manifest_ref')==c.ref(MANIFEST)
++   and registered.get('source_review_ref')==q['source_review_ref']
++   and registered.get('proposed_reservation_key')==b['fresh_reservation_key']
++   and registered.get('phase_budget')==budget
++   and registered.get('original_failed_input_refs')==[b['old_failure']['original_input_ref'],b['setupv3_failure']['original_input_ref']]
++   and all(type(registered.get(k))is type(value)and registered.get(k)==value for k,value in condition.items()),
++   'Genuine prospective fresh3h operational condition registration inside original direct target registration')
++  for key in('decision_snapshot_ref','ledger_snapshot_ref'):c.raw(registered[key])
++  registered_at=datetime.fromisoformat(registered['registered_utc'])
+   created=datetime.fromisoformat(q['created_at_utc']);expires=datetime.fromisoformat(q['expires_at_utc'])
++  c.require(registered_at.tzinfo is not None and registered_at<=created,'Fresh3h registration precedes request')
+   c.require(created.tzinfo is not None and expires.tzinfo is not None and(expires-created).total_seconds()>budget['combined_seconds']+600,'Fresh finite authority covers full combined setup/work and original margin')
+   return original_validate(record) # All original science/schema/stage/runtime/directive/margin predicates.
+  c.validate_request=validate_request
++ original_input_spec=c.input_spec
++ def input_spec(record):
++  result=original_input_spec(record);s,q,cfg=result
++  c.require(s['storage']['reservation']['key']==b['fresh_reservation_key']
++   and s['job_id']==b['fresh_reservation_key'].split('/',1)[1],
++   'Actual admitted storage/job binds the exact never-reserved fresh3h key')
++  return result
++ c.input_spec=input_spec
+  return c
+ 
+ def initial_storage_transaction(s,q,g):
+  """One existing consumer-memo original-lock storage transaction; no new memo layer."""

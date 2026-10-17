@@ -1,0 +1,80 @@
+--- exact_original_guard_retirement_AST
++++ actual_new_derivative_AST
+@@ -1,4 +1,4 @@
+-def apply_retire_stopped_v1(authority_ref, *, expected_source_sha256, expected_launcher_sha256):
++def _inline_ROOT_exact_retirement(authority_ref, *, expected_source_sha256, expected_launcher_sha256):
+     """Future explicit ROOT operation only; no author/CLI/fixture calls."""
+     started = time.monotonic()
+     deadline = started + OPERATION_WALL_SECONDS
+@@ -6,37 +6,39 @@
+     def finite():
+         require(time.monotonic() < deadline, 'Finite300second exact retention operation; preserve on timeout')
+     with budget.v4.mutex(ROOT):
+-        finite()
+-        state = _state_locked(expected_source_sha256, expected_launcher_sha256, fresh=True)
+-        auth = _authority(authority_ref, RETIRE_OPERATION, state[3], fresh=True)
+-        require(auth['expected_before'] == _pins(state[2]), 'Actual fresh child prefix before exact failed retirement')
+-        request = auth['request']
+-        key = request['key']
+-        require(key in TARGET_KEYS, 'Only exact failed64GiB Relate key')
+-        assert_open(key, state[0], state[1])
+-        own = state[0][key]
+-        consumer_bindings_v1(list(state[3].values()), [request['revocation_ref'], request['observation_ref'], authority_ref])
+-        proof = _stopped_proof(request, own, observe=True)
+-        finite()
+-        sp = importlib.util.spec_from_file_location('_Relate64_existing_retained_nodes', ROOT / MEASURE_SOURCE)
+-        helper = importlib.util.module_from_spec(sp)
+-        sp.loader.exec_module(helper)
+-        original_require = helper.require
++        with _retirement_transaction(finite):
++            finite()
++            state = _state_locked(expected_source_sha256, expected_launcher_sha256, fresh=True)
++            authority_ref = _inline_ROOT_authority(state, finite)
++            auth = _authority(authority_ref, RETIRE_OPERATION, state[3], fresh=True)
++            require(auth['expected_before'] == _pins(state[2]), 'Actual fresh child prefix before exact failed retirement')
++            request = auth['request']
++            key = request['key']
++            require(key in TARGET_KEYS, 'Only exact failed64GiB Relate key')
++            assert_open(key, state[0], state[1])
++            own = state[0][key]
++            consumer_bindings_v1(list(state[3].values()), [request['revocation_ref'], request['observation_ref'], authority_ref])
++            proof = _stopped_proof(request, own, observe=True)
++            finite()
++            sp = importlib.util.spec_from_file_location('_Relate64_existing_retained_nodes', ROOT / MEASURE_SOURCE)
++            helper = importlib.util.module_from_spec(sp)
++            sp.loader.exec_module(helper)
++            original_require = helper.require
+ 
+-        def bounded_require(ok, message):
++            def bounded_require(ok, message):
++                finite()
++                return original_require(ok, message)
++            helper.require = bounded_require
++            measurement = helper.measure_retained_nodes_v1(ROOT, _paths(own), expected_paths=_target(key)['scope_paths'], socket_is_absent=lambda path: False)
++            actual = _retained_measurement(measurement, own)
+             finite()
+-            return original_require(ok, message)
+-        helper.require = bounded_require
+-        measurement = helper.measure_retained_nodes_v1(ROOT, _paths(own), expected_paths=_target(key)['scope_paths'], socket_is_absent=lambda path: False)
+-        actual = _retained_measurement(measurement, own)
+-        finite()
+-        proof['post_measurement_targets'] = _observe_targets(_target(key))
+-        closed = _utc()
+-        _recorded_stopped_proof(proof, _stopped_proof(request, own), closed)
+-        finite()
+-        value = dict(request=copy.deepcopy(request), reservation_sha256=budget.digest(own), measurement=measurement, proof=proof, closed_utc=closed, future_writes_and_relaunch_revoked=True)
+-        projected = charge(_policy()['base_projected_bytes'], state[2]['new_reserved_bytes'], state[2]['completed_credit_bytes'] + own['reserved_bytes'] - actual, len(state[4]) + 1)
+-        _expire(auth)
+-        finite()
+-        tail = _append(RETIRE_OPERATION, authority_ref, value, state)
+-        return dict(kind='Relate64_exact_failed_retention_receipt_v1', key=key, value=value, retained_bytes=actual, credit_bytes=own['reserved_bytes'] - actual, projected_bytes=projected, scope_measurements=1, completed_overlay_prefix=dict(events=len(state[4]) + 1, tail_sha256=tail), old_journal_mutated=False, old_scope_mutated=False, artifacts_deleted=0, scientific_success_asserted=False, **warning_fields(projected))
++            proof['post_measurement_targets'] = _observe_targets(_target(key))
++            closed = _utc()
++            _recorded_stopped_proof(proof, _stopped_proof(request, own), closed)
++            finite()
++            value = dict(request=copy.deepcopy(request), reservation_sha256=budget.digest(own), measurement=measurement, proof=proof, closed_utc=closed, future_writes_and_relaunch_revoked=True)
++            projected = charge(_policy()['base_projected_bytes'], state[2]['new_reserved_bytes'], state[2]['completed_credit_bytes'] + own['reserved_bytes'] - actual, len(state[4]) + 1)
++            _expire(auth)
++            finite()
++            tail = _retirement_append(finite, auth, RETIRE_OPERATION, authority_ref, value, state)
++            return dict(kind='Relate64_exact_failed_retention_receipt_v1', key=key, value=value, retained_bytes=actual, credit_bytes=own['reserved_bytes'] - actual, projected_bytes=projected, scope_measurements=1, completed_overlay_prefix=dict(events=len(state[4]) + 1, tail_sha256=tail), old_journal_mutated=False, old_scope_mutated=False, artifacts_deleted=0, scientific_success_asserted=False, **warning_fields(projected))

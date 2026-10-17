@@ -1,0 +1,69 @@
+{
+  "actual_factory_extracted_start_and_queue_compile": true,
+  "findings": [
+    {
+      "line": 63,
+      "path": "research/reviews/GPU0_postdrain_two_slot_pool_source_20261017_v1/pool_v1.py",
+      "priority": "P1",
+      "title": "Keep actual wait/drain progress after periodic capacity failure"
+    }
+  ],
+  "mapped_H058_deltas_verified": 7,
+  "numerical_scientific_execution": false,
+  "packet_bytes_verified": 340300,
+  "packet_files_verified": 46,
+  "production_modules_imported": false,
+  "python_ASTs_parsed": 197,
+  "real_resource_process_mutex_admission_journal_Git_operations": false,
+  "reproduction": {
+    "after_external_capacity_recovers": {
+      "children": 0,
+      "lifecycle": "closed",
+      "poll_calls": 1
+    },
+    "conclusion": "New _memory exception prevents inherited tick reaching child.poll on every draining tick while external capacity remains blocked. Owned signals proceed, but genuine wait/drain/final close cannot progress independently of unrelated capacity.",
+    "persistent_capacity_ticks": [
+      {
+        "children": 1,
+        "job_state": "draining",
+        "lifecycle": "draining",
+        "poll_calls": 0,
+        "safety_error": "RuntimeError: Periodic active pool capacity failed: actual_free_memory_or_reserved_headroom",
+        "signals": 1,
+        "tick": 0
+      },
+      {
+        "children": 1,
+        "job_state": "draining",
+        "lifecycle": "draining",
+        "poll_calls": 0,
+        "safety_error": "RuntimeError: Periodic active pool capacity failed: actual_free_memory_or_reserved_headroom",
+        "signals": 3,
+        "tick": 1
+      },
+      {
+        "children": 1,
+        "job_state": "draining",
+        "lifecycle": "draining",
+        "poll_calls": 0,
+        "safety_error": "RuntimeError: Periodic active pool capacity failed: actual_free_memory_or_reserved_headroom",
+        "signals": 5,
+        "tick": 2
+      }
+    ],
+    "scenario": "Owned H058 child has exited; unrelated preserved external50GiB on80GiB leaves insufficient30GiB reservation+4GiB headroom. Actual inherited memory/tick plus exact new factory execute only against RAM doubles."
+  },
+  "schema": "GPU0_postdrain_independent_full_join_checks_v1",
+  "scientific_context_namespace_AST_preserved": true,
+  "source_handoff_ref": {
+    "path": "research/reviews/GPU0_postdrain_two_slot_pool_source_20261017_v1/source_handoff.v1.json",
+    "sha256": "dc7cd9408be5819bc8a180884f072c634501293db07f3163535a0673cdf5205a"
+  },
+  "source_manifest_ref": {
+    "path": "research/reviews/GPU0_postdrain_two_slot_pool_source_20261017_v1/source_manifest.v1.json",
+    "sha256": "396e656eab6196110d26427667191cbaed129e8fb7273c16f52ed02bb7752b8c"
+  },
+  "source_refs_verified": 248,
+  "static_bytes_verified": 4162934,
+  "status": "SOURCE_BLOCKER_REPRODUCED_RAM_ONLY"
+}

@@ -1,0 +1,11 @@
+--- src/arggnn/gpu45_c3cache_h050_pool_v1.py:Shared45Controller.tick
++++ research/reviews/GPU0_postdrain_two_slot_pool_source_20261017_v2/pool_v1.py:derived_tick
+@@ -10,7 +10,7 @@
+                     for job in self.jobs.values():
+                         if job["state"]=="queued":job.update(state="cancelled",finished_unix=time.time(),error="Pool submission authority expired; owned drain continues")
+                 self._lease_check();self._drain_logs();self._process_scan();self._reap_owned_adopted();memory=self._memory()
+-                self.safety_error=None
++                if self.lifecycle=="running":self.safety_error=None
+                 if memory["overrun_jobs"]:
+                     self._fail_owned_supervision("Owned GPU reservation overrun; drain required")
+                 for name,child in list(self.children.items()):

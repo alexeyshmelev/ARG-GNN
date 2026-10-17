@@ -1,0 +1,327 @@
+--- research/reviews/Relate_retirement_transaction_memo_source_20261017_v1/retire_transaction_memo_v1.py
++++ research/reviews/Relate_retirement_inline_ROOT_evidence_source_20261017_v1/inline_ROOT_retire_v1.py
+@@ -1,15 +1,22 @@
+-"""Inactive exact failed-Relate retention transaction; original300s lifetime and authority unchanged."""
++"""Inactive ROOT-only just-in-time immutable evidence, exact failed Relate retention.
++
++No import IO, guard/resource/mutex/process observation or accounting operation.
++An actual callback, whole-join review and fresh finite ROOT instruction are required.
++"""
+ from pathlib import Path
+ from contextlib import contextmanager
++from datetime import datetime,timezone
+ import ast,copy,hashlib,importlib.util,json,os,stat,sys,threading
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-HERE="research/reviews/Relate_retirement_transaction_memo_source_20261017_v1"
+-SOURCE=HERE+"/retire_transaction_memo_v1.py"
++HERE="research/reviews/Relate_retirement_inline_ROOT_evidence_source_20261017_v1"
++SOURCE=HERE+"/inline_ROOT_retire_v1.py"
+ MEMO_REF=dict(path="research/reviews/ROOT_mutation_transaction_memo_source_20261017_v2/root_mutation_memo_v1.py",sha256="487fcd93b73f6668126522b67720041abbbaa8b95ee54c3bc69adffba1a765b2")
+-MEMO_MANIFEST_REF={'path': 'research/reviews/ROOT_mutation_transaction_memo_source_20261017_v2/source_manifest.v1.json', 'sha256': '7f6a55db07b0967bdf6000e40c1c4eeccca8e67a4050f27cf9732d2f1140eb1c'}
++MEMO_MANIFEST_REF=dict(path="research/reviews/ROOT_mutation_transaction_memo_source_20261017_v2/source_manifest.v1.json",sha256="7f6a55db07b0967bdf6000e40c1c4eeccca8e67a4050f27cf9732d2f1140eb1c")
+ GUARD_REF=dict(path="research/reviews/Relate_failed64GiB_retention_successor_source_20261017_v1/relate_failed64_retention_v1.py",sha256="b8b696a0df45c12b931e563600c2b52e89e73dd19c7d160351063687dcfb5164")
+ TARGET_KEY="ARGMix/prospective1611-accepted-TRAIN000-Relate-v4"
+ RETIRE_OPERATION="retire_exact_failed_Relate64_retention_v1"
++CALLBACK_NAME="authorize_inline_ROOT_retirement_v1"
++CALLBACK_STDLIB_MODULES=frozenset(("__future__","copy","datetime","errno","hashlib","json","os","pathlib","stat","time"))
+ _ACTIVE=False
+ def need(ok,message):
+  if not ok:raise ValueError(message)
+@@ -24,124 +31,221 @@
+   and len(raw)==before.st_size and hashlib.sha256(raw).hexdigest()==MEMO_REF["sha256"],"Stable exact accepted memo bytes")
+  spec=importlib.util.spec_from_file_location("_Relate_retirement_exact_accepted_memo",p)
+  module=importlib.util.module_from_spec(spec);sys.modules[spec.name]=module;exec(compile(raw,str(p),"exec",dont_inherit=True),module.__dict__);return module
+-def derive_retirement(node,scope,transaction,append):
+- """Entire original AST retained, including prelock deadline; only two explicit additions."""
++
++def derive_inline_retirement(node,scope,transaction,authority,append):
++ """Original AST plus exactly three reversible additions; deadline stays prelock."""
+  need(node.name=="apply_retire_stopped_v1"and len(node.body)==5,"Exact original retirement function shape")
+  block=node.body[-1]
+  need(isinstance(block,ast.With)and len(block.items)==1 and block.items[0].optional_vars is None
+   and ast.unparse(block.items[0].context_expr)=="budget.v4.mutex(ROOT)","Original actual mutex stays in original position")
+- derived=copy.deepcopy(node);derived.name="_memo_exact_retirement"
++ need(ast.unparse(block.body[0])=="finite()"
++  and ast.unparse(block.body[1])=="state = _state_locked(expected_source_sha256, expected_launcher_sha256, fresh=True)"
++  and ast.unparse(block.body[2])=="auth = _authority(authority_ref, RETIRE_OPERATION, state[3], fresh=True)",
++  "One exact after-fresh-state, before-authority ROOT seam")
++ derived=copy.deepcopy(node);derived.name="_inline_ROOT_exact_retirement"
+  calls=[n for n in ast.walk(derived.body[-1])if isinstance(n,ast.Call)and isinstance(n.func,ast.Name)and n.func.id=="_append"]
+  need(len(calls)==1 and len(calls[0].args)==4 and not calls[0].keywords,"Exactly one original append")
+  calls[0].func.id="_retirement_append";calls[0].args[0:0]=[ast.Name(id="finite",ctx=ast.Load()),ast.Name(id="auth",ctx=ast.Load())]
+  original_body=derived.body[-1].body
++ original_body.insert(2,ast.parse("authority_ref = _inline_ROOT_authority(state, finite)").body[0])
+  derived.body[-1].body=[ast.With(items=[ast.withitem(context_expr=ast.Call(func=ast.Name(id="_retirement_transaction",ctx=ast.Load()),
+   args=[ast.Name(id="finite",ctx=ast.Load())],keywords=[]),optional_vars=None)],body=original_body)]
+  derived.decorator_list=[]
+- namespace=dict(scope,_retirement_transaction=transaction,_retirement_append=append,__name__=__name__)
++ namespace=dict(scope,_retirement_transaction=transaction,_inline_ROOT_authority=authority,_retirement_append=append,__name__=__name__)
+  exec(compile(ast.fix_missing_locations(ast.Module(body=[derived],type_ignores=[])),
+-  SOURCE+"#entire-original-retirement-with-two-additions","exec"),namespace)
++  SOURCE+"#entire-original-retirement-with-three-additions","exec"),namespace)
+  return namespace[derived.name]
+-class RetireStoppedMemo:
+- """One public exact original-key operation, owning its ORIGINAL mutex; no held-lock API."""
+- def __init__(self,guard,*,integration_manifest_ref,helper_ref,review_ref,memo_review_ref,root_instruction_ref,cache_refs,uncached_current_refs=()):
+-  global _ACTIVE
++
++class InlineRootRetireStoppedMemo:
++ """One attempt under the ORIGINAL mutex; ROOT owns the reviewed real callback."""
++ def __init__(self,guard,*,root_instruction_ref):
+   need(not _ACTIVE,"No construction during an active retirement transaction")
+   self.memo=load_memo();self.guard=guard;self.budget=guard.budget;self.v4=self.budget.v4
+-  self.manifest_ref=copy.deepcopy(integration_manifest_ref);self.helper_ref=copy.deepcopy(helper_ref)
+-  self.review_ref=copy.deepcopy(review_ref);self.memo_review_ref=copy.deepcopy(memo_review_ref);self.instruction_ref=copy.deepcopy(root_instruction_ref)
+-  self.cache_refs=copy.deepcopy(cache_refs);self.current_refs=copy.deepcopy(list(uncached_current_refs))
+-  need(len(self.current_refs)<=2048 and all(isinstance(r,dict)and set(r)=={"path","sha256"}for r in self.current_refs),
+-   "Explicit bounded current-evidence exclusions")
+-  self.counts={};self._tx=None;self._used=False
+-  need(self.helper_ref["path"]==SOURCE,"Exact new retirement helper path")
+-  # Reuse accepted constructor/fingerprint/cache-ref validation and read-state API.
+-  # Retirement joins are OUT OF BAND ROOT refs, never added to old reservation/authority.
+-  self.core=self.memo.RootMutationMemo(guard,integration_manifest_ref=self.manifest_ref,
+-   adapter_ref=MEMO_REF,cache_refs=self.cache_refs)
++  self.instruction_ref=copy.deepcopy(root_instruction_ref)
++  spec=self.v4.bound(ROOT,self.instruction_ref,True)
++  self.manifest_ref=copy.deepcopy(spec["source_manifest_ref"]);self.helper_ref=copy.deepcopy(spec["helper_ref"])
++  self.review_ref=copy.deepcopy(spec["whole_join_review_ref"]);self.memo_review_ref=copy.deepcopy(spec["memo_review_ref"])
++  self.callback_ref=copy.deepcopy(spec["callback_source_ref"]);self.callback_name=spec["callback_name"]
++  self.cache_refs=copy.deepcopy(spec["cache_refs"]);self.current_refs=copy.deepcopy(spec["uncached_current_refs"])
++  self.paths=copy.deepcopy(spec["fresh_metadata_paths"]);self.metadata_directory=spec["metadata_directory"]
++  self.revocation_ref=copy.deepcopy(spec["permanent_revocation_ref"])
++  self._tx=None;self._used=False;self._callback_calls=0;self._append_calls=0;self._authority_ref=None;self.counts={}
++  self.callback_module=self.callback=None
++  self.core=self.memo.RootMutationMemo(guard,integration_manifest_ref=self.manifest_ref,adapter_ref=MEMO_REF,cache_refs=self.cache_refs)
++  self._check(check_callback=False)
++  raw=self._callback_bytes();p=ROOT/self.callback_ref["path"]
++  name="_exact_ROOT_inline_retirement_authorizer"
++  module=importlib.util.module_from_spec(importlib.util.spec_from_file_location(name,p));sys.modules[name]=module
++  exec(compile(raw,str(p),"exec",dont_inherit=True,optimize=0),module.__dict__)
++  self.callback_module=module;self.callback=getattr(module,self.callback_name)
+   self._check()
+  def _authenticate(self,bound):
+   manifest=bound(ROOT,self.manifest_ref,True)
+   need(manifest.get("source_sha256",{}).get(SOURCE)==self.helper_ref["sha256"]
+-   and manifest.get("source_sha256",{}).get(MEMO_REF["path"])==MEMO_REF["sha256"]
+-   and manifest.get("source_sha256",{}).get(MEMO_MANIFEST_REF["path"])==MEMO_MANIFEST_REF["sha256"],"Exact out-of-band helper/memo manifest")
++   and manifest["source_sha256"].get(MEMO_REF["path"])==MEMO_REF["sha256"]
++   and manifest["source_sha256"].get(MEMO_MANIFEST_REF["path"])==MEMO_MANIFEST_REF["sha256"],"Exact new helper and unchanged memo2 source closure")
++  need(self.helper_ref["path"]==SOURCE,"Exact new helper path; no old attempt substitution")
++  need(self.callback_name==CALLBACK_NAME,"One exact ROOT authorizer callback name")
+   review=bound(ROOT,self.review_ref,True)
+-  need(review.get("independent")is True and review.get("verdict")in("SOURCE_PASS","PASS")
++  need(review.get("schema")=="Relate64_inline_ROOT_retirement_whole_join_review_v1"
++   and review.get("independent")is True and review.get("verdict")=="SOURCE_PASS"and review.get("blockers")==[]
+    and review.get("source_ref")==self.helper_ref and review.get("source_manifest_ref")==self.manifest_ref
+-   and review.get("blockers")==[],"Independent complete retirement helper source review")
++   and review.get("callback_source_ref")==self.callback_ref and review.get("callback_name")==self.callback_name
++   and review.get("fresh_metadata_paths")==self.paths and review.get("permanent_revocation_ref")==self.revocation_ref
++   and review.get("guard_ref")==GUARD_REF and review.get("memo_ref")==MEMO_REF
++   and review.get("actual_callback_complete_source_review")is True,
++   "Genuine new whole-join review includes actual ROOT callback; source-template review never suffices")
+   memo_review=bound(ROOT,self.memo_review_ref,True)
+-  need(memo_review.get("independent")is True and memo_review.get("verdict")in("SOURCE_PASS","PASS")
++  need(memo_review.get("independent")is True and memo_review.get("verdict")=="SOURCE_PASS"
+    and memo_review.get("source_ref")==MEMO_REF and memo_review.get("source_manifest_ref")==MEMO_MANIFEST_REF
+-   and memo_review.get("blockers")==[],
+-   "Separately reviewed exact metadata memo dependency")
++   and memo_review.get("blockers")==[],"Separately accepted exact unchanged memo2 review")
+   instruction=bound(ROOT,self.instruction_ref,True)
+-  need(instruction.get("schema")=="ROOT_exact_Relate64_retirement_transaction_instruction_v1"
+-   and instruction.get("root_authorizer")=="root_agent"and instruction.get("active")is True
+-   and instruction.get("helper_ref")==self.helper_ref and instruction.get("source_manifest_ref")==self.manifest_ref
+-   and instruction.get("independent_review_ref")==self.review_ref and instruction.get("memo_ref")==MEMO_REF
+-   and instruction.get("memo_review_ref")==self.memo_review_ref
+-   and instruction.get("guard_ref")==GUARD_REF and instruction.get("key")==TARGET_KEY
+-   and instruction.get("operation")==RETIRE_OPERATION and instruction.get("cache_refs")==self.cache_refs
+-   and instruction.get("uncached_current_refs")==self.current_refs
+-   and instruction.get("operation_wall_seconds")==300 and instruction.get("original_authority_schema_unchanged")is True
+-   and instruction.get("original_reservation_files_caps_expiry_and_frozen_ancestor_journals_unchanged")is True
+-   and instruction.get("new_accounting_lineage")is False and instruction.get("automatic_retry")is False,
+-   "Actual immutable ROOT instruction, not a new accounting authority/schema/clock")
++  expected=dict(schema="ROOT_exact_Relate64_inline_evidence_instruction_v1",root_authorizer="root_agent",active=True,
++   helper_ref=self.helper_ref,source_manifest_ref=self.manifest_ref,whole_join_review_ref=self.review_ref,
++   memo_ref=MEMO_REF,memo_manifest_ref=MEMO_MANIFEST_REF,memo_review_ref=self.memo_review_ref,guard_ref=GUARD_REF,
++   key=TARGET_KEY,operation=RETIRE_OPERATION,callback_source_ref=self.callback_ref,callback_name=CALLBACK_NAME,
++   metadata_directory=self.metadata_directory,fresh_metadata_paths=self.paths,permanent_revocation_ref=self.revocation_ref,
++   cache_refs=self.cache_refs,uncached_current_refs=self.current_refs,
++   created_at_utc=instruction.get("created_at_utc"),expires_at_utc=instruction.get("expires_at_utc"),
++   operation_wall_seconds=300,fresh_target_seconds=120,original_authority_and_request_schemas_unchanged=True,
++   original_reservation_files_caps_expiry_and_frozen_ancestor_journals_unchanged=True,
++   ROOT_authorizes_one_actual_callback_after_original_fresh_state=True,
++   callback_only_actual_target_observations_and_new_immutable_ROOT_metadata=True,
++   original_two_pass_measurement_and_raw_final_revalidation_unchanged=True,
++   new_accounting_lineage=False,automatic_retry=False,old_instruction_or_failed_authority_reused=False)
++  need(instruction==expected and set(instruction)==set(expected),"Exact fresh ROOT-only one-attempt instruction; never accounting authority")
++  created=datetime.fromisoformat(instruction["created_at_utc"])
++  need(created.tzinfo is not None and created<=datetime.now(timezone.utc),"Genuine finite nonfuture ROOT instruction")
+   self.guard._expire(instruction)
+-  self.memo.source_bytes(self.helper_ref);self.memo.source_bytes(MEMO_REF)
++  need(isinstance(self.metadata_directory,str)and self.metadata_directory.startswith("research/reviews/Relate_retention_inline_ROOT_actual_")
++   and str(Path(self.metadata_directory))==self.metadata_directory,"Separately fresh explicit ROOT metadata namespace")
++  directory=self.v4.canonical(ROOT,self.metadata_directory)
++  need((ROOT/self.instruction_ref["path"]).parent==directory,
++   "Fresh ROOT instruction itself belongs to the same explicit new preparation")
++  need(directory.is_dir()and set(self.paths)=={"attempt","observation","authority"}
++   and all(isinstance(p,str)and str(Path(p))==p and not Path(p).is_absolute()and (ROOT/p).parent==directory
++    and Path(p).suffix==".json"for p in self.paths.values())and len(set(self.paths.values()))==3,
++   "Three distinct predetermined fresh flat JSON paths in existing ROOT preparation")
++  need(isinstance(self.callback_ref,dict)and set(self.callback_ref)=={"path","sha256"}
++   and (ROOT/self.callback_ref["path"]).parent==directory and Path(self.callback_ref["path"]).suffix==".py",
++   "Actual reviewed ROOT callback lives in this new ROOT preparation")
++  need(len(self.current_refs)<=2048 and all(isinstance(r,dict)and set(r)=={"path","sha256"}for r in self.current_refs),"Explicit bounded current-evidence exclusions")
++  for r in (self.helper_ref,MEMO_REF,self.callback_ref):self.memo.source_bytes(r)
+   return instruction
+- def _check(self):
++ def _check(self,check_callback=True):
+   self.core._check()
+-  need(not _ACTIVE and not self.memo._ACTIVE and threading.active_count()==1,"Fresh nonnested single-thread ROOT transaction")
++  need(not _ACTIVE and not self.memo._ACTIVE and threading.active_count()==1,"Fresh nonnested single-thread ROOT operation")
+   need(self.guard.RETIRE_OPERATION==RETIRE_OPERATION and self.guard.TARGET_KEYS==(TARGET_KEY,)
+-   and self.guard.OPERATION_WALL_SECONDS==300,"Exact original failed64GiB Relate retirement/cap only")
+-  self.functions=self.memo.functions_from_source(self.guard,GUARD_REF,("apply_retire_stopped_v1","_state_locked","_append"))
++   and self.guard.OPERATION_WALL_SECONDS==300 and self.guard.FRESH_TARGET_SECONDS==120,"Exact original key,300s operation and120s target proof")
++  self.functions=self.memo.functions_from_source(self.guard,GUARD_REF,("apply_retire_stopped_v1","_state_locked","_append",
++   "_authority","_stopped_proof","_observe_targets","_absent","_target","_pins","operation_draft_v1","stopped_observation_draft_v1"))
+   self._authenticate(self.v4.bound)
++  if check_callback:self._check_callback()
++ def _callback_bytes(self):
++  """Actual callback import is inert: one definition and stdlib imports only."""
++  raw=self.memo.source_bytes(self.callback_ref);tree=ast.parse(raw)
++  functions=[n for n in tree.body if isinstance(n,ast.FunctionDef)]
++  need(len(functions)==1 and functions[0].name==CALLBACK_NAME,"One actual ROOT callback definition only")
++  fn=functions[0];args=fn.args
++  need(not fn.decorator_list and fn.returns is None and not args.posonlyargs and not args.args
++   and args.vararg is None and args.kwarg is None and not args.defaults
++   and [a.arg for a in args.kwonlyargs]==["guard","context","finite"]
++   and all(a.annotation is None for a in args.kwonlyargs)and args.kw_defaults==[None,None,None],
++   "Exact inert keyword-only callback signature; no evaluated defaults/annotations/decorators")
++  for node in tree.body:
++   if isinstance(node,ast.Expr)and isinstance(node.value,ast.Constant)and isinstance(node.value.value,str):continue
++   if node is fn:continue
++   if isinstance(node,ast.Import):
++    need(all(a.name.split(".")[0]in CALLBACK_STDLIB_MODULES for a in node.names),"Actual ROOT callback imports stdlib only")
++   elif isinstance(node,ast.ImportFrom):
++    need(node.level==0 and node.module and node.module.split(".")[0]in CALLBACK_STDLIB_MODULES,"Actual ROOT callback imports stdlib only")
++   else:raise ValueError("No actual callback top-level execution or extra source dependencies")
++  return raw
++ def _check_callback(self):
++  self._callback_bytes()
++  found=self.memo.functions_from_source(self.callback_module,self.callback_ref,(self.callback_name,))
++  need(found[self.callback_name][0]is self.callback and not hasattr(self.callback,"__wrapped__"),"Exact independently reviewed ROOT callback code object")
++ def _put_attempt(self,finite):
++  """Small out-of-band ROOT one-attempt token; no accounting authority or credit."""
++  finite();p=self.v4.canonical(ROOT,self.paths["attempt"])
++  data=(json.dumps(dict(schema="ROOT_inline_Relate64_single_attempt_consumed_v1",root_instruction_ref=self.instruction_ref,
++   callback_source_ref=self.callback_ref,fresh_metadata_paths=self.paths,consumed_utc=self.guard._utc(),
++   operation=RETIRE_OPERATION,key=TARGET_KEY,automatic_retry=False),sort_keys=True)+"\n").encode()
++  need(len(data)<=self.guard.MAX_JSON,"Original compact ROOT metadata byte limit")
++  fd=os.open(p,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600)
++  with os.fdopen(fd,"wb")as stream:
++   stream.write(data);stream.flush();os.fsync(stream.fileno());opened=os.fstat(stream.fileno())
++  named=p.lstat();need(stat.S_ISREG(named.st_mode)and named.st_nlink==1 and(named.st_dev,named.st_ino)==(opened.st_dev,opened.st_ino),"Exact immutable new attempt record")
++  fd=os.open(p.parent,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
++  try:os.fsync(fd)
++  finally:os.close(fd)
++  finite()
+  @contextmanager
+  def _transaction(self,finite):
+-  need(self._tx is None,"One bounded cache generation");finite()
+-  # Read current authority through the ORIGINAL uncached reader only to obtain
+-  # exclusion paths. All original exact authority/schema checks still follow.
+-  authority=self.v4.bound(ROOT,self._authority_ref,True);request=authority.get("request",{})
+-  need(request.get("key")==TARGET_KEY,"Only original failed64GiB key")
+-  records=[self._authority_ref,self.manifest_ref,self.review_ref,self.memo_review_ref,self.instruction_ref,*self.current_refs]
+-  for name in("revocation_ref","observation_ref"):
+-   record=request.get(name);need(isinstance(record,dict)and set(record)=={"path","sha256"},"Current original evidence ref")
+-   records.append(record)
+-  finite()
+-  tx=self.memo._Transaction(ROOT,self.v4,self.budget,self.core.allow,uncached_paths=[r["path"]for r in records]);self._tx=tx
++  need(self._tx is None,"One original-lock cold cache generation");finite()
++  self._authenticate(self.v4.bound)
++  records=[self.manifest_ref,self.review_ref,self.memo_review_ref,self.instruction_ref,self.callback_ref,self.revocation_ref,*self.current_refs]
++  exclusions=[r["path"]for r in records]+list(self.paths.values())
++  need(len(set(exclusions))<=2048,"All current paths explicitly excluded within original bound")
++  tx=self.memo._Transaction(ROOT,self.v4,self.budget,self.core.allow,uncached_paths=exclusions);self._tx=tx
+   try:
+-   tx.install();yield
++   tx.install()
++   # Explicit exclusions exist before FIRST staging write. Originals canonical,
++   # file_bytes and mutex are unchanged by accepted memo2.
++   need(all(not self.v4.canonical(ROOT,p).exists()for p in self.paths.values()),"Never reuse any earlier ROOT attempt/evidence/authority path")
++   self._put_attempt(finite)
++   yield
+   finally:
+    try:self.counts=dict(tx.counts);tx.close()
+    finally:self._tx=None
++ def _inline_ROOT_authority(self,state,finite):
++  need(self._tx is not None and self._callback_calls==0 and self._authority_ref is None,"One inline ROOT callback after original state")
++  finite();self._authenticate(self._tx.original["bound"]);self._check_callback()
++  self.guard.assert_open(TARGET_KEY,state[0],state[1]);own=state[0][TARGET_KEY]
++  need(own==self.guard._target(TARGET_KEY)["original_reservation"],"Same exact original failed reservation")
++  context=dict(key=TARGET_KEY,original_reservation=copy.deepcopy(own),expected_before=copy.deepcopy(self.guard._pins(state[2])),
++   bindings=copy.deepcopy(state[3]),root_instruction_ref=copy.deepcopy(self.instruction_ref),
++   fresh_metadata_paths=copy.deepcopy(self.paths),permanent_revocation_ref=copy.deepcopy(self.revocation_ref))
++  observed_not_before=datetime.now(timezone.utc)
++  self._callback_calls+=1
++  record=self.callback(guard=self.guard,context=context,finite=finite)
++  finite();self._check_callback()
++  need(isinstance(record,dict)and set(record)=={"path","sha256"}and record["path"]==self.paths["authority"],"Only NEW predetermined original-schema authority ref")
++  obs_ref=self._tx.original["reference"](ROOT,self.paths["observation"])
++  obs=self._tx.original["bound"](ROOT,obs_ref,True)
++  auth=self._tx.original["bound"](ROOT,record,True)
++  observed_end=datetime.fromisoformat(obs["observed_at_utc"])
++  need(observed_end.tzinfo is not None and observed_not_before<=observed_end<=datetime.now(timezone.utc)
++   and all(observed_not_before<=datetime.fromisoformat(row[-1])<=observed_end
++    for field in("PID_observations","group_observations")for row in obs[field]),
++   "Every actual ROOT observation is newly timestamped AFTER original fresh state and before this authority check")
++  need(obs.get("revocation_ref")==self.revocation_ref and auth.get("request")==dict(key=TARGET_KEY,
++   reservation_sha256=self.budget.digest(own),revocation_ref=self.revocation_ref,observation_ref=obs_ref)
++   and auth.get("expected_before")==self.guard._pins(state[2])and auth.get("bindings")==state[3],
++   "NEW immutable actual observation and authority bind SAME original fresh state; no schema extensions")
++  self._authority_ref=copy.deepcopy(record)
++  finite();return record
+  def _append(self,finite,auth,operation,record,value,state):
+   tx=self._tx
+-  need(tx is not None and self._append_calls==0 and operation==RETIRE_OPERATION
+-   and record==self._authority_ref and value["request"]["key"]==TARGET_KEY,"One exact original-key append only")
++  need(tx is not None and self._append_calls==0 and self._callback_calls==1
++   and operation==RETIRE_OPERATION and record==self._authority_ref and record["path"]==self.paths["authority"]
++   and value["request"]["key"]==TARGET_KEY,"One original append through SAME new authority")
+   self._append_calls+=1
+-  # Current authority/proof/revocation/observation and raw journal/fingerprint/
+-  # inventory/stat/process reads stay uncached. Only immutable exact-bound
+-  # historical metadata/code bytes may memoize; predicates rerun every time.
+-  # Every cached byte/path is revalidated originally and uncached before append.
+-  instruction=self._authenticate(tx.original["bound"])
+-  tx.finish()
++  instruction=self._authenticate(tx.original["bound"]);self._check_callback()
++  tx.finish() # disable hits, revalidate EVERY admitted cached byte/name originally.
+   self.guard._expire(auth);self.guard._expire(instruction)
+-  finite() # EXACT original deadline closure, AFTER revalidation, BEFORE original append.
++  finite() # SAME original prelock deadline, after final raw validation, before append.
+   return self._original_append(operation,record,value,state)
+- def read_state_v1(self,*,expected_source_sha256,expected_launcher_sha256):
+-  self._check()
+-  return self.core.read_state_v1(expected_source_sha256=expected_source_sha256,expected_launcher_sha256=expected_launcher_sha256)
+- def apply_retire_stopped_v1(self,authority_ref,*,expected_source_sha256,expected_launcher_sha256):
++ def apply_retire_stopped_v1(self,*,expected_source_sha256,expected_launcher_sha256):
+   global _ACTIVE
+-  self._check();need(not self._used,"No automatic replay on this helper instance")
+-  self._used=True;self._append_calls=0;self._authority_ref=copy.deepcopy(authority_ref)
+-  self._original_append=self.guard._append
+-  entire=derive_retirement(self.functions["apply_retire_stopped_v1"][1],self.guard.__dict__,self._transaction,self._append)
++  self._check();need(not self._used,"One operation call per helper; immutable token also forbids new-instance replay")
++  self._used=True;self._original_append=self.guard._append
++  entire=derive_inline_retirement(self.functions["apply_retire_stopped_v1"][1],self.guard.__dict__,self._transaction,self._inline_ROOT_authority,self._append)
+   _ACTIVE=True;self.memo._ACTIVE=True
+   try:
+-   result=entire(authority_ref,expected_source_sha256=expected_source_sha256,expected_launcher_sha256=expected_launcher_sha256)
+-   need(self._append_calls==1,"Original exact retirement must append once");return result
++   result=entire(None,expected_source_sha256=expected_source_sha256,expected_launcher_sha256=expected_launcher_sha256)
++   need(self._callback_calls==self._append_calls==1,"One actual ROOT callback and original append only")
++   return result
+   finally:self.memo._ACTIVE=False;_ACTIVE=False
+ if __name__=="__main__":
+- print(json.dumps(dict(status="INACTIVE_SOURCE_ONLY",guard_imported=False,operations=False)))
++ print(json.dumps(dict(status="INACTIVE_SOURCE_ONLY",guard_imported=False,callback_loaded=False,operations=False)))
