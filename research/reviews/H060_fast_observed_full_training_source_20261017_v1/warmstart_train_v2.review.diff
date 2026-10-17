@@ -1,0 +1,87 @@
+--- research/reviews/H060_isolated_hold_compatibility_source_20261017_v1/warmstart_train_v2.py
++++ research/reviews/H060_fast_observed_full_training_source_20261017_v1/warmstart_train_v2.py
+@@ -14,17 +14,20 @@
+ from arggnn.american_c3_gnn_targets_v1 import (
+     TRAIN, VAL, REGISTRY_REF, TrainTargetJoinV1, authoritative_registry_v1)
+ from arggnn.american_c3_gnn_stream_train_v1 import (
+     json_sha, validate_plan_v1)
+-from .observation_provider_v1 import SealedObservationProviderV1
+-from .full_preparation_v1 import prepare_from_loaded_observation_v1
++from research.reviews.H060_isolated_hold_compatibility_source_20261017_v1.observation_provider_v1 import SealedObservationProviderV1
++from research.reviews.TreeLoom_observed_preparation_fast_source_20261017_v1.full_preparation_fast_v1 import prepare_from_loaded_observation_v1
++from research.reviews.TreeLoom_observed_preparation_fast_source_20261017_v1.parent_startup_fast_v1 import (
++    seal_then_prepare_one_parent_v1, REQUIRED_FAST_SOURCE_PATHS)
+ from arggnn.american_c3_gnn_train_v1 import (
+     epoch_order_v1, _cpu_snapshot, _rng_state, _restore_rng, _seed_fresh)
+ from research.reviews.American_TreeLoom_warmstart_training_source_20261017_v2.warmstart_models_v1 import (
+     ARMS, FAMILY, CONDITION, PARAMETERS, TENSORS, full,
+     make_matched_family_v1, validate_arm_model_v1, train_complete_parent_step_v1)
+ 
+ HERE = Path(__file__).resolve().parent
++LEGACY_OBSERVATION_HERE = Path("/workspace-SR003.nfs2/ARG-GNN/research/reviews/H060_isolated_hold_compatibility_source_20261017_v1")
+ SOURCE = str(Path(__file__).resolve().relative_to(
+     Path("/workspace-SR003.nfs2/ARG-GNN")))
+ CHECKPOINT_EPOCHS = (5,10,15,20,25,30)
+ SCHEMA = FAMILY+"_training_v1"
+@@ -269,8 +272,20 @@
+             and (row[0],info.st_dev,info.st_ino,info.st_size,
+                  info.st_mtime_ns,info.st_ctime_ns)==row,
+             "Scientific source identity changed after authentication; no silent reload")
+ 
++def _fast_preparation_refs_v1():
++    """Select all four exact new preparation refs from this authenticated closure."""
++    pins=json.loads((HERE/"scientific_source_pins.v2.json").read_text())["refs"]
++    rows=[dict(path=row["path"],sha256=row["sha256"]) for row in pins
++        if row["path"] in REQUIRED_FAST_SOURCE_PATHS]
++    require(len(rows)==len(REQUIRED_FAST_SOURCE_PATHS)
++        and {row["path"] for row in rows}==set(REQUIRED_FAST_SOURCE_PATHS)
++        and all(ref(row["path"])==row for row in rows),
++        "All four fast preparation sources explicitly pinned in the fresh scientific closure")
++    return rows
++
++
+ def _signature_v1(cfg,plans,warmstart_binding,target_binding):
+     frozen=dict(cfg);frozen.pop("execution_enabled")
+     source_paths=[SOURCE,
+         "research/reviews/American_TreeLoom_warmstart_training_source_20261017_v2/warmstart_models_v1.py",
+@@ -280,9 +295,10 @@
+         "src/arggnn/american_c3_gnn_targets_v1.py",
+         "src/arggnn/american_c3_gnn_stream_train_isolated_v2.py",
+         "src/arggnn/american_c3_gnn_dataset_isolated_v2.py",
+         "src/arggnn/american_c3_gnn_observations_isolated_v2.py"]
+-    source_paths.extend(str((HERE/name).relative_to(Path("/workspace-SR003.nfs2/ARG-GNN")))
++    source_paths.extend(REQUIRED_FAST_SOURCE_PATHS)
++    source_paths.extend(str((LEGACY_OBSERVATION_HERE/name).relative_to(Path("/workspace-SR003.nfs2/ARG-GNN")))
+         for name in("observations_v1.py","observation_provider_v1.py","structural_index_v1.py",
+             "episode_preparation_v1.py","cut_preparation_v1.py","full_preparation_v1.py"))
+     signature=dict(schema=SCHEMA,config=frozen,parent_plan_refs=plans,
+         source_refs=[ref(p) for p in source_paths]+[ENGINE,ENGINE_REVIEW],
+@@ -412,22 +428,23 @@
+         artifact_acceptance_ref,runtime_guard=runtime_guard)
+     require(parent_plan_refs==old_plans,
+         "Same frozen original20TRAIN observations/focals as accepted saved600")
+     source_snapshot=_source_snapshot_v2()
++    fast_source_refs=_fast_preparation_refs_v1()
+     providers={};cached_cpu_bundles={};cached_bytes=0
+     safe=None;scheduled=[];history={a:[] for a in ARMS};step=0
+     try:
+         for parent in TRAIN:
+             providers[parent]=SealedObservationProviderV1(parent_plan_refs[parent],
+                 parent_id=parent,worker_tmp_directory=worker_tmp_directory,
+                 cache_bytes=cfg["CPU_observation_cache_bytes"])
+-        seals={p:providers[p].seal(resource_check=runtime_guard) for p in TRAIN}
+-        global_seals={}
++        seals={};global_seals={}
+         for parent in TRAIN:
+             _source_check_v2(source_snapshot)
+-            bundle,meta=_global_bundle_v1(providers[parent],cfg,runtime_guard)
+-            global_seals[parent]=dict(identity=_global_identity_v1(bundle),
+-                preparation_metadata=meta)
++            legacy_seal,bundle,global_seal=seal_then_prepare_one_parent_v1(
++                providers[parent],cfg,runtime_guard,fast_source_refs=fast_source_refs)
++            seals[parent]=legacy_seal
++            global_seals[parent]=global_seal
+             cached_bytes=_cache_admit_v2(cached_cpu_bundles,parent,bundle,
+                 current_bytes=cached_bytes,maximum_bytes=cfg["max_cached_parent_bytes"],
+                 runtime_guard=runtime_guard)
+             del bundle

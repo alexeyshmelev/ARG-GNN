@@ -1,6 +1,6 @@
 # Current scientific scoreboard
 
-Updated UTC: 2026-10-17T03:34:35.012789+00:00
+Updated UTC: 2026-10-17T04:01:01.033413+00:00
 
 [All measured cohort details](#detailed-cohort-metrics) · [Complete historical receipt inventory](all_recorded_metric_receipts.md) · [Fresh H048 novelty/cross-domain audit](../research/reviews/H048_novelty_crossdomain_fresh_20261015_v1/report.md)
 
@@ -571,7 +571,7 @@ H048 retains 31,933 parameters per arm and a fixed 30-pass/960-update schedule. 
 
 | Method | Current ancestry scores | Status |
 |---|---|---|
-| Native ARGformer | unavailable | Native ARGformer remains running on physical GPU 0. A stable read-only saved checkpoint verifies 193,000 of 227,990 AdamW updates across all 77 optimizer states, 23,000 more than the prior 170,000 audit and 171,000 since the 22,000-step resume. Full training and ancestry scoring remain incomplete. This counter is not ancestry accuracy. |
+| Native ARGformer | unavailable | Native ARGformer remains running on physical GPU 0. A stable read-only saved checkpoint verifies 204,000 of 227,990 AdamW updates across all 77 optimizer states, 11,000 more than the prior 193,000 audit and 182,000 since the 22,000-step resume. Full training and ancestry scoring remain incomplete. This counter is not ancestry accuracy. |
 | Native ARGformer dataset counts | not an accuracy run | completed; actual count producer wait0 and drain verified |
 | Native FLARE | 98.0100% focal accuracy | Completed fixed native-call score on one VAL parent, not a multi-parent paper-table reproduction. Macro F1 97.7151%. Held-out VAL000 conversion: completed; actual wait0 and owned-group drain verified. Inference: completed; actual wait0 and owned-group drain verified. Prediction seal: prediction worker completed; direct wait0 and owned-group drain verified, outer tool terminal/final guard unconfirmed. The GNN/ARGformer comparison remains pending. |
 | Our C3 GNN | unavailable | All five original 30 Mb observation plans completed and closed. Five prediction supervisors remain live. ROOT authenticated 6 of30 complete checkpoint-by-parent prediction products, each on the original10000focals, before any validation truth. This is the earlier saved600 backbone, not final TreeLoom. No ancestry score yet. Original full 30 Mb VAL000 observation preparation is complete. Full prespecified prediction/scoring gate pending. |

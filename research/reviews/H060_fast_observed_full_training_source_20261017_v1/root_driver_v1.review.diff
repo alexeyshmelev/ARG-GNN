@@ -1,0 +1,111 @@
+--- research/reviews/H060_H061_transaction_admission_source_20261017_v1/root_driver_v1.py
++++ research/reviews/H060_fast_observed_full_training_source_20261017_v1/root_driver_v1.py
+@@ -1,9 +1,9 @@
+ """Inactive common contract/driver; exact child roles and reviewed reserve transaction memo."""
+ from pathlib import Path
+ import argparse,ast,copy,hashlib,importlib.util,json,os,stat,sys,types
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-HERE="research/reviews/H060_H061_transaction_admission_source_20261017_v1"
++HERE="research/reviews/H060_fast_observed_full_training_source_20261017_v1"
+ SOURCE=HERE+"/root_driver_v1.py";ENTRY=HERE+"/worker_entry_v1.py"
+ MANIFEST=HERE+"/source_manifest.v1.json";HANDOFF=HERE+"/source_handoff.v1.json"
+ def need(ok,message):
+  if not ok:raise ValueError(message)
+@@ -29,16 +29,53 @@
+   and source==bound_source,"Exact metadata-selected and immutable lifetime-bound source only")
+  result=list(roles)
+  if source not in result:result.append(copy.deepcopy(source))
+  return result
++def fast_scientific_review(c,record):
++ """A genuine NEW scientific review is required; old PASS is provenance only."""
++ b=c.binding();v=c.read(record)
++ norm=lambda r:dict(path=r["path"],sha256=r["sha256"])
++ c.require(v.get("schema")=="H060_fast_observed_complete_scientific_review_v1"
++  and v.get("status")=="SOURCE_PASS"and v.get("independent_review")is True
++  and v.get("blockers")==[]
++  and norm(v["candidate_manifest_ref"])==b["source_manifest_ref"]
++  and norm(v["candidate_protocol_ref"])==b["protocol_ref"]
++  and norm(v["candidate_handoff_ref"])==b["source_handoff_ref"]
++  and norm(v["candidate_scientific_pins_ref"])==b["scientific_source_pins_ref"]
++  and norm(v["candidate_compatibility_protocol_ref"])==b["compatibility_protocol_ref"]
++  and norm(v["candidate_outer_manifest_ref"])==metadata_ref(MANIFEST)
++  and norm(v["predecessor_compatibility_review_ref"])==b["predecessor_compatibility_review_ref"]
++  and norm(v["fast_adapter_review_ref"])==b["fast_adapter_review_ref"]
++  and norm(v["fast_adapter_ROOT_fixture_ref"])==b["fast_adapter_ROOT_fixture_ref"],
++  "New complete independent fast-observed scientific review, never old-verdict substitution")
++ candidates=[norm(r)for r in v["candidate_source_refs"]]
++ component=c.read(b["fast_adapter_review_ref"]);fixture=c.read(b["fast_adapter_ROOT_fixture_ref"])
++ c.require(component.get("status")=="SOURCE_PASS"and component.get("blockers")==[]
++  and component.get("source_manifest_ref")==b["fast_adapter_manifest_ref"]
++  and fixture.get("actual_returncode")==0
++  and fixture.get("source_manifest_ref")==b["fast_adapter_manifest_ref"]
++  and fixture.get("independent_review_ref")==b["fast_adapter_review_ref"],
++  "Genuine bounded adapter SOURCE_PASS/ROOT fixtures only, never production qualification")
++ c.require(b["runner_source_ref"]in candidates
++  and all(r in candidates for r in b["fast_preparation_source_refs"]),
++  "New runner and all four preparation sources independently reviewed")
++ old=c.read(b["predecessor_compatibility_review_ref"])
++ c.require(old.get("status")=="SOURCE_PASS"and old.get("independent_review")is True
++  and old.get("blockers")==[]
++  and norm(old["candidate_manifest_ref"])==b["predecessor_scientific_manifest_ref"]
++  and any(norm(r)==b["predecessor_runner_source_ref"]for r in old["candidate_source_refs"]),
++  "Preserved genuine original compatibility review remains predecessor evidence")
++
++
+ def contract(consumer):
+  """Actual new contract and driver share THIS implementation file, saving one real role."""
+  spec=bindings()["consumers"].get(consumer);need(spec is not None,"Exact H060 or H061 consumer")
+  c=load(spec["contract_ref"],"_child_source_repair_"+consumer+"_contract")
+  # Isolated module globals only. Frozen files/modules/guards are never patched.
+  # Original functions keep their original globals in this fresh private module.
+  c.HERE=c.REL=HERE;c.SOURCE=c.DRIVER=SOURCE;c.ENTRY=ENTRY;c.MANIFEST=MANIFEST;c.HANDOFF=HANDOFF
+  c.binding=lambda:read(spec["scientific_binding_ref"])
++ c.scientific_review=lambda record:fast_scientific_review(c,record)
+  original_roles=c.direct_roles
+  def repaired_roles(request_ref,q,cfgref,closure):
+   roles=original_roles(request_ref,q,cfgref,closure)
+   chosen=c.selected(q["storage_policy_selector_ref"])
+@@ -49,15 +86,29 @@
+  original_validate=c.validate_request
+  def validate_request(record):
+   q=c.read(record)
+   capsule=c.read(q["storage_policy_selector_ref"]);child=bindings()["selected_child_source_ref"]
+-  c.require(capsule.get("source_ref")==child and capsule.get("selector_source_ref")==child,
+-   "Fresh admissions only through exact selected Relate child; no older-guard fallback")
++  c.require(q["storage_policy_selector_ref"]==bindings()["actual_selector_metadata_ref"]
++   and capsule.get("source_ref")==child and capsule.get("selector_source_ref")==child,
++   "Exact current ROOT Relate selector capsule and child only; no fallback")
++  prefixes=bindings()["fresh_namespace_prefixes"]
++  c.require(all(isinstance(q.get(key),str)and q[key].startswith(prefix)
++   for key,prefix in prefixes.items()),"Fresh fast-observed namespaces only, never an old scope")
++  c.require(all(all(q.get(key)!=old[key]for key in("preparation_directory","packet_directory","output_directory"))
++   for old in bindings()["excluded_scope_sets"]),"Every original failed/current scope remains separate")
++  c.require(q.get("fresh_full_unfinished_cell_successor")is True
++   and q.get("old_scope_replay_or_live_replacement")is False,
++   "Separate full unfinished-cell successor, no live replacement or old-scope replay")
+   c.require(q.get("guard_role_repair_consumer")==consumer
+    and q.get("source_manifest_ref")==c.ref(MANIFEST),"Genuine ROOT fresh successor request for this consumer")
+   c.require(all(q.get(key)!=spec["excluded_"+key]for key in("preparation_directory","packet_directory","output_directory")),
+    "Never retry/replay old H060 failure or old H061 preparation namespaces")
+-  return original_validate(record)
++  result=original_validate(record)
++  directive=c.read(q["root_directive_ref"])
++  c.require(directive.get("fresh_full_unfinished_cell_successor")is True
++   and directive.get("old_scope_replay_or_live_replacement")is False,
++   "ROOT directive explicitly binds the fresh full unfinished-cell successor")
++  return result
+  c.validate_request=validate_request
+  return c
+ def driver(consumer,c):
+  d=load(bindings()["consumers"][consumer]["driver_ref"],"_child_source_repair_"+consumer+"_driver")
+@@ -138,9 +189,9 @@
+  # Original worker validates the full new admitted input and real gate before
+  # every scientific import; exact budgets, runner, settings and waits unchanged.
+  return w.worker(record,gate_fd)
+ def main(argv=None):
+- p=argparse.ArgumentParser(description=__doc__);p.add_argument("--consumer",choices=("H060","H061"))
++ p=argparse.ArgumentParser(description=__doc__);p.add_argument("--consumer",choices=("H060",))
+  group=p.add_mutually_exclusive_group();group.add_argument("--admit-ref");group.add_argument("--execute-ref");a=p.parse_args(argv)
+  if not(a.admit_ref or a.execute_ref):
+   print(json.dumps(dict(status="SOURCE_ONLY_INACTIVE",admission=False,execution=False,guard_imported=False)));return 0
+  need(a.consumer is not None and Path.cwd()==ROOT and sys.dont_write_bytecode and sys.flags.no_user_site,
