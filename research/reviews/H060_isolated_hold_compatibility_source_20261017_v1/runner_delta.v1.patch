@@ -1,0 +1,51 @@
+--- research/reviews/American_TreeLoom_warmstart_training_source_20261017_v2/warmstart_train_v2.py
++++ research/reviews/H060_isolated_hold_compatibility_source_20261017_v1/warmstart_train_v2.py
+@@ -10,14 +10,16 @@
+ import numpy as np
+ import torch
+ from arggnn.american_c3_common_v1 import require, read, bound, ref, CLASSES
+-from arggnn.american_c3_gnn_dataset_v1 import load_observation
++from arggnn.american_c3_gnn_dataset_isolated_v2 import load_observation
+ from arggnn.american_c3_gnn_targets_v1 import (
+     TRAIN, VAL, REGISTRY_REF, TrainTargetJoinV1, authoritative_registry_v1)
+ from arggnn.american_c3_gnn_stream_train_v1 import (
+-    SealedObservationProviderV1, json_sha, validate_plan_v1)
++    json_sha, validate_plan_v1)
++from .observation_provider_v1 import SealedObservationProviderV1
++from .full_preparation_v1 import prepare_from_loaded_observation_v1
+ from arggnn.american_c3_gnn_train_v1 import (
+     epoch_order_v1, _cpu_snapshot, _rng_state, _restore_rng, _seed_fresh)
+-from .warmstart_models_v1 import (
++from research.reviews.American_TreeLoom_warmstart_training_source_20261017_v2.warmstart_models_v1 import (
+     ARMS, FAMILY, CONDITION, PARAMETERS, TENSORS, full,
+     make_matched_family_v1, validate_arm_model_v1, train_complete_parent_step_v1)
+ 
+@@ -142,7 +144,7 @@
+     validate_plan_v1(plan,parent_id=plan["parent_id"],length_bp=2000000)
+     runtime_guard("before_global_TreeLoom_observation_preparation")
+     state=load_observation(plan["observation_ref"],plan["focal_registry_ref"],plan["config"])
+-    bundle,metadata=full.prepare_from_loaded_observation_v1(state,split="train",
++    bundle,metadata=prepare_from_loaded_observation_v1(state,split="train",
+         observation_ref=plan["observation_ref"],focal_registry_ref=plan["focal_registry_ref"],
+         native_preparation_ref=plan["config"]["native_preparation_ref"],
+         max_nodes=cfg["max_native_nodes"],max_holds=cfg["max_native_holds"],
+@@ -271,11 +273,17 @@
+ def _signature_v1(cfg,plans,warmstart_binding,target_binding):
+     frozen=dict(cfg);frozen.pop("execution_enabled")
+     source_paths=[SOURCE,
+-        str((HERE/"warmstart_models_v1.py").relative_to(Path("/workspace-SR003.nfs2/ARG-GNN"))),
++        "research/reviews/American_TreeLoom_warmstart_training_source_20261017_v2/warmstart_models_v1.py",
+         "src/arggnn/american_c3_gnn_train_v1.py",
+         "src/arggnn/american_c3_gnn_stream_train_v1.py",
+         "src/arggnn/american_c3_gnn_dataset_v1.py",
+-        "src/arggnn/american_c3_gnn_targets_v1.py"]
++        "src/arggnn/american_c3_gnn_targets_v1.py",
++        "src/arggnn/american_c3_gnn_stream_train_isolated_v2.py",
++        "src/arggnn/american_c3_gnn_dataset_isolated_v2.py",
++        "src/arggnn/american_c3_gnn_observations_isolated_v2.py"]
++    source_paths.extend(str((HERE/name).relative_to(Path("/workspace-SR003.nfs2/ARG-GNN")))
++        for name in("observations_v1.py","observation_provider_v1.py","structural_index_v1.py",
++            "episode_preparation_v1.py","cut_preparation_v1.py","full_preparation_v1.py"))
+     signature=dict(schema=SCHEMA,config=frozen,parent_plan_refs=plans,
+         source_refs=[ref(p) for p in source_paths]+[ENGINE,ENGINE_REVIEW],
+         accepted_warmstart=warmstart_binding,actual_TRAIN_execution_binding=target_binding,

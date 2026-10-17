@@ -1,6 +1,6 @@
 # Current scientific scoreboard
 
-Updated UTC: 2026-10-16T23:49:55.185522+00:00
+Updated UTC: 2026-10-17T00:04:34.453545+00:00
 
 [All measured cohort details](#detailed-cohort-metrics) · [Complete historical receipt inventory](all_recorded_metric_receipts.md) · [Fresh H048 novelty/cross-domain audit](../research/reviews/H048_novelty_crossdomain_fresh_20261015_v1/report.md)
 
@@ -478,6 +478,26 @@ Completed all3models x100epochs/100updates,300totalupdates. TEST NDCG@10: first_
 **Ordered-tree mechanism status:** The frozen TRAIN-only trade audit found 22 partition changes and 21 nonzero conditional-innovation years. This establishes active input support, without a predictive-accuracy result. [Actual audit](../research/reviews/TGB_trade_H051_data_integration_root_20261016_v1/actual_TRAIN_operator_support.root_v1.json). A [fresh independent literature review](../research/reviews/H051_independent_priority_audit_20261016_v2/REPORT.md) identifies established conditional-mean and higher-order constructions. Generic operator novelty remains unestablished.
 
 
+## H061 Chickenpox selected validation training milestone
+
+Four of six complete Chickenpox fits are recorded: seeds 101/202, 40 epochs and 800 updates each, 3,200 updates total. Selected VAL MAE is15.996289±0.053838cases for Full and16.102924±0.014284 for NoMem. SD is across two initialization seeds, not counties. Final seed 303 fits and actual overall wait/drain/outer acceptance remain pending. TEST is withheld. These are forecasts, not ancestry accuracy.
+
+Full selected VAL MAE 15.996289 ± 0.053838 (n=2) cases; RMSE 25.552006 ± 0.361131 (n=2) cases (2/3 initialization seeds); NoMem selected VAL MAE 16.102924 ± 0.014284 (n=2) cases; RMSE 26.033039 ± 0.286905 (n=2) cases (2/3 initialization seeds). Sample SD is across completed seeds at their own selected epoch; TEST withheld.
+
+These are selected validation count forecasts on 78 weeks and all 20 counties, using 52 past weeks and a TRAIN-only scaler. They are not TEST results or ancestry accuracy. At this milestone snapshot, overall completion is unaccepted pending genuine wait/drain and consumed outer-terminal acceptance. Registered budget: AdamW learning rate 0.001, weight decay 0.0001, six fits of 40 epochs and 800 updates each, 4,800 total updates; CPU 223, one thread, FP32.
+
+Snapshot UTC: 2026-10-17T00:00:21.629186+00:00; 4/6 completed fits of 40 epochs, 3200/4800 updates verified from completed-fit metadata.
+
+| Seed | Arm | Selected epoch | Selected VAL MAE (cases) | Selected VAL RMSE (cases) | Completed budget |
+|---|---|---:|---:|---:|---|
+| 101 | full | 22 | 16.034358 | 25.807364 | 40 epochs / 800 updates |
+| 101 | no_memory | 12 | 16.113024 | 26.235912 | 40 epochs / 800 updates |
+| 202 | full | 37 | 15.958219 | 25.296648 | 40 epochs / 800 updates |
+| 202 | no_memory | 23 | 16.092824 | 25.830167 | 40 epochs / 800 updates |
+
+[Immutable selected-VAL milestone and source SHA refs](../research/reviews/H061_training_milestone_ROOT_20261017_v1/milestone.root_v1.json).
+
+
 ## Danish registered genotype corroboration
 
 Completed GP-only Danish corroboration over all three fixed windows, 14432 common-support SNPs. Pooled f4: -0.00223403, -0.00460966. Descriptive genotype affinity only, without independent ancestry truth or model accuracy. Neither prespecified positive-direction hypothesis was supported.
@@ -530,7 +550,7 @@ H048 retains 31,933 parameters per arm and a fixed 30-pass/960-update schedule. 
 | Native ARGformer | unavailable | Native ARGformer continues on GPU 0. One stable readonly-FD observation verifies 91,000 AdamW updates across all 77 states and one completed epoch, against 227,990 planned updates. Full fit and ancestry evaluation remain incomplete. |
 | Native ARGformer dataset counts | not an accuracy run | completed; actual count producer wait0 and drain verified |
 | Native FLARE | 98.0100% focal accuracy | Completed fixed native-call score on one VAL parent, not a multi-parent paper-table reproduction. Macro F1 97.7151%. Held-out VAL000 conversion: completed; actual wait0 and owned-group drain verified. Inference: completed; actual wait0 and owned-group drain verified. Prediction seal: prediction worker completed; direct wait0 and owned-group drain verified, outer tool terminal/final guard unconfirmed. The GNN/ARGformer comparison remains pending. |
-| Our C3 GNN | unavailable | The earlier American backbone has600verified saved updates. All five original30Mb observation plans completed and closed. The final VAL004 prediction passed genuine admission97831exit0 with61roles and exact supervisor1453launched. Five original VAL prediction stages are now launched, with all30products required before truth. No ancestry score. Original full 30 Mb VAL000 observation preparation is complete. Full prespecified prediction/scoring gate pending. |
+| Our C3 GNN | unavailable | The earlier American backbone has600verified saved updates. All five original 30 Mb observation plans completed and closed. The final VAL004 prediction passed genuine admission97831exit0 with61roles and exact supervisor1453launched. Five original VAL prediction stages are now launched, with all30products required before truth. No ancestry score. Original full 30 Mb VAL000 observation preparation is complete. Full prespecified prediction/scoring gate pending. |
 
 The TRAIN000 conversion is development evidence. Independent VAL000 inference now has its own actual completion/wait receipts; GNN/ARGformer predictions and their common-truth scoring remain pending. Original 30 Mb VAL000 simulation: completed; actual wait0 and owned-group drain verified; inferred observation: completed; actual wait0 and owned-group drain verified; shared native-path/10k-focal preparation: completed; actual wait0 and owned-group drain verified. R600/Q1000 identities stay common. GNN and ARGformer ancestry scores remain pending. Original full30Mb VAL000 native preparations are ready. The completed native FLARE focal score is reported separately. GNN/ARGformer predictions and common scores remain pending. Native FLARE VAL000 target bound: 228477 sites, common R600/Q1000. Fresh memo2 conversion: completed; actual wait0 and owned-group drain verified; current native focal score is reported separately. Earlier conversion deliberately stopped to repair scheduler contention, with all artifacts retained. Original-paper simulation assumptions and source versions remain explicitly documented.
 

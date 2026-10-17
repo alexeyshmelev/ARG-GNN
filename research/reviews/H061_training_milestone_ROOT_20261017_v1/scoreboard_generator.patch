@@ -1,0 +1,113 @@
+--- scripts/update_current_scoreboard.py.before
++++ scripts/update_current_scoreboard.py
+@@ -53,6 +53,56 @@
+     except (FileNotFoundError,json.JSONDecodeError):return None
+ H050_ARMS=("triple_support_pair_memory","adjacent_marginal_null","stable_leaf_memory","h045_continued_training")
+ H050_RUNTIME_STATUS="research/reviews/GPU0_shared_root_integration_20261016_v1/runtime_status.root_latest.json"
++
++
++def h061_training_snapshot(snapshot):
++    """Use ROOT's H061 summary and sealed selected-VAL milestone; never read weights/truth."""
++    entry=(snapshot or {}).get("jobs",{}).get("H061",{})
++    result=dict(entry)
++    result.setdefault("summary","H061 Chickenpox training progress and forecast validation metrics are pending ROOT metadata.")
++    result["training_milestone"]=None
++    record=entry.get("training_milestone_ref")
++    if not record:return result
++    try:
++        if not isinstance(record,dict) or set(record)!={"path","sha256"}:
++            raise ValueError("Exact H061 training milestone path/SHA required")
++        name=record["path"];relative=Path(name)
++        if relative.is_absolute() or ".." in relative.parts or relative.suffix!=".json" or not name.startswith("research/reviews/H061_training_milestone_ROOT_"):
++            raise ValueError("Contained H061 ROOT training milestone JSON required")
++        path=ROOT/relative
++        if path.resolve()!=path or path.is_symlink() or not path.is_file() or path.stat().st_nlink!=1 or path.stat().st_size>2**20:
++            raise ValueError("Canonical bounded H061 milestone required")
++        raw=path.read_bytes()
++        if hashlib.sha256(raw).hexdigest()!=record["sha256"]:
++            raise ValueError("H061 training milestone SHA mismatch")
++        milestone=json.loads(raw);fits=milestone["fits"]
++        if not (milestone.get("schema")=="H061_selected_TRAIN_VALID_training_milestone_v1"
++                and milestone.get("hypothesis_id")=="H061" and milestone.get("TEST_withheld") is True
++                and milestone.get("TEST_scored") is False and milestone.get("ancestry_accuracy") is None
++                and milestone.get("overall_job_completion_accepted") is False
++                and len(fits)==milestone["completed_fit_count"]<=6
++                and milestone["verified_completed_fit_optimizer_updates"]==800*len(fits)
++                and len({(r["seed"],r["arm"]) for r in fits})==len(fits)
++                and all(r["seed"] in (101,202,303) and r["arm"] in ("full","no_memory")
++                    and r["epochs_completed"]==40 and r["optimizer_updates"]==800
++                    and math.isfinite(r["selected_VAL_MAE_cases"]) and math.isfinite(r["selected_VAL_RMSE_cases"])
++                    and r["TEST_accessed"] is False and r["TEST_release_granted"] is False for r in fits)):
++            raise ValueError("Exact completed-fit selected validation milestone; TEST/job completion remain unaccepted")
++        result["training_milestone"]=milestone
++        result["milestone_snapshot_utc"]=milestone["snapshot_utc"]
++    except (OSError,ValueError,KeyError,TypeError) as error:
++        result["milestone_validation_error"]=str(error)
++    return result
++
++def h061_forecast_summary(report):
++    milestone=report.get("training_milestone")
++    if not milestone:return "Selected VAL forecast metrics pending; TEST withheld"
++    parts=[]
++    for arm,label in (("full","Full"),("no_memory","NoMem")):
++        row=milestone["aggregate_by_arm"][arm]
++        parts.append(label+" selected VAL MAE "+fmt(row["selected_VAL_MAE_cases"])+" cases; RMSE "+fmt(row["selected_VAL_RMSE_cases"])+
++            " cases ("+str(row["seed_count"])+"/3 initialization seeds)")
++    return "; ".join(parts)+". Sample SD is across completed seeds at their own selected epoch; TEST withheld"
+ 
+ def h050_completed_evaluation():
+     """Read scored JSON only after the exact consumed CPU outer-terminal proof."""
+@@ -1025,6 +1075,21 @@
+                     c3_device=entry.get("reporting_device","GPU0")
+     h060_runtime=gpu0_snapshot.get("jobs",{}).get("H060",{}) if gpu0_snapshot else {}
+     h060_status=h060_runtime.get("summary","Full TreeLoom American transfer is not yet scored.")
++    h061_runtime=h061_training_snapshot(gpu0_snapshot or maybe_read(H050_RUNTIME_STATUS) or {})
++    h061_status=h061_runtime["summary"]
++    h061_val_summary=h061_forecast_summary(h061_runtime)
++    h061_lines=["", "## H061 Chickenpox selected validation training milestone", "", h061_status, "", h061_val_summary+".", "",
++        "These are selected validation count forecasts on 78 weeks and all20 counties, using52 past weeks and a TRAIN-only scaler. They are not TEST results or ancestry accuracy. Overall completion remains pending genuine wait/drain and consumed outer-terminal acceptance.", ""]
++    h061_milestone=h061_runtime.get("training_milestone")
++    if h061_milestone:
++        h061_lines += ["Snapshot UTC: "+h061_milestone["snapshot_utc"]+"; "+str(h061_milestone["completed_fit_count"])+"/6 completed40-epoch fits, "+
++            str(h061_milestone["verified_completed_fit_optimizer_updates"])+"/4800 updates verified from completed-fit metadata.", "",
++            "| Seed | Arm | Selected epoch | Selected VAL MAE (cases) | Selected VAL RMSE (cases) | Completed budget |",
++            "|---|---|---:|---:|---:|---|"]
++        for row in h061_milestone["fits"]:
++            h061_lines.append("| "+str(row["seed"])+" | "+row["arm"]+" | "+str(row["selected_epoch"])+" | "+
++                f"{row['selected_VAL_MAE_cases']:.6f}"+" | "+f"{row['selected_VAL_RMSE_cases']:.6f}"+" | 40epochs /800updates |")
++        h061_lines += ["", "[Immutable selected-VAL milestone and source SHA refs](../"+h061_runtime["training_milestone_ref"]["path"]+").", ""]
+     h050_saved_entry=gpu0_snapshot.get("jobs",{}).get("H050",{}) if gpu0_snapshot else {}
+     h050_saved_steps=h050_saved_entry.get("optimizer_steps_verified",{})
+     h050_scientific_updates=(3840 if h050_evaluation["ready"] or
+@@ -1217,6 +1282,7 @@
+             FLARE_VAL_conversion=flare_val_conversion,FLARE_VAL_native=flare_val_native,FLARE_VAL_seal=flare_val_seal,FLARE_VAL_original_deliberate_stop_ref=ref(flare_val_old_stop),C3_original_VAL000_GNN_plan=gnn_VAL000_plan),
+         American_remaining_VAL_preparation=dict(status=remaining_val_status,phases=remaining_val_phases),
+         H060_full_TreeLoom_transfer=h060_runtime,
++        H061_Chickenpox_training=h061_runtime,
+         American_short_TRAIN_remaining_preparation=wave_status,
+         American_short_TRAIN014_recovery=recovery,C3_focal_plan_preparation=focal_preparation,
+         native_ARGformer_execution=native_execution,native_ARGformer_counts_execution=counts_execution,native_ARGformer_VAL000_counts=val000_native_counts,ARGformer_Table1_fidelity=dict(status=table1_fidelity,report_ref=ref(table1_audit_path)),VAL000_FLARE_target_binding=val_flare_binding,
+@@ -1264,6 +1330,7 @@
+     lines+=h050_utility_lines
+     lines+=flare_val_score_lines
+     lines+=tgb_lines
++    lines+=h061_lines
+     lines += ["", "## Danish registered genotype corroboration", "", h055_status, ""]
+     if h055_summary:
+         lines += ["| Support | Common13 SNPs | f4(Sidelkino,Bar8) | f4(KK1,Bar8) |", "|---|---:|---:|---:|"]
+@@ -1365,6 +1432,7 @@
+         "| Native FLARE | CPU | "+flare_val_score_status+" Author build, TRAIN000 full-site inference and prediction seal completed. Held-out VAL000 conversion: "+flare_val_conversion["status"]+"; native inference: "+flare_val_native["status"]+"; seal: "+flare_val_seal["status"]+". | "+flare_val_score_label+" |",
+         "| Our American C3 GNN | "+c3_device+" | "+str(focal_ready)+"/20 exact TRAIN plans completed. "+c3_status.rstrip(".")+". Original VAL000 full-length GNN block plan: "+gnn_VAL000_plan["status"]+". | no ancestry score |",
+         "| Full American TreeLoom versus NoMem | CPU | "+h060_status+" | no ancestry score |",
++        "| TreeLoom Chickenpox Full/NoMem (H061) | CPU | "+h061_status.replace("|","\\|")+" | "+h061_val_summary+" |",
+         "| H049 cut-memory candidate | CPU preparation | "+h049_prepare_status+". Three matched 32,446-parameter arms. Full 30 passes / 960 updates per arm planned. | no fit or accuracy yet |",
+         "| TreeLoom memory comparison | "+h050_device+" | "+h050_execution_status.rstrip(".")+". H045 own-state predictor retained initially, three 32,325-parameter memory arms and a 31,812-parameter continuation. "+("192 prediction seals verified, original GPU0 TRAIN CLI exit 1 preserved." if h050_evaluation["ready"] else "192 prediction seals required before scoring, ancestry metrics pending.")+" | "+h050_scores+" |",
+         "| Empirical data | CPU | H045 probabilities, ancestry proportions and genotype PCA completed for 24 query haplotypes / 12 subjects. Descriptive only, without known ancestry truth. | completed |","",
+@@ -1423,6 +1491,7 @@
+             "**Native FLARE:** "+flare_status+" Held-out VAL000 conversion: "+flare_val_conversion["status"]+".","",
+             "**Original remaining American VAL:** "+remaining_val_status+".","",
+             "**H050 saved-fit CPU evaluation:** "+h050_execution_status+" Present182: "+h050_scores+". [All four arms, seven cohorts and paired utility](research/current_scoreboard.md#h050-matched-direct-readout-outcome).","",
++            "**H061 Chickenpox CPU:** "+h061_status+" "+h061_val_summary+". [Selected validation milestone](research/current_scoreboard.md#h061-chickenpox-selected-validation-training-milestone).","",
+             "**Completed H046:** "+h046_outcome+" [Results](research/reviews/H046_completed_comparison_root_20261015_v1/REPORT.md).","",
+             "**Completed H047:** original-risk96.7777±0.5970%, balanced-risk96.7576±0.5287%. Both30passes/960updates. Registered accuracy benefit not met. [Results](research/reviews/H047_completed_comparison_root_20261015_v1/REPORT.md).","",
+             "**American GNN preparation:** "+fanout_status+". "+wave_text+" "+c3_status+".","",
