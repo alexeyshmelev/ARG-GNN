@@ -1,0 +1,131 @@
+--- research/reviews/native_VAL000_downstream_execution_source_20261016_v2/worker_context_v1.py
++++ research/reviews/native_ARGformer_postdrain_pool_source_20261017_v1/downstream_context_v1.py
+@@ -4,13 +4,13 @@
+ from pathlib import Path
+ import ast,copy,hashlib,importlib,importlib.util,json,os,resource,stat,sys,types
+ from datetime import timedelta
+-from research.reviews.native_VAL000_downstream_execution_source_20261016_v2 import contract_v1 as c
++from research.reviews.native_ARGformer_postdrain_pool_source_20261017_v1 import downstream_contract_v1 as c
+ ROOT=c.ROOT
+ IPC_NAMESPACE_BY_PHASE_V2={'contrastive': 'val000_ds2_cl', 'embedding_contrastive_train': 'val000_ds2_ect', 'embedding_contrastive_val': 'val000_ds2_ecv', 'embedding_query_paths_train': 'val000_ds2_eqt', 'embedding_query_paths_val': 'val000_ds2_eqv', 'RAM_retrieve_and_seal': 'val000_ds2_ret', 'finalize': 'val000_ds2_fin'}
+ 
+ def phase_namespace_v2(phase):
+     c.require(phase in IPC_NAMESPACE_BY_PHASE_V2,"Only one explicit original downstream phase namespace")
+-    return IPC_NAMESPACE_BY_PHASE_V2[phase]
++    return "v"+c.PARENT[-3:]+"_ds3_"+{"contrastive":"cl","embedding_contrastive_train":"ect","embedding_contrastive_val":"ecv","embedding_query_paths_train":"eqt","embedding_query_paths_val":"eqv","RAM_retrieve_and_seal":"ret","finalize":"fin"}[phase]
+ 
+ def validated_composer_timestamp_v1(state):
+     outer=state.get("timestamp")
+@@ -27,7 +27,7 @@
+ def checkpoint_metadata_bridge_v1(helper):
+     # One metadata-load expression only. Original full model/optimizer counters,
+     # epoch/update budget, file/alias selection and ambiguity checks stay intact.
+-    record=c.original.ref(c.original.CONTEXT);c.raw(record)
++    record={"path":"research/reviews/native_VAL000_GPU0_borrowed32_source_20261016_v2/native_child_v1.py","sha256":"f2770222f02979b6064a7f1ffea80953cd234114c96ddde0845372479292379e"};c.raw(record)
+     source=c.local(record["path"]).read_text();tree=ast.parse(source)
+     function=copy.deepcopy(next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=="_final_checkpoint"))
+     matches=[n for n in ast.walk(function) if isinstance(n,ast.Assign) and len(n.targets)==1
+@@ -56,15 +56,17 @@
+     return module
+ 
+ def source_stages_v1():
+-    return _bind_private_scientific_helper_v1(c.load(c.SCIENTIFIC_STAGES_REF,"_downstream_sealed_original_scientific_stages"))
++    return _bind_private_scientific_helper_v1(contextual_module_v1(c.SCIENTIFIC_STAGES_REF,"_downstream_sealed_original_scientific_stages"))
+ def source_IO_v1():
+-    module=c.load(c.IO_SOURCE_REF,"_downstream_sealed_reviewed_IO_option");base=module._base_v1
+-    def stages():return _bind_private_scientific_helper_v1(base())
++    module=contextual_module_v1(c.IO_SOURCE_REF,"_downstream_sealed_reviewed_IO_option");base=module._base_v1
++    def stages():return source_stages_v1()
+     module._base_v1=stages
+     return module
+ 
+ def _bundle_v1(bundle,stage):
+     c.require(type(bundle) is dict and set(bundle)=={"completion_ref","wait_ref","outer_terminal_ref"},"Exact genuine prerequisite triple")
++    outer=c.read(bundle["outer_terminal_ref"])
++    if outer.get("actual_pool_logical_outer_OS_wait_consumed") is True:return pool_prerequisite_bundle_v1(bundle,stage)
+     complete=c.read(bundle["completion_ref"]);wait=c.read(bundle["wait_ref"]);outer=c.read(bundle["outer_terminal_ref"])
+     c.require(complete.get("parent_id")==c.PARENT and complete.get("query_ancestry_truth_opened") is False
+         and wait.get("returncode")==0 and wait.get("actual_direct_worker_wait") is True
+@@ -88,7 +90,7 @@
+         c.raw(actual_authority["independent_source_review_ref"])
+         manifest=c.read(wait["adapter_manifest_ref"])
+         c.require(manifest["owned_roster_policy_ref"]==c.OWNED_ROSTER_POLICY_REF
+-            and manifest["original_scientific_child_ref"]==c.original.ref(c.original.CONTEXT),"Unchanged full native MLM scientific child and reviewed roster policy")
++            and manifest["original_scientific_child_ref"]=={"path":"research/reviews/native_VAL000_GPU0_borrowed32_source_20261016_v2/native_child_v1.py","sha256":"f2770222f02979b6064a7f1ffea80953cd234114c96ddde0845372479292379e"},"Unchanged full native MLM scientific child and reviewed roster policy")
+     else:
+         c.require(wait["adapter_manifest_ref"]==c.ref(c.MANIFEST),"Actual completed stage used this reviewed downstream source")
+     return complete,wait,outer
+@@ -128,7 +130,7 @@
+     if q["phase"]=="finalize":
+         final,wait,outer=prerequisite_metadata_v1(prerequisites["RAM_retrieve_and_seal"],"RAM_retrieve_and_seal")
+         c.require(final["status"]=="completed_native_RAM_retrieval_and_truth_free_seal"
+-            and final["full_reference_rows"]==9721236 and final["full_query_rows"]==10000
++            and final["full_reference_rows"]==c.EXPECTED_CONFIG["scientific_protocol"]["retrieval"]["reference_rows"] and final["full_query_rows"]==10000
+             and final["checkpoint_ref"]==contrastive["checkpoint_ref"]
+             and final["native_top1_arithmetic_or_ties_modified"] is False,"Genuine completed original native top1/seal, no invented score")
+     return mlm
+@@ -205,7 +207,8 @@
+             and os.environ.get("PYTHONNOUSERSITE")=="1","Exact isolated native interpreter and no user site")
+         sys.path[:0]=[str(ROOT/"src"),str(ROOT/"research/reviews/American_C3_native_MLM_amendment_v12"),
+             str(ROOT/"research/reviews/American_C3_native_MLM_full_fit_v8"),str(ROOT/"research/reviews/American_C3_native_MLM_full_source_v5")]
+-        from research.reviews.native_VAL000_GPU0_borrowed32_source_20261016_v2 import native_runtime_v1,gpu0_abstract_ipc_adapter_v3,native_child_v1
++        from research.reviews.native_ARGformer_postdrain_pool_source_20261017_v1 import native_runtime_v1,gpu0_abstract_ipc_adapter_v3
++        from research.reviews.native_VAL000_GPU0_borrowed32_source_20261016_v2 import native_child_v1
+         inventory,verify=native_runtime_v1.validate_native_runtime_v1(self.q["runtime_ref"],runtime)
+         c.require(inventory["status"]=="passed","Full actual native installed inventory before science")
+         gpu0_abstract_ipc_adapter_v3.install_private_module_before_native_child_native32_v1()
+@@ -227,7 +230,7 @@
+             checkpoint=metadata["checkpoint_ref"]
+             c.require(stable_reference_v1(ROOT/checkpoint["path"])==checkpoint,"Exact actual prerequisite checkpoint bytes")
+             result=checkpoint_metadata_bridge_v1(native_child_v1)((ROOT/checkpoint["path"]).parent,
+-                epochs=5 if stage=="mlm" else 1,updates=227990 if stage=="mlm" else 2135,
++                epochs=5 if stage=="mlm" else 1,updates=c.read(c.COUNTS_REF)["MLM_optimizer_updates"] if stage=="mlm" else c.EXPECTED_CONFIG["scientific_protocol"]["contrastive"]["updates"],
+                 max_files=2,max_bytes=3*2**30,torch=torch,reference=stable_reference_v1)
+             c.require(result["checkpoint_ref"]==checkpoint,"Actually opened saved model/optimizer at exact full epoch/update budget")
+             checkpoint_validation[stage]=result
+@@ -350,3 +353,45 @@
+         status="completed_native_VAL000_pipeline_finalizer_child",parent_id=c.PARENT,child_input_ref=input_ref,master_completion_ref=master_completion,
+         all_six_scientific_stages_actual_wait0_and_consumed_outer0=True,query_ancestry_truth_opened=False,
+         current_worker_wait_and_outer_terminal_still_pending=True))
++
++def contextual_module_v1(record,name):
++    source=c.raw(record).decode();tree=ast.parse(source);counts=c.read(c.COUNTS_REF)
++    changes={"experiments/results/American_C3_val000_full30mb_shared_v1/native_paths/contrastive":c.PREP_OUTPUT+"/contrastive",227990:counts["MLM_optimizer_updates"],2135:c.EXPECTED_CONFIG["scientific_protocol"]["contrastive"]["updates"],9721236:c.EXPECTED_CONFIG["scientific_protocol"]["retrieval"]["reference_rows"],"american_c3_val_000":c.PARENT,"experiments/results/American_C3_val000_full30mb_shared_v1/native_paths":c.PREP_OUTPUT}
++    class BindMetadata(ast.NodeTransformer):
++        def visit_Constant(self,node):
++            if type(node.value)in(int,str)and node.value in changes:return ast.copy_location(ast.Constant(changes[node.value]),node)
++            return node
++    tree=BindMetadata().visit(tree);ast.fix_missing_locations(tree);module=types.ModuleType(name);module.__file__=str(c.local(record["path"]))
++    exec(compile(tree,module.__file__+":original_parent_metadata_only","exec"),module.__dict__)
++    if hasattr(module,"REFS"):module.REFS=dict(module.REFS,preparation=c.PREP_REF,preparation_config=c.PREP_CONFIG_REF,counts=c.COUNTS_REF)
++    if hasattr(module,"ROW_COUNTS"):module.ROW_COUNTS={key:item["rows"]for key,item in counts["datasets"].items()}
++    return module
++
++def pool_prerequisite_bundle_v1(bundle,stage):
++    complete=c.read(bundle["completion_ref"]);wait=c.read(bundle["wait_ref"]);outer=c.read(bundle["outer_terminal_ref"])
++    registry=c.read(outer["immutable_pool_registry_snapshot_ref"]);jobs=[j for j in registry["jobs"]if j["logical_job"]==outer["job_id"]]
++    c.require(len(jobs)==1,"Actual pool-owned outer native leader wait")
++    job=jobs[0];spec=c.read(wait["input_ref"]);authority=c.read(spec["root_stage_request_ref"])
++    capability=c.read(outer["pool_capability_ref"]);declaration=capability["jobs"][outer["job_id"]]
++    expected_phase="embedding_"+complete.get("view","")+"_"+complete.get("split","") if stage=="embedding" else stage
++    c.require(spec["job_id"]==outer["job_id"] and spec["parent_id"]==c.PARENT
++        and declaration["worker_kind"]=="native" and declaration["parent_id"]==c.PARENT
++        and declaration["native_phase"]==expected_phase
++        and spec["phase"]==authority["phase"]==expected_phase
++        and authority["postdrain_pool_capability_ref"]==outer["pool_capability_ref"]
++        and complete.get("child_input_ref",complete.get("active_input_ref"))==wait["input_ref"]
++        and wait.get("group_observations") and all(row.get("absent") is True for row in wait["group_observations"]),
++        "Same declared original parent/phase/source input and complete groups, no cross-stage bundle substitution")
++    c.require(complete.get("parent_id")==c.PARENT and complete.get("query_ancestry_truth_opened") is False
++        and wait.get("returncode")==0 and wait.get("actual_OS_wait_status")==0 and wait.get("actual_direct_worker_wait") is True
++        and wait.get("complete_owned_roster_known") is True and wait.get("all_owned_processes_and_groups_drained") is True
++        and wait.get("operational_failure") is None and wait.get("completed_ref")==bundle["completion_ref"] and wait.get("adapter_manifest_ref")==c.ref(c.MANIFEST)
++        and job["state"]=="succeeded" and job["exit_code"]==0 and job["leader_wait_status_known"] is True and job["owned_drain_observed"] is True
++        and outer.get("root_authorizer")=="root_agent" and outer.get("actual_exit_code")==0 and outer.get("actual_terminal_consumed") is True
++        and outer.get("actual_wait_ref")==bundle["wait_ref"] and outer.get("original_standalone_or_historical_wait_relabelled") is False
++        and outer["pool_capability_ref"]==registry["capability_ref"]==c.STATE[2]["postdrain_pool_capability_ref"],"New phase genuine inner0/drain and pool outer0/drain, no historical wait substitution")
++    if stage=="mlm":
++        c.require(complete.get("completed_epochs")==5 and complete.get("actual_optimizer_updates")==c.read(c.COUNTS_REF)["MLM_optimizer_updates"]
++            and complete.get("preparation_ref")==c.PREP_REF and complete.get("initializer_checkpoint_ref") is None
++            and complete.get("resume_checkpoint_ref") is None,"Complete same-parent fresh MLM")
++    return complete,wait,outer

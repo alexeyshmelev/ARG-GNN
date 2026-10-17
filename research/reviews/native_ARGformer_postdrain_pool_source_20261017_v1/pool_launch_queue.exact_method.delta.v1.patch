@@ -1,0 +1,24 @@
+--- src/arggnn/gpu45_c3cache_h050_pool_v1.py:Shared45Controller._launch_queue
++++ research/reviews/native_ARGformer_postdrain_pool_source_20261017_v1/pool_v1.py:<postdrain_original_queue_exact_worker_route>
+@@ -2,6 +2,7 @@
+         if self.lifecycle!="running" or self.safety_error:return
+         for name,job in self.jobs.items():
+             if job["state"]!="queued":continue
++            if any(other["state"]in ACTIVE and other["requested"]["worker_kind"]==job["requested"]["worker_kind"]for other in self.jobs.values()):continue
+             self._process_scan();m=self._memory(job["requested"]["peak_mib"]);job["admission"]=m
+             if m["blocked_by"]:break
+             load_cap(self.cap_ref);j=job["requested"]
+@@ -12,10 +13,12 @@
+             storage=json.loads(bound(j["storage_ref"]))
+             env["ARGGNN_BUDGET_V9_SOURCE_SHA256"]=storage["budget_components"]["implementation"]["sha256"]
+             env["ARGGNN_BUDGET_V9_LAUNCHER_SHA256"]=storage["budget_components"]["launcher"]["sha256"]
+-            argv=[self.python,"-B",str(ROOT/RENEWAL_BOOTSTRAP_REF["path"]),"--execute","--renewal-certificate",self.cap["marker_repair_renewal_ref"]["path"],"--renewal-sha256",self.cap["marker_repair_renewal_ref"]["sha256"],"--renewal-source-sha256",RENEWAL_SOURCE_REF["sha256"],"--module","arggnn.gpu45_c3cache_h050_pool_v1","--","worker","--execute","--capability",self.cap_ref["path"],"--sha256",self.cap_ref["sha256"],"--job",name]
++            argv=[self.python,"-B","-s","-m",MODULE,"worker","--execute","--capability",self.cap_ref["path"],"--sha256",self.cap_ref["sha256"],"--job",name,"--submission-ref",json.dumps(j["submission_ref"],separators=(",",":"))]
+             log_path=self.directory/"jobs"/(name+".log");log=None;child=None
+             try:
+                 self._check(j["log_limit_bytes"]+8192);log=log_path.open("xb")
++                c.validate_submission_v1(self.cap_ref,j["submission_ref"])
++                require(time.time()<j["absolute_expires_unix"],"Per-job expiry before Popen")
+                 child=subprocess.Popen(argv,cwd=ROOT,env=env,shell=False,start_new_session=True,close_fds=True,pass_fds=(self.lease.fileno(),),stdout=subprocess.PIPE,stderr=subprocess.STDOUT,stdin=subprocess.DEVNULL)
+                 os.set_blocking(child.stdout.fileno(),False);self.children[name]=child;self.logs[name]=log
+                 job.update(state="running",pid=child.pid,log_path=str(log_path),argv=argv)

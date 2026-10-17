@@ -1,0 +1,17 @@
+--- research/reviews/native_VAL000_GPU0_borrowed32_source_20261016_v2/native_runtime_v1.py
++++ research/reviews/native_ARGformer_postdrain_pool_source_20261017_v1/native_runtime_v1.py
+@@ -2,11 +2,10 @@
+ from pathlib import Path
+ import ast,copy,hashlib,importlib,importlib.machinery,importlib.util,json,os,re,stat,sys
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-REL="research/reviews/native_VAL000_GPU0_borrowed32_source_20261016_v2"
++REL="research/reviews/native_ARGformer_postdrain_pool_source_20261017_v1"
+ def _contract():
+-    path=ROOT/REL/"common_v1.py"
+-    spec=importlib.util.spec_from_file_location("_C3_native_runtime_contract",path)
+-    c=importlib.util.module_from_spec(spec);spec.loader.exec_module(c);return c
++    from . import native_common_v1 as c
++    return c
+ def runtime_functions():
+     c=_contract();source=c.local(c.LEGACY_RUNTIME_REF["path"])
+     c.require(c.ref(source)==c.LEGACY_RUNTIME_REF,"Frozen existing runtime-helper source")

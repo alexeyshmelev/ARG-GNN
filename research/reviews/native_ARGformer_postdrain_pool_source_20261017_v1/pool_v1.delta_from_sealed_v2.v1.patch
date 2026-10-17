@@ -1,0 +1,49 @@
+--- research/reviews/GPU0_postdrain_two_slot_pool_source_20261017_v2/pool_v1.py
++++ research/reviews/native_ARGformer_postdrain_pool_source_20261017_v1/pool_v1.py
+@@ -37,6 +37,17 @@
+     """Future explicit operation only; imports original source without modifying files."""
+     h.source_refs_v1();reviewed=h.load(c.SHARED,"_postdrain_original_Shared0")
+     legacy=reviewed.legacy;base=reviewed.base
++    # Adapt only finite roster ceilings in the private original base class.
++    # All UID/start/session, ambiguity, discovery and assignment bodies remain.
++    base_source=h.raw(h.BASE_POOL).decode();base_tree=ast.parse(base_source)
++    base_class=next(n for n in base_tree.body if isinstance(n,ast.ClassDef)and n.name=="Controller")
++    process_fn=next(n for n in base_class.body if isinstance(n,ast.FunctionDef)and n.name=="_process_scan")
++    process_body=ast.get_source_segment(base_source,process_fn)
++    require(process_body.count("len(known) > 512")==1 and process_body.count("> 8192:")==1,"Exact two original finite roster ceilings")
++    process_body=process_body.replace("len(known) > 512","len(known) > (4097 if job[\"requested\"][\"worker_kind\"]==\"native\" else 512)")
++    process_body=process_body.replace("> 8192:","> sum(4097 if j[\"worker_kind\"]==\"native\" else 512 for j in self.cap[\"jobs\"].values()):")
++    process_ns=dict(vars(base));exec(compile(process_body,"<private_original_scan_finite_native_roster>","exec"),process_ns)
++    base.Controller._process_scan=process_ns["_process_scan"]
+     legacy.load_cap=lambda r,allow_drain=False:c.validate_cap_v1(r,allow_drain=allow_drain)
+     legacy.current_guard=c.guard_v1;legacy.guarded_check=c.guarded_check_v1
+     class PostdrainController(reviewed.Shared0Controller):
+@@ -109,7 +120,11 @@
+     lines=body.splitlines();matches=[i for i,line in enumerate(lines)if line.strip().startswith("argv=[")]
+     require(len(matches)==1,"One exact old worker argv")
+     lines[matches[0]]="            argv=[self.python,\"-B\",\"-s\",\"-m\",MODULE,\"worker\",\"--execute\",\"--capability\",self.cap_ref[\"path\"],\"--sha256\",self.cap_ref[\"sha256\"],\"--job\",name,\"--submission-ref\",json.dumps(j[\"submission_ref\"],separators=(\",\",\":\"))]"
+-    body="\n".join(lines);anchor="                child=subprocess.Popen("
++    body="\n".join(lines)
++    queue_anchor="            if job[\"state\"]!=\"queued\":continue"
++    require(body.count(queue_anchor)==1,"One original queue state boundary")
++    body=body.replace(queue_anchor,queue_anchor+"\n            if any(other[\"state\"]in ACTIVE and other[\"requested\"][\"worker_kind\"]==job[\"requested\"][\"worker_kind\"]for other in self.jobs.values()):continue")
++    anchor="                child=subprocess.Popen("
+     require(body.count(anchor)==1,"One exact Popen boundary")
+     body=body.replace(anchor,"                c.validate_submission_v1(self.cap_ref,j[\"submission_ref\"])\n                require(time.time()<j[\"absolute_expires_unix\"],\"Per-job expiry before Popen\")\n"+anchor)
+     ns=dict(vars(legacy),MODULE=MODULE,c=c,load_cap=legacy.load_cap,guarded_check=c.guarded_check_v1,POLICY=h.POLICY)
+@@ -133,6 +148,15 @@
+     require(job==s["job_id"] and os.environ.get("ARGGNN_LOGICAL_JOB_NAME")==job,"Exact pool launch identity")
+     # Original H058 supervisor creates its own gated session and logical lock.
+     # It truthfully borrows this new controller inode and retains all science.
++    cap=c.validate_cap_v1(cap_ref)
++    if cap["jobs"][job]["worker_kind"]=="native":
++        if cap["jobs"][job].get("native_phase","mlm")!="mlm":
++            from . import downstream_contract_v1 as downstream
++            downstream.set_amendment_v1(v["input_ref"])
++            from . import downstream_execution_v1
++            return downstream_execution_v1.execute_v1(v["input_ref"])["returncode"]
++        from . import native_root_driver_v1
++        return native_root_driver_v1.execute_v1(v["input_ref"])["returncode"]
+     from . import root_driver_v1
+     return root_driver_v1.execute_v1(v["input_ref"])["returncode"]
+ 

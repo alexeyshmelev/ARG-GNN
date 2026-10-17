@@ -1,0 +1,65 @@
+--- research/reviews/H060_fast_observed_full_training_source_20261017_v1/root_driver_v1.py
++++ research/reviews/H060_legacy_fast_full_training_source_20261017_v1/root_driver_v1.py
+@@ -2,7 +2,7 @@
+ from pathlib import Path
+ import argparse,ast,copy,hashlib,importlib.util,json,os,stat,sys,types
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-HERE="research/reviews/H060_fast_observed_full_training_source_20261017_v1"
++HERE="research/reviews/H060_legacy_fast_full_training_source_20261017_v1"
+ SOURCE=HERE+"/root_driver_v1.py";ENTRY=HERE+"/worker_entry_v1.py"
+ MANIFEST=HERE+"/source_manifest.v1.json";HANDOFF=HERE+"/source_handoff.v1.json"
+ def need(ok,message):
+@@ -34,7 +34,7 @@
+  """A genuine NEW scientific review is required; old PASS is provenance only."""
+  b=c.binding();v=c.read(record)
+  norm=lambda r:dict(path=r["path"],sha256=r["sha256"])
+- c.require(v.get("schema")=="H060_fast_observed_complete_scientific_review_v1"
++ c.require(v.get("schema")=="H060_legacy_fast_complete_scientific_review_v1"
+   and v.get("status")=="SOURCE_PASS"and v.get("independent_review")is True
+   and v.get("blockers")==[]
+   and norm(v["candidate_manifest_ref"])==b["source_manifest_ref"]
+@@ -45,8 +45,11 @@
+   and norm(v["candidate_outer_manifest_ref"])==metadata_ref(MANIFEST)
+   and norm(v["predecessor_compatibility_review_ref"])==b["predecessor_compatibility_review_ref"]
+   and norm(v["fast_adapter_review_ref"])==b["fast_adapter_review_ref"]
+-  and norm(v["fast_adapter_ROOT_fixture_ref"])==b["fast_adapter_ROOT_fixture_ref"],
+-  "New complete independent fast-observed scientific review, never old-verdict substitution")
++  and norm(v["fast_adapter_ROOT_fixture_ref"])==b["fast_adapter_ROOT_fixture_ref"]
++  and norm(v["legacy_support_review_ref"])==b["legacy_support_review_ref"]
++  and norm(v["legacy_support_manifest_ref"])==b["legacy_support_manifest_ref"]
++  and norm(v["predecessor_complete_review_ref"])==b["predecessor_complete_review_ref"],
++  "New complete independent legacy-fast scientific review, never old-verdict substitution")
+  candidates=[norm(r)for r in v["candidate_source_refs"]]
+  component=c.read(b["fast_adapter_review_ref"]);fixture=c.read(b["fast_adapter_ROOT_fixture_ref"])
+  c.require(component.get("status")=="SOURCE_PASS"and component.get("blockers")==[]
+@@ -57,7 +60,20 @@
+   "Genuine bounded adapter SOURCE_PASS/ROOT fixtures only, never production qualification")
+  c.require(b["runner_source_ref"]in candidates
+   and all(r in candidates for r in b["fast_preparation_source_refs"]),
+-  "New runner and all four preparation sources independently reviewed")
++  "New runner and every exact legacy/global preparation source independently reviewed")
++ legacy=c.read(b["legacy_support_review_ref"])
++ c.require(legacy.get("independent")is True and legacy.get("verdict")=="SOURCE_PASS"
++  and legacy.get("blockers")==[] and legacy.get("inactive_component_only")is True
++  and legacy.get("source_manifest_ref")==b["legacy_support_manifest_ref"]
++  and legacy.get("source_pass_domain")==b["legacy_support_domain"]
++  and all(legacy.get(key)==b[key]for key in("source_ref","encoder_ref","provider_ref")),
++  "Exact reviewed positive-stride int8/int64 component domain, not a full integration verdict")
++ predecessor=c.read(b["predecessor_complete_review_ref"])
++ c.require(predecessor.get("independent")is True and predecessor.get("status")=="SOURCE_PASS"
++  and predecessor.get("blockers")==[]
++  and norm(predecessor["source_manifest_ref"])==b["predecessor_complete_manifest_ref"]
++  and norm(predecessor["runner_source_ref"])==b["predecessor_complete_runner_ref"],
++  "Preserve genuine complete current predecessor review as evidence only")
+  old=c.read(b["predecessor_compatibility_review_ref"])
+  c.require(old.get("status")=="SOURCE_PASS"and old.get("independent_review")is True
+   and old.get("blockers")==[]
+@@ -92,7 +108,7 @@
+    "Exact current ROOT Relate selector capsule and child only; no fallback")
+   prefixes=bindings()["fresh_namespace_prefixes"]
+   c.require(all(isinstance(q.get(key),str)and q[key].startswith(prefix)
+-   for key,prefix in prefixes.items()),"Fresh fast-observed namespaces only, never an old scope")
++   for key,prefix in prefixes.items()),"Fresh legacy-fast namespaces only, never an old scope")
+   c.require(all(all(q.get(key)!=old[key]for key in("preparation_directory","packet_directory","output_directory"))
+    for old in bindings()["excluded_scope_sets"]),"Every original failed/current scope remains separate")
+   c.require(q.get("fresh_full_unfinished_cell_successor")is True

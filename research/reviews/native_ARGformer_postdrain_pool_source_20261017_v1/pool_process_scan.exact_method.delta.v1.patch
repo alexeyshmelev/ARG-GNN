@@ -1,0 +1,20 @@
+--- src/arggnn/gpu_pool_v1.py:Controller._process_scan
++++ research/reviews/native_ARGformer_postdrain_pool_source_20261017_v1/pool_v1.py:<private_original_scan_finite_native_roster>
+@@ -53,7 +53,7 @@
+                             if not identity_matches:
+                                 known[pid] = dict(item)
+                                 changed = True
+-                if len(known) > 512:
++                if len(known) > (4097 if job["requested"]["worker_kind"]=="native" else 512):
+                     raise RuntimeError("Worker process identity limit exceeded")
+                 job["process_identities"] = [known[p] for p in sorted(known)]
+                 for pid, prior in known.items():
+@@ -64,7 +64,7 @@
+                         if pid in assignments and assignments[pid] != name:
+                             raise RuntimeError("Ambiguous worker process ancestry")
+                         assignments[pid] = name
+-        if sum(len(j["process_identities"]) for j in self.jobs.values()) > 8192:
++        if sum(len(j["process_identities"]) for j in self.jobs.values()) > sum(4097 if j["worker_kind"]=="native" else 512 for j in self.cap["jobs"].values()):
+             raise RuntimeError("Pool process identity limit exceeded")
+         self.processes, self.pid_jobs = table, assignments
+         self.ambiguous = sorted(pid for pid, p in table.items()

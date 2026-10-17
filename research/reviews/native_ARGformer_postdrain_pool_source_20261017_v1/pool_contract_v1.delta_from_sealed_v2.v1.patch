@@ -1,0 +1,110 @@
+--- research/reviews/GPU0_postdrain_two_slot_pool_source_20261017_v2/pool_contract_v1.py
++++ research/reviews/native_ARGformer_postdrain_pool_source_20261017_v1/pool_contract_v1.py
+@@ -11,7 +11,7 @@
+ DOWN={"path":"research/reviews/GPU45_shared_downstream_lineage_source_20261016_v1/pool.staged.py","sha256":"07d930aba589c16be8bd8c97a7948e519e108def97bc7538bb061bf634c6a5ce"}
+ OLD_CAP={"path":"research/reviews/C3_module_route_repair_root_20261016_v1/controller/capability.root_active_v1.json","sha256":"4b781d0d88814508a02037c5935bb1dc6406a203cfa99939db4dabb5c04c9870"}
+ require=h.require;read=h.read;ref=h.ref;raw=h.raw;local=h.local
+-SLOTS={"H058":dict(cuda_cap_bytes=28*2**30,margin_mib=2048,peak_mib=30720,cpu_rss_cap_bytes=128*2**30,operational_deadline_seconds=86400),"native":dict(cuda_cap_bytes=32*2**30,margin_mib=2048,peak_mib=34816)}
++SLOTS={"H058":dict(cuda_cap_bytes=28*2**30,margin_mib=2048,peak_mib=30720,cpu_rss_cap_bytes=128*2**30,operational_deadline_seconds=86400),"native":dict(cuda_cap_bytes=32*2**30,margin_mib=2048,peak_mib=34816,cpu_rss_cap_bytes=384*2**30,operational_deadline_seconds=172800)}
+ 
+ def reviewed_v1(record):
+     r=read(record)
+@@ -82,16 +82,17 @@
+     require(time.time()<(cap["drain_expires_unix"]if allow_drain else cap["expires_unix"])
+         and 0<cap["termination_grace_seconds"]<=120 and cap["expires_unix"]+cap["termination_grace_seconds"]+5<=cap["drain_expires_unix"]
+         and cap["drain_expires_unix"]<=datetime.fromisoformat(q["expires_at_utc"]).timestamp(),"Finite work/drain authority, no old deadline reset")
+-    jobs=cap["jobs"];require(set(j["worker_kind"]for j in jobs.values())==set(SLOTS)and len(jobs)==2,"Exactly H058 and native declarations; no C3")
++    jobs=cap["jobs"];require(set(j["worker_kind"]for j in jobs.values())==set(SLOTS)and 2<=len(jobs)<=40,"Exactly H058 and native declarations; no C3")
++    validate_native_roster_v1(jobs)
+     for name,j in jobs.items():
+         kind=j["worker_kind"];require(j.get("module")==POOL[:-3].replace("/","."),"Only exact new pool dispatcher module")
+-        require(j["job_id"]==name and all(j.get(k)==v for k,v in SLOTS[kind].items()),"Exact per-slot allocator/margin/RSS/deadline")
++        require(j["job_id"]==name and all(j.get(k)==v for k,v in slot_spec_v1(j).items()),"Exact per-slot allocator/margin/RSS/deadline")
+         require(name and all(c in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-"for c in name),"Safe finite logical identity")
+         if kind=="H058":require(j.get("execution_enabled") is True and j.get("implementation_status")=="RUNNABLE_H058_REQUIRES_WHOLE_REVIEW","Exact implemented H058 slot")
+-        if kind=="native":require(j.get("implementation_status")=="ATTACHMENT_SEAM_ONLY_NO_SCIENTIFIC_RUNNER"and j.get("execution_enabled") is False,"Native requires separately reviewed full per-parent runner")
++        if kind=="native":require(j.get("implementation_status")=="COMPLETE_NATIVE_PARENT_MLM_REQUIRES_WHOLE_REVIEW"and j.get("execution_enabled") is True,"Exact implemented native parent runner, fresh whole review required")
+     storage=read(cap["controller_storage_ref"])
+     require(storage["job_id"]==cap["controller_job_id"] and storage["output_directory"]==q["controller_output_directory"]
+-        and storage["reserved_new_bytes"]==32*2**20 and storage["reservation"]["auxiliary_scopes"]==[],"Fresh isolated32MiB controller scope")
++        and storage["reserved_new_bytes"]==128*2**20 and storage["reservation"]["auxiliary_scopes"]==[],"Fresh isolated128MiB controller scope")
+     validate_handover_v1(cap["handover_ref"],next(n for n,j in jobs.items()if j["worker_kind"]=="H058"))
+     return cap
+ 
+@@ -100,7 +101,7 @@
+ 
+ def registry_v1(cap_ref,*,fresh=True):
+     cap=validate_cap_v1(cap_ref);storage=read(cap["controller_storage_ref"]);path=storage["output_directory"]+"/registry.json"
+-    p=local(path);require(p.is_file()and not p.is_symlink()and p.stat().st_size<=8*2**20,"Bounded exact new controller registry")
++    p=local(path);require(p.is_file()and not p.is_symlink()and p.stat().st_size<=32*2**20,"Bounded exact new controller registry")
+     value=json.loads(p.read_bytes());who=value["controller"]
+     require(value.get("capability_ref")==cap_ref and value.get("physical_gpu")==0 and value.get("pool")==cap["pool"]
+         and value.get("lifecycle")=="running"and value.get("safety_error") is None
+@@ -124,12 +125,24 @@
+ 
+ def validate_submission_v1(cap_ref,record):
+     cap=validate_cap_v1(cap_ref);v=read(record);h.active(v)
+-    require(v.get("schema")=="GPU0_postdrain_H058_submission_v1"and v.get("root_authorizer")=="root_agent"
+-        and v.get("capability_ref")==cap_ref and v.get("job_id")in cap["jobs"]
+-        and cap["jobs"][v["job_id"]]["worker_kind"]=="H058","Only concrete reviewed H058 runner is implemented")
+-    s,q,cfg,storage,_=h.validate_input_v1(v["input_ref"])
++    require(v.get("root_authorizer")=="root_agent" and v.get("capability_ref")==cap_ref and v.get("job_id")in cap["jobs"],"Exact declared fresh pool submission")
++    kind=cap["jobs"][v["job_id"]]["worker_kind"]
++    if kind=="H058":
++        require(v.get("schema")=="GPU0_postdrain_H058_submission_v1","Exact H058 submission")
++        s,q,cfg,storage,_=h.validate_input_v1(v["input_ref"])
++    else:
++        phase=cap["jobs"][v["job_id"]].get("native_phase","mlm")
++        if phase=="mlm":
++            from . import native_common_v1 as native
++            require(v.get("schema")=="GPU0_postdrain_native_parent_submission_v1","Exact original-parent MLM submission")
++            s,q,cfg,storage,_=native.validate_input_v1(v["input_ref"])
++        else:
++            from . import downstream_contract_v1 as downstream
++            require(v.get("schema")=="GPU0_postdrain_native_phase_submission_v1","Exact full downstream phase submission")
++            s,q,cfg,storage,_=downstream.inspect_input_v1(v["input_ref"])
++        require(q["parent_id"]==cap["jobs"][v["job_id"]]["parent_id"] and q["phase"]==phase,"Exact original parent/phase")
+     require(q["postdrain_pool_capability_ref"]==cap_ref and s["job_id"]==v["job_id"]
+-        and s["worker_auxiliary_scope"]==q["packet_directory"]+"/worker_aux"and not local(s["output_directory"]).exists(),"Fresh exact H058 admitted scientific input")
++        and (kind=="native"and cap["jobs"][v["job_id"]].get("native_phase","mlm")!="mlm" or s["worker_auxiliary_scope"]==q["packet_directory"]+"/worker_aux") and not local(s["output_directory"]).exists(),"Fresh admitted original source/input/output")
+     return v,s,q,cfg,storage
+ 
+ def expires(value):return datetime.fromisoformat(value["expires_at_utc"]).timestamp()
+@@ -153,11 +166,34 @@
+         and type(cap.get("termination_grace_seconds"))is int and 0<cap["termination_grace_seconds"]<=120
+         and time.time()<cap["expires_unix"]and cap["expires_unix"]+cap["termination_grace_seconds"]+5<=cap["drain_expires_unix"]<=expires(q),"Finite exact work and drain interval")
+     require(isinstance(cap.get("pool"),str)and 1<=len(cap["pool"])<=32 and all(ch in "abcdefghijklmnopqrstuvwxyz0123456789_-"for ch in cap["pool"]),"Safe fresh pool name")
+-    jobs=cap.get("jobs");require(isinstance(jobs,dict)and len(jobs)==2 and{j.get("worker_kind")for j in jobs.values()}==set(SLOTS),"Exactly two typed slots")
++    jobs=cap.get("jobs");require(isinstance(jobs,dict)and 2<=len(jobs)<=40 and{j.get("worker_kind")for j in jobs.values()}==set(SLOTS),"Exactly two typed slots")
++    validate_native_roster_v1(jobs)
+     for name,j in jobs.items():
+         kind=j["worker_kind"]
+         require(j.get("job_id")==name and isinstance(name,str)and name and all(ch in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-"for ch in name)
+-            and j.get("module")==POOL[:-3].replace("/",".")and all(j.get(k)==v for k,v in SLOTS[kind].items()),"Exact finite slot identity and original resource caps")
++            and j.get("module")==POOL[:-3].replace("/",".")and all(j.get(k)==v for k,v in slot_spec_v1(j).items()),"Exact finite slot identity and original resource caps")
+         if kind=="H058":require(j.get("execution_enabled") is True and j.get("implementation_status")=="RUNNABLE_H058_REQUIRES_WHOLE_REVIEW","Implemented H058 source only")
+-        else:require(j.get("execution_enabled") is False and j.get("implementation_status")=="ATTACHMENT_SEAM_ONLY_NO_SCIENTIFIC_RUNNER","Native seam cannot execute")
++        else:require(j.get("execution_enabled") is True and j.get("implementation_status")=="COMPLETE_NATIVE_PARENT_MLM_REQUIRES_WHOLE_REVIEW","Concrete native slot requires exact new review and ROOT capability")
+     return cap
++
++
++def slot_spec_v1(job):
++    if job["worker_kind"]=="H058":return SLOTS["H058"]
++    phase=job.get("native_phase","mlm");value=dict(SLOTS["native"])
++    if phase=="finalize":
++        value.update(cuda_cap_bytes=0,margin_mib=0,peak_mib=0)
++    elif phase!="mlm":
++        require(job.get("resource_profile")in("original_downstream_74GiB_proposal","explicit_unqualified_full_stage_32GiB"),"Explicit downstream resource choice, never implied fit")
++        allocator=74 if job["resource_profile"]=="original_downstream_74GiB_proposal" else 32
++        value.update(cuda_cap_bytes=allocator*2**30,peak_mib=(allocator+2)*1024)
++    return value
++
++def validate_native_roster_v1(jobs):
++    registry=read(ref(h.HERE+"/parent_registry.v1.json"));allowed=set(registry["parents"])
++    H058=[j for j in jobs.values()if j.get("worker_kind")=="H058"];native=[j for j in jobs.values()if j.get("worker_kind")=="native"]
++    phases={"mlm","contrastive","embedding_contrastive_train","embedding_contrastive_val","embedding_query_paths_train","embedding_query_paths_val","RAM_retrieve_and_seal","finalize"}
++    identities={(j.get("parent_id"),j.get("native_phase","mlm"))for j in native}
++    require(len(H058)==1 and 1<=len(native)<=39 and len(H058)+len(native)==len(jobs) and len(identities)==len(native)
++        and all(p in allowed and phase in phases and (phase!="mlm"or p in registry["remaining_fresh_fit_parents"])for p,phase in identities),
++        "One H058 and finite unique original parent/phase declarations, no replay of current VAL000 MLM")
++    return jobs

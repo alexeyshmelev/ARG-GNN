@@ -1,0 +1,78 @@
+--- research/reviews/native_VAL000_downstream_execution_source_20261016_v2/execution_v1.py
++++ research/reviews/native_ARGformer_postdrain_pool_source_20261017_v1/downstream_execution_v1.py
+@@ -4,8 +4,8 @@
+ from pathlib import Path
+ from datetime import datetime,timezone
+ import argparse,collections,ctypes,fcntl,hashlib,importlib,io,itertools,json,os,resource,selectors,signal,stat,subprocess,sys,tempfile,time
+-from research.reviews.native_VAL000_downstream_execution_source_20261016_v2.contract_v1 import *
+-from research.reviews.native_VAL000_downstream_execution_source_20261016_v2 import contract_v1 as c
++from research.reviews.native_ARGformer_postdrain_pool_source_20261017_v1.downstream_contract_v1 import *
++from research.reviews.native_ARGformer_postdrain_pool_source_20261017_v1 import downstream_contract_v1 as c
+ 
+ class _RAMLog:
+     def __init__(self,cap):self.cap=cap;self.parts=collections.deque();self.kept=0;self.total=0
+@@ -45,16 +45,16 @@
+     tempfile.tempdir=paths["TMPDIR"]
+     if s["phase"]=="finalize":
+         require(attachment_ref is None and os.environ.get("CUDA_VISIBLE_DEVICES")=="","Finalizer has no GPU attachment")
+-        from research.reviews.native_VAL000_downstream_execution_source_20261016_v2.worker_context_v1 import finalize_worker_v1
++        from research.reviews.native_ARGformer_postdrain_pool_source_20261017_v1.downstream_context_v1 import finalize_worker_v1
+         finalize_worker_v1(input_ref,s,q,cfg,storage)
+         return 0
+     require(attachment_ref["path"]==s["worker_auxiliary_scope"]+"/attachment.json","Actual fresh source-bound phase attachment")
+     ticket=read(attachment_ref)
+     require(ticket["job_id"]==s["job_id"] and ticket["borrowed_physical_inode"] is True
+         and ticket["direct_attachment_authority_ref"]==q["direct_attachment_authority_ref"],"Actual admitted phase attachment")
+-    from research.reviews.native_VAL000_downstream_execution_source_20261016_v2 import direct_gpu0_v1 as direct
++    from research.reviews.native_ARGformer_postdrain_pool_source_20261017_v1 import downstream_direct_gpu0_v1 as direct
+     native=direct.install_before_torch_v1(s,q,ticket)
+-    from research.reviews.native_VAL000_downstream_execution_source_20261016_v2.worker_context_v1 import NativeContext
++    from research.reviews.native_ARGformer_postdrain_pool_source_20261017_v1.downstream_context_v1 import NativeContext
+     context=NativeContext(input_ref,s,q,cfg,storage,ticket,native)
+     context.run()
+     return 0
+@@ -64,7 +64,7 @@
+     stage_started=time.monotonic()
+     require(Path.cwd()==ROOT and sys.dont_write_bytecode,"Exact ROOT cwd/no bytecode")
+     s,q,cfg,storage,protocol=validate_input_v1(input_ref)
+-    from research.reviews.native_VAL000_downstream_execution_source_20261016_v2.worker_context_v1 import check_external_prerequisites_v1
++    from research.reviews.native_ARGformer_postdrain_pool_source_20261017_v1.downstream_context_v1 import check_external_prerequisites_v1
+     check_external_prerequisites_v1(q)
+ 
+     require(Path(sys.executable).resolve()==(ROOT/".runtime/env/bin/python").resolve(),"Original pinned runtime interpreter")
+@@ -128,7 +128,7 @@
+             ARGGNN_BUDGET_V9_LAUNCHER_SHA256=storage["budget_components"]["launcher"]["sha256"])
+         env.update(paths)
+         if s["phase"] in GPU_PHASES:
+-            from research.reviews.native_VAL000_downstream_execution_source_20261016_v2 import direct_gpu0_v1 as direct
++            from research.reviews.native_ARGformer_postdrain_pool_source_20261017_v1 import downstream_direct_gpu0_v1 as direct
+             direct.install_cancellation_check_v1(lambda:require(cancelled is None and time.monotonic()<work_deadline,
+                 "Actual cancellation or anchored work cutoff during status proof"))
+             physical_fd,logical_fd,ticket=direct.attach_v1(s,q)
+@@ -144,7 +144,7 @@
+                 env.pop(name,None)
+         gate_read,gate_write=os.pipe()
+         command=[str(local(NATIVE_PYTHON_REF["path"])),"-B","-s","-m",
+-            "research.reviews.native_VAL000_downstream_execution_source_20261016_v2.execution_v1",
++            "research.reviews.native_ARGformer_postdrain_pool_source_20261017_v1.downstream_execution_v1",
+             "--worker-input-ref",json.dumps(input_ref,separators=(",",":")),"--gate-fd",str(gate_read)]
+         if attachment_ref is not None:command+=["--attachment-ref",json.dumps(attachment_ref,separators=(",",":"))]
+         command+=["--amendment-ref",json.dumps(current_amendment_ref_v1(),separators=(",",":"))]
+@@ -395,7 +395,7 @@
+         log_ref=compact_v1(s,"worker_log.json",logs.record(),g,storage,cap=16*2**20)
+         final=charged_census_v1(s);peak_scope=max(peak_scope,sum(final.values()))
+         wait_ref=compact_v1(s,"actual_wait.json",dict(observation,
+-            schema="downstream_fixed_full_parent_actual_wait_v2",completed_ref=completed_ref,
++            schema="downstream_fixed_full_parent_actual_wait_v2",adapter_manifest_ref=ref(MANIFEST),completed_ref=completed_ref,
+             operational_failure=failure,no_future_stage_authorized=failure is not None,
+             actual_wait_minimal_ref=minimal,log_ref=log_ref,peak_combined_owned_RSS_bytes=peak,
+             sampled_peak_scope_bytes=peak_scope,final_scope_census=final,
+@@ -431,7 +431,7 @@
+         return worker_v1(json.loads(args.worker_input_ref),args.gate_fd,json.loads(args.attachment_ref) if args.attachment_ref is not None else None)
+     require(args.input_ref is not None,"Exact original input ref required")
+     require(json.loads(args.input_ref)==json.loads(args.amendment_ref),"ROOT phase input is the exact actual phase authority binding")
+-    from research.reviews.native_VAL000_downstream_execution_source_20261016_v2.worker_context_v1 import PendingPrerequisites
++    from research.reviews.native_ARGformer_postdrain_pool_source_20261017_v1.downstream_context_v1 import PendingPrerequisites
+     try:result=execute_v1(json.loads(args.input_ref))
+     except PendingPrerequisites as exc:
+         print(json.dumps(dict(status="PENDING_GENUINE_EXTERNAL_PREREQUISITES",reason=str(exc),worker_spawned=False,

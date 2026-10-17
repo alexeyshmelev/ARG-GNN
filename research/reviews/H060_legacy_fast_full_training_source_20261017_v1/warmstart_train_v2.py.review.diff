@@ -1,0 +1,31 @@
+--- research/reviews/H060_fast_observed_full_training_source_20261017_v1/warmstart_train_v2.py
++++ research/reviews/H060_legacy_fast_full_training_source_20261017_v1/warmstart_train_v2.py
+@@ -15,9 +15,9 @@
+     TRAIN, VAL, REGISTRY_REF, TrainTargetJoinV1, authoritative_registry_v1)
+ from arggnn.american_c3_gnn_stream_train_v1 import (
+     json_sha, validate_plan_v1)
+-from research.reviews.H060_isolated_hold_compatibility_source_20261017_v1.observation_provider_v1 import SealedObservationProviderV1
++from research.reviews.H060_throughput_source_analysis_20261017_v1.observation_provider_candidate_v1 import SealedObservationProviderV1
+ from research.reviews.TreeLoom_observed_preparation_fast_source_20261017_v1.full_preparation_fast_v1 import prepare_from_loaded_observation_v1
+-from research.reviews.TreeLoom_observed_preparation_fast_source_20261017_v1.parent_startup_fast_v1 import (
++from .parent_startup_legacy_fast_v1 import (
+     seal_then_prepare_one_parent_v1, REQUIRED_FAST_SOURCE_PATHS)
+ from arggnn.american_c3_gnn_train_v1 import (
+     epoch_order_v1, _cpu_snapshot, _rng_state, _restore_rng, _seed_fresh)
+@@ -274,14 +274,14 @@
+             "Scientific source identity changed after authentication; no silent reload")
+ 
+ def _fast_preparation_refs_v1():
+-    """Select all four exact new preparation refs from this authenticated closure."""
++    """Select all exact legacy/global preparation refs from this authenticated closure."""
+     pins=json.loads((HERE/"scientific_source_pins.v2.json").read_text())["refs"]
+     rows=[dict(path=row["path"],sha256=row["sha256"]) for row in pins
+         if row["path"] in REQUIRED_FAST_SOURCE_PATHS]
+     require(len(rows)==len(REQUIRED_FAST_SOURCE_PATHS)
+         and {row["path"] for row in rows}==set(REQUIRED_FAST_SOURCE_PATHS)
+         and all(ref(row["path"])==row for row in rows),
+-        "All four fast preparation sources explicitly pinned in the fresh scientific closure")
++        "All legacy/global preparation sources explicitly pinned in the fresh scientific closure")
+     return rows
+ 
+ 

@@ -1,0 +1,197 @@
+--- research/reviews/native_VAL000_GPU0_borrowed32_source_20261016_v2/root_driver_v1.py
++++ research/reviews/native_ARGformer_postdrain_pool_source_20261017_v1/native_root_driver_v1.py
+@@ -2,53 +2,10 @@
+ from pathlib import Path
+ from datetime import datetime,timezone
+ import argparse,collections,ctypes,fcntl,hashlib,importlib,io,itertools,json,os,resource,selectors,signal,stat,subprocess,sys,tempfile,time
+-from research.reviews.native_VAL000_GPU0_borrowed32_source_20261016_v2.common_v1 import *
++from research.reviews.native_ARGformer_postdrain_pool_source_20261017_v1.native_common_v1 import *
+ SOURCE=DRIVER
+-
+-def admit_v1(request_ref):
+-    require(Path.cwd()==ROOT and sys.dont_write_bytecode,"Exact ROOT cwd/no bytecode")
+-    q,cfg,_,protocol,manifest=validate_request_v1(request_ref)
+-    packet=local(q["packet_directory"]);output=local(q["output_directory"])
+-    require(not packet.exists() and not output.exists(),"Fresh separately charged native scopes")
+-    g=guard_v1(q,consumer=False);packet.mkdir()
+-    closure=save(packet,"consumer_manifest.json",dict(schema="native32_actual_transitive_source_closure_v1",
+-        root_request_ref=request_ref,adapter_manifest_ref=ref(MANIFEST),config_ref=q["config_ref"],runtime_ref=q["runtime_ref"],
+-        source_sha256={r["path"]:r["sha256"] for r in source_refs_v1()},author_source_manifest_ref=AUTHOR_MANIFEST_REF,
+-        preparation_ref=PREP_REF,preparation_config_ref=PREP_CONFIG_REF,counts_ref=COUNTS_REF,
+-        original_failure_wait_ref=ORIGINAL_FAILURE_WAIT_REF,direct_attachment_authority_ref=q["direct_attachment_authority_ref"]))
+-    implementation=ref(g.budget.SOURCE_REL);launcher=ref(g.budget.LAUNCHER_REL)
+-    with g.budget.v4.mutex(ROOT):state=g._state_locked(implementation["sha256"],launcher["sha256"],fresh=True)
+-    from research.reviews.native_VAL000_GPU0_borrowed32_source_20261016_v2 import direct_gpu0_v1 as direct
+-    needed=[ref(MANIFEST),ref(DRIVER),ref(DIRECT),request_ref,q["config_ref"],q["runtime_ref"],closure,
+-        q["source_review_ref"],q["direct_attachment_authority_ref"],q["old_native_future_revocation_ref"],
+-        q["capacity_policy_ref"],GUARD,REPAIR,RENEWAL,CERT,MEMO,NAMESPACE_MEMO,V4,PIDFD,OWNED,BASE_POOL,GPU0_GUARD,
+-        direct.CURRENT_CAP,AUTHOR_MANIFEST_REF,PREP_REF,COUNTS_REF,ORIGINAL_FAILURE_WAIT_REF]
+-    consumers=unique([*state[3].values(),*needed])
+-    auxiliary=q["packet_directory"]+"/worker_aux"
+-    reserve=dict(key="native32/"+q["job_id"],output=str(output),auxiliary_scopes=[str(local(auxiliary))],
+-        reserved_bytes=CAPS["reservation_bytes"],consumer_bindings=consumers)
+-    authority=g.operation_draft_v1("reserve",reserve,expected_before=g._pins(state[2]),bindings=state[3])
+-    authority.update(active=True,expires_at_utc=q["expires_at_utc"])
+-    authority_ref=save(packet,"reserve_authority.json",authority)
+-    receipt=g.apply_reserve_v1(authority_ref,expected_source_sha256=implementation["sha256"],expected_launcher_sha256=launcher["sha256"])
+-    receipt_ref=save(packet,"reserve_receipt.json",receipt)
+-    storage=dict(kind="project_budget_v9_storage_record",active=True,consumer_uses_v9_guard=True,
+-        accounting_mode=g.MODE,job_id=q["job_id"],output_directory=q["output_directory"],reserved_new_bytes=CAPS["reservation_bytes"],
+-        reservation=receipt["value"],initial_ledger_pins=receipt["initial_ledger_pins"],expires_at_utc=q["expires_at_utc"],
+-        completed_overlay_policy_ref=q["capacity_policy_ref"],budget_components=dict(implementation=implementation,launcher=launcher,consumer_adapter=GUARD))
+-    storage_ref=save(packet,"storage.json",storage)
+-    s=dict(schema="native_VAL000_GPU0_borrowed32_ROOT_input_v1",status="active",root_authorizer="root_agent",
+-        execution_authorized=True,phase="mlm",job_id=q["job_id"],output_directory=q["output_directory"],
+-        worker_auxiliary_scope=auxiliary,root_stage_request_ref=request_ref,main_source_ref=ref(DRIVER),
+-        consumer_manifest_ref=closure,source_sha256={r["path"]:r["sha256"] for r in source_refs_v1()},
+-        refs=dict(config=q["config_ref"],runtime=q["runtime_ref"],storage=storage_ref),created_at_utc=q["created_at_utc"],
+-        expires_at_utc=q["expires_at_utc"],physical_gpu=0,device="cuda",max_cpu_rss_bytes=CAPS["max_cpu_rss_bytes"],
+-        max_cuda_reserved_bytes=CAPS["max_cuda_reserved_bytes"])
+-    input_ref=save(packet,"input.json",s);validate_input_v1(input_ref)
+-    admitted_ref=save(packet,"admitted.json",dict(schema="native32_fresh_ROOT_admitted_v1",input_ref=input_ref,
+-        reserve_receipt_ref=receipt_ref,consumer_binding_count=len(consumers),scientific_execution_started=False,
+-        physical_attachment_started=False,whole_scope_reservation_bytes=CAPS["reservation_bytes"]))
+-    return dict(input_ref=input_ref,admitted_ref=admitted_ref)
++from .native_admission_v1 import admit_v1
++
+ 
+ class _RAMLog:
+     def __init__(self,cap):self.cap=cap;self.parts=collections.deque();self.kept=0;self.total=0
+@@ -92,9 +49,9 @@
+     ticket=read(attachment_ref)
+     require(ticket["job_id"]==s["job_id"] and ticket["borrowed_physical_inode"] is True
+         and ticket["direct_attachment_authority_ref"]==q["direct_attachment_authority_ref"],"Exact separately admitted native attachment")
+-    from research.reviews.native_VAL000_GPU0_borrowed32_source_20261016_v2 import direct_gpu0_v1 as direct
++    from research.reviews.native_ARGformer_postdrain_pool_source_20261017_v1 import native_direct_gpu0_v1 as direct
+     guard=direct.install_before_torch_v1(s,q,ticket)
+-    from research.reviews.native_VAL000_GPU0_borrowed32_source_20261016_v2 import native_child_v1
++    from research.reviews.native_ARGformer_postdrain_pool_source_20261017_v1 import native_child_v1
+     return native_child_v1.run_v1(input_ref,s,q,cfg,ticket,guard)
+ 
+ def execute_v1(input_ref):
+@@ -151,7 +108,7 @@
+             ARGGNN_BUDGET_V9_LAUNCHER_SHA256=storage["budget_components"]["launcher"]["sha256"])
+         env.update(paths)
+         if s["phase"]=="mlm":
+-            from research.reviews.native_VAL000_GPU0_borrowed32_source_20261016_v2 import direct_gpu0_v1 as direct
++            from research.reviews.native_ARGformer_postdrain_pool_source_20261017_v1 import native_direct_gpu0_v1 as direct
+             physical_fd,logical_fd,ticket=direct.attach_v1(s,q)
+             attachment_ref=compact_v1(s,"attachment.json",ticket,g,storage)
+             env.update(CUDA_VISIBLE_DEVICES=GPU0_UUID,ARGGNN_PHYSICAL_GPU="0",
+@@ -165,7 +122,7 @@
+                 env.pop(name,None)
+         gate_read,gate_write=os.pipe()
+         command=[str(local(NATIVE_PYTHON_REF["path"])),"-B","-s","-m",
+-            "research.reviews.native_VAL000_GPU0_borrowed32_source_20261016_v2.root_driver_v1",
++            "research.reviews.native_ARGformer_postdrain_pool_source_20261017_v1.native_root_driver_v1",
+             "--worker-input-ref",json.dumps(input_ref,separators=(",",":")),"--gate-fd",str(gate_read)]
+         if attachment_ref is not None:command+=["--attachment-ref",json.dumps(attachment_ref,separators=(",",":"))]
+         inherited=tuple(fd for fd in (gate_read,physical_fd,logical_fd) if fd is not None)
+@@ -192,7 +149,7 @@
+             require(time.monotonic()<work_deadline,"Pre-expiry scientific work cutoff; cleanup/evidence reserve retained")
+             terminal=os.waitid(os.P_PID,proc.pid,os.WEXITED|os.WNOHANG|os.WNOWAIT)
+             tree.refresh()
+-            require(len(tree.known)<=64,"Bounded fixed native32 owned process identities")
++            require(len(tree.known)<=OWNED_ROSTER_CAP,"Bounded fixed native32 owned process identities")
+             peak=max(peak,rss_identity_v1(owned,parent_identity)+
+                 sum(rss_identity_v1(owned,r) for r in tree.known.values()))
+             require(peak<=CAPS["max_cpu_rss_bytes"],"Combined owned RSS cap")
+@@ -244,13 +201,13 @@
+                         if waited==proc.pid:
+                             raw_status=status;proc.returncode=os.waitstatus_to_exitcode(status)
+                     if tree is not None:
+-                        tree.refresh();require(len(tree.known)<=64,"Bounded fixed native32 cleanup identities")
++                        tree.refresh();require(len(tree.known)<=OWNED_ROSTER_CAP,"Bounded fixed native32 cleanup identities")
+                 except BaseException as exc:note_cleanup(exc)
+                 # Known identities remain signalable even when tree.refresh
+                 # failed. Never signal a guessed PID, group or unrelated job.
+-                rows=list(itertools.islice(tree.known.values(),64)) if tree is not None else ([leader_seed] if leader_seed else [])
++                rows=list(itertools.islice(tree.known.values(),OWNED_ROSTER_CAP)) if tree is not None else ([leader_seed] if leader_seed else [])
+                 signum=signal.SIGTERM if time.monotonic()-cleanup_started<10 else signal.SIGKILL
+-                for row in rows[:64]:
++                for row in rows[:OWNED_ROSTER_CAP]:
+                     if time.monotonic()>=cleanup_deadline:break
+                     try:owned.signal_identity(row,signum)
+                     except BaseException as exc:note_cleanup(exc)
+@@ -261,8 +218,8 @@
+                         except BaseException as exc:note_cleanup(exc);break
+                         if pid==0:break
+                         adopted.append(dict(pid=pid,status=status,returncode=os.waitstatus_to_exitcode(status)))
+-                        if len(adopted)>64:
+-                            failure=failure or "More than64 adopted native32 wait identities";break
++                        if len(adopted)>OWNED_ROSTER_CAP:
++                            failure=failure or "More than4096 adopted native wait identities";break
+                 try:
+                     retain_pipe()
+                     if raw_status is not None and tree is None:
+@@ -273,7 +230,7 @@
+                         identity_absence=tree.identities_absent() and not owned._children(os.getpid())
+                         if identity_absence and pipe_eof:
+                             observations=[]
+-                            for group in sorted({r["group"] for r in list(itertools.islice(tree.known.values(),64))[:64]}):
++                            for group in sorted({r["group"] for r in list(itertools.islice(tree.known.values(),OWNED_ROSTER_CAP))[:OWNED_ROSTER_CAP]}):
+                                 gone=None
+                                 if time.monotonic()<cleanup_deadline:
+                                     try:os.killpg(group,0)
+@@ -302,7 +259,7 @@
+     # Retain only observations genuinely made inside the single cleanup
+     # allowance. No process/group probe is started after that deadline.
+     if not observations:
+-        rows=list(itertools.islice(tree.known.values(),64))[:64] if tree is not None else ([leader_seed] if leader_seed else [])
++        rows=list(itertools.islice(tree.known.values(),OWNED_ROSTER_CAP))[:OWNED_ROSTER_CAP] if tree is not None else ([leader_seed] if leader_seed else [])
+         observations=[dict(pgid=group,absent=None,method="not asserted; owned cleanup incomplete")
+             for group in sorted({r["group"] for r in rows})]
+     drained=raw_status is not None and identity_absence is True and pipe_eof         and all(r["absent"] is True for r in observations)
+@@ -316,19 +273,19 @@
+         if fd is not None:
+             try:os.close(fd)
+             except OSError as exc:failure=failure or "Attachment descriptor close: "+str(exc)[:1000]
+-    if tree is not None and len(tree.known)<=64:
++    if tree is not None and len(tree.known)<=OWNED_ROSTER_CAP:
+         ownership=tree.evidence()
+     else:
+         ownership=dict(owned_tree_constructed=tree is not None,
+             actual_direct_identity_seed=leader_seed,complete_owned_roster_known=False,
+             retained_owned_identities=[dict(pid=row["pid"],start=row["start"])
+-                for row in itertools.islice(tree.known.values(),64)] if tree is not None else [],
++                for row in itertools.islice(tree.known.values(),OWNED_ROSTER_CAP)] if tree is not None else [],
+             owned_roster_truncated=tree is not None,signals_use_pidfd_only=True)
+     observation=dict(schema="native32_fixed_full_parent_bounded_cleanup_observation_v2",input_ref=input_ref,
+         pid=proc.pid if proc is not None else None,returncode=rc,actual_OS_wait_status=raw_status,
+         actual_direct_worker_wait=raw_status is not None,all_owned_processes_and_groups_drained=drained,
+         owned_identity_absence=identity_absence,group_observations=observations,ownership=ownership,
+-        adopted_waits=adopted,operational_failure=failure,gate_released=gate_released,pipe_EOF_observed=pipe_eof,
++        adopted_waits=adopted,operational_failure=failure,gate_released=gate_released,pipe_EOF_observed=pipe_eof,complete_owned_roster_known=tree is not None and len(tree.known)<=OWNED_ROSTER_CAP,owned_roster_ceiling=OWNED_ROSTER_CAP,
+         cleanup_errors=cleanup_errors,cleanup_deadline_seconds=CAPS["cleanup_seconds"],
+         cleanup_seconds=cleanup_finished-cleanup_started,elapsed_seconds=time.monotonic()-start,
+         work_cutoff_margin_seconds=CAPS["work_cutoff_margin_seconds"],
+@@ -371,21 +328,24 @@
+         if completed_ref is None:failure=failure or "No scientific completion"
+         if completed_ref is not None:
+             actual=read(completed_ref)
+-            require(actual.get("status")=="completed_C3_native_MLM_child" and actual.get("parent_id")==PARENT
+-                and actual.get("completed_epochs")==5 and actual.get("actual_optimizer_updates")==227990
++            require(actual.get("status")=="completed_C3_native_MLM_child" and actual.get("parent_id")==q["parent_id"]
++                and actual.get("completed_epochs")==5 and actual.get("actual_optimizer_updates")==protocol["optimizer_updates"]
+                 and actual.get("observed_counters_verified") is True and actual.get("query_ancestry_truth_opened") is False
+                 and actual.get("author_source_manifest_ref")==AUTHOR_MANIFEST_REF
+-                and actual.get("initializer_checkpoint_ref") is None,"Actual complete full227990 native science, never partial success")
++                and actual.get("initializer_checkpoint_ref") is None and actual.get("resume_checkpoint_ref") is None
++                and actual.get("original_parent_cardinality_ref")==q["counts_ref"]
++                and actual.get("preparation_ref")==q["preparation_ref"]
++                and actual.get("fresh_optimizer_evidence",{}).get("optimizer_state_empty") is True,"Actual complete original parent-derived full native science, never partial success")
+ 
+         log_ref=compact_v1(s,"worker_log.json",logs.record(),g,storage,cap=16*2**20)
+         final=charged_census_v1(s);peak_scope=max(peak_scope,sum(final.values()))
+         wait_ref=compact_v1(s,"actual_wait.json",dict(observation,
+-            schema="native32_fixed_full_parent_actual_wait_v2",completed_ref=completed_ref,
++            schema="native32_fixed_full_parent_actual_wait_v2",adapter_manifest_ref=ref(MANIFEST),completed_ref=completed_ref,
+             operational_failure=failure,no_future_stage_authorized=failure is not None,
+             actual_wait_minimal_ref=minimal,log_ref=log_ref,peak_combined_owned_RSS_bytes=peak,
+             sampled_peak_scope_bytes=peak_scope,final_scope_census=final,
+             capacity_samples=capacity_samples,last_capacity_sample=last_capacity,
+-            outer_tool_terminal_consumed=False,automatic_close_or_credit=False),g,storage)
++            outer_tool_terminal_consumed=False,automatic_close_or_credit=False),g,storage,cap=8*2**20)
+         g.budget_check_v9(storage,boundary=True)
+     except BaseException as exc:
+         failure=failure or "Strict terminal evidence failed: "+type(exc).__name__+": "+str(exc)[:2000]

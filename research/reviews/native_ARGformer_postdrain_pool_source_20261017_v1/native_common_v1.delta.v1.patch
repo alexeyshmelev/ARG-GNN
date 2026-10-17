@@ -1,0 +1,393 @@
+--- research/reviews/native_VAL000_GPU0_borrowed32_source_20261016_v2/common_v1.py
++++ research/reviews/native_ARGformer_postdrain_pool_source_20261017_v1/native_common_v1.py
+@@ -3,39 +3,28 @@
+ from datetime import datetime,timezone
+ import ast,hashlib,importlib,importlib.util,io,json,os,stat,sys,time,types
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-HERE="research/reviews/native_VAL000_GPU0_borrowed32_source_20261016_v2"
+-SOURCE=HERE+"/common_v1.py"
+-DRIVER=HERE+"/root_driver_v1.py"
++HERE="research/reviews/native_ARGformer_postdrain_pool_source_20261017_v1"
++SOURCE=HERE+"/native_common_v1.py"
++DRIVER=HERE+"/native_root_driver_v1.py"
+ CONTEXT=HERE+"/native_child_v1.py"
+-DIRECT=HERE+"/direct_gpu0_v1.py"
++DIRECT=HERE+"/native_direct_gpu0_v1.py"
+ MANIFEST=HERE+"/source_manifest.v1.json"
+-FIXED_PHASES=("mlm",)
+-CAPS=dict(reservation_bytes=7*2**30,scientific_output_bytes=6*2**30+128*2**20+65536,
+-    auxiliary_bytes=768*2**20,directory_and_accounting_allowance_bytes=128*2**20-65536,
+-    log_bytes=4*2**20,max_seconds=172800,max_cpu_rss_bytes=384*2**30,
+-    max_cuda_reserved_bytes=32*2**30,C3_fixed_envelope_bytes=26*2**30,headroom_bytes=4*2**30,
+-    cleanup_seconds=30,work_cutoff_margin_seconds=300,terminal_evidence_margin_seconds=150,
+-    max_checkpoint_bytes=3*2**30,max_checkpoint_files=2)
+-BASE_POOL={"path":"src/arggnn/gpu_pool_v1.py","sha256":"ae1e0494ab672cfa3017759460eb06a4b4789eaef54928496c3c80314adcc0e1"}
+-GPU0_GUARD={"path":"research/reviews/GPU0_shared_execution_source_20261016_v1/gpu0_native_guard_v1.py","sha256":"3a08d3bd84adc95aafd332bc224fdb7aa38730d6c2f48dee8108944251b7ee69"}
+-GPU0_UUID="GPU-ff06ca1f-403a-f2d0-b584-71e177452667"
+-NVTOP_HELPER={"path":"scripts/qualify_official_argformer_runtime.py","sha256":"8fe652f87848f4a296e3d88555998fb388f11ae5c04d0858095e70c34b10b31c"}
+-CONFIGURE_FIT_SOURCE={"path":"src/arggnn/biological_candidate.py","sha256":"6b3a25d0e59026cab7189032eb41221feb7d1bdf69e15f6c737a672dfb711dd3"}
+-DEVELOPMENT_SOURCE={"path":"src/arggnn/development_execution.py","sha256":"4a2f87320615eb655a7700b6bbff4a7d293b1b16749468afa46f0de2d12e276f"}
+-BASEFIT={"path":"configs/census_tsinfer_fit_v1.json","sha256":"7c2436d5479e68beb1a8f3edb04ca0ee729a23be35ca2d7893827c0db68e3b00"}
+-PIDFD={'path': 'research/reviews/American_C3_native_MLM_full_source_v5/pidfd_backend_v1.py', 'sha256': '61be5d89357d1b95611e0ba26dd39d381ececf3ce6a36c347507cdc062373eca'}
+-OWNED={'path': 'research/reviews/American_C3_native_MLM_amendment_v12/owned_lifecycle_v2.py', 'sha256': '93d71acc40f1037d0b37acb2ca0859300ea4bd9741409e9bd00ca21bf100d633'}
+-RENEWAL={'path': 'research/reviews/H039_marker_repair_renewal_source_20261016_v1/marker_repair_renewal_v1.py', 'sha256': '491236877e8d71cae8bd7619880858ac501c57dd93e59479ca32dacacab20468'}
+-CERT={'path': 'research/reviews/H039_marker_repair_renewal_source_20261016_v1/renewal_certificate.root_active_v1.json', 'sha256': '66006202094d7a3ef2b29cbec28eb93f334505b72589f09d86e4b57498162db7'}
+-GUARD={"path":"research/reviews/prospective980_Census_fit2_retention_source_20261016_v1/prospective_980gb_Census_fit2_v1.py","sha256":"fab6bb67bc1f4be989df9bb16e7a3a17d24652ca8238617ca060a56cb8c89d43"}
+-POLICY={'path': 'research/reviews/prospective980_Census_fit2_root_activation_20261016_v1/activation_policy.root_active_v1.json', 'sha256': '72ff346c43f96ba8430411cfe6b2250480a3aa66fa8e3b8c904a625a0399932a'}
+-REPAIR={'path': 'research/reviews/H039_missing_marker_repair_v1/repair_authority_20261015.json', 'sha256': 'f6f2d628199e8be73db8b5d90d428570d8afdefeab9dc5cd94bb5eafb39247db'}
+-MEMO={'path': 'research/reviews/resource_guard_hotpath_source_audit_v1/transaction_memo_adapter_v2.py', 'sha256': 'c972e9a779d424ceafdb258848614bf40994d1004e2c73fc5cd225ae99621364'}
+-NAMESPACE_MEMO={'path': 'research/reviews/current_mutex_contention_20261015_v1/consumer_namespace_memo_v1.py', 'sha256': '17a1377320f61c3c0cc8d3816d0259f9dae3121ed91bf7206a7ee63fcab8eb7f'}
+-V4={'path': 'src/arggnn/project_budget_v4.py', 'sha256': 'a093c7d86f57fee569cb99f4712250e9505a1119f3950fa44282c7ba8c57df47'}
+-
+-def require(ok,message):
+-    if not ok:raise ValueError(message)
++from . import common_v1 as pool_h
++from . import pool_contract_v1 as pool_c
++require=pool_h.require
++CAPS=dict(reservation_bytes=7*2**30,scientific_output_bytes=6*2**30+128*2**20+65536,auxiliary_bytes=768*2**20,directory_and_accounting_allowance_bytes=128*2**20-65536,log_bytes=4*2**20,max_seconds=172800,max_cpu_rss_bytes=384*2**30,max_cuda_reserved_bytes=32*2**30,headroom_bytes=4*2**30,cleanup_seconds=30,work_cutoff_margin_seconds=300,terminal_evidence_margin_seconds=150,max_checkpoint_bytes=3*2**30,max_checkpoint_files=2)
++GUARD=pool_h.GUARD;POLICY=pool_h.POLICY;SELECTOR_REF=pool_h.SELECTOR_REF
++GPU0_UUID=pool_h.GPU0_UUID;BASE_POOL=pool_h.BASE_POOL;GPU0_GUARD=pool_h.GPU0_GUARD;PIDFD=pool_h.PIDFD;OWNED=pool_h.OWNED;CERT=pool_h.CERT
++OWNED_ROSTER_CAP=4096
++MAX_NODES=16384;MAX_DEPTH=24
++BASE_CONFIG_REF=dict(path="research/reviews/C3_bert_base_configuration_root_v1/config.json",sha256="7160e1553ad2ca51d8c1cb066be533db31826e12d173824c1bb0cb1a4f187d20")
++NATIVE_CPU_QUAL_REF=dict(path="research/reviews/C3_bert_base_configuration_root_v1/native_CPU_qualification.json",sha256="56ed247a09484753a64e9ed3bee6c80eea4e5bfb156ab5acdb09c24ce828e515")
++NATIVE_INVENTORY_REF=dict(path="experiments/results/native_argformer_tsinfer_fit_v7_root/environment_inventory.json",sha256="077d3e950c3bb3efdecc7292e06c8157506663293b4efe4723ccf7b877973461")
++LEGACY_RUNTIME_REF=dict(path="src/arggnn/native_argformer_tsinfer_fit_v7.py",sha256="b94a4e16a6a9dc230256974b9a0e45a6edd1b41b9ecc8ac4171c4461ec514712")
++AUTHOR_ROOT=".runtime/author_sources/argformer_f7545be7bca0"
++AUTHOR_MANIFEST_REF={"path":"research/reviews/American_C3_native_consumer_source_v1/author_source_manifest.json","sha256":"bed570db438f2c4981ebf606460dc4ff72a97b148ba371e3873ab0141376736a"}
++NATIVE_PYTHON_REF={"path":".runtime/conda/envs/argformer_native_v1/bin/python3.11","sha256":"d87f38a37e44f4e650b03ce940846c435f6c76c1fc0e6614b09865e1b7b44b0b"}
++RUNTIME_REF={"path":"research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/mlm_v1/runtime_mlm.root_active_v1.json","sha256":"58aa23a7fcadb1b1cddc169cf7f0e1c63a17877d85bdef6405c34a48a5064e61"}
+ 
+ def local(value):
+     p=Path(value)
+@@ -70,24 +59,6 @@
+         d[r['path']]=r
+     require(len(d)<=64,'Original64 direct-consumer ceiling')
+     return list(d.values())
+-
+-def guard_v1(q,*,consumer=True):
+-    require(type(consumer) is bool,"Explicit original mutation or read-only consumer role")
+-    policy_ref=q["capacity_policy_ref"];policy=read(policy_ref)
+-    require(q["capacity_guard_ref"]==GUARD and policy_ref==POLICY and policy.get("source_ref")==GUARD
+-        and policy.get("active") is True and policy.get("root_authorizer")=="root_agent"
+-        and policy.get("schema")=="prospective980_Census_fit2_retention_policy_v1", "Actual fresh ROOT successor, no admission into frozen H020 parent")
+-    sys.path[:0]=[str(ROOT),str(ROOT/"src"),str(ROOT/"scripts")]
+-    load(RENEWAL,"_native32_actual_renewal").install_renewal_v1(CERT)
+-    g=load(GUARD,"_native32_actual_Census_fit2_guard");g.configure_v2(REPAIR,policy_ref=policy_ref)
+-    require(all(getattr(g.budget.v4,n).__module__==g.budget.v4.__name__ for n in ("canonical","file_bytes","mutex")),
+-        "Original unwrapped guard before selecting role")
+-    if not consumer:return g
+-    namespace=load(NAMESPACE_MEMO,"_native32_exact_consumer_namespace_memo")
+-    handle=namespace.install_consumer_v1(g.budget.v4,g.budget,consumer_role="read_only_consumer",
+-        expected_source_path=ROOT/V4["path"],expected_source_sha256=V4["sha256"])
+-    g._native32_readonly_memo_v1=handle
+-    return g
+ 
+ def raw(record):
+     require(ref(record["path"])==record,"Exact source/metadata bytes")
+@@ -101,136 +72,6 @@
+     fd=os.open(target,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600)
+     with os.fdopen(fd,"wb") as f:f.write(data);f.flush();os.fsync(f.fileno())
+     return ref(str(target.relative_to(ROOT)))
+-
+-def source_refs_v1():
+-    manifest=read(ref(MANIFEST));rows=manifest["refs"]
+-    require(all(ref(r["path"])==r for r in rows),"Exact sealed ROOT source closure")
+-    return rows
+-
+-
+-PARENT='american_c3_val_000'
+-BASE_CONFIG_REF=dict(path="research/reviews/C3_bert_base_configuration_root_v1/config.json",sha256="7160e1553ad2ca51d8c1cb066be533db31826e12d173824c1bb0cb1a4f187d20")
+-NATIVE_CPU_QUAL_REF=dict(path="research/reviews/C3_bert_base_configuration_root_v1/native_CPU_qualification.json",sha256="56ed247a09484753a64e9ed3bee6c80eea4e5bfb156ab5acdb09c24ce828e515")
+-NATIVE_INVENTORY_REF=dict(path="experiments/results/native_argformer_tsinfer_fit_v7_root/environment_inventory.json",sha256="077d3e950c3bb3efdecc7292e06c8157506663293b4efe4723ccf7b877973461")
+-LEGACY_RUNTIME_REF=dict(path="src/arggnn/native_argformer_tsinfer_fit_v7.py",sha256="b94a4e16a6a9dc230256974b9a0e45a6edd1b41b9ecc8ac4171c4461ec514712")
+-OBS_REF={'path': 'experiments/results/American_C3_val000_full30mb_shared_v1/inference/observed/manifest.json', 'sha256': '899e00e64880a0f8c8c34897e6c6d5d6e6c8be886557add343d65d0f70c90c44'}
+-PREP_OUTPUT='experiments/results/American_C3_val000_full30mb_shared_v1/native_paths'
+-PREP_REF={'path': 'experiments/results/American_C3_val000_full30mb_shared_v1/native_paths/completed.json', 'sha256': '40a3b588d0aa2b474c3f4aab492e34feb0a753a0f8cb73c20d9c0059d8a8c16b'}
+-PREP_CONFIG_REF={'path': 'research/reviews/prospective_980GB_capacity_source_v1/admitted_native_paths_v1/config.json', 'sha256': 'c7c95390e12daa2216babc8ccf82d04227a2c96f4e9af8a04dfb626443fa3146'}
+-PREP_CLOSE_REF={'path': 'research/reviews/VAL000_native_paths_completed_close_20261015_v1/closed_VAL000_native_paths_v1/close_receipt.json', 'sha256': '6fbf88b2ddabf0450a24f91b1d6499f11aa9f5a25a77acb86535821bfa28ac94'}
+-PREP_WAIT_REF={'path': 'research/reviews/prospective_980GB_capacity_source_v1/admitted_native_paths_v1/actual_wait.json', 'sha256': '3b7e0d9a2e0b83c968c8e2340b850d44e27db1783990a07e933cfa09b58975b8'}
+-COUNTS_REF={'path': 'experiments/results/American_C3_native_val000_full30mb_counts980_namespace_v1/completed.json', 'sha256': '502c111b443c46eea789dc03ee3ff8b6454546ce6e86e3f9fcddba25e82489a7'}
+-COUNTS_WAIT_REF={'path': 'research/reviews/C3_native_VAL000_counts_namespace_root_20261015_v1/admitted_counts980_v1/actual_wait.json', 'sha256': 'ab2d1f7a7e09756009556ae6f793899c9e4fd5a7cc202e25d877104d3b2f9c91'}
+-PREP_IO_REF={'path': 'research/reviews/prospective_980GB_capacity_source_v1/root_VAL_cpu_execution_v2.py', 'sha256': '9f684478aca4d7f4867dc58cc3542bb651559e137a168bf35a9f61570ecc5847'}
+-ORIGINAL_ABSOLUTE_EXPIRY="2026-10-18T23:41:32.476768+00:00"
+-ORIGINAL_FAILURE_WAIT_REF={"path":"research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/mlm_v1/admitted_mlm_v1/actual_wait.json","sha256":"87988a8996409579340809c5091c242f6a6f154c22673e9b000cf6eca4b459af"}
+-AUTHOR_ROOT=".runtime/author_sources/argformer_f7545be7bca0"
+-AUTHOR_MANIFEST_REF={"path":"research/reviews/American_C3_native_consumer_source_v1/author_source_manifest.json","sha256":"bed570db438f2c4981ebf606460dc4ff72a97b148ba371e3873ab0141376736a"}
+-NATIVE_PYTHON_REF={"path":".runtime/conda/envs/argformer_native_v1/bin/python3.11","sha256":"d87f38a37e44f4e650b03ce940846c435f6c76c1fc0e6614b09865e1b7b44b0b"}
+-RUNTIME_REF={"path":"research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/mlm_v1/runtime_mlm.root_active_v1.json","sha256":"58aa23a7fcadb1b1cddc169cf7f0e1c63a17877d85bdef6405c34a48a5064e61"}
+-SCIENCE=dict(parent_id="american_c3_val_000",split="val",phase="mlm",author_commit="f7545be7bca0200fb39aeb7f94a8e5f0b6bf5596",epochs=5,optimizer_updates=227990,batch=512,microbatch=512,precision="amp_bf16",seed=17,vocabulary=107144,max_seq_len=128,layers=12,heads=12,hidden_size=768,intermediate_size=3072,save_interval="500ba",save_num_checkpoints_to_keep=1,full30Mb_corpus=True,author_model_objective_heads_unchanged=True,query_ancestry_truth_opened=False)
+-
+-def science_v1(q):
+-    cfg=read(q["config_ref"])
+-    require(cfg==dict(schema="native_VAL000_GPU0_borrowed32_science_v1",scientific_protocol=SCIENCE,
+-        max_checkpoint_files=2,max_checkpoint_bytes=3*2**30),"Exact native scientific protocol, no numerical fallback")
+-    require(q["runtime_ref"]==RUNTIME_REF,"Read-only existing inventory binding, not old execution authority")
+-    runtime=read(RUNTIME_REF)
+-    require(runtime["native_python_ref"]==NATIVE_PYTHON_REF and runtime["native_inventory_ref"]==NATIVE_INVENTORY_REF
+-        and runtime["bert_base_config_ref"]==BASE_CONFIG_REF and runtime["native_CPU_qualification_ref"]==NATIVE_CPU_QUAL_REF
+-        and runtime["target_physical_gpu"]==0 and runtime["target_GPU_UUID"]==GPU0_UUID,"Exact native inventory and GPU0 identity")
+-    prep=read(PREP_REF);counts=read(COUNTS_REF);pcfg=read(PREP_CONFIG_REF)
+-    require(prep["status"]=="completed_native_C3_path_preparation" and prep["parent_id"]==PARENT
+-        and prep["class_order"]==["EUR","EAS","AFR"] and prep["query_ancestry_truth_opened"] is False
+-        and prep["observation_ref"]==OBS_REF and pcfg["observation_ref"]==OBS_REF
+-        and prep["native_split_seed"]==42 and prep["native_train_fraction"]==.9,
+-        "Exact original full held-out VAL000 path preparation")
+-    require(counts["status"]=="completed_C3_native_observation_only_counts"
+-        and counts["preparation_ref"]==PREP_REF and counts["preparation_config_ref"]==PREP_CONFIG_REF
+-        and counts["parent_id"]==PARENT and counts["tokenizer_vocab_size"]==107144
+-        and counts["vocabulary_nodes"]==107140 and counts["MLM_optimizer_updates"]==227990
+-        and counts["source_corpus_capped_or_sampled"] is False and counts["query_ancestry_truth_opened"] is False,
+-        "Exact full corpus/counts, no new split/subsample")
+-    original=read({"path":"research/reviews/ARGformer_American_C3_implementation_20261015_v1/parent_seed_registry_inactive.json","sha256":"608da56508757646a0584cb653f7f6af4c910f05d560d6da1b99c0c1ea691f9a"})
+-    registered={r["parent_id"]:r for r in original["parents"]}
+-    require(registered[PARENT]==dict(parent_id=PARENT,split="val",ancestry_seed=31001,mutation_seed=1031001,path_sampling_seed=93001)
+-        and pcfg["path_sampling_seed"]==93001,"Original registered held-out VAL000 seeds preserved")
+-    expected={"mlm/train":23346222,"mlm/val":2594025,"contrastive/train":8748479,"contrastive/val":972757,"query_paths/train":9003,"query_paths/val":997}
+-    require(set(counts["datasets"])==set(expected)==set(prep["native_dataset_refs"]),"All six source datasets")
+-    for key,item in counts["datasets"].items():
+-        require(item["rows"]==expected[key] and item["dataset_ref"]==prep["native_dataset_refs"][key]
+-            and item["row_order_ref"]==prep["full_path_id_order_refs"][key],"Exact full path row/identity/order metadata")
+-        view,split=key.split("/")
+-        directory=local(PREP_OUTPUT+"/"+view+"/"+split)
+-        require(not (directory/("tokenized_"+split+"_sequences_and_vocab.pkl")).exists(),"No shadow tokenized corpus")
+-    for wait_ref,completed_ref in ((PREP_WAIT_REF,PREP_REF),(COUNTS_WAIT_REF,COUNTS_REF)):
+-        wait=read(wait_ref)
+-        require(wait["returncode"]==0 and wait["completed_ref"]==completed_ref
+-            and (wait.get("owned_worker_group_ESRCH") is True or wait.get("all_owned_processes_and_groups_drained") is True),
+-            "Original actual source preparation/count completion and drain")
+-    close=read(PREP_CLOSE_REF)
+-    require(close["value"]["future_writes_and_relaunch_revoked"] is True
+-        and close["value"]["request"]["completed_ref"]==PREP_REF,"Original preparation is closed and read-only")
+-    manifest=read(AUTHOR_MANIFEST_REF)
+-    require(manifest["author_root"]==AUTHOR_ROOT and manifest["author_commit"]==SCIENCE["author_commit"],"Exact pinned author source closure")
+-    for r in manifest["refs"]:raw(r)
+-    prior=read(ORIGINAL_FAILURE_WAIT_REF)
+-    require(prior["returncode"]==1 and prior["actual_direct_launcher_wait"] is True
+-        and prior["all_owned_processes_and_groups_drained"] is True,"Preserve genuine prior failed native stage and full charge")
+-    return cfg,prep,counts,runtime
+-
+-def validate_request_v1(record):
+-    q=read(record);active(q)
+-    require(q.get("schema")=="native_VAL000_GPU0_borrowed32_ROOT_request_v1"
+-        and q.get("status")=="active" and q.get("root_authorizer")=="root_agent"
+-        and q.get("execution_authorized") is True and q.get("source_review_passed") is True
+-        and q.get("phase")=="mlm" and q.get("job_id")=="native-VAL000-full227990-borrowed32-GPU0-v1"
+-        and q.get("adapter_manifest_ref")==ref(MANIFEST) and q.get("capacity_guard_ref")==GUARD and q.get("capacity_policy_ref")==POLICY,"Fresh reviewed native32 ROOT request")
+-    require(q["expires_at_utc"]==ORIGINAL_ABSOLUTE_EXPIRY
+-        and q["caps"]==CAPS and q["all_prior_failed_charges_retained"] is True
+-        and q["old_native_future_execution_revoked"] is True and q["automatic_restart_authorized"] is False
+-        and q["partial_scientific_success_authorized"] is False,"Original expiry, fresh charge, no restart or partial success")
+-    require(q["packet_directory"].startswith("research/reviews/native_VAL000_GPU0_borrowed32_ROOT_actual_")
+-        and q["output_directory"].startswith("experiments/results/native_VAL000_full30mb_borrowed32_GPU0_"),"Fresh native-specific scopes")
+-    require(time.time()+CAPS["max_seconds"]+600<datetime.fromisoformat(q["expires_at_utc"]).timestamp(),
+-        "Full selected operational window plus drain fits unchanged absolute expiry")
+-    renewal=read(CERT)
+-    require(datetime.fromisoformat(renewal["renewed_expires_at_utc"].replace("Z","+00:00")).timestamp()
+-        >time.time()+CAPS["max_seconds"]+600,"Actual renewed authority covers selected deadline and drain")
+-    for r in (q["source_review_ref"],q["old_native_future_revocation_ref"],q["capacity_policy_ref"]):raw(r)
+-    revoke=read(q["old_native_future_revocation_ref"])
+-    require(revoke.get("root_authorizer")=="root_agent" and revoke.get("old_native_future_execution_revoked") is True
+-        and revoke.get("all_prior_failed_charges_retained") is True,"Explicit actual ROOT old-native revocation and retained charges")
+-    source_refs_v1();cfg,prep,counts,runtime=science_v1(q)
+-    return q,cfg,None,SCIENCE,read(ref(MANIFEST))
+-
+-def validate_input_v1(record):
+-    s=read(record);active(s);q,cfg,_,protocol,manifest=validate_request_v1(s["root_stage_request_ref"])
+-    require(record["path"]==q["packet_directory"]+"/input.json"
+-        and s["schema"]=="native_VAL000_GPU0_borrowed32_ROOT_input_v1"
+-        and s["status"]=="active" and s["root_authorizer"]=="root_agent" and s["execution_authorized"] is True
+-        and s["phase"]==q["phase"]=="mlm" and s["job_id"]==q["job_id"]
+-        and s["output_directory"]==q["output_directory"]
+-        and s["worker_auxiliary_scope"]==q["packet_directory"]+"/worker_aux"
+-        and s["refs"]["config"]==q["config_ref"] and s["refs"]["runtime"]==q["runtime_ref"]
+-        and s["created_at_utc"]==q["created_at_utc"] and s["expires_at_utc"]==q["expires_at_utc"],"Exact native32 admitted input")
+-    storage=read(s["refs"]["storage"])
+-    require(storage["job_id"]==s["job_id"] and storage["output_directory"]==s["output_directory"]
+-        and storage["reserved_new_bytes"]==CAPS["reservation_bytes"]
+-        and storage["reservation"]["auxiliary_scopes"]==[str(local(s["worker_auxiliary_scope"]))]
+-        and storage["completed_overlay_policy_ref"]==q["capacity_policy_ref"]
+-        and storage["budget_components"]["consumer_adapter"]==GUARD,"Fresh original charged7GiB native scope")
+-    closure=read(s["consumer_manifest_ref"])
+-    require(closure["adapter_manifest_ref"]==ref(MANIFEST)
+-        and closure["root_request_ref"]==s["root_stage_request_ref"]
+-        and closure["config_ref"]==q["config_ref"] and closure["runtime_ref"]==q["runtime_ref"]
+-        and s["source_sha256"]=={r["path"]:r["sha256"] for r in source_refs_v1()},"Actual transitive executed source closure")
+-    needed=[ref(MANIFEST),ref(DRIVER),ref(DIRECT),s["root_stage_request_ref"],q["config_ref"],q["runtime_ref"],
+-        s["consumer_manifest_ref"],q["direct_attachment_authority_ref"],q["old_native_future_revocation_ref"],q["source_review_ref"],q["capacity_policy_ref"]]
+-    require(len(storage["reservation"]["consumer_bindings"])<=64
+-        and all(r in storage["reservation"]["consumer_bindings"] for r in needed),"Original64 direct ceiling and actual closure")
+-    for path,sha in s["source_sha256"].items():raw(dict(path=path,sha256=sha))
+-    return s,q,cfg,storage,protocol
+ 
+ def worker_env_paths_v1(spec):
+     base=str(local(spec["worker_auxiliary_scope"]))
+@@ -243,9 +84,6 @@
+         CUDA_CACHE_PATH=base+"/cache/cuda",PIP_CACHE_DIR=base+"/cache/pip",
+         HF_HOME=base+"/cache/huggingface",HF_HUB_CACHE=base+"/cache/huggingface/hub")
+ 
+-
+-MAX_NODES=16384
+-MAX_DEPTH=24
+ def _sizes(root,*,allow_checkpoint_alias=False):
+     """Descriptor-relative no-follow metadata traversal; no file is opened."""
+     root=Path(root)
+@@ -284,15 +122,15 @@
+ 
+ def charged_census_v1(spec,*,required_write_bytes=0):
+     output=_sizes(local(spec["output_directory"]),allow_checkpoint_alias=True)
+-    auxiliary=_sizes(local(spec["worker_auxiliary_scope"]))
+-    checkpoint=sum(n for parts,n,kind in output if "checkpoints" in parts)
+-    regular=[n-4096 for parts,n,kind in output if "checkpoints" in parts and kind=="regular" and parts[-1].endswith(".pt")]
+-    require(len(regular)<=2 and max(regular,default=0)<=3*2**30 and checkpoint<=6*2**30+65536,"Native transient checkpoint count/bytes")
+-    totals={spec["output_directory"]:sum(n for _,n,_ in output),spec["worker_auxiliary_scope"]:sum(n for _,n,_ in auxiliary)}
+-    require(totals[spec["output_directory"]]+required_write_bytes<=CAPS["scientific_output_bytes"]
+-        and totals[spec["worker_auxiliary_scope"]]+required_write_bytes<=CAPS["auxiliary_bytes"]
+-        and sum(totals.values())+required_write_bytes<=CAPS["reservation_bytes"],"Native separate output/AUX and whole7GiB failstop")
+-    return totals
++    packet_directory=local(spec["worker_auxiliary_scope"]).parent
++    packet=_sizes(packet_directory);auxiliary=_sizes(local(spec["worker_auxiliary_scope"]))
++    checkpoints=[n-4096 for parts,n,kind in output if "checkpoints"in parts and kind=="regular"and parts[-1].endswith(".pt")]
++    require(len(checkpoints)<=CAPS["max_checkpoint_files"] and max(checkpoints,default=0)<=CAPS["max_checkpoint_bytes"],"Original transient full-checkpoint cap")
++    outbytes=sum(n for _,n,_ in output);packetbytes=sum(n for _,n,_ in packet);auxbytes=sum(n for _,n,_ in auxiliary)
++    require(outbytes+required_write_bytes<=CAPS["scientific_output_bytes"] and auxbytes+required_write_bytes<=CAPS["auxiliary_bytes"]
++        and packetbytes-auxbytes+required_write_bytes<=CAPS["directory_and_accounting_allowance_bytes"]
++        and outbytes+packetbytes+required_write_bytes<=CAPS["reservation_bytes"],"Whole7GiB including complete packet/AUX, original source caps failstop")
++    return {spec["output_directory"]:outbytes,str(packet_directory.relative_to(ROOT)):packetbytes}
+ 
+ def compact_v1(spec,name,value,g,storage,*,cap=2**20):
+     directory=local(spec["worker_auxiliary_scope"])
+@@ -307,3 +145,133 @@
+     require(time.time()+CAPS["work_cutoff_margin_seconds"]<
+         datetime.fromisoformat(spec["expires_at_utc"]).timestamp(),
+         "Scientific work stops before reserved cleanup and terminal-evidence margin")
++
++PARENT_REGISTRY=HERE+"/parent_registry.v1.json"
++AUTHOR_LOADER_REF={"path":".runtime/author_sources/argformer_f7545be7bca0/src/arg_data.py","sha256":"2e7df2c955ece89ced3f05c609a4450f997250df5a7cb06ff4a2ca957e49ffdf"}
++AUTHOR_MLM_YAML_REF={"path":".runtime/author_sources/argformer_f7545be7bca0/yamls/mlm.yaml","sha256":"df1cbb747a1bb6740fffd1e6eee5eb0ac3a1fa43d8fbbb15ce70d6b9cc7799b6"}
++
++def guard_v1(q,*,consumer=True):
++    require(q["capacity_guard_ref"]==GUARD and q["capacity_policy_ref"]==POLICY
++        and q["storage_policy_selector_ref"]==SELECTOR_REF,"Exact current explicit Relate guard/selector, no fallback")
++    return pool_h.guard_v1(consumer=consumer)
++
++def source_refs_v1():return pool_h.source_refs_v1()
++
++def cardinality_v1(n,drop_last):
++    require(type(n) is int and n>0 and type(drop_last) is bool,"Original actual dataset cardinality and drop_last")
++    batches=n//512 if drop_last else (n+511)//512
++    require(batches>0,"Nonzero complete author loader")
++    return dict(dataset_cardinality=n,drop_last=drop_last,world_size=1,batch_size=512,
++        batches_per_epoch=batches,epochs=5,expected_optimizer_updates=5*batches)
++
++def science_v1(q):
++    registry=read(ref(PARENT_REGISTRY));parent=q["parent_id"]
++    require(parent in registry["remaining_fresh_fit_parents"],"Only unfinished original VAL001..004, never replay current VAL000")
++    row=registry["parents"][parent];prep=read(q["preparation_ref"]);counts=read(q["counts_ref"]);pcfg=read(q["preparation_config_ref"])
++    require(q["preparation_ref"]==row["preparation_ref"] and q["preparation_directory"]==row["preparation_directory"]
++        and prep["parent_id"]==counts["parent_id"]==parent and prep["status"]=="completed_native_C3_path_preparation"
++        and prep["observation_ref"]==pcfg["observation_ref"]==row["observation_ref"]
++        and prep["class_order"]==counts["class_order"]==["EUR","EAS","AFR"]
++        and prep["native_split_seed"]==42 and prep["native_train_fraction"]==.9
++        and pcfg["path_sampling_seed"]==row["original_seed_row"]["path_sampling_seed"]
++        and prep["query_focal_count"]==counts["query_focal_count"]==10000
++        and prep["query_ancestry_truth_opened"] is False and counts["query_ancestry_truth_opened"] is False
++        and prep["contrastive_labels_reference_only"] is True,"Exact original full30Mb parent preparation, original seeds and private-truth barrier")
++    require(counts["status"]=="completed_C3_native_observation_only_counts"
++        and counts["preparation_ref"]==q["preparation_ref"] and counts["preparation_config_ref"]==q["preparation_config_ref"]
++        and counts["source_corpus_capped_or_sampled"] is False and counts["drop_last_release_batches_preserved"] is True
++        and counts["native_training_eligible"] is True,"Genuine complete original per-parent counts, no subsampling")
++    keys={v+"/"+s for v in ("mlm","contrastive","query_paths")for s in ("train","val")}
++    require(set(counts["datasets"])==set(prep["native_dataset_refs"])==keys,"Complete all-six original native view cardinality provenance")
++    for key,item in counts["datasets"].items():
++        require(item["dataset_ref"]==prep["native_dataset_refs"][key]
++            and item["row_order_ref"]==prep["full_path_id_order_refs"][key]
++            and type(item["rows"]) is int and item["rows"]>0
++            and type(item["raw_pickle_bytes"]) is int and item["raw_pickle_bytes"]>0,"Exact counted original dataset/order ref")
++        view,split=key.split("/");expected=local(q["preparation_directory"])/view/split/("raw_"+split+"_sequences_and_vocab.pkl")
++        require(local(item["dataset_ref"]["path"])==expected,"Original same-parent complete corpus path")
++        require(not (expected.parent/("tokenized_"+split+"_sequences_and_vocab.pkl")).exists(),"No shadow tokenized corpus")
++    require(counts["vocabulary_nodes"]==prep["vocabulary_nodes"]==row["original_vocab_nodes"]
++        and counts["tokenizer_vocab_size"]==prep["vocabulary_nodes"]+4,"Original actual parent vocabulary plus author special tokens")
++    for wait_ref,completed_ref in ((q["preparation_wait_ref"],q["preparation_ref"]),(q["counts_wait_ref"],q["counts_ref"])):
++        wait=read(wait_ref)
++        require(wait["returncode"]==0 and wait["completed_ref"]==completed_ref
++            and (wait.get("owned_worker_group_ESRCH") is True or wait.get("all_owned_processes_and_groups_drained") is True),"Genuine original preparation/count direct0 and owned drain")
++    frozen=read(q["preparation_readonly_ref"])
++    require(frozen["root_authorizer"]=="root_agent" and frozen["preparation_ref"]==q["preparation_ref"]
++        and frozen["original_preparation_future_writes_and_relaunch_revoked"] is True
++        and frozen["files_and_original_charges_preserved"] is True,"Original complete corpus frozen read-only, no storage credit implied")
++    cardinality=cardinality_v1(counts["datasets"]["mlm/train"]["rows"],True)
++    require(counts["MLM_optimizer_updates"]==cardinality["expected_optimizer_updates"],"Count receipt independently agrees with exact original loader derivation")
++    author=read(AUTHOR_MANIFEST_REF)
++    require(author["author_root"]==AUTHOR_ROOT and author["author_commit"]=="f7545be7bca0200fb39aeb7f94a8e5f0b6bf5596"
++        and AUTHOR_LOADER_REF in author["refs"] and AUTHOR_MLM_YAML_REF in author["refs"],"Pinned full original author algorithm/loader/config")
++    for r in author["refs"]:raw(r)
++    runtime=read(q["runtime_ref"])
++    require(runtime==read(RUNTIME_REF) and runtime["native_python_ref"]==NATIVE_PYTHON_REF
++        and runtime["native_inventory_ref"]==NATIVE_INVENTORY_REF and runtime["target_physical_gpu"]==0
++        and runtime["target_GPU_UUID"]==GPU0_UUID,"Exact existing native runtime reused read-only, no old execution authority")
++    protocol=dict(parent_id=parent,split="val",phase="mlm",author_commit=author["author_commit"],
++        epochs=5,optimizer_updates=cardinality["expected_optimizer_updates"],batch=512,microbatch=512,
++        precision="amp_bf16",seed=17,vocabulary=counts["tokenizer_vocab_size"],max_seq_len=128,layers=12,
++        heads=12,hidden_size=768,intermediate_size=3072,num_workers=8,drop_last=True,world_size=1,
++        save_interval="500ba",save_num_checkpoints_to_keep=1,full30Mb_corpus=True,
++        author_model_objective_heads_unchanged=True,fresh_optimizer=True,initializer_checkpoint_ref=None,
++        query_ancestry_truth_opened=False,cardinality=cardinality)
++    cfg=read(q["config_ref"])
++    require(cfg==dict(schema="native_original_parent_postdrain_science_v1",scientific_protocol=protocol,
++        max_checkpoint_files=CAPS["max_checkpoint_files"],max_checkpoint_bytes=CAPS["max_checkpoint_bytes"]),"Exact derived whole-parent author science; no resume/transfer or budget fallback")
++    return cfg,prep,counts,runtime
++
++def validate_request_v1(record):
++    q=read(record);active(q);source_refs_v1()
++    require(q.get("schema")=="native_original_parent_postdrain_ROOT_request_v1" and q.get("status")=="active"
++        and q.get("root_authorizer")=="root_agent" and q.get("execution_authorized") is True
++        and q.get("template_only") is False and q.get("phase")=="mlm"
++        and q.get("caps")==CAPS and q.get("adapter_manifest_ref")==ref(MANIFEST)
++        and q.get("resume_checkpoint_ref") is None and q.get("initializer_checkpoint_ref") is None
++        and q.get("automatic_restart_authorized") is False and q.get("partial_scientific_success_authorized") is False
++        and isinstance(q.get("IPC_namespace"),str) and 1<=len(q["IPC_namespace"])<=14
++        and all(ch in "abcdefghijklmnopqrstuvwxyz0123456789_"for ch in q["IPC_namespace"]),
++        "Fresh finite explicit original-parent ROOT admission, never old job/clock reset")
++    pool_c.reviewed_v1(q["source_review_ref"])
++    cap=pool_c.validate_cap_v1(q["postdrain_pool_capability_ref"])
++    job=cap["jobs"].get(q["job_id"],{})
++    require(job.get("worker_kind")=="native" and job.get("parent_id")==q["parent_id"]
++        and job.get("execution_enabled") is True and job.get("native_phase","mlm")=="mlm","One declared native-parent logical slot in new postdrain owner")
++    require(q["packet_directory"].startswith("research/reviews/native_postdrain_ROOT_actual_")
++        and q["output_directory"].startswith("experiments/results/native_postdrain_full30Mb_")
++        and q["preparation_directory"] not in (q["packet_directory"],q["output_directory"]),"Fresh separate fully charged scope, no corpus reuse as output")
++    end=datetime.fromisoformat(q["expires_at_utc"]).timestamp();renewal=read(CERT)
++    require(time.time()+CAPS["max_seconds"]+600<end<=cap["expires_unix"]
++        and end<datetime.fromisoformat(renewal["renewed_expires_at_utc"]).timestamp(),"Full48h bounded attempt plus drain/evidence inside fresh pool/renewal expiry")
++    repeat=read(q["unfinished_cell_registration_ref"])
++    require(repeat["root_authorizer"]=="root_agent" and repeat["hypothesis_id"]=="H041"
++        and repeat["parent_id"]==q["parent_id"] and repeat["phase"]=="mlm"
++        and repeat["condition"]=="original_unfinished_parent_native_fit"
++        and repeat["all_old_scopes_charges_clocks_failures_unknowns_preserved"] is True
++        and repeat["same_parent_completed_full_native_fit_exists"] is False,"Original registered unfinished cell, not an answered repeat")
++    guard_v1(q)
++    cfg,prep,counts,runtime=science_v1(q)
++    return q,cfg,None,cfg["scientific_protocol"],read(ref(MANIFEST))
++
++def validate_input_v1(record):
++    s=read(record);active(s);q,cfg,_,protocol,manifest=validate_request_v1(s["root_stage_request_ref"])
++    require(record["path"]==q["packet_directory"]+"/input.json" and s["schema"]=="native_original_parent_postdrain_input_v1"
++        and s["status"]=="active" and s["root_authorizer"]=="root_agent" and s["execution_authorized"] is True
++        and s["job_id"]==q["job_id"] and s["parent_id"]==q["parent_id"] and s["phase"]==q["phase"]
++        and s["output_directory"]==q["output_directory"] and s["worker_auxiliary_scope"]==q["packet_directory"]+"/worker_aux"
++        and s["refs"]["config"]==q["config_ref"] and s["refs"]["runtime"]==q["runtime_ref"]
++        and s["created_at_utc"]==q["created_at_utc"] and s["expires_at_utc"]==q["expires_at_utc"],"Exact whole-parent admitted input")
++    storage=read(s["refs"]["storage"]);closure=read(s["consumer_manifest_ref"])
++    require(storage["job_id"]==s["job_id"] and storage["output_directory"]==s["output_directory"]
++        and storage["reserved_new_bytes"]==CAPS["reservation_bytes"]
++        and storage["reservation"]["auxiliary_scopes"]==[str(local(q["packet_directory"]))]
++        and storage["completed_overlay_policy_ref"]==POLICY and storage["budget_components"]["consumer_adapter"]==GUARD
++        and closure["root_request_ref"]==s["root_stage_request_ref"] and closure["adapter_manifest_ref"]==ref(MANIFEST)
++        and closure["parent_id"]==q["parent_id"] and closure["preparation_ref"]==q["preparation_ref"]
++        and closure["counts_ref"]==q["counts_ref"] and closure["scientific_protocol"]==protocol
++        and s["source_sha256"]=={r["path"]:r["sha256"] for r in source_refs_v1()},"Complete current guard/source/parent/count provenance, fresh7GiB scope")
++    needed=[ref(MANIFEST),ref(DRIVER),ref(DIRECT),s["root_stage_request_ref"],q["config_ref"],q["runtime_ref"],s["consumer_manifest_ref"],q["source_review_ref"],q["direct_attachment_authority_ref"],SELECTOR_REF]
++    require(len(storage["reservation"]["consumer_bindings"])<=64 and all(r in storage["reservation"]["consumer_bindings"] for r in needed),"Original direct-role64 ceiling, unchanged")
++    return s,q,cfg,storage,protocol
