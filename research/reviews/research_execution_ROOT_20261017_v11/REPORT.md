@@ -29,3 +29,5 @@ Nine small synthetic CPU fixtures passed for the Torch/PyG observation kernel. I
 The selected accounting state at 03:16:45 UTC projects 978,580,882,913 bytes against the 980 GB operational ceiling and 1 TB human limit. The retention preoperation check returned exit 1 because its mutex was occupied. Actual retirement did not begin. No credit was accepted, no file was deleted, and no scientific success was inferred. The full exact-ALL Relate run remains unlaunched pending genuine capacity.
 
 All project writes remain inside the dedicated server repository. Physical GPU 0 only. Existing external processes and all failed attempts are preserved.
+
+Latest actual admission projects 978,614,961,633 bytes, leaving 1,385,038,367 bytes under the operational ceiling. This includes the newly admitted 32 MiB experiment. The earlier preoperation accounting state remains preserved.
