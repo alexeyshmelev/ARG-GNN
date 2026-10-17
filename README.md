@@ -29,18 +29,18 @@ SD above is across eight simulation parents, with one optimizer seed. These Euro
 <!-- FROZEN_BENCHMARK_PROGRESS_START -->
 ## Frozen benchmark execution
 
-Updated UTC: 2026-10-17T19:04:32.425517+00:00. Physical GPU 0 only.
+Updated UTC: 2026-10-17T20:08:00.471636+00:00. Physical GPU 0 only.
 
 | Stage | Current verified status |
 |---|---|
 | Frozen TreeLoom architecture | Unchanged H050 stable_leaf_memory model. Bounded execution preserves original equations. No architecture search. |
-| Full TreeLoom training | Not started. Fixed budget:20 complete30Mb TRAIN parents,30 passes,600 updates, fresh weights. Requires successful complete-parent qualification and all20 prepared observations. |
-| Full-length American data | TRAIN000 ready. TRAIN001 simulation and inference genuinely completed and closed0. TRAIN002 execution and remaining18 simulation batch active. |
-| Native ARGformer | Five native MLM epochs/227,990 saved updates completed for VAL000 only. Saved artifact accepted for contrastive initialization. Contrastive training, embeddings and ancestry scores pending. |
+| Full TreeLoom training | Not started. Fixed target:20complete30MbTRAINparents,30passes,600updates,freshweights. Source diagnosis found deterministic full-parent CPU preparation repeated everyupdate. Execution-only reuse/fast-preparation fix is being prepared before full600, with unchangedmodel/data/updateorder. Successful complete-parent qualification and all20observations also remain required. |
+| Full-length American data | TRAIN000 ready. TRAIN001 simulation and inference completed and closed. TRAIN002 simulation completed and closed. Remaining simulation batch is active. |
+| Native ARGformer | Accepted saved MLM checkpoint records five epochs and227,990 saved updates for VAL000. Original historical supervisor failure remains preserved. Contrastive-only8GiB operational adapter is being prepared, with unchanged original2135update native science. Contrastive training, embeddings and ancestry scores have not started. |
 | Native FLARE | All five30Mb VAL predictions scored successfully.50,000 fixed focal targets total. Metrics below. |
 | Old short-to-long transfer | H060 global-only v2 failed before optimization at JSON observation-record limit. Failure preserved. No automatic retry. |
-| Remaining CPU preparation | Inference-only18-parent continuation independently passed and current capacity capture/admission is running. Compact exact-focal component independently passed bitwise native-identity checks. Its operational controller and all20 barrier integration are in progress. Native competitor corpora unchanged. |
-| TreeLoom GPU qualification | Numerical parity passed. Actual GPU0 worker278834 is processing the complete TRAIN000 parent. Full-parent fit/update/qualification terminal still pending. No ancestry score. |
+| Remaining CPU preparation | Inference-only18-parent controller launched after genuine admission0. Compact exact-focal CPU controller and all20/full600 integration passed independent source review. Actual compact capacity capture and ROOT metadata build pending. No unnecessary native token corpus for TreeLoom. |
+| TreeLoom GPU qualification | Worker is alive but CPU-heavy, with GPU0idle at the latest observation. SyntheticFP32parity passed. No verified full-parent optimizerupdate or successfulterminal yet. Deterministic preparation repetition in full600 is a confirmedsourceissue, not an accuracyresult. |
 
 **Native FLARE, five American validation simulations:** accuracy 98.0960 ± 0.3442% and macro F1 97.9196 ± 0.4059%.
 
@@ -83,7 +83,7 @@ The substantial TreeLoom schedule is 20 full 30 Mb TRAIN parents and 30 passes, 
 **Current focus:** benchmark the frozen selected TreeLoom architecture under the publication conditions where recoverable, with independent tests and native competitors. H062 adds full 30 Mb American training. The architecture search is stopped. Current European development results establish no overall top-1 or novel-operator utility.
 
 <!-- CURRENT_SCOREBOARD_START -->
-**Scoreboard updated UTC: 2026-10-17T19:06:10.788198+00:00.** [Every current setup, all cohorts and detailed metrics](research/current_scoreboard.md) · [Native class metrics and training-lineage audit, frozen17-setup snapshot](research/reviews/root_score_report_20261015_v1/REPORT.md) · [All recorded historical/engineering metric receipts](research/all_recorded_metric_receipts.md)
+**Scoreboard updated UTC: 2026-10-17T20:08:01.006209+00:00.** [Every current setup, all cohorts and detailed metrics](research/current_scoreboard.md) · [Native class metrics and training-lineage audit, frozen17-setup snapshot](research/reviews/root_score_report_20261015_v1/REPORT.md) · [All recorded historical/engineering metric receipts](research/all_recorded_metric_receipts.md)
 
 
 **New same-marker model:** H058 architecture variant stopped under the frozen TreeLoom benchmark directive. Actual outer241, worker-15 and complete owned drain are verified. No new update or ancestry score was verified. All files, charges and original failure are preserved, with no retry. [Actual FP32 result](research/reviews/H058_actual_one_hold_ROOTv4_qualification_20261016_v1/REPORT.md).
