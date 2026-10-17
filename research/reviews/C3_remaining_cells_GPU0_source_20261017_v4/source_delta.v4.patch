@@ -1,0 +1,356 @@
+--- research/reviews/C3_remaining_cells_GPU0_source_20261017_v3/contract_v1.py
++++ research/reviews/C3_remaining_cells_GPU0_source_20261017_v4/contract_v1.py
+@@ -4,7 +4,7 @@
+ import copy,hashlib,importlib.util,json,os,stat,sys,time
+ from research.reviews.native_VAL000_GPU0_borrowed32_source_20261016_v2 import common_v1 as original
+ ROOT=original.ROOT
+-HERE="research/reviews/C3_remaining_cells_GPU0_source_20261017_v3"
++HERE="research/reviews/C3_remaining_cells_GPU0_source_20261017_v4"
+ DRIVER=HERE+"/execution_v1.py";DIRECT=HERE+"/direct_gpu0_v1.py";WORKER=HERE+"/worker_v1.py";MANIFEST=HERE+"/source_manifest.v1.json";BUILDER=HERE+"/contract_v1.py"
+ PARENT="American_C3_short20_TRAIN_original5VAL"
+ RUNTIME_REF={'path': 'research/reviews/ARGformer_American_C3_implementation_20261015_v1/shared_cpu_runtime_metadata.json', 'sha256': 'e0944a1c2c4b2a26d2edfe68fad11db691b4b6853ebeddd8e3b79692b43fa602'}
+@@ -106,11 +106,47 @@
+ def tref_v1():return read(pins_v1()["pins"]["FROZEN"])["training_completion_ref"]
+ def peer_values_v1(record):
+  e=read(record);active(e);p=pins_v1()["pins"]
+- require(e.get("schema")=="C3_ROOT_exact_live_H058_peer_v1"and e.get("H058_input_ref")==p["H058_INPUT"]and e.get("H058_launch_ref")==p["H058_LAUNCH"]and e.get("H058_request_ref")==p["H058_REQUEST"]and e.get("controller_terminal_qualification_ref")==p["H058_TERMINAL"]and e.get("controller_capability_ref")==p["CONTROLLER_CAP"]and e.get("H058_full_cap_plus_margin_bytes")==30*2**30 and e.get("C3_reserved_bytes")==26*2**30 and e.get("headroom_bytes")==4*2**30 and e.get("H058_source_or_registry_mutation_authorized")is False and e.get("terminal_peer_absence_preserves_full30GiB")is True,"Exact independently qualified peer launch and unchanged complete reservations")
+- inp=read(p["H058_INPUT"]);launch=read(p["H058_LAUNCH"]);q=read(p["H058_REQUEST"])
+- require(inp["root_stage_request_ref"]==p["H058_REQUEST"]and launch["input_ref"]==p["H058_INPUT"]and launch["borrowed_physical_inode"]is True and q["caps"]["max_cuda_reserved_bytes"]==28*2**30 and q["controller_terminal_qualification_ref"]==p["H058_TERMINAL"],"Actual peer input/launch/source/caps lineage")
++ require(e.get("schema")=="C3_ROOT_exact_live_H058_peer_v1" and e.get("H058_input_ref")==p["H058_INPUT"]
++  and e.get("H058_request_ref")==p["H058_REQUEST"] and e.get("controller_terminal_qualification_ref")==p["H058_TERMINAL"]
++  and e.get("controller_capability_ref")==p["CONTROLLER_CAP"] and e.get("H058_full_cap_plus_margin_bytes")==30*2**30
++  and e.get("C3_reserved_bytes")==26*2**30 and e.get("headroom_bytes")==4*2**30
++  and e.get("H058_source_or_registry_mutation_authorized")is False
++  and e.get("terminal_peer_absence_preserves_full30GiB")is True,"Exact current v9 peer and unchanged complete reservations")
++ launch_ref=e["H058_launch_ref"]
++ require(type(launch_ref)is dict and set(launch_ref)=={"path","sha256"}
++  and launch_ref["path"]==p["H058_LAUNCH_PATH"],"ROOT supplies genuine current v9 launch ref, never an old peer")
++ qualification=read(e["peer_source_qualification_ref"]);active(qualification)
++ require(qualification.get("schema")=="C3_ROOT_exact_H058_v9_peer_source_and_launch_qualification_v1"
++  and qualification.get("H058_input_ref")==p["H058_INPUT"] and qualification.get("H058_request_ref")==p["H058_REQUEST"]
++  and qualification.get("H058_launch_ref")==launch_ref
++  and qualification.get("H058_direct_source_ref")==p["H058_DIRECT"]
++  and qualification.get("H058_common_source_ref")==p["H058_COMMON"]
++  and qualification.get("H058_whole_source_review_ref")==p["H058_REVIEW"]
++  and qualification.get("H058_source_manifest_ref")==p["H058_MANIFEST"]
++  and qualification.get("controller_terminal_qualification_ref")==p["H058_TERMINAL"]
++  and qualification.get("controller_capability_ref")==p["CONTROLLER_CAP"]
++  and qualification.get("all_original_controller_capacity_native_absence_title_checks_preserved")is True
++  and qualification.get("original_C3_26_H058_30_EVAL_10_headroom_4_GiB_envelopes_preserved")is True
++  and qualification.get("no_controller_peer_or_original_job_mutation_authorized")is True,
++  "Separate exact ROOT current-peer qualification before preparation")
++ review=read(p["H058_REVIEW"])
++ require(review.get("independent")is True and review.get("verdict")=="SOURCE_PASS" and review.get("blockers")==[]
++  and review.get("source_ref")==p["H058_DRIVER"] and review.get("source_manifest_ref")==p["H058_MANIFEST"],
++  "Genuine current H058v9 whole source pass; historical v7 review is not current authority")
++ raw(p["H058_DIRECT"]);raw(p["H058_COMMON"])
++ inp=read(p["H058_INPUT"]);launch=read(launch_ref);q=read(p["H058_REQUEST"])
++ require(inp["root_stage_request_ref"]==p["H058_REQUEST"] and launch["input_ref"]==p["H058_INPUT"]
++  and launch.get("schema")=="H058_fixed_full_parent_actual_child_launch_v1"
++  and launch["borrowed_physical_inode"]is True and launch.get("controller_inheritance_claimed")is False
++  and q["caps"]["max_cuda_reserved_bytes"]==28*2**30 and q["caps"]["C3_fixed_envelope_bytes"]==26*2**30
++  and q["controller_terminal_qualification_ref"]==p["H058_TERMINAL"]
++  and q["source_review_ref"]==p["H058_REVIEW"] and q["adapter_manifest_ref"]==p["H058_MANIFEST"],
++  "Actual admitted current v9 input/launch/source/caps lineage")
+  rows=launch["ownership"]["owned_identities"]
+- require(len([r for r in rows if r["pid"]==launch["pid"]])==1 and e["worker_identity"]==next(r for r in rows if r["pid"]==launch["pid"]),"Exact peer PID/start from genuine launch, never guessed")
++ require(len([r for r in rows if r["pid"]==launch["pid"]])==1
++  and e["worker_identity"]==next(r for r in rows if r["pid"]==launch["pid"])
++  and qualification["worker_identity"]==e["worker_identity"],
++  "Exact current peer PID/start from genuine launch, never guessed")
+  return e,q
+ def caps_v1(phase):return dict(BASE_CAPS,max_cuda_reserved_bytes=8*2**30 if phase in GPU_PHASES else 0)
+ def config_v1(phase):return dict(schema="C3_remaining_cells_operational_config_v1",output_cap_bytes=32*2**20,phase=phase,caps=caps_v1(phase),scientific_body_changed=False)
+@@ -164,10 +200,31 @@
+     require(set(rows) == set(pending), 'Exact complete requested subset')
+     return rows
+ 
++def registration_values_v4(q,request_ref):
++ r=q["registration_ref"];require(type(r)is dict and set(r)=={"path","sha256"}
++  and r["path"].startswith("research/reviews/C3_remaining_GPU0_v4_ROOT_preparation_")
++  and request_ref["path"].startswith("research/reviews/C3_remaining_GPU0_v4_ROOT_preparation_"),
++  "Fresh v4 registration and request namespace")
++ v=read(r);active(v);p=pins_v1()["pins"]
++ require(v.get("schema")=="C3_remaining_cells_v4_ROOT_registration_v1"
++  and all(v.get(k)==q.get(k) for k in ("source_manifest_ref","source_review_ref","phase","job_id","output_directory","worker_auxiliary_scope","cell_election_ref","peer_launch_capsule_ref"))
++  and v.get("C3_v3_permanent_revocation_ref")==p["C3_V3_REVOCATION"]
++  and v.get("fresh_v4_admission_and_one_shot_caller_required")is True
++  and v.get("old_v3_charge_preserved_bytes")==32*2**20
++  and v.get("old_v3_Python_supervisor_wait")=="UNKNOWN"
++  and v.get("old_v3_authority_or_admission_reuse_authorized")is False
++  and v.get("automatic_retry_or_credit_authorized")is False,
++  "Exact fresh v4 registration; revoked v3 is historical only and retains its charge")
++ rev=read(p["C3_V3_REVOCATION"])
++ require(rev.get("all_C3_remaining_v3_future_execution_resume_retry_write_routes_permanently_cooperatively_revoked")is True
++  and rev.get("original_python_supervisor_direct_wait")=="UNKNOWN"
++  and rev.get("does_not_release_any_old_storage_charge")is True,
++  "ROOT permanent revocation and unknown original Python wait preserved")
++ return v
+ def validate_request_v1(record):
+- q=read(record);active(q)
++ q=read(record);active(q);registration_values_v4(q,record)
+  require(0<(datetime.fromisoformat(q["expires_at_utc"])-datetime.fromisoformat(q["created_at_utc"])).total_seconds()<=86400,"At most original24h scientific interval")
+- require(type(q["job_id"])is str and q["output_directory"].startswith("experiments/results/C3_remaining_cells_GPU0_")and q["worker_auxiliary_scope"].startswith("research/reviews/C3_remaining_cells_GPU0_ROOT_")and q["worker_auxiliary_scope"].endswith("/worker_aux"),"Fresh own output/packet roots outside every old producer")
++ require(type(q["job_id"])is str and q["job_id"].startswith("C3remaining-v4-") and q["output_directory"].startswith("experiments/results/C3_remaining_cells_GPU0_v4_")and q["worker_auxiliary_scope"].startswith("research/reviews/C3_remaining_cells_GPU0_ROOT_v4_")and q["worker_auxiliary_scope"].endswith("/worker_aux"),"Fresh own output/packet roots outside every old producer")
+  require(q.get("schema")=="C3_remaining_cells_ROOT_request_v1"and q.get("execution_authorized")is True and q.get("source_manifest_ref")==ref(MANIFEST)and q.get("phase")in PHASES and "truth"not in q and "VAL_truth_capability"not in q and "TEST"not in q,"Exact inactive-until-ROOT original remaining-cell or matrix authority")
+  review_v1(q["source_review_ref"]);manifest_v1();configure_selector_v1(q)
+  require(q["capacity_guard_ref"]==GUARD and q["capacity_policy_ref"]==POLICY and q["caps"]==caps_v1(q["phase"]),"Exact selected Census and original fixed finite8GiB evaluator/CPU matrix caps")
+@@ -268,7 +325,7 @@
+  input_ref=root_save_v1(directory,"input.json",spec);set_amendment_v1(input_ref);s,a,cfg,st,_=validate_input_v1(input_ref)
+  g.validate_storage_v9(s,dict(output_cap_bytes=32*2**20),st,source_ref=ref(DRIVER),config_ref=config_ref,runtime_ref=RUNTIME_REF)
+  admitted_ref=root_save_v1(directory,"admitted.json",dict(input_ref=input_ref,reserve_receipt_ref=receipt_ref,source_manifest_ref=ref(MANIFEST),scientific_execution_started=False))
+- argv=["setsid",str(ROOT/".runtime/env/bin/python"),"-B","-s","-m",HERE.replace("/",".")+".execution_v1","--execute","--input-ref",json.dumps(input_ref),"--amendment-ref",json.dumps(input_ref)]
++ argv=[str(ROOT/".runtime/env/bin/python"),"-B","-s","-m",HERE.replace("/",".")+".execution_v1","--supervise-once","--input-ref",json.dumps(input_ref),"--amendment-ref",json.dumps(input_ref)]
+  return dict(status="ADMITTED_NOT_EXECUTED",input_ref=input_ref,admitted_ref=admitted_ref,execute_argv=argv,automatic_execution=False)
+ def main(argv=None):
+  import argparse
+--- research/reviews/C3_remaining_cells_GPU0_source_20261017_v3/execution_v1.py
++++ research/reviews/C3_remaining_cells_GPU0_source_20261017_v4/execution_v1.py
+@@ -4,8 +4,8 @@
+ from pathlib import Path
+ from datetime import datetime, timezone
+ import argparse, collections, ctypes, fcntl, hashlib, importlib, io, itertools, json, os, resource, selectors, signal, stat, subprocess, sys, tempfile, time, types
+-from research.reviews.C3_remaining_cells_GPU0_source_20261017_v3.contract_v1 import *
+-from research.reviews.C3_remaining_cells_GPU0_source_20261017_v3 import contract_v1 as c
++from research.reviews.C3_remaining_cells_GPU0_source_20261017_v4.contract_v1 import *
++from research.reviews.C3_remaining_cells_GPU0_source_20261017_v4 import contract_v1 as c
+ 
+ class _HistoryV8:
+     def __init__(self):
+@@ -168,7 +168,7 @@
+     paths = worker_env_paths_v1(s)
+     require(all((os.environ.get(k) == v and Path(v).resolve() == Path(v) and Path(v).is_dir() for (k, v) in paths.items())), 'All own TMP/cache paths charged')
+     tempfile.tempdir = paths['TMPDIR']
+-    from research.reviews.C3_remaining_cells_GPU0_source_20261017_v3 import worker_v1 as worker
++    from research.reviews.C3_remaining_cells_GPU0_source_20261017_v4 import worker_v1 as worker
+     if s['phase'] == 'matrix':
+         require(attachment_ref is None and os.environ.get('CUDA_VISIBLE_DEVICES') == '', 'CPU-only matrix has no GPU attachment')
+         worker.run_matrix_v1(input_ref, s, q, cfg, storage)
+@@ -176,7 +176,7 @@
+     require(attachment_ref['path'] == s['worker_auxiliary_scope'] + '/attachment.json', 'Exact own attachment')
+     ticket = read(attachment_ref)
+     require(ticket['job_id'] == s['job_id'] and ticket['direct_attachment_authority_ref'] == q['direct_attachment_authority_ref'], 'Exact actual new attachment')
+-    from research.reviews.C3_remaining_cells_GPU0_source_20261017_v3 import direct_gpu0_v1 as direct
++    from research.reviews.C3_remaining_cells_GPU0_source_20261017_v4 import direct_gpu0_v1 as direct
+     native = direct.install_before_torch_v1(s, q, ticket)
+     worker.run_prediction_v1(input_ref, s, q, cfg, storage, ticket, native)
+     return 0
+@@ -185,7 +185,7 @@
+     stage_started = time.monotonic()
+     require(Path.cwd() == ROOT and sys.dont_write_bytecode, 'Exact ROOT cwd/no bytecode')
+     (s, q, cfg, storage, protocol) = validate_input_v1(input_ref)
+-    from research.reviews.C3_remaining_cells_GPU0_source_20261017_v3.worker_v1 import check_external_prerequisites_v1
++    from research.reviews.C3_remaining_cells_GPU0_source_20261017_v4.worker_v1 import check_external_prerequisites_v1
+     check_external_prerequisites_v1(q)
+     require(Path(sys.executable).resolve() == (ROOT / '.runtime/env/bin/python').resolve(), 'Original pinned runtime interpreter')
+     require_work_window_v2(s)
+@@ -248,7 +248,7 @@
+         env.update(PYTHONDONTWRITEBYTECODE='1', PYTHONNOUSERSITE='1', PYTHONPATH='', OMP_NUM_THREADS='32', MKL_NUM_THREADS='32', OPENBLAS_NUM_THREADS='32', NUMEXPR_NUM_THREADS='32', ARGGNN_LOGICAL_JOB_NAME=s['job_id'], ARGGNN_COMPLETED_CREDITS_POLICY_REF=json.dumps(q['capacity_policy_ref']), ARGGNN_BUDGET_V9_SOURCE_SHA256=storage['budget_components']['implementation']['sha256'], ARGGNN_BUDGET_V9_LAUNCHER_SHA256=storage['budget_components']['launcher']['sha256'])
+         env.update(paths)
+         if s['phase'] in GPU_PHASES:
+-            from research.reviews.C3_remaining_cells_GPU0_source_20261017_v3 import direct_gpu0_v1 as direct
++            from research.reviews.C3_remaining_cells_GPU0_source_20261017_v4 import direct_gpu0_v1 as direct
+             direct.install_cancellation_check_v1(lambda : require(cancelled is None and time.monotonic() < work_deadline, 'Actual cancellation or anchored work cutoff during status proof'))
+             (physical_fd, logical_fd, ticket) = direct.attach_v1(s, q)
+             attachment_ref = compact_v1(s, 'attachment.json', ticket, g, storage)
+@@ -260,7 +260,7 @@
+             for name in ('ARGGNN_PHYSICAL_GPU', 'ARGGNN_GPU_LEASE', 'ARGGNN_GPU_LEASE_FD', 'downstream_LOGICAL_LOCK_FD', 'ARGGNN_JOB_NAME'):
+                 env.pop(name, None)
+         (gate_read, gate_write) = os.pipe()
+-        command = [str(local(NATIVE_PYTHON_REF['path'])), '-B', '-s', '-m', 'research.reviews.C3_remaining_cells_GPU0_source_20261017_v3.execution_v1', '--worker-input-ref', json.dumps(input_ref, separators=(',', ':')), '--gate-fd', str(gate_read)]
++        command = [str(local(NATIVE_PYTHON_REF['path'])), '-B', '-s', '-m', 'research.reviews.C3_remaining_cells_GPU0_source_20261017_v4.execution_v1', '--worker-input-ref', json.dumps(input_ref, separators=(',', ':')), '--gate-fd', str(gate_read)]
+         if attachment_ref is not None:
+             command += ['--attachment-ref', json.dumps(attachment_ref, separators=(',', ':'))]
+         command += ['--amendment-ref', json.dumps(current_amendment_ref_v1(), separators=(',', ':'))]
+@@ -479,17 +479,84 @@
+         print(json.dumps(dict(downstream_terminal_evidence_failed=observation, failure=failure, actual_wait_minimal_ref=minimal, no_future_stage_authorized=True), sort_keys=True), flush=True)
+     return dict(status='PASS' if failure is None else 'FAILED', completed_ref=completed_ref, actual_wait_ref=wait_ref, actual_wait_minimal_ref=minimal, returncode=0 if failure is None else rc if rc not in (None, 0) else 1, actual_direct_worker_returncode=rc, all_owned_processes_and_groups_drained=drained, no_future_stage_authorized=failure is not None, actual_outer_tool_terminal_still_required=True)
+ 
++def _put_supervisor_record_v4(s,name,value):
++    directory=local(s['worker_auxiliary_scope']).parent
++    path=directory/name
++    data=(json.dumps(value,sort_keys=True,indent=2,allow_nan=False)+'\n').encode()
++    require(len(data)<=65536,'Original compact ROOT metadata cap')
++    record_budget_v1(directory,len(data)+8192)
++    fd=os.open(path,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600)
++    with os.fdopen(fd,'wb') as stream:
++        require(stream.write(data)==len(data),'Complete immutable caller record')
++        stream.flush();os.fsync(stream.fileno());opened=os.fstat(stream.fileno())
++    named=path.lstat()
++    require(stat.S_ISREG(opened.st_mode) and stat.S_ISREG(named.st_mode)
++        and opened.st_nlink==named.st_nlink==1 and opened.st_size==named.st_size==len(data)
++        and (opened.st_dev,opened.st_ino)==(named.st_dev,named.st_ino),'Stable caller record name')
++    directory_fd=os.open(directory,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
++    try:os.fsync(directory_fd)
++    finally:os.close(directory_fd)
++    return dict(path=str(path.relative_to(ROOT)),sha256=hashlib.sha256(data).hexdigest())
++
++def supervise_once_v4(input_ref):
++    """One directly waitable Python supervisor; no setsid utility or detached shell."""
++    require(Path.cwd()==ROOT and sys.dont_write_bytecode and sys.flags.no_user_site
++        and sys.flags.optimize==0,'Fresh nonoptimized ROOT -B -s caller')
++    s,q,cfg,storage,protocol=validate_input_v1(input_ref)
++    command=[str(ROOT/'.runtime/env/bin/python'),'-B','-s','-m',c.HERE.replace('/','.')+'.execution_v1',
++        '--execute','--input-ref',json.dumps(input_ref,separators=(',',':')),
++        '--amendment-ref',json.dumps(input_ref,separators=(',',':'))]
++    # This exclusive record consumes the attempt before Popen. Failure never
++    # authorizes replay, including a launch or wait whose outcome is uncertain.
++    invocation_ref=_put_supervisor_record_v4(s,'caller_invocation.v4.json',dict(
++        schema='C3_v4_exact_Python_supervisor_invocation_v1',input_ref=input_ref,
++        command=command,root_authorizer='root_agent',created_at_utc=datetime.now(timezone.utc).isoformat(),
++        direct_Python_child=True,setsid_utility_used=False,automatic_retry=False,
++        scientific_execution_success_claimed=False))
++    proc=None;raw_status=None;returncode=None;actual_wait=False
++    try:
++        proc=subprocess.Popen(command,cwd=ROOT,start_new_session=True)
++        while True:
++            try:waited_pid,raw_status=os.waitpid(proc.pid,0);break
++            except InterruptedError:continue
++        require(waited_pid==proc.pid,'Exact direct Python supervisor waitpid')
++        require(os.WIFEXITED(raw_status) or os.WIFSIGNALED(raw_status),'Terminal direct Python supervisor status')
++        returncode=os.waitstatus_to_exitcode(raw_status);actual_wait=True;proc.returncode=returncode
++        caller_exit=returncode if returncode>=0 else 128-returncode
++        result=dict(schema='C3_v4_actual_Python_supervisor_wait_v1',input_ref=input_ref,
++            invocation_ref=invocation_ref,pid=proc.pid,actual_OS_wait_status=raw_status,
++            actual_Python_supervisor_wait=True,actual_Python_supervisor_returncode=returncode,
++            returncode=caller_exit,setsid_utility_returncode_used=False,
++            worker_wait_or_scientific_completion_inferred=False,
++            ROOT_outer_terminal_consumption_and_scientific_wait_audit_still_required=True,
++            automatic_retry=False,storage_close_or_credit_authorized=False)
++        result['wait_ref']=_put_supervisor_record_v4(s,'caller_actual_supervisor_wait.v4.json',result)
++        return result
++    except BaseException as error:
++        failure=dict(schema='C3_v4_Python_supervisor_wait_uncertainty_v1',input_ref=input_ref,
++            invocation_ref=invocation_ref,pid=proc.pid if proc is not None else None,
++            actual_OS_wait_status=raw_status,actual_Python_supervisor_wait=actual_wait,
++            actual_Python_supervisor_returncode=returncode,
++            exception_type=type(error).__name__,message=str(error)[:2000],
++            automatic_retry=False,scientific_success_claimed=False,
++            ROOT_must_resolve_original_supervisor_before_any_new_action=True)
++        try:_put_supervisor_record_v4(s,'caller_supervisor_failure.v4.json',failure)
++        except BaseException:print(json.dumps(dict(caller_evidence_uncertain=True,automatic_retry=False)),flush=True)
++        raise
++
++
+ def main(argv=None):
+     parser = argparse.ArgumentParser(description=__doc__)
+     actions = parser.add_mutually_exclusive_group()
+     actions.add_argument('--execute', action='store_true')
++    actions.add_argument('--supervise-once', action='store_true')
+     actions.add_argument('--worker-input-ref')
+     parser.add_argument('--input-ref')
+     parser.add_argument('--amendment-ref')
+     parser.add_argument('--gate-fd', type=int)
+     parser.add_argument('--attachment-ref')
+     args = parser.parse_args(argv)
+-    if not (args.execute or args.worker_input_ref):
++    if not (args.execute or args.supervise_once or args.worker_input_ref):
+         print(json.dumps(dict(status='SOURCE_ONLY_INACTIVE', execution=False, admission=False)))
+         return 0
+     require(sys.platform.startswith('linux') and sys.dont_write_bytecode and (not any((n in sys.modules for n in ('torch', 'torch_geometric')))), 'Fresh Linux stdlib entry')
+@@ -501,12 +568,7 @@
+         return worker_v1(json.loads(args.worker_input_ref), args.gate_fd, json.loads(args.attachment_ref) if args.attachment_ref is not None else None)
+     require(args.input_ref is not None, 'Exact original input ref required')
+     require(json.loads(args.input_ref) == json.loads(args.amendment_ref), 'ROOT phase input is the exact actual phase authority binding')
+-    from research.reviews.C3_remaining_cells_GPU0_source_20261017_v3.worker_v1 import PendingPrerequisites
+-    try:
+-        result = execute_v1(json.loads(args.input_ref))
+-    except PendingPrerequisites as exc:
+-        print(json.dumps(dict(status='PENDING_GENUINE_EXTERNAL_PREREQUISITES', reason=str(exc), worker_spawned=False, resource_attachment_created=False, scientific_completion=False, no_automatic_continuation=True)), flush=True)
+-        return 2
++    result = supervise_once_v4(json.loads(args.input_ref)) if args.supervise_once else execute_v1(json.loads(args.input_ref))
+     print(json.dumps(result, sort_keys=True), flush=True)
+     return result['returncode']
+ if __name__ == '__main__':
+--- research/reviews/C3_remaining_cells_GPU0_source_20261017_v3/pins.v1.json
++++ research/reviews/C3_remaining_cells_GPU0_source_20261017_v4/pins.v1.json
+@@ -7,6 +7,28 @@
+     "american_c3_val_004": {
+       "path": "research/reviews/C3_full30Mb_eval_ROOT_actual_plan_lineage_checkpoint_schema_predict_val_004_root01_oct17/input.json",
+       "sha256": "38ef729452b0fa403540701b5b9399b8297ff59421f256078f22e622a4d50be0"
++    }
++  },
++  "historical_H058_v7": {
++    "H058_DIRECT": {
++      "path": "research/reviews/H058_GPU0_full_training_successor_source_20261017_v7/direct_gpu0_v1.py",
++      "sha256": "87bdfa7f19ab1841648f92ca1092ffbf1c8b5992608e02a16dd65ed66c5cbe11"
++    },
++    "H058_INPUT": {
++      "path": "research/reviews/H058_GPU0_v7_ROOT_actual_root04_oct17/input.json",
++      "sha256": "2468fbc3bdae43eb96a08eeccae9331d0e40b8e91a1916fd0b19baef8c6dbf61"
++    },
++    "H058_LAUNCH": {
++      "path": "research/reviews/H058_GPU0_v7_ROOT_actual_root04_oct17/worker_aux/launch.json",
++      "sha256": "e20a5e528ae7e267f09eb2c342442b09b6f93513df6bfb428b7154cd4381e8f8"
++    },
++    "H058_REQUEST": {
++      "path": "research/reviews/H058_GPU0_v7_ROOT_preparation_root04_oct17/ROOT_request.root_active_v1.json",
++      "sha256": "3738f76cbe25cbeea27f49e350263723f17a680d6b55d8b17c62dbf5eedbf62a"
++    },
++    "H058_TERMINAL": {
++      "path": "research/reviews/H058_GPU0_v7_ROOT_preparation_root04_oct17/controller_terminal.root_active_v1.json",
++      "sha256": "5f505b98be99ce7eab49afab5013ef95373cda1e3efea1359841defb0a36ffa0"
+     }
+   },
+   "old_CPU_inputs": {
+@@ -27,6 +49,10 @@
+     "ARTIFACT_ACCEPTANCE": {
+       "path": "research/reviews/C3_saved600_validator_ROOT_actual_20261016_v1/artifact_acceptance.root_active_v1.json",
+       "sha256": "5065ce083306a30a7cbf75d42f77b44db5a3d1c121b0b2e5406ac76c22f474ce"
++    },
++    "C3_V3_REVOCATION": {
++      "path": "research/reviews/research_execution_ROOT_20261017_v30/C3_v3_revoked_H058_v9_execution_release.root_active_v1.json",
++      "sha256": "207437215ae2e5907f4f6ac549b00c19d5bce2fa247002910c46b54ca248077a"
+     },
+     "CENSUS_GUARD": {
+       "path": "research/reviews/Census_observation_two_scope_retention_source_20261017_v1/census_observation_retention_v1.py",
+@@ -52,25 +78,38 @@
+       "path": "research/reviews/C3_saved600_artifact_acceptance_source_20261016_v1/frozen_science.v1.json",
+       "sha256": "561acf26d5def3cc64b6ab6039ded23c1d99756025950480ca30cf7e18ebf104"
+     },
++    "H058_COMMON": {
++      "path": "research/reviews/H058_GPU0_full_training_successor_source_20261017_v9/common_v1.py",
++      "sha256": "390a38a666c2146f4e921a717405184e71fb1189e4a2f9059d0cd4b343f6498e"
++    },
+     "H058_DIRECT": {
+-      "path": "research/reviews/H058_GPU0_full_training_successor_source_20261017_v7/direct_gpu0_v1.py",
+-      "sha256": "87bdfa7f19ab1841648f92ca1092ffbf1c8b5992608e02a16dd65ed66c5cbe11"
++      "path": "research/reviews/H058_GPU0_full_training_successor_source_20261017_v9/direct_gpu0_v1.py",
++      "sha256": "615465f93b76d00b84b663a92d4ca072ff4208a527ceccf3a45983a6856e0080"
++    },
++    "H058_DRIVER": {
++      "path": "research/reviews/H058_GPU0_full_training_successor_source_20261017_v9/operational_v1.py",
++      "sha256": "f173a4d07457afc3bb386c6d9261ac16431891a24bd5135c1c209b6e2395e138"
+     },
+     "H058_INPUT": {
+-      "path": "research/reviews/H058_GPU0_v7_ROOT_actual_root04_oct17/input.json",
+-      "sha256": "2468fbc3bdae43eb96a08eeccae9331d0e40b8e91a1916fd0b19baef8c6dbf61"
++      "path": "research/reviews/H058_GPU0_v9_ROOT_actual_root01_oct17/input.json",
++      "sha256": "cf99ae8cd644fa2be44fb9d647464e69cebb929b59f49675a208df2a394e9574"
+     },
+-    "H058_LAUNCH": {
+-      "path": "research/reviews/H058_GPU0_v7_ROOT_actual_root04_oct17/worker_aux/launch.json",
+-      "sha256": "e20a5e528ae7e267f09eb2c342442b09b6f93513df6bfb428b7154cd4381e8f8"
++    "H058_LAUNCH_PATH": "research/reviews/H058_GPU0_v9_ROOT_actual_root01_oct17/worker_aux/launch.json",
++    "H058_MANIFEST": {
++      "path": "research/reviews/H058_GPU0_full_training_successor_source_20261017_v9/source_manifest.v1.json",
++      "sha256": "196b662fcfb7ea2d6de57595b830c2e9109be14cbd861ee503bb6789af170004"
+     },
+     "H058_REQUEST": {
+-      "path": "research/reviews/H058_GPU0_v7_ROOT_preparation_root04_oct17/ROOT_request.root_active_v1.json",
+-      "sha256": "3738f76cbe25cbeea27f49e350263723f17a680d6b55d8b17c62dbf5eedbf62a"
++      "path": "research/reviews/H058_GPU0_v9_ROOT_preparation_root01_oct17/ROOT_request.root_active_v1.json",
++      "sha256": "c881cf7ddf8458ca0c6c589553f7e3fea6b314360044e096dbbdfce2aa2a23b8"
++    },
++    "H058_REVIEW": {
++      "path": "research/reviews/H058_GPU0_v9_whole_source_independent_20261017_v1/review.v1.json",
++      "sha256": "327c21d288272978268429c9e4df6d931d9784110d567aafe041ca113d41b87d"
+     },
+     "H058_TERMINAL": {
+-      "path": "research/reviews/H058_GPU0_v7_ROOT_preparation_root04_oct17/controller_terminal.root_active_v1.json",
+-      "sha256": "5f505b98be99ce7eab49afab5013ef95373cda1e3efea1359841defb0a36ffa0"
++      "path": "research/reviews/H058_GPU0_v9_ROOT_preparation_root01_oct17/controller_terminal.root_active_v1.json",
++      "sha256": "dccf51c88c77f9b1afde38fa968ec91e77f885648ad815b09752c94d993bf939"
+     },
+     "SAVED_CONTRACT": {
+       "path": "research/reviews/C3_saved600_artifact_acceptance_source_20261016_v1/acceptance_contract_v1.py",

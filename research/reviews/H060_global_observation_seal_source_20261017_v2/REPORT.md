@@ -1,0 +1,3 @@
+# Inactive minimal closure-attribute successor
+
+Fixes the actual factory AttributeError preserved in the whole blocked review. The only behavioral change is `actual.join.__closure__ or ()`; the HERE identity points to this new source directory. Original global preparation, ordered digest, cache/barrier/source guards, target derivation/equations, bindings, membership and protocol remain unchanged. The old component SOURCE_PASS is predecessor evidence. Independent review of this repaired component plus the full v2 worker/runner/source closure is required. No runtime authority, scientific payload/numeric work or operations are performed.

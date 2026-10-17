@@ -14,3 +14,7 @@
 
 - Genuine H058v9 launch is now authenticated: worker46648/start491287607/group46648 under supervisor39747. Requested title is visible in its ownedcmdline. Initial preparation continues, no new optimizer update or NVTOP CUDA row verified.
 - C3v4 independently passed source review but actual preflight found legacy owned_identities versus genuine v9 current_owned_identities schema mismatch. No v4 reserve/admission/worker. Its future routes are revoked, metadata and pass history preserved, minimalv5 correction underway using actual immutable launch evidence.
+
+- Paper revision published at08a84016, remote main verified. H058v9 now has an actual GPU0 CUDA context and exact title visible in NVTOP. No new update or accuracy is yet verified. C3v5 minimal actual-schema repair is sealed and under independent review.
+
+- C3v5 independent actual-schema SOURCE_PASS sealed. A ROOT request omitted the execution flag and failed before source/resource checks. Freshv2 requests preserve all other bytes/clocks and are explicitly authorized, with first admission46746pending. H060global-onlyv2 is prospectively registered and has truthful stdlib package/32allowedCPU metadata qualification, with no fit or admission claimed. FLAREVAL002 conversion completed229909sites with genuine worker0/drain/consumedouter0; close/native/seal remain pending.

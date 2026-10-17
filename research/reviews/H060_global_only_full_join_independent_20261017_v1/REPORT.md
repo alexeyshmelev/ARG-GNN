@@ -1,0 +1,11 @@
+# Independent H060 global-only whole-source review: SOURCE_BLOCKED
+
+The actual full route is blocked at the accepted global component line214. The source expression `actual.join.__closure__or()` accesses a function attribute named `__closure__or`, so it raises `AttributeError: function object has no attribute __closure__or`. The likely intended expression is `actual.join.__closure__ or ()`. The sealed source is unchanged.
+
+Independent RAM execution used the actual runner, actual new factory, genuine source-derived original target classes/factory and their exact code-object checks. It reached the durable all20 barrier, then reproduced this exception before the first TRAIN resolver. The author9group/10negative campaign passes when reproduced, but it substitutes the target factory and therefore misses this failure.
+
+Other reachable source checks passed: original native20 cache checks plus same bundle-object witness, durable-barrier failstop, tensor/semantic/object/lifetime invalidation, old/new transfer-resume rejection, preserved original600updates per arm/1200total and60pretruth prediction policy, all caps and unchanged lifecycle. The independent complete request invokes the actual new request/ROOT context/review predicates, genuine memo2 callable source authenticator and original current-Census state/reserve/append/input bodies with RAM IO, retaining47named guard roles and62direct refs under64.
+
+The final checks include41material assertions,715compact source/metadata hash joins,15independent negative fixtures and separately reproduced author9groups/10negatives. The two inherited23MB Census numerical-evidence payloads remain unopened; their exact pins are preserved. The581other operational pins,89scientific refs and final audit joins are checked. No actual clock, process, lock, resource, guard/state/accounting, truth, checkpoint, array, model, numerical, GPU or Git operations occurred. No fit, speedup or ancestry accuracy is established. Old live1723 and all source packets remain unchanged. ROOT owns any operational preparation/admission.
+
+A repair must be a separately named immutable component and full-route successor with exact propagated source/closure refs and an actual factory reachability RAM check. Existing component SOURCE_PASS and whole blocked packet remain historical evidence.

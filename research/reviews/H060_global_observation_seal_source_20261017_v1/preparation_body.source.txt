@@ -1,0 +1,72 @@
+def verify_observed_plan_support_v1(plan,*,tree_rows,site_positions,focal_holds,focal_sample_columns,registry_sample_columns,resource_check):
+    """Observed topology/count/index witness only; never constructs a legacy tensor.
+
+    tree_rows is a streaming (index,left,right,active_node_count) enumeration
+    from the same sanitized tree sequence. Native half-open focal joins remain
+    checked again by the unchanged full global preparation.
+    """
+    from bisect import bisect_left
+    need(callable(resource_check)and plan['parent_id']in TRAIN and plan['sequence_length_bp']==2000000
+        and plan['focal_records']==10000 and plan['haplotypes']==1600,'Original complete TRAIN support only')
+    blocks=plan['blocks'];cursor=0;last_right=0.;nodes_total=sites_total=0
+    iterator=iter(tree_rows)
+    for index,block in enumerate(blocks):
+        resource_check('global_observed_plan_metadata_block')
+        need(type(block['start_tree'])is int and type(block['stop_tree'])is int
+            and block['start_tree']==cursor and block['stop_tree']>cursor,'Original contiguous complete tree partition')
+        nodes=sites=0
+        for expected in range(block['start_tree'],block['stop_tree']):
+            row=next(iterator,None)
+            need(row is not None and len(row)==4,'No original tree omitted')
+            tree,left,right,count=row
+            need(type(tree)is int and tree==expected and left==last_right and right>left
+                and type(count)is int and count>0,'Same complete ordered native tree intervals/nodes')
+            sites+=bisect_left(site_positions,right)-bisect_left(site_positions,left);nodes+=count;last_right=right
+        need(nodes==block['nodes']and sites==block['sites'],'Original per-block observed node/site counts without feature construction')
+        nodes_total+=nodes;sites_total+=sites;cursor=block['stop_tree']
+    need(cursor==plan['trees']and next(iterator,None)is None and last_right==2000000
+        and sites_total==plan['sites']==len(site_positions),'Every original tree/node/site retained in exact original plan support')
+    need(len(focal_holds)==len(focal_sample_columns)==len(registry_sample_columns)==10000
+        and all(0<=int(hold)<plan['trees']and int(hold)==hold for hold in focal_holds)
+        and all(600<=int(column)<1600 and int(column)==column and column==expected
+            for column,expected in zip(focal_sample_columns,registry_sample_columns)),
+        'All10000 focal rows occur exactly once in complete tree partition with original query columns')
+    return dict(schema='H060_observed_plan_support_without_legacy_features_v1',trees=cursor,sites=sites_total,nodes=nodes_total,
+        blocks=len(blocks),plan_blocks_sha256=json_sha(blocks),focal_records=10000,
+        every_focal_row_covered_exactly_once=True,original_query_sample_columns=True,
+        all_original_block_counts_verified=True,legacy_neural_features_constructed=False)
+
+def prepare_and_seal_global_parent_v1(plan_ref,cfg,runtime_guard,*,source_refs):
+    """Explicit future admitted observation-only call; no provider/legacy encoder exists here."""
+    need(callable(runtime_guard),'Actual future admitted runtime boundary')
+    runtime_guard('before_global_only_source_authentication');checked=checked_sources_v1(source_refs)
+    from arggnn.american_c3_common_v1 import read
+    from arggnn.american_c3_gnn_dataset_isolated_v2 import load_observation
+    from arggnn.american_c3_gnn_stream_train_v1 import validate_plan_v1
+    from research.reviews.TreeLoom_observed_preparation_fast_source_20261017_v1.full_preparation_fast_v1 import prepare_from_loaded_observation_v1
+    original_plan=read(plan_ref);plan=dict(original_plan,plan_ref=copy.deepcopy(plan_ref))
+    validate_plan_v1(plan,parent_id=plan['parent_id'],length_bp=2000000)
+    need(plan['parent_id']in TRAIN,'Only original20 independent TRAIN parents')
+    state=None
+    try:
+        runtime_guard('before_global_only_observed_load')
+        state=load_observation(plan['observation_ref'],plan['focal_registry_ref'],plan['config'])
+        tree_rows=((int(tree.index),float(tree.interval.left),float(tree.interval.right),sum(1 for _ in tree.nodes()))for tree in state['ts'].trees())
+        support=verify_observed_plan_support_v1(plan,tree_rows=tree_rows,site_positions=state['positions'],
+            focal_holds=state['focal_tree'],focal_sample_columns=state['focals']['sample_indices'],
+            registry_sample_columns=state['focals']['sample_indices'],resource_check=runtime_guard)
+        runtime_guard('before_unchanged_global_FP32_preparation')
+        bundle,metadata=prepare_from_loaded_observation_v1(state,split='train',
+            observation_ref=plan['observation_ref'],focal_registry_ref=plan['focal_registry_ref'],
+            native_preparation_ref=plan['config']['native_preparation_ref'],max_nodes=cfg['max_native_nodes'],
+            max_holds=cfg['max_native_holds'],max_episode_payload_bytes=cfg['max_episode_payload_bytes'])
+        need(bundle.native_holds==plan['trees']and bundle.original_sites==plan['sites']
+            and bundle.bank.parent.numel()==support['nodes'],'Same complete native support in actual global bank')
+        runtime_guard('before_actual_global_tensor_seal');identity=global_identity_v1(bundle)
+        seal=make_global_seal_v1(plan,plan_ref=plan_ref,preparation_metadata=metadata,global_identity=identity,
+            plan_support=support,source_refs=checked)
+        need(read(plan_ref)==original_plan and checked_sources_v1(source_refs)==checked,'Original plan/source identity retained through actual hashing')
+        runtime_guard('after_actual_global_tensor_seal')
+        return bundle,seal
+    finally:
+        state=None

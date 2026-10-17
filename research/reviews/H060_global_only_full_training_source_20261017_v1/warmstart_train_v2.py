@@ -1,0 +1,526 @@
+"""Inactive matched TreeLoom transfer runner: accepted saved600 weights +600 new updates.
+
+Reuses original20-parent C3 plans/loaders, typed global seals, TRAIN target joins,
+epoch order, CPU snapshot and RNG helpers. No CLI/admission/lease/guard policy.
+ROOT supplies an admitted writer, one device and a fast current resource callback.
+"""
+from __future__ import annotations
+from pathlib import Path
+import copy, hashlib, json, time, stat
+import numpy as np
+import torch
+from arggnn.american_c3_common_v1 import require, read, bound, ref, CLASSES
+from arggnn.american_c3_gnn_targets_v1 import (
+    TRAIN, VAL, REGISTRY_REF, authoritative_registry_v1)
+from arggnn.american_c3_gnn_stream_train_v1 import (
+    json_sha, validate_plan_v1)
+from research.reviews.H060_global_observation_seal_source_20261017_v1 import global_observation_protocol_v1 as global_protocol
+from arggnn.american_c3_gnn_train_v1 import (
+    epoch_order_v1, _cpu_snapshot, _rng_state, _restore_rng, _seed_fresh)
+from research.reviews.American_TreeLoom_warmstart_training_source_20261017_v2.warmstart_models_v1 import (
+    ARMS, FAMILY, CONDITION, PARAMETERS, TENSORS, full,
+    make_matched_family_v1, validate_arm_model_v1, train_complete_parent_step_v1)
+
+HERE = Path(__file__).resolve().parent
+SOURCE = str(Path(__file__).resolve().relative_to(
+    Path("/workspace-SR003.nfs2/ARG-GNN")))
+CHECKPOINT_EPOCHS = (5,10,15,20,25,30)
+SCHEMA = FAMILY+"_global_observation_training_v1"
+ACCEPTANCE = dict(
+    path="research/reviews/C3_saved600_validator_ROOT_actual_20261016_v1/artifact_acceptance.root_active_v1.json",
+    sha256="5065ce083306a30a7cbf75d42f77b44db5a3d1c121b0b2e5406ac76c22f474ce")
+ENGINE = dict(
+    path="research/reviews/American_TreeLoom_full_mechanism_source_20261017_v2/american_treeloom_full_c3_v2.py",
+    sha256="f6f4b5ec49231268ea2ae8607739ee52c03953a1b8cc6ac34729d08a3fe24f66")
+ENGINE_REVIEW = dict(
+    path="research/reviews/American_TreeLoom_full_mechanism_independent_review_20261017_v2/review.v2.json",
+    sha256="85e8596f1ae4c005477fbf49805e690f706cd4492b21c82c4f5ee631382d0222")
+DEFAULTS = dict(schema=SCHEMA, execution_enabled=False, family=FAMILY,
+    condition=CONDITION, registry_ref=REGISTRY_REF, arms=list(ARMS),
+    model_seed=70001, parent_order_seed=70002, epochs=30, parents_per_epoch=20,
+    additional_updates_per_arm=600, inherited_saved_logical_updates=600,
+    focal_exposures_per_arm=6000000, training_length_bp=2000000,
+    class_order=list(CLASSES), checkpoint_epochs=list(CHECKPOINT_EPOCHS),
+    optimizer=dict(name="AdamW",lr=.001,weight_decay=.0001,
+        betas=[.9,.999],eps=1e-8,maximize=False,amsgrad=False),
+    precision="fp32", gradient_clip=1., early_stopping=False, purity_filter=False,
+    max_truth_uncompressed_bytes=None, max_native_nodes=None, max_native_holds=None,
+    max_episode_payload_bytes=None, CPU_observation_cache_bytes=0, max_cached_parent_bytes=None)
+
+
+def validate_config_v1(cfg):
+    require(isinstance(cfg,dict) and set(cfg)==set(DEFAULTS), "Exact disclosed transfer config")
+    operational={"execution_enabled","max_truth_uncompressed_bytes","max_native_nodes",
+        "max_native_holds","max_episode_payload_bytes","CPU_observation_cache_bytes","max_cached_parent_bytes"}
+    require(all(cfg[k]==v for k,v in DEFAULTS.items() if k not in operational)
+        and cfg["execution_enabled"] is True,
+        "Inactive by default; no science/budget/seed/objective change at execution")
+    require(all(type(cfg[k]) is int and cfg[k]>0 for k in
+        ("max_truth_uncompressed_bytes","max_native_nodes",
+         "max_native_holds","max_episode_payload_bytes","max_cached_parent_bytes"))
+        and type(cfg["CPU_observation_cache_bytes"]) is int
+        and cfg["CPU_observation_cache_bytes"]>=0,
+        "Explicit ROOT full-parent/target failstop bounds; no fit guarantee")
+    require(ref(ENGINE["path"])==ENGINE and read(ENGINE_REVIEW)["status"]=="SOURCE_PASS",
+        "Independently reviewed unchanged full-mechanism engine")
+
+
+def load_accepted_backbone_v1(acceptance_ref, *, runtime_guard):
+    """Real future admitted CPU checkpoint load; no old optimizer/RNG restoration."""
+    require(acceptance_ref==ACCEPTANCE and callable(runtime_guard),
+        "Exact explicit ROOT accepted-saved-artifact input")
+    runtime_guard("before_accepted_saved600_metadata")
+    acceptance=read(acceptance_ref)
+    require(acceptance["schema"]=="C3_saved600_ROOT_artifact_acceptance_v1"
+        and acceptance["root_authorizer"]=="root_agent"
+        and acceptance["accepted_saved_artifacts_only"] is True
+        and acceptance["original_invocation_success_claimed"] is False
+        and acceptance["original_history"]["producer_cli_exit_code"]==1
+        and acceptance["future_original_C3_training_writes_cooperatively_revoked"] is True,
+        "Accepted scientific artifacts preserve original failed producer history")
+    result=read(acceptance["validation_result_ref"])
+    training=read(acceptance["training_completion_ref"])
+    require(result["status"]=="validated_C3_saved600_artifacts_after_failed_producer"
+        and result["all_six_verified"] is True
+        and result["saved_effective_logical_updates"]==600
+        and result["model_parameters"]==29571
+        and result["original_producer_success_claimed"] is False
+        and result["physical_work_exactly600_claimed"] is False
+        and training["complete_parent_updates"]==600 and training["epochs"]==30
+        and training["trained_parent_ids"]==list(TRAIN)
+        and training["train_sequence_lengths_bp"]==[2000000]*20
+        and training["VAL_used_for_optimization"] is False,
+        "Exact accepted final backbone lineage, not a full TreeLoom checkpoint")
+    rows=[r for r in result["checkpoints"] if r["epoch"]==30]
+    candidates=[r for r in training["checkpoint_candidates"] if r["epoch"]==30]
+    require(len(rows)==len(candidates)==1
+        and rows[0]["global_step"]==candidates[0]["global_step"]==600
+        and rows[0]["all_checks_passed"] is True
+        and rows[0]["checkpoint_ref"]==candidates[0]["checkpoint_ref"],
+        "Fixed final epoch30 warmstart, no validation-dependent choice")
+    checkpoint_ref=candidates[0]["checkpoint_ref"]
+    runtime_guard("before_accepted_saved600_CPU_payload")
+    path=bound(checkpoint_ref)
+    require(path.stat().st_size<=2*2**20, "Original bounded accepted backbone checkpoint")
+    value=torch.load(path,map_location="cpu",weights_only=True,mmap=True)
+    state=value["trainer_state"]
+    require(value["schema"]=="american_c3_fresh_whole_tree_GNN_checkpoint_v1"
+        and value["model_seed"]==70001
+        and value["training_condition"]=="fresh_C3_supervised_short_independent_complete_parents"
+        and value["contract"]["class_order"]==list(CLASSES)
+        and value["contract"]["expected_haplotypes"]==1600
+        and value["contract"]["hidden_dim"]==32
+        and value["contract"]["site_feature_width"]==15
+        and value["contract"]["observed_leaf_width"]==5
+        and state["global_step"]==600 and len(state["history"])==600
+        and state["protocol_sha256"]==training["protocol_sha256"]
+        and state["observation_seal_sha256"]==training["observation_seal_sha256"]
+        and state["target_join_sha256"]==training["target_join_sha256"],
+        "Exact separately accepted C3 payload/contract/source-data lineage")
+    shared={k:v.detach().cpu().clone() for k,v in value["model_state"].items()}
+    require(len(shared)==38 and sum(v.numel() for v in shared.values())==29571,
+        "Exact accepted backbone cardinality")
+    original_plans=copy.deepcopy(state["protocol"]["parent_plan_refs"])
+    original_target_binding=copy.deepcopy(state["protocol"].get("actual_TRAIN_execution_binding"))
+    binding=dict(schema="TreeLoom_accepted_saved600_warmstart_binding_v1",
+        acceptance_ref=copy.deepcopy(acceptance_ref),
+        validation_result_ref=acceptance["validation_result_ref"],
+        original_training_metadata_ref=acceptance["training_completion_ref"],
+        checkpoint_ref=checkpoint_ref,epoch=30,saved_logical_updates=600,
+        model_parameters=29571,accepted_saved_artifacts_only=True,
+        original_producer_success_claimed=False,original_producer_cli_exit_code=1,
+        original_outer_74136_unknown_in_pinned_acceptance=True,
+        old_optimizer_or_rng_restored=False,prior_physical_work_exactly600_claimed=False)
+    del value,state,result,training
+    require(ref(checkpoint_ref["path"])==checkpoint_ref, "Accepted checkpoint unchanged after CPU load")
+    runtime_guard("after_accepted_saved600_CPU_payload")
+    return shared,binding,original_plans,original_target_binding
+
+
+def _cache_tensors_v2(bundle):
+    return (full._bank_tensors(bundle.bank)+full._episode_tensors(bundle.episodes)
+        +bundle.cut.tensors()+(bundle.focal_hold,bundle.focal_sample_column))
+
+
+def _cache_semantics_v2(bundle):
+    return (bundle.parent_id,bundle.split,bundle.sequence_length_bp,
+        bundle.native_holds,bundle.original_sites,bundle.focal_identity_sha256,
+        dict(bundle.observation_ref),dict(bundle.focal_registry_ref),
+        dict(bundle.native_preparation_ref),bundle.cut.group_offsets,
+        bundle.cut.episode_of_hold)
+
+
+def _cache_charge_v2(bundle):
+    """Full unique CPU storage plus explicit conservative wrapper allowance.
+
+    This is the cache admission charge, not a guarantee on total process RSS.
+    The current ROOT callback still checks actual process resources.
+    """
+    tensors=_cache_tensors_v2(bundle)
+    storages={}
+    wrappers=set()
+    for tensor in tensors:
+        require(tensor.device.type=="cpu" and not tensor.requires_grad,
+            "Only immutable observed CPU tensors may enter the persistent cache")
+        storage=tensor.untyped_storage()
+        key=(storage.data_ptr(),storage.nbytes())
+        storages[key]=storage.nbytes()
+        wrappers.add(id(tensor))
+    payload=sum(storages.values())
+    cut_tuple_allowance=64*(len(bundle.cut.group_offsets)+len(bundle.cut.episode_of_hold))
+    overhead=65536+4096*(len(storages)+len(wrappers))+cut_tuple_allowance
+    return dict(tensor_storage_bytes=payload,unique_storage_count=len(storages),
+        unique_tensor_wrapper_count=len(wrappers),wrapper_allowance_bytes=overhead,
+        cut_tuple_allowance_bytes=cut_tuple_allowance,accounted_bytes=payload+overhead,
+        charge_policy="full storage nbytes once per identical storage;4096B per storage/wrapper;65536B parent metadata;64B per cut tuple entry")
+
+
+def _cache_admit_v2(cache,parent,bundle,*,current_bytes,maximum_bytes,runtime_guard):
+    require(parent not in cache and bundle.parent_id==parent,
+        "One complete immutable cached bundle per original parent")
+    bundle.validate()
+    charge=_cache_charge_v2(bundle)
+    proposed=current_bytes+charge["accounted_bytes"]
+    runtime_guard("TreeLoom_CPU_cache_before_admission")
+    require(proposed<=maximum_bytes,
+        "All-parent CPU cache exceeds explicit max_cached_parent_bytes; no crop/recompute fallback")
+    cache[parent]=dict(bundle=bundle,charge=charge,
+        stamps=full.memory_core._stamps(_cache_tensors_v2(bundle)),
+        semantics=copy.deepcopy(_cache_semantics_v2(bundle)))
+    runtime_guard("TreeLoom_CPU_cache_after_admission")
+    return proposed
+
+
+def _cache_get_v2(cache,parent):
+    require(parent in cache,"Every original parent must remain cached")
+    entry=cache[parent];bundle=entry["bundle"]
+    bundle.validate()
+    require(entry["stamps"]==full.memory_core._stamps(_cache_tensors_v2(bundle))
+        and entry["semantics"]==_cache_semantics_v2(bundle),
+        "CPU cache tensor identity/version or semantic binding changed; no rehash/recompute fallback")
+    return bundle
+
+
+def _source_snapshot_v2():
+    root=Path("/workspace-SR003.nfs2/ARG-GNN")
+    pins=json.loads((HERE/"scientific_source_pins.v2.json").read_text())["refs"]
+    result=[]
+    for row in pins:
+        expected={k:row[k] for k in ("path","sha256")}
+        path=root/expected["path"];before=path.lstat()
+        require(stat.S_ISREG(before.st_mode) and path.resolve()==path,
+            "Canonical regular scientific source")
+        require(ref(expected["path"])==expected,"Exact scientific source before cache preparation")
+        info=path.lstat()
+        require(stat.S_ISREG(info.st_mode)
+            and (before.st_dev,before.st_ino,before.st_size,before.st_mtime_ns,before.st_ctime_ns)
+                ==(info.st_dev,info.st_ino,info.st_size,info.st_mtime_ns,info.st_ctime_ns),
+            "Scientific source changed during initial authentication")
+        result.append((expected["path"],info.st_dev,info.st_ino,
+            info.st_size,info.st_mtime_ns,info.st_ctime_ns))
+    return tuple(result)
+
+
+def _source_check_v2(snapshot):
+    root=Path("/workspace-SR003.nfs2/ARG-GNN")
+    for row in snapshot:
+        info=(root/row[0]).lstat()
+        require(stat.S_ISREG(info.st_mode)
+            and (row[0],info.st_dev,info.st_ino,info.st_size,
+                 info.st_mtime_ns,info.st_ctime_ns)==row,
+            "Scientific source identity changed after authentication; no silent reload")
+
+def _global_preparation_refs_v1():
+    """Select genuine pinned global preparation/target sources, including this runner."""
+    pins=json.loads((HERE/"scientific_source_pins.v2.json").read_text())["refs"]
+    paths={r["path"] for r in global_protocol.STATIC_SOURCE_REFS}|{global_protocol.SOURCE,SOURCE}
+    rows=[dict(path=r["path"],sha256=r["sha256"]) for r in pins if r["path"] in paths]
+    require(len(rows)==len(paths),"Complete new global source set in authenticated scientific closure")
+    return global_protocol.checked_sources_v1(rows)
+
+
+def _admit_global_parent_v1(cache,parent,bundle,seal,*,current_bytes,maximum_bytes,runtime_guard):
+    """Keep the original admitted bundle and the once-computed digest's provenance."""
+    current_bytes=_cache_admit_v2(cache,parent,bundle,current_bytes=current_bytes,
+        maximum_bytes=maximum_bytes,runtime_guard=runtime_guard)
+    entry=cache[parent]
+    require(bundle is entry["bundle"] and seal["parent_id"]==parent
+        and bundle.focal_identity_sha256==seal["global_identity"]["focal_identity_sha256"],
+        "Actual prepared/sealed object enters the original owned cache")
+    entry["global_seal_witness"]=dict(bundle_object=bundle,
+        identity=copy.deepcopy(seal["global_identity"]),seal_sha256=json_sha(seal))
+    return current_bytes
+
+
+def _validated_global_cache_identities_v1(cache,seals,parent_plan_refs,runtime_guard):
+    """Run the original integrity check for EVERY admitted parent before any truth."""
+    require(set(cache)==set(seals)==set(parent_plan_refs)==set(TRAIN),"All20 original owned parents")
+    identities={}
+    for parent in TRAIN:
+        runtime_guard("before_all20_original_cache_integrity_check")
+        bundle=_cache_get_v2(cache,parent)
+        seal=seals[parent];witness=cache[parent]["global_seal_witness"]
+        require(bundle is witness["bundle_object"]
+            and witness["seal_sha256"]==json_sha(seal)
+            and witness["identity"]==seal["global_identity"]
+            and bundle.parent_id==parent and bundle.split=="train"
+            and bundle.sequence_length_bp==2000000
+            and bundle.native_holds==seal["trees"] and bundle.original_sites==seal["sites"]
+            and bundle.focal_identity_sha256==seal["focal_identity_sha256"]
+            and bundle.observation_ref==seal["observation_ref"]
+            and bundle.focal_registry_ref==seal["focal_registry_ref"]
+            and bundle.native_preparation_ref==seal["native_preparation_ref"]
+            and seal["plan_ref"]==parent_plan_refs[parent],
+            "Original cache integrity plus exact once-hashed same bundle/source/plan/support provenance")
+        identities[parent]=copy.deepcopy(witness["identity"])
+    return identities
+
+
+def _signature_v1(cfg,plans,warmstart_binding,target_binding):
+    frozen=dict(cfg);frozen.pop("execution_enabled")
+    pins=json.loads((HERE/"scientific_source_pins.v2.json").read_text())["refs"]
+    signature=dict(schema=SCHEMA,config=frozen,parent_plan_refs=plans,
+        source_refs=copy.deepcopy(pins),accepted_warmstart=warmstart_binding,
+        actual_TRAIN_execution_binding=target_binding,
+        observation_protocol=dict(seal_schema=global_protocol.SEAL_SCHEMA,
+            barrier_schema=global_protocol.BARRIER_SCHEMA,target_schema=global_protocol.TARGET_SCHEMA,
+            legacy_block_seal_claimed=False,original_checkpoint_protocol_identity_claimed=False,
+            transfer_checkpoint_resume_authorized=False),
+        parent_order="random.Random(70002+one_based_epoch).shuffle(original20order)",
+        loss="one_unweighted_mean_CE_all10000_native_focals_per_complete_parent",
+        final_mechanisms=True,additional_updates_per_arm=600,
+        old_backbone_not_retrained_from_scratch=True,whole_parent_no_detached_carry=True)
+    return signature,json_sha(signature)
+
+
+def _snapshot_v1(family,optimizers,*,step,history,scheduled,signature,signature_sha,
+        observation_ref,observation_sha,target_ref,target_sha,initialization,device):
+    return _cpu_snapshot(dict(schema=FAMILY+"_paired_global_observation_checkpoint_v1",
+        family=FAMILY,condition=CONDITION,arms=list(ARMS),
+        model_state={a:m.state_dict() for a,m in family.items()},
+        contracts={a:m.checkpoint_contract() for a,m in family.items()},
+        optimizer_state={a:o.state_dict() for a,o in optimizers.items()},
+        initialization=initialization,
+        trainer_state=dict(schema=SCHEMA,protocol=signature,protocol_sha256=signature_sha,
+            additional_updates_per_arm=step,inherited_saved_logical_updates=600,
+            next_epoch=step//20+1,next_parent_index=step%20,
+            next_parent_order=epoch_order_v1(step//20+1) if step<600 else [],
+            focal_exposures_per_arm=step*10000,history=history,
+            scheduled_checkpoints=scheduled,observation_manifest_ref=observation_ref,
+            observation_seal_sha256=observation_sha,target_manifest_ref=target_ref,
+            target_join_sha256=target_sha,
+            scheduler=dict(name="constant_learning_rate",completed_parent_pairs=step,lr=.001),
+            rng_state=_rng_state(device)),
+        candidate=dict(kind="paired_complete_parent_boundary",
+            completed_epoch=step//20,additional_updates_per_arm=step,
+            VAL_selection_authorized=False)))
+
+
+def _progress_v1(state):
+    step=state["additional_updates_per_arm"]
+    require(type(step) is int and 0<step<=600
+        and state["inherited_saved_logical_updates"]==600
+        and state["focal_exposures_per_arm"]==step*10000
+        and set(state["history"])==set(ARMS)
+        and all(len(state["history"][a])==step for a in ARMS),
+        "Only paired complete-parent updates, distinct from inherited600")
+    for index in range(step):
+        epoch=index//20+1;at=index%20;parent=epoch_order_v1(epoch)[at]
+        for arm in ARMS:
+            row=state["history"][arm][index]
+            require(row["arm"]==arm and row["parent_id"]==parent
+                and row["epoch"]==epoch and row["parent_index"]==at
+                and row["global_step"]==index+1 and row["records"]==10000
+                and row["whole_parent_optimizer_updates"]==1
+                and row["block_reset_or_truncated_BPTT"] is False,
+                "Same frozen whole-parent order/exposure for both arms")
+    require(state["next_epoch"]==step//20+1 and state["next_parent_index"]==step%20
+        and state["next_parent_order"]==(epoch_order_v1(step//20+1) if step<600 else [])
+        and state["scheduler"]==dict(name="constant_learning_rate",completed_parent_pairs=step,lr=.001),
+        "Exact paired cursor and constant optimizer schedule")
+    scheduled=state["scheduled_checkpoints"]
+    expected=[e for e in CHECKPOINT_EPOCHS if e*20<step]
+    require([x["epoch"] for x in scheduled] in
+        (expected,expected+[step//20] if step%20==0 and step//20 in CHECKPOINT_EPOCHS else expected)
+        and all(x["additional_updates_per_arm"]==20*x["epoch"] for x in scheduled),
+        "Preserved six prescribed checkpoint boundaries")
+    return step
+
+
+def run_train_v1(cfg,*,parent_plan_refs,artifact_acceptance_ref,writer,device,
+        worker_tmp_directory,resolve_train_truth,runtime_guard,
+        actual_train_bindings,resume_ref=None):
+    """Real matched600-additional-update runner. No automatic launch/retry.
+
+    ROOT must qualify actual full-parent fit and admit this new condition.
+    The last fully completed PAIR is preserved if either arm fails mid-parent.
+    """
+    require(resume_ref is None,"Fresh full cell only; old or new transfer checkpoint resume is forbidden")
+    validate_config_v1(cfg)
+    require(isinstance(parent_plan_refs,dict) and set(parent_plan_refs)==set(TRAIN)
+        and callable(getattr(writer,"save",None)) and callable(runtime_guard)
+        and callable(resolve_train_truth), "Actual20plans and admitted writer/resource/target capabilities")
+    authoritative_registry_v1()
+    actual=torch.device(device)
+    require(actual.type in ("cpu","cuda") and (actual.type!="cuda" or actual.index is not None),
+        "One explicit ROOT-admitted device; physical GPU policy remains external")
+    runtime_guard("before_warmstart_transfer")
+    shared,warmstart,old_plans,old_target_binding=load_accepted_backbone_v1(
+        artifact_acceptance_ref,runtime_guard=runtime_guard)
+    require(parent_plan_refs==old_plans,
+        "Same frozen original20TRAIN observations/focals as accepted saved600")
+    source_snapshot=_source_snapshot_v2()
+    global_source_refs=_global_preparation_refs_v1()
+    cached_cpu_bundles={};cached_bytes=0
+    safe=None;scheduled=[];history={a:[] for a in ARMS};step=0
+    try:
+        seals={}
+        for parent in TRAIN:
+            _source_check_v2(source_snapshot)
+            bundle,seal=global_protocol.prepare_and_seal_global_parent_v1(
+                parent_plan_refs[parent],cfg,runtime_guard,source_refs=global_source_refs)
+            seals[parent]=seal
+            cached_bytes=_admit_global_parent_v1(cached_cpu_bundles,parent,bundle,seal,
+                current_bytes=cached_bytes,maximum_bytes=cfg["max_cached_parent_bytes"],
+                runtime_guard=runtime_guard)
+            del bundle
+        require(set(cached_cpu_bundles)==set(TRAIN)
+            and cached_bytes<=cfg["max_cached_parent_bytes"],
+            "All20 complete CPU parents admitted before any TRAIN truth")
+        _source_check_v2(source_snapshot)
+        cache_accounting=dict(parents=20,accounted_bytes=cached_bytes,
+            maximum_bytes=cfg["max_cached_parent_bytes"],
+            entries={p:cached_cpu_bundles[p]["charge"] for p in TRAIN},
+            complete_cache_admitted_before_TRAIN_truth=True,
+            total_process_RSS_checked_by_current_runtime_callback=True,
+            tensor_hashes_once_at_initial_seal=True,
+            later_integrity="owned immutable tensor identity/version and semantic stamps;stable authenticated source identity")
+        validated_identities=_validated_global_cache_identities_v1(
+            cached_cpu_bundles,seals,parent_plan_refs,runtime_guard)
+        observation=global_protocol.make_all20_barrier_v1(parent_plan_refs,seals,
+            validated_cache_identities=validated_identities)
+        observation_sha=json_sha(observation)
+        observation_ref=writer.save("TRAIN_observation_barrier.json",observation)
+        # No actual target factory exists until every owned cache passed integrity
+        # and the truthful new all20 barrier was durably written by the real writer.
+        target_factory=global_protocol.make_actual_global_target_joiner_factory_v1(
+            actual_train_bindings,barrier=observation,source_refs=global_source_refs,runtime_guard=runtime_guard)
+        target_binding=copy.deepcopy(target_factory.execution_binding)
+        global_protocol.validate_target_protocol_binding_v1(target_binding,old_target_binding,barrier=observation)
+        joiner=target_factory(resolve_train_truth,
+            max_truth_uncompressed_bytes=cfg["max_truth_uncompressed_bytes"])
+        targets={}
+        for parent in TRAIN:
+            runtime_guard("TreeLoom_external_TRAIN_target_join")
+            targets[parent]=joiner.join(parent,split="train",
+                plan=dict(read(parent_plan_refs[parent]),plan_ref=parent_plan_refs[parent]),observation_seal=seals[parent])
+        target_manifest=dict(schema=FAMILY+"_all20_native_focal_target_joins_v1",
+            registry_ref=REGISTRY_REF,observation_seal_sha256=observation_sha,
+            parents={p:targets[p].receipt for p in TRAIN},all20_targets_ready=True,
+            labels_in_observation_bank=False,purity_filter=False)
+        target_sha=json_sha(target_manifest)
+        target_ref=writer.save("TRAIN_external_target_joins.json",target_manifest)
+        signature,signature_sha=_signature_v1(cfg,parent_plan_refs,warmstart,target_binding)
+        require(torch.get_default_dtype()==torch.float32 and not torch.is_autocast_enabled(),
+            "Original full FP32 model/optimizer condition")
+        runtime_guard("before_first_CUDA_seed_or_model_transfer")
+        _seed_fresh(actual)
+        family,optimizers,initialization=make_matched_family_v1(shared,warmstart,device=actual)
+        del shared
+        writer.save("matched_initialization.json",initialization)
+        for index in range(step,600):
+            epoch=index//20+1;at=index%20;parent=epoch_order_v1(epoch)[at]
+            pair_started=time.monotonic()
+            _source_check_v2(source_snapshot)
+            runtime_guard("TreeLoom_CPU_cache_reuse")
+            cpu_bundle=_cache_get_v2(cached_cpu_bundles,parent)
+            bundle=cpu_bundle.to(actual);del cpu_bundle
+            preparation_wall=time.monotonic()-pair_started
+            for arm in ARMS:
+                result=train_complete_parent_step_v1(arm,family[arm],bundle,
+                    targets[parent],optimizers[arm],resource_check=runtime_guard,
+                    first_update=(index==0))
+                result.update(epoch=epoch,parent_index=at,global_step=index+1)
+                history[arm].append(result)
+                _cache_get_v2(cached_cpu_bundles,parent)
+            _source_check_v2(source_snapshot)
+            paired_wall=time.monotonic()-pair_started
+            for arm in ARMS:
+                history[arm][-1].update(
+                    paired_parent_wall_seconds_including_preparation=paired_wall,
+                    cached_parent_integrity_and_transfer_wall_seconds=preparation_wall)
+            del bundle
+            step=index+1
+            safe=_snapshot_v1(family,optimizers,step=step,history=history,
+                scheduled=scheduled,signature=signature,signature_sha=signature_sha,
+                observation_ref=observation_ref,observation_sha=observation_sha,
+                target_ref=target_ref,target_sha=target_sha,
+                initialization=initialization,device=actual)
+            if step%20==0 and epoch in CHECKPOINT_EPOCHS:
+                candidate=copy.deepcopy(safe)
+                candidate["candidate"]=dict(kind="scheduled_epoch_pair",
+                    completed_epoch=epoch,additional_updates_per_arm=step,
+                    VAL_selection_authorized=False)
+                checkpoint_ref=writer.save("checkpoint_pair_epoch_%03d.pt"%epoch,candidate,kind="torch")
+                scheduled.append(dict(epoch=epoch,additional_updates_per_arm=step,
+                    checkpoint_ref=checkpoint_ref))
+                safe=_snapshot_v1(family,optimizers,step=step,history=history,
+                    scheduled=scheduled,signature=signature,signature_sha=signature_sha,
+                    observation_ref=observation_ref,observation_sha=observation_sha,
+                    target_ref=target_ref,target_sha=target_sha,
+                    initialization=initialization,device=actual)
+        require(step==600 and all(len(history[a])==600 for a in ARMS)
+            and [r["epoch"] for r in scheduled]==list(CHECKPOINT_EPOCHS),
+            "Both arms complete all600new whole-parent updates and all6paired checkpoints")
+        return writer.save("completed_training.json",dict(schema=SCHEMA,
+            status="completed_TreeLoom_saved600_warmstart_matched_training",
+            family=FAMILY,condition=CONDITION,arms=list(ARMS),parameters_per_arm=PARAMETERS,
+            protocol_sha256=signature_sha,initialization=initialization,
+            inherited_saved_logical_updates=600,additional_updates_per_arm=600,
+            new_saved_logical_optimizer_updates_total=1200,
+            exact_physical_update_total_not_inferred=True,
+            focal_exposures_per_arm=6000000,
+            epochs=30,trained_parent_ids=list(TRAIN),train_sequence_lengths_bp=[2000000]*20,
+            observation_manifest_ref=observation_ref,target_manifest_ref=target_ref,
+            observation_seal_sha256=observation_sha,target_join_sha256=target_sha,
+            checkpoint_candidates={a:[dict(r,arm=a) for r in scheduled] for a in ARMS},
+            history=history,resume_ref=resume_ref,selected_heldout_checkpoint=None,
+            VAL_used_for_optimization=False,TEST_deferred=True,
+            new_prediction_seals_required_per_arm=30,
+            all60_matched_prediction_seals_required_before_any_VAL_truth=True,
+            total_new_prediction_seals_required=60,
+            either_arm_validation_truth_or_checkpoint_choice_before60_seals=False,
+            no_current_validation_scoring_capability=True,
+            first_step_timing_inside_full_budget=True,
+            CPU_parent_cache=cache_accounting,
+            full_global_preparations=20,full_tensor_hashes_per_parent=1,
+            repeated_full_preparation_or_data_hashing=False,
+            first_real_update_checks={a:history[a][0]["first_real_update_checks"] for a in ARMS},
+            first_scheduled_update_wall_seconds={
+                a:history[a][0]["complete_parent_step_wall_seconds_including_checks"] for a in ARMS},
+            standalone_token_update_probe=False,
+            existing_C3_all30_barrier_unchanged=True,
+            exact_European_or_fourstage_reproduction_claimed=False,
+            prior_failed_producer_success_claimed=False,ancestry_accuracy=None))
+    except BaseException as error:
+        try:
+            boundary_ref=None
+            if safe is not None:
+                boundary_ref=writer.save("failure_last_complete_pair.pt",safe,kind="torch")
+            failure_ref=writer.save("failed_training.json",dict(
+                status="failed_TreeLoom_warmstart_training_preserved",
+                family=FAMILY,condition=CONDITION,
+                last_complete_paired_updates_per_arm=step,
+                last_complete_pair_checkpoint_ref=boundary_ref,
+                last_safe_checkpoint_updates_per_arm=(
+                    safe["trainer_state"]["additional_updates_per_arm"]
+                    if safe is not None else None),
+                attempted_arm_counts={a:len(history[a]) for a in ARMS},
+                partial_pair_or_update_not_checkpointed=True,
+                exception_type=type(error).__name__,message=str(error)[:2000]))
+            if hasattr(error,"add_note"):error.add_note("Preserved failure receipt: "+str(failure_ref))
+        except BaseException as sealing:
+            if hasattr(error,"add_note"):error.add_note("Failure sealing failed: "+type(sealing).__name__)
+        raise
+    finally:
+        cached_cpu_bundles.clear()

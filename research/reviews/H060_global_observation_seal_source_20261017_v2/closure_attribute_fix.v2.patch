@@ -1,0 +1,20 @@
+--- research/reviews/H060_global_observation_seal_source_20261017_v1/global_observation_protocol_v1.py
++++ research/reviews/H060_global_observation_seal_source_20261017_v2/global_observation_protocol_v1.py
+@@ -7,7 +7,7 @@
+ from types import CodeType
+ import ast,copy,hashlib,json,os,stat
+ ROOT=Path('/workspace-SR003.nfs2/ARG-GNN')
+-HERE='research/reviews/H060_global_observation_seal_source_20261017_v1'
++HERE='research/reviews/H060_global_observation_seal_source_20261017_v2'
+ SOURCE=HERE+'/global_observation_protocol_v1.py'
+ TRAIN=tuple('american_c3_short_train_%03d'%i for i in range(20))
+ CLASSES=('EUR','EAS','AFR')
+@@ -211,7 +211,7 @@
+     base_join=scope['join']
+     actual=hooks.make_actual_target_joiner_factory_v1(bindings)
+     actual_node=_exact_method_v1(hooks,hr,actual.join,('make_actual_target_joiner_factory_v1','ActualTrainTargetJoinV1','join'))
+-    closure={k:c.cell_contents for k,c in zip(actual.join.__code__.co_freevars,actual.join.__closure__or())}
++    closure={k:c.cell_contents for k,c in zip(actual.join.__code__.co_freevars,actual.join.__closure__ or ())}
+     scope=dict(hooks.__dict__,**closure,_global_base_join=base_join)
+     exec(compile(ast.Module(body=[derive_actual_join_v1(actual_node)],type_ignores=[]),SOURCE+'#original-actual-path-body-new-typed-delegation','exec'),scope)
+     class ActualGlobalTrainTargetJoinV1(actual):
