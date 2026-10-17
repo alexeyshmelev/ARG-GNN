@@ -18,4 +18,4 @@ Existing H058, C3v5 and H060 global-only handles remain live. No new optimizer u
 
 The current published nine-page paper and Figure1 were inspected against the latest remarks. Existing valid-ARG/tree correspondence, sparse untitled panels, explicit LAI introduction and main-table selection are preserved. No further paper rewrite or new scientific score is claimed by this continuation.
 
-Native VAL002 sealing metadata preparation returned genuine0 under41728, followed by separate admission15799, currently pending. The numerical Census successor and compact-barrier preventative source passed independent source-only reviews. Neither is adopted or an actual retention/training success.
+Native VAL002 sealing metadata preparation returned genuine0 under41728, followed by separate admission15799 actual0 with all64bindings. Its exact emitted one-shot prediction-seal execution38892 is live, without truth or ancestry scoring. The numerical Census successor and compact-barrier preventative source passed independent source-only reviews. Neither is adopted or an actual retention/training success.
