@@ -1,0 +1,186 @@
+--- research/reviews/H058_GPU0_full_training_successor_source_20261017_v2/common_v1.py
++++ research/reviews/H058_GPU0_full_training_successor_source_20261017_v3/common_v1.py
+@@ -3,7 +3,7 @@
+ from datetime import datetime,timezone
+ import ast,hashlib,importlib,importlib.util,io,json,os,stat,sys,time,types
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-HERE="research/reviews/H058_GPU0_full_training_successor_source_20261017_v2"
++HERE="research/reviews/H058_GPU0_full_training_successor_source_20261017_v3"
+ SOURCE=HERE+"/common_v1.py"
+ DRIVER=HERE+"/root_driver_v1.py"
+ CONTEXT=HERE+"/context_factory_v1.py"
+@@ -38,6 +38,12 @@
+ SELECTOR_REF={'path':'research/reviews/Relate_failed64GiB_retention_ROOT_activation_20261017_v1/explicit_child_selector.root_active_v1.json','sha256':'e27d47a22d0da1b2e8f0bdf0818cb2c6c473d8c9ddb5424618bf97e704928642'}
+ SELECTOR_API_REF={'path':'research/reviews/H061_postselection_execution_source_20261017_v1/root_contract_v1.py','sha256':'c01479a37ad9725f5a3ab7a1759f31db48b4d4d8678ce2b723f1226fb2e74d98'}
+ _SELECTOR_API=None
++
++NATIVE_ROOT_DISPOSITION_REF={'path': 'research/reviews/native_VAL000_ROOT_terminal_disposition_20261017_v1/terminal_disposition.root_active_v1.json', 'sha256': 'c38933b5026f82a5e33093c5351fcfff8175215e5319e055161503096ed3f3eb'}
++NATIVE_RESOURCE_WAIT_REF={'path': 'research/reviews/native_VAL000_fresh_continuation_ROOT_v12_root01_oct16/worker_aux/actual_wait.json', 'sha256': 'fe35274be6a945a134535634f92647d36e6f2600824c05d39233d617c226565e'}
++NATIVE_RESOURCE_OUTER_REF={'path': 'research/reviews/research_execution_ROOT_20261017_v19/native70445_actual_outer_terminal_consumed.root_v1.json', 'sha256': '1eaa378c5650a7c72423f9fba4b4b2603957c2a4e30f5b21b3db47bc24fa6371'}
++NATIVE_RESOURCE_AMENDMENT_REF={'path': 'research/reviews/native_VAL000_fresh_continuation_ROOT_v12_root01_oct16/amendment.root_active_v12.json', 'sha256': '00d561712b7333f4eafe8c2f8742b19230cd045a62601c1cfae4c9a75a8e4985'}
++
+ 
+ def require(ok,message):
+     if not ok:raise ValueError(message)
+@@ -163,45 +169,98 @@
+             and directive.get("full30pass_training_authorized") is True
+             and directive.get("scientific_protocol")==protocol.fixed_protocol_v1(),"Actual full30pass authority")
+ 
+-def validate_native_noncoexistence_v3(q,*,fresh):
+-    """Future successful native completion and actual absence; never stop native."""
+-    v=read(q["native_noncoexistence_qualification_ref"]);active(v)
+-    require(v.get("schema")=="H058_ROOT_after_native_success_qualification_v1"
+-        and v.get("root_authorizer")=="root_agent" and v.get("status")=="qualified"
++def validate_native_resource_disposition_v1(q,*,fresh):
++    """Exact terminated native resource release; no scientific acceptance."""
++    v=read(q["native_resource_disposition_ref"]);active(v)
++    require(v.get("schema")=="H058_ROOT_after_native_terminal_resource_disposition_v1"
++        and v.get("root_authorizer")=="root_agent" and v.get("status")=="resources_released"
+         and v.get("adapter_manifest_ref")==ref(MANIFEST) and v.get("H058_job_id")==q["job_id"]
+-        and v.get("physical_gpu")==0 and v.get("full_native_optimizer_updates_verified")==227990
++        and v.get("physical_gpu")==0
++        and v.get("native_actual_wait_ref")==NATIVE_RESOURCE_WAIT_REF
++        and v.get("native_actual_outer_terminal_ref")==NATIVE_RESOURCE_OUTER_REF
++        and v.get("native_execution_amendment_ref")==NATIVE_RESOURCE_AMENDMENT_REF
++        and v.get("native_ROOT_terminal_disposition_ref")==NATIVE_ROOT_DISPOSITION_REF
+         and v.get("actual_native_outer_terminal_consumed") is True
+-        and v.get("native_outer_exit_code")==0
++        and v.get("native_outer_exit_code")==1
++        and v.get("native_direct_worker_returncode")==0
++        and v.get("native_operational_failure")=="ValueError: Actual native worker current identity"
++        and v.get("native_success_claimed") is False
++        and v.get("native_scientific_acceptance_authorized") is False
+         and v.get("no_native_GPU0_attachment_alive") is True
+-        and v.get("all_native_launch_resume_execution_routes_revoked_while_H058_attached") is True
++        and v.get("all_old_native_launch_resume_write_routes_permanently_revoked") is True
+         and v.get("C3_controller_preserved_until_H058_drained") is True,
+-        "Only genuine future completed native, never current live authority or stopped/unknown history")
+-    wait=read(v["native_actual_wait_ref"]);outer=read(v["native_actual_outer_terminal_ref"])
++        "Exact native terminal1 resource disposition, preserved failure and permanent route revocation")
++    wait=read(NATIVE_RESOURCE_WAIT_REF);outer=read(NATIVE_RESOURCE_OUTER_REF)
++    amendment=read(NATIVE_RESOURCE_AMENDMENT_REF)
++    disposition=read(NATIVE_ROOT_DISPOSITION_REF)
++    require(disposition.get("schema")=="ROOT_native_VAL000_actual_terminal_disposition_v1"
++        and disposition.get("root_authorizer")=="root_agent"
++        and disposition.get("actual_wait_ref")==NATIVE_RESOURCE_WAIT_REF
++        and disposition.get("actual_outer_terminal_ref")==NATIVE_RESOURCE_OUTER_REF
++        and disposition.get("amendment_ref")==NATIVE_RESOURCE_AMENDMENT_REF
++        and disposition.get("actual_wait_input_ref")==wait.get("input_ref")
++        and disposition.get("actual_direct_worker_returncode")==0
++        and disposition.get("actual_outer_returncode")==1
++        and disposition.get("outer_terminal_consumed") is True
++        and disposition.get("all_owned_processes_and_groups_drained") is True
++        and disposition.get("current_v12_known_identity_count")==50
++        and disposition.get("all_future_old_VAL000_MLM_launch_resume_write_routes_revoked") is True
++        and disposition.get("operational_failure")==v["native_operational_failure"]
++        and disposition.get("historical_unknowns_preserved") is True
++        and disposition.get("all_old_files_scopes_charges_clocks_preserved") is True
++        and disposition.get("new_native_MLM_replay_authorized") is False,
++        "Unchanged genuine ROOT terminal disposition and permanent old VAL000 route revocation")
+     require(wait.get("schema")=="native32_fixed_full_parent_actual_wait_v2"
+         and wait.get("returncode")==0 and wait.get("actual_direct_worker_wait") is True
+         and wait.get("all_owned_processes_and_groups_drained") is True
+-        and wait.get("operational_failure") is None
+-        and wait.get("completed_ref")==v["native_completed_ref"],
+-        "Actual native successful direct wait/drain/completion join")
+-    raw(v["native_completed_ref"])
+-    require(outer.get("root_authorizer")=="root_agent"
+-        and outer.get("actual_terminal_consumed") is True
+-        and outer.get("actual_exit_code")==0
+-        and outer.get("completed_ref")==v["native_completed_ref"]
+-        and outer.get("actual_wait_ref")==v["native_actual_wait_ref"],
+-        "Future ROOT-consumed actual native outer0 joined to its direct wait")
++        and wait.get("owned_identity_absence") is True and wait.get("pipe_EOF_observed") is True
++        and wait.get("cleanup_errors")==[]
++        and wait.get("complete_owned_roster_known") is True
++        and wait.get("actual_execution_amendment_ref")==NATIVE_RESOURCE_AMENDMENT_REF
++        and wait.get("input_ref")==amendment.get("original_input_ref")
++        and wait.get("adapter_manifest_ref")==amendment.get("adapter_manifest_ref")
++        and wait.get("operational_failure")==v["native_operational_failure"],
++        "Genuine direct0/full owned drain/EOF and preserved operational failure")
++    require(outer.get("tool_session_id")==70445
++        and outer.get("terminal_consumed") is True
++        and outer.get("actual_tool_terminal_exit_code")==1
++        and outer.get("actual_direct_worker_returncode_in_tool_output")==0
++        and outer.get("all_owned_processes_and_groups_drained_in_tool_output") is True
++        and outer.get("outer_failure_preserved") is True
++        and outer.get("successful_outer_terminal_claimed") is False
++        and outer.get("automatic_retry_authorized") is False,
++        "Original consumed ROOT70445 terminal1; exact pins join its unchanged wait")
++    owned=wait["ownership"];rows=owned["owned_identities"]
++    require(owned.get("complete_owned_roster_known") is True
++        and owned.get("owned_roster_truncated") is False
++        and owned.get("known_identity_count")==len(rows)==50
++        and len({(r["pid"],r["start"]) for r in rows})==len(rows),
++        "Entire exact fifty-identity native owned roster")
++    uid=wait["last_capacity_sample"]["actual_worker_start_identity"]["uid"]
++    require(uid==os.getuid(),"Exact native same-UID resource identities")
++    identities=[dict(pid=r["pid"],start_ticks=r["start"],uid=uid) for r in rows]
++    groups=[r["pgid"] for r in wait["group_observations"]]
++    require(groups and all(r["absent"] is True for r in wait["group_observations"])
++        and len(set(groups))==len(groups)
++        and v.get("native_process_identities")==identities
++        and v.get("native_process_groups")==groups,
++        "Exact full native PID/start/UID and drained group inventory")
+     absence=read(v["fresh_targeted_native_absence_ref"])
+     require(absence.get("root_authorizer")=="root_agent"
+         and absence.get("native_known_roots_and_contexts_absent") is True
+         and absence.get("no_native_GPU0_attachment_alive") is True
+-        and absence.get("native_actual_wait_ref")==v["native_actual_wait_ref"]
+-        and absence.get("historical_unknowns_preserved") is True,
+-        "Future targeted absence after genuine native drain, no historical success rewrite")
++        and absence.get("native_actual_wait_ref")==NATIVE_RESOURCE_WAIT_REF
++        and absence.get("native_actual_outer_terminal_ref")==NATIVE_RESOURCE_OUTER_REF
++        and absence.get("native_process_identities")==identities
++        and absence.get("native_process_groups")==groups
++        and absence.get("all_exact_native_identities_and_groups_absent") is True
++        and absence.get("all_old_native_launch_resume_write_routes_permanently_revoked") is True
++        and absence.get("historical_unknowns_preserved") is True
++        and absence.get("observed_at_utc")==v.get("observed_at_utc"),
++        "Fresh ROOT exact native identity/group/context absence after genuine terminal and drain")
+     stamp=datetime.fromisoformat(v["observed_at_utc"]);now=datetime.now(timezone.utc)
+-    require(stamp.tzinfo and stamp<=now,"Nonfuture ROOT native absence qualification")
++    require(stamp.tzinfo and stamp<=now,"Nonfuture ROOT native resource absence")
+     if fresh:require((now-stamp).total_seconds()<=300,"Fresh native absence before admission/launch")
+-    require(isinstance(v.get("native_process_identities"),list) and v["native_process_identities"],
+-        "Exact known native PID/start identities to recheck throughout attachment")
+     return v
+ 
+ def validate_request_v1(record):
+@@ -213,14 +272,14 @@
+         and q.get("root_authorizer")=="root_agent" and q.get("execution_authorized") is True
+         and q.get("phase") in FIXED_PHASES and q.get("source_review_passed") is True
+         and q["adapter_manifest_ref"]==ref(MANIFEST),"Explicit fresh reviewed H058 ROOT request")
+-    require(q["packet_directory"].startswith("research/reviews/H058_GPU0_v2_ROOT_actual_")
+-        and q["output_directory"].startswith("experiments/results/H058_GPU0_v2_full_parent_")
+-        and q["job_id"]=="H058-GPU0-v2-fulltrain-"+q["instance_id"]
++    require(q["packet_directory"].startswith("research/reviews/H058_GPU0_v3_ROOT_actual_")
++        and q["output_directory"].startswith("experiments/results/H058_GPU0_v3_full_parent_")
++        and q["job_id"]=="H058-GPU0-v3-fulltrain-"+q["instance_id"]
+         and q["instance_id"] and all(ch in "abcdefghijklmnopqrstuvwxyz0123456789_-" for ch in q["instance_id"]),
+         "Separate fresh finite GPU0 namespaces")
+     preparation=local(q["preparation_directory"])
+     require(preparation==local(record["path"]).parent and preparation.is_dir()
+-        and q["preparation_directory"].startswith("research/reviews/H058_GPU0_v2_ROOT_preparation_")
++        and q["preparation_directory"].startswith("research/reviews/H058_GPU0_v3_ROOT_preparation_")
+         and all(preparation!=local(q[key]) and not preparation.is_relative_to(local(q[key]))
+             and not local(q[key]).is_relative_to(preparation) for key in ("packet_directory","output_directory")),
+         "Staging outside never-reserved packet/output")
+@@ -245,7 +304,7 @@
+         and type(q["caps"]["max_cuda_reserved_bytes"]) is int
+         and q["caps"]["max_cuda_reserved_bytes"]==28*2**30,
+         "Exact narrow caps; ROOT may choose positive CUDA cap up to28GiB")
+-    if q["phase"]=="train":validate_native_noncoexistence_v3(q,fresh=True)
++    if q["phase"]=="train":validate_native_resource_disposition_v1(q,fresh=True)
+     local(q["packet_directory"]);local(q["output_directory"]);source_refs_v1()
+     review=read(q["source_review_ref"]);raw(q["science_handoff_ref"])
+     require(review.get("independent") is True and review.get("verdict")=="SOURCE_PASS"
+@@ -290,7 +349,7 @@
+         and storage["budget_components"]["consumer_adapter"]==GUARD,"Actual current child whole256MiB output+packet reservation")
+     needed=[SELECTOR_REF,ref(MANIFEST),ref(DRIVER),ref(CONTEXT),ref(DIRECT),s["root_stage_request_ref"],
+         q["config_ref"],q["science_handoff_ref"],q["source_review_ref"],cfg["source_manifest_ref"],producer,s["refs"]["runtime"]]
+-    if q["phase"]=="train":needed.append(q["native_noncoexistence_qualification_ref"])
++    if q["phase"]=="train":needed.append(q["native_resource_disposition_ref"])
+     require(len(storage["reservation"]["consumer_bindings"])<=64
+         and all(r in storage["reservation"]["consumer_bindings"] for r in needed),"Original64 direct limit and full transitive closure")
+     for path,sha in s["source_sha256"].items():raw(dict(path=path,sha256=sha))

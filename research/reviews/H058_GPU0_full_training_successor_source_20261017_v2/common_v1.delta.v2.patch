@@ -1,0 +1,76 @@
+--- research/reviews/H058_GPU0_full_training_successor_source_20261017_v1/common_v1.py
++++ research/reviews/H058_GPU0_full_training_successor_source_20261017_v2/common_v1.py
+@@ -3,15 +3,15 @@
+ from datetime import datetime,timezone
+ import ast,hashlib,importlib,importlib.util,io,json,os,stat,sys,time,types
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-HERE="research/reviews/H058_GPU0_full_training_successor_source_20261017_v1"
++HERE="research/reviews/H058_GPU0_full_training_successor_source_20261017_v2"
+ SOURCE=HERE+"/common_v1.py"
+ DRIVER=HERE+"/root_driver_v1.py"
+ CONTEXT=HERE+"/context_factory_v1.py"
+ DIRECT=HERE+"/direct_gpu0_v1.py"
+ MANIFEST=HERE+"/source_manifest.v1.json"
+ FIXED_PHASES=("train",)
+-CAPS=dict(reservation_bytes=32*2**20,scientific_output_bytes=25*2**20,
+-    auxiliary_bytes=5*2**20,directory_and_accounting_allowance_bytes=2*2**20,
++CAPS=dict(reservation_bytes=256*2**20,scientific_output_bytes=192*2**20,
++    auxiliary_bytes=60*2**20,directory_and_accounting_allowance_bytes=4*2**20,
+     log_bytes=128*2**10,configure_fit_bytes=8*2**20,checkpoint_bytes=1572864,
+     max_seconds=86400,max_cpu_rss_bytes=128*2**30,max_cuda_reserved_bytes=28*2**30,
+     C3_fixed_envelope_bytes=26*2**30,headroom_bytes=4*2**30,
+@@ -135,7 +135,7 @@
+         and cfg["max_cpu_rss_bytes"]==CAPS["max_cpu_rss_bytes"]
+         and cfg["output_cap_bytes"]==CAPS["scientific_output_bytes"]
+         and cfg["checkpoint_file_cap_bytes"]==CAPS["checkpoint_bytes"]
+-        and cfg["evaluation_backend"]=="cpu","Exact28GiB CUDA/128GiB RSS/current25MiB output; CPU evaluation remains separately gated")
++        and cfg["evaluation_backend"]=="cpu","Exact28GiB CUDA/128GiB RSS/current192MiB output; CPU evaluation remains separately gated")
+     completed=read(cfg["one_hold_completion_ref"]);wait=read(cfg["one_hold_direct_wait_ref"])
+     terminal=read(cfg["one_hold_outer_terminal_ref"]);receipt=read(completed["qualification_ref"])
+     require(completed.get("status")=="completed_H058_one_observed_hold_FP32_qualification"
+@@ -213,14 +213,14 @@
+         and q.get("root_authorizer")=="root_agent" and q.get("execution_authorized") is True
+         and q.get("phase") in FIXED_PHASES and q.get("source_review_passed") is True
+         and q["adapter_manifest_ref"]==ref(MANIFEST),"Explicit fresh reviewed H058 ROOT request")
+-    require(q["packet_directory"].startswith("research/reviews/H058_GPU0_ROOT_actual_")
+-        and q["output_directory"].startswith("experiments/results/H058_GPU0_full_parent_")
+-        and q["job_id"]=="H058-GPU0-fulltrain-"+q["instance_id"]
++    require(q["packet_directory"].startswith("research/reviews/H058_GPU0_v2_ROOT_actual_")
++        and q["output_directory"].startswith("experiments/results/H058_GPU0_v2_full_parent_")
++        and q["job_id"]=="H058-GPU0-v2-fulltrain-"+q["instance_id"]
+         and q["instance_id"] and all(ch in "abcdefghijklmnopqrstuvwxyz0123456789_-" for ch in q["instance_id"]),
+         "Separate fresh finite GPU0 namespaces")
+     preparation=local(q["preparation_directory"])
+     require(preparation==local(record["path"]).parent and preparation.is_dir()
+-        and q["preparation_directory"].startswith("research/reviews/H058_GPU0_ROOT_preparation_")
++        and q["preparation_directory"].startswith("research/reviews/H058_GPU0_v2_ROOT_preparation_")
+         and all(preparation!=local(q[key]) and not preparation.is_relative_to(local(q[key]))
+             and not local(q[key]).is_relative_to(preparation) for key in ("packet_directory","output_directory")),
+         "Staging outside never-reserved packet/output")
+@@ -287,7 +287,7 @@
+         and storage["reserved_new_bytes"]==CAPS["reservation_bytes"]
+         and storage["reservation"]["auxiliary_scopes"]==[str(local(q["packet_directory"]))]
+         and storage["completed_overlay_policy_ref"]==POLICY
+-        and storage["budget_components"]["consumer_adapter"]==GUARD,"Actual current child whole32MiB output+packet reservation")
++        and storage["budget_components"]["consumer_adapter"]==GUARD,"Actual current child whole256MiB output+packet reservation")
+     needed=[SELECTOR_REF,ref(MANIFEST),ref(DRIVER),ref(CONTEXT),ref(DIRECT),s["root_stage_request_ref"],
+         q["config_ref"],q["science_handoff_ref"],q["source_review_ref"],cfg["source_manifest_ref"],producer,s["refs"]["runtime"]]
+     if q["phase"]=="train":needed.append(q["native_noncoexistence_qualification_ref"])
+@@ -308,7 +308,7 @@
+         HF_HOME=base+"/cache/huggingface",HF_HUB_CACHE=base+"/cache/huggingface/hub")
+ 
+ def charged_census_v1(spec,*,required_write_bytes=0):
+-    """Original no-follow file measurement, with current32MiB output+entire-packet scope."""
++    """Original no-follow file measurement, with current256MiB output+entire-packet scope."""
+     def measured(path):
+         total=entries=0
+         for directory,dirs,files in os.walk(local(path),followlinks=False):
+@@ -331,7 +331,7 @@
+         and auxiliary+required_write_bytes<=CAPS["auxiliary_bytes"]
+         and whole_packet-auxiliary<=CAPS["directory_and_accounting_allowance_bytes"]
+         and output+whole_packet+required_write_bytes<=CAPS["reservation_bytes"],
+-        "Current25MiB scientific+5MiB AUX+2MiB packet and32MiB whole scope")
++        "Current192MiB scientific+60MiB AUX+4MiB packet and256MiB whole scope")
+     return {spec["output_directory"]:output,packet:whole_packet}
+ 
+ def compact_v1(spec,name,value,g,storage,*,cap=2**20):
