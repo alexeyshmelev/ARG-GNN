@@ -1,6 +1,6 @@
 # Current scientific scoreboard
 
-Updated UTC: 2026-10-17T18:11:28.578297+00:00
+Updated UTC: 2026-10-17T19:06:10.788198+00:00
 
 [All measured cohort details](#detailed-cohort-metrics) · [Complete historical receipt inventory](all_recorded_metric_receipts.md) · [Fresh H048 novelty/cross-domain audit](../research/reviews/H048_novelty_crossdomain_fresh_20261015_v1/report.md)
 
@@ -639,18 +639,18 @@ H045 empirical probabilities, bp-weighted proportions and original-genotype PCA 
 <!-- FROZEN_BENCHMARK_PROGRESS_START -->
 ## Frozen benchmark execution
 
-Updated UTC: 2026-10-17T18:10:58.985078+00:00. Physical GPU 0 only.
+Updated UTC: 2026-10-17T19:04:32.425517+00:00. Physical GPU 0 only.
 
 | Stage | Current verified status |
 |---|---|
-| Frozen TreeLoom architecture | Unchanged H050 stable_leaf_memory model. Full-length bounded execution preserves original equations. |
+| Frozen TreeLoom architecture | Unchanged H050 stable_leaf_memory model. Bounded execution preserves original equations. No architecture search. |
 | Full TreeLoom training | Not started. Fixed budget:20 complete30Mb TRAIN parents,30 passes,600 updates, fresh weights. Requires successful complete-parent qualification and all20 prepared observations. |
-| Full-length American data | TRAIN000 ready. TRAIN001 simulation completed and closed successfully. TRAIN001 inference supervisor launched. Remaining18 simulation controller launched, units queued before admission. |
+| Full-length American data | TRAIN000 ready. TRAIN001 simulation and inference genuinely completed and closed0. TRAIN002 execution and remaining18 simulation batch active. |
 | Native ARGformer | Five native MLM epochs/227,990 saved updates completed for VAL000 only. Saved artifact accepted for contrastive initialization. Contrastive training, embeddings and ancestry scores pending. |
 | Native FLARE | All five30Mb VAL predictions scored successfully.50,000 fixed focal targets total. Metrics below. |
 | Old short-to-long transfer | H060 global-only v2 failed before optimization at JSON observation-record limit. Failure preserved. No automatic retry. |
-| Remaining CPU preparation | Continuation covers37 inference/native-path stages. First source version blocked in independent review; corrected actual metadata-entry checks in progress. |
-| TreeLoom GPU qualification | Failed before model worker/CUDA: owner status RPC blocked by periodic global bookkeeping. Zero optimizer updates. Owner service correction in progress. |
+| Remaining CPU preparation | Inference-only18-parent continuation independently passed and current capacity capture/admission is running. Compact exact-focal component independently passed bitwise native-identity checks. Its operational controller and all20 barrier integration are in progress. Native competitor corpora unchanged. |
+| TreeLoom GPU qualification | Numerical parity passed. Actual GPU0 worker278834 is processing the complete TRAIN000 parent. Full-parent fit/update/qualification terminal still pending. No ancestry score. |
 
 **Native FLARE, five American validation simulations:** accuracy 98.0960 ± 0.3442% and macro F1 97.9196 ± 0.4059%.
 
