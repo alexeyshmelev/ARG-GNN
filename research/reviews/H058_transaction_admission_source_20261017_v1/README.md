@@ -1,0 +1,15 @@
+# H058 fresh admission transaction integration
+
+Inactive source candidate only. This package applies the already accepted reserve transaction memo to exact accepted H058_fresh_CPU_lifetime_source_20261017_v2. It authorizes no ROOT mutation, admission, job, runtime qualification, execution or scientific result.
+
+The common contract and driver are still one actual file. Original contract/driver/worker and scientific binding refs remain exact. Accepted v2 selector, original remaining-time checks, finite72h fresh authority, all nine old/new namespace comparisons, genuine session7922 unstarted-failure acceptance and launch/resume/write revocation, and constant admitted hypothesis_id=H058 serialization are unchanged. Every scientific configuration, full32TRAIN/952haplotypes/2Mb/30pass/960perarm/1920total protocol, CPU160–191/32threads/FP32,86400science/86700wall caps, real startup gate, owned lifecycle, cleanup/evidence and completion predicates remain exact.
+
+Only the original admit AST changes: memo construction immediately after guard(False) and before first put; original initial mutex/state block becomes memo.read_state_v1; only original g.apply_reserve_v1 callable becomes memo.reserve_v1. Original scientific-config/config/closure staging, complete current-role union, scope preflight, authority, reserve arguments, packet serialization and emitted execution argv retain their sequence. No outer mutex or guard source change. Executors/workers/scientific functions are unchanged.
+
+The exact accepted memo and independent component SOURCE_PASS are authenticated through this existing direct source manifest. No extra direct role. All actual returned guards, original static selector and current exact Relate child remain; handwritten baseline62, original cap64,65reject. This is source evidence, not current live capacity.
+
+Each memo state/reserve call acquires its own original mutex and starts cold. Only pinned .py/.sh byte checks and limited canonical paths are cached; original uncached final validation precedes state return or original append. Cache is disabled through append/fsync/postwrite reads, restored and destroyed before unlock. JSON/accounting/proofs/measurements/scientific reads remain uncached. Real speedup is unmeasured; retirement is unsupported.
+
+Preserve old H058 session7922 input/wait/log, consumed outer terminal, files, keys, charges, clocks and namespaces. Preserve all old source seals, existing admitted work and failed H06049766. ROOT must supply new separately reviewed metadata and disjoint scopes. Exact current Relate child only; no replay, automatic retry or older fallback.
+
+source_check_v1.py verifies exact reverse admission AST, unchanged accepted-v2 retained AST and worker/template bytes, all original assets, role boundaries, namespace/failure/revocation/identity fixtures and constructor/prewrite failures on isolated source AST and handwritten memory. After static inspection it runs only ROOT-authorized noargument driver/relative-worker checks with import audits. No real guard/state/mutex/resource/job/Git/scientific operation is exercised. Whole-integration independent SOURCE_PASS remains required.

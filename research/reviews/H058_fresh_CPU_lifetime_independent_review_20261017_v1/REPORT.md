@@ -1,0 +1,11 @@
+# Independent H058 fresh CPU lifetime source review
+
+Sealed v1 is SOURCE_BLOCKED for one namespace-preservation defect at driver lines91–94. Its same-key loop lets a new packet nest in the old preparation. The pure AST fixture reproduces this while satisfying original path predicates. No fixture path was written or admitted.
+
+Sealed v2 is SOURCE_PASS. It closes the defect by checking all9 new/old namespace pairs. The independent27-case fixture rejects equality, ancestors and descendants across all pairs and accepts fresh siblings. The only code delta is source identity and that loop; original worker/bindings/science/runtime caps/selector/role/lifecycle logic is unchanged.
+
+All262 v2 refs authenticate, including the entire original wrapper and selector-protocol source closures. All HERE assets, new self references, original-module global rebinding, stage joins and exact failure acceptance/revocation gates were inspected. Actual inactive imports under -B -s and an import audit return0, share the correct driver and import no active contract, guard or numerical module. A pinned-metadata fixture preserves all guard/direct refs at62 distinct bindings;64 is accepted and65 rejected before authority/reserve. Current real capacity and union remain for ROOT.
+
+The fresh259200-second ROOT interval retains original strict87300-second repeated request margins,86400-second scientific window and86700-second outer cap. Full32TRAIN/952haplotypes/2Mb/30passes/960updates EACHarm/1920total and all original model/optimizer/evaluator/cache/checkpoint math remain unchanged. Constant admitted hypothesis_id=H058 supplies the identity required by the unchanged context factory. Original finite pidfd ownership/gate/RSS/time/byte/wait/drain/completion logic is preserved.
+
+The accepted review envelope is review.v2.json: independent=true, verdict=SOURCE_PASS, blockers=[], exact new source/manifest/handoff plus unchanged original runner_source_ref/protocol_ref. ROOT_RECIPE.md records concrete required fields and next steps. Source acceptance grants no actual admission or execution. Actual original outer-terminal acceptance, fresh ROOT authority/capacity and genuine future admission0/wait/drain/consumed outer evidence remain mandatory. The separate transaction memo is not reviewed or assumed.

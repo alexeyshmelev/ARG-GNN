@@ -1,0 +1,15 @@
+# H060/H061 fresh admission transaction integration
+
+Inactive source only. This package combines the sealed v3 exact-selected-child role repair with the independently reviewed ROOT reserve transaction memo. It authorizes no admission, execution, runtime qualification, ROOT mutation or scientific work.
+
+The common contract and driver remain the same actual implementation file. Each original private contract/driver/worker and scientific binding is authenticated from source_bindings.v1.json. V3 role repair and after-gate scientific bridge binding are unchanged. H061's HERE-relative scientific template and both contracts' storage profile are copied byte-for-byte; worker_entry_v1 imports its sibling relatively.
+
+For new admissions only, the exact original admit AST receives three substitutions: construct the authenticated memo immediately after guard(False) and before first put; replace the original initial mutex/state block with memo.read_state_v1; replace only g.apply_reserve_v1 with memo.reserve_v1. The memo acquires the original mutex itself. No outer mutex remains. All other original staging, role union, scope preflight, authority, reserve arguments, packet construction and execution argv ordering remain. Executors, workers, scientific functions, caps, phases, barriers and completion predicates are unchanged.
+
+The exact memo and independent component review are transitively authenticated by the existing direct source manifest. No direct memo role is added. All then-returned guard roles remain; handwritten metadata baselines are H060 train61, H061 freeze62, predict63, score64. The exact original consumer union rejects65 before authority. These are source fixtures, not a measurement of future live admission capacity.
+
+The memo is reserve-only, cold for each state/reserve transaction. It caches only explicitly pinned .py/.sh byte checks and selected namespace canonicalization, revalidates with original uncached readers, disables cache before original append/fsync/postwrite work, restores functions and destroys cache before unlock. Mutable metadata/accounting/proof/measurement/scientific reads are uncached. Real speedup is unmeasured. Retirement is unsupported.
+
+Failed H06049766, all old v1/v2/v3 source packages, old namespaces, keys, tokens, charges, clocks and already admitted work remain untouched. Current explicit Relate child only; no native7 or older-guard fallback. ROOT must create separately reviewed fresh metadata and namespaces. No replay or automatic retry. ROOT's new authority lifetimes do not alter original scientific/wall caps or renew old clocks.
+
+source_check_v1.py uses only isolated source AST and handwritten memory fixtures plus the explicitly ROOT-authorized inactive noargument entrypoints after static inspection. It imports no original project contract/guard/scientific modules and performs no real mutex/state/resource/job/numerical operation. The final immutable integration requires whole-integration independent per-consumer SOURCE_PASS before any actual use.

@@ -1,0 +1,7 @@
+# Independent ROOT transaction memo v2 review
+
+SOURCE_PASS with no source blockers. All19 source and8 audit pins authenticate. Dynamic cache retains exact original bound/ref/SHA checks and requested strict parse every call, uses fresh JSON objects, rejects cached SHA conflicts, keeps current evidence/excluded/raw observations uncached and revalidates unique bytes/names with originals before return/append. Original primitives and critical reserve body remain unchanged.
+
+Independent memory fixtures cover strict parse/ref failures, raw→parsed semantics, seven explicit current exclusions, exact _cpu_reader dynamic source hits, original current-time predicate after JSON hit, content/path drift, bounded/cold cache and restoration. Nine independent public reserve cases validate final source/proof/path/manifest/direct-manifest and operation/append failures plus success/cold success, with teardown before unlock. Author checker was inspected and independently rerun without actual guards.
+
+This accepts only memo2 component source. Every new admission or retirement integration needs separate whole review and fresh ROOT authority/evidence. Retirement is outside this public API and this review; all current evidence paths must be explicitly excluded, original300s including lock wait retained and original expiry/instruction/finite rechecked after final revalidation before append. No actual performance, fit, mutation or science result is established.

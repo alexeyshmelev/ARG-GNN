@@ -1,6 +1,6 @@
 # Current scientific scoreboard
 
-Updated UTC: 2026-10-17T00:44:37.017087+00:00
+Updated UTC: 2026-10-17T01:27:59.012488+00:00
 
 [All measured cohort details](#detailed-cohort-metrics) · [Complete historical receipt inventory](all_recorded_metric_receipts.md) · [Fresh H048 novelty/cross-domain audit](../research/reviews/H048_novelty_crossdomain_fresh_20261015_v1/report.md)
 
@@ -480,7 +480,7 @@ Completed all3models x100epochs/100updates,300totalupdates. TEST NDCG@10: first_
 
 ## H061 Chickenpox selected validation training milestone
 
-All six Chickenpox fits completed successfully with 40 epochs and 800 updates each, for 4,800 updates total. Actual worker and supervisor returned 0 with owned drain, and ROOT accepted TRAIN completion. Selected VAL MAE is 15.968411 ± 0.061488 cases for TreeLoom and 16.059604 ± 0.075709 for NoMem, with sample SD across three initialization seeds. TRAIN-only comparator freeze is staged and awaiting the admission-role repair. TEST predictions and scoring remain pending. These are forecasts, not ancestry accuracy.
+All six Chickenpox fits completed and TRAIN completion was genuinely accepted: 40 epochs and 800 updates each, 4800 total. Selected VAL MAE is 15.968411 ± 0.061488 cases for TreeLoom and 16.059604 ± 0.075709 for NoMem across three initialization seeds. The TRAIN-only fixed comparator freeze passed actual admission0 with all 62 bindings and its exact supervisor was launched once. Freeze completion, TEST predictions and separate TEST scoring remain pending. These are forecasts, not ancestry accuracy.
 
 Full selected VAL MAE 15.968411 ± 0.061488 (n=3) cases; RMSE 25.520040 ± 0.261292 (n=3) cases (3/3 initialization seeds); NoMem selected VAL MAE 16.059604 ± 0.075709 (n=3) cases; RMSE 25.929755 ± 0.270482 (n=3) cases (3/3 initialization seeds). Sample SD is across completed seeds at their own selected epoch; TEST withheld.
 
@@ -549,10 +549,10 @@ H048 retains 31,933 parameters per arm and a fixed 30-pass/960-update schedule. 
 
 | Method | Current ancestry scores | Status |
 |---|---|---|
-| Native ARGformer | unavailable | Native ARGformer continues on GPU 0. One stable readonly-FD observation verifies 91,000 AdamW updates across all 77 states and one completed epoch, against 227,990 planned updates. Full fit and ancestry evaluation remain incomplete. |
+| Native ARGformer | unavailable | Native ARGformer remains running on physical GPU 0. A stable read-only saved checkpoint observation verifies 156,500 of 227,990 AdamW updates across all 77 optimizer parameter states, 65,500 more than the prior 91,000 audit and 134,500 since the current 22,000-step resume. Full training and ancestry scoring remain incomplete. This counter is not ancestry accuracy. |
 | Native ARGformer dataset counts | not an accuracy run | completed; actual count producer wait0 and drain verified |
 | Native FLARE | 98.0100% focal accuracy | Completed fixed native-call score on one VAL parent, not a multi-parent paper-table reproduction. Macro F1 97.7151%. Held-out VAL000 conversion: completed; actual wait0 and owned-group drain verified. Inference: completed; actual wait0 and owned-group drain verified. Prediction seal: prediction worker completed; direct wait0 and owned-group drain verified, outer tool terminal/final guard unconfirmed. The GNN/ARGformer comparison remains pending. |
-| Our C3 GNN | unavailable | The earlier American backbone has600verified saved updates. All five original 30 Mb observation plans completed and closed. The final VAL004 prediction passed genuine admission97831exit0 with61roles and exact supervisor1453launched. Five original VAL prediction stages are now launched, with all30products required before truth. No ancestry score. Original full 30 Mb VAL000 observation preparation is complete. Full prespecified prediction/scoring gate pending. |
+| Our C3 GNN | unavailable | All five original 30 Mb observation plans completed and closed. Five prediction supervisors remain live. ROOT authenticated 6 of30 complete checkpoint-by-parent prediction products, each on the original10000focals, before any validation truth. This is the earlier saved600 backbone, not final TreeLoom. No ancestry score yet. Original full 30 Mb VAL000 observation preparation is complete. Full prespecified prediction/scoring gate pending. |
 
 The TRAIN000 conversion is development evidence. Independent VAL000 inference now has its own actual completion/wait receipts; GNN/ARGformer predictions and their common-truth scoring remain pending. Original 30 Mb VAL000 simulation: completed; actual wait0 and owned-group drain verified; inferred observation: completed; actual wait0 and owned-group drain verified; shared native-path/10k-focal preparation: completed; actual wait0 and owned-group drain verified. R600/Q1000 identities stay common. GNN and ARGformer ancestry scores remain pending. Original full30Mb VAL000 native preparations are ready. The completed native FLARE focal score is reported separately. GNN/ARGformer predictions and common scores remain pending. Native FLARE VAL000 target bound: 228477 sites, common R600/Q1000. Fresh memo2 conversion: completed; actual wait0 and owned-group drain verified; current native focal score is reported separately. Earlier conversion deliberately stopped to repair scheduler contention, with all artifacts retained. Original-paper simulation assumptions and source versions remain explicitly documented.
 
