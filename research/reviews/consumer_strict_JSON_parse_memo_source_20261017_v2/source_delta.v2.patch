@@ -1,0 +1,84 @@
+--- research/reviews/consumer_strict_JSON_parse_memo_source_20261017_v1/parse_memo_v1.py
++++ research/reviews/consumer_strict_JSON_parse_memo_source_20261017_v2/parse_memo_v2.py
+@@ -9,7 +9,7 @@
+ import ast,copy,hashlib,json,os,stat,sys,threading
+ 
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-SOURCE="research/reviews/consumer_strict_JSON_parse_memo_source_20261017_v1/parse_memo_v1.py"
++SOURCE="research/reviews/consumer_strict_JSON_parse_memo_source_20261017_v2/parse_memo_v2.py"
+ V4_REF={"path":"src/arggnn/project_budget_v4.py","sha256":"a093c7d86f57fee569cb99f4712250e9505a1119f3950fa44282c7ba8c57df47"}
+ MEMO_REF={"path":"research/reviews/resource_guard_hotpath_source_audit_v1/transaction_memo_adapter_v2.py","sha256":"c972e9a779d424ceafdb258848614bf40994d1004e2c73fc5cd225ae99621364"}
+ NS_REF={"path":"research/reviews/current_mutex_contention_20261015_v1/consumer_namespace_memo_v1.py","sha256":"17a1377320f61c3c0cc8d3816d0259f9dae3121ed91bf7206a7ee63fcab8eb7f"}
+@@ -178,24 +178,40 @@
+    and entry[3][1]==record["sha256"],"Eligible raw belongs to this exact original path/SHA transaction entry")
+   return relative
+ 
++ def _mark_copy_uncacheable(self,relative):
++  # Retain only immutable bytes/SHA for the same final validation, never a parsed value.
++  entry=self.active["parsed"].pop(relative)
++  self.active["parsed_bytes"]-=entry["parsed_charge"]
++  self.active["uncacheable"][relative]=dict(raw=entry["raw"],sha256=entry["sha256"])
++  self.active["counts"]["deepcopy_recursion_fallbacks"]+=1
++
+  def parse_record(self,record,raw):
+   relative=self._owned(record,raw)
+   if relative is None:
+    if self.active is not None:self.active["counts"]["uncached_parses"]+=1
+    return self.original_parse(raw)
++  if relative in self.active["uncacheable"]:
++   self.active["counts"]["uncached_parses"]+=1
++   return self.original_parse(raw)
+   cache=self.active["parsed"];prior=cache.get(relative)
+   if prior is not None:
+    need(prior["raw"]is raw and prior["sha256"]==record["sha256"],"No raw/SHA replacement in parsed memo")
+    self.active["counts"]["parse_hits"]+=1
+-   return copy.deepcopy(prior["parsed"])
++   try:return copy.deepcopy(prior["parsed"])
++   except RecursionError:
++    self._mark_copy_uncacheable(relative)
++    return self.original_parse(raw)
+   value=self.original_parse(raw);self.active["counts"]["parse_misses"]+=1
+   charge=_charge(value)
+   if len(cache)>=MAX_ENTRIES or self.active["raw_bytes"]+len(raw)>MAX_RAW_BYTES or self.active["parsed_bytes"]+charge>MAX_PARSED_BYTES:
+    self.active["counts"]["capacity_bypasses"]+=1
+    return value
+-  cache[relative]=dict(raw=raw,sha256=record["sha256"],parsed=value)
++  cache[relative]=dict(raw=raw,sha256=record["sha256"],parsed=value,parsed_charge=charge)
+   self.active["raw_bytes"]+=len(raw);self.active["parsed_bytes"]+=charge
+-  return copy.deepcopy(value)
++  try:return copy.deepcopy(value)
++  except RecursionError:
++   self._mark_copy_uncacheable(relative)
++   return value
+ 
+  def _bound(self,root,record,as_json=False):
+   # Only the original parser operand differs, and only after original ref/SHA checks.
+@@ -206,7 +222,7 @@
+ 
+  def _final(self):
+   # Additional original byte validation. Original memo snapshot still runs next under same mutex.
+-  for relative,entry in self.active["parsed"].items():
++  for relative,entry in (*self.active["parsed"].items(),*self.active["uncacheable"].items()):
+    need(self.handle.original["file_bytes"](ROOT,relative)==(entry["raw"],entry["sha256"]),"Parsed historical bytes changed before original boundary returned")
+    self.active["counts"]["final_uncached_bytes"]+=1
+ 
+@@ -217,8 +233,8 @@
+    need(self.v4.bound is self.original_bound and self.v4.parse is self.original_parse,"Unchanged original byte/ref/parser seam")
+    with self.expected_mutex(root):
+     state=self.handle._state();need(state is not None,"Original mutex acquired and old raw cache active")
+-    self.active=dict(consumer_state=state,parsed={},raw_bytes=0,parsed_bytes=0,
+-     counts=dict(parse_hits=0,parse_misses=0,uncached_parses=0,capacity_bypasses=0,final_uncached_bytes=0))
++    self.active=dict(consumer_state=state,parsed={},uncacheable={},raw_bytes=0,parsed_bytes=0,
++     counts=dict(parse_hits=0,parse_misses=0,uncached_parses=0,capacity_bypasses=0,final_uncached_bytes=0,deepcopy_recursion_fallbacks=0))
+     patches=[]
+     try:
+      for module,raw_fn in self.guard_raw:need(module._raw is raw_fn and module.budget is self.budget,"Original common-budget raw reader unchanged")
+@@ -233,7 +249,7 @@
+      for owner,name,original,installed in reversed(patches):
+       drift=drift or getattr(owner,name)is not installed
+       setattr(owner,name,original)
+-     self.last_counts=dict(self.active["counts"]);self.active["parsed"].clear();self.active=None
++     self.last_counts=dict(self.active["counts"]);self.active["parsed"].clear();self.active["uncacheable"].clear();self.active=None
+      need(not drift,"Unexpected transaction JSON seam replacement")
+     # Old memo performs its exact uncached namespace/leaf validation after this yield.
+   return mutex

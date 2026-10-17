@@ -1,0 +1,41 @@
+{
+  "candidate_fix_implemented": false,
+  "component_behavior": "First guard._json read reaches original parse successfully, inserts the parsed value, then copy.deepcopy(value) at198 raises RecursionError. Hits at190 also use unprotected deepcopy and can introduce this error.",
+  "id": "COPY_RECURSION_ERROR_BEHAVIOR",
+  "impact": "Valid original JSON accepted by existing readers becomes a failed consumer guard/read solely because computation reuse was enabled. Inputs are far below raw/parsed cache caps. No schema, cap or frozen eligibility restriction currently excludes this valid value.",
+  "lines": [
+    190,
+    198
+  ],
+  "minimal_repair_suggestion": [
+    "Preserve source v1; author a separately reviewed successor rather than narrowing eligible valid original inputs.",
+    "If deepcopy raises RecursionError, avoid/remove that parsed cache entry and mark the path uncachable for this original transaction. On the first miss, safely return the original-parser value with no retained canonical alias; on a hit, evict and use the original parser for a fresh value.",
+    "Keep raw/path/SHA/object ownership, original reads/ref/size/schema checks, strict parser, lock extent, all exclusions/caps, original final snapshot and cleanup unchanged. Do not increase recursion limits or swallow original parser exceptions.",
+    "Verify first-read and later-hit fallback at different call depths, fresh mutable returns, unchanged original duplicate/nonfinite failures, uncached final validation and restoration."
+  ],
+  "no_actual_adoption": true,
+  "original_behavior": "Exact original v4.parse returns a nested list successfully.",
+  "priority": 2,
+  "reproduction": {
+    "component": "RecursionError",
+    "confirmed": true,
+    "depth": 600,
+    "exact_current_raw_path_SHA_object_owner": true,
+    "exact_original_guard_reader_frame": true,
+    "exact_original_old_namespace_handle": true,
+    "full_component_constructor_passed": true,
+    "message": "maximum recursion depth exceeded while calling a Python object",
+    "original_parser": "success",
+    "path": "research/reviews/frozen_nested_value.json",
+    "raw_bytes": 1201,
+    "recursion_limit": 1000,
+    "sha256": "250f8f81de72fe62fb3c3202430524b7a6938c02969b8be425e8b265d6899eea",
+    "source_candidate_changed": false
+  },
+  "source_ref": {
+    "path": "research/reviews/consumer_strict_JSON_parse_memo_source_20261017_v1/parse_memo_v1.py",
+    "sha256": "312c9318912097d2b4c08e146bef41b1d055d089e1765707603a7c90da3a9d6c"
+  },
+  "title": "Preserve original parser success when deep copying exceeds recursion depth",
+  "trigger": "Eligible SHA-bound historical JSON with 600 nested arrays; 1201 bytes at recursion limit1000. This value and RAM frozen provenance pass the full component constructor and exact original namespace/raw ownership predicates."
+}
