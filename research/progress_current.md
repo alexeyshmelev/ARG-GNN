@@ -2,7 +2,7 @@
 
 Updated UTC: 2026-10-17T05:28:09.822773+00:00.
 
-TreeLoom performs local ancestry inference (LAI) from complete inferred genealogies. Figure 1 now shows the observed input vectors, two shared GNN passes, separate sample memory, aligned haplotype embeddings, a final BiGRU and ancestry output. A fresh reader recovered that computation from the PNG alone. The nine-page AAAI draft and Overleaf bundle have matching rendered pages. The main paper presents the final model, completed comparators and one meaningful memory ablation.
+TreeLoom performs local ancestry inference (LAI) from complete inferred genealogies. Figure 1 now shows the observed input vectors, two shared GNN passes, sample memory with explicit group-to-sample and sample-to-group routing, aligned haplotype embeddings, a final BiGRU and ancestry output. A fresh reader recovered that computation from the PNG alone. The nine-page AAAI draft and Overleaf bundle have matching rendered pages. The main paper presents the final model, completed comparators and one meaningful memory ablation.
 
 | European development pipeline | Modern span accuracy (%) | Boundary F1 (%) |
 |---|---:|---:|

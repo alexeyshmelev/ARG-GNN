@@ -1,0 +1,200 @@
+--- paper/figure_redesign_20261017_v11/build_figure.py
++++ paper/figure_redesign_20261017_v12/build_figure.py
+@@ -1,4 +1,4 @@
+-"""TreeLoom v11: editable, static scientific schematic. No model execution.
++"""TreeLoom v12: editable, static scientific schematic. No model execution.
+ All outputs and caches stay in this directory. Runtime: existing repository venv.
+ """
+ from pathlib import Path
+@@ -109,7 +109,7 @@
+ native_polys=[]
+ for e in sorted(full.edges(),key=lambda e:full.node(e.parent).time,reverse=True):
+     poly=[proj(e.child,e.left),proj(e.parent,e.left),proj(e.parent,e.right),proj(e.child,e.right)]
+-    ax.add_patch(Polygon(poly,closed=True,fc="#8e9eac",ec="#8e9eac",lw=.33,alpha=.115,zorder=.5))
++    ax.add_patch(Polygon(poly,closed=True,fc="#8e9eac",ec="#8e9eac",lw=.33,alpha=.075,zorder=.5))
+     native_polys.append({"child":int(e.child),"parent":int(e.parent),"left":float(e.left),"right":float(e.right)})
+ # Three exact native marginal slices at interval centers, including unary events.
+ recs={n.id for n in full.nodes() if n.flags&131072}
+@@ -117,7 +117,7 @@
+     mid=(breaks[i]+breaks[i+1])/2
+     for u in ft.nodes():
+         p=ft.parent(u)
+-        if p!=-1:line([proj(u,mid),proj(p,mid)],"#617282",.66,z=2)
++        if p!=-1:line([proj(u,mid),proj(p,mid)],"#526878",.82,z=2)
+     for u in ft.nodes():
+         x,y=proj(u,mid)
+         if u in ROW:dot(x,y,u,r=.019)
+@@ -180,10 +180,12 @@
+     ax.add_patch(Rectangle((x,p[1]+.095),.11,.15,fc=FAINT,ec=LIGHT,lw=.45))
+     txt(x+.055,p[1]+.17,s,7.0)
+ txt(p[0]+.325,p[1]+.34,"Node age / flags",7.0,c=MUTED)
+-# All observations, not just a chosen tip, feed the encoder.
+-# Sole panel-b output leaves the enclosing group at its left edge, rather
+-# than attaching to only the ancestry row at the bottom.
+-route([(2.68,5.10),(2.49,5.10),(2.49,4.15),(.52,4.15),(.52,3.82)],MUTED,.75,5)
++# A short collector bus visibly gathers all three input groups, rather than
++# attaching an output to an arbitrary side of the enclosing feature frame.
++for cx in centers:
++    line([(cx,4.15),(cx,4.08)],MUTED,.75)
++line([(centers[0],4.08),(centers[-1],4.08)],MUTED,.75)
++route([(4.65,4.08),(.52,4.08),(.52,3.82)],MUTED,.75,5)
+ 
+ # c. Two-tier model, with literal complete Up/Down modules and no graph pooling.
+ panel(.12,3.91,"c")
+@@ -221,39 +223,102 @@
+     txt(x+.28,y+.10,"Up",7.3)
+     txt(x+.86,y+.10,"Down",7.3)
+     arrow((x+.42,y+.10),(x+.66,y+.10),INK,.75,4.8)
+-gnn(1.37,3.19,1)
++gnn(1.37,3.14,1)
+ line([(2.53,3.645),(2.79,3.645)],INK,.85)
+ dot(2.79,3.645,r=.020)
+ # The original base, not the first pass output, is the residual source.
+-route([(1.04,3.86),(1.04,4.07),(5.99,4.07),(5.99,3.745)],MUTED,.8,5)
++route([(1.04,3.86),(1.04,4.02),(6.39,4.02),(6.39,3.745)],MUTED,.8,5)
+ dot(1.04,3.86,r=.016)
+-# Local structural adapters use current-node state, no foreign-tree state arrow.
+-box(3.18,3.44,1.0,.40,FAINT)
+-txt(3.68,3.64,r"$\Delta_{\rm str}$",8.0)
+-arrow((2.79,3.645),(3.18,3.645),ms=5)
+-arrow((4.18,3.645),(5.88,3.645),ms=5)
+-# Independent same-sample scans before pass two.
+-box(3.14,2.18,1.95,.94,FAINT,ec="#bacbd8",lw=.85)
+-txt(4.115,3.015,"Bidirectional EMA",8.0)
+-memcols=[3.68,4.23,4.78]
+-for j,x in enumerate(memcols):txt(x,2.82,f"$T_{j+1}$",7.0)
+-memys=[2.66-.105*k for k in range(5)]
++# Current-tree structural features remain a distinct local residual.
++box(3.16,3.44,1.38,.40,FAINT)
++txt(3.85,3.64,"Clade residuals",7.6)
++arrow((2.79,3.645),(3.16,3.645),ms=5)
++arrow((4.54,3.645),(6.28,3.645),ms=5)
++
++# An explicit tree-group -> sample -> tree-group path for memory.
++# Its little tree is an operator glyph, not a replacement marginal topology.
++
++def grouped_tree(cx,base,width=.47,height=.45,residual=False):
++    t=trees[0];xx,_,order=layouts[0];rank={q:0 for q in order}
++    def rr(u):
++        if u not in rank:rank[u]=1+max(rr(c) for c in t.children(u))
++        return rank[u]
++    rr(t.root)
++    pp={u:(cx-width/2+width*xx[u],base+height*rank[u]/rank[t.root]) for u in t.nodes()}
++    # Choose a real non-root clade as an illustrative age-cut group.
++    rep=next(u for u in t.nodes() if len(t.children(u))>1 and t.parent(u)!=-1)
++    cut=(pp[rep][1]+pp[t.parent(rep)][1])/2
++    line([(cx-width/2-.035,cut),(cx+width/2+.035,cut)],"#c28d4d",.7,ls="--")
++    for u in t.nodes():
++        par=t.parent(u)
++        if par!=-1:
++            a,b=pp[u],pp[par];line([a,(a[0],b[1]),b],MUTED,.55)
++    for u,(x,y) in pp.items():
++        dot(x,y,u if u in ROW else None,r=.012)
++    x,y=pp[rep]
++    ax.add_patch(Circle((x,y),.031,fc="#f1d8b5",ec="#9d713c",lw=.7,zorder=5))
++    if residual:
++        arrow((cx-.28,y),(x-.035,y),"#9d713c",.8,4)
++    return (x,y)
++rep=grouped_tree(.57,2.36)
++route([(2.79,3.645),(2.79,3.11),(.20,3.11),(.20,rep[1]),(rep[0]-.034,rep[1])],MUTED,.8,5)
++txt(.57,2.19,"Group",7.0)
++# Representative state projected before broadcasting by group membership.
++route([rep,(.88,rep[1]),(.88,2.60),(1.00,2.60)],MUTED,.75,4.5)
++box(1.00,2.44,.55,.32,FAINT)
++txt(1.275,2.60,"Linear",7.2)
++arrow((1.55,2.60),(1.79,2.60),MUTED,.75,4.5)
++dot(1.67,2.60,r=.015)
++txt(1.66,2.91,r"$f$",7.2)
++# Aligned rows are all persistent samples. T columns are the same three trees.
++acols=[1.96,2.30,2.64]
++mys=[2.82-.115*k for k in range(5)]
++for j,x in enumerate(acols):txt(x,3.00,f"$T_{j+1}$",7.0)
+ for k,q in enumerate(ROW):
+-    yy=memys[k];txt(3.42,yy,NAMES[q],7.0,ha="right",c=QUERY if q==0 else MUTED)
+-    for x in memcols:small_vector(x,yy,w=.18,h=.078,query=q==0)
+-    for a,b in zip(memcols[:-1],memcols[1:]):
+-        arrow((a+.10,yy+.014),(b-.10,yy+.014),QUERY if q==0 else "#97a9b9",.65 if q==0 else .45,3.2 if q==0 else 2.6)
+-        arrow((b-.10,yy-.014),(a+.10,yy-.014),QUERY if q==0 else "#97a9b9",.65 if q==0 else .45,3.2 if q==0 else 2.6)
+-route([(2.79,3.645),(2.79,2.65),(3.14,2.65)],MUTED,.8,5)
+-# A real learned output projection maps the centered memory to node width.
+-box(5.30,2.48,.58,.31,FAINT)
+-txt(5.59,2.635,"Linear",7.5)
+-arrow((5.09,2.635),(5.30,2.635),MUTED,.8,5)
+-route([(5.88,2.635),(5.99,2.635),(5.99,3.545)],MUTED,.8,5)
+-ax.add_patch(Circle((5.99,3.645),.095,fc="white",ec=INK,lw=.9,zorder=5))
+-txt(5.99,3.645,"+",10,zorder=6)
+-# Orthogonal return lane, kept clear of all labels and scan rows.
+-route([(6.085,3.645),(6.24,3.645),(6.24,1.98),(.84,1.98),(.84,1.62)],INK,.85,5.5)
++    yy=mys[k];txt(1.84,yy,NAMES[q],7.0,ha="right",c=QUERY if q==0 else MUTED)
++    for x in acols:small_vector(x,yy,w=.18,h=.083,query=q==0)
++    for a,b in zip(acols[:-1],acols[1:]):
++        line([(a+.095,yy),(b-.095,yy)],QUERY if q==0 else "#bdc9d3",.55 if q==0 else .4)
++txt(2.30,2.17,"Samples",7.0,c=MUTED)
++arrow((2.78,2.60),(3.00,2.60),MUTED,.75,4.5)
++
++# The EMA uses the actual physical span, distinct from the final GRU's geometry.
++for i,(l,r) in enumerate(zip(breaks[:-1],breaks[1:])):
++    ax.add_patch(Rectangle((3.30+.78*l/10000,3.20),.78*(r-l)/10000,.055,
++      fc=SEG[i],ec="#95a5b3",hatch=HATCH[i],lw=.4))
++txt(4.24,3.225,r"$|I_t|$",7.0,c=MUTED)
++arrow((3.71,3.19),(3.71,3.07),MUTED,.7,4.6)
++box(3.00,2.22,1.42,.84,FAINT,ec="#bacbd8",lw=.85)
++txt(3.71,2.96,"Bidirectional EMA",7.4)
++mcols=[3.27,3.71,4.15]
++for k,q in enumerate(ROW):
++    yy=2.77-.105*k
++    for x in mcols:small_vector(x,yy,w=.17,h=.077,query=q==0)
++    for a,b in zip(mcols[:-1],mcols[1:]):
++        arrow((a+.095,yy+.014),(b-.095,yy+.014),QUERY if q==0 else "#97a9b9",.65 if q==0 else .45,3.1 if q==0 else 2.6)
++        arrow((b-.095,yy-.014),(a+.095,yy-.014),QUERY if q==0 else "#97a9b9",.65 if q==0 else .45,3.1 if q==0 else 2.6)
++# Mean within each current group, then subtract its current context f.
++arrow((4.42,2.60),(4.59,2.60),MUTED,.75,4.5)
++box(4.59,2.38,.55,.44,FAINT)
++txt(4.865,2.70,"Group",7.0)
++txt(4.865,2.52,"mean",7.0)
++arrow((5.14,2.60),(5.30,2.60),MUTED,.75,4.5)
++ax.add_patch(Circle((5.38,2.60),.08,fc="white",ec=INK,lw=.8,zorder=5))
++txt(5.38,2.60,"−",9,zorder=6)
++# Current-group context takes a separate thin lane to centering.
++route([(1.67,2.60),(1.67,2.05),(5.38,2.05),(5.38,2.515)],MUTED,.7,4.5)
++txt(5.52,2.19,r"$f$",7.0,c=MUTED)
++arrow((5.46,2.60),(5.59,2.60),MUTED,.75,4.5)
++box(5.59,2.44,.55,.32,FAINT)
++txt(5.865,2.60,"Linear",7.2)
++target=grouped_tree(6.48,2.36,width=.40,height=.45,residual=False)
++route([(6.14,2.60),(6.18,2.60),(6.18,target[1]),(target[0]-.034,target[1])],MUTED,.75,4)
++txt(6.48,2.19,"Group",7.0)
++# The output returns to group representatives, then enters the whole-tree input.
++route([target,(target[0],3.28),(6.39,3.28),(6.39,3.545)],MUTED,.8,5)
++ax.add_patch(Circle((6.39,3.645),.095,fc="white",ec=INK,lw=.9,zorder=5))
++txt(6.39,3.645,"+",10,zorder=6)
++route([(6.485,3.645),(6.80,3.645),(6.80,1.94),(.84,1.94),(.84,1.62)],INK,.85,5.5)
+ # Second complete shared traversal.
+ gnn(.26,.78,2)
+ txt(.84,.63,r"shared $\theta$",7.1,c=MUTED)
+@@ -333,7 +398,7 @@
+ assert not outside,outside
+ assert min(t.get_fontsize() for t in texts)>=7
+ (OUT/"text_layout_bounds.json").write_text(json.dumps(bounds,indent=2)+"\n")
+-metadata={"revision":"v11_operation_and_interval_clarity","figure_inches":[W,H],
++metadata={"revision":"v12_explicit_group_sample_group_memory","figure_inches":[W,H],
+  "minimum_font_pt":min(t.get_fontsize() for t in texts),"panel_titles":False,
+  "panels":["a","b","c"],"trees":3,"samples":5,"genomic_breakpoints_bp":breaks,
+  "ARG_native_edge_surfaces":native_polys,"ARG_edge_surface_count":len(native_polys),
+@@ -344,12 +409,12 @@
+  "memory_display_order":[NAMES[q] for q in ROW],"sample_readout_display_order":[NAMES[q] for q in ROW],
+  "weight_sharing":"explicit Pass1/Pass2 headers, GNN_theta(T_t) at both stages, and shared theta label; every local tree receives both complete Up/Down passes",
+  "residual":"original base + current-node structural residual + sample-memory residual before second traversal",
+- "memory_abstraction":"Bidirectional EMA names the actual same-sample forward/reverse span-decay operation; group averaging and centering remain in Methods; Linear is the real output projection",
++ "memory_abstraction":"explicit representative projection, sample alignment, bidirectional span-decay EMA, current-group mean, subtract current f, output projection and representative injection",
+  "readout":"all sample embeddings -> one-layer BiGRU plus local skip -> concat -> MLP -> four probabilities; q1 selected only for displayed track",
+  "geometry_input":"native interval strip abbreviates log-scaled span and neighboring center distances",
+- "no_graph_pooling":True,"output_probs":"illustrative, not a model run","operation_marker":"root executed once; not duplicated",
+- "observed_input_collector":"single frame around all panel-b observed input glyphs and one connected exit to MLP; edges separately define GNN traversals",
+- "clarity_changes":{"alleles":"familiar Observed alleles label replaces opaque g notation","internal_features":"Node age / flags label above the actual tau,0,0 callout","per_tree":"both headers explicitly name GNN_theta(T_t) and numbered passes","output":"I1,I2,I3 label the exact intervals below the q1 call track","shortened_return_route":"outer x coordinate6.77 to6.24, no layer or junction changes"},
++ "no_graph_pooling":True,"output_probs":"illustrative, not a model run","operation_marker":"read-only installed marker executed successfully on Mac before remote authoring, no project Mac writes",
++ "observed_input_collector":"three bottom connections visibly collect all framed local-tree input groups into a common MLP input bus",
++ "clarity_changes":{"observed_inputs":"three connections collect the entire framed feature/tree input group into one encoder bus","ARG":"same native edges, times, coordinates and intervals, lighter edge-span surfaces and stronger marginal slices","local_structure":"opaque delta-str label replaced by Clade residuals, no computation change","group_to_sample":"an age-cut representative glyph feeds actual bias-free Linear U, followed by persistent sample rows","memory":"separate physical-span input feeds bidirectional EMA","sample_to_group":"current group mean, explicit subtraction of forcing f, actual bias-free Linear O and highlighted representative destination","second_pass":"corrections and original base merge before the second shared GNN","readout":"unchanged all-sample local states, one-layer BiGRU and local concatenation"},
+  "validation":{"exact_trees":True,"native_ARG_edges_only":True,"strict_parent_age":True,"minimum_font_7pt":True,"no_text_outside_canvas":True}}
+ (OUT/"figure_metadata.json").write_text(json.dumps(metadata,indent=2)+"\n")
+ print(json.dumps(metadata,indent=2))

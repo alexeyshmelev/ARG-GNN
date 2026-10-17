@@ -23,13 +23,13 @@
 \maketitle
 
 \begin{abstract}
-Admixture leaves chromosomes as mosaics of segments inherited from different ancestral sources. Local ancestry inference (LAI) reconstructs these mosaics using relationships between query and reference genomes. Inferred genealogies reveal these relationships, but recombination changes them along the chromosome. A model must therefore combine complete local genealogies while preserving sampled haplotype identity. We introduce TreeLoom, which joins graph message passing through complete trees with recurrence along the genome. Structural features condition local representations, a separate memory follows sampled haplotypes across trees, and a final recurrent network predicts ancestry. On eight European simulations reused during development, TreeLoom reaches $97.08\pm0.57\%$ span accuracy for modern queries, compared with $94.45\pm1.15\%$ for the evaluated ARGMix release and $93.78\pm0.84\%$ for a derived four source AncestralPaths endpoint. The matched TreeLoom-NoMem control reaches $97.00\pm0.50\%$ and has higher boundary F1. These results motivate learning from complete genealogies while showing why accurate genomic assignment must be assessed alongside recovery of ancestry tract boundaries.
+Admixture leaves chromosomes as mosaics of segments inherited from different ancestral sources. Local ancestry inference (LAI) reconstructs these mosaics using relationships between query and reference genomes. Inferred genealogies reveal these relationships, but recombination changes them along the chromosome. Learning from these changing genealogies requires combining local relationships with the continuing identity of each sampled haplotype. We introduce TreeLoom, which joins graph message passing through complete trees with recurrence along the genome. Structural features condition local representations, a separate memory follows sampled haplotypes across trees, and a final recurrent network predicts ancestry. On eight European simulations reused during development, TreeLoom reaches $97.08\pm0.57\%$ span accuracy for modern queries, compared with $94.45\pm1.15\%$ for the evaluated ARGMix release and $93.78\pm0.84\%$ for a derived four source AncestralPaths endpoint. The matched TreeLoom-NoMem control reaches $97.00\pm0.50\%$ and has higher boundary F1. These results motivate learning from complete genealogies while showing why accurate genomic assignment must be assessed alongside recovery of ancestry tract boundaries.
 \end{abstract}
 
 \section{Introduction}
-Admixed genomes record population history in the ancestry of their chromosomal segments. Local ancestry inference (LAI) assigns these segments to ancestral sources and locates the boundaries between them. Ancestry tracts can reveal when populations mixed and how genetic material moved between populations. Ancient genomes extend this record through time, allowing comparisons among individuals who lived before, during and after major changes in ancestry.
+Admixed genomes record population history in the ancestry of their chromosomal segments. Local ancestry inference (LAI) assigns these segments to ancestral sources using reference genomes of known ancestry and locates the boundaries between them. Ancestry tracts can reveal when populations mixed and how genetic material moved between populations. Ancient genomes extend this record through time, allowing comparisons among individuals who lived before, during and after major changes in ancestry.
 
-Genealogies provide a natural basis for these assignments. At a genomic position, a local tree connects sampled haplotypes through common ancestors. A query genome may share a recent branch with a reference in one region and a more distant ancestor in another. Recombination changes these relationships along the chromosome. An ancestral recombination graph (ARG) describes this changing history through a sequence of local genealogies, linking evidence within each tree to continuity along the genome.
+Genealogies provide a natural basis for these assignments. At a genomic position, a local tree connects sampled haplotypes, each representing one chromosome copy, through common ancestors. A query genome may share a recent branch with a reference in one region and a more distant ancestor in another. Recombination changes these relationships along the chromosome. An ancestral recombination graph (ARG) describes this changing history through a sequence of local genealogies, linking evidence within each tree to continuity along the genome.
 
 LAI methods based on genealogies already use several parts of this structure. AncestralPaths classifies genealogical paths in analyses of ancient Eurasian ancestry \citep{eurasians2024}. ARGMix combines graph representations with genomic context \citep{ancientancestry2026}. ARGformer learns path representations that support ancestry assignment through reference retrieval \citep{argformer2026}. This work raises a representation question: how can a model combine the complete local genealogy with the persistent identity of each sampled haplotype as the trees change?
 
@@ -60,9 +60,9 @@ Figure~\ref{fig:architecture} shows the model. An encoder of observed data initi
 \begin{figure*}[!t]
 \centering
 \includegraphics[width=\textwidth]{figures/TreeLoom_architecture.pdf}
-\caption{\textbf{a,} Recorded toy ARG edges span genomic intervals. Diamonds mark recombination.
-\textbf{b,} Marginal trees suppress unary nodes. Circles are references $r_1$--$r_4$, magenta squares query $q_1$. Inputs show alleles, reference ancestry [Ana, CHG, WHG, EHG], unknown query ancestry (?), and node age $\tau$ with status flags.
-\textbf{c,} An MLP initializes node states $b_v$. Each GNN traverses every $T_t$ upward and downward. Both passes share weights $\theta$ and observed gates. Icons represent operators, not fixed topologies. $\Delta_{\rm str}$ combines structural residuals. Bidirectional exponential moving averages (EMA) carry sample history with span decay. Group averaging and centering precede Linear (Methods). Both corrections add to $b_v$ before pass 2. A BiGRU with one layer processes aligned sample embeddings and interval geometry. Concatenation joins local and recurrent embeddings for classification. Tracks illustrate $q_1$ probabilities and calls over $I_t$, not fitted predictions.}
+\caption{\textbf{a,} A recorded toy ARG and its genomic edge spans. Diamonds mark recombination.
+\textbf{b,} Matching marginal trees after suppressing unary nodes. Circles denote references and the magenta square query $q_1$. Illustrative site alleles, reference ancestry vectors, masked query ancestry (?), ages $\tau$, and sample/root indicators form inputs.
+\textbf{c,} An MLP initializes node states. Each GNN pass traverses every tree upward and downward, sharing $\theta$. Clade features produce local residuals. Highlighted nodes at a fixed age cut define groups. Their projected context $f$ is copied to descendant sample rows. Bidirectional EMA follows sample identity using physical span $|I_t|$. Within each current group, the mean history minus $f$ is projected back to the highlighted node. Corrections and original states feed pass 2. A one layer BiGRU processes aligned sample embeddings and interval geometry. Concatenation joins local and recurrent embeddings for classification. All sample rows are processed. Only query $q_1$ ancestry probabilities and calls are illustrated, not fitted predictions.}
 \label{fig:architecture}
 \end{figure*}
 
@@ -127,7 +127,7 @@ The geometry contains interval length and distances to neighboring interval cent
 p_{tq}=\operatorname{softmax}
 \left(\operatorname{MLP}([e_{tq},r_{tq}])\right).
 \end{equation}
-All sampled haplotypes and tree intervals remain present until queries are selected at readout. Training minimizes cross entropy weighted by physical span, with each simulated chromosome as one optimization example. Predictions are constant within an inferred tree interval, restricting ancestry transitions to its edges. Architecture widths and the training schedule are given in the supplement.
+All sampled haplotypes and tree intervals remain present until queries are selected at readout. Training minimizes cross entropy weighted by physical span, with each simulated chromosome as one optimization example. Predictions are constant within an inferred tree interval, restricting ancestry transitions to boundaries between inferred tree intervals. Architecture widths and the training schedule are given in the supplement.
 
 \section{Evaluation Design}
 \subsection{European Development Simulations}
@@ -155,15 +155,14 @@ The AncestralPaths comparison uses the released dense six output classifier. We 
 (p_{\mathrm{Ana}},p_{\mathrm{CHG}},p_{\mathrm{WHG}},p_{\mathrm{EHG}})
 =(p_1+p_5,p_2+p_6,p_3,p_4).
 \end{equation}
-This derived endpoint differs from the native six path task. The paper describes a convolutional classifier, while the executed archive contains a dense classifier. Its bounded replacement sampler also leaves 9,126 requested BAA path six training rows unfilled, with an unmeasured effect on accuracy. The five epoch author schedule is completed and its final epoch is used.
+This derived endpoint differs from the native six path task. The paper describes a convolutional classifier, while the released implementation uses a dense classifier. Its bounded replacement sampler also leaves 9,126 requested BAA path six training rows unfilled, with an unmeasured effect on accuracy. The five epoch author schedule is completed and its final epoch is used.
 
-ARGMix uses the current author release, with 15 references and no ancestor inputs. The preprint describes 25 references and three inferred ancestors. The public release does not provide a supported implementation of that earlier input configuration. A panel slot and metadata adaptation allows the released model to process the common roster. The model, training augmentation and native rule for stopping are retained. Eleven epochs complete, and its native validation objective selects epoch nine.
+ARGMix uses the current author release, with 15 references and no ancestor inputs. The preprint describes 25 references and three inferred ancestors. The public release does not provide a supported implementation of that earlier input configuration. We adapted reference slots and metadata so the released model could process the common sample panel. The released model, training augmentation and stopping rule are retained. ARGMix is trained for 11 epochs. Its own validation criterion selects epoch nine.
 
 TreeLoom also receives observed single nucleotide polymorphism (SNP) features. The methods differ in reference eligibility, representation, supervision unit, training diversity, cumulative optimization and checkpoint selection. The common scorer compares the fitted pipelines on this endpoint, without equating their inputs or training budgets. These conditions are not exact publication reproductions and do not establish an overall LAI ranking. Full training and release differences are retained in the supplement.
 
 The matched comparison asks whether adding sample memory changes performance under the specified training procedure. TreeLoom and TreeLoom-NoMem start from the same trained local encoder, receive 960 additional updates with all weights trainable, and use the same checkpoint rule. The memory arm has 513 additional parameters, and each arm selects its checkpoint independently. Earlier stages with different cumulative training exposure are described only as training lineage in the supplement.
 
-\todo{Resolve the earlier ARGMix model, reference roster, genomic map, genotype error settings and evaluation protocol before any claim of exact publication reproduction. Recover AncestralPaths' stated convolutional model and original evaluator, and assess the realized sampling deficit.}
 
 \section{Results}
 \subsection{Span Accuracy on the Shared European Endpoint}
@@ -230,14 +229,13 @@ TreeLoom &$\best{97.08\pm0.57}$&$18.38\pm1.31$\\
 
 The two metrics answer different biological questions. Correctly assigned genomic mass describes broad ancestry patterns, while missed, extra or displaced transitions alter the inferred tracts. The memory arm has slightly higher span accuracy and lower boundary F1 under this training procedure. TreeLoom denotes the condition selected by modern span accuracy.
 
-Additional matched controls in the supplement show limited benefit from more elaborate exchange between trees. Context from other occurrences of the same clade changes accuracy by $+0.01\pm0.15$ points, and alternative memory transport rules fail the registered practical criteria.
+Additional matched controls in the supplement show limited benefit from more elaborate exchange between trees.
 
 \subsection{High Span Accuracy Leaves Substantial Tract Error}
 Boundary F1 remains low for all three completed pipelines. TreeLoom reaches 18.38\%, despite assigning 97.08\% of the represented genomic span correctly. This gap shows that a small amount of incorrectly assigned sequence can coexist with many missed or extra ancestry transitions. Span accuracy alone is therefore insufficient evidence that ancestry tracts are recovered faithfully.
 
-The readout can change ancestry only at inferred tree edges, which need not resolve the true transitions. A readout with more flexible transition locations and a training objective that rewards boundary fidelity are therefore directions for future work.
+The readout can change ancestry only at boundaries between inferred tree intervals, which need not resolve the true transitions. A readout with more flexible transition locations and a training objective that rewards boundary fidelity are therefore directions for future work.
 
-\todo{Complete a matched American comparison on common observations, reference and query identities, focal records and truth support. Evaluate independent simulations, additional optimizer seeds and larger European panels. Resolve the American demographic and ploidy reconstruction and ARGformer's published downstream evaluator before drawing broader comparative conclusions.}
 
 \section{Discussion}
 TreeLoom combines descendant and outside context within each genealogy with continuity along the chromosome. Its two routes for genomic history act before and after the second tree traversal. Both follow persistent sample identities without assuming correspondence between inferred ancestors.
@@ -351,7 +349,9 @@ The completed FLARE condition uses author release v0.6.0 with native defaults: m
 
 ARGformer's completed American ancestry pipeline remains unavailable. Its published PCA/clustering classifier and nearest reference retrieval are distinct downstream routes \citep{argformer2026}. Exact clustering, class mapping and American retrieval settings are not recovered. The prepared route retains the author release's learned normalized embedding and uses nearest reference retrieval as a disclosed reconstruction. The paper states contrastive temperature 0.05 and inverse frequency anchor weighting, whereas the release configuration uses 0.30 and its stock route can use uniform weights. These differences remain unresolved. Partial pretraining does not supply ancestry accuracy.
 
-\todo{Before a claim of publication reproduction, recover the missing original model and evaluator details rather than silently substituting plausible choices. Assess sensitivity to the AncestralPaths sampling deficit, ARGMix reference restriction and ARGformer objective differences where conclusions depend on them.}
+\todo{Complete independent European tests, additional optimizer seeds and larger panels. For publication reproduction, recover the original ARGMix model, reference roster, map, genotype error settings and evaluator, plus the stated AncestralPaths convolutional model and evaluator. Assess the AncestralPaths sampling deficit and ARGMix reference restriction. Complete the matched American comparison using common observations, reference and query identities, focal records and truth support, resolving its demographic and ploidy reconstruction and the published ARGformer downstream evaluator and objective differences.}
+
+
 
 \section{Additional Scientific Results}
 \subsection{Limited Matched Tests of Additional Context}
@@ -408,7 +408,7 @@ Assignments weighted equally across people integrated over physical span are 14.
 
 \subsection{County Forecasting with the Adapted Core}
 \label{app:countyforecasting}
-TreeLoom's adapted GNN, county memory and recurrent core forecast UCI Hungarian Chickenpox Cases\footnote{\url{https://doi.org/10.24432/C5103B}.}. Two graph passes share weights. Six fits of 40 epochs each use three initialization seeds per arm, totaling 4,800 updates. Evaluation covers 20 counties and 79 test weeks, using 52 observed weeks per forecast and validation MAE selection before TEST.
+We adapt TreeLoom's two shared GNN passes, memory and recurrent core to forecast UCI Hungarian Chickenpox Cases\footnote{\url{https://doi.org/10.24432/C5103B}.}. Six 40 epoch fits, with three initialization seeds per arm, total 4,800 updates. Forecasts use 52 observed weeks and validation MAE selection. TEST covers 20 counties and 79 weeks.
 
 \begin{table}[!htbp]
 \centering
@@ -428,6 +428,6 @@ Ridge ($\alpha=1000$) &$18.959$&$27.298$\\
 \label{tab:countyforecasting}
 \end{table}
 
-Memory fails the prespecified 2\% MAE and paired uncertainty criteria despite lower RMSE (Table~\ref{tab:countyforecasting}). Paired Full-minus-NoMem MAE is $+0.260$ cases, with conditional 95\% interval $[0.105,0.427]$ from 10,000 circular resamples of 13 weeks. Shuffling the first 51 history weeks with the latest fixed raises both MAEs, supporting reliance on order only. Uncertainty is conditional on this one fixed county graph and series.
+Memory fails the prespecified 2\% MAE and paired uncertainty criteria despite lower RMSE (Table~\ref{tab:countyforecasting}). Paired Full minus NoMem MAE is $+0.260$ cases, with a conditional 95\% interval $[0.105,0.427]$ from 10,000 circular resamples of 13 weeks on this fixed graph and series. Shuffling the first 51 history weeks while fixing the latest week raises both MAEs, supporting reliance on order.
 
 \end{document}
