@@ -285,7 +285,37 @@ Effective population sizes are 50,000 for Present/Bronze and Neo, 20,000 for Yam
 
 Relate uses the observed biallelic variants and sampling ages \citep{relate2019}. Its initial effective haploid size is 30,000, mutation rate is $1.25\times10^{-8}$ and generation time is 28 years. The European inference includes five iterations of population size estimation followed by estimation of branch lengths. All applicable completed model adapters consume this same final reconstruction. Mutation agreement features use observed alleles on the inferred trees.
 
-\todo{Verify and cite the exact primary source location of each demographic assumption and the complete ancient sampling age roster. Add the actual simulation seed list, software versions, genotype error condition and genomic coordinate convention. Resolve differences from the ARGMix paper's empirical map, error model, demographic perturbations and eligible reference ages before calling the condition a reproduction. For the American benchmark, provide a primary source demographic table and an explicit account of the haplotype interpretation and focal coordinate assumptions.}
+The demographic events and population sizes follow the released AncestralPaths simulator and the Supplementary Information of \citet{eurasians2024}, particularly Figure S7 and pages 25, 27--28 and 30--32. Pulse times in the release are one generation older than the oldest sample in each corresponding admixed cohort. This gives 169 generations for BAA, whereas the paper reports 170. We use the released value. The basal merger is fixed at 1,500 generations as in the code. The source supplement also gives 15,000 years for that event, an unresolved difference in units. These are adopted demographic assumptions.
+
+The complete released roster supplies the sampling ages of all 476 diploid individuals. Modern ages are fixed at zero. Ancient ages retain their individual values rather than cohort means. Table~\ref{tab:age_roster} summarizes their ranges. The released example uses 2\,Mb sequences, while the AncestralPaths paper describes 200\,Mb sequences, three training simulations and five evaluation simulations. Our 32/8 split is a separate development design.
+
+\begin{table}[!htbp]
+\centering
+\small
+\begin{tabular}{@{}lrr@{}}
+\toprule
+Cohort & Diploid individuals & Age range, generations\\
+\midrule
+Modern &91&0\\
+Bronze Age &81&100--165\\
+BAA &7&136--168\\
+Neo &151&139--258\\
+Yam &13&153--176\\
+WHG &51&210--529\\
+EHG &43&155--402\\
+Ana &25&217--360\\
+CHG &14&184--473\\
+\bottomrule
+\end{tabular}
+\caption{Complete simulation panel summarized from the released AncestralPaths age roster. The first five cohorts are queries. The last four are pure source references. Ages are retained for each individual, and both phased haplotypes share that individual's sampling age.}
+\label{tab:age_roster}
+\end{table}
+
+Our simulations introduce no additional genotype error. The map is synthetic and uniform at 1\,cM/Mb. The sequence occupies $[0,2{,}000{,}000)$ in coordinates starting at zero. Variant positions are shifted by one for VCF input and shifted back after inference. Scoring uses fixed 100\,bp bins and clips them to inferred coverage, leaving uncovered terminal sequence unscored. The chromosome label used for interchange does not identify an empirical chromosome or genome assembly. Complete individual ages and the fixed ancestry, mutation and inference seeds are included with the released experiment configurations.
+
+The April ARGMix benchmark instead uses 1,611 individuals, a chromosome 22 recombination map, genotype error at rate 0.001, admixed informative references and demographic perturbations \citep{ancientancestry2026}. It excludes BAA. Our unperturbed 476-person condition therefore supports a comparison of fitted pipelines on common data, rather than replication of that benchmark.
+
+\todo{Resolve the April ARGMix empirical map identity and coordinate domain, complete individual age roster, genotype error mechanism, reference eligibility and demographic perturbation draws before reproducing its simulation experiment. For the American benchmark, provide a primary source demographic table and resolve the haplotype interpretation and focal coordinate assumptions.}
 
 \section{Model and Training Parameters}
 \label{app:training}

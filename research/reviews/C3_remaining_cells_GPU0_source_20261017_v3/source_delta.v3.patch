@@ -1,0 +1,82 @@
+--- v2_package_normalized/execution_v1.py
++++ v3/execution_v1.py
+@@ -3,7 +3,7 @@
+ """
+ from pathlib import Path
+ from datetime import datetime, timezone
+-import argparse, collections, ctypes, fcntl, hashlib, importlib, io, itertools, json, os, resource, selectors, signal, stat, subprocess, sys, tempfile, time
++import argparse, collections, ctypes, fcntl, hashlib, importlib, io, itertools, json, os, resource, selectors, signal, stat, subprocess, sys, tempfile, time, types
+ from research.reviews.C3_remaining_cells_GPU0_source_20261017_v3.contract_v1 import *
+ from research.reviews.C3_remaining_cells_GPU0_source_20261017_v3 import contract_v1 as c
+ 
+@@ -23,13 +23,13 @@
+ class _PendingV8(dict):
+     def __init__(self,wrapper):self.wrapper=wrapper
+     def __setitem__(self,pid,row):
+-        if pid not in self:
+-            w=self.wrapper
+-            if len(self)>=OWNED_LIMITS_V8["pending"] or w.discovered.total>=OWNED_LIMITS_V8["discoveries"]:
+-                w.complete=False;raise ValueError("Finite v8 pending/discovery identity bound; incomplete ownership")
+-            if row["group"] not in w.groups and len(w.groups)>=OWNED_LIMITS_V8["groups"]:
+-                w.complete=False;raise ValueError("Finite v8 owned-group bound; incomplete ownership")
+-            w.groups.add(row["group"]);w.discovered.add(dict(pid=pid,start=row["start"],group=row["group"]))
++        w=self.wrapper;new_identity=pid not in self
++        if new_identity and (len(self)>=OWNED_LIMITS_V8["pending"] or w.discovered.total>=OWNED_LIMITS_V8["discoveries"]):
++            w.complete=False;raise ValueError("Finite v8 pending/discovery identity bound; incomplete ownership")
++        # Original ancestry has authenticated this row. Check the group bound
++        # before touching row, group set or discovery/retirement history.
++        w.remember_group_v9(row)
++        if new_identity:w.discovered.add(dict(pid=pid,start=row["start"],group=row["group"]))
+         super().__setitem__(pid,row)
+ 
+ class OwnedLifecycleV8:
+@@ -41,6 +41,23 @@
+         self.original=backend.OwnedTree(leader,**kwargs)
+         initial=self.original.known;self.original.known=_PendingV8(self)
+         for pid,row in initial.items():self.original.known[pid]=row
++        self._original_read_stat=self.original.read_stat
++        self.original.read_stat=self.read_stat_v9
++    def remember_group_v9(self,row,*,strict=True):
++        group=row["group"]
++        if group not in self.groups and len(self.groups)>=OWNED_LIMITS_V8["groups"]:
++            self.complete=False
++            if strict:raise ValueError("Finite v9 observed owned-group bound; incomplete ownership")
++            return False
++        self.groups.add(group);return True
++    def read_stat_v9(self,pid,*,strict=True):
++        actual=self._original_read_stat(pid);expected=self.known.get(pid)
++        if self.backend._same(actual,expected):self.remember_group_v9(actual,strict=strict)
++        return actual
++    def cleanup_read_stat_v9(self,pid):
++        # Missing group capacity never blocks pidfd stop of an already-known identity.
++        # Incomplete is permanent; unknown-group evidence can never authorize drain.
++        return self.read_stat_v9(pid,strict=False)
+     @property
+     def known(self):return self.original.known
+     def _retire(self):
+@@ -257,6 +274,7 @@
+         leader_seed = owned._stat(proc.pid)
+         require(leader_seed is not None and leader_seed['ppid'] == os.getpid() and (leader_seed['group'] == leader_seed['session'] == proc.pid), 'Actual direct new-session identity seed')
+         tree = OwnedLifecycleV8(owned,proc.pid)
++        rss_owned=types.SimpleNamespace(_stat=tree.read_stat_v9,_same=owned._same)
+         compact_v1(s, 'launch.json', dict(schema='downstream_fixed_full_parent_actual_child_launch_v1', pid=proc.pid, parent_pid=os.getpid(), input_ref=input_ref, command=command, ownership=tree.evidence(), gate_still_closed=True, attachment_ref=attachment_ref, borrowed_physical_inode=attachment_ref is not None, controller_inheritance_claimed=False), g, storage)
+         selector.register(proc.stdout, selectors.EVENT_READ)
+         active_amendment_v1()
+@@ -271,7 +289,7 @@
+             terminal = os.waitid(os.P_PID, proc.pid, os.WEXITED | os.WNOHANG | os.WNOWAIT)
+             tree.refresh()
+             require(tree.complete, 'Complete bounded-live downstream ownership')
+-            peak = max(peak, rss_identity_v1(owned, parent_identity) + sum((rss_identity_v1(owned, r) for r in tree.known.values())))
++            peak = max(peak, rss_identity_v1(owned, parent_identity) + sum((rss_identity_v1(rss_owned, r) for r in tree.known.values())))
+             require(peak <= CAPS['max_cpu_rss_bytes'], 'Combined owned RSS cap')
+             last_census = charged_census_v1(s)
+             peak_scope = max(peak_scope, sum(last_census.values()))
+@@ -343,7 +361,7 @@
+                     if time.monotonic() >= cleanup_deadline:
+                         break
+                     try:
+-                        owned.signal_identity(row, signum)
++                        owned.signal_identity(row, signum, read_stat=tree.cleanup_read_stat_v9 if tree is not None else owned._stat)
+                     except BaseException as exc:
+                         note_cleanup(exc)
+                 if raw_status is not None:

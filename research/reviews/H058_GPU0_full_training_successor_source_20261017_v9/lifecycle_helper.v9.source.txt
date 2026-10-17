@@ -1,0 +1,107 @@
+OWNED_LIMITS_V8=dict(pending=1024,discoveries=2**28,groups=65536,adopted_waits=2**28,history_rows=16)
+
+class _HistoryV8:
+    def __init__(self):
+        self.total=0;self.first=[];self.last=collections.deque(maxlen=OWNED_LIMITS_V8["history_rows"])
+        self.digest=hashlib.sha256(b"H058-v8-bounded-history-v1").digest();self.nonzero=0
+    def add(self,row):
+        data=json.dumps(row,sort_keys=True,separators=(",",":"),allow_nan=False).encode()
+        self.digest=hashlib.sha256(self.digest+len(data).to_bytes(8,"big")+data).digest();self.total+=1
+        if len(self.first)<OWNED_LIMITS_V8["history_rows"]:self.first.append(dict(row))
+        self.last.append(dict(row));self.nonzero+=int(row.get("returncode",0)!=0)
+    def evidence(self):
+        return dict(count=self.total,first=self.first,last=list(self.last),ordered_chain_sha256=self.digest.hex(),
+            nonzero_returncodes=self.nonzero,full_historical_roster_serialized=False)
+
+class _PendingV8(dict):
+    def __init__(self,wrapper):self.wrapper=wrapper
+    def __setitem__(self,pid,row):
+        w=self.wrapper;new_identity=pid not in self
+        if new_identity and (len(self)>=OWNED_LIMITS_V8["pending"] or w.discovered.total>=OWNED_LIMITS_V8["discoveries"]):
+            w.complete=False;raise ValueError("Finite v8 pending/discovery identity bound; incomplete ownership")
+        # Original ancestry has authenticated this row. Check the group bound
+        # before touching row, group set or discovery/retirement history.
+        w.remember_group_v9(row)
+        if new_identity:w.discovered.add(dict(pid=pid,start=row["start"],group=row["group"]))
+        super().__setitem__(pid,row)
+
+class OwnedLifecycleV8:
+    """Reuse original ancestry discovery; retire only exact identities proven gone/replaced."""
+    def __init__(self,backend,leader,**kwargs):
+        self.backend=backend;self.complete=True;self.groups=set()
+        self.discovered=_HistoryV8();self.retired=_HistoryV8();self.reused=_HistoryV8()
+        self.retirement_reasons=dict(absent=0,replaced=0)
+        self.original=backend.OwnedTree(leader,**kwargs)
+        initial=self.original.known;self.original.known=_PendingV8(self)
+        for pid,row in initial.items():self.original.known[pid]=row
+        self._original_read_stat=self.original.read_stat
+        self.original.read_stat=self.read_stat_v9
+    def remember_group_v9(self,row,*,strict=True):
+        group=row["group"]
+        if group not in self.groups and len(self.groups)>=OWNED_LIMITS_V8["groups"]:
+            self.complete=False
+            if strict:raise ValueError("Finite v9 observed owned-group bound; incomplete ownership")
+            return False
+        self.groups.add(group);return True
+    def read_stat_v9(self,pid,*,strict=True):
+        actual=self._original_read_stat(pid);expected=self.known.get(pid)
+        if self.backend._same(actual,expected):self.remember_group_v9(actual,strict=strict)
+        return actual
+    def cleanup_read_stat_v9(self,pid):
+        # Missing group capacity never blocks pidfd stop of an already-known identity.
+        # Incomplete is permanent; unknown-group evidence can never authorize drain.
+        return self.read_stat_v9(pid,strict=False)
+    @property
+    def known(self):return self.original.known
+    def _retire(self):
+        for pid,row in list(self.known.items()):
+            actual=self.original.read_stat(pid)
+            if actual is None or not self.backend._same(actual,row):
+                reason="absent" if actual is None else "replaced"
+                self.retired.add(dict(pid=pid,start=row["start"],group=row["group"],reason=reason))
+                self.retirement_reasons[reason]+=1;del self.known[pid]
+        # Zombies remain pending until a genuine wait/absence; no guessed reaping.
+    def refresh(self):
+        try:
+            self._retire();self.original.refresh();self._retire()
+            for pid in sorted(self.original.reused):self.reused.add(dict(pid=pid,excluded=True))
+            self.original.reused.clear()
+            return self
+        except BaseException:
+            self.complete=False;raise
+    def live(self):
+        self.refresh()
+        return [pid for pid,row in self.known.items()
+            if self.backend._same(actual:=self.original.read_stat(pid),row) and actual["state"] not in ("Z","X")]
+    def identities_absent(self):
+        self.refresh()
+        return self.complete and not self.known
+    def evidence(self):
+        groups=sorted(self.groups);encoded=json.dumps(groups,separators=(",",":")).encode()
+        return dict(owned_tree_constructed=True,complete_owned_roster_known=self.complete,
+            owned_roster_truncated=not self.complete,
+            current_owned_identities=[dict(pid=p,start=r["start"],group=r["group"],state=r["state"])
+                for p,r in sorted(self.known.items())],
+            discovered_identity_history=self.discovered.evidence(),retired_identity_history=self.retired.evidence(),
+            retirement_reasons=self.retirement_reasons,reused_numeric_PID_history=self.reused.evidence(),
+            historical_roster_summarized=True,retired_exact_identities_confirmed_absent_or_replaced=True,
+            group_count=len(groups),group_set_sha256=hashlib.sha256(encoded).hexdigest(),
+            group_first=groups[:16],group_last=groups[-16:],limits=OWNED_LIMITS_V8,
+            signals_use_pidfd_only=True,no_numeric_group_signals=True)
+
+def observe_groups_v8(tree,deadline):
+    history=_HistoryV8();absent=0;errors=[]
+    for group in sorted(tree.groups):
+        if time.monotonic()>=deadline:break
+        gone=None
+        try:os.killpg(group,0)
+        except ProcessLookupError:gone=True
+        except OSError as exc:
+            if len(errors)<16:errors.append(type(exc).__name__+": "+str(exc)[:512])
+        else:gone=False
+        absent+=int(gone is True)
+        history.add(dict(pgid=group,absent=gone,method="targeted ESRCH within original aggregate cleanup allowance"))
+    finished_within_deadline=time.monotonic()<=deadline
+    return dict(history=history.evidence(),expected_group_count=len(tree.groups),observed_group_count=history.total,
+        absent_group_count=absent,errors=errors,scan_finished_within_deadline=finished_within_deadline,
+        all_owned_groups_observed_absent=finished_within_deadline and bool(tree.groups) and history.total==len(tree.groups)==absent)

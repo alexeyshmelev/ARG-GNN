@@ -1,0 +1,239 @@
+--- research/reviews/Relate_retirement_inline_ROOT_evidence_source_20261017_v1/inline_ROOT_retire_v1.py
++++ research/reviews/Census_retention_inline_source_20261017_v1/inline_ROOT_retire_v1.py
+@@ -1,4 +1,4 @@
+-"""Inactive ROOT-only just-in-time immutable evidence, exact failed Relate retention.
++"""Inactive ROOT-only just-in-time immutable evidence, exact Census observation retention.
+ 
+ No import IO, guard/resource/mutex/process observation or accounting operation.
+ An actual callback, whole-join review and fresh finite ROOT instruction are required.
+@@ -8,13 +8,16 @@
+ from datetime import datetime,timezone
+ import ast,copy,hashlib,importlib.util,json,os,stat,sys,threading
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-HERE="research/reviews/Relate_retirement_inline_ROOT_evidence_source_20261017_v1"
++HERE="research/reviews/Census_retention_inline_source_20261017_v1"
+ SOURCE=HERE+"/inline_ROOT_retire_v1.py"
+ MEMO_REF=dict(path="research/reviews/ROOT_mutation_transaction_memo_source_20261017_v2/root_mutation_memo_v1.py",sha256="487fcd93b73f6668126522b67720041abbbaa8b95ee54c3bc69adffba1a765b2")
+ MEMO_MANIFEST_REF=dict(path="research/reviews/ROOT_mutation_transaction_memo_source_20261017_v2/source_manifest.v1.json",sha256="7f6a55db07b0967bdf6000e40c1c4eeccca8e67a4050f27cf9732d2f1140eb1c")
+-GUARD_REF=dict(path="research/reviews/Relate_failed64GiB_retention_successor_source_20261017_v1/relate_failed64_retention_v1.py",sha256="b8b696a0df45c12b931e563600c2b52e89e73dd19c7d160351063687dcfb5164")
+-TARGET_KEY="ARGMix/prospective1611-accepted-TRAIN000-Relate-v4"
+-RETIRE_OPERATION="retire_exact_failed_Relate64_retention_v1"
++GUARD_REF=dict(path="research/reviews/Census_observation_two_scope_retention_source_20261017_v1/census_observation_retention_v1.py",sha256="72f6dc51844b2a261b581f5e69bd2a22982e6244c059f24549747a7b851faeeb")
++TARGET_KEYS=("census_tsinfer_observation_v1/census-tsinfer-inspect-v1","census_tsinfer_observation_v1/census-tsinfer-numerical-v1")
++SELECTOR_REF=dict(path="research/reviews/Census_observation_ROOT_activation_20261017_v1/explicit_child_selector.root_active_v1.json",sha256="fd05d8934ed29eed39f7e60121a33e48fbeb0106991e76690664ca96355692e4")
++POLICY_REF=dict(path="research/reviews/Census_observation_ROOT_activation_20261017_v1/activation_policy.root_active_v1.json",sha256="5e82c0895c43b77d7e69d440fa9b09dbe19f7f2565b3ae9f866d0075e6f9fad5")
++BRIDGE_REF=dict(path="research/reviews/FLARE_original_VAL002004_conversion_execution_source_20261017_v1/root_memo_bridge_v1.py",sha256="d5d56b504f268c3aa7c4679df47d1c9eddd21d6e0c370c5671f6b26c8f64e2ed")
++RETIRE_OPERATION="retire_exact_Census_observation_retained_allowance_v1"
+ CALLBACK_NAME="authorize_inline_ROOT_retirement_v1"
+ CALLBACK_STDLIB_MODULES=frozenset(("__future__","copy","datetime","errno","hashlib","json","os","pathlib","stat","time"))
+ _ACTIVE=False
+@@ -29,7 +32,7 @@
+  identity=lambda s:(s.st_dev,s.st_ino,s.st_mode,s.st_nlink,s.st_size,s.st_mtime_ns,s.st_ctime_ns)
+  need(identity(before)==identity(opened)==identity(after)==identity(p.lstat())
+   and len(raw)==before.st_size and hashlib.sha256(raw).hexdigest()==MEMO_REF["sha256"],"Stable exact accepted memo bytes")
+- spec=importlib.util.spec_from_file_location("_Relate_retirement_exact_accepted_memo",p)
++ spec=importlib.util.spec_from_file_location("_Census_retirement_exact_accepted_memo",p)
+  module=importlib.util.module_from_spec(spec);sys.modules[spec.name]=module;exec(compile(raw,str(p),"exec",dont_inherit=True),module.__dict__);return module
+ 
+ def derive_inline_retirement(node,scope,transaction,authority,append):
+@@ -63,6 +66,7 @@
+   self.memo=load_memo();self.guard=guard;self.budget=guard.budget;self.v4=self.budget.v4
+   self.instruction_ref=copy.deepcopy(root_instruction_ref)
+   spec=self.v4.bound(ROOT,self.instruction_ref,True)
++  self.key=spec["key"];need(self.key in TARGET_KEYS,"Only two exact original20GB observation scopes")
+   self.manifest_ref=copy.deepcopy(spec["source_manifest_ref"]);self.helper_ref=copy.deepcopy(spec["helper_ref"])
+   self.review_ref=copy.deepcopy(spec["whole_join_review_ref"]);self.memo_review_ref=copy.deepcopy(spec["memo_review_ref"])
+   self.callback_ref=copy.deepcopy(spec["callback_source_ref"]);self.callback_name=spec["callback_name"]
+@@ -71,7 +75,14 @@
+   self.revocation_ref=copy.deepcopy(spec["permanent_revocation_ref"])
+   self._tx=None;self._used=False;self._callback_calls=0;self._append_calls=0;self._authority_ref=None;self.counts={}
+   self.callback_module=self.callback=None
+-  self.core=self.memo.RootMutationMemo(guard,integration_manifest_ref=self.manifest_ref,adapter_ref=MEMO_REF,cache_refs=self.cache_refs)
++  bridge_raw=self.memo.source_bytes(BRIDGE_REF)
++  bridge=type(sys)("_Census_exact_accepted_FLARE_memo_bridge")
++  exec(compile(bridge_raw,str(ROOT/BRIDGE_REF["path"]),"exec",dont_inherit=True,optimize=0),bridge.__dict__)
++  memo_source=self.memo.source_bytes(MEMO_REF)
++  methods,counts=bridge.derive_memo_methods_v1(self.memo,memo_source,GUARD_REF,(),BRIDGE_REF)
++  need(counts==[1,1],"Exact accepted current-Census authentication bridge")
++  Memo=type("ExactCensusRootMutationMemoV2",(self.memo.RootMutationMemo,),methods)
++  self.core=Memo(guard,integration_manifest_ref=self.manifest_ref,adapter_ref=MEMO_REF,cache_refs=self.cache_refs)
+   self._check(check_callback=False)
+   raw=self._callback_bytes();p=ROOT/self.callback_ref["path"]
+   name="_exact_ROOT_inline_retirement_authorizer"
+@@ -80,19 +91,24 @@
+   self.callback_module=module;self.callback=getattr(module,self.callback_name)
+   self._check()
+  def _authenticate(self,bound):
++  selector=bound(ROOT,SELECTOR_REF,True);policy=bound(ROOT,POLICY_REF,True)
++  need(selector.get("source_ref")==GUARD_REF and selector.get("policy_ref")==POLICY_REF
++   and policy.get("source_ref")==GUARD_REF and policy.get("active")is True,"Exact current Census selector and active policy revalidated uncached")
+   manifest=bound(ROOT,self.manifest_ref,True)
+   need(manifest.get("source_sha256",{}).get(SOURCE)==self.helper_ref["sha256"]
+    and manifest["source_sha256"].get(MEMO_REF["path"])==MEMO_REF["sha256"]
+-   and manifest["source_sha256"].get(MEMO_MANIFEST_REF["path"])==MEMO_MANIFEST_REF["sha256"],"Exact new helper and unchanged memo2 source closure")
++   and manifest["source_sha256"].get(MEMO_MANIFEST_REF["path"])==MEMO_MANIFEST_REF["sha256"]
++   and manifest["source_sha256"].get(BRIDGE_REF["path"])==BRIDGE_REF["sha256"],"Exact new helper and unchanged memo2 source closure")
+   need(self.helper_ref["path"]==SOURCE,"Exact new helper path; no old attempt substitution")
+   need(self.callback_name==CALLBACK_NAME,"One exact ROOT authorizer callback name")
+   review=bound(ROOT,self.review_ref,True)
+-  need(review.get("schema")=="Relate64_inline_ROOT_retirement_whole_join_review_v1"
++  need(review.get("schema")=="Census_inline_ROOT_retirement_whole_join_review_v1"
+    and review.get("independent")is True and review.get("verdict")=="SOURCE_PASS"and review.get("blockers")==[]
+    and review.get("source_ref")==self.helper_ref and review.get("source_manifest_ref")==self.manifest_ref
+    and review.get("callback_source_ref")==self.callback_ref and review.get("callback_name")==self.callback_name
+    and review.get("fresh_metadata_paths")==self.paths and review.get("permanent_revocation_ref")==self.revocation_ref
+    and review.get("guard_ref")==GUARD_REF and review.get("memo_ref")==MEMO_REF
++   and review.get("selector_ref")==SELECTOR_REF and review.get("policy_ref")==POLICY_REF and review.get("bridge_ref")==BRIDGE_REF
+    and review.get("actual_callback_complete_source_review")is True,
+    "Genuine new whole-join review includes actual ROOT callback; source-template review never suffices")
+   memo_review=bound(ROOT,self.memo_review_ref,True)
+@@ -100,10 +116,12 @@
+    and memo_review.get("source_ref")==MEMO_REF and memo_review.get("source_manifest_ref")==MEMO_MANIFEST_REF
+    and memo_review.get("blockers")==[],"Separately accepted exact unchanged memo2 review")
+   instruction=bound(ROOT,self.instruction_ref,True)
+-  expected=dict(schema="ROOT_exact_Relate64_inline_evidence_instruction_v1",root_authorizer="root_agent",active=True,
++  expected=dict(schema="ROOT_exact_Census_inline_evidence_instruction_v1",root_authorizer="root_agent",active=True,
+    helper_ref=self.helper_ref,source_manifest_ref=self.manifest_ref,whole_join_review_ref=self.review_ref,
+    memo_ref=MEMO_REF,memo_manifest_ref=MEMO_MANIFEST_REF,memo_review_ref=self.memo_review_ref,guard_ref=GUARD_REF,
+-   key=TARGET_KEY,operation=RETIRE_OPERATION,callback_source_ref=self.callback_ref,callback_name=CALLBACK_NAME,
++   bridge_ref=BRIDGE_REF,selector_ref=SELECTOR_REF,policy_ref=POLICY_REF,
++   expected_before=instruction.get("expected_before"),expected_guard_roles=instruction.get("expected_guard_roles"),
++   key=self.key,operation=RETIRE_OPERATION,callback_source_ref=self.callback_ref,callback_name=CALLBACK_NAME,
+    metadata_directory=self.metadata_directory,fresh_metadata_paths=self.paths,permanent_revocation_ref=self.revocation_ref,
+    cache_refs=self.cache_refs,uncached_current_refs=self.current_refs,
+    created_at_utc=instruction.get("created_at_utc"),expires_at_utc=instruction.get("expires_at_utc"),
+@@ -113,11 +131,15 @@
+    callback_only_actual_target_observations_and_new_immutable_ROOT_metadata=True,
+    original_two_pass_measurement_and_raw_final_revalidation_unchanged=True,
+    new_accounting_lineage=False,automatic_retry=False,old_instruction_or_failed_authority_reused=False)
+-  need(instruction==expected and set(instruction)==set(expected),"Exact fresh ROOT-only one-attempt instruction; never accounting authority")
++  need(instruction==expected and set(instruction)==set(expected) and instruction["key"]in TARGET_KEYS,"Exact fresh ROOT-only one-attempt instruction; never accounting authority")
++  need(review.get("key")==self.key and review.get("expected_before")==instruction["expected_before"]
++   and review.get("expected_guard_roles")==instruction["expected_guard_roles"],"Whole review binds exact target and expected state/47roles")
+   created=datetime.fromisoformat(instruction["created_at_utc"])
+   need(created.tzinfo is not None and created<=datetime.now(timezone.utc),"Genuine finite nonfuture ROOT instruction")
+   self.guard._expire(instruction)
+-  need(isinstance(self.metadata_directory,str)and self.metadata_directory.startswith("research/reviews/Relate_retention_inline_ROOT_actual_")
++  need(isinstance(instruction["expected_before"],dict)and isinstance(instruction["expected_guard_roles"],dict)
++   and len(instruction["expected_guard_roles"])==47,"Exact current prefix and all47roles in instruction")
++  need(isinstance(self.metadata_directory,str)and self.metadata_directory.startswith("research/reviews/Census_retention_inline_ROOT_actual_")
+    and str(Path(self.metadata_directory))==self.metadata_directory,"Separately fresh explicit ROOT metadata namespace")
+   directory=self.v4.canonical(ROOT,self.metadata_directory)
+   need((ROOT/self.instruction_ref["path"]).parent==directory,
+@@ -130,12 +152,12 @@
+    and (ROOT/self.callback_ref["path"]).parent==directory and Path(self.callback_ref["path"]).suffix==".py",
+    "Actual reviewed ROOT callback lives in this new ROOT preparation")
+   need(len(self.current_refs)<=2048 and all(isinstance(r,dict)and set(r)=={"path","sha256"}for r in self.current_refs),"Explicit bounded current-evidence exclusions")
+-  for r in (self.helper_ref,MEMO_REF,self.callback_ref):self.memo.source_bytes(r)
++  for r in (self.helper_ref,MEMO_REF,BRIDGE_REF,self.callback_ref):self.memo.source_bytes(r)
+   return instruction
+  def _check(self,check_callback=True):
+   self.core._check()
+   need(not _ACTIVE and not self.memo._ACTIVE and threading.active_count()==1,"Fresh nonnested single-thread ROOT operation")
+-  need(self.guard.RETIRE_OPERATION==RETIRE_OPERATION and self.guard.TARGET_KEYS==(TARGET_KEY,)
++  need(self.guard.RETIRE_OPERATION==RETIRE_OPERATION and self.guard.TARGET_KEYS==TARGET_KEYS and self.guard._SELECTOR_REF==SELECTOR_REF and self.guard._POLICY_REF==POLICY_REF
+    and self.guard.OPERATION_WALL_SECONDS==300 and self.guard.FRESH_TARGET_SECONDS==120,"Exact original key,300s operation and120s target proof")
+   self.functions=self.memo.functions_from_source(self.guard,GUARD_REF,("apply_retire_stopped_v1","_state_locked","_append",
+    "_authority","_stopped_proof","_observe_targets","_absent","_target","_pins","operation_draft_v1","stopped_observation_draft_v1"))
+@@ -168,9 +190,9 @@
+  def _put_attempt(self,finite):
+   """Small out-of-band ROOT one-attempt token; no accounting authority or credit."""
+   finite();p=self.v4.canonical(ROOT,self.paths["attempt"])
+-  data=(json.dumps(dict(schema="ROOT_inline_Relate64_single_attempt_consumed_v1",root_instruction_ref=self.instruction_ref,
++  data=(json.dumps(dict(schema="ROOT_inline_Census_single_attempt_consumed_v1",root_instruction_ref=self.instruction_ref,
+    callback_source_ref=self.callback_ref,fresh_metadata_paths=self.paths,consumed_utc=self.guard._utc(),
+-   operation=RETIRE_OPERATION,key=TARGET_KEY,automatic_retry=False),sort_keys=True)+"\n").encode()
++   operation=RETIRE_OPERATION,key=self.key,automatic_retry=False),sort_keys=True)+"\n").encode()
+   need(len(data)<=self.guard.MAX_JSON,"Original compact ROOT metadata byte limit")
+   fd=os.open(p,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600)
+   with os.fdopen(fd,"wb")as stream:
+@@ -185,7 +207,23 @@
+   need(self._tx is None,"One original-lock cold cache generation");finite()
+   self._authenticate(self.v4.bound)
+   records=[self.manifest_ref,self.review_ref,self.memo_review_ref,self.instruction_ref,self.callback_ref,self.revocation_ref,*self.current_refs]
+-  exclusions=[r["path"]for r in records]+list(self.paths.values())
++  manifest=self._tx_manifest_for_exclusions()
++  exclusions=[r["path"]for r in records]+list(self.paths.values())+[p for p in manifest["source_sha256"]if Path(p).suffix==".json"]
++  # Every configured ancestor policy/selector/control and nested JSON ref stays uncached.
++  owner=self.guard;seen=set()
++  def collect(v):
++   if type(v)is dict:
++    if set(v)=={"path","sha256"}and Path(v["path"]).suffix==".json":exclusions.append(v["path"])
++    else:
++     for child in v.values():collect(child)
++   elif type(v)in(list,tuple):
++    for child in v:collect(child)
++  while owner is not None:
++   need(id(owner)not in seen and len(seen)<16,"Finite acyclic configured parent chain");seen.add(id(owner))
++   for name in("_POLICY_REF","_SELECTOR_REF","_REPAIR_AUTHORITY_REF"):
++    record=getattr(owner,name,None)
++    if record is not None:collect(record);collect(self.v4.bound(ROOT,record,True))
++   owner=getattr(owner,"_BASE",None)
+   need(len(set(exclusions))<=2048,"All current paths explicitly excluded within original bound")
+   tx=self.memo._Transaction(ROOT,self.v4,self.budget,self.core.allow,uncached_paths=exclusions);self._tx=tx
+   try:
+@@ -193,17 +231,27 @@
+    # Explicit exclusions exist before FIRST staging write. Originals canonical,
+    # file_bytes and mutex are unchanged by accepted memo2.
+    need(all(not self.v4.canonical(ROOT,p).exists()for p in self.paths.values()),"Never reuse any earlier ROOT attempt/evidence/authority path")
+-   self._put_attempt(finite)
+    yield
+   finally:
+    try:self.counts=dict(tx.counts);tx.close()
+    finally:self._tx=None
++ def _tx_manifest_for_exclusions(self):
++  return self.v4.bound(ROOT,self.manifest_ref,True)
+  def _inline_ROOT_authority(self,state,finite):
+   need(self._tx is not None and self._callback_calls==0 and self._authority_ref is None,"One inline ROOT callback after original state")
+   finite();self._authenticate(self._tx.original["bound"]);self._check_callback()
+-  self.guard.assert_open(TARGET_KEY,state[0],state[1]);own=state[0][TARGET_KEY]
+-  need(own==self.guard._target(TARGET_KEY)["original_reservation"],"Same exact original failed reservation")
+-  context=dict(key=TARGET_KEY,original_reservation=copy.deepcopy(own),expected_before=copy.deepcopy(self.guard._pins(state[2])),
++  instruction=self._authenticate(self._tx.original["bound"])
++  need(self.guard._pins(state[2])==instruction["expected_before"]and state[3]==instruction["expected_guard_roles"]
++   and len(state[3])==47,"Same exact expected prefix and every47 guard role before any write")
++  self.guard.assert_open(self.key,state[0],state[1]);own=state[0][self.key]
++  need(own==self.guard._target(self.key)["original_reservation"],"Same exact original observation reservation")
++  # Validate the full47-role union and future immutable names BEFORE the attempt/observation/authority writes.
++  existing=self.guard.consumer_bindings_v1(list(state[3].values()),
++   [self.instruction_ref,self.manifest_ref,self.review_ref,self.memo_review_ref,self.helper_ref,MEMO_REF,BRIDGE_REF,SELECTOR_REF,POLICY_REF,self.callback_ref,self.revocation_ref])
++  need(all(p not in{r["path"]for r in existing}for p in self.paths.values())and len(existing)+len(self.paths)<=64,
++   "All existing exact refs plus three distinct future records must fit64 before writes; no fabricated future hashes")
++  finite();self._put_attempt(finite)
++  context=dict(key=self.key,original_reservation=copy.deepcopy(own),expected_before=copy.deepcopy(self.guard._pins(state[2])),
+    bindings=copy.deepcopy(state[3]),root_instruction_ref=copy.deepcopy(self.instruction_ref),
+    fresh_metadata_paths=copy.deepcopy(self.paths),permanent_revocation_ref=copy.deepcopy(self.revocation_ref))
+   observed_not_before=datetime.now(timezone.utc)
+@@ -219,7 +267,7 @@
+    and all(observed_not_before<=datetime.fromisoformat(row[-1])<=observed_end
+     for field in("PID_observations","group_observations")for row in obs[field]),
+    "Every actual ROOT observation is newly timestamped AFTER original fresh state and before this authority check")
+-  need(obs.get("revocation_ref")==self.revocation_ref and auth.get("request")==dict(key=TARGET_KEY,
++  need(obs.get("revocation_ref")==self.revocation_ref and auth.get("request")==dict(key=self.key,
+    reservation_sha256=self.budget.digest(own),revocation_ref=self.revocation_ref,observation_ref=obs_ref)
+    and auth.get("expected_before")==self.guard._pins(state[2])and auth.get("bindings")==state[3],
+    "NEW immutable actual observation and authority bind SAME original fresh state; no schema extensions")
+@@ -229,13 +277,21 @@
+   tx=self._tx
+   need(tx is not None and self._append_calls==0 and self._callback_calls==1
+    and operation==RETIRE_OPERATION and record==self._authority_ref and record["path"]==self.paths["authority"]
+-   and value["request"]["key"]==TARGET_KEY,"One original append through SAME new authority")
++   and value["request"]["key"]==self.key,"One original append through SAME new authority")
+   self._append_calls+=1
+   instruction=self._authenticate(tx.original["bound"]);self._check_callback()
+   tx.finish() # disable hits, revalidate EVERY admitted cached byte/name originally.
++  # Restore every original before final current metadata/source/proof validation.
++  tx.close();self.core._check()
++  instruction=self._authenticate(self.v4.bound);self._check_callback()
++  fresh_auth=self.guard._authority(record,RETIRE_OPERATION,state[3],fresh=True)
++  need(fresh_auth==auth,"Immutable current authority unchanged after raw validation")
++  self.guard._recorded_stopped_proof(value["proof"],self.guard._stopped_proof(value["request"],state[0][self.key]),value["closed_utc"])
+   self.guard._expire(auth);self.guard._expire(instruction)
+   finite() # SAME original prelock deadline, after final raw validation, before append.
+-  return self._original_append(operation,record,value,state)
++  tail=self._original_append(operation,record,value,state)
++  finite() # A blocking original fsync/postread may overrun; never return a success receipt then.
++  return tail
+  def apply_retire_stopped_v1(self,*,expected_source_sha256,expected_launcher_sha256):
+   global _ACTIVE
+   self._check();need(not self._used,"One operation call per helper; immutable token also forbids new-instance replay")
