@@ -1,6 +1,6 @@
 # Current scientific scoreboard
 
-Updated UTC: 2026-10-17T16:20:24.297607+00:00
+Updated UTC: 2026-10-17T16:52:22.350707+00:00
 
 [All measured cohort details](#detailed-cohort-metrics) · [Complete historical receipt inventory](all_recorded_metric_receipts.md) · [Fresh H048 novelty/cross-domain audit](../research/reviews/H048_novelty_crossdomain_fresh_20261015_v1/report.md)
 
@@ -571,7 +571,7 @@ H048 retains 31,933 parameters per arm and a fixed 30-pass/960-update schedule. 
 
 | Method | Current ancestry scores | Status |
 |---|---|---|
-| Native ARGformer | unavailable | Native ARGformer completed five MLM epochs and saved227990AdamWupdates. Worker0 and owned drain are verified, while supervisor70445exit1 is preserved. Saved-MLM downstreamv2 passed independent source review, resolving final retrieval with genuine historical outer1. Current route/resource binding, initialization, full contrastive training, retrieval and ancestry scores remain unfinished. |
+| Native ARGformer | unavailable | Completed MLM saved227990AdamW updates across five epochs for one30Mb ARG will be reused. Native contrastive and scoring remain pending. A new emptyGPU0 owner v2 had immutable120s certificate timing defect identified before launch. Narrow v3 operational timing fix under preparation, preserving current absence and lease checks. |
 | Native ARGformer dataset counts | not an accuracy run | completed; actual count producer wait0 and drain verified |
 | Native FLARE | 98.0100% focal accuracy | Completed fixed native-call score on one VAL parent, not a multi-parent paper-table reproduction. Macro F1 97.7151%. Held-out VAL000 conversion: completed; actual wait0 and owned-group drain verified. Inference: completed; actual wait0 and owned-group drain verified. Prediction seal: prediction worker completed; direct wait0 and owned-group drain verified, outer tool terminal/final guard unconfirmed. The GNN/ARGformer comparison remains pending. |
 | Our C3 GNN | unavailable | The saved600 backbone retains27/30 predictions. ROOT stopped the exact v5 VAL000 supervisor after independent review proved its JSON prediction seal would reject the forwarded format. Actual outer1/worker-15 is consumed. Original full cleanup is false due invalid historical group-1 and terminal persistence also failed. Fresh known roots/positive groups are absent, without complete historical descendant-drain claim. No new prediction or ancestry score. Corrected fresh three-cell source and full independent review remain pending; original files/charges/guards preserved. Original full 30 Mb VAL000 observation preparation is complete. Full prespecified prediction/scoring gate pending. |
