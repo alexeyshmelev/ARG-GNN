@@ -1,0 +1,10 @@
+SOURCE_PASS for the exact inactive compact helper and runner source packet.
+
+Assigned handoff SHA256:7804de791f8a378522c224f496209a12768c951c1deded26cbe3ef6e58a2a405.
+The full original all20 in-memory barrier and every original target/source gate remain. Only the saved artifact changes to a distinct compact commitment. The full canonical barrier hash, original full seal/metadata commitments, full source refs and native support identities remain bound. Original scientific calculations,20TRAIN parents,1200new calls,six checkpoint boundaries,all60prediction prerequisite and3145728B aggregate JSON cap remain.
+
+Independent static/RAM checks passed25positive checks and12rejection cases. The real unchanged writer body used RAM OS/guard providers. The real global target factory used exact code objects compiled from full original sources and reached all20sentinel resolvers through original typed gates, stopping before payload access. The exact new runner control flow and unchanged signature/snapshot/progress functions used explicit RAM cache/model/optimizer/truth providers. Synthetic sizes are not actual fit or performance results. Review fixture development corrections and initial diagnostic are disclosed in fixture_history.v1.json.
+
+No whole ROOT route, actual guard/storage/process/accounting state, mutex, scientific payload, checkpoint bytes, numerical training, CUDA, install or Git action was exercised. The source pass provides no execution/adoption authority. Existing caller binding still selects original global-onlyv2. Future adoption requires a fresh complete independently reviewed caller/worker/control/runtime/request/scientific-source/admission join and explicit downstream compact-artifact-reader compatibility. No live patch, retry/resume, cap increase, old-scope migration, completion or credit follows.
+
+The known earlier legacy-fast oversized-barrier worker1 failure remains distinct from current global-onlyv2. No current failure, runtime fit, speed or ancestry score is inferred.
