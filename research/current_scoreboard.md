@@ -1,6 +1,6 @@
 # Current scientific scoreboard
 
-Updated UTC: 2026-10-17T05:03:36.109947+00:00
+Updated UTC: 2026-10-17T05:26:32.528003+00:00
 
 [All measured cohort details](#detailed-cohort-metrics) · [Complete historical receipt inventory](all_recorded_metric_receipts.md) · [Fresh H048 novelty/cross-domain audit](../research/reviews/H048_novelty_crossdomain_fresh_20261015_v1/report.md)
 
@@ -571,7 +571,7 @@ H048 retains 31,933 parameters per arm and a fixed 30-pass/960-update schedule. 
 
 | Method | Current ancestry scores | Status |
 |---|---|---|
-| Native ARGformer | unavailable | Native ARGformer is running on physical GPU 0. The saved checkpoint verifies 214,500 of 227,990 AdamW updates across all 77 optimizer states, 10,500 more than the previous 204,000 audit and 192,500 since the 22,000-step resume. Full training and ancestry scoring remain incomplete. This counter is not ancestry accuracy. |
+| Native ARGformer | unavailable | Native ARGformer saved all five MLM epochs and227,990 AdamW updates, verified across77 optimizer states. The genuine producer completion exists, with205,990 new updates since the22,000-step full-state resume. The native worker is absent and its supervisor is finalizing. Actual supervisor wait/drain acceptance remains pending. No ancestry prediction or score is available. |
 | Native ARGformer dataset counts | not an accuracy run | completed; actual count producer wait0 and drain verified |
 | Native FLARE | 98.0100% focal accuracy | Completed fixed native-call score on one VAL parent, not a multi-parent paper-table reproduction. Macro F1 97.7151%. Held-out VAL000 conversion: completed; actual wait0 and owned-group drain verified. Inference: completed; actual wait0 and owned-group drain verified. Prediction seal: prediction worker completed; direct wait0 and owned-group drain verified, outer tool terminal/final guard unconfirmed. The GNN/ARGformer comparison remains pending. |
 | Our C3 GNN | unavailable | All five original 30 Mb observation plans completed and closed. ROOT authenticated 15 of 30 checkpoint-by-parent prediction products: VAL000/001/002 each 3 of 6, VAL003 6 of 6, VAL004 0 of 6. VAL003 returned actual outer0 with worker0 and owned drain, while the other four stages are pending. Every product covers the original 10,000 focals. This is the earlier saved600 backbone, not final TreeLoom. All30 remain required before truth and scoring. Original full 30 Mb VAL000 observation preparation is complete. Full prespecified prediction/scoring gate pending. |
