@@ -1,0 +1,33 @@
+--- research/reviews/GPU0_postdrain_two_slot_pool_source_20261017_v2/pool_admission_v1.py
++++ research/reviews/native_ARGformer_postdrain_pool_source_20261017_v2/pool_admission_v1.py
+@@ -1,4 +1,4 @@
+-"""Inactive fresh32MiB controller admission. ROOT alone may explicitly invoke."""
++"""Inactive fresh128MiB controller admission. ROOT alone may explicitly invoke."""
+ from pathlib import Path
+ from datetime import datetime,timezone
+ import argparse,json,sys,time
+@@ -12,7 +12,7 @@
+     h.require(q.get("schema")=="GPU0_postdrain_controller_ROOT_request_v1"and q.get("root_authorizer")=="root_agent"
+         and q.get("status")=="active"and q.get("execution_authorized") is True
+         and q.get("adapter_manifest_ref")==h.ref(h.MANIFEST)and q.get("storage_policy_selector_ref")==h.SELECTOR_REF
+-        and q.get("reservation_bytes")==32*2**20,"Exact explicit fresh controller ROOT request")
++        and q.get("reservation_bytes")==128*2**20,"Exact explicit fresh controller ROOT request")
+     h.require(isinstance(q.get("instance_id"),str)and q["instance_id"]and all(ch in "abcdefghijklmnopqrstuvwxyz0123456789_-"for ch in q["instance_id"]),"Safe fresh instance")
+     stage=h.local(q["preparation_directory"]);output=h.local(q["controller_output_directory"])
+     h.require(stage==h.local(record["path"]).parent and stage.is_dir()and q["preparation_directory"].startswith("research/reviews/GPU0_postdrain_ROOT_preparation_")
+@@ -30,12 +30,13 @@
+     memo=mutation_memo_v1(g,q);implementation=h.ref(g.budget.SOURCE_REL);launcher=h.ref(g.budget.LAUNCHER_REL)
+     state=memo.read_state_v1(expected_source_sha256=implementation["sha256"],expected_launcher_sha256=launcher["sha256"])
+     consumers=h.unique([*state[3].values(),h.SELECTOR_REF,h.ref(h.MANIFEST),h.ref(SOURCE),h.ref(c.POOL),h.ref(c.SOURCE),record,q["source_review_ref"],runtime,closure])
+-    request=dict(key="GPU0-postdrain/"+cap["controller_job_id"],output=str(output),auxiliary_scopes=[],reserved_bytes=32*2**20,consumer_bindings=consumers)
++    h.require(len(consumers)<=64,"Actual unchanged direct-role union64 checked before reserve")
++    request=dict(key="GPU0-postdrain/"+cap["controller_job_id"],output=str(output),auxiliary_scopes=[],reserved_bytes=128*2**20,consumer_bindings=consumers)
+     authority=g.operation_draft_v1("reserve",request,expected_before=g._pins(state[2]),bindings=state[3]);authority.update(active=True,expires_at_utc=q["expires_at_utc"])
+     auth=h.save(stage,q["instance_id"]+".controller_reserve_authority.json",authority)
+     receipt=memo.reserve_v1(auth,expected_source_sha256=implementation["sha256"],expected_launcher_sha256=launcher["sha256"])
+     h.require(not output.exists(),"Controller output absent through actual reserve")
+-    storage=dict(kind="project_budget_v9_storage_record",active=True,consumer_uses_v9_guard=True,accounting_mode=g.MODE,job_id=cap["controller_job_id"],output_directory=q["controller_output_directory"],reserved_new_bytes=32*2**20,reservation=receipt["value"],initial_ledger_pins=receipt["initial_ledger_pins"],expires_at_utc=q["expires_at_utc"],completed_overlay_policy_ref=h.POLICY,storage_policy_selector_ref=h.SELECTOR_REF,budget_components=dict(implementation=implementation,launcher=launcher,consumer_adapter=h.GUARD))
++    storage=dict(kind="project_budget_v9_storage_record",active=True,consumer_uses_v9_guard=True,accounting_mode=g.MODE,job_id=cap["controller_job_id"],output_directory=q["controller_output_directory"],reserved_new_bytes=128*2**20,reservation=receipt["value"],initial_ledger_pins=receipt["initial_ledger_pins"],expires_at_utc=q["expires_at_utc"],completed_overlay_policy_ref=h.POLICY,storage_policy_selector_ref=h.SELECTOR_REF,budget_components=dict(implementation=implementation,launcher=launcher,consumer_adapter=h.GUARD))
+     storage_ref=h.save(stage,q["instance_id"]+".controller_storage.json",storage)
+     cap.update(root_request_ref=record,plan_ref=record,controller_storage_ref=storage_ref,source_review_ref=q["source_review_ref"])
+     cap_ref=h.save(stage,q["instance_id"]+".capability.json",cap);c.validate_cap_v1(cap_ref)

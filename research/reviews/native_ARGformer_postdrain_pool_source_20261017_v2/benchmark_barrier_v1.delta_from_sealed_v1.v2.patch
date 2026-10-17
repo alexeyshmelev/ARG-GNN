@@ -1,0 +1,22 @@
+--- research/reviews/native_ARGformer_postdrain_pool_source_20261017_v1/benchmark_barrier_v1.py
++++ research/reviews/native_ARGformer_postdrain_pool_source_20261017_v2/benchmark_barrier_v1.py
+@@ -26,6 +26,9 @@
+         and completed.get("initializer_checkpoint_ref") is None and completed.get("resume_checkpoint_ref") is None
+         and completed.get("query_ancestry_truth_opened") is False
+         and completed.get("fresh_optimizer_evidence",{}).get("optimizer_state_empty") is True
++        and completed.get("active_input_ref")==wait["input_ref"]
++        and ("child_input_ref" not in completed or completed["child_input_ref"]==wait["input_ref"])
++        and wait.get("adapter_manifest_ref")==c.ref(c.MANIFEST)
+         and wait.get("returncode")==0 and wait.get("actual_OS_wait_status")==0
+         and wait.get("actual_direct_worker_wait") is True and wait.get("complete_owned_roster_known") is True
+         and wait.get("all_owned_processes_and_groups_drained") is True and wait.get("operational_failure") is None
+@@ -33,7 +36,8 @@
+         and job["state"]=="succeeded" and job["exit_code"]==0 and job["leader_wait_status_known"] is True
+         and job["owned_drain_observed"] is True
+         and outer.get("root_authorizer")=="root_agent" and outer.get("actual_pool_logical_outer_OS_wait_consumed") is True
+-        and outer.get("actual_exit_code")==0 and outer.get("job_id")==spec["job_id"]
++        and outer.get("actual_exit_code")==0 and outer.get("actual_terminal_consumed") is True
++        and outer.get("job_id")==spec["job_id"]
+         and outer.get("actual_wait_ref")==b["actual_wait_ref"]
+         and registry.get("capability_ref")==request["postdrain_pool_capability_ref"]
+         and outer.get("pool_capability_ref")==request["postdrain_pool_capability_ref"]

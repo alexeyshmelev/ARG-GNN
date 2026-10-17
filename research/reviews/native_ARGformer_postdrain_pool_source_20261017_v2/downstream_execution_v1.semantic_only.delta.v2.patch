@@ -1,0 +1,49 @@
+--- research/reviews/native_ARGformer_postdrain_pool_source_20261017_v1/downstream_execution_v1.py:namespace_mapped
++++ research/reviews/native_ARGformer_postdrain_pool_source_20261017_v2/downstream_execution_v1.py
+@@ -59,6 +59,12 @@
+     context.run()
+     return 0
+ 
++
++def emit_capacity_failure_v3(sample):
++    """Outer-tool evidence before owned stop; no pre-stop filesystem/accounting wait."""
++    payload=json.dumps(sample,sort_keys=True,ensure_ascii=True,allow_nan=False).encode()
++    require(len(payload)<=4096,"Bounded failing GPU sample")
++    print(json.dumps(dict(downstream_capacity_failure_before_owned_stop=sample),sort_keys=True,ensure_ascii=True),flush=True)
+ 
+ def execute_v1(input_ref):
+     stage_started=time.monotonic()
+@@ -103,6 +109,7 @@
+     adopted_wait_count=0;adopted_waits_truncated=False
+     gate_read=gate_write=physical_fd=logical_fd=None;attachment_ref=None;start=stage_started
+     capacity_samples=0;last_capacity=None;next_capacity=0.
++    failed_capacity_sample=None;pre_stop_capacity_emitted=False;capacity_emit_error=None
+     def stop(sig,frame):
+         nonlocal cancelled
+         cancelled=sig
+@@ -194,6 +201,13 @@
+                 else:pipe_eof=True;selector.unregister(key.fileobj)
+     except BaseException as exc:
+         failure=failure or type(exc).__name__+": "+str(exc)[:2000]
++        if getattr(exc,"capacity_sample",None) is not None:
++            failed_capacity_sample=exc.capacity_sample
++            try:
++                emit_capacity_failure_v3(failed_capacity_sample)
++                pre_stop_capacity_emitted=True
++            except BaseException as emit_exc:
++                capacity_emit_error=type(emit_exc).__name__+": "+str(emit_exc)[:512]
+     finally:
+         # A single aggregate allowance covers direct OS wait, all known-owned
+         # PIDFD TERM/KILL, descendant waits, pipe drain and absence observations.
+@@ -332,7 +346,10 @@
+         actual_authority_seconds_remaining=expires_unix-time.time(),
+         no_future_stage_authorized=failure is not None or not drained,
+         storage_close_or_credit_authorized=False,
+-        borrowed_physical_inode=attachment_ref is not None,controller_inheritance_claimed=False)
++        borrowed_physical_inode=attachment_ref is not None,controller_inheritance_claimed=False,
++        failing_GPU_capacity_sample=failed_capacity_sample,
++        failing_GPU_sample_emitted_to_outer_stdout_before_owned_stop=pre_stop_capacity_emitted,
++        failing_GPU_sample_pre_stop_emission_error=capacity_emit_error)
+     minimal_facts=dict(schema="downstream_actual_bounded_minimal_wait_facts_v4",input_ref=input_ref,
+         actual_execution_amendment_ref=current_amendment_ref_v1(),adapter_manifest_ref=ref(MANIFEST),
+         original_storage_ref=s["refs"]["storage"],pid=proc.pid if proc is not None else None,

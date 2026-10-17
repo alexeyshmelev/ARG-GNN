@@ -1,0 +1,49 @@
+--- research/reviews/native_ARGformer_postdrain_pool_source_20261017_v1/native_root_driver_v1.py:namespace_mapped
++++ research/reviews/native_ARGformer_postdrain_pool_source_20261017_v2/native_root_driver_v1.py
+@@ -53,6 +53,12 @@
+     guard=direct.install_before_torch_v1(s,q,ticket)
+     from research.reviews.native_ARGformer_postdrain_pool_source_20261017_v2 import native_child_v1
+     return native_child_v1.run_v1(input_ref,s,q,cfg,ticket,guard)
++
++def emit_capacity_failure_v3(sample):
++    """Outer-tool evidence before owned stop; no pre-stop filesystem/accounting wait."""
++    payload=json.dumps(sample,sort_keys=True,ensure_ascii=True,allow_nan=False).encode()
++    require(len(payload)<=4096,"Bounded failing GPU sample")
++    print(json.dumps(dict(native_capacity_failure_before_owned_stop=sample),sort_keys=True,ensure_ascii=True),flush=True)
+ 
+ def execute_v1(input_ref):
+     stage_started=time.monotonic()
+@@ -83,6 +89,7 @@
+     raw_status=None;cleanup_errors=[];identity_absence=None;observations=[]
+     gate_read=gate_write=physical_fd=logical_fd=None;attachment_ref=None;start=stage_started
+     capacity_samples=0;last_capacity=None;next_capacity=0.
++    failed_capacity_sample=None;pre_stop_capacity_emitted=False;capacity_emit_error=None
+     def stop(sig,frame):
+         nonlocal cancelled
+         cancelled=sig
+@@ -169,6 +176,13 @@
+                 else:pipe_eof=True;selector.unregister(key.fileobj)
+     except BaseException as exc:
+         failure=failure or type(exc).__name__+": "+str(exc)[:2000]
++        if getattr(exc,"capacity_sample",None) is not None:
++            failed_capacity_sample=exc.capacity_sample
++            try:
++                emit_capacity_failure_v3(failed_capacity_sample)
++                pre_stop_capacity_emitted=True
++            except BaseException as emit_exc:
++                capacity_emit_error=type(emit_exc).__name__+": "+str(emit_exc)[:512]
+     finally:
+         # A single aggregate allowance covers direct OS wait, all known-owned
+         # PIDFD TERM/KILL, descendant waits, pipe drain and absence observations.
+@@ -293,7 +307,10 @@
+         actual_authority_seconds_remaining=expires_unix-time.time(),
+         no_future_stage_authorized=failure is not None or not drained,
+         storage_close_or_credit_authorized=False,
+-        borrowed_physical_inode=attachment_ref is not None,controller_inheritance_claimed=False)
++        borrowed_physical_inode=attachment_ref is not None,controller_inheritance_claimed=False,
++        failing_GPU_capacity_sample=failed_capacity_sample,
++        failing_GPU_sample_emitted_to_outer_stdout_before_owned_stop=pre_stop_capacity_emitted,
++        failing_GPU_sample_pre_stop_emission_error=capacity_emit_error)
+     # Stdout preserves genuine/unknown OS-wait evidence even when unresolved
+     # writers or expired authority prohibit another strict filesystem write.
+     print(json.dumps(dict(native32_bounded_cleanup_observation=observation),sort_keys=True),flush=True)

@@ -1,0 +1,19 @@
+--- research/reviews/GPU45_shared_downstream_lineage_source_20261016_v1/pool.staged.py:Shared45Controller.start
++++ research/reviews/native_ARGformer_postdrain_pool_source_20261017_v2/pool_v1.py:<postdrain_exact_original_start>
+@@ -17,14 +17,11 @@
+                 self._check(64*1024)
+                 with base.lock_file(ROOT,"scheduler.lock") as scheduler:
+                     fcntl.flock(scheduler,fcntl.LOCK_EX)
+-                    for idx in (2,3):
+-                        with base.lock_file(ROOT,f"gpu_{idx}.lock") as h:
+-                            try:fcntl.flock(h,fcntl.LOCK_EX|fcntl.LOCK_NB)
+-                            except BlockingIOError:raise RuntimeError("Forbidden legacy GPU2/3 lease remains active")
+-                    lease=base.lock_file(ROOT,f"gpu_{self.gpu}.lock")
++                    lease=_open_old_inode_v1(self)
+                     try:fcntl.flock(lease,fcntl.LOCK_EX|fcntl.LOCK_NB)
+                     except BaseException:lease.close();raise
+                     self.lease=lease
++                    _verify_new_exclusive_v1(self,lease)
+                     rows=base.checked_inventory(self.inventory);r=rows[self.gpu]
+                     require(r["uuid"]==self.cap["gpu_uuid"],"Root-bound actual physical UUID")
+                     require(r["used_mib"]+self.headroom<r["total_mib"],"Actual free memory exceeds device reserve")
