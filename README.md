@@ -29,7 +29,7 @@ SD above is across eight simulation parents, with one optimizer seed. These Euro
 <!-- FROZEN_BENCHMARK_PROGRESS_START -->
 ## Frozen benchmark execution
 
-Updated UTC: 2026-10-17T20:08:54.708627+00:00. Physical GPU 0 only.
+Updated UTC: 2026-10-17T20:40:23.408409+00:00. Physical GPU 0 only.
 
 | Stage | Current verified status |
 |---|---|
@@ -39,8 +39,8 @@ Updated UTC: 2026-10-17T20:08:54.708627+00:00. Physical GPU 0 only.
 | Native ARGformer | Accepted saved MLM checkpoint records five epochs and227,990 saved updates for VAL000. Original historical supervisor failure remains preserved. Contrastive-only8GiB operational adapter is being prepared, with unchanged original2135update native science. Contrastive training, embeddings and ancestry scores have not started. |
 | Native FLARE | All five30Mb VAL predictions scored successfully.50,000 fixed focal targets total. Metrics below. |
 | Old short-to-long transfer | H060 global-only v2 failed before optimization at JSON observation-record limit. Failure preserved. No automatic retry. |
-| Remaining CPU preparation | Inference-only18-parent controller is running after genuine admission0. Compact exact-focal CPU controller and all20/full600integration passed independentsource reviews. ROOTcompactmetadata builder succeeded and its actualadmission is pending. No unnecessary native token corpus forTreeLoom. |
-| TreeLoom GPU qualification | Worker is alive but CPU-heavy, with GPU0idle at the latest observation. SyntheticFP32parity passed. No verified full-parent optimizerupdate or successfulterminal yet. Deterministic preparation repetition in full600 is a confirmedsourceissue, not an accuracyresult. |
+| Remaining CPU preparation | Inference18controller andcompactexactfocalCPUcontrollerlaunched aftergenuineadmission0. Simulationbatchcontinues. InferencehasqueuedfororiginalsharedCPUslots/coordinator; nostageattemptreplayed. |
+| TreeLoom GPU qualification | Oldqualificationstopped byROOT after104minutesCPUheavywithoutaverifiedfullparentupdate. Genuineouter1/worker-15/owneddrainpreserved. SinglemainCPUthreadconfirmed, GPU0idle. Correctedcoldqualificationwithstageprofiling, fastpreparation andGPUhistoryexecutionisinpreparation. |
 
 **Native FLARE, five American validation simulations:** accuracy 98.0960 ± 0.3442% and macro F1 97.9196 ± 0.4059%.
 
@@ -83,7 +83,7 @@ The substantial TreeLoom schedule is 20 full 30 Mb TRAIN parents and 30 passes, 
 **Current focus:** benchmark the frozen selected TreeLoom architecture under the publication conditions where recoverable, with independent tests and native competitors. H062 adds full 30 Mb American training. The architecture search is stopped. Current European development results establish no overall top-1 or novel-operator utility.
 
 <!-- CURRENT_SCOREBOARD_START -->
-**Scoreboard updated UTC: 2026-10-17T20:08:55.207445+00:00.** [Every current setup, all cohorts and detailed metrics](research/current_scoreboard.md) · [Native class metrics and training-lineage audit, frozen17-setup snapshot](research/reviews/root_score_report_20261015_v1/REPORT.md) · [All recorded historical/engineering metric receipts](research/all_recorded_metric_receipts.md)
+**Scoreboard updated UTC: 2026-10-17T20:44:11.408587+00:00.** [Every current setup, all cohorts and detailed metrics](research/current_scoreboard.md) · [Native class metrics and training-lineage audit, frozen17-setup snapshot](research/reviews/root_score_report_20261015_v1/REPORT.md) · [All recorded historical/engineering metric receipts](research/all_recorded_metric_receipts.md)
 
 
 **New same-marker model:** H058 architecture variant stopped under the frozen TreeLoom benchmark directive. Actual outer241, worker-15 and complete owned drain are verified. No new update or ancestry score was verified. All files, charges and original failure are preserved, with no retry. [Actual FP32 result](research/reviews/H058_actual_one_hold_ROOTv4_qualification_20261016_v1/REPORT.md).
