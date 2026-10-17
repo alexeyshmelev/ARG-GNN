@@ -1,0 +1,65 @@
+--- research/reviews/H058_transaction_admission_source_20261017_v1/root_driver_v1.py
++++ research/reviews/H058_context_terminal_successor_source_20261017_v1/root_driver_v1.py
+@@ -3,7 +3,7 @@
+ import argparse,ast,copy,hashlib,importlib.util,json,os,stat,sys
+ from datetime import datetime
+ ROOT=Path("/workspace-SR003.nfs2/ARG-GNN")
+-HERE="research/reviews/H058_transaction_admission_source_20261017_v1"
++HERE="research/reviews/H058_context_terminal_successor_source_20261017_v1"
+ SOURCE=HERE+"/root_driver_v1.py";ENTRY=HERE+"/worker_entry_v1.py"
+ MANIFEST=HERE+"/source_manifest.v1.json";HANDOFF=HERE+"/source_handoff.v1.json"
+ def need(ok,message):
+@@ -55,7 +55,7 @@
+   roles=original_roles(request_ref,q,cfgref,closure)
+   # Dynamic SELECTOR slot now is the actual child source. Preserve the original
+   # static selector source too; no actual ancestor or original direct role is lost.
+-  for record in(c.DEPS["SELECTOR"],c.GUARD_REF):
++  for record in(c.DEPS["SELECTOR"],c.GUARD_REF,b["original_runner_source_ref"],q["context_terminal_failure_acceptance_ref"]):
+    if record not in roles:roles.append(copy.deepcopy(record))
+   c.require(c.GUARD_REF==selected(q["storage_policy_selector_ref"])["source_ref"]
+    and c.GUARD_REF in roles,"Actual exact selected child source remains direct")
+@@ -82,6 +82,28 @@
+    and v.get("old_files_key_charge_and_expiry_unchanged")is True
+    and v.get("condition")==b["condition"],"Genuine ROOT acceptance of exact unstarted failure, not training repetition")
+   c.raw(v["actual_outer_terminal_ref"])
++ def accept_context_failure(record):
++  v=c.read(record);old=b["context_terminal_failure"]
++  c.require(v.get("schema")=="ROOT_H058_context_terminal_failure_acceptance_v1"
++   and v.get("root_authorizer")=="root_agent"and v.get("accepted")is True
++   and all(type(v.get(k))is type(old[k])and v.get(k)==old[k]for k in old)
++   and v.get("old_launch_resume_write_authority_revoked")is True
++   and v.get("old_files_key_charge_clocks_and_failure_unchanged")is True
++   and v.get("qualification_success_preserved_without_repeat")is True,
++   "Exact failed69608 context-schema join and original successful arithmetic preserved; no credit or training replay")
++  for key in("original_input_ref","original_request_ref","actual_wait_ref","worker_log_ref","actual_outer_wait_ref","actual_outer_terminal_ref","worker_failure_ref"):c.raw(old[key])
++  terminal=c.read(old["actual_outer_terminal_ref"]);wait=c.read(old["actual_wait_ref"])
++  c.require(terminal.get("schema")=="ROOT_H058_tx72_actual_failure_outer_consumed_v1"
++   and terminal.get("root_authorizer")=="root_agent"and terminal.get("actual_terminal_consumed")is True
++   and terminal.get("actual_tool_session_id")==69608 and terminal.get("actual_outer_exit_code")==1
++   and terminal.get("actual_direct_worker_returncode")==1 and terminal.get("actual_wait_ref")==old["actual_wait_ref"]
++   and terminal.get("actual_outer_wait_ref")==old["actual_outer_wait_ref"]and terminal.get("all_owned_processes_and_groups_drained")is True
++   and terminal.get("completed_ref")is None and terminal.get("scientific_started_json_exists")is False
++   and terminal.get("ordinary_close_or_credit_authorized")is False
++   and terminal.get("automatic_retry_or_old_scope_replay_authorized")is False
++   and wait.get("returncode")==1 and wait.get("actual_direct_worker_wait")is True
++   and wait.get("all_owned_processes_and_groups_drained")is True and wait.get("completed_ref")is None,
++   "Genuine consumed69608 worker1/outer1/drain/noncompletion; no qualification rerun or old-scope replay")
+  original_validate=c.validate_request
+  def validate_request(record):
+   q=c.read(record);authority_interval(q)
+@@ -95,10 +117,14 @@
+     c.require(fresh!=prior and not fresh.is_relative_to(prior)and not prior.is_relative_to(fresh),
+      "All new namespaces disjoint from every old preparation/charged namespace")
+   accept_failure(q["prior_failure_acceptance_ref"])
++  c.require(q.get("context_terminal_successor_condition")==b["context_terminal_condition"],"Exact one context-terminal correction condition")
++  accept_context_failure(q["context_terminal_failure_acceptance_ref"])
+   directive=c.read(q["root_directive_ref"])
+   c.require(directive.get("fresh_lifetime_condition")==q["fresh_lifetime_condition"]
+    and directive.get("prior_failure_acceptance_ref")==q["prior_failure_acceptance_ref"]
+-   and directive.get("fresh_authority_seconds")==259200,
++   and directive.get("fresh_authority_seconds")==259200
++   and directive.get("context_terminal_successor_condition")==q["context_terminal_successor_condition"]
++   and directive.get("context_terminal_failure_acceptance_ref")==q["context_terminal_failure_acceptance_ref"],
+    "Separate ROOT directive explicitly binds unfinished-cell condition/failure and72h authority")
+   # Original current(q,86700+600) stays intact at EVERY original boundary.
+   return original_validate(record)

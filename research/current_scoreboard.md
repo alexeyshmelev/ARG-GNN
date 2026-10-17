@@ -1,6 +1,6 @@
 # Current scientific scoreboard
 
-Updated UTC: 2026-10-17T02:19:58.805820+00:00
+Updated UTC: 2026-10-17T02:57:54.063866+00:00
 
 [All measured cohort details](#detailed-cohort-metrics) · [Complete historical receipt inventory](all_recorded_metric_receipts.md) · [Fresh H048 novelty/cross-domain audit](../research/reviews/H048_novelty_crossdomain_fresh_20261015_v1/report.md)
 
@@ -480,7 +480,7 @@ Completed all3models x100epochs/100updates,300totalupdates. TEST NDCG@10: first_
 
 ## H061 Chickenpox selected validation training milestone
 
-All six Chickenpox fits and the TRAIN-only comparator freeze completed with actual worker/supervisor 0, owned drain and ROOT acceptance. Each core fit trained 40 epochs and 800 updates, for 4,800 total. Selected VAL MAE is 15.968411 +/- 0.061488 cases for TreeLoom and 16.059604 +/- 0.075709 for NoMem, with sample SD across three initialization seeds. TEST prediction passed actual admission 0 with all 63 bindings, and its exact supervisor is launched. All 6 candidate, 6 chronology and 3 fixed-comparator predictions must complete before separate TEST scoring. No TEST score or ancestry accuracy is available.
+All six40epoch/800update Chickenpox fits remain completed,4800updates total. All15 TEST products completed with worker/supervisor0 and owned drain over79weeks and20counties. ROOT authenticated every product and accepted prediction completion. Separate scoring passed actual admission0 with all64 bindings, and its exact supervisor36518 is launched. No TEST metric or new ancestry score is available yet.
 
 Full selected VAL MAE 15.968411 ± 0.061488 (n=3) cases; RMSE 25.520040 ± 0.261292 (n=3) cases (3/3 initialization seeds); NoMem selected VAL MAE 16.059604 ± 0.075709 (n=3) cases; RMSE 25.929755 ± 0.270482 (n=3) cases (3/3 initialization seeds). Sample SD is across completed seeds at their own selected epoch; TEST withheld.
 

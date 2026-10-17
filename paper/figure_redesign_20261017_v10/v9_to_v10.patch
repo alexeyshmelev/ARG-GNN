@@ -1,0 +1,50 @@
+--- sealed_v9/build_figure.py
++++ v10/build_figure.py
+@@ -1,4 +1,4 @@
+-"""TreeLoom v9: editable, static scientific schematic. No model execution.
++"""TreeLoom v10: editable, static scientific schematic. No model execution.
+ All outputs and caches stay in this directory. Runtime: existing repository venv.
+ """
+ from pathlib import Path
+@@ -142,7 +142,11 @@
+ txt(.54,6.22,"R",7.2,ha="left")
+ 
+ # b. Exact unary-collapsed marginals with explicit observed 0/1 allele cells.
+-panel(2.67,6.40,"b")
++# One source boundary encloses every observed-input glyph: node age/status,
++# alleles, known or masked ancestry, and the trees that carry those features.
++# Tree edges separately define the GNN traversals, as stated in the caption.
++box(2.68,4.15,4.15,2.34,fc="none",ec="#bdc9d4",lw=.8,r=.045)
++panel(2.54,6.40,"b")
+ arrow((2.39,5.58),(2.64,5.58),MUTED,1.0,6)
+ centers=[3.29,4.65,6.01]; coords=[]
+ for i,cx in enumerate(centers):
+@@ -176,8 +180,9 @@
+     ax.add_patch(Rectangle((x,p[1]+.095),.11,.15,fc=FAINT,ec=LIGHT,lw=.45))
+     txt(x+.055,p[1]+.17,s,7.0)
+ # All observations, not just a chosen tip, feed the encoder.
+-line([(2.77,4.20),(2.77,4.15),(6.80,4.15),(6.80,4.20)],MUTED,.7)
+-route([(2.77,4.15),(.52,4.15),(.52,3.82)],MUTED,.75,5)
++# Sole panel-b output leaves the enclosing group at its left edge, rather
++# than attaching to only the ancestry row at the bottom.
++route([(2.68,5.10),(2.49,5.10),(2.49,4.15),(.52,4.15),(.52,3.82)],MUTED,.75,5)
+ 
+ # c. Two-tier model, with literal complete Up/Down modules and no graph pooling.
+ panel(.12,3.91,"c")
+@@ -324,7 +329,7 @@
+ assert not outside,outside
+ assert min(t.get_fontsize() for t in texts)>=7
+ (OUT/"text_layout_bounds.json").write_text(json.dumps(bounds,indent=2)+"\n")
+-metadata={"revision":"v9_substantial_two_tier_redesign","figure_inches":[W,H],
++metadata={"revision":"v10_whole_observed_input_collector","figure_inches":[W,H],
+  "minimum_font_pt":min(t.get_fontsize() for t in texts),"panel_titles":False,
+  "panels":["a","b","c"],"trees":3,"samples":5,"genomic_breakpoints_bp":breaks,
+  "ARG_native_edge_surfaces":native_polys,"ARG_edge_surface_count":len(native_polys),
+@@ -339,6 +344,7 @@
+  "readout":"all sample embeddings -> one-layer BiGRU plus local skip -> concat -> MLP -> four probabilities; q1 selected only for displayed track",
+  "geometry_input":"native interval strip abbreviates log-scaled span and neighboring center distances",
+  "no_graph_pooling":True,"output_probs":"illustrative, not a model run","operation_marker":"root executed once; not duplicated",
++ "observed_input_collector":"single frame around all panel-b observed input glyphs and one connected exit to MLP; edges separately define GNN traversals",
+  "validation":{"exact_trees":True,"native_ARG_edges_only":True,"strict_parent_age":True,"minimum_font_7pt":True,"no_text_outside_canvas":True}}
+ (OUT/"figure_metadata.json").write_text(json.dumps(metadata,indent=2)+"\n")
+ print(json.dumps(metadata,indent=2))

@@ -1,0 +1,569 @@
+{
+  "action_plan": [
+    {
+      "action": "For future replacement of serial routes, reuse the effective six-candidate scheduler and scheduled-checkpoint metadata handling. Keep already-interleaved VAL003-004 as baseline. This audit does not justify interrupting jobs or rerunning sealed cells.",
+      "order": 1,
+      "static_effect": "All-five raw encode_block calls change from96294 to24044; learned encoder calls remain144264. Code/plan counts only, no runtime speed ratio."
+    },
+    {
+      "action": "Inference-only scheduler successor: full1600-leaf encode_bank, then index_select exact persistent query_column before each GRU; six independent [1,1000,32] directional states; inverse-query mapping for all focal_sample_column gathers. Retain every tree in both directions and all10000 focal rows.",
+      "order": 2,
+      "precision_limit": "Column independence is algebraic source evidence, not an executed numerical-equivalence result. Changed FP32 batch shapes may change kernel roundoff. Replace all1600-recurrent receipt wording truthfully with graph1600/query-recurrence1000.",
+      "source_basis": "scan_context uses sample columns only as independent batch elements. Training efficient_step_v1.py:116-163 already projects complete graph contexts to exact query columns."
+    },
+    {
+      "action": "Small observation cleanup: compute connected-tree layout once and pass it to an internal branch-support helper. Preserve public support interface and original split/tie/equations. No parent-wide graph/context cache.",
+      "order": 3
+    },
+    {
+      "action": "Defer broader kernel changes. Compact per-level routing reuse within a current bank could remove PyG arange/stack allocations, but aggregation/message order and kernel changes require separate justification. Add no full-parent learned-context cache, guard, bridge or admission layer.",
+      "order": 4
+    }
+  ],
+  "created_at_utc": "2026-10-17T02:35:24.742088+00:00",
+  "evidence_source_refs": [
+    {
+      "path": "research/reviews/C3_CPU_checkpoint_schema_repair_source_20261017_v1/prediction_bridge_v1.py",
+      "sha256": "d8e297cc79bd3728c6023560bdfac82d89625edc544335942c365bd9b61bd37b"
+    },
+    {
+      "path": "research/reviews/C3_CPU_checkpoint_schema_repair_source_20261017_v2/root_driver_v1.py",
+      "sha256": "6bd4468b26030a4b11e2cae2545494ebfb57102019278d11443adcd6fcc71fef"
+    },
+    {
+      "path": "research/reviews/C3_CPU_checkpoint_schema_repair_source_20261017_v2/worker_entry_v1.py",
+      "sha256": "134f1bc3a9256d61f65da73185985fc2e01149ee0d69ffa13b2a5d9de906c9cc"
+    },
+    {
+      "path": "research/reviews/C3_CPU_six_candidate_interleave_source_20261016_v1/six_candidate_scan_v1.py",
+      "sha256": "4da2db9c217b7e4cfe25f0b9c9cf6caeaf228b36e8ced978d7d7299af3607255"
+    },
+    {
+      "path": "research/reviews/C3_efficient_query_GPU_cache_successor_source_20261016_v1/efficient_step_v1.py",
+      "sha256": "0df05b1957affc222ca1c11d9f34cc3277f5a3098834fb36fedee64bb242d2e8"
+    },
+    {
+      "path": "research/reviews/C3_saved600_artifact_acceptance_source_20261016_v1/root_driver_v1.py",
+      "sha256": "0e03cdd1d6ff1176385409db46cce550d6a9c7a1e93de3089a5bef3898a01fbd"
+    },
+    {
+      "path": "research/reviews/C3_saved600_artifact_acceptance_source_20261016_v1/worker_entry_v1.py",
+      "sha256": "32a679e2209e173fbca75651aa113b5b5e26abb604b05636a4a0f26bc8b64a5b"
+    },
+    {
+      "path": "src/arggnn/american_c3_gnn_dataset_isolated_v2.py",
+      "sha256": "6e4f32fcec9e6af0c6aa2c81cdbcc4ef1bf7ff83da04b233f0064b6a65c33cb2"
+    },
+    {
+      "path": "src/arggnn/american_c3_gnn_model_v1.py",
+      "sha256": "f1a64bf56a6edc6e2b5ead5d0b06dda1d64034bdfaa5f8fc166f7b5ddffb994d"
+    },
+    {
+      "path": "src/arggnn/american_c3_gnn_observations_isolated_v2.py",
+      "sha256": "adf1be0aab14e54b0d48c8cb577b3df541bed2ee88ac846f16bab8a75d56f781"
+    },
+    {
+      "path": "src/arggnn/american_c3_gnn_predict_isolated_v2.py",
+      "sha256": "327f68a63253a840f786fd099d381aaccd5f63919a85b4e101ce35ff2519c6e8"
+    },
+    {
+      "path": "src/arggnn/american_c3_gnn_run_isolated_v2.py",
+      "sha256": "3115019fdfe7cb39e19aeb84fc806827fc61138a57e47cbfd5a9e9392052916f"
+    },
+    {
+      "path": "src/arggnn/american_c3_gnn_shared30mb_isolated_v2.py",
+      "sha256": "b6474ea7645d7f4fac39647ec2cb20cffc3b11326397f83b3d1c77a409153039"
+    },
+    {
+      "path": "src/arggnn/mutation_routed_pyg_gnn_v1.py",
+      "sha256": "53866aa4616d12e7d6cbdd34160ee7ab8fb00999444c348ee4d251b8fdfd4337"
+    },
+    {
+      "path": "src/arggnn/mutation_routed_tree_observations_v1.py",
+      "sha256": "922df286e595370ade23595420a325014e4df64aac88060e8a1a846684eab068"
+    },
+    {
+      "path": "src/arggnn/mutation_routed_whole_tree_gnn_v1.py",
+      "sha256": "254f5155e31f81ae675e2bd08d38c97c9bf130d47e98efa2deea4c7344d9e073"
+    }
+  ],
+  "findings": [
+    {
+      "evidence": [
+        "src/arggnn/american_c3_gnn_dataset_isolated_v2.py:145-175",
+        "src/arggnn/american_c3_gnn_run_isolated_v2.py:40-69"
+      ],
+      "finding": "No GNN or GRU call per focal. Complete planned forest blocks are encoded per checkpoint/direction, with sparse focal gathers.",
+      "id": "F1"
+    },
+    {
+      "evidence": [
+        "research/reviews/C3_saved600_artifact_acceptance_source_20261016_v1/worker_entry_v1.py:34-67",
+        "research/reviews/C3_CPU_checkpoint_schema_repair_source_20261017_v1/prediction_bridge_v1.py:35-123",
+        "research/reviews/C3_CPU_six_candidate_interleave_source_20261016_v1/six_candidate_scan_v1.py:92-160"
+      ],
+      "finding": "VAL000-002 make twelve dataset traversals per parent; VAL003-004 already make two and share each bank across six independent models. Do not propose six-candidate feature reuse as a new cache for the latter.",
+      "id": "F2"
+    },
+    {
+      "evidence": [
+        "src/arggnn/american_c3_gnn_dataset_isolated_v2.py:28-92",
+        "src/arggnn/american_c3_gnn_dataset_isolated_v2.py:145-160",
+        "src/arggnn/american_c3_gnn_observations_isolated_v2.py:94-127",
+        "src/arggnn/mutation_routed_tree_observations_v1.py:262-312"
+      ],
+      "finding": "Dataset _state retains tree/metadata handles and genotype mmap once per instance/PID; it does not cache encoded forests. Forward/reverse traversals rebuild native trees, donor/branch features and tensor banks. Connected-tree layout is computed twice inside encode_block: directly and again by branch_concordance_support_v1.",
+      "id": "F3"
+    },
+    {
+      "evidence": [
+        "research/reviews/C3_efficient_query_GPU_cache_successor_source_20261016_v1/efficient_step_v1.py:86-115",
+        "research/reviews/C3_efficient_query_GPU_cache_successor_source_20261016_v1/efficient_step_v1.py:221-278",
+        "research/reviews/C3_CPU_checkpoint_schema_repair_source_20261017_v2/worker_entry_v1.py:34-36"
+      ],
+      "finding": "The pinned single-parent device-cache source is reached by training _backward_v1/complete_parent_step_v1, which requires training mode. It is not called by the inspected effective prediction call graph. Pin inclusion alone does not prove activation.",
+      "id": "F4"
+    },
+    {
+      "evidence": [
+        "src/arggnn/american_c3_gnn_run_isolated_v2.py:17-24",
+        "research/reviews/C3_CPU_six_candidate_interleave_source_20261016_v1/six_candidate_scan_v1.py:79-84",
+        "research/reviews/C3_CPU_six_candidate_interleave_source_20261016_v1/six_candidate_scan_v1.py:106-155"
+      ],
+      "finding": "Learned encoder contexts remain checkpoint-specific. Current bounded two-pass inference deliberately recomputes them in reverse and retains only focal forward states: 1280000 bytes per checkpoint, 7680000 for six, excluding probabilities/other state. Do not share learned contexts across weights.",
+      "id": "F5"
+    }
+  ],
+  "historical_inventory": {
+    "interpretation": "Historical observation only, no current completion or runtime claim",
+    "observed_utc": "2026-10-17T00:59:13.515601+00:00",
+    "repolled_by_this_audit": false,
+    "required_before_truth": 30,
+    "scores_produced": false,
+    "sealed_prediction_count": 6,
+    "truth_opened": false
+  },
+  "invariants": {
+    "TEST_after_complete_original5VAL_selection": true,
+    "all30_prediction_seals_before_any_VAL_truth": true,
+    "all_original_trees_sites_and_1600_graph_leaves": true,
+    "evaluator_and_metrics_unchanged": true,
+    "focals_each_parent_checkpoint": 10000,
+    "global_neighbor_geometry": true,
+    "independent_checkpoint_weights_and_hidden_states": true,
+    "length_bp_each": 30000000,
+    "no_partial_score_gate": true,
+    "original_parent_ids": [
+      "american_c3_val_000",
+      "american_c3_val_001",
+      "american_c3_val_002",
+      "american_c3_val_003",
+      "american_c3_val_004"
+    ],
+    "original_record_sample_position_class_order": true,
+    "required_prediction_cells": 30,
+    "six_original_saved_state_epochs": [
+      5,
+      10,
+      15,
+      20,
+      25,
+      30
+    ],
+    "true_parent_endpoint_only_reset": true
+  },
+  "inventory_ref": {
+    "path": "research/reviews/user_progress_20261017_v4/C3_prediction_products.root_v1.json",
+    "sha256": "a3bf75d6511878f2b10ae2764c4ba75c8e184d3a67d3ba20035b1315f608ba92"
+  },
+  "limitations": {
+    "no_Git_or_install_operations": true,
+    "no_current_live_state_claim": true,
+    "no_jobs_resources_sessions_guards_or_runtime_calls": true,
+    "no_new_cache_guard_bridge_or_admission_layer": true,
+    "no_numerical_imports_or_tests": true,
+    "no_payload_array_truth_checkpoint_reads": true,
+    "no_performance_measurements": true,
+    "no_source_runtime_changes": true,
+    "source_and_compact_pinned_JSON_only": true
+  },
+  "routes": [
+    {
+      "CPU_threads": 32,
+      "block_caps": {
+        "max_nodes_per_block": 250000,
+        "max_sites_per_block": 4096,
+        "max_trees_per_block": 32
+      },
+      "blocks": 2392,
+      "checkpoint_epochs": [
+        5,
+        10,
+        15,
+        20,
+        25,
+        30
+      ],
+      "dataloader_workers": 0,
+      "feature_tensor_byte_planning_bound_per_block": 73240576,
+      "focal_records_per_checkpoint": 10000,
+      "full_successful_route_static_counts": {
+        "GRU_block_calls": 28704,
+        "classifier_rows_per_checkpoint": 10000,
+        "dataset_instances": 12,
+        "full_tree_encoder_calls_per_focal": 0,
+        "learned_encoder_block_calls": 28704,
+        "learned_tree_encoding_passes_per_checkpoint": 2,
+        "observation_loads": 12,
+        "raw_feature_block_constructions": 28704
+      },
+      "haplotypes_in_current_GRU": 1600,
+      "haplotypes_in_graph": 1600,
+      "implementation": "serial_six_checkpoints",
+      "input_ref": {
+        "path": "research/reviews/C3_full30Mb_eval_ROOT_predict_val_000_root01_oct16/input.json",
+        "sha256": "9318a6c9a0f01487803632894ed92f4287600a5ad808bc88bb2d65a36bead869"
+      },
+      "main_source_ref": {
+        "path": "research/reviews/C3_saved600_artifact_acceptance_source_20261016_v1/worker_entry_v1.py",
+        "sha256": "32a679e2209e173fbca75651aa113b5b5e26abb604b05636a4a0f26bc8b64a5b"
+      },
+      "original_reference_counts": [
+        200,
+        200,
+        200
+      ],
+      "parent_id": "american_c3_val_000",
+      "phase": "predict_val_000",
+      "plan_ref": {
+        "path": "experiments/results/C3_GNN_current980_plan_val_000_v1/american_c3_val_000_block_index.json",
+        "sha256": "f9f6bb3d834a049aeb1b899d43b038360b9e92c04895685567827ec066087637"
+      },
+      "query_columns_derived_from_plan": 1000,
+      "query_count_basis": "1600 original samples minus 600 known references; implementation must use the dataset-provided exact query vector, not assumed column ordering",
+      "request_ref": {
+        "path": "research/reviews/C3_full30Mb_eval_ROOT_predict_val_000_root01_oct16/request.root_active_v1.json",
+        "sha256": "64eca557bc3a149a3a96485b0bb63890b3f09d4f382d4705429012644a0f3c9a"
+      },
+      "root_driver_ref": {
+        "path": "research/reviews/C3_saved600_artifact_acceptance_source_20261016_v1/root_driver_v1.py",
+        "sha256": "0e03cdd1d6ff1176385409db46cce550d6a9c7a1e93de3089a5bef3898a01fbd"
+      },
+      "sequence_length_bp": 30000000,
+      "sites": 228477,
+      "trees": 76527
+    },
+    {
+      "CPU_threads": 32,
+      "block_caps": {
+        "max_nodes_per_block": 250000,
+        "max_sites_per_block": 4096,
+        "max_trees_per_block": 32
+      },
+      "blocks": 2390,
+      "checkpoint_epochs": [
+        5,
+        10,
+        15,
+        20,
+        25,
+        30
+      ],
+      "dataloader_workers": 0,
+      "feature_tensor_byte_planning_bound_per_block": 73240576,
+      "focal_records_per_checkpoint": 10000,
+      "full_successful_route_static_counts": {
+        "GRU_block_calls": 28680,
+        "classifier_rows_per_checkpoint": 10000,
+        "dataset_instances": 12,
+        "full_tree_encoder_calls_per_focal": 0,
+        "learned_encoder_block_calls": 28680,
+        "learned_tree_encoding_passes_per_checkpoint": 2,
+        "observation_loads": 12,
+        "raw_feature_block_constructions": 28680
+      },
+      "haplotypes_in_current_GRU": 1600,
+      "haplotypes_in_graph": 1600,
+      "implementation": "serial_six_checkpoints",
+      "input_ref": {
+        "path": "research/reviews/C3_full30Mb_eval_ROOT_predict_val_001_root01_oct16/input.json",
+        "sha256": "8ac934c50f764358aa1f61347d6832416731d6772fa927503535016280aba2c1"
+      },
+      "main_source_ref": {
+        "path": "research/reviews/C3_saved600_artifact_acceptance_source_20261016_v1/worker_entry_v1.py",
+        "sha256": "32a679e2209e173fbca75651aa113b5b5e26abb604b05636a4a0f26bc8b64a5b"
+      },
+      "original_reference_counts": [
+        200,
+        200,
+        200
+      ],
+      "parent_id": "american_c3_val_001",
+      "phase": "predict_val_001",
+      "plan_ref": {
+        "path": "experiments/results/C3_GNN_current980_plan_val_001_v1/american_c3_val_001_block_index.json",
+        "sha256": "ff8e933510bb3ed9fcd42f5c697490c2a3d4410d209c12fec1304fb2904ec02b"
+      },
+      "query_columns_derived_from_plan": 1000,
+      "query_count_basis": "1600 original samples minus 600 known references; implementation must use the dataset-provided exact query vector, not assumed column ordering",
+      "request_ref": {
+        "path": "research/reviews/C3_full30Mb_eval_ROOT_predict_val_001_root01_oct16/request.root_active_v1.json",
+        "sha256": "bb6c98ac7e9f22d04e1c815708760d14fe66a82e4b96eb1e440a8e403f630a1f"
+      },
+      "root_driver_ref": {
+        "path": "research/reviews/C3_saved600_artifact_acceptance_source_20261016_v1/root_driver_v1.py",
+        "sha256": "0e03cdd1d6ff1176385409db46cce550d6a9c7a1e93de3089a5bef3898a01fbd"
+      },
+      "sequence_length_bp": 30000000,
+      "sites": 227316,
+      "trees": 76453
+    },
+    {
+      "CPU_threads": 32,
+      "block_caps": {
+        "max_nodes_per_block": 250000,
+        "max_sites_per_block": 4096,
+        "max_trees_per_block": 32
+      },
+      "blocks": 2443,
+      "checkpoint_epochs": [
+        5,
+        10,
+        15,
+        20,
+        25,
+        30
+      ],
+      "dataloader_workers": 0,
+      "feature_tensor_byte_planning_bound_per_block": 73240576,
+      "focal_records_per_checkpoint": 10000,
+      "full_successful_route_static_counts": {
+        "GRU_block_calls": 29316,
+        "classifier_rows_per_checkpoint": 10000,
+        "dataset_instances": 12,
+        "full_tree_encoder_calls_per_focal": 0,
+        "learned_encoder_block_calls": 29316,
+        "learned_tree_encoding_passes_per_checkpoint": 2,
+        "observation_loads": 12,
+        "raw_feature_block_constructions": 29316
+      },
+      "haplotypes_in_current_GRU": 1600,
+      "haplotypes_in_graph": 1600,
+      "implementation": "serial_six_checkpoints",
+      "input_ref": {
+        "path": "research/reviews/C3_full30Mb_eval_ROOT_predict_val_002_root01_oct16/input.json",
+        "sha256": "6b3d657757268b1fb40f5196afe37e781fc47fdad316d6b5085f7e4375f404df"
+      },
+      "main_source_ref": {
+        "path": "research/reviews/C3_saved600_artifact_acceptance_source_20261016_v1/worker_entry_v1.py",
+        "sha256": "32a679e2209e173fbca75651aa113b5b5e26abb604b05636a4a0f26bc8b64a5b"
+      },
+      "original_reference_counts": [
+        200,
+        200,
+        200
+      ],
+      "parent_id": "american_c3_val_002",
+      "phase": "predict_val_002",
+      "plan_ref": {
+        "path": "experiments/results/C3_GNN_VAL002_plan_H020v3_v2/american_c3_val_002_block_index.json",
+        "sha256": "022fd2cea1740d65d775b122109270be8fcbe74cab7d1e52ae53ee528c5024da"
+      },
+      "query_columns_derived_from_plan": 1000,
+      "query_count_basis": "1600 original samples minus 600 known references; implementation must use the dataset-provided exact query vector, not assumed column ordering",
+      "request_ref": {
+        "path": "research/reviews/C3_full30Mb_eval_ROOT_predict_val_002_root01_oct16/request.root_active_v1.json",
+        "sha256": "1ae628f9ae82eba30bf03eedf8e8376acb945f2cfc56650a4b9480e2b143152a"
+      },
+      "root_driver_ref": {
+        "path": "research/reviews/C3_saved600_artifact_acceptance_source_20261016_v1/root_driver_v1.py",
+        "sha256": "0e03cdd1d6ff1176385409db46cce550d6a9c7a1e93de3089a5bef3898a01fbd"
+      },
+      "sequence_length_bp": 30000000,
+      "sites": 229909,
+      "trees": 78151
+    },
+    {
+      "CPU_threads": 32,
+      "block_caps": {
+        "max_nodes_per_block": 250000,
+        "max_sites_per_block": 4096,
+        "max_trees_per_block": 32
+      },
+      "blocks": 2389,
+      "checkpoint_epochs": [
+        5,
+        10,
+        15,
+        20,
+        25,
+        30
+      ],
+      "dataloader_workers": 0,
+      "feature_tensor_byte_planning_bound_per_block": 73240576,
+      "focal_records_per_checkpoint": 10000,
+      "full_successful_route_static_counts": {
+        "GRU_block_calls": 28668,
+        "classifier_rows_per_checkpoint": 10000,
+        "dataset_instances": 2,
+        "full_tree_encoder_calls_per_focal": 0,
+        "learned_encoder_block_calls": 28668,
+        "learned_tree_encoding_passes_per_checkpoint": 2,
+        "observation_loads": 2,
+        "raw_feature_block_constructions": 4778
+      },
+      "haplotypes_in_current_GRU": 1600,
+      "haplotypes_in_graph": 1600,
+      "implementation": "existing_six_candidate_interleaving",
+      "input_ref": {
+        "path": "research/reviews/C3_full30Mb_eval_ROOT_actual_plan_lineage_checkpoint_schema_predict_val_003_root01_oct17/input.json",
+        "sha256": "1bf037b1e810865e3d259c26991d79b6e3e795fc029d20a40100c2817a49aab3"
+      },
+      "main_source_ref": {
+        "path": "research/reviews/C3_CPU_checkpoint_schema_repair_source_20261017_v2/worker_entry_v1.py",
+        "sha256": "134f1bc3a9256d61f65da73185985fc2e01149ee0d69ffa13b2a5d9de906c9cc"
+      },
+      "original_reference_counts": [
+        200,
+        200,
+        200
+      ],
+      "parent_id": "american_c3_val_003",
+      "phase": "predict_val_003",
+      "plan_ref": {
+        "path": "experiments/results/American_C3_val003_full30mb_plan_native14v3_down8_v1/american_c3_val_003_block_index.json",
+        "sha256": "0d5cbb27fe47e5aa5aebb6b904f80ea60b4e5e3712fc38857ac416af4de7746c"
+      },
+      "query_columns_derived_from_plan": 1000,
+      "query_count_basis": "1600 original samples minus 600 known references; implementation must use the dataset-provided exact query vector, not assumed column ordering",
+      "request_ref": {
+        "path": "research/reviews/C3_full30Mb_eval_ROOT_actual_plan_lineage_checkpoint_schema_predict_val_003_root01_oct17/request.root_active_v1.json",
+        "sha256": "e064f554a3485ec4384a28a72472761dd017fe6c19b31777c38851f902aaeccb"
+      },
+      "root_driver_ref": {
+        "path": "research/reviews/C3_CPU_checkpoint_schema_repair_source_20261017_v2/root_driver_v1.py",
+        "sha256": "6bd4468b26030a4b11e2cae2545494ebfb57102019278d11443adcd6fcc71fef"
+      },
+      "sequence_length_bp": 30000000,
+      "sites": 227361,
+      "trees": 76423
+    },
+    {
+      "CPU_threads": 32,
+      "block_caps": {
+        "max_nodes_per_block": 250000,
+        "max_sites_per_block": 4096,
+        "max_trees_per_block": 32
+      },
+      "blocks": 2408,
+      "checkpoint_epochs": [
+        5,
+        10,
+        15,
+        20,
+        25,
+        30
+      ],
+      "dataloader_workers": 0,
+      "feature_tensor_byte_planning_bound_per_block": 73240576,
+      "focal_records_per_checkpoint": 10000,
+      "full_successful_route_static_counts": {
+        "GRU_block_calls": 28896,
+        "classifier_rows_per_checkpoint": 10000,
+        "dataset_instances": 2,
+        "full_tree_encoder_calls_per_focal": 0,
+        "learned_encoder_block_calls": 28896,
+        "learned_tree_encoding_passes_per_checkpoint": 2,
+        "observation_loads": 2,
+        "raw_feature_block_constructions": 4816
+      },
+      "haplotypes_in_current_GRU": 1600,
+      "haplotypes_in_graph": 1600,
+      "implementation": "existing_six_candidate_interleaving",
+      "input_ref": {
+        "path": "research/reviews/C3_full30Mb_eval_ROOT_actual_plan_lineage_checkpoint_schema_predict_val_004_root01_oct17/input.json",
+        "sha256": "38ef729452b0fa403540701b5b9399b8297ff59421f256078f22e622a4d50be0"
+      },
+      "main_source_ref": {
+        "path": "research/reviews/C3_CPU_checkpoint_schema_repair_source_20261017_v2/worker_entry_v1.py",
+        "sha256": "134f1bc3a9256d61f65da73185985fc2e01149ee0d69ffa13b2a5d9de906c9cc"
+      },
+      "original_reference_counts": [
+        200,
+        200,
+        200
+      ],
+      "parent_id": "american_c3_val_004",
+      "phase": "predict_val_004",
+      "plan_ref": {
+        "path": "experiments/results/American_C3_val004_full30mb_plan_fresh7500_v1/american_c3_val_004_block_index.json",
+        "sha256": "cacc2a13a58fa60284d8ee4a340addef95f18321968d365a8dffe70279a5e61f"
+      },
+      "query_columns_derived_from_plan": 1000,
+      "query_count_basis": "1600 original samples minus 600 known references; implementation must use the dataset-provided exact query vector, not assumed column ordering",
+      "request_ref": {
+        "path": "research/reviews/C3_full30Mb_eval_ROOT_actual_plan_lineage_checkpoint_schema_predict_val_004_root01_oct17/request.root_active_v1.json",
+        "sha256": "f151f7a6c1b15ac1ae14f52d3a28cabfb941dc3938049311c3d81bf7601663a4"
+      },
+      "root_driver_ref": {
+        "path": "research/reviews/C3_CPU_checkpoint_schema_repair_source_20261017_v2/root_driver_v1.py",
+        "sha256": "6bd4468b26030a4b11e2cae2545494ebfb57102019278d11443adcd6fcc71fef"
+      },
+      "sequence_length_bp": 30000000,
+      "sites": 229643,
+      "trees": 77050
+    }
+  ],
+  "schema": "C3_prediction_source_efficiency_audit_v1",
+  "scope": "Five original30Mb VAL prediction routes of earlier AmericanC3WholeTreeGNNV1 saved600 family",
+  "status": "SOURCE_AUDIT_COMPLETE_ACTION_PLAN_ONLY",
+  "torch_pyg_findings": [
+    {
+      "evidence": [
+        "src/arggnn/american_c3_gnn_dataset_isolated_v2.py:187-191",
+        "src/arggnn/american_c3_gnn_observations_isolated_v2.py:94-127"
+      ],
+      "finding": "Zero-worker batch_size=None identity-collate loader yields one already planned forest. Native node offsets and common height/depth buckets batch up to32 complete trees. This is not a PyG Batch per focal or vectorized checkpoint batch.",
+      "id": "B1"
+    },
+    {
+      "evidence": [
+        "src/arggnn/american_c3_gnn_model_v1.py:48-65",
+        "src/arggnn/mutation_routed_whole_tree_gnn_v1.py:307-341"
+      ],
+      "finding": "Every checkpoint/direction repeats learned site pooling over all sites/1600 haplotypes in256-site chunks: gather/features, MLP, index_add/scatter_reduce and pooled concatenations. Evaluation disables activation-checkpoint recomputation.",
+      "id": "B2"
+    },
+    {
+      "evidence": [
+        "src/arggnn/american_c3_gnn_model_v1.py:67-123",
+        "src/arggnn/mutation_routed_pyg_gnn_v1.py:22-80"
+      ],
+      "finding": "Sequential upward/downward level loops perform gathers/copies, small linear/normalization operations and PyG propagate/sum. PyG recreates arange/stack routing per level call; downward sum has one summand. These are source-visible allocation/dispatch candidates, not measured dominance.",
+      "id": "B3"
+    },
+    {
+      "evidence": [
+        "src/arggnn/american_c3_gnn_model_v1.py:40-42",
+        "src/arggnn/american_c3_gnn_model_v1.py:133-143",
+        "src/arggnn/american_c3_gnn_dataset_isolated_v2.py:41-48",
+        "src/arggnn/american_c3_gnn_dataset_isolated_v2.py:83-92"
+      ],
+      "finding": "GRU input [trees,1600,35], hidden32, treats haplotype columns as independent batch elements.600 reference recurrent columns are never selected by query-only focal readout. All1600 reference/query graph leaves must still participate.",
+      "id": "B4"
+    },
+    {
+      "evidence": [
+        "src/arggnn/american_c3_gnn_run_isolated_v2.py:61-66",
+        "research/reviews/C3_CPU_six_candidate_interleave_source_20261016_v1/six_candidate_scan_v1.py:148-155"
+      ],
+      "finding": "Classifier/softmax already receive only focal local/forward/reverse rows; CPU NumPy scatter is per reverse block/checkpoint. There is no dense all-tree/all-sample head to eliminate.",
+      "id": "B5"
+    }
+  ],
+  "training_acceptance_ref": {
+    "path": "research/reviews/C3_saved600_validator_ROOT_actual_20261016_v1/artifact_acceptance.root_active_v1.json",
+    "sha256": "5065ce083306a30a7cbf75d42f77b44db5a3d1c121b0b2e5406ac76c22f474ce"
+  },
+  "training_condition": "20x2Mb TRAIN,600 complete-parent updates; not final TreeLoom/matched full30Mb training"
+}

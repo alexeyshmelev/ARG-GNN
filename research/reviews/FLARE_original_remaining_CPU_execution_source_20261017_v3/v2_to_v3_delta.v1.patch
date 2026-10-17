@@ -1,0 +1,21 @@
+--- research/reviews/FLARE_original_remaining_CPU_execution_source_20261017_v2/root_driver_v1.py
++++ research/reviews/FLARE_original_remaining_CPU_execution_source_20261017_v3/root_driver_v1.py
+@@ -3,7 +3,7 @@
+ from datetime import datetime,timezone
+ import argparse,ast,copy,ctypes,hashlib,importlib,importlib.util,json,os,signal,stat,subprocess,sys,time,types
+ ROOT=Path('/workspace-SR003.nfs2/ARG-GNN')
+-HERE='research/reviews/FLARE_original_remaining_CPU_execution_source_20261017_v2'
++HERE='research/reviews/FLARE_original_remaining_CPU_execution_source_20261017_v3'
+ SOURCE=HERE+'/root_driver_v1.py';ENTRY=HERE+'/worker_entry_v1.py'
+ MANIFEST=HERE+'/source_manifest.v1.json';HANDOFF=HERE+'/source_handoff.v1.json'
+ SETUP_SECONDS=7200;EVIDENCE_RESERVE=300;ORIGINAL_MARGIN=600
+@@ -315,6 +315,9 @@
+         return dict(status="PREPARED" if failure is None else "FAILED",returncode=0 if failure is None else 1,
+             actual_wait_ref=wr,completed_ref=cp,outer_tool_terminal_consumed=False,outer_truth_scored=False)
+     except BaseException as exc:
++        clock.failure_kind=exc.kind if isinstance(exc,PhaseStop)else('AUTHORITY_CUTOFF'if'Current actual ROOT authority/margin'in str(exc)else clock.failure_kind or'EXCEPTION')
++        observation.update(phase_clock=clock.evidence(),prior_operational_failure=observation.get("operational_failure"),
++            operational_failure=type(exc).__name__+": "+str(exc)[:2000])
+         print(json.dumps(dict(actual_wait_observation=observation,evidence_failure=str(exc)[:2000])),flush=True)
+         return dict(status="FAILED_EVIDENCE",returncode=1)
+ 

@@ -1,0 +1,253 @@
+--- research/reviews/American_TreeLoom_matched_CPU_execution_source_20261017_v4/root_driver_v1.py#execute
++++ research/reviews/FLARE_original_remaining_CPU_execution_source_20261017_v3/root_driver_v1.py#owned_execute
+@@ -1,18 +1,18 @@
+-def execute(r):
++def owned_execute(r,clock):
+     need(os.getpid()==os.getpgrp()==os.getsid(0),"ROOT supervisor must use a dedicated actual session")
+-    started=time.monotonic();s,q,cfg=input_spec(r);g=guard(True);c.verify_actual_roles(s,q,g)
++    s,q,cfg=input_spec(r);g=guard(True)
+     need(Path.cwd()==ROOT and Path(sys.executable).resolve()==(ROOT/".runtime/env/bin/python").resolve(),"Original CPU supervisor runtime")
+     need(not local(OUTPUT).exists() and not local(s["worker_auxiliary_scope"]).exists(),"Fresh one-shot execution only")
+-    g.validate_storage_v9(s,dict(output_cap_bytes=CAPS["reservation_bytes"]),s["storage"],source_ref=ref(SOURCE),config_ref=CONFIG,runtime_ref=s["runtime_ref"])
++    initial_storage_transaction(s,q,g);clock.check_setup(s);clock.mark("supervisor_initial_storage_ready")
+     aux=local(s["worker_auxiliary_scope"]);g.budget_check_v9(s["storage"],boundary=True,required_write_bytes=32768)
+     aux.mkdir();(aux/"tmp").mkdir()
+-    put(aux/"attempt_consumed.json",dict(input_ref=r,consumed_utc=datetime.now(timezone.utc).isoformat(),one_shot=True))
++    put(aux/"attempt_consumed.json",dict(input_ref=r,consumed_utc=datetime.now(timezone.utc).isoformat(),one_shot=True,phase_clock=clock.evidence()),cap=4096)
+     load(PIDFD,"pidfd_backend_v1");owned=load(OWNED,"_European_outer_owned")
+     sys.modules["pidfd_backend_v1"].self_probe_v1()
+     need(not owned._children(os.getpid()),"No unrelated children")
+     need(ctypes.CDLL(None,use_errno=True).prctl(36,1,0,0,0)==0,"Owned subreaper")
+-    gate_read,gate_write=os.pipe();proc=tree=seed=None;status=None;failure=None;tail=bytearray();eof=False;nonblocking=False;cancel=[None]
+-    old={sig:signal.signal(sig,lambda n,f:cancel.__setitem__(0,n)) for sig in (signal.SIGINT,signal.SIGTERM)}
++    gate_read,gate_write=os.pipe();ready_read,ready_write=os.pipe();proc=tree=seed=None;status=None;failure=None;tail=bytearray();eof=False;nonblocking=False;cancel=clock.cancel;ready_buffer=bytearray();ready_count=0;scientific_entry=None
++    old={} # PhaseClock installed handlers before all setup metadata, restores them at outer exit.
+     env=dict(os.environ,CUDA_VISIBLE_DEVICES="",PYTHONDONTWRITEBYTECODE="1",PYTHONNOUSERSITE="1",
+         PYTHONPATH=os.pathsep.join([str(ROOT),str(ROOT/"src"),str(ROOT/"scripts")]),
+         TMPDIR=str(aux/"tmp"),TMP=str(aux/"tmp"),TEMP=str(aux/"tmp"),OMP_NUM_THREADS="32",MKL_NUM_THREADS="1",OPENBLAS_NUM_THREADS="1",NUMBA_NUM_THREADS="32",ARGGNN_COMPLETED_CREDITS_POLICY_REF=json.dumps(c.POLICY_REF))
+@@ -21,17 +21,34 @@
+         ("matplotlib","MPLCONFIGDIR"),("huggingface","HF_HOME"),("numba","NUMBA_CACHE_DIR")):
+         env[key]=str(aux/"tmp"/name)
+     env.update(HF_HUB_OFFLINE="1",TRANSFORMERS_OFFLINE="1",HF_DATASETS_OFFLINE="1",WANDB_MODE="disabled")
+-    deadline=min(started+CAPS["wall_seconds"]-300,time.monotonic()+datetime.fromisoformat(s["expires_at_utc"]).timestamp()-time.time()-300)
++    clock.check_setup(s);clock.mark("worker_fork_requested")
+     try:
+         proc=subprocess.Popen([worker_python(q),"-B","-m",HERE.replace("/",".")+".worker_entry_v1",
+-            "--worker-ref",json.dumps(r),"--gate-fd",str(gate_read)],cwd=ROOT,env=env,stdout=subprocess.PIPE,
+-            stderr=subprocess.STDOUT,start_new_session=True,pass_fds=(gate_read,),bufsize=0)
+-        os.close(gate_read);gate_read=None;os.set_blocking(proc.stdout.fileno(),False);nonblocking=True
++            "--worker-ref",json.dumps(r),"--gate-fd",str(gate_read),"--ready-fd",str(ready_write)],cwd=ROOT,env=env,stdout=subprocess.PIPE,
++            stderr=subprocess.STDOUT,start_new_session=True,pass_fds=(gate_read,ready_write),bufsize=0)
++        os.close(gate_read);gate_read=None;os.close(ready_write);ready_write=None;os.set_blocking(ready_read,False);os.set_blocking(proc.stdout.fileno(),False);nonblocking=True
+         seed=owned._stat(proc.pid);tree=owned.OwnedTree(proc.pid)
+-        put(aux/"launch.json",dict(pid=proc.pid,input_ref=r,ownership=tree.evidence(),gate_closed=True))
+-        need(time.monotonic()<deadline and cancel[0] is None,"Work window before gate")
+-        os.write(gate_write,b"G");os.close(gate_write);gate_write=None
+-        while time.monotonic()<deadline and cancel[0] is None:
++        put(aux/"launch.json",dict(pid=proc.pid,input_ref=r,ownership=tree.evidence(),gate_closed=True,worker_fork_observed_utc=datetime.now(timezone.utc).isoformat(),monotonic=time.monotonic()),cap=4096)
++        clock.check_setup(s)
++        need(os.write(gate_write,b"G")==1,"Original owned bootstrap gate write");clock.mark("worker_bootstrap_gate_released")
++        while clock.active():
++            if ready_read is not None:
++                try:chunk=os.read(ready_read,4096)
++                except BlockingIOError:chunk=None
++                if chunk:
++                    ready_buffer.extend(chunk);need(len(ready_buffer)<=8192,"Bounded actual worker status pipe")
++                    while b"\n"in ready_buffer:
++                        line,_,rest=ready_buffer.partition(b"\n");ready_buffer=bytearray(rest);need(len(line)<=4096,"Compact owned status frame")
++                        frame=json.loads(line);ready_count+=1
++                        validate_worker_frame(frame,r,proc.pid,ready_count,clock)
++                        if ready_count==1:
++                            grant=clock.release(s,frame);payload=(json.dumps(grant,sort_keys=True)+"\n").encode();need(len(payload)<=4096,"Bounded scientific gate grant")
++                            need(os.write(gate_write,payload)==len(payload),"Full parent scientific-release grant");os.close(gate_write);gate_write=None
++                            clock.mark("scientific_release_sent")
++                            put(aux/"worker_ready.json",dict(ready=frame,release=grant),cap=8192)
++                        else:
++                            scientific_entry=frame;clock.mark("actual_worker_scientific_entry",receipt=frame);os.close(ready_read);ready_read=None
++                elif chunk==b"":raise PhaseStop("WORKER_READY_PROTOCOL_EOF")
+             event=os.waitid(os.P_PID,proc.pid,os.WEXITED|os.WNOHANG|os.WNOWAIT)
+             tree.refresh();need(len(tree.known)<=64,"Bounded own process roster")
+             rss=int(Path("/proc/self/statm").read_text().split()[1])*os.sysconf("SC_PAGE_SIZE")
+@@ -45,12 +62,20 @@
+             except BlockingIOError:data=None
+             if data==b"":eof=True
+             elif data:tail.extend(data);del tail[:-CAPS["log_bytes"]]
+-            if event is not None:break
++            if event is not None:
++                # An exit can race the second already-written status frame. Consume it/EOF next.
++                if ready_count<2:continue
++                break
+             time.sleep(.2)
+-        else:failure="Cancellation or scientific work cutoff"
+-    except BaseException as exc:failure=type(exc).__name__+": "+str(exc)[:2000]
++        else:failure=clock.failure_kind or "UNCLASSIFIED_PHASE_CUTOFF"
++    except BaseException as exc:
++        if isinstance(exc,PhaseStop):clock.failure_kind=exc.kind
++        elif "Current actual ROOT authority/margin"in str(exc):clock.failure_kind="AUTHORITY_CUTOFF"
++        else:clock.failure_kind=clock.failure_kind or"EXCEPTION"
++        failure=type(exc).__name__+": "+str(exc)[:2000]
+     finally:
+-        for fd in (gate_read,gate_write):
++        clock.stop_work_alarm()
++        for fd in (gate_read,gate_write,ready_read,ready_write):
+             if fd is not None:
+                 try:os.close(fd)
+                 except OSError:pass
+@@ -98,20 +123,22 @@
+             time.sleep(min(.05,max(0,end-time.monotonic())))
+         if proc is not None and proc.stdout is not None:proc.stdout.close()
+         for sig,handler in old.items():signal.signal(sig,handler)
++    if clock.cancel[0] is not None:failure=failure or"CANCELLED";clock.failure_kind="CANCELLED"
+     rc=None if status is None else os.waitstatus_to_exitcode(status)
+     drained=status is not None and absence and eof and bool(groups) and all(x["absent"] is True for x in groups)
+     if not drained:failure=failure or "Unresolved owned drain/wait"
+     if rc!=0 or any(x["returncode"]!=0 for x in adopted):failure=failure or "Genuine nonzero/unknown child wait"
+-    observation=dict(schema="American_C3_full_original_CPU_actual_wait_v1",input_ref=r,pid=None if proc is None else proc.pid,
++    observation=dict(schema="FLARE_phase_CPU_actual_wait_v2",input_ref=r,pid=None if proc is None else proc.pid,
+         actual_direct_worker_wait=status is not None,actual_OS_wait_status=status,returncode=rc,
+         all_owned_processes_and_groups_drained=drained,group_observations=groups,adopted_waits=adopted,
+-        operational_failure=failure,cleanup_errors=errors,outer_truth_scored=False,automatic_close_or_credit=False)
++        operational_failure=failure,cleanup_errors=errors,outer_truth_scored=False,automatic_close_or_credit=False,phase_clock=clock.evidence(),actual_worker_scientific_entry=scientific_entry)
+     print(json.dumps(observation,sort_keys=True),flush=True)
+     if not drained or time.time()+150>=datetime.fromisoformat(s["expires_at_utc"]).timestamp():
+         print(json.dumps(dict(retained_worker_tail=bytes(tail[-8192:]).decode(errors="replace"),no_future_stage_authorized=True)),flush=True)
+         return dict(status="FAILED_UNRESOLVED_OR_EVIDENCE_MARGIN",returncode=1,actual_wait_ref=None,observation=observation)
+     try:
+         # Genuine drain precedes every new source/accounting/product inspection.
++        clock.evidence_alarm()
+         boundary(g,s,32768,target="aux")
+         cp=None
+         if local(OUTPUT+"/completed.json").is_file():
+@@ -120,10 +147,15 @@
+         observation.update(completed_ref=cp,phase=q["phase"],parent_id=PARENT,actual_direct_launcher_wait=status is not None,
+             known_owned_pids=sorted(tree.known) if tree is not None else [],known_owned_process_groups=[x["pgid"] for x in groups],
+             supervisor_pid=os.getpid(),supervisor_process_group=os.getpgrp())
++        observation["operational_failure"]=failure;observation["phase_clock"]=clock.evidence()
++        need(len(json.dumps(observation,sort_keys=True).encode())<=32768,"Compact precharged complete wait evidence")
+         wr=put(aux/"actual_wait.json",observation)
+         boundary(g,s,len(tail)*6+8192,target="aux");put(aux/"worker_log.json",dict(tail=bytes(tail).decode(errors="replace"),retained_raw_bytes=len(tail)),cap=128*2**20)
+         return dict(status="PREPARED" if failure is None else "FAILED",returncode=0 if failure is None else 1,
+             actual_wait_ref=wr,completed_ref=cp,outer_tool_terminal_consumed=False,outer_truth_scored=False)
+     except BaseException as exc:
++        clock.failure_kind=exc.kind if isinstance(exc,PhaseStop)else('AUTHORITY_CUTOFF'if'Current actual ROOT authority/margin'in str(exc)else clock.failure_kind or'EXCEPTION')
++        observation.update(phase_clock=clock.evidence(),prior_operational_failure=observation.get("operational_failure"),
++            operational_failure=type(exc).__name__+": "+str(exc)[:2000])
+         print(json.dumps(dict(actual_wait_observation=observation,evidence_failure=str(exc)[:2000])),flush=True)
+         return dict(status="FAILED_EVIDENCE",returncode=1)--- research/reviews/FLARE_original_remaining_CPU_execution_source_20261017_v1/worker_entry_v1.py
++++ research/reviews/FLARE_original_remaining_CPU_execution_source_20261017_v3/worker_entry_v1.py
+@@ -1,44 +1,74 @@
+-"""Actual original stage entry. Scientific imports follow admitted owned startup gate."""
++"""Exact FLARE scientific call after owned bootstrap and genuine parent scientific release."""
+ from pathlib import Path
+-import argparse,importlib,json,os,resource,sys,time
+-from research.reviews.FLARE_original_remaining_CPU_execution_source_20261017_v1 import root_contract_v1 as c
+-class Adapter:
+- def __init__(self,g,fast):self.g=g;self.fast=fast
+- def __getattr__(self,name):return getattr(self.g,name)
+- def budget_check_v9(self,*a,**kw):self.fast();return self.g.budget_check_v9(*a,**kw)
+-def worker(record,gate_fd):
+- s,q,cfg=c.input_spec(record)
+- c.require(type(gate_fd)is int and gate_fd>=0,"Actual parent-owned gate")
+- try:c.require(os.read(gate_fd,1)==b"G","Actual pidfd ownership registered before scientific work")
+- finally:os.close(gate_fd)
+- c.require(Path.cwd()==c.ROOT and sys.dont_write_bytecode and sys.flags.no_user_site
+-  and sys.prefix==str(c.ROOT/".runtime/env")and os.environ.get("CUDA_VISIBLE_DEVICES")=="","Exact existing CPU-only interpreter")
+- private=c.local(s["worker_auxiliary_scope"])/"tmp"
+- for key in ("TMPDIR","TMP","TEMP"):c.require(os.environ.get(key)==str(private),"Charged private TMP")
+- c.require(set(q["cpu_ids"])<=os.sched_getaffinity(0),"Four actual CPU identities");os.sched_setaffinity(0,set(q["cpu_ids"]))
+- # Existing framework has32-thread defaults for TreeLoom. Override before any scientific import.
+- for key in ("OMP_NUM_THREADS","NUMBA_NUM_THREADS"):os.environ[key]="4"
+- for key in ("MKL_NUM_THREADS","OPENBLAS_NUM_THREADS"):os.environ[key]="1"
+- g=c.guard(True);c.verify_actual_roles(s,q,g)
+- g.validate_storage_v9(s,dict(output_cap_bytes=c.CAPS["reservation_bytes"]),s["storage"],
+-  source_ref=c.ref(c.DRIVER),config_ref=s["refs"]["config"],runtime_ref=s["runtime_ref"])
+- started=time.monotonic()
++import argparse,importlib,json,os,resource,signal,sys,time
++from datetime import datetime,timezone
++from . import root_driver_v1 as d
++
++def compact_status(fd,value):
++ data=(json.dumps(value,sort_keys=True)+'\n').encode();d.need(len(data)<=4096,'Bounded owned worker status')
++ d.need(os.write(fd,data)==len(data),'Whole owned status-pipe frame')
++def grant_from_parent(fd):
++ data=bytearray()
++ while b'\n'not in data:
++  chunk=os.read(fd,4096);d.need(chunk,'Parent scientific gate did not authorize work');data.extend(chunk);d.need(len(data)<=4096,'Bounded scientific release')
++ d.need(data.endswith(b'\n')and data.count(b'\n')==1,'One exact scientific release frame');return json.loads(data)
++def worker(record,gate_fd,ready_fd):
++ d.activate();c=d.c;s,q,cfg=c.input_spec(record)
++ c.require(type(gate_fd)is int and gate_fd>=0 and type(ready_fd)is int and ready_fd>=0 and ready_fd!=gate_fd,'Two distinct actual owned startup pipes')
++ try:
++  c.require(os.read(gate_fd,1)==b'G','Original owned pidfd bootstrap gate')
++  c.require(Path.cwd()==c.ROOT and sys.dont_write_bytecode and sys.flags.no_user_site and sys.prefix==str(c.ROOT/'.runtime/env')and os.environ.get('CUDA_VISIBLE_DEVICES')=='','Exact qualified CPU interpreter')
++  private=c.local(s['worker_auxiliary_scope'])/'tmp'
++  for key in('TMPDIR','TMP','TEMP'):c.require(os.environ.get(key)==str(private),'Charged private TMP')
++  c.require(set(q['cpu_ids'])<=os.sched_getaffinity(0),'Four actual CPU identities');os.sched_setaffinity(0,set(q['cpu_ids']))
++  for key in('OMP_NUM_THREADS','NUMBA_NUM_THREADS'):os.environ[key]='4'
++  for key in('MKL_NUM_THREADS','OPENBLAS_NUM_THREADS'):os.environ[key]='1'
++  g=c.guard(True);view=d.initial_storage_transaction(s,q,g)
++  # Initial package metadata and unchanged writer-class import belong to setup.
++  from arggnn.american_c3_common_v1 import runtime_report
++  c.require(runtime_report()==c.read(c.BASE_RUNTIME),'Exact prequalified package report');c.raw(c.WAIT_WRITER)
++  context=importlib.import_module('research.reviews.FLARE_consumer_namespace_root_20261015_v1.root_context_980_v1')
++  c.current(s,c.CAPS['wall_seconds']+600)
++  ready=dict(schema='FLARE_worker_bootstrap_ready_v2',input_ref=record,pid=os.getpid(),monotonic=time.monotonic(),utc=datetime.now(timezone.utc).isoformat(),worker_source_ref=c.ref(c.ENTRY),initial_metadata_storage_and_all_roles_validated=True,actual_role_count=len(g.consumer_bindings_v1(list(view['bindings'].values()),c.direct_roles(s['root_stage_request_ref'],q,s['refs']['config'],s['transitive_source_closure_ref']))))
++  compact_status(ready_fd,ready);grant=grant_from_parent(gate_fd)
++  c.require(grant.get('schema')=='FLARE_scientific_release_v2'and grant.get('input_ref')==record and grant.get('worker_pid')==os.getpid(),'Actual parent releases this exact ready worker')
++  origin=grant['phase_origin_monotonic'];deadline=grant['scientific_deadline_monotonic'];now=time.monotonic()
++  c.require(type(origin)in(int,float)and type(deadline)in(int,float)and deadline-origin==c.CAPS['scientific_seconds']and origin<=now<deadline,'Original full scientific cap begins only at parent ready boundary')
++  entry=dict(schema='FLARE_worker_scientific_entry_v2',input_ref=record,pid=os.getpid(),monotonic=now,utc=datetime.now(timezone.utc).isoformat(),phase_origin_monotonic=origin,scientific_deadline_monotonic=deadline)
++  compact_status(ready_fd,entry)
++ finally:
++  os.close(gate_fd);os.close(ready_fd)
++ def scientific_timeout(number,frame):raise d.PhaseStop('WORKER_SCIENTIFIC_CUTOFF')
++ previous=signal.getsignal(signal.SIGALRM);c.require(signal.getitimer(signal.ITIMER_REAL)==(0.0,0.0),'Fresh worker scientific timer')
++ signal.signal(signal.SIGALRM,scientific_timeout);signal.setitimer(signal.ITIMER_REAL,max(0.000001,deadline-time.monotonic()))
++ count=[0]
++ def progress(event,**metadata):
++  if count[0]<512:
++   count[0]+=1;print(json.dumps(dict(FLARE_worker_progress=dict(event=event,parent_id=q['parent_id'],stage=q['stage'],monotonic=time.monotonic(),utc=datetime.now(timezone.utc).isoformat(),**metadata)),sort_keys=True),flush=True)
+  def fast():
+-  c.current(s,150)
+-  c.require(time.monotonic()-started<c.CAPS["scientific_seconds"],"Original stage scientific deadline")
+-  c.require(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss*1024<=c.CAPS["rss_bytes"],"Original CPU RSS failstop")
+-  c.require(os.environ.get("CUDA_VISIBLE_DEVICES")==""and set(os.sched_getaffinity(0))==set(q["cpu_ids"]),"CPU-only exact4CPU affinity")
+- # Source closure and ROOT gate precede NumPy, observed arrays, Java and sealer imports.
+- from arggnn.american_c3_common_v1 import runtime_report
+- c.require(runtime_report()==c.read(c.BASE_RUNTIME),"Exact prequalified package report")
+- c.raw(c.WAIT_WRITER)
+- context=importlib.import_module("research.reviews.FLARE_consumer_namespace_root_20261015_v1.root_context_980_v1")
+- writer=context.WaitWriter(s,Adapter(g,fast))
+- module=importlib.import_module(c.MODULES[q["stage"]])
+- c.require(c.ref(module.SOURCE)==c.ref(c.PRODUCERS[q["stage"]]),"Exact unchanged original stage callable")
+- fast();result=module.execute(cfg,writer);fast()
+- return result
++  c.current(s,150);c.require(time.monotonic()<deadline,'Original stage scientific deadline')
++  c.require(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss*1024<=c.CAPS['rss_bytes'],'Original CPU RSS failstop')
++  c.require(os.environ.get('CUDA_VISIBLE_DEVICES')==''and set(os.sched_getaffinity(0))==set(q['cpu_ids']),'CPU-only exact4CPU affinity')
++ class Adapter:
++  def __getattr__(self,name):return getattr(g,name)
++  def budget_check_v9(self,*args,**kwargs):
++   fast();progress('original_guard_boundary_begin');value=g.budget_check_v9(*args,**kwargs);progress('original_guard_boundary_end');fast();return value
++ try:
++  progress('scientific_entry',phase_origin_monotonic=origin,scientific_deadline_monotonic=deadline)
++  class ProgressWriter(context.WaitWriter):
++   def prepare(self,name,budget_bytes):
++    progress('writer_prepare_begin',product=name);p=super().prepare(name,budget_bytes);progress('writer_prepare_end',product=name);return p
++   def finish(self,p,planned):
++    progress('writer_finish_begin',product=p.name);r=super().finish(p,planned);progress('writer_finish_end',product=p.name);return r
++  writer=ProgressWriter(s,Adapter());module=importlib.import_module(c.MODULES[q['stage']])
++  c.require(c.ref(module.SOURCE)==c.ref(c.PRODUCERS[q['stage']]),'Exact unchanged original stage callable')
++  fast();result=module.execute(cfg,writer);fast();progress('scientific_callable_completed');return result
++ except BaseException as error:
++  progress('worker_failed',exception_type=type(error).__name__,reason=str(error)[:1000]);raise
++ finally:signal.setitimer(signal.ITIMER_REAL,0);signal.signal(signal.SIGALRM,previous)
+ def main(argv=None):
+- p=argparse.ArgumentParser();p.add_argument("--worker-ref",required=True);p.add_argument("--gate-fd",type=int,required=True);a=p.parse_args(argv)
+- print(json.dumps(dict(completion_ref=worker(json.loads(a.worker_ref),a.gate_fd)),sort_keys=True),flush=True);return 0
+-if __name__=="__main__":raise SystemExit(main())
++ p=argparse.ArgumentParser();p.add_argument('--worker-ref');p.add_argument('--gate-fd',type=int);p.add_argument('--ready-fd',type=int);a=p.parse_args(argv)
++ if not a.worker_ref:print(json.dumps(dict(status='SOURCE_ONLY_INACTIVE',guard_imported=False,models_imported=False)));return 0
++ d.need(a.gate_fd is not None and a.ready_fd is not None,'Actual two-phase owned worker gate')
++ result=worker(json.loads(a.worker_ref),a.gate_fd,a.ready_fd);print(json.dumps(dict(completion_ref=result),sort_keys=True),flush=True);return 0
++if __name__=='__main__':raise SystemExit(main())

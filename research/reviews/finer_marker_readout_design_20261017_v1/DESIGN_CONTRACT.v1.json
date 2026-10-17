@@ -1,0 +1,101 @@
+{
+  "architecture": {
+    "common": "Complete original observed bank, first and second tree sweeps, original structural/memory components and original genomic BiGRU",
+    "control_placement": "Same sampled query contexts immediately after complete-tree sweep2 before original genomic BiGRU",
+    "evidence": "3G exact per-marker reference evidence with original query-called bit and observation-only direction-specific log1p gap/log1p parent length",
+    "feedback_placement": "Original query nodes before complete-tree sweep2",
+    "marker_head": "Base original logits + Linear(K+16+3G+2,16,bias=True)->SiLU->Linear16->C,bias=False, zero output",
+    "marker_head_gap": "Forward-direction preceding-SNP gap, using native hold left edge for its first SNP; same normalized log1p rule as recurrence.",
+    "no_nonlinear_full_tree_rerun_per_SNP": true,
+    "ordered_summary": "Concatenate both marker endpoint states; Linear16->8 no bias, tanh, Linear8->32 no bias, zero output initialization",
+    "recurrence": {
+      "detach_history": false,
+      "directional_hidden_dim": 8,
+      "directions": 2,
+      "drop_markers": false,
+      "reset": "native inferred hold only"
+    },
+    "same_evidence_capacity": "Identical cloned modules and initialization; every allocated parameter used/trainableFP32 in both arms"
+  },
+  "arms": [
+    "marker_tree_feedback",
+    "marker_sample_readout"
+  ],
+  "backward": {
+    "active_work": "Full dense/sparse tree evidence plus16-marker GRU/head tile",
+    "boundaries": "Both-direction boundary hidden states retain complete autograd history",
+    "checkpoint": "Feature/evidence + directional recurrent consumer + external loss/head tile, nonreentrant",
+    "marker_block": 16,
+    "numerical_memory_speed_pass": false,
+    "optimizer": "One original complete-parent update after full loss; no truncatedBPTT/disposable updates",
+    "retained_boundary_state_order": "O((S/16)*Q*d)"
+  },
+  "biological_limit": "European unchanged grid supports boundary tests; American sparse10,000-focal endpoint alone does not establish dense boundary localization",
+  "candidate": "marker_resolution_with_matched_tree_feedback",
+  "execution_authority": false,
+  "novelty_decision": "NO_GO_FOR_STANDALONE_NEW_OPERATOR_CLAIM; useful endpoint-corrective biological hypothesis remains unvalidated",
+  "observation_lookup": {
+    "American": "Map every existing10,000 native focal position and sample identity to SNP/fallback anchor; preserve exact registry order/IDs",
+    "European": "Map every original grid center to its SNP/fallback anchor; original positions/edges/retained indexes/query roster/cohorts remain",
+    "SNP_cell_edges": "[hold_left, adjacent_SNP_midpoints..., hold_right]",
+    "native_hold": "Original half-open intervals; right-sided boundary assignment",
+    "no_truth_or_labels_in_lookup": true,
+    "tie": "Right SNP at exact midpoint",
+    "zero_SNP_hold": "Original coarse complete-tree/genomic prediction; no virtual root/edge/marker"
+  },
+  "schema": "finer_marker_readout_design_contract_v1",
+  "status": "SOURCE_ONLY_SCIENTIFIC_DESIGN_NOT_IMPLEMENTED_OR_REGISTERED",
+  "streaming_interface": [
+    "prepare_observation_layout(bank,site_coordinates,native_intervals,original_endpoint_geometry)",
+    "encode_complete_parent(original_bank,prepared_payload,arm)",
+    "iter_marker_logits(query_block,marker_block)",
+    "external_complete_parent_loss(logit_blocks,authorized_targets,fixed_lookup)"
+  ],
+  "support": {
+    "absent_support": "No eligible called references => unavailable; no invented likelihood mass",
+    "current_adapter_limit": "Existing leaf-only packed preparation does not certify arbitrary internal samples; new source adapter required",
+    "internal_query": "Same connected component and outside query descendant subtree; ordinary counts/background and weighted evidence share eligibility",
+    "internal_reference": "Actual sampled-node seed and singleton correction where needed",
+    "missing": "No allele seed for missing reference, masked missing query comparison; retain recurrent position",
+    "seed_eligibility": "Known pure references, original declared source/age groups and reference sequence route"
+  },
+  "target_construction": {
+    "American": "Original authorized10,000 focal label vector only; group label counts by fixed anchor/query, exact original meanCE normalizer10000",
+    "European": "Original authorized TRAIN exact-span M[j,q,c] from original bin/truth intersections; sum M over unchanged grid centers assigned to each anchor; same full mass normalization",
+    "forbidden": [
+      "Truth intersections with newly substituted SNP cells",
+      "Extra American SNP labels",
+      "Truth-derived graph segmentation/features/coordinate selection",
+      "Dropping zero-weight endpoints or repeated focal identities"
+    ]
+  },
+  "workload_preserved": {
+    "American": {
+      "TRAIN_length_bp": 2000000,
+      "TRAIN_parents": 20,
+      "VAL_length_bp": 30000000,
+      "VAL_parents": 5,
+      "additional_updates_per_arm": 600,
+      "checkpoints": 6,
+      "haplotypes": 1600,
+      "native_focals_per_parent": 10000,
+      "paired_products_before_truth": 60,
+      "passes": 30,
+      "queries": 1000,
+      "references": 600
+    },
+    "European": {
+      "TRAIN_length_bp": 2000000,
+      "TRAIN_parents": 32,
+      "VAL_parents": 8,
+      "checkpoints": 6,
+      "haplotypes": 952,
+      "paired_products_before_truth": 96,
+      "passes": 30,
+      "queries": 686,
+      "references": 266,
+      "updates_per_arm": 960
+    },
+    "dataset_specific_original_seeds_warmstarts_optimizer_and_selection": true
+  }
+}

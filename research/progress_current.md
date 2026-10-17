@@ -1,8 +1,8 @@
 # Research progress
 
-Updated UTC: 2026-10-17T01:28:36.153521+00:00.
+Updated UTC: 2026-10-17T02:57:03.610294+00:00.
 
-TreeLoom is the current European model with the highest development span accuracy. It processes whole inferred local trees, carries memory for persistent sampled haplotypes and uses a genomic BiGRU. The main paper now defines local ancestry inference (LAI), explains the biological task and keeps completed competitor comparisons plus one meaningful memory control in the main results.
+TreeLoom processes complete inferred local trees, follows persistent sampled haplotypes and uses a genomic BiGRU for local ancestry inference. The nine-page AAAI draft has a new conceptual abstract and a larger diagram on page 3. Main text and references occupy pages 1–6, with a scientific supplement on pages 7–9.
 
 | European development pipeline | Modern span accuracy (%) | Boundary F1 (%) |
 |---|---:|---:|
@@ -11,28 +11,25 @@ TreeLoom is the current European model with the highest development span accurac
 | Current ARGMix release | 94.4461 ± 1.1491 | See detailed scoreboard |
 | Released AncestralPaths, derived four source output | 93.7830 ± 0.8385 | See detailed scoreboard |
 
-These are eight reused 2 Mb validation simulations and one optimizer seed. SD is across simulations. Method inputs, training and selection differ. The completed comparison does not establish exact publication reproduction, independent generalization, architecture-only attribution or an overall method ranking.
+These are eight reused 2 Mb validation simulations and one optimizer seed. SD is across simulations. Inputs, training and selection differ between pipelines. Exact publication reproduction, independent generalization, architecture attribution and overall top-1 remain unestablished.
 
 | Current work | Actual status | Remaining result |
 |---|---|---|
-| Native American ARGformer | Running on GPU 0. Latest stable saved audit verifies 156,500 of 227,990 AdamW updates across all 77 states | Finish native fit and downstream ancestry scoring |
-| Earlier American backbone | 600 saved updates accepted. All five original 30 Mb plans completed and closed, with five prediction supervisors launched | All 30 predictions before truth |
-| Original American VAL004 | Native paths and final observation plan completed and closed. Prediction supervisor launched | Complete prediction seals |
-| Full American TreeLoom versus NoMem, H060 | Actual repaired admission returned 0 and the exact one-shot supervisor is launched. Scientific startup and new optimizer counters remain unobserved. The full 1,200-update comparison is retained. | Complete the original 600 updates per arm and all 60 predictions before VAL truth |
-| Native FLARE | One VAL parent and 10,000 fixed focals: 98.0100% accuracy and 97.7151% macro F1. Four remaining cells have reviewed completion source | Run remaining native cells and report five-parent mean and sample SD |
-| Larger ARGMix comparison | Full 1,611-diploid observed data accepted. Full Relate inference stopped at its 21,600 s limit | Complete the inferred bank before any score |
-| Independent European test, H059 | Five methods and eight reserved simulations frozen. Generation pending | All 40 primary and eight secondary products before truth |
-| Cross-domain, H061 | All six Chickenpox fits completed successfully with 40 epochs and 800 updates each, for 4,800 updates total. Actual worker and supervisor returned 0 with owned drain, and ROOT accepted TRAIN completion. Selected VAL MAE is 15.968411 ± 0.061488 cases for TreeLoom and 16.059604 ± 0.075709 for NoMem, with sample SD across three initialization seeds. TRAIN-only comparator freeze passed admission and its supervisor is launched. Freeze completion, TEST predictions and TEST scoring remain pending. These are forecasts, not ancestry accuracy. | Freeze comparators, then separate TEST prediction and scoring |
-| Real data | Danish predictions, PCA and genotype contrasts completed. Descriptive, without ancestry truth. Genotype contrasts did not support registered directions | Stronger independent biological corroboration |
+| Native American ARGformer | GPU 0 supervisor remains live. Last stable saved audit verifies 170,000 of 227,990 AdamW updates across all 77 states, observed at 02:01 UTC | Finish native fit and downstream ancestry evaluation |
+| Earlier American backbone | 600 saved updates accepted. Five full 30 Mb prediction supervisors launched, with 6/30 products last authenticated | All 30 predictions before VAL truth |
+| Full American TreeLoom/NoMem, H060 | Entered the full scientific training routine. No new optimizer counter verified. Original 600 additional complete-parent updates per arm retained | Full 1,200 updates and all 60 predictions before VAL truth |
+| Native FLARE | VAL000 has 98.0100% focal accuracy and 97.7151% macro F1 on 10,000 records. Corrected VAL001 conversion has admission 0 and supervisor launched | Complete remaining native cells and five-parent summary |
+| Larger ARGMix panel | Full 1,611-diploid observations accepted. Relate inference stopped at its operational limit | Complete inference and common training/evaluation |
+| Independent European test, H059 | Five methods and eight reserved simulations frozen, generation pending | All 40 primary and eight secondary predictions before truth |
+| Chickenpox, H061 | Six full fits completed, 4,800 updates total. All 15 TEST prediction products completed and authenticated over 79 weeks and 20 counties. Separate scoring admitted and launched | Genuine TEST metrics and registered utility assessment |
+| European marker experiment, H058 | Exact metadata-join repair independently accepted. Full 1,920-update run has not restarted | Fresh admission and full registered run |
+| Ordered marker extension | Scientific CPU source passed independent review. No execution or efficacy evidence | Full-parent learning evidence before any utility claim |
+| Biological evidence | Danish predictions, PCA and genotype contrasts completed. Descriptive, without known ancestry truth. Genotype contrasts did not support registered directions | Independent biological corroboration |
 
-The ten-page AAAI draft and Overleaf source compile, with Figure 1 on page 3. The v7 prose revision makes the abstract gap explicit and uses consistent appendix model names. The current v6 figure has matching ARG slices and local trees, explicit vectors, shared graph stages, sample memory and a separate BiGRU. A new image-only reader recovered the broad pipeline and found no major overlap or sample-label mismatch. The v6 memory inset now distinguishes current and historical context, with a fresh reader recovering its role before the second graph pass. The caption and equations supply the exact update. Experimental values are unchanged.
+H061 selected VAL MAE is 15.968411 ± 0.061488 cases for TreeLoom and 16.059604 ± 0.075709 for NoMem. SD is across three initialization seeds. These are disease forecasts, not ancestry accuracy, and no TEST metric is yet accepted.
 
-Useful operator novelty remains unestablished. Completing native benchmarks and independent validation remains necessary for a submission. No new American GNN or ARGformer ancestry score is available.
+Figure 1 now has explicit observed input vectors, two shared GNN passes, named sample rows, separate sample memory and the final BiGRU. A fresh image-only reader recovered the actual visible computation and verified the corrected input route. All nine PDF pages were inspected. The Overleaf bundle compiles to pixel-identical pages. No experimental table values or equation bodies changed.
 
-[Detailed scores](current_scoreboard.md) · [Latest execution report](reviews/user_progress_20261017_v1/REPORT.md) · [Experiment decisions](experiment_decisions.json) · [Paper](../paper/current_full_panel_working.pdf) · [Overleaf source](../paper/current_full_panel_overleaf_working.zip)
+Useful operator novelty remains unestablished. Current development leadership does not establish overall top-1. Native benchmarks and independent validation remain necessary.
 
-[H061 selected validation scores, per-seed epochs and update counts](reviews/H061_training_milestone_ROOT_20261017_v1/REPORT.md).
-
-The full same-marker experiment is launched with its complete 1,920-update budget. [H061 six-fit milestone](reviews/H061_training_milestone_ROOT_20261017_v2/REPORT.md). [Independent topology-design no-go](reviews/topology_innovation_candidate_20261017_v1/REPORT.md).
-
-Latest Figure 1 refinement marks the first-GNN output branch into sample memory with a visible junction. A new reader with no method context recovered the computational order, checked all three ARG slices against the extracted trees and found no text overlap. The ten-page canonical PDF and Overleaf bundle both compile and all their rendered pages match. Only page 3 changed from the prior checked version. Manuscript prose, equations and experimental values are unchanged by this final visual refinement. [Build and reader checks](reviews/paper_junction_ROOT_20261017_v8/final_integration.root_v1.json).
+[Detailed scores](current_scoreboard.md) · [Latest report](../research/reviews/paper_simplification_ROOT_20261017_v9/REPORT.md) · [Paper](../paper/current_full_panel_working.pdf) · [Overleaf bundle](../paper/current_full_panel_overleaf_working.zip).

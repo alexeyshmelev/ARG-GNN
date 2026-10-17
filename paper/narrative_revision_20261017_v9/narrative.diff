@@ -1,0 +1,321 @@
+--- paper/current_full_panel_working.tex
++++ paper/narrative_revision_20261017_v9/current_full_panel_working_candidate.tex
+@@ -1,5 +1,5 @@
+-% TreeLoom scientific narrative rewrite, 16 October 2026.
+-% Draft for integration only. Results are unchanged development evidence.
++% TreeLoom scientific narrative revision, 17 October 2026.
++% Candidate for integration. Experimental values and figure content are unchanged.
+ \documentclass[letterpaper]{article}
+ \usepackage[draft]{aaai2027}
+ \usepackage[hyphens]{url}
+@@ -23,39 +23,39 @@
+ \maketitle
+ 
+ \begin{abstract}
+-Local ancestry inference (LAI) assigns genomic segments to ancestral source populations. Genealogies can inform these assignments by showing how a query genome is related to reference genomes, but recombination changes those relationships along a chromosome. The challenge is to combine evidence from complete local genealogies while preserving sampled haplotype identity as the trees change. We introduce TreeLoom, a neural model that processes every node of an inferred local tree and follows the same sampled haplotypes through the ordered trees. Messages moving toward and away from the root combine evidence across each genealogy. Structural features describe changes between neighboring trees, sample memory carries the history of each sampled haplotype, and a final recurrent network combines genomic context before ancestry prediction. On eight reused European development simulations, TreeLoom reaches $97.08\pm0.57\%$ span accuracy for modern queries, compared with $94.45\pm1.15\%$ for the evaluated ARGMix release and $93.78\pm0.84\%$ for a derived four source AncestralPaths endpoint. These are comparisons of fitted pipelines with different inputs and training, rather than exact publication reproductions. A matched control without added sample memory reaches $97.00\pm0.50\%$ and has higher boundary F1. The results motivate learning from complete genealogies while showing that accurate genomic assignment and accurate tract boundaries remain distinct objectives.
++Admixture leaves chromosomes as mosaics of segments inherited from different ancestral sources. Local ancestry inference (LAI) reconstructs these mosaics using relationships between query and reference genomes. Inferred genealogies reveal these relationships, but recombination changes them along the chromosome. A model must therefore combine complete local genealogies while preserving sampled haplotype identity. We introduce TreeLoom, which joins graph message passing through complete trees with recurrence along the genome. Structural features condition local representations, a separate memory follows sampled haplotypes across trees, and a final recurrent network predicts ancestry. On eight European simulations reused during development, TreeLoom reaches $97.08\pm0.57\%$ span accuracy for modern queries, compared with $94.45\pm1.15\%$ for the evaluated ARGMix release and $93.78\pm0.84\%$ for a derived four source AncestralPaths endpoint. The matched TreeLoom-NoMem control reaches $97.00\pm0.50\%$ and has higher boundary F1. These results motivate learning from complete genealogies while showing why accurate genomic assignment must be assessed alongside recovery of ancestry tract boundaries.
+ \end{abstract}
+ 
+ \section{Introduction}
+-Genomes from admixed populations contain segments inherited from different ancestral sources. Local ancestry inference (LAI) seeks to locate these segments and identify their sources. The resulting ancestry tracts can reveal when populations mixed and how genetic material moved between populations. Ancient genomes add a temporal dimension by sampling individuals who lived before, during and after major changes in ancestry. Their interpretation depends on both the relationships among sampled genomes and the continuity of ancestry along a chromosome.
+-
+-An inferred genealogy offers a direct representation of those relationships. At a genomic position, a local tree connects sampled haplotypes through common ancestors. A query and a reference genome may share a recent branch in one region and a more distant ancestor in another. An ancestral recombination graph (ARG) represents this changing history, and its local trees provide a sequence of related prediction problems. Evidence from the whole tree can help distinguish ancestral sources, while evidence from neighboring regions can help stabilize local assignments.
+-
+-Existing methods use this structure in different ways. AncestralPaths classifies genealogical paths in analyses of ancient Eurasian ancestry \citep{eurasians2024}. ARGMix combines graph representations with genomic context \citep{ancientancestry2026}. ARGformer learns representations of genealogical paths and supports ancestry assignment through reference retrieval \citep{argformer2026}. These methods establish the value of genealogies for LAI and motivate a question about representation: can a compact model retain the complete local genealogy while maintaining a coherent representation of each sampled haplotype along the chromosome?
+-
+-This question has a biological constraint. Sample identities persist across local trees, but inferred internal ancestors need not have a reliable correspondence. Reusing an identifier assigned to an inferred ancestor can therefore connect unrelated states. A model also needs to distinguish a change in tree structure from a change in ancestry. Recombination alters genealogy, yet many neighboring trees can still support the same ancestry assignment.
+-
+-TreeLoom organizes familiar neural operations around these constraints. It passes messages in both directions through every local tree, uses changes in descendant groups to condition a second traversal, and carries a separate memory for the same sampled haplotype across trees. A final gated recurrent unit (GRU) then reads the ordered local representations and predicts ancestry. Sample memory acts inside the tree encoder, whereas the final GRU acts on its outputs.
+-
+-We evaluate the resulting model on a shared European development endpoint and examine the specific value of added memory with a matched control. The final model has higher measured span accuracy than the evaluated AncestralPaths and ARGMix pipelines. Its gain over the control without added memory is much smaller and accompanies lower boundary F1. The scientific contribution is a genealogy representation and its empirical assessment, with clear limits on what the present comparison can establish. The eight validation simulations have been reused during development, one optimizer seed is available, and an independent test and remaining native comparisons are unfinished.
++Admixed genomes record population history in the ancestry of their chromosomal segments. Local ancestry inference (LAI) assigns these segments to ancestral sources and locates the boundaries between them. Ancestry tracts can reveal when populations mixed and how genetic material moved between populations. Ancient genomes extend this record through time, allowing comparisons among individuals who lived before, during and after major changes in ancestry.
++
++Genealogies provide a natural basis for these assignments. At a genomic position, a local tree connects sampled haplotypes through common ancestors. A query genome may share a recent branch with a reference in one region and a more distant ancestor in another. Recombination changes these relationships along the chromosome. An ancestral recombination graph (ARG) describes this changing history through a sequence of local genealogies, linking evidence within each tree to continuity along the genome.
++
++Genealogy based LAI methods already use several parts of this structure. AncestralPaths classifies genealogical paths in analyses of ancient Eurasian ancestry \citep{eurasians2024}. ARGMix combines graph representations with genomic context \citep{ancientancestry2026}. ARGformer learns path representations that support ancestry assignment through reference retrieval \citep{argformer2026}. This work raises a representation question: how can a model combine the complete local genealogy with the persistent identity of each sampled haplotype as the trees change?
++
++The distinction between sampled genomes and inferred ancestors matters. A sampled haplotype retains its identity throughout the sequence, while an inferred internal ancestor may have no reliable counterpart in a neighboring tree. Descendant groups can remain stable or change, but neither a reused node identifier nor a shared group establishes that two inferred ancestors are the same biological individual. At the same time, a change in genealogy need not imply a change in ancestry.
++
++TreeLoom addresses these constraints using standard neural layers. Graph message passing combines information toward and away from the root of every local tree. Features of stable and changing descendant groups condition a second traversal. A separate memory carries genomic history for each sampled haplotype into this tree encoder, and a bidirectional gated recurrent unit (GRU) combines its outputs along the chromosome. The model thus distinguishes history used to form a local representation from genomic context used to classify that representation.
++
++We assess TreeLoom on a shared European development endpoint and use TreeLoom-NoMem to examine the role of the added sample memory. TreeLoom has higher measured span accuracy than the evaluated AncestralPaths and ARGMix pipelines. The memory comparison yields a much smaller accuracy difference and favors TreeLoom-NoMem for boundary F1. Together, these results examine the value and current limits of learning from complete local genealogies.
+ 
+ \section{Related Work}
+-\paragraph{LAI from genealogies and genetic variation.}
+-AncestralPaths uses genealogical paths to distinguish ancestry routes that can share the same broad source population \citep{eurasians2024}. ARGMix learns graph representations of genealogical relationships together with genomic sequence context \citep{ancientancestry2026}. ARGformer learns path representations with a transformer and uses a learned embedding for downstream ancestry analysis \citep{argformer2026}. FLARE estimates local ancestry directly from haplotypes \citep{flare2023}. These approaches differ in representation, supervision and prediction unit. Our European comparison evaluates the available completed pipelines on a common output endpoint, with the release and task differences stated below.
+-
+-\paragraph{Neural computation on changing genealogies.}
+-A rooted tree provides a natural order for graph message passing. An upward traversal summarizes descendants, and a downward traversal supplies information from the rest of the tree. Genomic recurrence adds a second order, along the chromosome rather than along branches. GRUs provide an established mechanism for combining such sequential context \citep{gru2014}. TreeLoom uses these standard ingredients to preserve complete local relationships and the correspondence between sampled haplotypes. The relevant empirical questions concern how they are organized for LAI and what added context contributes under matched conditions.
+-
+-\paragraph{Representations of graph collections.}
+-Graph Set Transformer interleaves propagation within member graphs with context from the surrounding collection, allowing information exchange before a final graph readout \citep{gst2026}. Temporal graph state space models likewise study recurrent state on changing graphs \citep{graphssm2024}. These perspectives are relevant to a sequence of local genealogies. The genomic setting additionally supplies an order, unequal physical spans and persistent sampled haplotypes, which constrain the relationships that can carry information between trees. This connection motivates the representation without establishing transfer beyond ancestry inference.
++\paragraph{LAI from genealogies and haplotypes.}
++AncestralPaths distinguishes genealogical ancestry routes that can share a broad source population \citep{eurasians2024}. ARGMix learns graph representations together with genomic sequence context \citep{ancientancestry2026}. ARGformer uses a transformer to learn genealogical path embeddings for downstream ancestry analysis \citep{argformer2026}. FLARE estimates local ancestry directly from haplotypes \citep{flare2023}. These methods differ in representation, supervision and prediction unit. Our completed European comparison uses a common scoring endpoint, with the material release and task differences specified in the evaluation design.
++
++\paragraph{Graph message passing and genomic recurrence.}
++An upward tree traversal summarizes descendants, while a downward traversal supplies context from outside each branch. A recurrent network can then combine local representations along the chromosome. GRUs are an established mechanism for this sequential computation \citep{gru2014}. TreeLoom combines these standard operations to retain complete local relationships and align sampled haplotypes across trees. Its contribution concerns this organization for LAI and the evidence for additional context under matched conditions.
++
++\paragraph{Context across related graphs.}
++Graph Set Transformer interleaves propagation within graphs with context from the surrounding collection \citep{gst2026}. Temporal graph state space models also carry recurrent state on changing graphs \citep{graphssm2024}. Local genealogies supply additional structure: genomic order, unequal physical spans and persistent sampled haplotypes. These features determine which states can be linked across trees and how distance should affect the retained history.
+ 
+ \section{TreeLoom}
+ \subsection{Prediction Task and Model Overview}
+ Let $T_t=(V_t,E_t)$ be the inferred local tree covering genomic interval $I_t$, with physical length $w_t$. Let $q$ index a sampled haplotype and $v_t(q)$ its node in tree $t$. All sampled haplotypes appear in every tree. The model predicts a probability vector $p_{tq}$ over four source ancestries: Anatolian farmer (Ana), Caucasus hunter-gatherer (CHG), western hunter-gatherer (WHG) and eastern hunter-gatherer (EHG).
+ 
+-The inputs are phased observed variants, inferred tree topology and node ages, sampling ages, and known source labels for reference haplotypes. Query source labels are masked. Simulation ancestry is used only as external training supervision or evaluation truth. It does not define the input features, inferred trees, structural groups or prediction intervals.
+-
+-Figure~\ref{fig:architecture} shows the complete model. An encoder of observed data first initializes the nodes. A complete upward and downward tree traversal produces local context. Structural conditioning and sample memory modify the node inputs, after which a second complete traversal uses the same learned propagation weights. Its outputs for sampled nodes are aligned by haplotype identity across trees and passed to a final genomic GRU and classifier. No tree is reduced to a single pooled vector before query prediction.
++The inputs are phased observed variants, inferred tree topology and node ages, sampling ages, and known source labels for reference haplotypes. Query source labels are masked. Simulation ancestry supplies training targets and evaluation truth, while the input features, inferred trees, structural groups and prediction intervals depend only on observed data.
++
++Figure~\ref{fig:architecture} shows the model. An encoder of observed data initializes the nodes. A graph neural network (GNN) block traverses the complete tree upward and downward. Structural residuals and sample memory then modify the inputs to a second application of the same block, with shared propagation weights. The sampled node outputs remain separate, are aligned by haplotype identity across trees, and enter a final genomic GRU and ancestry classifier.
+ 
+ \begin{figure*}[!t]
+ \centering
+@@ -65,7 +65,7 @@
+ \end{figure*}
+ 
+ \subsection{Observed Evidence and Complete Tree Traversal}
+-For each haplotype, a genetic encoder summarizes its called alleles relative to observed donor and panel allele frequencies. Mean and maximum pooling within a tree interval produce a local genetic representation. This representation is combined with sampling age and the known reference label when available. Inferred age, status as a sampled node and root status provide features for internal nodes. These features initialize a node state $b_v$. Branch geometry and summaries of agreement between mutations and observed alleles determine message gates.
++A multilayer perceptron (MLP) encodes each called allele relative to observed donor and panel allele frequencies. Mean and maximum pooling summarize these features within a tree interval for each haplotype. Sampling age and the reference label, when known, complete the sampled node features. Inferred age and indicators for sampled nodes and roots describe the tree nodes, including internal ancestors. Together these features initialize a node state $b_v$. Learned gates use branch geometry and agreement between inferred mutations and observed alleles to scale messages between nodes.
+ 
+ The upward traversal combines descendant evidence. For a parent $v$ and child $u$,
+ \begin{align}
+@@ -75,41 +75,27 @@
+ h_v &= \operatorname{LN}\!\left(
+  b_v+\tanh(A_\uparrow[b_v,s_v]+a_\uparrow)\right).
+ \end{align}
+-Here $d_v$ is the number of children, $g_u^\uparrow$ is a gate computed from observed features, $\odot$ denotes elementwise multiplication, and brackets denote concatenation. Normalization prevents the summed message magnitude from simply increasing with the number of children.
++Here $d_v$ is the number of children, $g_u^\uparrow$ is the observed feature gate, $\odot$ denotes elementwise multiplication, and brackets denote concatenation. The update combines a linear projection, a hyperbolic tangent activation, a residual connection and layer normalization (LN). Division by the number of children controls the magnitude of the aggregated message.
+ 
+ The downward traversal supplies the context outside a child's branch. For child $u$, the parent context is
+ \begin{equation}
+ c_{v\setminus u}=o_v+b_v+s_v-m_{u\to v}.
+ \label{eq:outside}
+ \end{equation}
+-A gated learned transformation maps this context to the child's outside state $o_u$. The outside state is zero at the root. Subtracting the recipient's upward contribution prevents that contribution from immediately returning as evidence from elsewhere in the tree. Together, $h_v$ and $o_v$ represent information below and outside a node. Both traversals visit every node, including inferred ancestors.
++A gated learned transformation maps this context to the child's outside state $o_u$, initialized to zero at the root. Subtracting the child's upward message excludes its own contribution from the returning context. The states $h_v$ and $o_v$ therefore summarize evidence below and outside each node. Both traversals include every inferred ancestor.
+ 
+ \subsection{Conditioning on Local Tree Structure}
+-We describe structural changes using descendant sets rather than presumed identities of inferred ancestors. Let $C_t(v)$ be the set of sampled haplotypes descended from node $v$. A proper clade contains at least two sampled haplotypes and excludes the complete panel. When a unary chain has several nodes with the same descendant set, we use its deepest representative.
+-
+-A node's gained flag $g_v$ is one when its proper clade is absent from the preceding tree. Its lost flag $\ell_v$ is one when the clade is absent from the following tree. Flags at the missing sequence neighbors are zero. The flags condition a local residual,
+-\begin{equation}
+-\Delta_v^{\mathrm{change}}=
+-O\!\left[
+-g_v(Uh_v\odot Vh_v)
+--\ell_v(Uh_v\odot Wh_v)
+-\right].
+-\label{eq:change}
+-\end{equation}
+-The projections have a lower dimensional intermediate space. An additional local transformation acts on clades that occur in at least two consecutive trees,
+-\begin{equation}
+-\Delta_v^{\mathrm{local}}=
+-\chi_v O_l\!\left[(U_lh_v)\odot(V_lh_v)+W_lh_v\right],
+-\label{eq:local}
+-\end{equation}
+-where $\chi_v$ indicates eligibility. This transformation uses the node's own representation. It does not import an embedding from another tree.
+-
+-These features identify stability and change in the observed topology. Equal descendant sets do not establish that two inferred nodes are the same biological ancestor. The second tree traversal receives $b_v+\Delta_v^{\mathrm{change}}+\Delta_v^{\mathrm{local}}$ together with the contribution from sample memory defined next. It reuses the first traversal's weights and observed gates.
++\label{sec:structure}
++Descendant sets describe tree structure without requiring correspondence between inferred ancestors. Let $C_t(v)$ contain the sampled haplotypes descended from node $v$. A proper clade contains at least two sampled haplotypes and excludes the complete panel. For a unary chain with the same descendant set, we use the deepest representative.
++
++A clade is gained when absent from the preceding tree and lost when absent from the following tree. A missing neighbor gives a zero flag. Two learned residuals transform the current node state: $\Delta_v^{\mathrm{change}}$ uses gained and lost flags, and $\Delta_v^{\mathrm{local}}$ acts on clades present in consecutive trees. Neighboring trees determine these structural flags, while the transformed features come from the current tree. The exact residual definitions appear in the supplement.
++
++The second traversal receives $b_v+\Delta_v^{\mathrm{change}}+\Delta_v^{\mathrm{local}}$ plus the sample memory contribution defined next. Reusing the first traversal's weights and observed gates propagates this conditioned input through the complete tree.
+ 
+ \subsection{Memory for the Same Sampled Haplotype}
+-Sample memory means history carried for the same sampled haplotype across genomic trees. It is distinct from the final genomic GRU. This memory modifies the internal tree representation before the second traversal.
+-
+-We cut each inferred tree at a fixed age threshold and group sampled haplotypes by their ancestor at the cut. Samples older than the cut retain their own sampled node. The cut uses inferred node ages and sampling ages, without query ancestry labels. For group $k$ in tree $t$, a learned projection of the sum of upward and outside states at its representative gives a context vector $f_{tk}$. Let $k_t(q)$ be haplotype $q$'s group.
++Sample memory carries context for each sampled haplotype across genomic trees and returns that history to the tree encoder before its second traversal. It uses a bidirectional exponential moving average, distinct from the final genomic GRU.
++
++A fixed age cut partitions each inferred tree into groups of sampled haplotypes sharing an ancestor at the cut. Samples older than the cut retain their own sampled node. The groups depend on inferred and sampling ages. For group $k$ in tree $t$, a learned projection of the representative's summed upward and outside states gives context $f_{tk}$. Let $k_t(q)$ denote haplotype $q$'s group.
+ 
+ A forward scan carries a state for each haplotype,
+ \begin{equation}
+@@ -122,14 +108,14 @@
+ \end{equation}
+ The first state equals its current context vector. A reverse scan applies the same rule in reverse genomic order. The learned positive length scale $\lambda$ determines how much history is retained over a given physical span. A longer interval places more weight on its current context.
+ 
+-We average the two scan directions, average the resulting haplotype states within each current group, and subtract the group's current context vector. A learned output projection converts this difference to a residual at the group representative. The second tree traversal propagates that residual through the complete genealogy. Sample identity remains the link across trees even when the inferred groups change.
+-
+-The matched control, TreeLoom-NoMem, omits this added memory and retains both complete traversals, local structural conditioning and the final genomic GRU. The phrase \emph{without memory} therefore refers only to the additional mechanism in Equation~\ref{eq:memory}.
++The two scan directions are averaged, then the haplotype states are averaged within each current group. Subtracting the current group context isolates the contribution of genomic history. A learned projection returns this difference as a residual at the group representative, and the second traversal propagates it through the complete tree. Each history remains attached to its sampled haplotype as group membership changes.
++
++The matched control, TreeLoom-NoMem, removes the mechanism in Equation~\ref{eq:memory} and retains both complete traversals, structural residuals and the final genomic GRU.
+ 
+ \subsection{Genomic Context and Ancestry Prediction}
+-After the second traversal, a learned projection of the upward and outside states produces a local embedding $e_{tq}\in\mathbb{R}^{d}$ for every sampled haplotype. Alignment across trees is a direct lookup by the same sampled identity. It does not require matching internal ancestors.
+-
+-A bidirectional GRU with one layer processes the local embeddings together with interval geometry,
++After the second traversal, a learned projection of the upward and outside states produces a local embedding $e_{tq}\in\mathbb{R}^{d}$ for every sampled haplotype. Aligning these embeddings by sampled identity gives one ordered sequence per haplotype.
++
++A bidirectional GRU (BiGRU) with one layer processes the local embeddings together with interval geometry,
+ \begin{equation}
+ r_{1:T,q}=\operatorname{BiGRU}
+ \left([e_{tq},\operatorname{geometry}(I_t)]_{t=1}^T\right).
+@@ -139,15 +125,15 @@
+ p_{tq}=\operatorname{softmax}
+ \left(\operatorname{MLP}([e_{tq},r_{tq}])\right).
+ \end{equation}
+-All sampled haplotypes and tree intervals remain present during these computations. Query selection occurs only at readout. Predictions are constant within an inferred tree interval, so possible ancestry transitions are restricted to its edges.
++All sampled haplotypes and tree intervals remain present until queries are selected at readout. Training minimizes cross entropy weighted by physical span, with each simulated chromosome as one optimization example. Predictions are constant within an inferred tree interval, restricting ancestry transitions to its edges. Architecture widths and the training schedule are given in the supplement.
+ 
+ \section{Evaluation Design}
+ \subsection{European Development Simulations}
+-The completed European comparison uses 32 training simulations and eight validation simulations, each 2\,Mb long. The demographic formulation is adapted from the released AncestralPaths workflow associated with \citet{eurasians2024}. The panel contains 476 diploid individuals, or 952 phased haplotypes. There are 266 reference and 686 query haplotypes. Queries comprise modern individuals, Bronze Age individuals, Bronze Age Anatolians (BAA), Neolithic farmers (Neo) and Yamnaya (Yam). Simulation identity determines the split before tree intervals, rows or sequence chunks are constructed.
++The European comparison uses 32 training simulations and eight validation simulations, each 2\,Mb long, from the released AncestralPaths demographic formulation associated with \citet{eurasians2024}. The panel contains 476 diploid individuals, or 952 phased haplotypes, with 266 reference and 686 query haplotypes. Queries comprise modern individuals, Bronze Age individuals, Bronze Age Anatolians (BAA), Neolithic farmers (Neo) and Yamnaya (Yam). Simulations are split before tree intervals, rows or sequence chunks are constructed.
+ 
+ Relate infers genealogies from the observed variants and sampling ages \citep{relate2019}. All completed European pipelines use the common observed panel and inferred genealogies, represented as required by each method. The simulation assumptions and inference parameters are in the supplement. The released Bronze Age roster is only an approximate correspondence to the ARGMix preprint's Post-Neolithic category.
+ 
+-The eight validation simulations have informed repeated model development and checkpoint selection. We therefore describe all results on them as development evidence. Only one optimizer seed is available for each evaluated condition. Intervals, bins and haplotypes from a simulation are dependent observations, not independent biological replicates.
++The eight validation simulations have been reused for model development and checkpoint selection, so the reported results are development evidence. Each condition has one optimizer seed, and independent test evaluation is unfinished. The simulation is the unit of replication because its intervals, bins and haplotypes are dependent observations.
+ 
+ \subsection{Common Scoring Endpoint}
+ The primary endpoint is accuracy weighted by physical span for the 182 modern query haplotypes. Secondary endpoints cover the ancient cohorts and all queries. All European predictions are scored on the same fixed 100\,bp bins clipped to inferred coverage. Let $m_{iqc}$ be the physical mass of true ancestry $c$ for query $q$ in bin $i$. Span accuracy is
+@@ -157,7 +143,7 @@
+ \mathbf{1}\{c=\arg\max_k p_{iqk}\}}
+ {\sum_{iqc}m_{iqc}}.
+ \end{equation}
+-Each simulation receives equal weight in the reported mean. We give sample SD across the eight simulations in percentage points. This SD describes simulation variation for a fitted model. It is neither uncertainty across training seeds nor a confidence interval.
++Each simulation receives equal weight in the reported mean. Sample SD across the eight simulations is reported in percentage points and describes simulation variation for a fitted model. It does not quantify variation across training seeds or form a confidence interval.
+ 
+ Accuracy measures the amount of correctly assigned sequence. Boundary precision, recall and F1 assess whether the ancestry transitions are located correctly. Boundaries are matched one to one within 1\,kb. The matcher uses position and does not require the predicted transition to have the correct pair of source labels. Negative log likelihood (NLL) uses the same physical masses and the original predicted probabilities, without flooring or recalibration.
+ 
+@@ -171,9 +157,9 @@
+ 
+ ARGMix uses the current author release, with 15 references and no ancestor inputs. The preprint describes 25 references and three inferred ancestors. The public release does not provide a supported implementation of that earlier input configuration. A panel slot and metadata adaptation allows the released model to process the common roster. The model, training augmentation and native rule for stopping are retained. Eleven epochs complete, and its native validation objective selects epoch nine.
+ 
+-TreeLoom also receives observed SNP features. Methods differ in reference eligibility, representation, supervision unit, effective training diversity, cumulative optimization and checkpoint selection. The common scorer makes their outputs comparable on this endpoint, but does not make their information or training budgets equivalent. Completing an author schedule also does not establish convergence. These are named pipeline comparisons, with no exact publication reproduction or overall LAI ranking established.
+-
+-The memory comparison asks a narrower question. TreeLoom and TreeLoom-NoMem start from the same trained local encoder, receive the same additional 960 updates and keep all weights trainable. They use the same checkpoint rule. The memory model has 513 additional parameters. Each arm selects its checkpoint independently. Earlier developmental models received different cumulative training exposure and are not treated as component ablations.
++TreeLoom also receives observed single nucleotide polymorphism (SNP) features. The methods differ in reference eligibility, representation, supervision unit, training diversity, cumulative optimization and checkpoint selection. The common scorer compares the fitted pipelines on this endpoint, without equating their inputs or training budgets. These conditions are not exact publication reproductions and do not establish an overall LAI ranking. Full training and release differences are retained in the supplement.
++
++The matched comparison asks whether adding sample memory changes performance under the specified training procedure. TreeLoom and TreeLoom-NoMem start from the same trained local encoder, receive 960 additional updates with all weights trainable, and use the same checkpoint rule. The memory arm has 513 additional parameters, and each arm selects its checkpoint independently. Earlier stages with different cumulative training exposure are described only as training lineage in the supplement.
+ 
+ \todo{Resolve the earlier ARGMix model, reference roster, genomic map, genotype error settings and evaluation protocol before any claim of exact publication reproduction. Recover AncestralPaths' stated convolutional model and original evaluator, and assess the realized sampling deficit.}
+ 
+@@ -197,10 +183,10 @@
+ \label{tab:pipeline}
+ \end{table}
+ 
+-This result supports the fitted TreeLoom pipeline on the evaluated data. It does not isolate the effect of propagation through complete trees or added sample memory from all other pipeline differences. The corresponding matched memory comparison is much closer.
++The fitted TreeLoom pipeline therefore assigns more genomic span correctly on this endpoint. The matched comparison below addresses the smaller difference associated with adding sample memory.
+ 
+ \subsection{Accuracy across Modern and Ancient Cohorts}
+-TreeLoom has the highest measured accuracy in each listed cohort (Table~\ref{tab:cohorts}). Differences among cohorts reflect their distinct simulated histories. Small cohorts such as BAA and Yam provide limited evidence about individual ancestry transitions.
++TreeLoom has the highest measured accuracy in each listed cohort (Table~\ref{tab:cohorts}). The cohorts represent different sampling ages, mixtures and tract structures. Small groups such as BAA and Yam provide limited evidence about individual ancestry transitions.
+ 
+ \begin{table*}[t]
+ \centering
+@@ -240,27 +226,27 @@
+ \label{tab:memory}
+ \end{table}
+ 
+-The practical implication depends on the intended use. More correctly assigned genomic mass can help estimate broad ancestry patterns, while a fragmented or displaced set of transitions can distort the reconstructed tracts. The memory mechanism improves the former metric slightly in this condition and reduces the latter. The final model name denotes the highest observed condition by span accuracy, rather than a model that wins every endpoint.
+-
+-Additional matched controls give little evidence that more elaborate exchange between trees solves this problem. Replacing local node conditioning with context from other occurrences of the same clade changes accuracy by only $+0.01\pm0.15$ points. Alternative transport rules for memory also fail the registered practical criteria. These controls are reported in the supplement without conflating them with the differently trained developmental stages.
++The two metrics answer different biological questions. Correctly assigned genomic mass describes broad ancestry patterns, while missed, extra or displaced transitions alter the inferred tracts. The memory arm has slightly higher span accuracy and lower boundary F1 under this training procedure. TreeLoom denotes the condition selected by modern span accuracy.
++
++Additional matched controls in the supplement show limited benefit from more elaborate exchange between trees. Context from other occurrences of the same clade changes accuracy by $+0.01\pm0.15$ points, and alternative memory transport rules fail the registered practical criteria.
+ 
+ \subsection{High Span Accuracy Leaves Substantial Tract Error}
+ Boundary F1 remains low for all three completed pipelines. TreeLoom reaches 18.38\%, despite assigning 97.08\% of the represented genomic span correctly. This gap shows that a small amount of incorrectly assigned sequence can coexist with many missed or extra ancestry transitions. Span accuracy alone is therefore insufficient evidence that ancestry tracts are recovered faithfully.
+ 
+-The model's readout places another constraint on tract recovery: it can change ancestry only at inferred tree edges. True ancestry changes need not occur at these edges or be resolved accurately by the inferred genealogy. Better boundary recovery may require both a more flexible readout and a training objective that rewards transition fidelity. The present results do not establish the effect of either change.
++The readout can change ancestry only at inferred tree edges, which need not resolve the true transitions. A readout with more flexible transition locations and a training objective that rewards boundary fidelity are therefore directions for future work.
+ 
+ \todo{Complete a matched American comparison on common observations, reference and query identities, focal records and truth support. Evaluate independent simulations, additional optimizer seeds and larger European panels. Resolve the American demographic and ploidy reconstruction and ARGformer's published downstream evaluator before drawing broader comparative conclusions.}
+ 
+ \section{Discussion}
+-TreeLoom connects two useful views of ancestry. Within a local tree, reference and query genomes are related through shared ancestors. Along the genome, the same sampled haplotype has a continuous sequence of local relationships. Complete tree traversal makes both descendant and outside context available at each sampled node, and genomic recurrence combines that context in physical order. Sample memory provides an additional route for history to influence the tree representation without matching inferred internal ancestors.
+-
+-The completed comparison is encouraging for this representation, but its strongest claim is descriptive. TreeLoom performs well on eight reused development simulations under a specified demographic formulation. The native comparator pipelines preserve available author algorithms while differing materially from the corresponding publication recipes and from TreeLoom's input and training choices. The measured gap cannot be assigned entirely to a particular neural component. Independent simulations, multiple training seeds and faithful completion of the native comparisons are needed to assess generalization and relative method strength.
+-
+-The matched evidence is more specific. Added sample memory brings a small mean accuracy gain and reduces boundary F1. Context from the same clade in other trees and more elaborate memory transport also yield limited gains under their matched controls. These findings favor a restrained interpretation of interaction between trees. They do not establish a new generally superior operator, and they suggest that tract boundaries deserve direct attention during model design and evaluation.
+-
+-The simulated ancient cohorts are also an incomplete model of ancient genomic data. Their sampling history is explicit, but uncertainty in phasing, genotype calls, reference representation, demographic assumptions and genealogical reconstruction can change the information available to LAI. A future empirical validation needs evidence that is independent of the model's own ancestry assignments. A descriptive application of an earlier TreeLoom condition and its counterevidence are retained in the supplement, without treating model output as known mixture fractions.
+-
+-TreeLoom provides a concrete framework for learning LAI from complete local genealogies. Its present results motivate further study of that representation while identifying a central limitation: assigning most bases correctly does not ensure that ancestry tracts have been reconstructed correctly.
++TreeLoom connects relationships within a local genealogy to continuity along a chromosome. Complete tree traversal provides descendant and outside context at each sampled node. Genomic recurrence combines these local representations, while sample memory offers an additional route for a haplotype history to influence the tree encoder. Persistent sample identities allow this exchange without assuming that inferred internal ancestors can be matched across trees.
++
++On the European development endpoint, TreeLoom assigns more genomic span correctly than the evaluated AncestralPaths and ARGMix pipelines. The comparison supports the fitted representation under the specified demographic formulation. Material input and training differences prevent attribution of the gap to one neural component, and reused validation simulations cannot establish generalization to unseen data. Independent simulations, multiple optimizer seeds and completion of the native comparisons remain necessary to assess relative method strength.
++
++The matched memory result is narrower: slightly higher span accuracy accompanies lower boundary F1. Additional context from repeated clades and alternative memory transport rules also yield limited benefit in their matched controls. These findings focus attention on tract recovery. Even a model that assigns most bases correctly can miss or add many transitions, so ancestry evaluation needs both measures.
++
++The ancient cohorts further illustrate the role of biological assumptions. Their sampling histories are explicit in simulation, while empirical ancient genomes introduce uncertainty in phasing, genotype calls, reference representation and genealogical reconstruction. The supplement retains a descriptive application of an earlier TreeLoom condition together with genotype affinity counterevidence. Independent evidence of local ancestry is needed to validate such empirical predictions.
++
++Complete local genealogies offer a structured representation for LAI, with sampled identities providing a reliable link across the genome. The present evidence motivates further study of this representation and makes accurate reconstruction of tract boundaries a clear priority.
+ 
+ \paragraph{Code availability.}
+ Source code, experiment configurations and complete results are available at \url{https://github.com/alexeyshmelev/ARG-GNN}.
+@@ -305,6 +291,28 @@
+ 
+ \section{Model and Training Parameters}
+ \label{app:training}
++
++\subsection{Structural Residual Definitions}
++The residuals use the descendant sets and representative nodes defined in Section~\ref{sec:structure}.
++
++A node's gained flag $g_v$ is one when its proper clade is absent from the preceding tree. Its lost flag $\ell_v$ is one when the clade is absent from the following tree. Flags at the missing sequence neighbors are zero. The flags condition a local residual,
++\begin{equation}
++\Delta_v^{\mathrm{change}}=
++O\!\left[
++g_v(Uh_v\odot Vh_v)
++-\ell_v(Uh_v\odot Wh_v)
++\right].
++\label{eq:change}
++\end{equation}
++The linear projections pass through a lower dimensional space. A second residual acts on clades present in at least two consecutive trees,
++\begin{equation}
++\Delta_v^{\mathrm{local}}=
++\chi_v O_l\!\left[(U_lh_v)\odot(V_lh_v)+W_lh_v\right],
++\label{eq:local}
++\end{equation}
++where $\chi_v$ marks eligible clades. Both residuals transform the current node representation. Neighboring trees determine the structural flags, while the features being transformed come from the current tree.
++
++\subsection{Architecture and Optimization}
+ The genetic site encoder has two hidden layers of width 32. For a called allele it receives donor log frequency features, corresponding availability indicators, panel frequency, site entropy and a call indicator. Eight donor groups combine the four reference ancestries with ages below or at least 350 generations. Allele frequencies use additive pseudocount 0.5. If a represented reference class has no called alleles at a site in an age group, all represented classes in that age group are masked for that site. Mean and maximum pooling are combined with call count, missing pool status and interval span.
+ 
+ The inferred tree cut for sample memory is fixed at 350 generations. Samples older than the cut retain their own sampled node. Tree states have width 32 and local residual projections have rank eight. The memory projection also has rank eight and adds 513 parameters. Its length scale starts at 5\,kb and is constrained to 100\,bp--100\,kb. Residual output projections start at zero. The genomic GRU has one layer and width 32 in each direction. The ancestry classifier receives 96 features, maps through width 32 and produces four scores. TreeLoom has 32,325 parameters. TreeLoom-NoMem has 31,812.
+@@ -318,9 +326,9 @@
+ \end{equation}
+ Here $r(i)$ maps a scored bin to its inferred tree interval. Summing target masses within an interval preserves the original objective because the model's prediction is constant there. A complete simulated chromosome is one optimization example.
+ 
+-AdamW uses learning rate $10^{-3}$, weight decay $10^{-4}$, betas $(0.9,0.999)$ and epsilon $10^{-8}$. Gradient norm is clipped at one. The reported seed is 101. The shared initializer is trained over three successive 30-pass stages on the 32 training simulations, totaling 2,880 updates as tree processing and local conditioning are introduced. These successive stages are a training lineage, not matched component ablations. Optimizer moments reset at each stage.
+-
+-For the final comparison, both TreeLoom and TreeLoom-NoMem start from that same 2,880-update model and complete 30 further passes, or 960 new updates. All inherited weights remain trainable. Checkpoints every five passes are ranked by equal simulation modern validation accuracy, then lower NLL, then earlier pass. TreeLoom selects added pass 30, or 3,840 cumulative updates. TreeLoom-NoMem selects added pass 20, or 3,520 cumulative updates, while its run also completes 3,840 updates. The alternate memory rules below share the same initializer, capacity and completed budget as TreeLoom.
++AdamW uses learning rate $10^{-3}$, weight decay $10^{-4}$, betas $(0.9,0.999)$ and epsilon $10^{-8}$. Gradient norm is clipped at one. The reported seed is 101. The shared initializer is trained over three successive stages of 30 passes on the 32 training simulations, totaling 2,880 updates as tree processing and local conditioning are introduced. These successive stages are a training lineage, not matched component ablations. Optimizer moments reset at each stage.
++
++For the final comparison, both TreeLoom and TreeLoom-NoMem start from the same model trained for 2,880 updates and complete 30 further passes, or 960 new updates. All inherited weights remain trainable. Checkpoints every five passes are ranked by equal simulation modern validation accuracy, then lower NLL, then earlier pass. TreeLoom selects added pass 30, or 3,840 cumulative updates. TreeLoom-NoMem selects added pass 20, or 3,520 cumulative updates, while its run also completes 3,840 updates. The alternate memory rules below share the same initializer, capacity and completed budget as TreeLoom.
+ 
+ \section{Comparator Conditions and Unresolved Recipe Differences}
+ \label{app:comparators}
+@@ -332,14 +340,14 @@
+ The four source probability collapse in the main text is separate from six path prediction, a retrained four path task, or evaluation restricted to non BAA routes. It must not be compared directly with a published native six path accuracy. Strict NLL is infinite in the present derived endpoint because a true source receives zero probability over 800 query base pairs. No probability floor is applied.
+ 
+ \paragraph{ARGMix.}
+-The evaluated author release uses 15 references without inferred ancestor nodes. Its transformer, bidirectional GRU and native training procedure are retained \citep{ancientancestry2026}. It uses 1,024-row chunks with stride 512, yielding 21,952 training and 5,488 validation chunks. All 686 queries are available, with no local subgraph cap. Training drops the nearest reference, validation drops none, label smoothing is 0.1 and loss weighting is absent. Source seed 50 is retained. The model uses supervision at the first SNP of an interval and averages overlapping softmax predictions arithmetically.
+-
+-Its native selection objective is the smoothed, masked and unweighted mean validation batch loss. The selected epoch is nine of 11 completed epochs, with patience two and a 20-epoch cap. The external span scorer does not replace this inner selection rule. The model with 25 references and three ancestor inputs described in the preprint is not recovered by the current release, whose supported loaders and extraction reject ancestor inputs. A current release run with 25 references would still have zero ancestors and would be a separate sensitivity condition. The original model, exact reference eligibility, checkpoint and publication evaluator remain unresolved. Differences in the observed panel, map, error process, training diversity and prediction support also remain material.
++The evaluated author release uses 15 references without inferred ancestor nodes. Its transformer, bidirectional GRU and native training procedure are retained \citep{ancientancestry2026}. It uses chunks of 1,024 rows with stride 512, yielding 21,952 training and 5,488 validation chunks. All 686 queries are available, with no local subgraph cap. Training drops the nearest reference, validation drops none, label smoothing is 0.1 and loss weighting is absent. Source seed 50 is retained. The model uses supervision at the first SNP of an interval and averages overlapping softmax predictions arithmetically.
++
++Its native selection objective is the smoothed, masked and unweighted mean validation batch loss. The selected epoch is nine of 11 completed epochs, with patience two and a cap of 20 epochs. The external span scorer does not replace this inner selection rule. The model with 25 references and three ancestor inputs described in the preprint is not recovered by the current release, whose supported loaders and extraction reject ancestor inputs. A current release run with 25 references would still have zero ancestors and would be a separate sensitivity condition. The original model, exact reference eligibility, checkpoint and publication evaluator remain unresolved. Differences in the observed panel, map, error process, training diversity and prediction support also remain material.
+ 
+ \paragraph{American comparators.}
+ A separate American benchmark uses a 30\,Mb simulation with 600 reference and 1,000 query haplotypes from EUR, EAS and AFR sources. Native FLARE calls score $98.0100\%$ accuracy and $97.7151\%$ macro F1 on 10,000 predetermined focal records from one validation simulation. This metric counts focal records rather than physical span and has no between simulation SD. It therefore cannot be compared numerically with the European span endpoint or establish a comparative ranking on its own.
+ 
+-The completed FLARE condition uses author release v0.6.0 with native defaults: minimum minor allele count 50, minimum minor allele frequency 0.005, expectation maximization enabled, ten generations, ancestry proportion updates disabled, array mode disabled and seed $-99999$. Native filtering retains 27,558 of 228,477 observed markers. The evaluator uses original hard ancestry calls at the nearest native marker, with midpoint boundaries, on all 10,000 fixed focal records. It does not score a filtered subset chosen after the outcome. All prediction identities and coordinates are checked before private truth is opened. This focal score from one simulation supplies no estimate of between parent variation.
++The completed FLARE condition uses author release v0.6.0 with native defaults: minimum minor allele count 50, minimum minor allele frequency 0.005, expectation maximization enabled, ten generations, ancestry proportion updates disabled, array mode disabled and seed $-99999$. Native filtering retains 27,558 of 228,477 observed markers. The evaluator uses original hard ancestry calls at the nearest native marker, with midpoint boundaries, on all 10,000 fixed focal records. It does not score a filtered subset chosen after the outcome. All prediction identities and coordinates are checked before private truth is opened. 
+ 
+ ARGformer's completed American ancestry pipeline remains unavailable. Its published PCA/clustering classifier and nearest reference retrieval are distinct downstream routes \citep{argformer2026}. Exact clustering, class mapping and American retrieval settings are not recovered. The prepared route retains the author release's learned normalized embedding and uses nearest reference retrieval as a disclosed reconstruction. The paper states contrastive temperature 0.05 and inverse frequency anchor weighting, whereas the release configuration uses 0.30 and its stock route can use uniform weights. These differences remain unresolved. Partial pretraining does not supply ancestry accuracy.
+ 
+@@ -370,7 +378,7 @@
+ \label{tab:episode}
+ \end{table}
+ 
+-The paired accuracy difference is $0.0096\pm0.1527$ percentage points. The paired boundary F1 difference is $0.1001\pm0.9632$ points. The accuracy gain falls below the registered 0.10-point practical threshold.
++The paired accuracy difference is $0.0096\pm0.1527$ percentage points. The paired boundary F1 difference is $0.1001\pm0.9632$ points. The accuracy gain falls below the registered practical threshold of 0.10 points.
+ 
+ We also compare sample memory with two alternatives of the same capacity. Group transport pools history through the intermediate cut group when group membership changes. Intersection transport retains the intersections of consecutive groups as the units of transport. Both use the same context from the first traversal, distance weighting, second traversal and final genomic readout as sample memory.
+ 
