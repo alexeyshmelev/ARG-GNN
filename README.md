@@ -29,19 +29,19 @@ The current continuation preserves **139 successful stages and four healthy runn
 <!-- BEGIN REPAIRED BENCHMARK WORKFLOW -->
 ## Active benchmark continuation
 
-Observed 2026-10-18T14:39:45.402686+00:00. 139 succeeded; 3 failed; 2 running; 135 pending; 47 blocked; 0 unknown.
+Observed 2026-10-18T15:07:19.684265+00:00. 139 succeeded; 4 failed; 2 running; 130 pending; 51 blocked; 0 unknown.
 Run status: `running`. Physical GPU: 0.
 
 [Current queue details](research/benchmark_repaired_current.json) · [Authenticated matched scores](research/repaired_matched_benchmark_results.json)
 
 | Stage | Succeeded | Failed | Running | Pending | Blocked | Unknown |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| ap_features | 0 | 0 | 0 | 6 | 2 | 0 |
+| ap_features | 0 | 0 | 0 | 5 | 3 | 0 |
 | ap_fit | 0 | 0 | 0 | 0 | 1 | 0 |
 | ap_generate | 9 | 0 | 0 | 0 | 0 | 0 |
-| ap_infer | 0 | 1 | 2 | 4 | 0 | 0 |
+| ap_infer | 0 | 2 | 2 | 3 | 0 | 0 |
 | ap_predict | 0 | 0 | 0 | 0 | 5 | 0 |
-| ap_registry | 0 | 0 | 0 | 6 | 2 | 0 |
+| ap_registry | 0 | 0 | 0 | 5 | 3 | 0 |
 | ap_train_targets | 0 | 0 | 0 | 0 | 3 | 0 |
 | contrastive | 0 | 0 | 0 | 15 | 0 | 0 |
 | embeddings | 0 | 0 | 0 | 15 | 0 | 0 |
@@ -56,11 +56,11 @@ Run status: `running`. Physical GPU: 0.
 | prediction_factory | 0 | 0 | 0 | 15 | 2 | 0 |
 | prepare | 16 | 0 | 0 | 14 | 0 | 0 |
 | release_archive | 0 | 0 | 0 | 0 | 4 | 0 |
-| release_c4_registry | 0 | 0 | 0 | 6 | 2 | 0 |
+| release_c4_registry | 0 | 0 | 0 | 5 | 3 | 0 |
 | release_c4_score | 0 | 0 | 0 | 0 | 1 | 0 |
 | release_c4_targets | 0 | 0 | 0 | 0 | 3 | 0 |
 | release_fit | 0 | 0 | 0 | 0 | 1 | 0 |
-| release_frame | 0 | 0 | 0 | 6 | 3 | 0 |
+| release_frame | 0 | 0 | 0 | 5 | 4 | 0 |
 | release_infer | 0 | 0 | 0 | 0 | 5 | 0 |
 | release_native6_score | 0 | 0 | 0 | 0 | 1 | 0 |
 | release_native_targets | 0 | 0 | 0 | 0 | 4 | 0 |
@@ -69,7 +69,7 @@ Run status: `running`. Physical GPU: 0.
 
 Preserved jobs are still running under their original supervisors: 1 on GPU 0 and 1 on CPU. Their outputs feed this queue after genuine completion.
 
-Running workflow jobs: `AP__ancestralpaths_european_train_002__ap_infer`, `AP__ancestralpaths_european_test_000__ap_infer`.
+Running workflow jobs: `AP__ancestralpaths_european_test_000__ap_infer`, `AP__ancestralpaths_european_test_001__ap_infer`.
 Named external queue jobs running: none. External queue states are listed separately from workflow counts.
 
 No supported authenticated matched score has completed in this workflow.
