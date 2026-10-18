@@ -9,7 +9,7 @@
 <!-- BEGIN EXECUTABLE BENCHMARK WORKFLOW -->
 ## Executable benchmark workflow
 
-Observed 2026-10-18T07:39:01.632771+00:00. 65 succeeded; 10 failed; 8 running; 82 pending; 160 blocked; 0 unknown.
+Observed 2026-10-18T08:05:24.476285+00:00. 74 succeeded; 10 failed; 8 running; 73 pending; 160 blocked; 0 unknown.
 Run status: `running`. Physical GPU: 0.
 
 [Current queue details](research/benchmark_execution_current.json) · [Authenticated matched scores](research/current_matched_benchmark_results.json)
@@ -28,9 +28,9 @@ Run status: `running`. Physical GPU: 0.
 | external | 6 | 0 | 0 | 0 | 0 | 0 |
 | factory | 0 | 0 | 0 | 0 | 17 | 0 |
 | fit_factory | 0 | 0 | 0 | 1 | 2 | 0 |
-| focal_factory | 19 | 0 | 1 | 15 | 0 | 0 |
-| generation_factory | 14 | 0 | 7 | 8 | 0 | 0 |
-| inference_factory | 14 | 0 | 0 | 15 | 0 | 0 |
+| focal_factory | 20 | 0 | 0 | 15 | 0 | 0 |
+| generation_factory | 22 | 0 | 0 | 7 | 0 | 0 |
+| inference_factory | 14 | 0 | 8 | 7 | 0 | 0 |
 | mlm | 0 | 1 | 0 | 0 | 14 | 0 |
 | native | 1 | 0 | 0 | 14 | 0 | 0 |
 | prediction_factory | 0 | 0 | 0 | 15 | 2 | 0 |
@@ -47,7 +47,7 @@ Run status: `running`. Physical GPU: 0.
 | release_seal | 0 | 0 | 0 | 0 | 5 | 0 |
 | retrieval | 0 | 0 | 0 | 0 | 15 | 0 |
 
-Running workflow jobs: `AM_argformer_american_train_018_focals`, `AM_argformer_american_train_019_generation`, `AM_argformer_american_validation_001_generation`, `AM_argformer_american_validation_002_generation`, `AM_argformer_american_validation_003_generation`, `AM_argformer_american_validation_004_generation`, `AM_argformer_american_test_000_generation`, `AM_argformer_american_test_001_generation`.
+Running workflow jobs: `AM_argformer_american_train_019_inference`, `AM_argformer_american_validation_001_inference`, `AM_argformer_american_validation_002_inference`, `AM_argformer_american_validation_003_inference`, `AM_argformer_american_validation_004_inference`, `AM_argformer_american_test_000_inference`, `AM_argformer_american_test_001_inference`, `AM_argformer_american_test_002_inference`.
 Named external queue jobs running: none. External queue states are listed separately from workflow counts.
 
 No supported authenticated matched score has completed in this workflow.
