@@ -9,7 +9,7 @@
 <!-- BEGIN EXECUTABLE BENCHMARK WORKFLOW -->
 ## Executable benchmark workflow
 
-Observed 2026-10-18T02:06:53.254695+00:00. 6 succeeded; 0 failed; 8 running; 311 pending; 0 blocked; 0 unknown.
+Observed 2026-10-18T04:51:03.972807+00:00. 7 succeeded; 0 failed; 8 running; 310 pending; 0 blocked; 0 unknown.
 Run status: `running`. Physical GPU: 0.
 
 [Current queue details](research/benchmark_execution_current.json) · [Authenticated matched scores](research/current_matched_benchmark_results.json)
@@ -18,8 +18,8 @@ Run status: `running`. Physical GPU: 0.
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
 | ap_features | 0 | 0 | 0 | 8 | 0 | 0 |
 | ap_fit | 0 | 0 | 0 | 1 | 0 | 0 |
-| ap_generate | 0 | 0 | 8 | 1 | 0 | 0 |
-| ap_infer | 0 | 0 | 0 | 9 | 0 | 0 |
+| ap_generate | 1 | 0 | 7 | 1 | 0 | 0 |
+| ap_infer | 0 | 0 | 1 | 8 | 0 | 0 |
 | ap_predict | 0 | 0 | 0 | 5 | 0 | 0 |
 | ap_registry | 0 | 0 | 0 | 8 | 0 | 0 |
 | ap_train_targets | 0 | 0 | 0 | 3 | 0 | 0 |
@@ -47,7 +47,7 @@ Run status: `running`. Physical GPU: 0.
 | release_seal | 0 | 0 | 0 | 5 | 0 | 0 |
 | retrieval | 0 | 0 | 0 | 15 | 0 | 0 |
 
-Running workflow jobs: `AP__ancestralpaths_european_train_000__ap_generate`, `C4__argmix_release_ap200mb_validation_000__validation_generate`, `AP__ancestralpaths_european_train_001__ap_generate`, `AP__ancestralpaths_european_train_002__ap_generate`, `AP__ancestralpaths_european_test_000__ap_generate`, `AP__ancestralpaths_european_test_001__ap_generate`, `AP__ancestralpaths_european_test_002__ap_generate`, `AP__ancestralpaths_european_test_003__ap_generate`.
+Running workflow jobs: `AP__ancestralpaths_european_train_000__ap_generate`, `C4__argmix_release_ap200mb_validation_000__validation_generate`, `AP__ancestralpaths_european_train_001__ap_infer`, `AP__ancestralpaths_european_train_002__ap_generate`, `AP__ancestralpaths_european_test_000__ap_generate`, `AP__ancestralpaths_european_test_001__ap_generate`, `AP__ancestralpaths_european_test_002__ap_generate`, `AP__ancestralpaths_european_test_003__ap_generate`.
 Named external queue jobs running: none. External queue states are listed separately from workflow counts.
 
 No supported authenticated matched score has completed in this workflow.
