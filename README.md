@@ -29,7 +29,7 @@ The current continuation preserves **139 successful stages and four healthy runn
 <!-- BEGIN REPAIRED BENCHMARK WORKFLOW -->
 ## Active benchmark continuation
 
-Observed 2026-10-18T22:46:53.932333+00:00. 141 succeeded; 7 failed; 2 running; 100 pending; 76 blocked; 0 unknown.
+Observed 2026-10-18T23:35:44.934124+00:00. 142 succeeded; 7 failed; 2 running; 99 pending; 76 blocked; 0 unknown.
 Run status: `running`. Physical GPU: 0.
 
 [Current queue details](research/benchmark_repaired_current.json) · [Authenticated matched scores](research/repaired_matched_benchmark_results.json)
@@ -44,7 +44,7 @@ Run status: `running`. Physical GPU: 0.
 | ap_registry | 0 | 0 | 0 | 3 | 5 | 0 |
 | ap_train_targets | 0 | 0 | 0 | 0 | 3 | 0 |
 | contrastive | 1 | 0 | 0 | 14 | 0 | 0 |
-| embeddings | 0 | 0 | 1 | 14 | 0 | 0 |
+| embeddings | 1 | 0 | 0 | 14 | 0 | 0 |
 | external | 7 | 3 | 0 | 0 | 0 | 0 |
 | factory | 0 | 0 | 0 | 15 | 2 | 0 |
 | fit_factory | 0 | 0 | 0 | 0 | 3 | 0 |
@@ -65,9 +65,9 @@ Run status: `running`. Physical GPU: 0.
 | release_native6_score | 0 | 0 | 0 | 0 | 1 | 0 |
 | release_native_targets | 0 | 0 | 0 | 0 | 4 | 0 |
 | release_seal | 0 | 0 | 0 | 0 | 5 | 0 |
-| retrieval | 0 | 0 | 0 | 15 | 0 | 0 |
+| retrieval | 0 | 0 | 1 | 14 | 0 | 0 |
 
-Running workflow jobs: `AP__ancestralpaths_european_test_002__ap_infer`, `AM_argformer_american_validation_000_argformer_embeddings`.
+Running workflow jobs: `AP__ancestralpaths_european_test_002__ap_infer`, `AM_argformer_american_validation_000_argformer_retrieval`.
 Named external queue jobs running: none. External queue states are listed separately from workflow counts.
 
 No supported authenticated matched score has completed in this workflow.
