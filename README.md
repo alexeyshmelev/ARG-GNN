@@ -9,7 +9,7 @@
 <!-- BEGIN EXECUTABLE BENCHMARK WORKFLOW -->
 ## Executable benchmark workflow
 
-Observed 2026-10-18T08:39:53.106460+00:00. 85 succeeded; 10 failed; 9 running; 61 pending; 160 blocked; 0 unknown.
+Observed 2026-10-18T09:09:18.095642+00:00. 107 succeeded; 10 failed; 5 running; 43 pending; 160 blocked; 0 unknown.
 Run status: `running`. Physical GPU: 0.
 
 [Current queue details](research/benchmark_execution_current.json) · [Authenticated matched scores](research/current_matched_benchmark_results.json)
@@ -28,13 +28,13 @@ Run status: `running`. Physical GPU: 0.
 | external | 6 | 0 | 0 | 0 | 0 | 0 |
 | factory | 0 | 0 | 0 | 0 | 17 | 0 |
 | fit_factory | 0 | 0 | 1 | 0 | 2 | 0 |
-| focal_factory | 23 | 0 | 5 | 7 | 0 | 0 |
-| generation_factory | 22 | 0 | 1 | 6 | 0 | 0 |
-| inference_factory | 22 | 0 | 0 | 7 | 0 | 0 |
+| focal_factory | 28 | 0 | 0 | 7 | 0 | 0 |
+| generation_factory | 25 | 0 | 1 | 3 | 0 | 0 |
+| inference_factory | 22 | 0 | 3 | 4 | 0 | 0 |
 | mlm | 0 | 1 | 0 | 0 | 14 | 0 |
-| native | 1 | 0 | 0 | 14 | 0 | 0 |
+| native | 8 | 0 | 0 | 7 | 0 | 0 |
 | prediction_factory | 0 | 0 | 0 | 15 | 2 | 0 |
-| prepare | 2 | 0 | 2 | 12 | 14 | 0 |
+| prepare | 9 | 0 | 0 | 7 | 14 | 0 |
 | release_archive | 0 | 0 | 0 | 0 | 4 | 0 |
 | release_c4_registry | 0 | 0 | 0 | 0 | 8 | 0 |
 | release_c4_score | 0 | 0 | 0 | 0 | 1 | 0 |
@@ -47,7 +47,7 @@ Run status: `running`. Physical GPU: 0.
 | release_seal | 0 | 0 | 0 | 0 | 5 | 0 |
 | retrieval | 0 | 0 | 0 | 0 | 15 | 0 |
 
-Running workflow jobs: `AM_treeloom_fit`, `AM_argformer_american_validation_003_focals`, `AM_argformer_american_validation_004_focals`, `AM_argformer_american_test_000_focals`, `AM_argformer_american_test_001_focals`, `AM_argformer_american_test_002_focals`, `AM_argformer_american_test_003_generation`, `AM_argformer_american_validation_001_flare_prepare`, `AM_argformer_american_validation_002_flare_prepare`.
+Running workflow jobs: `AM_treeloom_fit`, `AM_argformer_american_test_003_inference`, `AM_argformer_american_test_004_inference`, `AM_argformer_american_test_005_inference`, `AM_argformer_american_test_006_generation`.
 Named external queue jobs running: none. External queue states are listed separately from workflow counts.
 
 No supported authenticated matched score has completed in this workflow.
