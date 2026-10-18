@@ -1,6 +1,6 @@
 # Benchmark workflow
 
-Benchmark execution is paused by the user. Code preparation and small synthetic smoke tests are allowed. Training, simulation, prediction, real-data application and scoring resume only after a new explicit go-ahead.
+The user approved execution on 18 October 2026. The [campaign queue](benchmark_queue.md) distinguishes runnable jobs from pending integrations. Only physical GPU 0 is eligible. Exact approved worker inputs are listed in the canonical execution policy.
 
 ## Entry points
 
@@ -61,11 +61,9 @@ TreeLoom's corrected implementation uses direct fast observed preparation, bound
 
 ## Release and recovery
 
-The canonical `configs/benchmarks/execution_policy.json` is held. There is no command that approves it automatically.
+The canonical `configs/benchmarks/execution_policy.json` records the explicit user release and exact approved jobs. No CLI command approves new jobs automatically.
 
-The scientific enqueue boundary is deliberately closed in this source-only release. Native TreeLoom and competitor admissions have different schemas. A generic normalized packet cannot establish their provenance. Family-specific adapters must validate the real guarded product, scientific input, source/review bindings, resource limits and genuine preparation-wait lineage before they are released. New admissions themselves wait for user approval.
-
-A future normalized packet is a ROOT-attested trust boundary. JSON metadata and matching hashes do not cryptographically prove an OS exit. An actual wait status must be an integer, so Boolean false must never be accepted as zero. The original guarded worker retains its runtime checks. The tested scheduler uses injected fake admission validators in smoke tests. An inert method specification or historical receipt cannot enter the production queue today.
+The maintained execution.py worker has one released scientific callable: the complete native ARGformer contrastive phase. A fresh ROOT-approved spec pins its source, scientific arguments, output and finite caps. Actual storage, physical GPU0 lease and runtime checks occur in the worker before scientific execution. No old preparation wait or historical controller authority is invented. Other scientific families remain pending integration.
 
 The separately approved canonical policy must list the exact admitted job/input/receipt identities and a finite expiry. `run --execute` rechecks it before each process. Default `run` only plans. The CLI uses one fixed queue and logical controller lock. Existing physical lease ownership remains with the original guarded worker.
 
@@ -93,4 +91,4 @@ The final shared-input integration adjustment then passed all 14 affected tests.
 All three paper-plan commands and the status command passed without importing
 Torch, NumPy, msprime or tskit. The tiny sampled-loss test used CPU Torch and
 left CUDA uninitialized. Independent source review passed for code preparation.
-No benchmark queue exists and execution approval remains false.
+That verification preceded the user release. The fresh worker and European helpers subsequently passed 28 additional focused tests, making 165 tests total before the first launch.

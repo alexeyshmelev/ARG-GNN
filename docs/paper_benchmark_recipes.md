@@ -1,6 +1,6 @@
 # Paper-based paired benchmarks
 
-Execution remains on hold. This preparation adds source-backed recipes and shared-data interfaces. It does not report new ancestry scores or claim that every published method is already reproduced.
+Recipe plans alone do not authorize execution. The user has released the exact runnable jobs listed in the current policy. These recipes supply source-backed settings and shared-data interfaces. It does not report new ancestry scores or claim that every published method is already reproduced.
 
 For each independent simulation, generate the genotypes and known ancestry once. Keep ancestry truth separate. Infer the genealogy once where graph methods require it. Every method receives its required representation of those same observations and reference/query panel. Freeze the same evaluation queries and coordinates before predictions, then report each method against the same known ancestry. Different internal data formats are expected.
 

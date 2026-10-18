@@ -180,21 +180,34 @@ def validate_module_argv(argv) -> tuple[str, ...]:
 
 
 def validate_admission(ref: dict):
-    """Fail closed until native admission-family adapters are released.
+    """Validate a fresh approved worker, without inventing historical waits.
 
-    A normalized packet is a ROOT attestation, not cryptographic evidence of an
-    OS wait. Historical TreeLoom and native comparator products have different
-    schemas and lineage. A generic argv/input/wait equality check cannot safely
-    translate them. No scientific family is enabled in this preparation release.
-    The scheduler is tested with injected in-memory admission validators only.
+    Runtime admission is deliberately deferred to the maintained worker's real
+    storage, physical GPU lease, memory and policy checks before science starts.
+    Historical normalized admission packets remain unsupported.
     """
     packet = read_ref(ref)
-    if packet.get("schema") != "benchmark_admitted_job_v1":
-        raise ContractError("A pre-admission plan cannot be executed")
-    validate_module_argv(packet.get("argv"))
-    raise ContractError(
-        "Scientific admission-family adapters are not released. "
-        "A generic normalized packet cannot enter the execution queue.")
+    if packet.get("schema") != "benchmark_guarded_worker_admission_v1":
+        raise ContractError("Scientific admission-family adapters are not released for this packet")
+    if (packet.get("root_authorizer") != "root_agent"
+            or packet.get("deferred_runtime_admission") is not True
+            or packet.get("historical_wait_claimed") is not False):
+        raise ContractError("A fresh ROOT worker approval with deferred real runtime checks is required")
+    source_ref = packet.get("worker_source_ref")
+    if (not isinstance(source_ref, dict)
+            or source_ref.get("path") != "src/arggnn/benchmarking/execution.py"
+            or file_ref(source_ref["path"]) != source_ref):
+        raise ContractError("The current guarded worker source must be pinned")
+    from .execution import validate_spec, worker_argv
+    from .scheduler import AdmittedJob
+    spec = validate_spec(packet["input_ref"])
+    if spec["job_id"] != packet.get("job_id"):
+        raise ContractError("Worker job and approval identity differ")
+    argv = worker_argv(packet["input_ref"])
+    validate_module_argv(list(argv))
+    return AdmittedJob(job_id=spec["job_id"], resource=spec["resource"],
+                       argv=tuple(argv), cwd=str(ROOT), input_ref=packet["input_ref"],
+                       admission_receipt_ref=ref, max_seconds=spec["max_seconds"])
 
 
 def check_execution_release(ref: dict) -> dict:

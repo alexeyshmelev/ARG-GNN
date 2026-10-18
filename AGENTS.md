@@ -269,3 +269,27 @@ The latest human instruction is codebase preparation only. Do not launch or resu
 The canonical configs/benchmarks/execution_policy.json is held. All previous benchmark launch/resume permissions are superseded by this hold. Historical admissions, source reviews and capabilities do not authorize future execution. Do not automatically reactivate scheduled continuation. Preserve pending bookkeeping, original files, failures and actual process waits. Root owns safe shutdown and recording of previously started operations.
 
 Use src/arggnn/benchmarking as the maintained planning interface. Keep original pinned scientific implementations, author repositories and historical evidence immutable. New scheduling is plan-only by default, with physical GPU 0 as the only eligible GPU after approval.
+
+## User release for the maintained benchmark queue, 18 October 2026
+
+The user explicitly authorized building the full benchmark queue and starting it
+on one dedicated GPU. The code-preparation hold above is superseded for fresh
+jobs approved by configs/benchmarks/execution_policy.json. Physical GPU 0 is the
+only eligible accelerator. All other users' processes and all historical files
+must remain unchanged.
+
+Use the maintained benchmarking package and a fresh directly owned canonical
+GPU0 lease. New jobs use the source-pinned execution worker, actual runtime
+checks, finite wall/RSS/output caps and real subprocess waits. Do not resurrect
+obsolete stopped controllers or manufacture historical admission/wait evidence.
+Historical accounting remains unchanged, with no deletion, migration or invented
+credit. For the new sequential queue, measure actual project bytes once before
+dispatch, reserve all currently approved new output caps against 980 GB, and
+enforce each new output scope's cap while running. The human limit remains 1 TB.
+No repeated project-wide storage scans belong in the training loop.
+
+Only scientifically runnable stages may start. Keep unresolved paper settings,
+missing integrations and dependency barriers explicit in the campaign queue.
+Released author settings may be run as a named available-release comparison,
+never relabelled as an exact unavailable paper implementation. New generated
+observations and evaluation support must be shared across competing methods.
