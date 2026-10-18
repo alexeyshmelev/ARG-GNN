@@ -7,20 +7,89 @@
 **The LAI benchmark uses an automated queue of 326 stages.** It covers shared American and European simulations, full training, native competitors, paired scoring and Danish data application. Current execution and matched results are published below. All computation and Git commands run on anogena, using physical GPU 0 only.
 
 <!-- BEGIN CURRENT BENCHMARK DIAGNOSIS -->
-**GPU training resumed, 18 October:** native ARGformer has reached logged batch 1,300 of its first 45,377-batch epoch, with the original five-epoch budget (226,885 updates) and eight loader workers. GPU 0 is active under the required process name. The repaired accounting observed about 24 GB of proportional memory where the old summed count exceeded 278 GB. These are training progress measurements, **not local ancestry accuracy**.
+**Current progress, 18 October:** native ARGformer has reached logged batch 16,200 of 45,377 in epoch 1, with the unchanged five-epoch budget of 226,885 updates on physical GPU 0. These counters describe training progress, **not local ancestry accuracy**.
 
-Completed work is preserved: all 35 American simulations and shared inferred inputs, nine European simulations, 15 native FLARE predictions and 139 successful queue stages. Two European inference workers continue, including a fresh retry using the repaired temporary-file checker. There are **no new matched accuracy scores** yet.
+TreeLoom has loaded the full original American observation, built the complete tree list and is encoding the full observed input. Its complete preparation-and-reuse test is running. American fitting requires that test to pass and GPU 0 to become available. European TreeLoom fits remain held for preparation repair.
 
-TreeLoom's compact RAM preparation passed ten synthetic checks and independent source review. The first full-parent qualification did not start because its metadata adapter incorrectly required raw and inferred observation files to be identical. A separate adapter correction now validates their actual lineage, shared genotype data and reference/query identities. The running native trainer remains unchanged. American TreeLoom fitting requires the complete-parent qualification to pass. European TreeLoom fits are still held for preparation repair. GST is outside this LAI queue.
+| Method or input | Current full-benchmark status | New matched ancestry score |
+| --- | --- | --- |
+| Native ARGformer | Training on the first American evaluation parent, original author schedule | Pending |
+| Native FLARE | All 15 American validation/TEST predictions complete | Pending common scoring |
+| TreeLoom | Full American parent preparation test running | Pending |
+| AncestralPaths | Nine European simulations complete. One original inference is running. A failed TRAIN inference is queued with repaired supervision | Pending |
+| Released ARGMix | European validation inference running. Native fit/predictions await the derived inputs | Pending |
 
-[Recorded training progress](research/reviews/workflow_progress_diagnosis_20261018/native_training_progress_v4.json) · [Repair launch](research/benchmark_workflow_launch_20261018_v4.json) · [Original diagnosis](research/reviews/workflow_progress_diagnosis_20261018/root_diagnosis.json)
+The current continuation preserves **139 successful stages and four healthy running jobs**. Repairs cover observation lineage, output directories, scheduler check ordering, process-membership handling and status reporting. The European retry waits for storage reservations held by existing inference jobs to be released. Its prior failure and partial files remain recorded. The exact process that triggered that historical membership error was not logged. Model settings, data and training budgets are unchanged.
+
+**No new matched accuracy or superiority result exists yet.** GST is outside this LAI queue.
+
+[Live progress receipt](research/reviews/workflow_progress_diagnosis_20261018/repair_live_progress_v7.json) · [Current repair launch](research/benchmark_workflow_launch_20261018_v7.json) · [Original diagnosis](research/reviews/workflow_progress_diagnosis_20261018/root_diagnosis.json)
 <!-- END CURRENT BENCHMARK DIAGNOSIS -->
+
+<!-- BEGIN REPAIRED BENCHMARK WORKFLOW -->
+<!-- BEGIN REPAIRED BENCHMARK WORKFLOW -->
+## Active benchmark continuation
+
+Observed 2026-10-18T14:00:23.931955+00:00. 139 succeeded; 0 failed; 0 running; 187 pending; 0 blocked; 0 unknown.
+Run status: `waiting_for_dependencies_or_capacity`. Physical GPU: 0.
+
+[Current queue details](research/benchmark_repaired_current.json) · [Authenticated matched scores](research/repaired_matched_benchmark_results.json)
+
+| Stage | Succeeded | Failed | Running | Pending | Blocked | Unknown |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| ap_features | 0 | 0 | 0 | 8 | 0 | 0 |
+| ap_fit | 0 | 0 | 0 | 1 | 0 | 0 |
+| ap_generate | 9 | 0 | 0 | 0 | 0 | 0 |
+| ap_infer | 0 | 0 | 0 | 7 | 0 | 0 |
+| ap_predict | 0 | 0 | 0 | 5 | 0 | 0 |
+| ap_registry | 0 | 0 | 0 | 8 | 0 | 0 |
+| ap_train_targets | 0 | 0 | 0 | 3 | 0 | 0 |
+| contrastive | 0 | 0 | 0 | 15 | 0 | 0 |
+| embeddings | 0 | 0 | 0 | 15 | 0 | 0 |
+| external | 6 | 0 | 0 | 4 | 0 | 0 |
+| factory | 0 | 0 | 0 | 17 | 0 | 0 |
+| fit_factory | 0 | 0 | 0 | 3 | 0 | 0 |
+| focal_factory | 35 | 0 | 0 | 0 | 0 | 0 |
+| generation_factory | 29 | 0 | 0 | 0 | 0 | 0 |
+| inference_factory | 29 | 0 | 0 | 0 | 0 | 0 |
+| mlm | 0 | 0 | 0 | 14 | 0 | 0 |
+| native | 15 | 0 | 0 | 0 | 0 | 0 |
+| prediction_factory | 0 | 0 | 0 | 17 | 0 | 0 |
+| prepare | 16 | 0 | 0 | 14 | 0 | 0 |
+| release_archive | 0 | 0 | 0 | 4 | 0 | 0 |
+| release_c4_registry | 0 | 0 | 0 | 8 | 0 | 0 |
+| release_c4_score | 0 | 0 | 0 | 1 | 0 | 0 |
+| release_c4_targets | 0 | 0 | 0 | 3 | 0 | 0 |
+| release_fit | 0 | 0 | 0 | 1 | 0 | 0 |
+| release_frame | 0 | 0 | 0 | 9 | 0 | 0 |
+| release_infer | 0 | 0 | 0 | 5 | 0 | 0 |
+| release_native6_score | 0 | 0 | 0 | 1 | 0 | 0 |
+| release_native_targets | 0 | 0 | 0 | 4 | 0 | 0 |
+| release_seal | 0 | 0 | 0 | 5 | 0 | 0 |
+| retrieval | 0 | 0 | 0 | 15 | 0 | 0 |
+
+Preserved jobs are still running under their original supervisors: 1 on GPU 0 and 3 on CPU. Their outputs feed this queue after genuine completion.
+
+Running workflow jobs: none.
+Named external queue jobs running: none. External queue states are listed separately from workflow counts.
+
+No supported authenticated matched score has completed in this workflow.
+<!-- END REPAIRED BENCHMARK WORKFLOW -->
+
+<!-- END REPAIRED BENCHMARK WORKFLOW -->
+
+<!-- END REPAIRED BENCHMARK WORKFLOW -->
+
+<details>
+<summary>Previous continuation, retained while its original jobs finish</summary>
 
 <!-- BEGIN CONTINUATION BENCHMARK WORKFLOW -->
 ## Active benchmark continuation
 
 The repaired continuation is being prepared. The 21 CPU tests for worker supervision, live predecessor adoption and report isolation passed. No new scientific score is claimed.
 <!-- END CONTINUATION BENCHMARK WORKFLOW -->
+
+</details>
 
 <details>
 <summary>Previous workflow, retained while its last inference job finishes</summary>
@@ -74,7 +143,7 @@ No supported authenticated matched score has completed in this workflow.
 
 </details>
 
-[Queue and current workstreams](docs/benchmark_queue.md) · [Executable dependency graph](configs/benchmarks/executable_workflow_20261018_v3.json)
+[Queue and current workstreams](docs/benchmark_queue.md) · [Executable dependency graph](configs/benchmarks/executable_workflow_20261018_v7.json)
 
 The maintained interface is [src/arggnn/benchmarking](src/arggnn/benchmarking). It separates method adapters, biological protocols, observed-only data descriptors, single-GPU scheduling and common scoring. Original author code and immutable experiment records stay in place.
 

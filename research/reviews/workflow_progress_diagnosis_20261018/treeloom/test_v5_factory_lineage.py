@@ -2,6 +2,8 @@
 import copy
 from pathlib import Path
 import unittest
+import tempfile
+import json
 from unittest import mock
 from arggnn.benchmarking import treeloom_preparation_v5 as candidate
 from arggnn.benchmarking import treeloom_preparation_v4 as frozen
@@ -106,6 +108,39 @@ class V5FactoryLineageRegression(unittest.TestCase):
                                         max_rss_bytes=512*2**30,qualification_ref=refs["focals"])
         delegated.assert_called_once()
         self.assertIn(candidate.c.file_ref(candidate.__file__),result["source_refs"])
+
+
+    def test_existing_supervisor_root_supplies_fresh_child_to_frozen_qualifier(self):
+        from research.reviews.workflow_progress_diagnosis_20261018.treeloom import qualify_parent_v2 as qualifier
+        refs,values=fixture()
+        with tempfile.TemporaryDirectory(prefix="test_v5_supervisor_",dir=candidate.c.ROOT/"experiments/results") as temporary:
+            root=Path(temporary);(root/"tmp").mkdir();(root/"cache").mkdir()
+            (root/"stage.log").write_text("existing supervisor log\n")
+            child=root/"qualification";self.assertFalse(child.exists())
+            with mock.patch.object(candidate,"_read_metadata",side_effect=lambda ref:values[ref["path"]]), \
+                    mock.patch.object(candidate,"_descriptor",side_effect=lambda function,spec:dict(function=function,spec=spec)):
+                descriptor=candidate.qualification_factory(preparation_ref=refs["preparation"],
+                    generation_ref=refs["generation"],output_directory=str(root),
+                    max_rss_bytes=128*2**30,max_seconds=7200,max_output_bytes=16*2**20)
+            self.assertTrue(root.exists())
+            self.assertEqual(candidate.c.contained_path(descriptor["spec"]["output_directory"]),child)
+            self.assertFalse(child.exists(),"Metadata materialization must not create the fresh scientific child")
+            science={"status":"synthetic_fresh_child_receipt"}
+            def fresh_child_qualify(spec,*,resource_check):
+                output=candidate.c.contained_path(spec["output_directory"])
+                self.assertEqual(output,child)
+                self.assertFalse(output.exists(),"Frozen qualifier's fresh-path precondition")
+                output.mkdir()
+                (output/"qualification.json").write_text(json.dumps(science)+"\n")
+                return science
+            with mock.patch.object(qualifier,"qualify",side_effect=fresh_child_qualify), \
+                    mock.patch.object(frozen,"_require_pass",return_value=science):
+                returned=frozen.run_qualification(descriptor["spec"],resource_check=lambda stage:None)
+            self.assertEqual(candidate.c.contained_path(returned["path"]),child/"qualification.json")
+            (root/"result.json").write_text(json.dumps(dict(status="succeeded",value=returned))+"\n")
+            self.assertEqual(candidate.c.read_ref(returned),science)
+            self.assertEqual((root/"stage.log").read_text(),"existing supervisor log\n")
+            self.assertTrue((root/"tmp").is_dir() and (root/"cache").is_dir())
 
 
 if __name__=="__main__":unittest.main()

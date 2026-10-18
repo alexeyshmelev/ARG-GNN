@@ -1,12 +1,14 @@
 # Executable benchmark queue
 
-The maintained workflow contains 325 concrete stages. The exact source-pinned
-plan is [executable_workflow_20261018_v3.json](../configs/benchmarks/executable_workflow_20261018_v3.json).
+The maintained workflow contains 326 concrete stages. The exact source-pinned
+plan is [executable_workflow_20261018_v7.json](../configs/benchmarks/executable_workflow_20261018_v7.json).
 This is separate from the earlier conceptual campaign graph. Execution requires
 that exact plan reference in the canonical policy. The user has authorized execution.
 
-[Current execution status](../research/benchmark_execution_current.json) and
-[current matched results](../research/current_matched_benchmark_results.json)
+The current continuation preserves 139 successful stages and adopts four healthy running jobs. Native ARGformer is training on GPU 0 while two European inference jobs and the full-parent preparation test continue on CPU. A full American parent preparation and reuse test now precedes TreeLoom fitting. The European TreeLoom fits retain their explicit preparation hold.
+
+[Current execution status](../research/benchmark_repaired_current.json) and
+[current matched results](../research/repaired_matched_benchmark_results.json)
 are generated from actual worker records. Pending stages are not reported as
 running or completed. No new common-data comparison has finished at release.
 
