@@ -13,6 +13,20 @@ def publish():
     if not STATUS.exists():
         return
     status = json.loads(STATUS.read_text())
+    policy_path = ROOT / "configs/benchmarks/execution_policy.json"
+    campaign_path = ROOT / "research/benchmark_campaign_status.json"
+    policy = json.loads(policy_path.read_text()) if policy_path.exists() else {}
+    if policy.get("benchmark_execution_approved") is True and campaign_path.exists():
+        current = json.loads(campaign_path.read_text())
+        status = dict(status, updated_utc=current["updated_utc"], stages={
+            "Execution": "Released by the user. Physical GPU0 only. Exact runnable jobs and dependent stages are in the maintained queue.",
+            "Native ARGformer": current["progress_note"],
+            "Native follow-on": "Four complete embedding stages and native retrieval follow genuine contrastive completion through the finite chain. No query truth or ancestry scoring in this chain.",
+            "Fresh American data": "20 TRAIN / 5 validation / 10 TEST planned. Fresh shared simulation and tsinfer/tsdate adapters prepared. CPU dispatch and remaining method integrations are explicit.",
+            "Frozen TreeLoom": "Architecture unchanged. Full 30-pass, 20-parent training remains pending fresh preparation, target joins and full-size execution integration.",
+            "European comparisons": "Paper recipes and cohort reports encoded. Native sampling, bounded European execution and missing ARGMix settings remain pending.",
+            "Native FLARE": "Previously completed five 30 Mb validation predictions and scores retained below.",
+        }, maintained_campaign=current)
     lines = [START, "## Frozen benchmark execution", "",
              "Updated UTC: " + status["updated_utc"] + ". Physical GPU 0 only.", "",
              "| Stage | Current verified status |",

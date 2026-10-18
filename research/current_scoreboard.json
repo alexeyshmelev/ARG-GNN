@@ -8873,28 +8873,45 @@
     }
   },
   "benchmark_preparation": {
-    "execution_held_by_user": true,
+    "execution_held_by_user": false,
     "historical_execution_fields_are_not_current_process_observations": true,
     "policy": {
-      "approval_origin": null,
-      "approved_jobs": [],
+      "approval_origin": "explicit_user_go_ahead",
+      "approved_at_utc": "2026-10-18T00:08:52.910569+00:00",
+      "approved_jobs": [
+        {
+          "admission_receipt_ref": {
+            "path": "configs/benchmarks/jobs/native_argformer_val000_contrastive_ordered_state.admission.json",
+            "sha256": "64c6b5a48c465defa8bf1d89316b18194402d7c9cc115048bbb26d3639dbba88"
+          },
+          "input_ref": {
+            "path": "configs/benchmarks/jobs/native_argformer_val000_contrastive_ordered_state.json",
+            "sha256": "7b8e7911287010c60997b98e590fa6e338b7642745ffa88f748ce9e1d7242347"
+          },
+          "job_id": "native_argformer_val000_contrastive_ordered_state_20261018"
+        }
+      ],
+      "approved_new_storage_cap_bytes": 98784247808,
       "automatic_resume": false,
-      "benchmark_execution_approved": false,
-      "expires_at_utc": null,
+      "benchmark_execution_approved": true,
+      "continuation_scope": "Full native VAL000 contrastive then four complete embedding stages and native retrieval, each next job requires actual predecessor success and separately bound exact input",
+      "correction_reason": "Accept native OrderedDict state container, preserve checkpoint tensors and original author trainer",
+      "expires_at_utc": "2026-10-21T00:08:52.910569+00:00",
       "held_since_utc": "2026-10-17T20:49:00+00:00",
-      "human_instruction": "Do not run benchmarking. Prepare the codebase and small smoke tests only. Wait for explicit go-ahead.",
+      "human_instruction": "Build the queue for all necessary benchmarking and start on the one dedicated physical GPU0.",
       "human_storage_limit_bytes": 1000000000000,
       "physical_gpus": [
         0
       ],
       "schema": "benchmark_execution_policy_v1",
-      "smoke_tests_only": true,
-      "status": "awaiting_user_approval",
+      "smoke_tests_only": false,
+      "status": "approved",
       "storage_ceiling_bytes": 980000000000,
       "training_process_title": "AI Auto Research Pipeline Test"
     },
-    "scientific_admission_families_released": false,
-    "updated_utc": "2026-10-17T21:12:29.696970+00:00"
+    "release_scope": "Only exact jobs and finite chains approved in the current policy",
+    "scientific_admission_families_released": true,
+    "updated_utc": "2026-10-18T00:30:32.561995+00:00"
   },
   "current_GPU_execution_policy": {
     "GPU0_initial_observation": {
@@ -8943,19 +8960,62 @@
       "sha256": "11273ddb89045c7c53cc5744154f8e949e1d835908dadf75ee9fa02996b61d5f"
     },
     "execution_held_by_user": true,
+    "maintained_campaign": {
+      "actual_optimizer_updates": null,
+      "actual_returncode": null,
+      "campaign_ref": "configs/benchmarks/campaign.json",
+      "expected_updates": 2135,
+      "failure_wait_ref": "experiments/results/benchmark_campaign_20261018/native_argformer_val000_contrastive/actual_wait.json",
+      "gpu0_compute_processes": [
+        "GPU-ff06ca1f-403a-f2d0-b584-71e177452667, 408100, AI Auto Research Pipeline Test, 65710 MiB"
+      ],
+      "gpu0_observation": "0, GPU-ff06ca1f-403a-f2d0-b584-71e177452667, 96 %, 65719 MiB, 81920 MiB",
+      "job_id": "native_argformer_val000_contrastive_ordered_state_20261018",
+      "latest_logged_training_batch": 30,
+      "native_source_review": "independent review passed for full contrastive stage",
+      "output_directory": "experiments/results/benchmark_campaign_20261018/native_argformer_val000_contrastive_ordered_state",
+      "physical_gpu": 0,
+      "previous_attempt": {
+        "actual_returncode": 1,
+        "job_id": "native_argformer_val000_contrastive_20261018",
+        "optimizer_updates": 0,
+        "reason": "Exact dict check rejected native OrderedDict model"
+      },
+      "progress_note": "Native author training reached logged batch 30 of2135 and is running its released validation schedule. Checkpoint loading fixed. Full completion pending.",
+      "scheduler_status": "started",
+      "scientific_scores_new": false,
+      "source_checks": {
+        "all_passed": true,
+        "combined_suite": 157,
+        "native_mock_suite": 8
+      },
+      "stage": "native_ARGformer_full_contrastive",
+      "storage_admission": {
+        "approved_new_output_caps_bytes": 98784247808,
+        "ceiling_bytes": 980000000000,
+        "job_id": "native_argformer_val000_contrastive_ordered_state_20261018",
+        "measured_project_bytes": 481914961920,
+        "measurement_unix": 1792283295.9301379,
+        "policy_ref": {
+          "path": "configs/benchmarks/execution_policy.json",
+          "sha256": "ad59f9a1db1bdf6a7a20e9414efcd8efca9a62aaae501419ee1f25ce5e166372"
+        },
+        "projected_upper_bytes": 580699209728
+      },
+      "training_process_title": "AI Auto Research Pipeline Test",
+      "updated_utc": "2026-10-18T00:30:32.561995+00:00"
+    },
     "schema": "frozen_benchmark_current_execution_v1",
     "stages": {
-      "Benchmark codebase": "Maintained method/protocol/data/scheduler/metric interfaces prepared. Synthetic CPU smoke tests only. Scientific admission-family integration and all execution remain blocked pending review and human release.",
-      "Frozen TreeLoom architecture": "Unchanged H050 stable_leaf_memory model. Bounded execution preserves original equations. No architecture search.",
-      "Full TreeLoom training": "Held. Planned 20 independent 30 Mb TRAIN parents, 30 passes and 600 complete-parent updates from fresh weights. The reviewed execution correction still needs full-size GPU fit and throughput qualification.",
-      "Full-length American data": "TRAIN000 ready. TRAIN001 simulation/inference and TRAIN002 simulation completed earlier. Paused simulation and inference controllers have genuine direct wait 1 and their known roots are absent. Files and failures remain preserved. No new generation is authorized.",
-      "Native ARGformer": "The saved MLM checkpoint remains accepted as an initializer. The contrastive-stage source was reviewed and its earlier metadata admission finished. No contrastive worker was launched. Training, embeddings, retrieval and scoring are held.",
-      "Native FLARE": "Completed five 30 Mb validation predictions and their previously authorized scoring, with 50,000 fixed focal targets total. Metrics below.",
-      "Old short-to-long transfer": "H060 global-only v2 failed before optimization at JSON observation-record limit. Failure preserved. No automatic retry.",
-      "Remaining CPU preparation": "Stopped. Simulation and inference controllers returned direct wait 1 after the human pause. The compact controller failed its finite coordinator wait before preparation. No automatic replay or success claim.",
-      "TreeLoom GPU qualification": "Held. The earlier qualification stopped without a verified full-parent optimizer update. Corrected fast preparation and bounded GPU history passed source review and a tiny FP32 calculation check. Full-size GPU work waits for approval."
+      "European comparisons": "Paper recipes and cohort reports encoded. Native sampling, bounded European execution and missing ARGMix settings remain pending.",
+      "Execution": "Released by the user. Physical GPU0 only. Exact runnable jobs and dependent stages are in the maintained queue.",
+      "Fresh American data": "20 TRAIN / 5 validation / 10 TEST planned. Fresh shared simulation and tsinfer/tsdate adapters prepared. CPU dispatch and remaining method integrations are explicit.",
+      "Frozen TreeLoom": "Architecture unchanged. Full30-pass,20-parent training remains pending fresh preparation, target joins and full-size execution integration.",
+      "Native ARGformer": "Native author training reached logged batch 30 of2135 and is running its released validation schedule. Checkpoint loading fixed. Full completion pending.",
+      "Native FLARE": "Previously completed five30Mb validation predictions and scores retained below.",
+      "Native follow-on": "Four complete embedding stages and native retrieval follow genuine contrastive completion through the finite chain. No query truth or ancestry scoring in this chain."
     },
-    "updated_utc": "2026-10-17T21:12:29.696970+00:00"
+    "updated_utc": "2026-10-18T00:30:32.561995+00:00"
   },
   "live_jobs": [
     {

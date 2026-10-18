@@ -48,11 +48,19 @@ class ExecutionTests(unittest.TestCase):
                 with patch.object(e.c,"read_ref",return_value=value),self.assertRaises(ContractError):
                     e.validate_spec({})
 
-    def test_output_cap_has_initial_16GiB_ceiling(self):
+    def test_output_cap_has_64GiB_ceiling(self):
         value=spec()
         value["max_output_bytes"]=e.MAX_OUTPUT+1
         with patch.object(e.c,"read_ref",return_value=value),self.assertRaises(ContractError):
             e.validate_spec({})
+
+    def test_full_native_prediction_callables_are_supported(self):
+        for name in ("run_embedding", "run_retrieval"):
+            value = spec()
+            value.update(callable_module="arggnn.benchmarking.argformer_prediction",
+                         callable_name=name, max_output_bytes=64*2**30)
+            with patch.object(e.c, "read_ref", return_value=value):
+                self.assertEqual(e.validate_spec({}), value)
 
     def test_native_output_must_be_nested_in_assigned_scope(self):
         value=spec()

@@ -28,7 +28,7 @@ SETTINGS = dict(epochs=1, updates=2135, batch=4096, microbatch=4096,
                 precision="fp32", seed=36, temperature=0.3,
                 uniform_class_weight_fallback=True, max_seq_len=128,
                 save_interval="20ba", save_num_checkpoints_to_keep=1)
-PINS = {'author_manifest': {'path': 'research/reviews/American_C3_native_consumer_source_v1/author_source_manifest.json', 'sha256': 'bed570db438f2c4981ebf606460dc4ff72a97b148ba371e3873ab0141376736a'}, 'preparation': {'path': 'experiments/results/American_C3_val000_full30mb_shared_v1/native_paths/completed.json', 'sha256': '40a3b588d0aa2b474c3f4aab492e34feb0a753a0f8cb73c20d9c0059d8a8c16b'}, 'counts': {'path': 'experiments/results/American_C3_native_val000_full30mb_counts980_namespace_v1/completed.json', 'sha256': '502c111b443c46eea789dc03ee3ff8b6454546ce6e86e3f9fcddba25e82489a7'}, 'acceptance': {'path': 'research/reviews/research_execution_ROOT_20261017_v34/native_saved_MLM_artifact_acceptance.root_active_v1.json', 'sha256': 'a74bcce6bab94e01d367a7e32795e45942d9639bfd56bf637fb3ac634d0dec8e'}, 'checkpoint': {'path': 'experiments/results/native_VAL000_verified22000_continuation_v12_root01_oct16/checkpoints/ep5-ba227990-rank0.pt', 'sha256': '762d005aa403a787520f389f285a24b59a249c06f8f1145bc00db2ad060c499a'}, 'base_config': {'path': 'research/reviews/C3_bert_base_configuration_root_v1/config.json', 'sha256': '7160e1553ad2ca51d8c1cb066be533db31826e12d173824c1bb0cb1a4f187d20'}, 'bridge': {'path': 'research/reviews/native_VAL000_saved_MLM_acceptance_bridge_source_20261017_v1/saved_mlm_bridge_v1.py', 'sha256': '5810041797592fa414d57747607f646a3eee1050d0373df5412b7dd4b1b63d97'}, 'integration': {'path': 'research/reviews/native_VAL000_contrastive_saved_MLM_integration_source_20261017_v2/saved_mlm_integration_v1.py', 'sha256': '651e18d11d99083a60face804a3d50b9f1d48bcc83d3b6e0c2dbf827ae12b324'}, 'ipc': {'path': 'research/reviews/American_C3_native_MLM_amendment_v12/abstract_unix_bootstrap_v1.py', 'sha256': '4550ead44f36eeb0fda8a817a2002082c3d067cf1a84fd817301532577d8b014'}, 'runtime_binding': {'path': 'research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/mlm_v1/runtime_mlm.root_active_v1.json', 'sha256': '58aa23a7fcadb1b1cddc169cf7f0e1c63a17877d85bdef6405c34a48a5064e61'}}
+PINS = {'author_manifest': {'path': 'research/reviews/American_C3_native_consumer_source_v1/author_source_manifest.json', 'sha256': 'bed570db438f2c4981ebf606460dc4ff72a97b148ba371e3873ab0141376736a'}, 'preparation': {'path': 'experiments/results/American_C3_val000_full30mb_shared_v1/native_paths/completed.json', 'sha256': '40a3b588d0aa2b474c3f4aab492e34feb0a753a0f8cb73c20d9c0059d8a8c16b'}, 'counts': {'path': 'experiments/results/American_C3_native_val000_full30mb_counts980_namespace_v1/completed.json', 'sha256': '502c111b443c46eea789dc03ee3ff8b6454546ce6e86e3f9fcddba25e82489a7'}, 'acceptance': {'path': 'research/reviews/research_execution_ROOT_20261017_v34/native_saved_MLM_artifact_acceptance.root_active_v1.json', 'sha256': 'a74bcce6bab94e01d367a7e32795e45942d9639bfd56bf637fb3ac634d0dec8e'}, 'checkpoint': {'path': 'experiments/results/native_VAL000_verified22000_continuation_v12_root01_oct16/checkpoints/ep5-ba227990-rank0.pt', 'sha256': '762d005aa403a787520f389f285a24b59a249c06f8f1145bc00db2ad060c499a'}, 'base_config': {'path': 'research/reviews/C3_bert_base_configuration_root_v1/config.json', 'sha256': '7160e1553ad2ca51d8c1cb066be533db31826e12d173824c1bb0cb1a4f187d20'}, 'bridge': {'path': 'research/reviews/native_VAL000_saved_MLM_acceptance_bridge_source_20261017_v1/saved_mlm_bridge_v1.py', 'sha256': '5810041797592fa414d57747607f646a3eee1050d0373df5412b7dd4b1b63d97'}, 'integration': {'path': 'research/reviews/native_VAL000_contrastive_saved_MLM_integration_source_20261017_v2/saved_mlm_integration_v1.py', 'sha256': '651e18d11d99083a60face804a3d50b9f1d48bcc83d3b6e0c2dbf827ae12b324'}, 'ipc': {'path': 'research/reviews/American_C3_native_MLM_amendment_v12/abstract_unix_bootstrap_v1.py', 'sha256': '4550ead44f36eeb0fda8a817a2002082c3d067cf1a84fd817301532577d8b014'}, 'runtime_binding': {'path': 'research/reviews/native_ARGformer_VAL000_GPU0_shared_execution_20261016_v1/mlm_v1/runtime_mlm.root_active_v1.json', 'sha256': '58aa23a7fcadb1b1cddc169cf7f0e1c63a17877d85bdef6405c34a48a5064e61'}, 'mapping_compatibility': {'path': 'src/arggnn/benchmarking/argformer_ordereddict_bridge_v1.py', 'sha256': 'a515dd42a38c46cd160daad1e4122ed11eb216fa09a31ed88acf7cd07cbbb412'}}
 
 
 def _need(ok, message):
@@ -115,6 +115,10 @@ def _load_source(role):
     module = importlib.util.module_from_spec(module_spec)
     sys.modules[name] = module
     module_spec.loader.exec_module(module)
+    if role == "integration":
+        original_bridge = module.bridge_v1()
+        compatibility = _load_source("mapping_compatibility")
+        module._BRIDGE = compatibility.compatible_bridge_v1(original_bridge)
     return module
 
 
@@ -259,6 +263,10 @@ def run_contrastive(spec, *, resource_check):
     resource_check("ARGformer_before_full2135_author_updates")
     initialization = integration.run_original_keep1_contrastive_train_v1(
         cfg, eligible, author_train=module.train)
+    initialization = dict(initialization,
+        checkpoint_mapping_compatibility_source_ref=copy.deepcopy(PINS["mapping_compatibility"]),
+        checkpoint_model_object_preserved=True,
+        private_guard_accepts_dict_or_OrderedDict_tensor_mapping=True)
     resource_check("ARGformer_after_full_author_train_return")
     result = dict(schema="benchmark_argformer_full_contrastive_completion_v1",
                   status="completed_full_native_contrastive", parent_id=spec["parent_id"],

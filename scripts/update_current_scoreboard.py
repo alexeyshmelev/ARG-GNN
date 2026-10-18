@@ -550,13 +550,15 @@ def publish_prepared_snapshot():
     """Publish already-scored summaries and the user hold, with no scoring."""
     import re
     policy=read("configs/benchmarks/execution_policy.json")
-    status=read("research/frozen_benchmark_status.json")
-    snapshot=read("research/current_scoreboard.json")
     held=policy.get("benchmark_execution_approved") is not True
+    current=ROOT/"research/benchmark_campaign_status.json"
+    status=read("research/benchmark_campaign_status.json") if not held and current.exists() else read("research/frozen_benchmark_status.json")
+    snapshot=read("research/current_scoreboard.json")
     snapshot["benchmark_preparation"]={
         "execution_held_by_user":held,
         "policy":policy,
-        "scientific_admission_families_released":False,
+        "scientific_admission_families_released":not held,
+        "release_scope":"Only exact jobs and finite chains approved in the current policy",
         "historical_execution_fields_are_not_current_process_observations":True,
         "updated_utc":status["updated_utc"],
     }
@@ -572,7 +574,7 @@ def publish_prepared_snapshot():
         numeric=[x for x in vals if isinstance(x,(int,float)) and math.isfinite(x)]
         best[key]=(min(numeric) if key=="nll" else max(numeric)) if numeric else None
     lines=["<!-- CURRENT_SCOREBOARD_START -->","## Completed comparison", "",
-           "Benchmark execution is held pending user approval. No scientific jobs are scheduled by this refactor.","",
+           ("Benchmark execution is held pending user approval." if held else "Benchmark execution is approved. Previously completed results remain below. Active training does not yet supply a new ancestry score."),"",
            "European development panel: eight reused simulation parents. Values are equal-parent means ± sample SD. These common-data results do not establish exact publication reproduction or independent test performance.","",
            "| Method | Present-day span accuracy % ↑ | NLL ↓ | Boundary F1 at 1 kb % ↑ |",
            "|---|---:|---:|---:|"]
@@ -586,7 +588,7 @@ def publish_prepared_snapshot():
             cells.append(value)
         lines.append("| "+label+" | "+" | ".join(cells)+" |")
     lines += ["", "TreeLoom-NoMem removes the persistent sample memory and retains the matched continued-training control. AncestralPaths C4 is an explicit collapse of six native path classes. Native hard calls and raw zero posterior probabilities are retained.","",
-              "Native FLARE's completed American three-source results appear above. TreeLoom and native ARGformer on the same American support remain pending. GST expanded fitting is not implemented. There are no new scores from this code preparation.","",
+              "Native FLARE's completed American three-source results appear above. TreeLoom and native ARGformer on the same American support remain pending. GST expanded fitting is not implemented. No new comparative scores are claimed from the running campaign.","",
               "[All recorded setup and cohort metrics](research/current_scoreboard.json) · [Prior research and results](docs/research_history_before_benchmark_refactor_20261018.md)",
               "<!-- CURRENT_SCOREBOARD_END -->"]
     block="\n".join(lines)
@@ -602,7 +604,7 @@ def publish_prepared_snapshot():
     (ROOT/"research/current_scoreboard.json").write_text(json.dumps(snapshot,indent=2,sort_keys=True)+"\n")
     from update_frozen_benchmark_progress import publish
     publish()
-    print(json.dumps(dict(status="preparation_only",execution_held=held,new_scores=0,jobs_started=0)))
+    print(json.dumps(dict(status="held" if held else "campaign_reporting",execution_held=held,new_scores=0,this_report_starts_jobs=False)))
 
 
 def main():

@@ -18,9 +18,13 @@ from . import contracts as c
 GPU0_UUID = "GPU-ff06ca1f-403a-f2d0-b584-71e177452667"
 TITLE = "AI Auto Research Pipeline Test"
 SCHEMA = "benchmark_guarded_worker_spec_v1"
-MAX_OUTPUT = 16 * 2**30
+MAX_OUTPUT = 64 * 2**30
 MODULE = "arggnn.benchmarking.execution"
-CALLABLES = {("arggnn.benchmarking.argformer_execution", "run_contrastive")}
+CALLABLES = {
+    ("arggnn.benchmarking.argformer_execution", "run_contrastive"),
+    ("arggnn.benchmarking.argformer_prediction", "run_embedding"),
+    ("arggnn.benchmarking.argformer_prediction", "run_retrieval"),
+}
 
 
 def validate_spec(ref):
@@ -36,7 +40,7 @@ def validate_spec(ref):
     if spec["max_cuda_reserved_bytes"] > 74 * 2**30:
         raise c.ContractError("Native allocator cap must not exceed74GiB")
     if spec["max_output_bytes"] > MAX_OUTPUT:
-        raise c.ContractError("Initial scientific output cap cannot exceed16GiB")
+        raise c.ContractError("Scientific output cap cannot exceed64GiB")
     python = c.contained_path(spec["python"])
     if not python.is_file() or "python" not in python.name:
         raise c.ContractError("A native project Python interpreter is required")
@@ -228,6 +232,11 @@ def execute(ref):
     with gpu0_lease(spec) as fd:
         _approved(ref, spec)
         output.mkdir(parents=True, exist_ok=False)
+        (output / "storage_admission.json").write_text(json.dumps(dict(
+            measured_project_bytes=used, approved_new_output_caps_bytes=approved_caps,
+            projected_upper_bytes=used + approved_caps, ceiling_bytes=ceiling,
+            measurement_unix=time.time(), job_id=spec["job_id"],
+            policy_ref=c.file_ref(c.POLICY_PATH)), indent=2) + "\n")
         temporary = output / "tmp"
         temporary.mkdir()
         env = os.environ.copy()
