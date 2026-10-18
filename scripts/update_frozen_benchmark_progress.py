@@ -24,7 +24,7 @@ def publish():
             "Native follow-on": "Four complete embedding stages and native retrieval follow genuine contrastive completion through the finite chain. No query truth or ancestry scoring in this chain.",
             "Fresh American data": current.get("fresh_american_status", "20 TRAIN / 5 validation / 10 TEST planned. Fresh shared-data preparation pending."),
             "Frozen TreeLoom": current.get("treeloom_status", "Full training awaits fresh preparation and execution integration."),
-            "European comparisons": "Paper recipes and cohort reports encoded. Native sampling, bounded European execution and missing ARGMix settings remain pending.",
+            "European comparisons": current.get("european_status", "European native workflow integration pending."),
             "Native FLARE": "Previously completed five 30 Mb validation predictions and scores retained below.",
         }, maintained_campaign=current)
     lines = [START, "## Frozen benchmark execution", "",

@@ -4,7 +4,7 @@
 
 ## Current task: execute the benchmark campaign
 
-**Running, but the end-to-end benchmark queue is not complete. Physical GPU 0 only.** Native ARGformer has reached logged batch 740 of 2,135, with its embedding and retrieval stages queued automatically. Six full 30 Mb TRAIN preparation pipelines run on CPUs. TRAIN000 has completed simulation and started shared genealogy inference, while TRAIN001–005 are generating. Waiting alone will not finish the campaign. TreeLoom dispatch, the remaining parents and several competitor integrations still need implementation. No new ancestry comparison is complete. All computation runs on anogena.
+**Benchmarks are running on physical GPU 0, and the full queue is being completed.** Native ARGformer has reached logged batch 1340 of 2,135. The first fresh 30 Mb TRAIN simulation and genealogy inference are complete, with five more CPU pipelines running. The concrete American and European AncestralPaths workflows now contain 280 stages, including full training, predictions and common scoring. They are being checked before release. The separate ARGMix C4 and current empirical branches are still being connected. No new ancestry comparison is complete. All computation and Git commands run on anogena.
 
 [Queue and current workstreams](docs/benchmark_queue.md) · [Complete dependency graph](configs/benchmarks/campaign.json)
 
@@ -33,7 +33,7 @@ export PYTHONPATH=.:src:scripts
 
 The new paper plans generate each independent simulation once and share its observations, reference/query panel and frozen evaluation targets across methods. They preserve the native three-source, four-source and six-path tasks separately. Fresh seeds are permitted. The AP generator now supports the paper's 200 Mb length, complete age roster and 170-generation BAA event. Other material publication gaps remain listed in the plan and [recipe notes](docs/paper_benchmark_recipes.md).
 
-These commands inspect small metadata. They do not train models or load scientific datasets. The plan reports missing data products, method constraints and unresolved publication details. The reviewed current worker can run the exact native contrastive job approved by the policy. Other family adapters and dependency barriers remain pending. Historical admissions do not authorize new launches.
+These commands inspect small metadata. They do not train models or load scientific datasets. The plan reports missing data products, method constraints and unresolved publication details. The reviewed current worker runs the approved native contrastive job. The complete American and AncestralPaths DAG is implemented, with final integration checks and the separate ARGMix branch pending. Historical admissions do not authorize new launches.
 
 ## Model advantages and evidence
 
@@ -46,16 +46,16 @@ Native FLARE has completed the five-parent American comparison. TreeLoom and nat
 <!-- FROZEN_BENCHMARK_PROGRESS_START -->
 ## Frozen benchmark execution
 
-Updated UTC: 2026-10-18T01:01:14.837893+00:00. Physical GPU 0 only.
+Updated UTC: 2026-10-18T01:28:06.774343+00:00. Physical GPU 0 only.
 
 | Stage | Current verified status |
 |---|---|
 | Execution | Released by the user. Physical GPU0 only. Exact runnable jobs and dependent stages are in the maintained queue. |
-| Native ARGformer | Native ARGformer reached logged training batch 740 of 2,135. Full training is running. Its complete embedding/retrieval chain is armed. |
+| Native ARGformer | Native ARGformer logged batch 1340 of 2,135. Full training and its existing embedding/retrieval continuation remain active. |
 | Native follow-on | Four complete embedding stages and native retrieval follow genuine contrastive completion through the finite chain. No query truth or ancestry scoring in this chain. |
-| Fresh American data | Six CPU generation/inference pipelines running. TRAIN000 generation completed with actual return code 0 and shared genealogy inference started. TRAIN001–005 are generating. Remaining 14 TRAIN / 5 validation / 10 TEST parents are not dispatched. |
-| Frozen TreeLoom | Frozen architecture and complete 600-update schedule implemented. Fresh-parent, training-loop and memory-admission tests pass. Full training awaits all 20 complete inputs, fixed focal targets and GPU dispatch integration. |
-| European comparisons | Paper recipes and cohort reports encoded. Native sampling, bounded European execution and missing ARGMix settings remain pending. |
+| Fresh American data | TRAIN000 complete simulation and inference with actual successful waits. TRAIN001–005 remain running. Complete executable American downstream DAG implemented, awaiting final combined release. |
+| Frozen TreeLoom | Complete fresh600-update fit, finalcheckpoint prediction, all45heldout prediction barrier and common scoring implemented. CPU focused tests pass. Fullfit awaits20sharedinputs andGPUqueue. |
+| European comparisons | AP200Mb generation/Relate/sampling/nativeDense6/TreeLoom/native6cohort scoring workflow implemented. Separate nativeARGMix C4 and current empirical application integration in progress. |
 | Native FLARE | Previously completed five 30 Mb validation predictions and scores retained below. |
 
 **Native FLARE, five American validation simulations:** accuracy 98.0960 ± 0.3442% and macro F1 97.9196 ± 0.4059%.
