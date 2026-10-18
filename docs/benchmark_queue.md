@@ -1,7 +1,7 @@
 # Executable benchmark queue
 
 The maintained workflow contains 325 concrete stages. The exact source-pinned
-plan is [executable_workflow_20261018_v2.json](../configs/benchmarks/executable_workflow_20261018_v2.json).
+plan is [executable_workflow_20261018_v3.json](../configs/benchmarks/executable_workflow_20261018_v3.json).
 This is separate from the earlier conceptual campaign graph. Execution requires
 that exact plan reference in the canonical policy. The user has authorized execution.
 
@@ -78,3 +78,7 @@ support. Probability metrics are reported only for native probabilities.
 Retrieval similarity is not relabelled as an ancestry posterior.
 
 The first controller exposed a European interpreter-symlink path error before those scientific stages started. Release v2 uses the same binaries by canonical names. Original failures and explicitly interrupted CPU attempts are retained. The existing native ARGformer run and its continuation were not stopped.
+
+## Current continuation
+
+V3 adopts 139 successfully completed stages without repeating them. Eleven historical failed or interrupted attempts remain preserved and charged. Only unfinished jobs receive new output scopes. Native ARGformer uses the corrected Composer DataSpec length check, and European metadata readers use 512 MiB caps. These are operational corrections, with unchanged datasets and scientific settings. Three TreeLoom fits remain explicitly pending for preprocessing repair. The first American preparation was stopped after more than four hours with zero optimizer updates. Three European CPU inference stages remain active. The restarted native ARGformer fit was stopped by the configured RAM limit, so GPU work is currently stopped pending memory-accounting repair. No fresh matched scores exist yet.

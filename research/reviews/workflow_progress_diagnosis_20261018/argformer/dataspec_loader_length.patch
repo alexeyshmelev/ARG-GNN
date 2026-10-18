@@ -1,0 +1,11 @@
+--- a/src/arggnn/benchmarking/american_competitor_worker.py
++++ b/src/arggnn/benchmarking/american_competitor_worker.py
+@@ -126,7 +126,7 @@
+     def capture_trainer(*args,**kwargs):
+         api.need(not trainer_box,"Exactly one original native Trainer is permitted")
+         t=actual_trainer(*args,**kwargs);trainer_box["trainer"]=t
+-        api.need(len(kwargs["train_dataloader"])==spec["expected_updates"]//(5 if phase=="mlm" else 1),
++        api.need(len(t.state.train_dataloader)==spec["expected_updates"]//(5 if phase=="mlm" else 1),
+                  "Actual complete native loader length must equal the admitted data-derived budget")
+         return t
+     bindings=dict(Trainer=capture_trainer)

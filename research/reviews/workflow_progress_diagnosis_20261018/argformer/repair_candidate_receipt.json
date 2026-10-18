@@ -1,0 +1,97 @@
+{
+  "actual_wait": {
+    "actual_direct_returncode": 1,
+    "actual_direct_wait": true,
+    "automatic_retry": false,
+    "job_ref": {
+      "path": ".runtime/benchmarking/workflow_20261018_v2/jobs/AM_argformer_american_validation_000_argformer_mlm.json",
+      "sha256": "59d64a382d124beeaf5dfa11f844e1f94e13a21e2775908240c3601256868cd1"
+    },
+    "output_bytes": 204801,
+    "owned_process_group_absent": true,
+    "supervisor_error": null
+  },
+  "actual_wait_ref": {
+    "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_validation_000/AM_argformer_american_validation_000_argformer_mlm/actual_wait.json",
+    "sha256": "e8476b5e38685f6c5a83896ba6792b1ca1d1f8bb4793402f4d063410055d6315"
+  },
+  "baseline_worker_ref": {
+    "path": "src/arggnn/benchmarking/american_competitor_worker.py",
+    "sha256": "559af12cae9e4c135c224816af756eca53619850caceaf24e15db92f5f721ee3"
+  },
+  "baseline_worker_verified_unchanged_after_smoke": true,
+  "candidate_change": {
+    "after": "len(t.state.train_dataloader)",
+    "before": "len(kwargs[\"train_dataloader\"])"
+  },
+  "candidate_worker_sha256": "149fad77bfc54fd14bd1a7ef906fff1d97e4b2f98df25b6c1913c1f99732011a",
+  "created_utc": "2026-10-18T12:35:49.373706+00:00",
+  "diagnosis": "Our adapter applies len() to Composer DataSpec after Trainer construction, before author trainer.fit; DataSpec exposes its underlying loader through .dataloader.",
+  "failure_log_ref": {
+    "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_validation_000/AM_argformer_american_validation_000_argformer_mlm/native/native.log",
+    "sha256": "7394721f3099287b64ccb3d98303e4b1b9e702ee072e4d2a54363f4f0d3449a8"
+  },
+  "failure_traceback": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/workspace-SR003.nfs2/ARG-GNN/src/arggnn/benchmarking/american_competitor_worker.py\", line 312, in <module>\n    if __name__==\"__main__\":main()\n                            ^^^^^^\n  File \"/workspace-SR003.nfs2/ARG-GNN/src/arggnn/benchmarking/american_competitor_worker.py\", line 308, in main\n    result=run(api.read(json.loads(a.spec_ref)))\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace-SR003.nfs2/ARG-GNN/src/arggnn/benchmarking/american_competitor_worker.py\", line 295, in run\n    if spec[\"stage\"] in (\"mlm\",\"contrastive\"):result=_train(spec,prep,out,torch,check)\n                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace-SR003.nfs2/ARG-GNN/src/arggnn/benchmarking/american_competitor_worker.py\", line 150, in _train\n    call(cfg)\n  File \"/workspace-SR003.nfs2/ARG-GNN/.runtime/author_sources/argformer_f7545be7bca0/main.py\", line 464, in main\n    trainer = Trainer(\n              ^^^^^^^^\n  File \"/workspace-SR003.nfs2/ARG-GNN/src/arggnn/benchmarking/american_competitor_worker.py\", line 129, in capture_trainer\n    api.need(len(kwargs[\"train_dataloader\"])==spec[\"expected_updates\"]//(5 if phase==\"mlm\" else 1),\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: object of type 'DataSpec' has no len()",
+  "launch_authorized": false,
+  "native_Composer_DataSpec_source_ref": {
+    "path": ".runtime/conda/envs/argformer_native_v1/lib/python3.11/site-packages/composer/core/data_spec.py",
+    "sha256": "45c167692d0c4e887ab58631fdfe3e2014d2d9429b3c549f9f6623f72ed4a233"
+  },
+  "native_Composer_Trainer_source_ref": {
+    "path": ".runtime/conda/envs/argformer_native_v1/lib/python3.11/site-packages/composer/trainer/trainer.py",
+    "sha256": "d0c1d6cc233573bc6b9ce6256641426d8f06ca10988cf67eb9a71491ce1226fb"
+  },
+  "no_full_Trainer_or_model_instantiated": true,
+  "original_author_source_changed": false,
+  "patch_applied": false,
+  "patch_ref": {
+    "path": "research/reviews/workflow_progress_diagnosis_20261018/argformer/dataspec_loader_length.patch",
+    "sha256": "3410c412b772f8232cb6a2d7d9f3d04d2509723d2b6dd11aec553c0fc1bcfb00"
+  },
+  "pinned_worker_changed": false,
+  "preserved_baseline_ref": {
+    "path": "research/reviews/workflow_progress_diagnosis_20261018/argformer/american_competitor_worker.baseline.py",
+    "sha256": "559af12cae9e4c135c224816af756eca53619850caceaf24e15db92f5f721ee3"
+  },
+  "proposed_activation": "ROOT integrates only after active workflow safely settles; preserve original failed scope/wait and use separately pinned fresh operational successor.",
+  "schema": "argformer_DataSpec_adapter_operational_repair_candidate_v1",
+  "scientific_settings_changed": false,
+  "smoke_command": [
+    ".runtime/conda/envs/argformer_native_v1/bin/python",
+    "-B",
+    "-s",
+    "research/reviews/workflow_progress_diagnosis_20261018/argformer/test_dataspec_loader_length_smoke.py"
+  ],
+  "smoke_result_ref": {
+    "path": "research/reviews/workflow_progress_diagnosis_20261018/argformer/smoke_result.json",
+    "sha256": "05d45442a1bc4582b8ebe30a06990e44840eb1ca42af44ef8ff4d336b02e74b1"
+  },
+  "smoke_status": "passed_5_CPU_only_tests",
+  "smoke_summary": {
+    "CUDA_initialized": false,
+    "CUDA_visible_devices": "",
+    "RNG_states_unchanged": true,
+    "Trainer_construction_mocked_with_actual_Composer_ensure_data_spec": true,
+    "actual_native_DataSpec_and_DataLoader": true,
+    "baseline_sha256": "559af12cae9e4c135c224816af756eca53619850caceaf24e15db92f5f721ee3",
+    "candidate_sha256": "149fad77bfc54fd14bd1a7ef906fff1d97e4b2f98df25b6c1913c1f99732011a",
+    "composer_version": "0.24.1",
+    "errors": 0,
+    "extracted_only": "_train.capture_trainer",
+    "failures": 0,
+    "native_python": "/workspace-SR003.nfs2/ARG-GNN/.runtime/conda/envs/argformer_native_v1/bin/python3.11",
+    "no_iterator_or_item_consumption": true,
+    "no_model_or_fit_or_optimizer": true,
+    "patch_sha256": "3410c412b772f8232cb6a2d7d9f3d04d2509723d2b6dd11aec553c0fc1bcfb00",
+    "schema": "argformer_DataSpec_loader_length_CPU_smoke_v1",
+    "successful": true,
+    "tests_run": 5,
+    "torch_version": "2.4.0"
+  },
+  "smoke_test_ref": {
+    "path": "research/reviews/workflow_progress_diagnosis_20261018/argformer/test_dataspec_loader_length_smoke.py",
+    "sha256": "80c1563501243f1249c6d3be5d179acd0b33a97da3cfc0046bc9c43bea9a50ec"
+  },
+  "task_id": "AM_argformer_american_validation_000_argformer_mlm",
+  "tested_scope": "Exact extracted adapter guard with actual native DataSpec/DataLoader; Trainer state normalization mocked using real Composer ensure_data_spec; no iterator, model, fit, optimizer or CUDA context."
+}

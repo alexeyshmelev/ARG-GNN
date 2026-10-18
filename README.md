@@ -6,54 +6,62 @@
 
 **The LAI benchmark uses an automated queue of 325 stages.** It covers shared American and European simulations, full training, native competitors, paired scoring and Danish data application. Current execution and matched results are published below. All computation and Git commands run on anogena, using physical GPU 0 only.
 
+<!-- BEGIN CURRENT BENCHMARK DIAGNOSIS -->
+**Progress and remaining blocker, 18 October:** all 35 American simulations and shared inferred inputs, all nine European simulations, and all 15 native FLARE predictions are complete. The continuation preserves 139 successful stages. Three European inference stages are running after the metadata-cap fix. Fresh native ARGformer passed its adapter fix and entered training, but our supervisor then stopped it at its RAM limit. GPU training is currently stopped while that memory-accounting failure is investigated. There are **no new matched accuracy scores** yet.
+
+**TreeLoom training is held for preprocessing repair.** Its first training parent took over four hours of CPU preparation without an optimizer update. The preparation builds very large tree indices in Python, and the cache cannot hold all parents, causing repeated work. That attempt was stopped and preserved. The repair must retain the full trees, frozen model and representative training budget. GST is still outside this LAI queue.
+
+[Diagnosis and repair evidence](research/reviews/workflow_progress_diagnosis_20261018/root_diagnosis.json) · [Continuation launch](research/benchmark_workflow_launch_20261018_v3.json)
+<!-- END CURRENT BENCHMARK DIAGNOSIS -->
+
 <!-- BEGIN EXECUTABLE BENCHMARK WORKFLOW -->
 ## Executable benchmark workflow
 
-Observed 2026-10-18T12:39:40.444720+00:00. 139 succeeded; 11 failed; 0 running; 15 pending; 160 blocked; 0 unknown.
+Observed 2026-10-18T12:53:52.089475+00:00. 139 succeeded; 1 failed; 3 running; 93 pending; 89 blocked; 0 unknown.
 Run status: `running`. Physical GPU: 0.
 
 [Current queue details](research/benchmark_execution_current.json) · [Authenticated matched scores](research/current_matched_benchmark_results.json)
 
 | Stage | Succeeded | Failed | Running | Pending | Blocked | Unknown |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| ap_features | 0 | 0 | 0 | 0 | 8 | 0 |
-| ap_fit | 0 | 0 | 0 | 0 | 1 | 0 |
+| ap_features | 0 | 0 | 0 | 8 | 0 | 0 |
+| ap_fit | 0 | 0 | 0 | 1 | 0 | 0 |
 | ap_generate | 9 | 0 | 0 | 0 | 0 | 0 |
-| ap_infer | 0 | 9 | 0 | 0 | 0 | 0 |
-| ap_predict | 0 | 0 | 0 | 0 | 5 | 0 |
-| ap_registry | 0 | 0 | 0 | 0 | 8 | 0 |
-| ap_train_targets | 0 | 0 | 0 | 0 | 3 | 0 |
+| ap_infer | 0 | 0 | 3 | 6 | 0 | 0 |
+| ap_predict | 0 | 0 | 0 | 5 | 0 | 0 |
+| ap_registry | 0 | 0 | 0 | 8 | 0 | 0 |
+| ap_train_targets | 0 | 0 | 0 | 3 | 0 | 0 |
 | contrastive | 0 | 0 | 0 | 0 | 15 | 0 |
 | embeddings | 0 | 0 | 0 | 0 | 15 | 0 |
 | external | 6 | 0 | 0 | 0 | 0 | 0 |
-| factory | 0 | 0 | 0 | 0 | 17 | 0 |
-| fit_factory | 0 | 1 | 0 | 0 | 2 | 0 |
+| factory | 0 | 0 | 0 | 1 | 16 | 0 |
+| fit_factory | 0 | 0 | 0 | 3 | 0 | 0 |
 | focal_factory | 35 | 0 | 0 | 0 | 0 | 0 |
 | generation_factory | 29 | 0 | 0 | 0 | 0 | 0 |
 | inference_factory | 29 | 0 | 0 | 0 | 0 | 0 |
 | mlm | 0 | 1 | 0 | 0 | 14 | 0 |
 | native | 15 | 0 | 0 | 0 | 0 | 0 |
-| prediction_factory | 0 | 0 | 0 | 15 | 2 | 0 |
+| prediction_factory | 0 | 0 | 0 | 17 | 0 | 0 |
 | prepare | 16 | 0 | 0 | 0 | 14 | 0 |
-| release_archive | 0 | 0 | 0 | 0 | 4 | 0 |
-| release_c4_registry | 0 | 0 | 0 | 0 | 8 | 0 |
-| release_c4_score | 0 | 0 | 0 | 0 | 1 | 0 |
-| release_c4_targets | 0 | 0 | 0 | 0 | 3 | 0 |
-| release_fit | 0 | 0 | 0 | 0 | 1 | 0 |
-| release_frame | 0 | 0 | 0 | 0 | 9 | 0 |
-| release_infer | 0 | 0 | 0 | 0 | 5 | 0 |
-| release_native6_score | 0 | 0 | 0 | 0 | 1 | 0 |
-| release_native_targets | 0 | 0 | 0 | 0 | 4 | 0 |
-| release_seal | 0 | 0 | 0 | 0 | 5 | 0 |
+| release_archive | 0 | 0 | 0 | 4 | 0 | 0 |
+| release_c4_registry | 0 | 0 | 0 | 8 | 0 | 0 |
+| release_c4_score | 0 | 0 | 0 | 1 | 0 | 0 |
+| release_c4_targets | 0 | 0 | 0 | 3 | 0 | 0 |
+| release_fit | 0 | 0 | 0 | 1 | 0 | 0 |
+| release_frame | 0 | 0 | 0 | 9 | 0 | 0 |
+| release_infer | 0 | 0 | 0 | 5 | 0 | 0 |
+| release_native6_score | 0 | 0 | 0 | 1 | 0 | 0 |
+| release_native_targets | 0 | 0 | 0 | 4 | 0 | 0 |
+| release_seal | 0 | 0 | 0 | 5 | 0 | 0 |
 | retrieval | 0 | 0 | 0 | 0 | 15 | 0 |
 
-Running workflow jobs: none.
+Running workflow jobs: `AP__ancestralpaths_european_train_000__ap_infer`, `C4__argmix_release_ap200mb_validation_000__validation_infer`, `AP__ancestralpaths_european_train_001__ap_infer`.
 Named external queue jobs running: none. External queue states are listed separately from workflow counts.
 
 No supported authenticated matched score has completed in this workflow.
 <!-- END EXECUTABLE BENCHMARK WORKFLOW -->
 
-[Queue and current workstreams](docs/benchmark_queue.md) · [Executable dependency graph](configs/benchmarks/executable_workflow_20261018_v2.json)
+[Queue and current workstreams](docs/benchmark_queue.md) · [Executable dependency graph](configs/benchmarks/executable_workflow_20261018_v3.json)
 
 The maintained interface is [src/arggnn/benchmarking](src/arggnn/benchmarking). It separates method adapters, biological protocols, observed-only data descriptors, single-GPU scheduling and common scoring. Original author code and immutable experiment records stay in place.
 
@@ -80,11 +88,11 @@ export PYTHONPATH=.:src:scripts
 
 The new paper plans generate each independent simulation once and share its observations, reference/query panel and frozen evaluation targets across methods. They preserve the native three-source, four-source and six-path tasks separately. Fresh seeds are permitted. The AP generator now supports the paper's 200 Mb length, complete age roster and 170-generation BAA event. Other material publication gaps remain listed in the plan and [recipe notes](docs/paper_benchmark_recipes.md).
 
-These commands inspect small metadata. They do not train models or load scientific datasets. The plan reports missing data products, method constraints and unresolved publication details. The reviewed current worker runs the approved native contrastive job. The complete American, AncestralPaths and ARGMix workflows are integrated, including shared scoring and current empirical application. Historical admissions do not authorize new launches.
+These commands inspect small metadata. They do not train models or load scientific datasets. The plan reports missing data products, method constraints and unresolved publication details. The current continuation runs fresh native comparators while TreeLoom preprocessing is repaired. The complete American, AncestralPaths and ARGMix workflows are integrated, including shared scoring and current empirical application. Historical admissions do not authorize new launches.
 
 ## Model advantages and evidence
 
-TreeLoom preserves complete local trees, genomic order and persistent sample identity. The corrected execution path moves learned history into bounded GPU windows and avoids redundant preparation where measured reuse fits. Small FP32 calculation checks passed. Full-size GPU efficiency remains to be measured during the approved campaign.
+TreeLoom preserves complete local trees, genomic order and persistent sample identity. The selected model uses bounded GPU windows for learned history. Its full-size CPU preparation needs the repair described above before representative training can proceed.
 
 On eight reused European development simulations, TreeLoom achieved 97.0778 ± 0.5674% modern span accuracy, compared with 94.4461 ± 1.1491% for the released ARGMix pipeline and 93.7830 ± 0.8385% for the derived four-source AncestralPaths endpoint. These are common-data development results with disclosed differences from the publications. TreeLoom-NoMem has higher boundary F1. No overall top-1 claim is established.
 
@@ -93,17 +101,17 @@ Native FLARE previously completed five American validation parents. The new inde
 <!-- FROZEN_BENCHMARK_PROGRESS_START -->
 ## Launch snapshot and earlier results
 
-Updated UTC: 2026-10-18T02:08:58.968415+00:00. Physical GPU 0 only.
+Updated UTC: 2026-10-18T12:53:52.089475+00:00. Physical GPU 0 only.
 
 | Stage | Current verified status |
 |---|---|
 | Execution | Released by the user. Physical GPU0 only. Exact runnable jobs and dependent stages are in the maintained queue. |
-| Native ARGformer | Native ARGformer completed all2,135updates with actual success. Native embeddings and retrieval now continue automatically. |
-| Native follow-on | Four complete embedding stages and native retrieval follow genuine contrastive completion through the finite chain. No query truth or ancestry scoring in this chain. |
-| Fresh American data | All six initial 30 Mb TRAIN simulations and shared genealogy inferences completed with actual successful waits. The new workflow adopts them and prepares the remaining 29 parents. |
-| Frozen TreeLoom | Complete fresh600-update fit, finalcheckpoint prediction, all45heldout prediction barrier and common scoring implemented. CPU focused tests pass. Fullfit awaits20sharedinputs andGPUqueue. |
-| European comparisons | Corrected release v2 actively simulates eight independent200Mb European parents. Full native6/C4 methods and joint TEST barriers are queued. |
-| Native FLARE | Previously completed five 30 Mb validation predictions and scores retained below. |
+| Native ARGformer | Fresh native ARGformer passed the repaired DataSpec check and reached trainer.fit, then our supervisor stopped it at the configured256GiB summed RSS cap. Optimizer update count is unverified. Memory accounting and group cleanup need repair. |
+| Native follow-on | Earlier exposed-validation chain completed all four embedding stages and native retrieval with actual success. It was not scored and is separate from the fresh comparison. |
+| Fresh American data | All35 independent30Mb simulations, shared inferred trees and fixed focal preparations completed. |
+| Frozen TreeLoom | All three fresh fit tasks explicitly held for preprocessing repair. Stopped American first-parent preparation after more than four hours with0 optimizer updates. Preserve full20parents/30passes/600updates. |
+| European comparisons | Three European inference stages are active on the completed simulations. The metadata-cap correction passed startup. No fresh European training or score yet. |
+| Native FLARE | Native FLARE completed all15 fresh American validation/test predictions. Paired scoring waits for all methods. Earlier exposed validation scores remain historical. |
 
 **Native FLARE, five American validation simulations:** accuracy 98.0960 ± 0.3442% and macro F1 97.9196 ± 0.4059%.
 

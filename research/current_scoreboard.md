@@ -22,17 +22,17 @@ Native FLARE's earlier American three-source results appear above. The executabl
 <!-- FROZEN_BENCHMARK_PROGRESS_START -->
 ## Launch snapshot and earlier results
 
-Updated UTC: 2026-10-18T02:08:58.968415+00:00. Physical GPU 0 only.
+Updated UTC: 2026-10-18T12:53:52.089475+00:00. Physical GPU 0 only.
 
 | Stage | Current verified status |
 |---|---|
 | Execution | Released by the user. Physical GPU0 only. Exact runnable jobs and dependent stages are in the maintained queue. |
-| Native ARGformer | Native ARGformer completed all2,135updates with actual success. Native embeddings and retrieval now continue automatically. |
-| Native follow-on | Four complete embedding stages and native retrieval follow genuine contrastive completion through the finite chain. No query truth or ancestry scoring in this chain. |
-| Fresh American data | All six initial 30 Mb TRAIN simulations and shared genealogy inferences completed with actual successful waits. The new workflow adopts them and prepares the remaining 29 parents. |
-| Frozen TreeLoom | Complete fresh600-update fit, finalcheckpoint prediction, all45heldout prediction barrier and common scoring implemented. CPU focused tests pass. Fullfit awaits20sharedinputs andGPUqueue. |
-| European comparisons | Corrected release v2 actively simulates eight independent200Mb European parents. Full native6/C4 methods and joint TEST barriers are queued. |
-| Native FLARE | Previously completed five 30 Mb validation predictions and scores retained below. |
+| Native ARGformer | Fresh native ARGformer passed the repaired DataSpec check and reached trainer.fit, then our supervisor stopped it at the configured256GiB summed RSS cap. Optimizer update count is unverified. Memory accounting and group cleanup need repair. |
+| Native follow-on | Earlier exposed-validation chain completed all four embedding stages and native retrieval with actual success. It was not scored and is separate from the fresh comparison. |
+| Fresh American data | All35 independent30Mb simulations, shared inferred trees and fixed focal preparations completed. |
+| Frozen TreeLoom | All three fresh fit tasks explicitly held for preprocessing repair. Stopped American first-parent preparation after more than four hours with0 optimizer updates. Preserve full20parents/30passes/600updates. |
+| European comparisons | Three European inference stages are active on the completed simulations. The metadata-cap correction passed startup. No fresh European training or score yet. |
+| Native FLARE | Native FLARE completed all15 fresh American validation/test predictions. Paired scoring waits for all methods. Earlier exposed validation scores remain historical. |
 
 **Native FLARE, five American validation simulations:** accuracy 98.0960 ± 0.3442% and macro F1 97.9196 ± 0.4059%.
 

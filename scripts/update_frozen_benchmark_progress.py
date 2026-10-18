@@ -21,11 +21,11 @@ def publish():
         status = dict(status, updated_utc=current["updated_utc"], stages={
             "Execution": "Released by the user. Physical GPU0 only. Exact runnable jobs and dependent stages are in the maintained queue.",
             "Native ARGformer": current["progress_note"],
-            "Native follow-on": "Four complete embedding stages and native retrieval follow genuine contrastive completion through the finite chain. No query truth or ancestry scoring in this chain.",
+            "Native follow-on": current.get("native_followon_status", "Four complete embedding stages and native retrieval follow genuine contrastive completion through the finite chain. No query truth or ancestry scoring in this chain."),
             "Fresh American data": current.get("fresh_american_status", "20 TRAIN / 5 validation / 10 TEST planned. Fresh shared-data preparation pending."),
             "Frozen TreeLoom": current.get("treeloom_status", "Full training awaits fresh preparation and execution integration."),
             "European comparisons": current.get("european_status", "European native workflow integration pending."),
-            "Native FLARE": "Previously completed five 30 Mb validation predictions and scores retained below.",
+            "Native FLARE": current.get("native_flare_status", "Previously completed five 30 Mb validation predictions and scores retained below."),
         }, maintained_campaign=current)
     lines = [START, "## Launch snapshot and earlier results", "",
              "Updated UTC: " + status["updated_utc"] + ". Physical GPU 0 only.", "",

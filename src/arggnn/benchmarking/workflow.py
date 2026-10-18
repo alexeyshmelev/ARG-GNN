@@ -76,6 +76,11 @@ def load_plan(ref, *, approved=False):
     source_check(plan["sources"])
     ids = [t["id"] for t in plan["tasks"]]
     need(len(ids) == len(set(ids)), "Unique workflow task IDs required")
+    holds=plan.get("dispatch_hold_task_ids",[])
+    need(isinstance(holds,list) and len(holds)==len(set(holds)) and set(holds)<=set(ids),
+         "Dispatch holds must name distinct existing tasks")
+    need(not holds or isinstance(plan.get("dispatch_hold_reason"),str) and bool(plan["dispatch_hold_reason"]),
+         "Held work requires a visible operational reason")
     done = set()
     while len(done) < len(ids):
         available = {t["id"] for t in plan["tasks"] if set(t["dependencies"]) <= done}
@@ -440,6 +445,15 @@ class ProgressReporter:
             self.executor.shutdown(wait=False)
 
 
+def dispatch_block_reason(plan, policy, ref, task_id):
+    """Pause new work without cancelling scientific processes already running."""
+    if policy.get("workflow_drain_ref") == ref:
+        return "ROOT requested drain before operational update"
+    if task_id in plan.get("dispatch_hold_task_ids", []):
+        return plan["dispatch_hold_reason"]
+    return None
+
+
 def run(ref, *, execute_jobs=False, poll_seconds=5):
     plan=load_plan(ref,approved=execute_jobs)
     directory=c.contained_path(plan["records_directory"]);directory.mkdir(parents=True,exist_ok=True)
@@ -517,6 +531,9 @@ def run(ref, *, execute_jobs=False, poll_seconds=5):
                     if any(s in ("failed","blocked") for s in deps):
                         entry.update(status="blocked",error="A required predecessor failed");save(state_path,state);continue
                     if not all(s=="succeeded" for s in deps):continue
+                    dispatch_reason=dispatch_block_reason(plan,policy,ref,task["id"])
+                    if dispatch_reason:
+                        entry["waiting_reason"]=dispatch_reason;continue
                     if undrained:
                         entry["waiting_reason"]="Failed worker lacks confirmed group cleanup";continue
                     if entry.get("not_before",0)>time.time():continue
@@ -566,6 +583,8 @@ def run(ref, *, execute_jobs=False, poll_seconds=5):
                 state["reserved_rss_bytes_including_external"]=rss_reserved
                 save(state_path,state)
                 reporter.submit(state)
+                if policy.get("workflow_drain_ref")==ref and not running:
+                    state["run_status"]="drained_for_operational_update";save(state_path,state);return state
                 if all(s in ("succeeded","failed","blocked") for s in statuses):return state
                 if not running and undrained:
                     state["run_status"]="blocked_on_failed_worker_cleanup";save(state_path,state);return state
