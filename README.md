@@ -9,45 +9,45 @@
 <!-- BEGIN EXECUTABLE BENCHMARK WORKFLOW -->
 ## Executable benchmark workflow
 
-Observed 2026-10-18T02:02:29.169645+00:00. 6 succeeded; 17 failed; 0 running; 222 pending; 80 blocked; 0 unknown.
+Observed 2026-10-18T02:06:53.254695+00:00. 6 succeeded; 0 failed; 8 running; 311 pending; 0 blocked; 0 unknown.
 Run status: `running`. Physical GPU: 0.
 
 [Current queue details](research/benchmark_execution_current.json) · [Authenticated matched scores](research/current_matched_benchmark_results.json)
 
 | Stage | Succeeded | Failed | Running | Pending | Blocked | Unknown |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| ap_features | 0 | 0 | 0 | 0 | 8 | 0 |
-| ap_fit | 0 | 0 | 0 | 0 | 1 | 0 |
-| ap_generate | 0 | 9 | 0 | 0 | 0 | 0 |
-| ap_infer | 0 | 0 | 0 | 0 | 9 | 0 |
-| ap_predict | 0 | 0 | 0 | 0 | 5 | 0 |
-| ap_registry | 0 | 0 | 0 | 0 | 8 | 0 |
-| ap_train_targets | 0 | 0 | 0 | 0 | 3 | 0 |
+| ap_features | 0 | 0 | 0 | 8 | 0 | 0 |
+| ap_fit | 0 | 0 | 0 | 1 | 0 | 0 |
+| ap_generate | 0 | 0 | 8 | 1 | 0 | 0 |
+| ap_infer | 0 | 0 | 0 | 9 | 0 | 0 |
+| ap_predict | 0 | 0 | 0 | 5 | 0 | 0 |
+| ap_registry | 0 | 0 | 0 | 8 | 0 | 0 |
+| ap_train_targets | 0 | 0 | 0 | 3 | 0 | 0 |
 | contrastive | 0 | 0 | 0 | 15 | 0 | 0 |
 | embeddings | 0 | 0 | 0 | 15 | 0 | 0 |
 | external | 6 | 0 | 0 | 0 | 0 | 0 |
-| factory | 0 | 0 | 0 | 16 | 1 | 0 |
-| fit_factory | 0 | 0 | 0 | 1 | 2 | 0 |
-| focal_factory | 0 | 6 | 0 | 29 | 0 | 0 |
-| generation_factory | 0 | 2 | 0 | 27 | 0 | 0 |
+| factory | 0 | 0 | 0 | 17 | 0 | 0 |
+| fit_factory | 0 | 0 | 0 | 3 | 0 | 0 |
+| focal_factory | 0 | 0 | 0 | 35 | 0 | 0 |
+| generation_factory | 0 | 0 | 0 | 29 | 0 | 0 |
 | inference_factory | 0 | 0 | 0 | 29 | 0 | 0 |
 | mlm | 0 | 0 | 0 | 15 | 0 | 0 |
 | native | 0 | 0 | 0 | 15 | 0 | 0 |
-| prediction_factory | 0 | 0 | 0 | 15 | 2 | 0 |
+| prediction_factory | 0 | 0 | 0 | 17 | 0 | 0 |
 | prepare | 0 | 0 | 0 | 30 | 0 | 0 |
-| release_archive | 0 | 0 | 0 | 0 | 4 | 0 |
-| release_c4_registry | 0 | 0 | 0 | 0 | 8 | 0 |
-| release_c4_score | 0 | 0 | 0 | 0 | 1 | 0 |
-| release_c4_targets | 0 | 0 | 0 | 0 | 3 | 0 |
-| release_fit | 0 | 0 | 0 | 0 | 1 | 0 |
-| release_frame | 0 | 0 | 0 | 0 | 9 | 0 |
-| release_infer | 0 | 0 | 0 | 0 | 5 | 0 |
-| release_native6_score | 0 | 0 | 0 | 0 | 1 | 0 |
-| release_native_targets | 0 | 0 | 0 | 0 | 4 | 0 |
-| release_seal | 0 | 0 | 0 | 0 | 5 | 0 |
+| release_archive | 0 | 0 | 0 | 4 | 0 | 0 |
+| release_c4_registry | 0 | 0 | 0 | 8 | 0 | 0 |
+| release_c4_score | 0 | 0 | 0 | 1 | 0 | 0 |
+| release_c4_targets | 0 | 0 | 0 | 3 | 0 | 0 |
+| release_fit | 0 | 0 | 0 | 1 | 0 | 0 |
+| release_frame | 0 | 0 | 0 | 9 | 0 | 0 |
+| release_infer | 0 | 0 | 0 | 5 | 0 | 0 |
+| release_native6_score | 0 | 0 | 0 | 1 | 0 | 0 |
+| release_native_targets | 0 | 0 | 0 | 4 | 0 | 0 |
+| release_seal | 0 | 0 | 0 | 5 | 0 | 0 |
 | retrieval | 0 | 0 | 0 | 15 | 0 | 0 |
 
-Running workflow jobs: none.
+Running workflow jobs: `AP__ancestralpaths_european_train_000__ap_generate`, `C4__argmix_release_ap200mb_validation_000__validation_generate`, `AP__ancestralpaths_european_train_001__ap_generate`, `AP__ancestralpaths_european_train_002__ap_generate`, `AP__ancestralpaths_european_test_000__ap_generate`, `AP__ancestralpaths_european_test_001__ap_generate`, `AP__ancestralpaths_european_test_002__ap_generate`, `AP__ancestralpaths_european_test_003__ap_generate`.
 Named external queue jobs running: none. External queue states are listed separately from workflow counts.
 
 No supported authenticated matched score has completed in this workflow.
@@ -93,16 +93,16 @@ Native FLARE previously completed five American validation parents. The new inde
 <!-- FROZEN_BENCHMARK_PROGRESS_START -->
 ## Launch snapshot and earlier results
 
-Updated UTC: 2026-10-18T02:06:28.979837+00:00. Physical GPU 0 only.
+Updated UTC: 2026-10-18T02:08:58.968415+00:00. Physical GPU 0 only.
 
 | Stage | Current verified status |
 |---|---|
 | Execution | Released by the user. Physical GPU0 only. Exact runnable jobs and dependent stages are in the maintained queue. |
-| Native ARGformer | Native ARGformer saved all2,135optimizer updates. Existing embedding/retrieval continuation remains authorized. |
+| Native ARGformer | Native ARGformer completed all2,135updates with actual success. Native embeddings and retrieval now continue automatically. |
 | Native follow-on | Four complete embedding stages and native retrieval follow genuine contrastive completion through the finite chain. No query truth or ancestry scoring in this chain. |
 | Fresh American data | All six initial 30 Mb TRAIN simulations and shared genealogy inferences completed with actual successful waits. The new workflow adopts them and prepares the remaining 29 parents. |
 | Frozen TreeLoom | Complete fresh600-update fit, finalcheckpoint prediction, all45heldout prediction barrier and common scoring implemented. CPU focused tests pass. Fullfit awaits20sharedinputs andGPUqueue. |
-| European comparisons | Complete AP200Mb native six-path comparison and available-release ARGMix four-source comparison integrated, with separate four-head TreeLoom training and all-prediction TEST barriers. |
+| European comparisons | Corrected release v2 actively simulates eight independent200Mb European parents. Full native6/C4 methods and joint TEST barriers are queued. |
 | Native FLARE | Previously completed five 30 Mb validation predictions and scores retained below. |
 
 **Native FLARE, five American validation simulations:** accuracy 98.0960 ± 0.3442% and macro F1 97.9196 ± 0.4059%.
