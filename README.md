@@ -9,7 +9,7 @@
 <!-- BEGIN EXECUTABLE BENCHMARK WORKFLOW -->
 ## Executable benchmark workflow
 
-Observed 2026-10-18T11:01:49.107330+00:00. 139 succeeded; 10 failed; 1 running; 15 pending; 160 blocked; 0 unknown.
+Observed 2026-10-18T12:39:40.444720+00:00. 139 succeeded; 11 failed; 0 running; 15 pending; 160 blocked; 0 unknown.
 Run status: `running`. Physical GPU: 0.
 
 [Current queue details](research/benchmark_execution_current.json) · [Authenticated matched scores](research/current_matched_benchmark_results.json)
@@ -27,7 +27,7 @@ Run status: `running`. Physical GPU: 0.
 | embeddings | 0 | 0 | 0 | 0 | 15 | 0 |
 | external | 6 | 0 | 0 | 0 | 0 | 0 |
 | factory | 0 | 0 | 0 | 0 | 17 | 0 |
-| fit_factory | 0 | 0 | 1 | 0 | 2 | 0 |
+| fit_factory | 0 | 1 | 0 | 0 | 2 | 0 |
 | focal_factory | 35 | 0 | 0 | 0 | 0 | 0 |
 | generation_factory | 29 | 0 | 0 | 0 | 0 | 0 |
 | inference_factory | 29 | 0 | 0 | 0 | 0 | 0 |
@@ -47,7 +47,7 @@ Run status: `running`. Physical GPU: 0.
 | release_seal | 0 | 0 | 0 | 0 | 5 | 0 |
 | retrieval | 0 | 0 | 0 | 0 | 15 | 0 |
 
-Running workflow jobs: `AM_treeloom_fit`.
+Running workflow jobs: none.
 Named external queue jobs running: none. External queue states are listed separately from workflow counts.
 
 No supported authenticated matched score has completed in this workflow.
