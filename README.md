@@ -9,45 +9,45 @@
 <!-- BEGIN EXECUTABLE BENCHMARK WORKFLOW -->
 ## Executable benchmark workflow
 
-Observed 2026-10-18T07:17:40.655715+00:00. 58 succeeded; 9 failed; 8 running; 94 pending; 156 blocked; 0 unknown.
+Observed 2026-10-18T07:39:01.632771+00:00. 65 succeeded; 10 failed; 8 running; 82 pending; 160 blocked; 0 unknown.
 Run status: `running`. Physical GPU: 0.
 
 [Current queue details](research/benchmark_execution_current.json) · [Authenticated matched scores](research/current_matched_benchmark_results.json)
 
 | Stage | Succeeded | Failed | Running | Pending | Blocked | Unknown |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| ap_features | 0 | 0 | 0 | 1 | 7 | 0 |
+| ap_features | 0 | 0 | 0 | 0 | 8 | 0 |
 | ap_fit | 0 | 0 | 0 | 0 | 1 | 0 |
-| ap_generate | 8 | 0 | 1 | 0 | 0 | 0 |
-| ap_infer | 0 | 8 | 0 | 1 | 0 | 0 |
+| ap_generate | 9 | 0 | 0 | 0 | 0 | 0 |
+| ap_infer | 0 | 9 | 0 | 0 | 0 | 0 |
 | ap_predict | 0 | 0 | 0 | 0 | 5 | 0 |
-| ap_registry | 0 | 0 | 0 | 1 | 7 | 0 |
+| ap_registry | 0 | 0 | 0 | 0 | 8 | 0 |
 | ap_train_targets | 0 | 0 | 0 | 0 | 3 | 0 |
 | contrastive | 0 | 0 | 0 | 0 | 15 | 0 |
 | embeddings | 0 | 0 | 0 | 0 | 15 | 0 |
 | external | 6 | 0 | 0 | 0 | 0 | 0 |
 | factory | 0 | 0 | 0 | 0 | 17 | 0 |
 | fit_factory | 0 | 0 | 0 | 1 | 2 | 0 |
-| focal_factory | 13 | 0 | 7 | 15 | 0 | 0 |
-| generation_factory | 14 | 0 | 0 | 15 | 0 | 0 |
+| focal_factory | 19 | 0 | 1 | 15 | 0 | 0 |
+| generation_factory | 14 | 0 | 7 | 8 | 0 | 0 |
 | inference_factory | 14 | 0 | 0 | 15 | 0 | 0 |
 | mlm | 0 | 1 | 0 | 0 | 14 | 0 |
 | native | 1 | 0 | 0 | 14 | 0 | 0 |
 | prediction_factory | 0 | 0 | 0 | 15 | 2 | 0 |
 | prepare | 2 | 0 | 0 | 14 | 14 | 0 |
 | release_archive | 0 | 0 | 0 | 0 | 4 | 0 |
-| release_c4_registry | 0 | 0 | 0 | 1 | 7 | 0 |
+| release_c4_registry | 0 | 0 | 0 | 0 | 8 | 0 |
 | release_c4_score | 0 | 0 | 0 | 0 | 1 | 0 |
 | release_c4_targets | 0 | 0 | 0 | 0 | 3 | 0 |
 | release_fit | 0 | 0 | 0 | 0 | 1 | 0 |
-| release_frame | 0 | 0 | 0 | 1 | 8 | 0 |
+| release_frame | 0 | 0 | 0 | 0 | 9 | 0 |
 | release_infer | 0 | 0 | 0 | 0 | 5 | 0 |
 | release_native6_score | 0 | 0 | 0 | 0 | 1 | 0 |
 | release_native_targets | 0 | 0 | 0 | 0 | 4 | 0 |
 | release_seal | 0 | 0 | 0 | 0 | 5 | 0 |
 | retrieval | 0 | 0 | 0 | 0 | 15 | 0 |
 
-Running workflow jobs: `AP__ancestralpaths_european_test_004__ap_generate`, `AM_argformer_american_train_012_focals`, `AM_argformer_american_train_013_focals`, `AM_argformer_american_train_014_focals`, `AM_argformer_american_train_015_focals`, `AM_argformer_american_train_016_focals`, `AM_argformer_american_train_017_focals`, `AM_argformer_american_train_018_focals`.
+Running workflow jobs: `AM_argformer_american_train_018_focals`, `AM_argformer_american_train_019_generation`, `AM_argformer_american_validation_001_generation`, `AM_argformer_american_validation_002_generation`, `AM_argformer_american_validation_003_generation`, `AM_argformer_american_validation_004_generation`, `AM_argformer_american_test_000_generation`, `AM_argformer_american_test_001_generation`.
 Named external queue jobs running: none. External queue states are listed separately from workflow counts.
 
 No supported authenticated matched score has completed in this workflow.
