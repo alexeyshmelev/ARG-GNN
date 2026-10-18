@@ -57,15 +57,15 @@ Only physical GPU 0 is eligible. The controller does not import Torch or hold a 
 
 Check cheap CPU-slot and RSS availability before expensive accounting capture. Keep authoritative fresh checks at admission. Data-loader workers return small immutable descriptors. They do not duplicate a complete parent tensor bank or create CUDA contexts.
 
-TreeLoom's corrected implementation uses direct fast observed preparation, bounded GPU history windows and a compact five-second stage profiler. Its small FP32 calculation check passed. Full-size GPU fit and throughput remain unmeasured and need qualification after approval. A partial cache is useful only for fixed parents retained across passes. Never claim all parents fit a cache without measuring them.
+TreeLoom's corrected implementation uses direct fast observed preparation, bounded GPU history windows and a compact five-second stage profiler. Its small FP32 calculation check passed. Full-size GPU fit and throughput are recorded during substantive execution and are not inferred from the smoke checks. A partial cache is useful only for fixed parents retained across passes. Never claim all parents fit a cache without measuring them.
 
 ## Release and recovery
 
 The canonical `configs/benchmarks/execution_policy.json` records the explicit user release and exact approved jobs. No CLI command approves new jobs automatically.
 
-The maintained execution.py worker has one released scientific callable: the complete native ARGformer contrastive phase. A fresh ROOT-approved spec pins its source, scientific arguments, output and finite caps. Actual storage, physical GPU0 lease and runtime checks occur in the worker before scientific execution. No old preparation wait or historical controller authority is invented. Other scientific families remain pending integration.
+The executable workflow.py controller resolves each maintained factory only after its declared predecessors genuinely succeed. The frozen plan binds all factory arguments, scientific source references, output scopes and finite caps. It covers shared American generation/inference, TreeLoom, native ARGformer and FLARE, European AncestralPaths and ARGMix comparisons, common scoring and the current empirical application. Existing native-chain workers remain unchanged. Source checks, physical GPU0 ownership and bounded owned-process supervision apply before scientific execution.
 
-The separately approved canonical policy must list the exact admitted job/input/receipt identities and a finite expiry. `run --execute` rechecks it before each process. Default `run` only plans. The CLI uses one fixed queue and logical controller lock. Existing physical lease ownership remains with the original guarded worker.
+The canonical policy lists the exact workflow reference, existing admitted job/input/receipt identities and a finite expiry. `run --execute` rechecks it before each process. Default `run` only plans. The CLI uses one fixed queue and logical controller lock. Existing physical lease ownership remains with the original guarded worker.
 
 The scheduler records a process start before dispatch and uses the actual OS wait. File presence never proves success. Failed attempts are not retried automatically. An uncertain earlier start blocks its resource lane until ROOT resolves it from real process and wait evidence. Preserve all earlier artifacts and failures.
 

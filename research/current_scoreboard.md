@@ -1,7 +1,7 @@
 # Current benchmark status
 ## Completed comparison
 
-Benchmark execution is approved. Previously completed results remain below. Active training does not yet supply a new ancestry score.
+These previously completed development results are preserved separately from the current matched benchmark results in the executable workflow report.
 
 European development panel: eight reused simulation parents. Values are equal-parent means ± sample SD. These common-data results do not establish exact publication reproduction or independent test performance.
 
@@ -14,24 +14,24 @@ European development panel: eight reused simulation parents. Values are equal-pa
 
 TreeLoom-NoMem removes the persistent sample memory and retains the matched continued-training control. AncestralPaths C4 is an explicit collapse of six native path classes. Native hard calls and raw zero posterior probabilities are retained.
 
-Native FLARE's completed American three-source results appear above. TreeLoom and native ARGformer on the same American support remain pending. GST expanded fitting is not implemented. No new comparative scores are claimed from the running campaign.
+Native FLARE's earlier American three-source results appear above. The executable workflow report tracks new independent comparisons separately. GST expanded fitting is outside the current LAI queue.
 
 [All recorded setup and cohort metrics](current_scoreboard.json) · [Prior research and results](../docs/research_history_before_benchmark_refactor_20261018.md)
 
 
 <!-- FROZEN_BENCHMARK_PROGRESS_START -->
-## Frozen benchmark execution
+## Launch snapshot and earlier results
 
-Updated UTC: 2026-10-18T01:28:06.774343+00:00. Physical GPU 0 only.
+Updated UTC: 2026-10-18T01:55:39.933188+00:00. Physical GPU 0 only.
 
 | Stage | Current verified status |
 |---|---|
 | Execution | Released by the user. Physical GPU0 only. Exact runnable jobs and dependent stages are in the maintained queue. |
-| Native ARGformer | Native ARGformer logged batch 1340 of 2,135. Full training and its existing embedding/retrieval continuation remain active. |
+| Native ARGformer | Native ARGformer logged batch 1805 of 2135. Existing embedding/retrieval continuation remains active. |
 | Native follow-on | Four complete embedding stages and native retrieval follow genuine contrastive completion through the finite chain. No query truth or ancestry scoring in this chain. |
-| Fresh American data | TRAIN000 complete simulation and inference with actual successful waits. TRAIN001–005 remain running. Complete executable American downstream DAG implemented, awaiting final combined release. |
+| Fresh American data | All six initial 30 Mb TRAIN simulations and shared genealogy inferences completed with actual successful waits. The new workflow adopts them and prepares the remaining 29 parents. |
 | Frozen TreeLoom | Complete fresh600-update fit, finalcheckpoint prediction, all45heldout prediction barrier and common scoring implemented. CPU focused tests pass. Fullfit awaits20sharedinputs andGPUqueue. |
-| European comparisons | AP200Mb generation/Relate/sampling/nativeDense6/TreeLoom/native6cohort scoring workflow implemented. Separate nativeARGMix C4 and current empirical application integration in progress. |
+| European comparisons | Complete AP200Mb native six-path comparison and available-release ARGMix four-source comparison integrated, with separate four-head TreeLoom training and all-prediction TEST barriers. |
 | Native FLARE | Previously completed five 30 Mb validation predictions and scores retained below. |
 
 **Native FLARE, five American validation simulations:** accuracy 98.0960 ± 0.3442% and macro F1 97.9196 ± 0.4059%.

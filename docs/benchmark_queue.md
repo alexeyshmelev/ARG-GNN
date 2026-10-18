@@ -1,81 +1,78 @@
-# Benchmark campaign
+# Executable benchmark queue
 
-**End-to-end automation is incomplete.** The current executable queues contain one native ARGformer training/prediction chain and six CPU simulation/inference pipelines. The 244-stage campaign is a dependency plan, not 244 executable jobs. Waiting alone does not complete the benchmark.
+The maintained workflow contains 325 concrete stages. The exact source-pinned
+plan is [executable_workflow_20261018.json](../configs/benchmarks/executable_workflow_20261018.json).
+This is separate from the earlier conceptual campaign graph. Execution requires
+that exact plan reference in the canonical policy. The user has authorized execution.
 
-The native chain stops after producing VAL000 calls. Each CPU pipeline stops after shared genealogy inference. Compact focal preparation and the full TreeLoom training callable are implemented, but still need supervised dispatch and actual inputs. Remaining fresh parents, native evaluation fits, paired scoring, European methods, GST and empirical application remain explicit integration work. The user has already authorized this work.
+[Current execution status](../research/benchmark_execution_current.json) and
+[current matched results](../research/current_matched_benchmark_results.json)
+are generated from actual worker records. Pending stages are not reported as
+running or completed. No new common-data comparison has finished at release.
 
-The user released execution on 18 October 2026. Only physical GPU 0 is eligible.
-The complete [campaign graph](../configs/benchmarks/campaign.json) lists planned
-stages and dependencies. A stage marked pending is not a running job.
-Only the exact jobs in the [execution policy](../configs/benchmarks/execution_policy.json)
-enter the persistent execution queue.
-
-| Workstream | Queue contents | Current status |
+| Comparison | Shared data | Training and evaluation |
 |---|---|---|
-| Existing American comparison | Complete native ARGformer contrastive training, embeddings and retrieval, then the full five-parent comparison with TreeLoom and FLARE | Full contrastive training observed on GPU 0. Four embedding stages and native retrieval are armed as a finite dependent chain. An initial OrderedDict wrapper failure is preserved. This is exposed validation data. |
-| Fresh American benchmark | 20 TRAIN, 5 VAL, 10 untouched TEST simulations, shared inference and support, TreeLoom, native ARGformer and FLARE | Six full 30 Mb TRAIN generation/inference pipelines are running concurrently on CPUs. Remaining 14 TRAIN, 5 VAL and 10 TEST parents await subsequent capacity and integration. Native ARGformer fits separately on each evaluation ARG's observations. |
-| AncestralPaths benchmark | Three TRAIN and five TEST sequences of 200 Mb, complete age roster, native six-path endpoint, TreeLoom and released AncestralPaths | Configurable generator, Relate preparation and streamed native features implemented. Sampling, complete TreeLoom preparation and bounded European execution remain unfinished. |
-| ARGMix benchmark | Five TRAIN, one VAL and three IID TEST parents, all four admixed cohort reports, available author methods | Missing age/map/error/sampling settings and unavailable preprint implementation remain recorded. Five OOD parents require a separate perturbation recipe. |
-| Additional evidence | GST architecture control, real-data inference and descriptive PCA | Pending integrations and dataset/protocol selection. Empirical accuracy is not invented. |
+| TreeLoom, native ARGformer, native FLARE | 35 independent 30 Mb American simulations: 20 TRAIN, 5 validation, 10 TEST | TreeLoom: 30 passes, 600 complete-parent updates. ARGformer: native five-epoch MLM and one-epoch contrastive fit separately for every evaluation ARG, then all embeddings and native retrieval. All three methods use the same 10,000 focal targets per evaluation parent. |
+| TreeLoom and released AncestralPaths | Three TRAIN and five TEST European sequences of 200 Mb | Native six-path task, 50,000 sampled TRAIN examples in total and 10,000 TEST examples per parent. TreeLoom: 30 passes, 90 complete-parent updates. Released native Dense6: five epochs. Cohorts reported separately. |
+| TreeLoom and released ARGMix | Same European observed parents, plus one independent validation parent | Separate four-source TreeLoom fit. Released ARGMix model, original training settings, complete chunks and native validation selection. Both methods use the same observed-only interior-tree target registry, reflecting the release's exclusion of boundary trees. |
+| Current TreeLoom application | Three existing 10 Mb Danish observed windows | Apply the new four-source checkpoint without further optimization. Produce interval predictions and descriptive ancestry summaries. No simulated accuracy is assigned to real data. |
 
-## First full GPU stage
+The American and European CPU workstreams are interleaved. Up to eight CPU
+stages can run subject to actual RAM and storage capacity. GPU stages use
+**physical GPU 0 only**, with the requested process title. The existing native
+ARGformer VAL000 training and embedding/retrieval chain keeps its current lease
+and original limits. The new controller waits for that lease when necessary.
 
-The first attempt failed before its first update because our wrapper required an exact dict for the saved weights. The corrected attempt accepts the native OrderedDict without changing tensor values or author code.
+Six existing American TRAIN generation/inference pipelines completed and are
+adopted only after their real successful process waits. Their data are reused,
+not regenerated. The other 29 American parents and nine European parents are
+prepared by the new workflow.
 
-The current job uses the unchanged ARGformer author contrastive trainer on the
-existing 30 Mb american_c3_val_000 observations. The native corpus contains
-8,748,479 training examples and 972,757 validation examples. Its complete budget
-is one epoch, 2,135 updates, batch 4,096 and seed 36. The previously accepted MLM
-checkpoint initializes the representation. Completion must be confirmed from
-the actual saved Composer and optimizer counters.
+## Scientific interpretation
 
-This run uses released temperature 0.30 and the released uniform class-weight
-fallback. The paper describes temperature 0.05 and inverse-frequency weighting.
-The initializer also follows released masking behavior. These differences stay
-explicit. This is an available-release baseline stage, not an exact paper-table
-reproduction, untouched TEST result or completed ancestry comparison.
+Each comparison uses the same observed parent, reference/query identities and
+frozen scoring support across methods. Method-specific tensor, VCF and path
+representations do not change the common observations. Native three-source,
+four-source and six-path tasks remain separate. All registered TEST predictions
+must finish before either European endpoint opens TEST truth. The American
+scorer waits for all 45 method-parent predictions.
 
-The worker directly owns the canonical GPU0 lease, sets the requested process
-title before CUDA, and enforces 74 GiB allocator, 128 GiB RSS, 16 GiB output and
-24-hour wall limits. It checks actual project storage before dispatch against
-980 GB, preserving 20 GB below the human limit. It monitors only its own output
-scope during training. There is no automatic failed-job replay.
+The available ARGMix release differs from the April preprint and its exact old
+archive is unavailable. The released AncestralPaths trainer is Dense6, rather
+than a recovered implementation of the paper's stated CNN. Native ARGformer
+uses the released settings documented in [recipe notes](paper_benchmark_recipes.md).
+These are disclosed comparisons on shared paper-derived simulations, not claims
+that the original printed tables have been reproduced.
 
-The runtime queue is .runtime/benchmarking/queue.json, and controller output is
-.runtime/benchmarking/controller.log. Scientific logs and final artifacts are
-under experiments/results/benchmark_campaign_20261018/. These runtime files
-remain on the server. Compact verified progress and results are committed to GitHub.
+GST is a graph-set architecture reference, not a native LAI algorithm. A new
+cross-domain GST benchmark, new OOD simulation protocols and empirical PCA are
+not part of this 325-stage LAI queue. They must not be described as completed.
 
-## Remaining release work
+## Operation and recovery
 
-[Paper-specific differences](paper_benchmark_recipes.md) remain visible.
-[European implementation gaps](benchmark_european_remaining.md) list concrete
-preparation and memory requirements. Dependency barriers prevent a pending
-model fit or incomplete set of predictions from becoming a score. All TEST
-methods must finish the same frozen support before truth is released.
+The controller records dependencies, actual starts, direct waits, successful
+outputs and failures under `.runtime/benchmarking/workflow_20261018`. All new
+scientific artifacts stay under
+`experiments/results/benchmark_campaign_20261018_workflow`.
 
-The selected TreeLoom architecture remains fixed. [Model history](model_history.md)
-records prior findings so this campaign does not repeat answered development
-hypotheses. Original files, partial runs and failed process waits are preserved.
+The controller reserves active output caps against 980 GB using the initial
+actual project measurement. It measures completed scopes, not the whole project
+on each poll. Original files, failures and pinned source remain in place. Only
+successful new ARGformer scratch can be retired after complete native retrieval
+and actual process cleanup. The four ARGMix training/validation archives are
+read directly without a duplicate merged training archive.
 
-## Reports produced by the campaign
+A failed stage blocks its dependents and leaves independent eligible work
+running. No automatic scientific retry, cropping, reduced training budget or
+hidden data fallback is permitted. An interrupted worker with unknown cleanup
+blocks reuse until its actual state is resolved.
 
-Every shared simulation contributes one paired result per method. Report means and sample standard deviations across independent simulations, with per-source precision, recall, F1 and confusion matrices on identical targets. American ancestry classes are EUR, EAS and AFR. The ARGMix tables separately show Present, PostNeolithic, NeolithicFarmer and Yamnaya cohorts. The AncestralPaths tables preserve its six native path classes and separately show present-day, Bronze Age, BAA, Neo and Yam cohorts.
+The README publication runs outside the scheduler loop. Routine Git updates are
+throttled to 30 minutes, with failures, new scored comparisons and completion
+published promptly. Reporting errors cannot terminate training. All Git runs
+on anogena. The queue remains active after the controlling chat turn ends.
 
-Report probability scores only when a method supplies native probabilities. Retrieval similarity is not an ancestry posterior. Empirical analyses provide biological descriptions and PCA, without invented ancestry accuracy.
-
-## Active native continuation
-
-The approved [native chain](../configs/benchmarks/native_argformer_val000_chain.json) waits for the existing full contrastive job. It then runs query TRAIN embeddings, query VAL embeddings, reference VAL embeddings, reference TRAIN embeddings and original top-1 retrieval in that order. Each stage uses all of its native rows. Actual training completion and process success are required before the next stage is constructed. A failed stage stops the chain.
-
-The initial complete storage measurement was 481.915 GB. Current training and downstream output reservations total 92 GiB, below the 980 GB operational ceiling. Downstream full embedding outputs need roughly 50 GB. The chain reserves 76 GiB for these stages plus 4 MiB for its records, and preserves any separate CPU reservation. Only GPU0 is used.
-
-[TreeLoom training readiness](treeloom_training_queue_readiness.md) lists existing observations and remaining integration. Planned stages are not reported as executed benchmarks.
-
-## Parallel preparation now running
-
-TRAIN000 through TRAIN005 have separate CPU workers and unchanged full-parent simulation/inference settings. Each pipeline generates once, writes ancestry truth separately, and reconstructs a shared genealogy from observed genotypes with tsinfer and tsdate. All sites and samples are retained. Overflow or failure stops that parent, without cropping, resampling or automatic retry. No CPU pipeline creates a CUDA context.
-
-The six pipelines reserve 336 GiB of output in total. Together with the native GPU chain, the actual initial measurement plus all new output caps is 941.55 GB, below the 980 GB operational ceiling and the user's 1 TB limit. This is a conservative reservation, not measured current usage. Later parents are planned, not falsely marked as running.
-
-[Parallel CPU batch](../configs/benchmarks/american_cpu_batch001_005.json) · [Frozen 35-parent design](../configs/benchmarks/fresh_american_data_design.json) · [Current verified campaign state](../research/benchmark_campaign_status.json)
+Results report mean and sample SD across independent simulation parents,
+per-population or per-cohort metrics, and paired differences on identical
+support. Probability metrics are reported only for native probabilities.
+Retrieval similarity is not relabelled as an ancestry posterior.

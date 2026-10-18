@@ -4,9 +4,13 @@
 
 ## Current task: execute the benchmark campaign
 
-**Benchmarks are running on physical GPU 0, and the full queue is being completed.** Native ARGformer has reached logged batch 1340 of 2,135. The first fresh 30 Mb TRAIN simulation and genealogy inference are complete, with five more CPU pipelines running. The concrete American and European AncestralPaths workflows now contain 280 stages, including full training, predictions and common scoring. They are being checked before release. The separate ARGMix C4 and current empirical branches are still being connected. No new ancestry comparison is complete. All computation and Git commands run on anogena.
+**The LAI benchmark uses an automated queue of 325 stages.** It covers shared American and European simulations, full training, native competitors, paired scoring and Danish data application. Current execution and matched results are published below. All computation and Git commands run on anogena, using physical GPU 0 only.
 
-[Queue and current workstreams](docs/benchmark_queue.md) · [Complete dependency graph](configs/benchmarks/campaign.json)
+<!-- BEGIN EXECUTABLE BENCHMARK WORKFLOW -->
+The current controller snapshot will appear here after launch.
+<!-- END EXECUTABLE BENCHMARK WORKFLOW -->
+
+[Queue and current workstreams](docs/benchmark_queue.md) · [Executable dependency graph](configs/benchmarks/executable_workflow_20261018.json)
 
 The maintained interface is [src/arggnn/benchmarking](src/arggnn/benchmarking). It separates method adapters, biological protocols, observed-only data descriptors, single-GPU scheduling and common scoring. Original author code and immutable experiment records stay in place.
 
@@ -33,7 +37,7 @@ export PYTHONPATH=.:src:scripts
 
 The new paper plans generate each independent simulation once and share its observations, reference/query panel and frozen evaluation targets across methods. They preserve the native three-source, four-source and six-path tasks separately. Fresh seeds are permitted. The AP generator now supports the paper's 200 Mb length, complete age roster and 170-generation BAA event. Other material publication gaps remain listed in the plan and [recipe notes](docs/paper_benchmark_recipes.md).
 
-These commands inspect small metadata. They do not train models or load scientific datasets. The plan reports missing data products, method constraints and unresolved publication details. The reviewed current worker runs the approved native contrastive job. The complete American and AncestralPaths DAG is implemented, with final integration checks and the separate ARGMix branch pending. Historical admissions do not authorize new launches.
+These commands inspect small metadata. They do not train models or load scientific datasets. The plan reports missing data products, method constraints and unresolved publication details. The reviewed current worker runs the approved native contrastive job. The complete American, AncestralPaths and ARGMix workflows are integrated, including shared scoring and current empirical application. Historical admissions do not authorize new launches.
 
 ## Model advantages and evidence
 
@@ -41,21 +45,21 @@ TreeLoom preserves complete local trees, genomic order and persistent sample ide
 
 On eight reused European development simulations, TreeLoom achieved 97.0778 ± 0.5674% modern span accuracy, compared with 94.4461 ± 1.1491% for the released ARGMix pipeline and 93.7830 ± 0.8385% for the derived four-source AncestralPaths endpoint. These are common-data development results with disclosed differences from the publications. TreeLoom-NoMem has higher boundary F1. No overall top-1 claim is established.
 
-Native FLARE has completed the five-parent American comparison. TreeLoom and native ARGformer scores on that same support remain pending. American three-source ancestry and European four-source ancestry are separate protocols. GST is an adapted architecture control rather than a native LAI competitor.
+Native FLARE previously completed five American validation parents. The new independent American comparison is reported separately in the current workflow results. American three-source ancestry and European four-source ancestry are separate protocols. GST is an adapted architecture control rather than a native LAI competitor.
 
 <!-- FROZEN_BENCHMARK_PROGRESS_START -->
-## Frozen benchmark execution
+## Launch snapshot and earlier results
 
-Updated UTC: 2026-10-18T01:28:06.774343+00:00. Physical GPU 0 only.
+Updated UTC: 2026-10-18T01:55:39.933188+00:00. Physical GPU 0 only.
 
 | Stage | Current verified status |
 |---|---|
 | Execution | Released by the user. Physical GPU0 only. Exact runnable jobs and dependent stages are in the maintained queue. |
-| Native ARGformer | Native ARGformer logged batch 1340 of 2,135. Full training and its existing embedding/retrieval continuation remain active. |
+| Native ARGformer | Native ARGformer logged batch 1805 of 2135. Existing embedding/retrieval continuation remains active. |
 | Native follow-on | Four complete embedding stages and native retrieval follow genuine contrastive completion through the finite chain. No query truth or ancestry scoring in this chain. |
-| Fresh American data | TRAIN000 complete simulation and inference with actual successful waits. TRAIN001–005 remain running. Complete executable American downstream DAG implemented, awaiting final combined release. |
+| Fresh American data | All six initial 30 Mb TRAIN simulations and shared genealogy inferences completed with actual successful waits. The new workflow adopts them and prepares the remaining 29 parents. |
 | Frozen TreeLoom | Complete fresh600-update fit, finalcheckpoint prediction, all45heldout prediction barrier and common scoring implemented. CPU focused tests pass. Fullfit awaits20sharedinputs andGPUqueue. |
-| European comparisons | AP200Mb generation/Relate/sampling/nativeDense6/TreeLoom/native6cohort scoring workflow implemented. Separate nativeARGMix C4 and current empirical application integration in progress. |
+| European comparisons | Complete AP200Mb native six-path comparison and available-release ARGMix four-source comparison integrated, with separate four-head TreeLoom training and all-prediction TEST barriers. |
 | Native FLARE | Previously completed five 30 Mb validation predictions and scores retained below. |
 
 **Native FLARE, five American validation simulations:** accuracy 98.0960 ± 0.3442% and macro F1 97.9196 ± 0.4059%.
@@ -75,7 +79,7 @@ The substantial TreeLoom schedule is 20 full 30 Mb TRAIN parents and 30 passes, 
 <!-- CURRENT_SCOREBOARD_START -->
 ## Completed comparison
 
-Benchmark execution is approved. Previously completed results remain below. Active training does not yet supply a new ancestry score.
+These previously completed development results are preserved separately from the current matched benchmark results in the executable workflow report.
 
 European development panel: eight reused simulation parents. Values are equal-parent means ± sample SD. These common-data results do not establish exact publication reproduction or independent test performance.
 
@@ -88,7 +92,7 @@ European development panel: eight reused simulation parents. Values are equal-pa
 
 TreeLoom-NoMem removes the persistent sample memory and retains the matched continued-training control. AncestralPaths C4 is an explicit collapse of six native path classes. Native hard calls and raw zero posterior probabilities are retained.
 
-Native FLARE's completed American three-source results appear above. TreeLoom and native ARGformer on the same American support remain pending. GST expanded fitting is not implemented. No new comparative scores are claimed from the running campaign.
+Native FLARE's earlier American three-source results appear above. The executable workflow report tracks new independent comparisons separately. GST expanded fitting is outside the current LAI queue.
 
 [All recorded setup and cohort metrics](research/current_scoreboard.json) · [Prior research and results](docs/research_history_before_benchmark_refactor_20261018.md)
 <!-- CURRENT_SCOREBOARD_END -->

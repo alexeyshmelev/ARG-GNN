@@ -574,7 +574,7 @@ def publish_prepared_snapshot():
         numeric=[x for x in vals if isinstance(x,(int,float)) and math.isfinite(x)]
         best[key]=(min(numeric) if key=="nll" else max(numeric)) if numeric else None
     lines=["<!-- CURRENT_SCOREBOARD_START -->","## Completed comparison", "",
-           ("Benchmark execution is held pending user approval." if held else "Benchmark execution is approved. Previously completed results remain below. Active training does not yet supply a new ancestry score."),"",
+           ("Benchmark execution is held pending user approval." if held else "These previously completed development results are preserved separately from the current matched benchmark results in the executable workflow report."),"",
            "European development panel: eight reused simulation parents. Values are equal-parent means ± sample SD. These common-data results do not establish exact publication reproduction or independent test performance.","",
            "| Method | Present-day span accuracy % ↑ | NLL ↓ | Boundary F1 at 1 kb % ↑ |",
            "|---|---:|---:|---:|"]
@@ -588,7 +588,7 @@ def publish_prepared_snapshot():
             cells.append(value)
         lines.append("| "+label+" | "+" | ".join(cells)+" |")
     lines += ["", "TreeLoom-NoMem removes the persistent sample memory and retains the matched continued-training control. AncestralPaths C4 is an explicit collapse of six native path classes. Native hard calls and raw zero posterior probabilities are retained.","",
-              "Native FLARE's completed American three-source results appear above. TreeLoom and native ARGformer on the same American support remain pending. GST expanded fitting is not implemented. No new comparative scores are claimed from the running campaign.","",
+              "Native FLARE's earlier American three-source results appear above. The executable workflow report tracks new independent comparisons separately. GST expanded fitting is outside the current LAI queue.","",
               "[All recorded setup and cohort metrics](research/current_scoreboard.json) · [Prior research and results](docs/research_history_before_benchmark_refactor_20261018.md)",
               "<!-- CURRENT_SCOREBOARD_END -->"]
     block="\n".join(lines)
