@@ -22,8 +22,8 @@ def publish():
             "Execution": "Released by the user. Physical GPU0 only. Exact runnable jobs and dependent stages are in the maintained queue.",
             "Native ARGformer": current["progress_note"],
             "Native follow-on": "Four complete embedding stages and native retrieval follow genuine contrastive completion through the finite chain. No query truth or ancestry scoring in this chain.",
-            "Fresh American data": "20 TRAIN / 5 validation / 10 TEST planned. Fresh shared simulation and tsinfer/tsdate adapters prepared. CPU dispatch and remaining method integrations are explicit.",
-            "Frozen TreeLoom": "Architecture unchanged. Full 30-pass, 20-parent training remains pending fresh preparation, target joins and full-size execution integration.",
+            "Fresh American data": current.get("fresh_american_status", "20 TRAIN / 5 validation / 10 TEST planned. Fresh shared-data preparation pending."),
+            "Frozen TreeLoom": current.get("treeloom_status", "Full training awaits fresh preparation and execution integration."),
             "European comparisons": "Paper recipes and cohort reports encoded. Native sampling, bounded European execution and missing ARGMix settings remain pending.",
             "Native FLARE": "Previously completed five 30 Mb validation predictions and scores retained below.",
         }, maintained_campaign=current)

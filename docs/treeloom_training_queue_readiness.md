@@ -1,6 +1,8 @@
 # TreeLoom full-training queue readiness
 
-This note describes reusable training code and the remaining fresh-campaign integration. It does not authorize or launch a job. Paths below are repository relative. Historical products retain their original parent identities.
+This note describes reusable training code and the fresh-campaign adapter. It does not authorize or launch a job. Paths below are repository relative. Historical products retain their original parent identities.
+
+Implemented: `src/arggnn/benchmarking/treeloom_fresh.py`, with 10 passing synthetic CPU tests in `tests/test_treeloom_fresh.py`. The adapter changes private registry/type bindings while reexecuting verified numerical source unchanged. No actual parent preparation, model construction, training, prediction or CUDA allocation was performed for these tests. The full-training runner and first substantive execution remain separate work.
 
 ## Reusable numerical implementation
 
@@ -33,18 +35,18 @@ Reuse the numerical loop, not its historical controller, admission or accounting
 
 Full-parent GPU fit and throughput remain unmeasured for the fresh campaign. Measure the first real update during substantive training. Another FP64 parity campaign is not needed.
 
-## Fresh-campaign integration still required
+## Fresh-campaign integration
 
 The historical `TrainTargetJoinV1` in `research/reviews/TreeLoom_GPU_history_source_20261017_v1/targets_v1.py` hard-pins the inactive parent registry at `research/reviews/ARGformer_American_C3_implementation_20261015_v1/parent_seed_registry_inactive.json`, SHA256 `608da56508757646a0584cb653f7f6af4c910f05d560d6da1b99c0c1ea691f9a`. It accepts only `american_c3_train_000` through `019`, or the one-parent technical condition. It cannot consume the fresh `argformer_american_train_*` campaign as written.
 
-Implement a flexible TRAIN-only target join bound to the fresh immutable parent registry and actual observation, focal, roster and truth refs. Preserve:
+`FreshTrainTargetJoin` implements the flexible TRAIN-only target join, bound to the fresh immutable parent registry and actual observation, focal, native-preparation and truth refs. It preserves:
 
 1. Authentication that observations and truth belong to the same simulated parent.
 2. Frozen focal identities and coordinate support, actual query sample identities and half-open coordinate lookup.
 3. Complete eligible support without purity or majority filtering.
 4. Separation of ancestry truth from observed features, independent parent splits and explicit C3 class order.
 
-Three further identity restrictions also require an explicit fresh maintained adapter:
+Three further historical identity restrictions are handled by the fresh maintained adapter:
 
 - `optimized_preparation_v1.py` lines 46–47 accept only literal historical TRAIN/VAL IDs.
 - `AmericanTreeLoomWholeParentV1.validate` in `american_full30mb_frozen_v1.py` lines 94–98 repeats the same historical membership requirement.
@@ -52,9 +54,11 @@ Three further identity restrictions also require an explicit fresh maintained ad
 
 The observation loader and focal registry compare actual parent identities, while these preparation, bundle and execution boundaries additionally hard-code the historical domain. Replacing only the target join will therefore not make the fresh queue runnable.
 
-Implement identity-aware maintained adapters for the preparation, bundle validation and execution boundaries, bound to the same fresh immutable registry. Preserve the numerical operations, complete-parent support, resource failstops and sample/class constraints. The new bundle and executor must agree on their types. Preserve historical pinned implementations unchanged. Do not globally monkeypatch live modules or relabel fresh parents as old ones.
+`FreshTreeLoom` supplies isolated private namespaces for preparation, bundle validation and execution, bound to one fresh immutable registry. It preserves the numerical function bodies, complete-parent support, resource failstops and sample/class constraints. The private model, bundle and executor share matching exact types. Historical pinned implementations and original module globals remain unchanged.
 
-Then implement the fresh full-training runner around those adapters and the current execution worker. Keep the numerical objective and selected architecture explicit. This is data integration, not an architecture contribution. Do not rename old products to satisfy a new registry.
+The registry schema is `treeloom_fresh_parent_registry_v1`, with `split_unit=independent_simulation_parent`, class order EUR/EAS/AFR, sequence length 30,000,000 and explicit parent rows containing `parent_id`, `split` and a unique `simulation_stream`. Splits are `train`, `validation` and `test`. Fresh IDs are never renamed. Validation and test share the immutable numerical source's internal observation-only `val_prediction` phase. The maintained API retains the true split and provides no held-out truth resolver.
+
+The fresh full-training runner can use `FreshTreeLoom.build_model`, `prepare_observation`, `train_step` and `predict_logits`, with `FreshParentRegistry.epoch_order` for the unchanged ordering rule. It must still supply actual immutable parent inputs and admitted worker callbacks. Keep the numerical objective and selected architecture explicit. This is data integration, not an architecture contribution. Do not rename old products to satisfy a new registry.
 
 ## Existing old-condition products
 

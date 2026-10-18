@@ -22,17 +22,17 @@ Native FLARE's completed American three-source results appear above. TreeLoom an
 <!-- FROZEN_BENCHMARK_PROGRESS_START -->
 ## Frozen benchmark execution
 
-Updated UTC: 2026-10-18T00:30:32.561995+00:00. Physical GPU 0 only.
+Updated UTC: 2026-10-18T00:49:38.366962+00:00. Physical GPU 0 only.
 
 | Stage | Current verified status |
 |---|---|
 | Execution | Released by the user. Physical GPU0 only. Exact runnable jobs and dependent stages are in the maintained queue. |
-| Native ARGformer | Native author training reached logged batch 30 of2135 and is running its released validation schedule. Checkpoint loading fixed. Full completion pending. |
+| Native ARGformer | Native ARGformer reached logged training batch 480 of 2,135. Running the released training and validation schedule. Full completion and ancestry predictions pending. |
 | Native follow-on | Four complete embedding stages and native retrieval follow genuine contrastive completion through the finite chain. No query truth or ancestry scoring in this chain. |
-| Fresh American data | 20 TRAIN / 5 validation / 10 TEST planned. Fresh shared simulation and tsinfer/tsdate adapters prepared. CPU dispatch and remaining method integrations are explicit. |
-| Frozen TreeLoom | Architecture unchanged. Full30-pass,20-parent training remains pending fresh preparation, target joins and full-size execution integration. |
+| Fresh American data | 6 independent full 30 Mb TRAIN simulations are running concurrently on CPUs, each followed by shared tsinfer/tsdate inference. Total design: 20 TRAIN / 5 validation / 10 TEST. Remaining parents and method integrations are pending. |
+| Frozen TreeLoom | Frozen architecture preserved. Fresh-parent adapter passed 10 synthetic CPU checks. The 30-epoch, 20-parent runner is implemented and under memory review. Full training awaits all 20 prepared parents and their fixed focal targets. |
 | European comparisons | Paper recipes and cohort reports encoded. Native sampling, bounded European execution and missing ARGMix settings remain pending. |
-| Native FLARE | Previously completed five30Mb validation predictions and scores retained below. |
+| Native FLARE | Previously completed five 30 Mb validation predictions and scores retained below. |
 
 **Native FLARE, five American validation simulations:** accuracy 98.0960 ± 0.3442% and macro F1 97.9196 ± 0.4059%.
 

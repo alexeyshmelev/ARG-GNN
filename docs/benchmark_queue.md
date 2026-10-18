@@ -9,7 +9,7 @@ enter the persistent execution queue.
 | Workstream | Queue contents | Current status |
 |---|---|---|
 | Existing American comparison | Complete native ARGformer contrastive training, embeddings and retrieval, then the full five-parent comparison with TreeLoom and FLARE | Full contrastive training observed on GPU 0. Four embedding stages and native retrieval are armed as a finite dependent chain. An initial OrderedDict wrapper failure is preserved. This is exposed validation data. |
-| Fresh American benchmark | 20 TRAIN, 5 VAL, 10 untouched TEST simulations, shared inference and support, TreeLoom, native ARGformer and FLARE | Simulation conventions and downstream integrations remain explicit pending stages. Native ARGformer fits separately on each evaluation ARG's observations. |
+| Fresh American benchmark | 20 TRAIN, 5 VAL, 10 untouched TEST simulations, shared inference and support, TreeLoom, native ARGformer and FLARE | Six full 30 Mb TRAIN generation/inference pipelines are running concurrently on CPUs. Remaining 14 TRAIN, 5 VAL and 10 TEST parents await subsequent capacity and integration. Native ARGformer fits separately on each evaluation ARG's observations. |
 | AncestralPaths benchmark | Three TRAIN and five TEST sequences of 200 Mb, complete age roster, native six-path endpoint, TreeLoom and released AncestralPaths | Configurable generator, Relate preparation and streamed native features implemented. Sampling, complete TreeLoom preparation and bounded European execution remain unfinished. |
 | ARGMix benchmark | Five TRAIN, one VAL and three IID TEST parents, all four admixed cohort reports, available author methods | Missing age/map/error/sampling settings and unavailable preprint implementation remain recorded. Five OOD parents require a separate perturbation recipe. |
 | Additional evidence | GST architecture control, real-data inference and descriptive PCA | Pending integrations and dataset/protocol selection. Empirical accuracy is not invented. |
@@ -67,3 +67,11 @@ The approved [native chain](../configs/benchmarks/native_argformer_val000_chain.
 The initial complete storage measurement was 481.915 GB. Current training and downstream output reservations total 92 GiB, below the 980 GB operational ceiling. Downstream full embedding outputs need roughly 50 GB. The chain reserves 76 GiB for these stages plus 4 MiB for its records, and preserves any separate CPU reservation. Only GPU0 is used.
 
 [TreeLoom training readiness](treeloom_training_queue_readiness.md) lists existing observations and remaining integration. Planned stages are not reported as executed benchmarks.
+
+## Parallel preparation now running
+
+TRAIN000 through TRAIN005 have separate CPU workers and unchanged full-parent simulation/inference settings. Each pipeline generates once, writes ancestry truth separately, and reconstructs a shared genealogy from observed genotypes with tsinfer and tsdate. All sites and samples are retained. Overflow or failure stops that parent, without cropping, resampling or automatic retry. No CPU pipeline creates a CUDA context.
+
+The six pipelines reserve 336 GiB of output in total. Together with the native GPU chain, the actual initial measurement plus all new output caps is 941.55 GB, below the 980 GB operational ceiling and the user's 1 TB limit. This is a conservative reservation, not measured current usage. Later parents are planned, not falsely marked as running.
+
+[Parallel CPU batch](../configs/benchmarks/american_cpu_batch001_005.json) · [Frozen 35-parent design](../configs/benchmarks/fresh_american_data_design.json) · [Current verified campaign state](../research/benchmark_campaign_status.json)
