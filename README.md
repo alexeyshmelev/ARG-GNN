@@ -4,17 +4,26 @@
 
 ## Current task: execute the benchmark campaign
 
-**The LAI benchmark uses an automated queue of 325 stages.** It covers shared American and European simulations, full training, native competitors, paired scoring and Danish data application. Current execution and matched results are published below. All computation and Git commands run on anogena, using physical GPU 0 only.
+**The LAI benchmark uses an automated queue of 326 stages.** It covers shared American and European simulations, full training, native competitors, paired scoring and Danish data application. Current execution and matched results are published below. All computation and Git commands run on anogena, using physical GPU 0 only.
 
 <!-- BEGIN CURRENT BENCHMARK DIAGNOSIS -->
-**Repairs in progress, 18 October:** all 35 American simulations and shared inferred inputs, all nine European simulations, and all 15 native FLARE predictions are complete. The queue preserves 139 successful stages. Three European inference jobs continue on the server. There are **no new matched accuracy scores** yet.
+**GPU training resumed, 18 October:** native ARGformer has reached logged batch 1,300 of its first 45,377-batch epoch, with the original five-epoch budget (226,885 updates) and eight loader workers. GPU 0 is active under the required process name. The repaired accounting observed about 24 GB of proportional memory where the old summed count exceeded 278 GB. These are training progress measurements, **not local ancestry accuracy**.
 
-Our supervisor stopped native ARGformer because its summed resident-memory count repeatedly charged data shared by eight loader workers. The continuation adds proportional memory accounting and records and cleans up its own workers. The author model, eight workers, full corpus and five training epochs remain unchanged. The earlier failed attempt and its uncertain historical cleanup remain recorded.
+Completed work is preserved: all 35 American simulations and shared inferred inputs, nine European simulations, 15 native FLARE predictions and 139 successful queue stages. Two European inference workers continue, including a fresh retry using the repaired temporary-file checker. There are **no new matched accuracy scores** yet.
 
-TreeLoom is held while its CPU preparation is repaired. The replacement preserves every full tree and the 30-pass, 600-update budget, using lossless indices and a bounded in-memory pool to avoid rebuilding all parents every pass. Full-parent performance qualification is still pending. GST is outside this LAI queue.
+TreeLoom's compact RAM preparation passed ten synthetic checks and independent source review. The first full-parent qualification did not start because its metadata adapter incorrectly required raw and inferred observation files to be identical. A separate adapter correction now validates their actual lineage, shared genotype data and reference/query identities. The running native trainer remains unchanged. American TreeLoom fitting requires the complete-parent qualification to pass. European TreeLoom fits are still held for preparation repair. GST is outside this LAI queue.
 
-[Original diagnosis](research/reviews/workflow_progress_diagnosis_20261018/root_diagnosis.json) · [Fresh continuation decision](research/reviews/workflow_progress_diagnosis_20261018/argformer_ram/root_fresh_namespace_observation_v1.json)
+[Recorded training progress](research/reviews/workflow_progress_diagnosis_20261018/native_training_progress_v4.json) · [Repair launch](research/benchmark_workflow_launch_20261018_v4.json) · [Original diagnosis](research/reviews/workflow_progress_diagnosis_20261018/root_diagnosis.json)
 <!-- END CURRENT BENCHMARK DIAGNOSIS -->
+
+<!-- BEGIN CONTINUATION BENCHMARK WORKFLOW -->
+## Active benchmark continuation
+
+The repaired continuation is being prepared. The 21 CPU tests for worker supervision, live predecessor adoption and report isolation passed. No new scientific score is claimed.
+<!-- END CONTINUATION BENCHMARK WORKFLOW -->
+
+<details>
+<summary>Previous workflow, retained while its last inference job finishes</summary>
 
 <!-- BEGIN EXECUTABLE BENCHMARK WORKFLOW -->
 ## Executable benchmark workflow
@@ -62,6 +71,8 @@ Named external queue jobs running: none. External queue states are listed separa
 
 No supported authenticated matched score has completed in this workflow.
 <!-- END EXECUTABLE BENCHMARK WORKFLOW -->
+
+</details>
 
 [Queue and current workstreams](docs/benchmark_queue.md) · [Executable dependency graph](configs/benchmarks/executable_workflow_20261018_v3.json)
 
