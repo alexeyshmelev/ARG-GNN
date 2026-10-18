@@ -7,55 +7,57 @@
 **The LAI benchmark uses an automated queue of 325 stages.** It covers shared American and European simulations, full training, native competitors, paired scoring and Danish data application. Current execution and matched results are published below. All computation and Git commands run on anogena, using physical GPU 0 only.
 
 <!-- BEGIN CURRENT BENCHMARK DIAGNOSIS -->
-**Progress and remaining blocker, 18 October:** all 35 American simulations and shared inferred inputs, all nine European simulations, and all 15 native FLARE predictions are complete. The continuation preserves 139 successful stages. Three European inference stages are running after the metadata-cap fix. Fresh native ARGformer passed its adapter fix and entered training, but our supervisor then stopped it at its RAM limit. GPU training is currently stopped while that memory-accounting failure is investigated. There are **no new matched accuracy scores** yet.
+**Repairs in progress, 18 October:** all 35 American simulations and shared inferred inputs, all nine European simulations, and all 15 native FLARE predictions are complete. The queue preserves 139 successful stages. Three European inference jobs continue on the server. There are **no new matched accuracy scores** yet.
 
-**TreeLoom training is held for preprocessing repair.** Its first training parent took over four hours of CPU preparation without an optimizer update. The preparation builds very large tree indices in Python, and the cache cannot hold all parents, causing repeated work. That attempt was stopped and preserved. The repair must retain the full trees, frozen model and representative training budget. GST is still outside this LAI queue.
+Our supervisor stopped native ARGformer because its summed resident-memory count repeatedly charged data shared by eight loader workers. The continuation adds proportional memory accounting and records and cleans up its own workers. The author model, eight workers, full corpus and five training epochs remain unchanged. The earlier failed attempt and its uncertain historical cleanup remain recorded.
 
-[Diagnosis and repair evidence](research/reviews/workflow_progress_diagnosis_20261018/root_diagnosis.json) · [Continuation launch](research/benchmark_workflow_launch_20261018_v3.json)
+TreeLoom is held while its CPU preparation is repaired. The replacement preserves every full tree and the 30-pass, 600-update budget, using lossless indices and a bounded in-memory pool to avoid rebuilding all parents every pass. Full-parent performance qualification is still pending. GST is outside this LAI queue.
+
+[Original diagnosis](research/reviews/workflow_progress_diagnosis_20261018/root_diagnosis.json) · [Fresh continuation decision](research/reviews/workflow_progress_diagnosis_20261018/argformer_ram/root_fresh_namespace_observation_v1.json)
 <!-- END CURRENT BENCHMARK DIAGNOSIS -->
 
 <!-- BEGIN EXECUTABLE BENCHMARK WORKFLOW -->
 ## Executable benchmark workflow
 
-Observed 2026-10-18T13:08:03.229834+00:00. 139 succeeded; 1 failed; 3 running; 93 pending; 89 blocked; 0 unknown.
+Observed 2026-10-18T13:12:50.221817+00:00. 139 succeeded; 2 failed; 2 running; 51 pending; 131 blocked; 0 unknown.
 Run status: `running`. Physical GPU: 0.
 
 [Current queue details](research/benchmark_execution_current.json) · [Authenticated matched scores](research/current_matched_benchmark_results.json)
 
 | Stage | Succeeded | Failed | Running | Pending | Blocked | Unknown |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| ap_features | 0 | 0 | 0 | 8 | 0 | 0 |
-| ap_fit | 0 | 0 | 0 | 1 | 0 | 0 |
+| ap_features | 0 | 0 | 0 | 7 | 1 | 0 |
+| ap_fit | 0 | 0 | 0 | 0 | 1 | 0 |
 | ap_generate | 9 | 0 | 0 | 0 | 0 | 0 |
-| ap_infer | 0 | 0 | 3 | 6 | 0 | 0 |
-| ap_predict | 0 | 0 | 0 | 5 | 0 | 0 |
-| ap_registry | 0 | 0 | 0 | 8 | 0 | 0 |
-| ap_train_targets | 0 | 0 | 0 | 3 | 0 | 0 |
+| ap_infer | 0 | 1 | 2 | 6 | 0 | 0 |
+| ap_predict | 0 | 0 | 0 | 0 | 5 | 0 |
+| ap_registry | 0 | 0 | 0 | 7 | 1 | 0 |
+| ap_train_targets | 0 | 0 | 0 | 0 | 3 | 0 |
 | contrastive | 0 | 0 | 0 | 0 | 15 | 0 |
 | embeddings | 0 | 0 | 0 | 0 | 15 | 0 |
 | external | 6 | 0 | 0 | 0 | 0 | 0 |
-| factory | 0 | 0 | 0 | 1 | 16 | 0 |
-| fit_factory | 0 | 0 | 0 | 3 | 0 | 0 |
+| factory | 0 | 0 | 0 | 0 | 17 | 0 |
+| fit_factory | 0 | 0 | 0 | 1 | 2 | 0 |
 | focal_factory | 35 | 0 | 0 | 0 | 0 | 0 |
 | generation_factory | 29 | 0 | 0 | 0 | 0 | 0 |
 | inference_factory | 29 | 0 | 0 | 0 | 0 | 0 |
 | mlm | 0 | 1 | 0 | 0 | 14 | 0 |
 | native | 15 | 0 | 0 | 0 | 0 | 0 |
-| prediction_factory | 0 | 0 | 0 | 17 | 0 | 0 |
+| prediction_factory | 0 | 0 | 0 | 15 | 2 | 0 |
 | prepare | 16 | 0 | 0 | 0 | 14 | 0 |
-| release_archive | 0 | 0 | 0 | 4 | 0 | 0 |
-| release_c4_registry | 0 | 0 | 0 | 8 | 0 | 0 |
-| release_c4_score | 0 | 0 | 0 | 1 | 0 | 0 |
-| release_c4_targets | 0 | 0 | 0 | 3 | 0 | 0 |
-| release_fit | 0 | 0 | 0 | 1 | 0 | 0 |
-| release_frame | 0 | 0 | 0 | 9 | 0 | 0 |
-| release_infer | 0 | 0 | 0 | 5 | 0 | 0 |
-| release_native6_score | 0 | 0 | 0 | 1 | 0 | 0 |
-| release_native_targets | 0 | 0 | 0 | 4 | 0 | 0 |
-| release_seal | 0 | 0 | 0 | 5 | 0 | 0 |
+| release_archive | 0 | 0 | 0 | 0 | 4 | 0 |
+| release_c4_registry | 0 | 0 | 0 | 7 | 1 | 0 |
+| release_c4_score | 0 | 0 | 0 | 0 | 1 | 0 |
+| release_c4_targets | 0 | 0 | 0 | 0 | 3 | 0 |
+| release_fit | 0 | 0 | 0 | 0 | 1 | 0 |
+| release_frame | 0 | 0 | 0 | 8 | 1 | 0 |
+| release_infer | 0 | 0 | 0 | 0 | 5 | 0 |
+| release_native6_score | 0 | 0 | 0 | 0 | 1 | 0 |
+| release_native_targets | 0 | 0 | 0 | 0 | 4 | 0 |
+| release_seal | 0 | 0 | 0 | 0 | 5 | 0 |
 | retrieval | 0 | 0 | 0 | 0 | 15 | 0 |
 
-Running workflow jobs: `AP__ancestralpaths_european_train_000__ap_infer`, `C4__argmix_release_ap200mb_validation_000__validation_infer`, `AP__ancestralpaths_european_train_001__ap_infer`.
+Running workflow jobs: `C4__argmix_release_ap200mb_validation_000__validation_infer`, `AP__ancestralpaths_european_train_001__ap_infer`.
 Named external queue jobs running: none. External queue states are listed separately from workflow counts.
 
 No supported authenticated matched score has completed in this workflow.
