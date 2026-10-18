@@ -93,19 +93,19 @@ The repaired continuation is being prepared. The 21 CPU tests for worker supervi
 <!-- BEGIN EXECUTABLE BENCHMARK WORKFLOW -->
 ## Executable benchmark workflow
 
-Observed 2026-10-18T13:14:31.724891+00:00. 139 succeeded; 3 failed; 1 running; 50 pending; 132 blocked; 0 unknown.
-Run status: `running`. Physical GPU: 0.
+Observed 2026-10-18T14:08:16.399441+00:00. 139 succeeded; 4 failed; 0 running; 46 pending; 136 blocked; 0 unknown.
+Run status: `drained_for_operational_update`. Physical GPU: 0.
 
 [Current queue details](research/benchmark_execution_current.json) · [Authenticated matched scores](research/current_matched_benchmark_results.json)
 
 | Stage | Succeeded | Failed | Running | Pending | Blocked | Unknown |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| ap_features | 0 | 0 | 0 | 7 | 1 | 0 |
+| ap_features | 0 | 0 | 0 | 6 | 2 | 0 |
 | ap_fit | 0 | 0 | 0 | 0 | 1 | 0 |
 | ap_generate | 9 | 0 | 0 | 0 | 0 | 0 |
-| ap_infer | 0 | 2 | 1 | 6 | 0 | 0 |
+| ap_infer | 0 | 3 | 0 | 6 | 0 | 0 |
 | ap_predict | 0 | 0 | 0 | 0 | 5 | 0 |
-| ap_registry | 0 | 0 | 0 | 7 | 1 | 0 |
+| ap_registry | 0 | 0 | 0 | 6 | 2 | 0 |
 | ap_train_targets | 0 | 0 | 0 | 0 | 3 | 0 |
 | contrastive | 0 | 0 | 0 | 0 | 15 | 0 |
 | embeddings | 0 | 0 | 0 | 0 | 15 | 0 |
@@ -120,18 +120,18 @@ Run status: `running`. Physical GPU: 0.
 | prediction_factory | 0 | 0 | 0 | 15 | 2 | 0 |
 | prepare | 16 | 0 | 0 | 0 | 14 | 0 |
 | release_archive | 0 | 0 | 0 | 0 | 4 | 0 |
-| release_c4_registry | 0 | 0 | 0 | 7 | 1 | 0 |
+| release_c4_registry | 0 | 0 | 0 | 6 | 2 | 0 |
 | release_c4_score | 0 | 0 | 0 | 0 | 1 | 0 |
 | release_c4_targets | 0 | 0 | 0 | 0 | 3 | 0 |
 | release_fit | 0 | 0 | 0 | 0 | 1 | 0 |
-| release_frame | 0 | 0 | 0 | 7 | 2 | 0 |
+| release_frame | 0 | 0 | 0 | 6 | 3 | 0 |
 | release_infer | 0 | 0 | 0 | 0 | 5 | 0 |
 | release_native6_score | 0 | 0 | 0 | 0 | 1 | 0 |
 | release_native_targets | 0 | 0 | 0 | 0 | 4 | 0 |
 | release_seal | 0 | 0 | 0 | 0 | 5 | 0 |
 | retrieval | 0 | 0 | 0 | 0 | 15 | 0 |
 
-Running workflow jobs: `AP__ancestralpaths_european_train_001__ap_infer`.
+Running workflow jobs: none.
 Named external queue jobs running: none. External queue states are listed separately from workflow counts.
 
 No supported authenticated matched score has completed in this workflow.
