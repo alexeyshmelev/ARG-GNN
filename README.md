@@ -19,7 +19,7 @@ TreeLoom is held while its CPU preparation is repaired. The replacement preserve
 <!-- BEGIN EXECUTABLE BENCHMARK WORKFLOW -->
 ## Executable benchmark workflow
 
-Observed 2026-10-18T13:12:50.221817+00:00. 139 succeeded; 2 failed; 2 running; 51 pending; 131 blocked; 0 unknown.
+Observed 2026-10-18T13:14:31.724891+00:00. 139 succeeded; 3 failed; 1 running; 50 pending; 132 blocked; 0 unknown.
 Run status: `running`. Physical GPU: 0.
 
 [Current queue details](research/benchmark_execution_current.json) · [Authenticated matched scores](research/current_matched_benchmark_results.json)
@@ -29,7 +29,7 @@ Run status: `running`. Physical GPU: 0.
 | ap_features | 0 | 0 | 0 | 7 | 1 | 0 |
 | ap_fit | 0 | 0 | 0 | 0 | 1 | 0 |
 | ap_generate | 9 | 0 | 0 | 0 | 0 | 0 |
-| ap_infer | 0 | 1 | 2 | 6 | 0 | 0 |
+| ap_infer | 0 | 2 | 1 | 6 | 0 | 0 |
 | ap_predict | 0 | 0 | 0 | 0 | 5 | 0 |
 | ap_registry | 0 | 0 | 0 | 7 | 1 | 0 |
 | ap_train_targets | 0 | 0 | 0 | 0 | 3 | 0 |
@@ -50,14 +50,14 @@ Run status: `running`. Physical GPU: 0.
 | release_c4_score | 0 | 0 | 0 | 0 | 1 | 0 |
 | release_c4_targets | 0 | 0 | 0 | 0 | 3 | 0 |
 | release_fit | 0 | 0 | 0 | 0 | 1 | 0 |
-| release_frame | 0 | 0 | 0 | 8 | 1 | 0 |
+| release_frame | 0 | 0 | 0 | 7 | 2 | 0 |
 | release_infer | 0 | 0 | 0 | 0 | 5 | 0 |
 | release_native6_score | 0 | 0 | 0 | 0 | 1 | 0 |
 | release_native_targets | 0 | 0 | 0 | 0 | 4 | 0 |
 | release_seal | 0 | 0 | 0 | 0 | 5 | 0 |
 | retrieval | 0 | 0 | 0 | 0 | 15 | 0 |
 
-Running workflow jobs: `C4__argmix_release_ap200mb_validation_000__validation_infer`, `AP__ancestralpaths_european_train_001__ap_infer`.
+Running workflow jobs: `AP__ancestralpaths_european_train_001__ap_infer`.
 Named external queue jobs running: none. External queue states are listed separately from workflow counts.
 
 No supported authenticated matched score has completed in this workflow.
