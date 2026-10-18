@@ -7,7 +7,50 @@
 **The LAI benchmark uses an automated queue of 325 stages.** It covers shared American and European simulations, full training, native competitors, paired scoring and Danish data application. Current execution and matched results are published below. All computation and Git commands run on anogena, using physical GPU 0 only.
 
 <!-- BEGIN EXECUTABLE BENCHMARK WORKFLOW -->
-The current controller snapshot will appear here after launch.
+## Executable benchmark workflow
+
+Observed 2026-10-18T01:56:42.005349+00:00. 6 succeeded; 9 failed; 8 running; 235 pending; 67 blocked; 0 unknown.
+Run status: `running`. Physical GPU: 0.
+
+[Current queue details](research/benchmark_execution_current.json) · [Authenticated matched scores](research/current_matched_benchmark_results.json)
+
+| Stage | Succeeded | Failed | Running | Pending | Blocked | Unknown |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| ap_features | 0 | 0 | 0 | 0 | 8 | 0 |
+| ap_fit | 0 | 0 | 0 | 0 | 1 | 0 |
+| ap_generate | 0 | 9 | 0 | 0 | 0 | 0 |
+| ap_infer | 0 | 0 | 0 | 0 | 9 | 0 |
+| ap_predict | 0 | 0 | 0 | 0 | 5 | 0 |
+| ap_registry | 0 | 0 | 0 | 0 | 8 | 0 |
+| ap_train_targets | 0 | 0 | 0 | 0 | 3 | 0 |
+| contrastive | 0 | 0 | 0 | 15 | 0 | 0 |
+| embeddings | 0 | 0 | 0 | 15 | 0 | 0 |
+| external | 6 | 0 | 0 | 0 | 0 | 0 |
+| factory | 0 | 0 | 0 | 16 | 1 | 0 |
+| fit_factory | 0 | 0 | 0 | 1 | 2 | 0 |
+| focal_factory | 0 | 0 | 6 | 29 | 0 | 0 |
+| generation_factory | 0 | 0 | 2 | 27 | 0 | 0 |
+| inference_factory | 0 | 0 | 0 | 29 | 0 | 0 |
+| mlm | 0 | 0 | 0 | 15 | 0 | 0 |
+| native | 0 | 0 | 0 | 15 | 0 | 0 |
+| prediction_factory | 0 | 0 | 0 | 15 | 2 | 0 |
+| prepare | 0 | 0 | 0 | 30 | 0 | 0 |
+| release_archive | 0 | 0 | 0 | 0 | 4 | 0 |
+| release_c4_registry | 0 | 0 | 0 | 6 | 2 | 0 |
+| release_c4_score | 0 | 0 | 0 | 0 | 1 | 0 |
+| release_c4_targets | 0 | 0 | 0 | 0 | 3 | 0 |
+| release_fit | 0 | 0 | 0 | 0 | 1 | 0 |
+| release_frame | 0 | 0 | 0 | 7 | 2 | 0 |
+| release_infer | 0 | 0 | 0 | 0 | 5 | 0 |
+| release_native6_score | 0 | 0 | 0 | 0 | 1 | 0 |
+| release_native_targets | 0 | 0 | 0 | 0 | 4 | 0 |
+| release_seal | 0 | 0 | 0 | 0 | 5 | 0 |
+| retrieval | 0 | 0 | 0 | 15 | 0 | 0 |
+
+Running workflow jobs: `AM_argformer_american_train_000_focals`, `AM_argformer_american_train_001_focals`, `AM_argformer_american_train_002_focals`, `AM_argformer_american_train_003_focals`, `AM_argformer_american_train_004_focals`, `AM_argformer_american_train_005_focals`, `AM_argformer_american_validation_000_generation`, `AM_argformer_american_train_006_generation`.
+Named external queue jobs running: none. External queue states are listed separately from workflow counts.
+
+No supported authenticated matched score has completed in this workflow.
 <!-- END EXECUTABLE BENCHMARK WORKFLOW -->
 
 [Queue and current workstreams](docs/benchmark_queue.md) · [Executable dependency graph](configs/benchmarks/executable_workflow_20261018.json)
