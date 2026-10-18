@@ -27,10 +27,9 @@ The current continuation preserves **139 successful stages and four healthy runn
 <!-- END CURRENT BENCHMARK DIAGNOSIS -->
 
 <!-- BEGIN REPAIRED BENCHMARK WORKFLOW -->
-<!-- BEGIN REPAIRED BENCHMARK WORKFLOW -->
 ## Active benchmark continuation
 
-Observed 2026-10-18T14:00:23.931955+00:00. 139 succeeded; 0 failed; 0 running; 187 pending; 0 blocked; 0 unknown.
+Observed 2026-10-18T14:03:22.341802+00:00. 139 succeeded; 0 failed; 0 running; 187 pending; 0 blocked; 0 unknown.
 Run status: `waiting_for_dependencies_or_capacity`. Physical GPU: 0.
 
 [Current queue details](research/benchmark_repaired_current.json) · [Authenticated matched scores](research/repaired_matched_benchmark_results.json)
@@ -76,9 +75,6 @@ Named external queue jobs running: none. External queue states are listed separa
 No supported authenticated matched score has completed in this workflow.
 <!-- END REPAIRED BENCHMARK WORKFLOW -->
 
-<!-- END REPAIRED BENCHMARK WORKFLOW -->
-
-<!-- END REPAIRED BENCHMARK WORKFLOW -->
 
 <details>
 <summary>Previous continuation, retained while its original jobs finish</summary>
