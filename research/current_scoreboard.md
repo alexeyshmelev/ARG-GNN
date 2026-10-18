@@ -22,14 +22,14 @@ Native FLARE's completed American three-source results appear above. TreeLoom an
 <!-- FROZEN_BENCHMARK_PROGRESS_START -->
 ## Frozen benchmark execution
 
-Updated UTC: 2026-10-18T00:54:12.016496+00:00. Physical GPU 0 only.
+Updated UTC: 2026-10-18T01:01:14.837893+00:00. Physical GPU 0 only.
 
 | Stage | Current verified status |
 |---|---|
 | Execution | Released by the user. Physical GPU0 only. Exact runnable jobs and dependent stages are in the maintained queue. |
-| Native ARGformer | Native ARGformer reached logged training batch 580 of 2,135. Full training, native embeddings and ancestry calls remain unfinished. |
+| Native ARGformer | Native ARGformer reached logged training batch 740 of 2,135. Full training is running. Its complete embedding/retrieval chain is armed. |
 | Native follow-on | Four complete embedding stages and native retrieval follow genuine contrastive completion through the finite chain. No query truth or ancestry scoring in this chain. |
-| Fresh American data | 6 independent full 30 Mb TRAIN simulations are running concurrently on CPUs, each followed by shared tsinfer/tsdate inference. Total design: 20 TRAIN / 5 validation / 10 TEST. Remaining parents and method integrations are pending. |
+| Fresh American data | Six CPU generation/inference pipelines running. TRAIN000 generation completed with actual return code 0 and shared genealogy inference started. TRAIN001–005 are generating. Remaining 14 TRAIN / 5 validation / 10 TEST parents are not dispatched. |
 | Frozen TreeLoom | Frozen architecture and complete 600-update schedule implemented. Fresh-parent, training-loop and memory-admission tests pass. Full training awaits all 20 complete inputs, fixed focal targets and GPU dispatch integration. |
 | European comparisons | Paper recipes and cohort reports encoded. Native sampling, bounded European execution and missing ARGMix settings remain pending. |
 | Native FLARE | Previously completed five 30 Mb validation predictions and scores retained below. |

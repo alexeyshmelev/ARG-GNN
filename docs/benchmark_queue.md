@@ -1,5 +1,9 @@
 # Benchmark campaign
 
+**End-to-end automation is incomplete.** The current executable queues contain one native ARGformer training/prediction chain and six CPU simulation/inference pipelines. The 244-stage campaign is a dependency plan, not 244 executable jobs. Waiting alone does not complete the benchmark.
+
+The native chain stops after producing VAL000 calls. Each CPU pipeline stops after shared genealogy inference. Compact focal preparation and the full TreeLoom training callable are implemented, but still need supervised dispatch and actual inputs. Remaining fresh parents, native evaluation fits, paired scoring, European methods, GST and empirical application remain explicit integration work. The user has already authorized this work.
+
 The user released execution on 18 October 2026. Only physical GPU 0 is eligible.
 The complete [campaign graph](../configs/benchmarks/campaign.json) lists planned
 stages and dependencies. A stage marked pending is not a running job.
