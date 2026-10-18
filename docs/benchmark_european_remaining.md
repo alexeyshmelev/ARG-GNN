@@ -54,3 +54,7 @@ The current European TreeLoom forward also retains full T x 952 tensors. For **1
 - TreeLoom: `research/reviews/frozen_benchmark_training_ready_20261017_v1/european_frozen_treeloom_v1.py`; `src/arggnn/benchmarking/treeloom.py`; American-only preparer `research/reviews/TreeLoom_preparation_reuse_source_20261017_v1/optimized_preparation_v1.py`.
 - Existing source-only AP review: `research/reviews/expanded_native_ancestralpaths_v1_fresh_audit_v1/audit.md` explicitly leaves actual feature memory/runtime unqualified.
 - Primary sampling evidence: AP supplement text lines 1034-1049 in `.runtime/author_sources/ancestralpaths_supplement_41586_2023_6705_MOESM1_ESM.txt`.
+
+## Full-length Relate orchestration implemented
+
+`src/arggnn/benchmarking/european_native_relate.py` now loads the complete 200 Mb observed whitelist and orchestrates native conversion, inference, five population-size iterations and tree conversion. It preserves 952 samples, nine cohorts and 686 query haplotypes, without reading ancestry truth. The retained-SNP membership lookup uses a set, avoiding quadratic lookups while preserving the separate ordering checks. Five synthetic tests pass. A real bounded caller, actual fresh inputs, native sampling and European TreeLoom integration remain pending. No full-length native execution is claimed.

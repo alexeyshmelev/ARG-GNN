@@ -2,7 +2,7 @@
 
 This note describes reusable training code and the fresh-campaign adapter. It does not authorize or launch a job. Paths below are repository relative. Historical products retain their original parent identities.
 
-Implemented: `src/arggnn/benchmarking/treeloom_fresh.py`, with 10 passing synthetic CPU tests in `tests/test_treeloom_fresh.py`. The adapter changes private registry/type bindings while reexecuting verified numerical source unchanged. No actual parent preparation, model construction, training, prediction or CUDA allocation was performed for these tests. The full-training runner and first substantive execution remain separate work.
+Implemented: `src/arggnn/benchmarking/treeloom_fresh.py`, with 10 passing synthetic CPU tests in `tests/test_treeloom_fresh.py`. The adapter changes private registry/type bindings while reexecuting verified numerical source unchanged. No actual parent preparation, model construction, training, prediction or CUDA allocation was performed for these tests. The full-training runner is now implemented in `treeloom_training.py`. Its first substantive execution awaits the complete fresh inputs and GPU dispatch integration.
 
 ## Reusable numerical implementation
 
@@ -92,3 +92,11 @@ Twenty supervised training parents are our declared design, not an exact recreat
 C3 with 32,132 parameters, C4 with 32,325 parameters and Ancestral Paths native six-class output with 32,391 parameters are task-dependent widths of the same selected H050 trunk. They are not separate architecture discoveries. Switching from physical-span loss to sampled-example loss changes the objective and protocol, and must be reported as such.
 
 Existing short-parent training followed by 30 Mb prediction does not establish full 30 Mb training. Preserve those results under their original conditions. No completed fresh comparison or first-place claim follows from readiness.
+
+## Current full-training runner
+
+The maintained runner fixes 30 epochs over all 20 registered TRAIN parents, 600 complete-parent updates, fresh initialization and final epoch 30 selection. It seals all observed inputs before opening registered TRAIN targets. Validation data is not a training prerequisite. The source remains unlaunched.
+
+Cache admission now frees old observation entries before cold preparation and before allocating target and training workspace. The caller must declare RSS, preparation and training headroom. A complete-parent memory bound has not been established analytically, so full-size fit and throughput still require the first genuine training run. Synthetic tests do not establish GPU capacity.
+
+`american_focals.py` prepares the exact 10,000 native query targets without writing unused reference corpora or MLM shards for TreeLoom TRAIN. It retains original raw-path IDs, random selection, first-occurrence intervals and coordinate support. Exact raw-path traversal is still required. The original full native representation remains necessary for ARGformer fitting.
