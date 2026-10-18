@@ -1,7 +1,7 @@
 # Executable benchmark queue
 
 The maintained workflow contains 325 concrete stages. The exact source-pinned
-plan is [executable_workflow_20261018.json](../configs/benchmarks/executable_workflow_20261018.json).
+plan is [executable_workflow_20261018_v2.json](../configs/benchmarks/executable_workflow_20261018_v2.json).
 This is separate from the earlier conceptual campaign graph. Execution requires
 that exact plan reference in the canonical policy. The user has authorized execution.
 
@@ -51,9 +51,9 @@ not part of this 325-stage LAI queue. They must not be described as completed.
 ## Operation and recovery
 
 The controller records dependencies, actual starts, direct waits, successful
-outputs and failures under `.runtime/benchmarking/workflow_20261018`. All new
+outputs and failures under `.runtime/benchmarking/workflow_20261018_v2`. All new
 scientific artifacts stay under
-`experiments/results/benchmark_campaign_20261018_workflow`.
+`experiments/results/benchmark_campaign_20261018_workflow/release_v2`.
 
 The controller reserves active output caps against 980 GB using the initial
 actual project measurement. It measures completed scopes, not the whole project
@@ -76,3 +76,5 @@ Results report mean and sample SD across independent simulation parents,
 per-population or per-cohort metrics, and paired differences on identical
 support. Probability metrics are reported only for native probabilities.
 Retrieval similarity is not relabelled as an ancestry posterior.
+
+The first controller exposed a European interpreter-symlink path error before those scientific stages started. Release v2 uses the same binaries by canonical names. Original failures and explicitly interrupted CPU attempts are retained. The existing native ARGformer run and its continuation were not stopped.

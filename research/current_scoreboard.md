@@ -22,12 +22,12 @@ Native FLARE's earlier American three-source results appear above. The executabl
 <!-- FROZEN_BENCHMARK_PROGRESS_START -->
 ## Launch snapshot and earlier results
 
-Updated UTC: 2026-10-18T01:55:39.933188+00:00. Physical GPU 0 only.
+Updated UTC: 2026-10-18T02:06:28.979837+00:00. Physical GPU 0 only.
 
 | Stage | Current verified status |
 |---|---|
 | Execution | Released by the user. Physical GPU0 only. Exact runnable jobs and dependent stages are in the maintained queue. |
-| Native ARGformer | Native ARGformer logged batch 1805 of 2135. Existing embedding/retrieval continuation remains active. |
+| Native ARGformer | Native ARGformer saved all2,135optimizer updates. Existing embedding/retrieval continuation remains authorized. |
 | Native follow-on | Four complete embedding stages and native retrieval follow genuine contrastive completion through the finite chain. No query truth or ancestry scoring in this chain. |
 | Fresh American data | All six initial 30 Mb TRAIN simulations and shared genealogy inferences completed with actual successful waits. The new workflow adopts them and prepares the remaining 29 parents. |
 | Frozen TreeLoom | Complete fresh600-update fit, finalcheckpoint prediction, all45heldout prediction barrier and common scoring implemented. CPU focused tests pass. Fullfit awaits20sharedinputs andGPUqueue. |
