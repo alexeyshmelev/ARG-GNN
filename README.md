@@ -9,7 +9,7 @@
 <!-- BEGIN EXECUTABLE BENCHMARK WORKFLOW -->
 ## Executable benchmark workflow
 
-Observed 2026-10-18T06:27:58.086618+00:00. 42 succeeded; 9 failed; 8 running; 193 pending; 73 blocked; 0 unknown.
+Observed 2026-10-18T06:55:21.752258+00:00. 51 succeeded; 9 failed; 8 running; 101 pending; 156 blocked; 0 unknown.
 Run status: `running`. Physical GPU: 0.
 
 [Current queue details](research/benchmark_execution_current.json) · [Authenticated matched scores](research/current_matched_benchmark_results.json)
@@ -23,18 +23,18 @@ Run status: `running`. Physical GPU: 0.
 | ap_predict | 0 | 0 | 0 | 0 | 5 | 0 |
 | ap_registry | 0 | 0 | 0 | 1 | 7 | 0 |
 | ap_train_targets | 0 | 0 | 0 | 0 | 3 | 0 |
-| contrastive | 0 | 0 | 0 | 14 | 1 | 0 |
-| embeddings | 0 | 0 | 0 | 14 | 1 | 0 |
+| contrastive | 0 | 0 | 0 | 0 | 15 | 0 |
+| embeddings | 0 | 0 | 0 | 0 | 15 | 0 |
 | external | 6 | 0 | 0 | 0 | 0 | 0 |
-| factory | 0 | 0 | 0 | 14 | 3 | 0 |
+| factory | 0 | 0 | 0 | 0 | 17 | 0 |
 | fit_factory | 0 | 0 | 0 | 1 | 2 | 0 |
 | focal_factory | 13 | 0 | 0 | 22 | 0 | 0 |
-| generation_factory | 7 | 0 | 6 | 16 | 0 | 0 |
-| inference_factory | 7 | 0 | 0 | 22 | 0 | 0 |
-| mlm | 0 | 1 | 0 | 14 | 0 | 0 |
-| native | 0 | 0 | 0 | 15 | 0 | 0 |
+| generation_factory | 14 | 0 | 0 | 15 | 0 | 0 |
+| inference_factory | 7 | 0 | 7 | 15 | 0 | 0 |
+| mlm | 0 | 1 | 0 | 0 | 14 | 0 |
+| native | 1 | 0 | 0 | 14 | 0 | 0 |
 | prediction_factory | 0 | 0 | 0 | 15 | 2 | 0 |
-| prepare | 1 | 0 | 1 | 27 | 1 | 0 |
+| prepare | 2 | 0 | 0 | 14 | 14 | 0 |
 | release_archive | 0 | 0 | 0 | 0 | 4 | 0 |
 | release_c4_registry | 0 | 0 | 0 | 1 | 7 | 0 |
 | release_c4_score | 0 | 0 | 0 | 0 | 1 | 0 |
@@ -45,9 +45,9 @@ Run status: `running`. Physical GPU: 0.
 | release_native6_score | 0 | 0 | 0 | 0 | 1 | 0 |
 | release_native_targets | 0 | 0 | 0 | 0 | 4 | 0 |
 | release_seal | 0 | 0 | 0 | 0 | 5 | 0 |
-| retrieval | 0 | 0 | 0 | 14 | 1 | 0 |
+| retrieval | 0 | 0 | 0 | 0 | 15 | 0 |
 
-Running workflow jobs: `AP__ancestralpaths_european_test_004__ap_generate`, `AM_argformer_american_train_012_generation`, `AM_argformer_american_train_013_generation`, `AM_argformer_american_train_014_generation`, `AM_argformer_american_train_015_generation`, `AM_argformer_american_train_016_generation`, `AM_argformer_american_train_017_generation`, `AM_argformer_american_validation_000_flare_prepare`.
+Running workflow jobs: `AP__ancestralpaths_european_test_004__ap_generate`, `AM_argformer_american_train_012_inference`, `AM_argformer_american_train_013_inference`, `AM_argformer_american_train_014_inference`, `AM_argformer_american_train_015_inference`, `AM_argformer_american_train_016_inference`, `AM_argformer_american_train_017_inference`, `AM_argformer_american_train_018_inference`.
 Named external queue jobs running: none. External queue states are listed separately from workflow counts.
 
 No supported authenticated matched score has completed in this workflow.
