@@ -29,7 +29,7 @@ The current continuation preserves **139 successful stages and four healthy runn
 <!-- BEGIN REPAIRED BENCHMARK WORKFLOW -->
 ## Active benchmark continuation
 
-Observed 2026-10-18T15:39:11.251997+00:00. 139 succeeded; 6 failed; 1 running; 121 pending; 59 blocked; 0 unknown.
+Observed 2026-10-18T15:46:29.828642+00:00. 139 succeeded; 7 failed; 1 running; 103 pending; 76 blocked; 0 unknown.
 Run status: `running`. Physical GPU: 0.
 
 [Current queue details](research/benchmark_repaired_current.json) · [Authenticated matched scores](research/repaired_matched_benchmark_results.json)
@@ -45,15 +45,15 @@ Run status: `running`. Physical GPU: 0.
 | ap_train_targets | 0 | 0 | 0 | 0 | 3 | 0 |
 | contrastive | 0 | 0 | 0 | 15 | 0 | 0 |
 | embeddings | 0 | 0 | 0 | 15 | 0 | 0 |
-| external | 6 | 2 | 0 | 2 | 0 | 0 |
-| factory | 0 | 0 | 0 | 16 | 1 | 0 |
-| fit_factory | 0 | 0 | 0 | 1 | 2 | 0 |
+| external | 6 | 3 | 0 | 1 | 0 | 0 |
+| factory | 0 | 0 | 0 | 15 | 2 | 0 |
+| fit_factory | 0 | 0 | 0 | 0 | 3 | 0 |
 | focal_factory | 35 | 0 | 0 | 0 | 0 | 0 |
 | generation_factory | 29 | 0 | 0 | 0 | 0 | 0 |
 | inference_factory | 29 | 0 | 0 | 0 | 0 | 0 |
 | mlm | 0 | 0 | 0 | 14 | 0 | 0 |
 | native | 15 | 0 | 0 | 0 | 0 | 0 |
-| prediction_factory | 0 | 0 | 0 | 15 | 2 | 0 |
+| prediction_factory | 0 | 0 | 0 | 0 | 17 | 0 |
 | prepare | 16 | 0 | 0 | 14 | 0 | 0 |
 | release_archive | 0 | 0 | 0 | 0 | 4 | 0 |
 | release_c4_registry | 0 | 0 | 0 | 3 | 5 | 0 |
@@ -67,7 +67,7 @@ Run status: `running`. Physical GPU: 0.
 | release_seal | 0 | 0 | 0 | 0 | 5 | 0 |
 | retrieval | 0 | 0 | 0 | 15 | 0 | 0 |
 
-Preserved jobs are still running under their original supervisors: 1 on GPU 0 and 1 on CPU. Their outputs feed this queue after genuine completion.
+Preserved jobs are still running under their original supervisors: 1 on GPU 0 and 0 on CPU. Their outputs feed this queue after genuine completion.
 
 Running workflow jobs: `AP__ancestralpaths_european_test_002__ap_infer`.
 Named external queue jobs running: none. External queue states are listed separately from workflow counts.
