@@ -9,7 +9,7 @@
 <!-- BEGIN EXECUTABLE BENCHMARK WORKFLOW -->
 ## Executable benchmark workflow
 
-Observed 2026-10-18T06:55:21.752258+00:00. 51 succeeded; 9 failed; 8 running; 101 pending; 156 blocked; 0 unknown.
+Observed 2026-10-18T07:17:40.655715+00:00. 58 succeeded; 9 failed; 8 running; 94 pending; 156 blocked; 0 unknown.
 Run status: `running`. Physical GPU: 0.
 
 [Current queue details](research/benchmark_execution_current.json) · [Authenticated matched scores](research/current_matched_benchmark_results.json)
@@ -28,9 +28,9 @@ Run status: `running`. Physical GPU: 0.
 | external | 6 | 0 | 0 | 0 | 0 | 0 |
 | factory | 0 | 0 | 0 | 0 | 17 | 0 |
 | fit_factory | 0 | 0 | 0 | 1 | 2 | 0 |
-| focal_factory | 13 | 0 | 0 | 22 | 0 | 0 |
+| focal_factory | 13 | 0 | 7 | 15 | 0 | 0 |
 | generation_factory | 14 | 0 | 0 | 15 | 0 | 0 |
-| inference_factory | 7 | 0 | 7 | 15 | 0 | 0 |
+| inference_factory | 14 | 0 | 0 | 15 | 0 | 0 |
 | mlm | 0 | 1 | 0 | 0 | 14 | 0 |
 | native | 1 | 0 | 0 | 14 | 0 | 0 |
 | prediction_factory | 0 | 0 | 0 | 15 | 2 | 0 |
@@ -47,7 +47,7 @@ Run status: `running`. Physical GPU: 0.
 | release_seal | 0 | 0 | 0 | 0 | 5 | 0 |
 | retrieval | 0 | 0 | 0 | 0 | 15 | 0 |
 
-Running workflow jobs: `AP__ancestralpaths_european_test_004__ap_generate`, `AM_argformer_american_train_012_inference`, `AM_argformer_american_train_013_inference`, `AM_argformer_american_train_014_inference`, `AM_argformer_american_train_015_inference`, `AM_argformer_american_train_016_inference`, `AM_argformer_american_train_017_inference`, `AM_argformer_american_train_018_inference`.
+Running workflow jobs: `AP__ancestralpaths_european_test_004__ap_generate`, `AM_argformer_american_train_012_focals`, `AM_argformer_american_train_013_focals`, `AM_argformer_american_train_014_focals`, `AM_argformer_american_train_015_focals`, `AM_argformer_american_train_016_focals`, `AM_argformer_american_train_017_focals`, `AM_argformer_american_train_018_focals`.
 Named external queue jobs running: none. External queue states are listed separately from workflow counts.
 
 No supported authenticated matched score has completed in this workflow.
