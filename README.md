@@ -29,7 +29,7 @@ The new continuation preserves **150 completed stages**. ARGformer's next full M
 <!-- BEGIN CURRENT BENCHMARK WORKFLOW -->
 ## Active benchmark continuation
 
-Observed 2026-10-19T03:08:34.531456+00:00. 151 succeeded; 1 failed; 2 running; 161 pending; 11 blocked; 0 unknown.
+Observed 2026-10-19T07:51:33.181033+00:00. 152 succeeded; 1 failed; 2 running; 160 pending; 11 blocked; 0 unknown.
 Run status: `running`. Physical GPU: 0.
 
 [Current queue details](research/benchmark_active_current.json) · [Authenticated matched scores](research/active_matched_benchmark_results.json)
@@ -47,11 +47,11 @@ Run status: `running`. Physical GPU: 0.
 | embeddings | 1 | 0 | 0 | 14 | 0 | 0 |
 | external | 8 | 1 | 0 | 0 | 0 | 0 |
 | factory | 1 | 0 | 0 | 16 | 0 | 0 |
-| fit_factory | 0 | 0 | 0 | 3 | 0 | 0 |
+| fit_factory | 0 | 0 | 1 | 2 | 0 | 0 |
 | focal_factory | 35 | 0 | 0 | 0 | 0 | 0 |
 | generation_factory | 29 | 0 | 0 | 0 | 0 | 0 |
 | inference_factory | 29 | 0 | 0 | 0 | 0 | 0 |
-| mlm | 0 | 0 | 1 | 13 | 0 | 0 |
+| mlm | 1 | 0 | 0 | 13 | 0 | 0 |
 | native | 15 | 0 | 0 | 0 | 0 | 0 |
 | prediction_factory | 0 | 0 | 0 | 15 | 2 | 0 |
 | prepare | 16 | 0 | 0 | 13 | 0 | 0 |
@@ -68,7 +68,7 @@ Run status: `running`. Physical GPU: 0.
 | release_seal | 0 | 0 | 0 | 4 | 1 | 0 |
 | retrieval | 1 | 0 | 0 | 14 | 0 | 0 |
 
-Running workflow jobs: `AM_argformer_american_validation_001_argformer_mlm`, `AP__ancestralpaths_european_train_000__ap_infer`.
+Running workflow jobs: `AP__ancestralpaths_european_train_000__ap_infer`, `AM_treeloom_fit`.
 Named external queue jobs running: none. External queue states are listed separately from workflow counts.
 
 No supported authenticated matched score has completed in this workflow.
