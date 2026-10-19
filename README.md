@@ -29,7 +29,7 @@ The model, datasets, comparison protocols and training budgets are unchanged. Th
 <!-- BEGIN CURRENT RESOURCE BENCHMARK WORKFLOW -->
 ## Active benchmark continuation
 
-Observed 2026-10-19T21:20:24.088714+00:00. 162 succeeded; 0 failed; 2 running; 172 pending; 0 blocked; 0 unknown.
+Observed 2026-10-19T21:21:26.787709+00:00. 163 succeeded; 0 failed; 1 running; 172 pending; 0 blocked; 0 unknown.
 Run status: `running`. Physical GPU: 0.
 
 [Current queue details](research/benchmark_resource_current.json) · [Authenticated matched scores](research/resource_matched_benchmark_results.json)
@@ -61,7 +61,7 @@ Run status: `running`. Physical GPU: 0.
 | release_c4_score | 0 | 0 | 0 | 1 | 0 | 0 |
 | release_c4_targets | 0 | 0 | 0 | 3 | 0 | 0 |
 | release_fit | 0 | 0 | 0 | 1 | 0 | 0 |
-| release_frame | 2 | 0 | 1 | 6 | 0 | 0 |
+| release_frame | 3 | 0 | 0 | 6 | 0 | 0 |
 | release_infer | 0 | 0 | 0 | 5 | 0 | 0 |
 | release_native6_score | 0 | 0 | 0 | 1 | 0 | 0 |
 | release_native_targets | 0 | 0 | 0 | 4 | 0 | 0 |
@@ -70,7 +70,7 @@ Run status: `running`. Physical GPU: 0.
 
 Preserved jobs are still running under their original supervisors: 1 on GPU 0 and 0 on CPU. Their outputs feed this queue after genuine completion.
 
-Running workflow jobs: `AP__ancestralpaths_european_train_001__ap_infer`, `C4__argmix_release_ap200mb_validation_000__release_frame`.
+Running workflow jobs: `AP__ancestralpaths_european_train_001__ap_infer`.
 Named external queue jobs running: none. External queue states are listed separately from workflow counts.
 
 No supported authenticated matched score has completed in this workflow.
