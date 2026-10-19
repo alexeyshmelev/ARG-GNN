@@ -7,22 +7,77 @@
 **The LAI benchmark uses an automated queue of 326 stages.** It covers shared American and European simulations, full training, native competitors, paired scoring and Danish data application. Current execution and matched results are published below. All computation and Git commands run on anogena, using physical GPU 0 only.
 
 <!-- BEGIN CURRENT BENCHMARK DIAGNOSIS -->
-**19 October, afternoon check (Moscow): progress continues, but the queue is still constrained.** It has **157 completed stages**, **2 running**, **1 inherited failure**, **11 blocked** and **155 pending**. No matched local ancestry accuracy comparison has completed in this campaign.
+**19 October 16:03 (Moscow): the repaired benchmark queue is running.** All **49 focused implementation checks passed**. It preserves **157 completed stages** and both healthy original workers. Four additional CPU jobs have started: full-dataset preparation checks for the two European protocols and verified lossless compression of two finished inference outputs. **No new matched local ancestry accuracy result has completed.**
 
 | Method or workstream | Verified progress | Current state |
 | --- | --- | --- |
-| ARGformer | First dataset completed its full native training and prediction pipeline. Second dataset completed five MLM epochs and **224,170 optimizer updates** | Second contrastive stage waits for RAM, GPU and storage reservations. Full prediction pipelines remain complete for only **1/15** datasets |
+| ARGformer | First dataset completed its full native training and prediction pipeline. Second dataset completed five MLM epochs and **224,170 optimizer updates** | Full prediction pipelines remain complete for **1/15** datasets. Remaining GPU stages are queued |
 | FLARE | Predictions complete for **15/15** American validation/TEST datasets | Common scoring pending |
-| TreeLoom | Repaired full-parent preparation check passed in **42.0 minutes**. **6/20** training datasets prepared and retained in RAM | CPU preparation continues. **0/600 optimizer updates** in the current full fit. GPU 0 is reserved but idle during this phase |
-| AncestralPaths | European TRAIN000 inference, native features and registry completed, in addition to the earlier TEST002 dataset | Other inference jobs await storage. TEST004 failed under its retained old supervisor and needs a fresh repaired attempt |
-| Released ARGMix | TRAIN000 and TEST002 four-source registries and input frames completed | Validation inference running. Training inputs and native fit remain incomplete |
+| TreeLoom | American full-parent preparation check passed in **42.0 minutes**. **8/20** training datasets prepared and retained in RAM | **0/600 optimizer updates** in the current American fit. CPU preparation continues. European full-dataset preparation checks now running |
+| AncestralPaths | European TRAIN000 and TEST002 inference, native features and registries completed | Remaining inference is queued. Failed TEST004 is scheduled for a fresh attempt with repaired supervision |
+| Released ARGMix | TRAIN000 and TEST002 four-source registries and input frames completed | Validation inference continues. Training inputs and native fit remain incomplete |
 
-TreeLoom is actively computing on CPU. Its prepared datasets are retained once, without eviction or repeating the expensive observation preparation during later updates. However, acquiring the GPU before this CPU phase unnecessarily blocks other GPU work. Future scheduling should acquire the GPU after preparation while preserving the in-memory dataset pool. Interrupting the current worker would discard that completed preparation.
+The repair removes stale fixed RAM estimates from new admissions, counts actual retained native outputs, and restores omitted completed-output storage charges. Future European fits acquire GPU 0 after their CPU observation preparation. The current American worker remains unchanged to preserve its prepared RAM pool, so it still reserves GPU 0 during CPU preparation.
 
-The inherited TEST004 failure came from the previous supervisor's PID reuse check, not a failure of the new finite-cohort sampler. Its failed output and actual process wait remain recorded. European TreeLoom's separate protocol-specific preprocessing integration also remains unfinished. **There is no new accuracy or superiority result, and this is not yet a queue that can finish all comparisons without further work.**
+Lossless compression preserves original bytes through verified archives and restoration manifests. Final observed trees, source observations and downstream inputs remain accessible. Only measured savings are credited. **Storage remains a capacity constraint for later stages**, especially the remaining datasets and ARGformer checkpoints. Admission stays below the 980 GB operational ceiling within the user’s 1 TB limit.
 
-[Active queue](research/benchmark_active_current.json) · [Matched results](research/active_matched_benchmark_results.json) · [Latest status evidence](research/reviews/benchmark_status_20261019_afternoon/status.json)
+The model, datasets, comparison protocols and training budgets are unchanged. The benchmark is unfinished and there is no new superiority claim.
+
+[Current queue](research/benchmark_resource_current.json) · [Matched results](research/resource_matched_benchmark_results.json) · [Repair and live checks](research/reviews/benchmark_repairs_20261019/live_deployment_v9.json)
 <!-- END CURRENT BENCHMARK DIAGNOSIS -->
+
+<!-- BEGIN CURRENT RESOURCE BENCHMARK WORKFLOW -->
+## Active benchmark continuation
+
+Observed 2026-10-19T13:02:04.321526+00:00. 157 succeeded; 0 failed; 4 running; 175 pending; 0 blocked; 0 unknown.
+Run status: `running`. Physical GPU: 0.
+
+[Current queue details](research/benchmark_resource_current.json) · [Authenticated matched scores](research/resource_matched_benchmark_results.json)
+
+| Stage | Succeeded | Failed | Running | Pending | Blocked | Unknown |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| ap_features | 2 | 0 | 0 | 6 | 0 | 0 |
+| ap_fit | 0 | 0 | 0 | 1 | 0 | 0 |
+| ap_generate | 9 | 0 | 0 | 0 | 0 | 0 |
+| ap_infer | 2 | 0 | 0 | 6 | 0 | 0 |
+| ap_predict | 0 | 0 | 0 | 5 | 0 | 0 |
+| ap_registry | 2 | 0 | 0 | 6 | 0 | 0 |
+| ap_train_targets | 0 | 0 | 0 | 3 | 0 | 0 |
+| contrastive | 1 | 0 | 0 | 14 | 0 | 0 |
+| embeddings | 1 | 0 | 0 | 14 | 0 | 0 |
+| external | 8 | 0 | 0 | 2 | 0 | 0 |
+| factory | 1 | 0 | 2 | 22 | 0 | 0 |
+| fit_factory | 0 | 0 | 0 | 2 | 0 | 0 |
+| focal_factory | 35 | 0 | 0 | 0 | 0 | 0 |
+| generation_factory | 29 | 0 | 0 | 0 | 0 | 0 |
+| inference_factory | 29 | 0 | 0 | 0 | 0 | 0 |
+| mlm | 1 | 0 | 0 | 13 | 0 | 0 |
+| native | 15 | 0 | 0 | 0 | 0 | 0 |
+| prediction_factory | 0 | 0 | 0 | 17 | 0 | 0 |
+| prepare | 16 | 0 | 0 | 13 | 0 | 0 |
+| qualification_factory | 1 | 0 | 2 | 0 | 0 | 0 |
+| release_archive | 0 | 0 | 0 | 4 | 0 | 0 |
+| release_c4_registry | 2 | 0 | 0 | 6 | 0 | 0 |
+| release_c4_score | 0 | 0 | 0 | 1 | 0 | 0 |
+| release_c4_targets | 0 | 0 | 0 | 3 | 0 | 0 |
+| release_fit | 0 | 0 | 0 | 1 | 0 | 0 |
+| release_frame | 2 | 0 | 0 | 7 | 0 | 0 |
+| release_infer | 0 | 0 | 0 | 5 | 0 | 0 |
+| release_native6_score | 0 | 0 | 0 | 1 | 0 | 0 |
+| release_native_targets | 0 | 0 | 0 | 4 | 0 | 0 |
+| release_seal | 0 | 0 | 0 | 5 | 0 | 0 |
+| retrieval | 1 | 0 | 0 | 14 | 0 | 0 |
+
+Preserved jobs are still running under their original supervisors: 1 on GPU 0 and 1 on CPU. Their outputs feed this queue after genuine completion.
+
+Running workflow jobs: `AP__ancestralpaths_european_train_000__ap_infer__lossless_archive_v9`, `AP__ancestralpaths_european_test_002__ap_infer__lossless_archive_v9`, `AP__train_000__treeloom_preparation_qualification`, `C4__train_000__treeloom_preparation_qualification`.
+Named external queue jobs running: none. External queue states are listed separately from workflow counts.
+
+No supported authenticated matched score has completed in this workflow.
+<!-- END CURRENT RESOURCE BENCHMARK WORKFLOW -->
+
+<details>
+<summary>Previous v8 queue, retained for its still-running original workers</summary>
 
 <!-- BEGIN CURRENT BENCHMARK WORKFLOW -->
 ## Active benchmark continuation
@@ -71,6 +126,8 @@ Named external queue jobs running: none. External queue states are listed separa
 
 No supported authenticated matched score has completed in this workflow.
 <!-- END CURRENT BENCHMARK WORKFLOW -->
+
+</details>
 
 <details>
 <summary>Previous v7 queue, retained for its original jobs and failure history</summary>
@@ -286,52 +343,4 @@ The manuscript is a working AAAI draft. Benchmarking is incomplete.
 Metrics retain their original support, population definitions and provenance. Sample SD across simulations and variation across optimizer seeds are different quantities. The benchmark interface rejects missing evaluation targets and keeps native hard calls and zero probabilities intact.
 
 
-<!-- BEGIN CURRENT RESOURCE BENCHMARK WORKFLOW -->
-## Active benchmark continuation
 
-Observed 2026-10-19T13:02:04.321526+00:00. 157 succeeded; 0 failed; 4 running; 175 pending; 0 blocked; 0 unknown.
-Run status: `running`. Physical GPU: 0.
-
-[Current queue details](research/benchmark_resource_current.json) · [Authenticated matched scores](research/resource_matched_benchmark_results.json)
-
-| Stage | Succeeded | Failed | Running | Pending | Blocked | Unknown |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| ap_features | 2 | 0 | 0 | 6 | 0 | 0 |
-| ap_fit | 0 | 0 | 0 | 1 | 0 | 0 |
-| ap_generate | 9 | 0 | 0 | 0 | 0 | 0 |
-| ap_infer | 2 | 0 | 0 | 6 | 0 | 0 |
-| ap_predict | 0 | 0 | 0 | 5 | 0 | 0 |
-| ap_registry | 2 | 0 | 0 | 6 | 0 | 0 |
-| ap_train_targets | 0 | 0 | 0 | 3 | 0 | 0 |
-| contrastive | 1 | 0 | 0 | 14 | 0 | 0 |
-| embeddings | 1 | 0 | 0 | 14 | 0 | 0 |
-| external | 8 | 0 | 0 | 2 | 0 | 0 |
-| factory | 1 | 0 | 2 | 22 | 0 | 0 |
-| fit_factory | 0 | 0 | 0 | 2 | 0 | 0 |
-| focal_factory | 35 | 0 | 0 | 0 | 0 | 0 |
-| generation_factory | 29 | 0 | 0 | 0 | 0 | 0 |
-| inference_factory | 29 | 0 | 0 | 0 | 0 | 0 |
-| mlm | 1 | 0 | 0 | 13 | 0 | 0 |
-| native | 15 | 0 | 0 | 0 | 0 | 0 |
-| prediction_factory | 0 | 0 | 0 | 17 | 0 | 0 |
-| prepare | 16 | 0 | 0 | 13 | 0 | 0 |
-| qualification_factory | 1 | 0 | 2 | 0 | 0 | 0 |
-| release_archive | 0 | 0 | 0 | 4 | 0 | 0 |
-| release_c4_registry | 2 | 0 | 0 | 6 | 0 | 0 |
-| release_c4_score | 0 | 0 | 0 | 1 | 0 | 0 |
-| release_c4_targets | 0 | 0 | 0 | 3 | 0 | 0 |
-| release_fit | 0 | 0 | 0 | 1 | 0 | 0 |
-| release_frame | 2 | 0 | 0 | 7 | 0 | 0 |
-| release_infer | 0 | 0 | 0 | 5 | 0 | 0 |
-| release_native6_score | 0 | 0 | 0 | 1 | 0 | 0 |
-| release_native_targets | 0 | 0 | 0 | 4 | 0 | 0 |
-| release_seal | 0 | 0 | 0 | 5 | 0 | 0 |
-| retrieval | 1 | 0 | 0 | 14 | 0 | 0 |
-
-Preserved jobs are still running under their original supervisors: 1 on GPU 0 and 1 on CPU. Their outputs feed this queue after genuine completion.
-
-Running workflow jobs: `AP__ancestralpaths_european_train_000__ap_infer__lossless_archive_v9`, `AP__ancestralpaths_european_test_002__ap_infer__lossless_archive_v9`, `AP__train_000__treeloom_preparation_qualification`, `C4__train_000__treeloom_preparation_qualification`.
-Named external queue jobs running: none. External queue states are listed separately from workflow counts.
-
-No supported authenticated matched score has completed in this workflow.
-<!-- END CURRENT RESOURCE BENCHMARK WORKFLOW -->
