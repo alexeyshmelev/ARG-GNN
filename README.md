@@ -25,6 +25,37 @@ Two verified lossless archives recovered **31.08 GB** of accounted storage. Anot
 [Current queue](research/benchmark_resource_current.json) · [Matched results](research/resource_matched_benchmark_results.json) · [Latest verified status](research/reviews/benchmark_status_20261020/status.json)
 <!-- END CURRENT BENCHMARK DIAGNOSIS -->
 
+<!-- BEGIN COMPLETED WORK ACCOUNTING -->
+## What the recent GPU jobs accomplished
+
+Audited at 20 October 2026, 01:52 Moscow. These are verified training and prediction outputs, separate from queue preparation counts.
+
+| Completed work | Output | Elapsed job time |
+| --- | --- | ---: |
+| Fresh ARGformer, first validation simulation | Five pretraining epochs, 226,885 optimizer updates | 7.65 h |
+| Fresh ARGformer, second validation simulation | Five pretraining epochs, 224,170 optimizer updates | 7.50 h |
+| Fresh ARGformer, first simulation, subsequent stages | 2,125 contrastive updates, embeddings and 10,000 ancestry predictions | 2.58 h |
+| Earlier American GNN, separate from this fresh fit | 600 completed updates over 30 epochs, verified on 16 October | 9.12 h to update 600 |
+
+The five completed fresh ARGformer stages took **17.74 hours of elapsed job time**. This includes loading and data movement, and does not measure GPU kernel time. An earlier separate ARGformer chain also completed 2,135 contrastive updates and retrieval. These receipts confirm real training, but do not account for every hour of the previous days, including failed attempts and repairs.
+
+**The fresh matched comparison still has no ancestry scores.** FLARE has completed predictions for all 15 American validation/test simulations on CPU. ARGformer has completed predictions for one. The American scoring job depends on all 45 method/dataset prediction outputs, of which 16 are complete. The current TreeLoom fit has 20/20 inputs prepared and 0/600 completed updates logged. Its first-update delay remains an unresolved performance problem.
+
+### Scores that already exist, from earlier development experiments
+
+These European accuracy scores are means and sample SDs across eight reused validation simulations for the present-day cohort. They are earlier development evidence, with method-specific input and training protocols, not results from the fresh benchmark.
+
+| Method | Accuracy (%) |
+| --- | ---: |
+| TreeLoom | **97.08 ± 0.57** |
+| Released ARGMix | 94.45 ± 1.15 |
+| AncestralPaths, probabilities mapped to four classes | 93.78 ± 0.84 |
+
+On a separate earlier set of five American validation simulations, FLARE achieved **98.10 ± 0.34% accuracy** and **97.92 ± 0.41% macro F1**. One simulation was previously inspected during development. These FLARE figures cannot be compared with the European table above.
+
+[Completed-work audit and receipt references](research/reviews/benchmark_status_20261020/completed_work_audit.json) · [Full historical scores](research/current_scoreboard.json)
+<!-- END COMPLETED WORK ACCOUNTING -->
+
 <!-- BEGIN CURRENT RESOURCE BENCHMARK WORKFLOW -->
 ## Active benchmark continuation
 
