@@ -231,3 +231,53 @@ The manuscript is a working AAAI draft. Benchmarking is incomplete.
 [Detailed current scores](research/current_scoreboard.json) · [Experiment ledger](research/experiment_ledger.md) · [All recorded metric receipts](research/all_recorded_metric_receipts.json) · [Research history](docs/research_history_before_benchmark_refactor_20261018.md)
 
 Metrics retain their original support, population definitions and provenance. Sample SD across simulations and variation across optimizer seeds are different quantities. The benchmark interface rejects missing evaluation targets and keeps native hard calls and zero probabilities intact.
+
+<!-- BEGIN CURRENT BENCHMARK WORKFLOW -->
+## Active benchmark continuation
+
+Observed 2026-10-19T00:21:08.202492+00:00. 149 succeeded; 0 failed; 1 running; 176 pending; 0 blocked; 0 unknown.
+Run status: `running`. Physical GPU: 0.
+
+[Current queue details](research/benchmark_active_current.json) · [Authenticated matched scores](research/active_matched_benchmark_results.json)
+
+| Stage | Succeeded | Failed | Running | Pending | Blocked | Unknown |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| ap_features | 1 | 0 | 0 | 7 | 0 | 0 |
+| ap_fit | 0 | 0 | 0 | 1 | 0 | 0 |
+| ap_generate | 9 | 0 | 0 | 0 | 0 | 0 |
+| ap_infer | 1 | 0 | 0 | 7 | 0 | 0 |
+| ap_predict | 0 | 0 | 0 | 5 | 0 | 0 |
+| ap_registry | 1 | 0 | 0 | 7 | 0 | 0 |
+| ap_train_targets | 0 | 0 | 0 | 3 | 0 | 0 |
+| contrastive | 1 | 0 | 0 | 14 | 0 | 0 |
+| embeddings | 1 | 0 | 0 | 14 | 0 | 0 |
+| external | 7 | 0 | 0 | 2 | 0 | 0 |
+| factory | 1 | 0 | 0 | 16 | 0 | 0 |
+| fit_factory | 0 | 0 | 0 | 3 | 0 | 0 |
+| focal_factory | 35 | 0 | 0 | 0 | 0 | 0 |
+| generation_factory | 29 | 0 | 0 | 0 | 0 | 0 |
+| inference_factory | 29 | 0 | 0 | 0 | 0 | 0 |
+| mlm | 0 | 0 | 0 | 14 | 0 | 0 |
+| native | 15 | 0 | 0 | 0 | 0 | 0 |
+| prediction_factory | 0 | 0 | 0 | 17 | 0 | 0 |
+| prepare | 16 | 0 | 0 | 13 | 0 | 0 |
+| qualification_factory | 0 | 0 | 1 | 0 | 0 | 0 |
+| release_archive | 0 | 0 | 0 | 4 | 0 | 0 |
+| release_c4_registry | 1 | 0 | 0 | 7 | 0 | 0 |
+| release_c4_score | 0 | 0 | 0 | 1 | 0 | 0 |
+| release_c4_targets | 0 | 0 | 0 | 3 | 0 | 0 |
+| release_fit | 0 | 0 | 0 | 1 | 0 | 0 |
+| release_frame | 1 | 0 | 0 | 8 | 0 | 0 |
+| release_infer | 0 | 0 | 0 | 5 | 0 | 0 |
+| release_native6_score | 0 | 0 | 0 | 1 | 0 | 0 |
+| release_native_targets | 0 | 0 | 0 | 4 | 0 | 0 |
+| release_seal | 0 | 0 | 0 | 5 | 0 | 0 |
+| retrieval | 1 | 0 | 0 | 14 | 0 | 0 |
+
+Preserved jobs are still running under their original supervisors: 0 on GPU 0 and 1 on CPU. Their outputs feed this queue after genuine completion.
+
+Running workflow jobs: `AM_treeloom_full_parent_qualification`.
+Named external queue jobs running: none. External queue states are listed separately from workflow counts.
+
+No supported authenticated matched score has completed in this workflow.
+<!-- END CURRENT BENCHMARK WORKFLOW -->
