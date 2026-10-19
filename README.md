@@ -112,8 +112,8 @@ No supported authenticated matched score has completed in this workflow.
 <!-- BEGIN CURRENT BENCHMARK WORKFLOW -->
 ## Active benchmark continuation
 
-Observed 2026-10-19T21:20:19.021933+00:00. 158 succeeded; 1 failed; 1 running; 155 pending; 11 blocked; 0 unknown.
-Run status: `running`. Physical GPU: 0.
+Observed 2026-10-19T23:03:44.227173+00:00. 158 succeeded; 2 failed; 0 running; 139 pending; 27 blocked; 0 unknown.
+Run status: `drained_for_operational_update`. Physical GPU: 0.
 
 [Current queue details](research/benchmark_active_current.json) · [Authenticated matched scores](research/active_matched_benchmark_results.json)
 
@@ -129,14 +129,14 @@ Run status: `running`. Physical GPU: 0.
 | contrastive | 1 | 0 | 0 | 14 | 0 | 0 |
 | embeddings | 1 | 0 | 0 | 14 | 0 | 0 |
 | external | 8 | 1 | 0 | 0 | 0 | 0 |
-| factory | 1 | 0 | 0 | 16 | 0 | 0 |
-| fit_factory | 0 | 0 | 1 | 2 | 0 | 0 |
+| factory | 1 | 0 | 0 | 15 | 1 | 0 |
+| fit_factory | 0 | 1 | 0 | 2 | 0 | 0 |
 | focal_factory | 35 | 0 | 0 | 0 | 0 | 0 |
 | generation_factory | 29 | 0 | 0 | 0 | 0 | 0 |
 | inference_factory | 29 | 0 | 0 | 0 | 0 | 0 |
 | mlm | 1 | 0 | 0 | 13 | 0 | 0 |
 | native | 15 | 0 | 0 | 0 | 0 | 0 |
-| prediction_factory | 0 | 0 | 0 | 15 | 2 | 0 |
+| prediction_factory | 0 | 0 | 0 | 0 | 17 | 0 |
 | prepare | 16 | 0 | 0 | 13 | 0 | 0 |
 | qualification_factory | 1 | 0 | 0 | 0 | 0 | 0 |
 | release_archive | 0 | 0 | 0 | 4 | 0 | 0 |
@@ -151,7 +151,7 @@ Run status: `running`. Physical GPU: 0.
 | release_seal | 0 | 0 | 0 | 4 | 1 | 0 |
 | retrieval | 1 | 0 | 0 | 14 | 0 | 0 |
 
-Running workflow jobs: `AM_treeloom_fit`.
+Running workflow jobs: none.
 Named external queue jobs running: none. External queue states are listed separately from workflow counts.
 
 No supported authenticated matched score has completed in this workflow.
