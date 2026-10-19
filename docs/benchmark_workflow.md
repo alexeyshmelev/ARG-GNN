@@ -2,7 +2,34 @@
 
 The user approved execution on 18 October 2026. The [campaign queue](benchmark_queue.md) distinguishes runnable jobs from pending integrations. Only physical GPU 0 is eligible. Exact approved worker inputs are listed in the canonical execution policy.
 
-## Entry points
+## Current execution, 20 October 2026
+
+The active continuation is `configs/benchmarks/executable_workflow_20261020_readable_v3.json`.
+Its controller is the ordinary Python module
+`research.repairs.benchmark_recovery_20261020.scheduler.readable_workflow_v1`.
+It retains 163 completed stages and adopts the existing native ARGformer,
+American TreeLoom and AncestralPaths workers. Their scientific settings and
+budgets remain fixed. Historical failed attempts retain their original status.
+
+Inspect `research/benchmark_readable_current.json` for current queue counts,
+actual standalone training progress, pending reasons and completed score links.
+The README and this public status file are committed and pushed from anogena
+every 15 minutes. Reporting failures do not interrupt scientific jobs.
+
+Only physical GPU 0 is eligible. Other users may share it. New jobs are admitted
+against free GPU memory and the remaining growth of our existing allocations.
+All future storage and RAM admissions use one queue ledger. Storage recovery
+runs sequentially and credits space only after verified completion. The failed
+first archive's 114 durable files are verified and reused by its fresh repair.
+
+CPU preparation and GPU training are separate phases. TreeLoom prepares each of
+its 20 training parents once, retains compact observations in RAM and reuses them
+for the remaining epochs. Its first actual optimizer update is retained as part
+of the original 600-update schedule. ARGformer retains its original full batches
+and uses activation recomputation to reduce memory. GPU occupancy, training loss
+and completed preprocessing stages are not ancestry accuracy measurements.
+
+## Recipe inspection entry points
 
 From the dedicated server repository:
 
@@ -53,7 +80,7 @@ Native hard calls are scored as supplied. They are not replaced with posterior a
 
 ## Efficient execution after approval
 
-Only physical GPU 0 is eligible. The controller does not import Torch or hold a GPU context. It dispatches one admitted GPU job at a time, with bounded CPU concurrency for preparation. Existing scientific supervisors still enforce their physical leases, memory, storage, clocks, process title and owned cleanup.
+Only physical GPU 0 is eligible. The controller does not import Torch or hold a GPU context. It admits jobs that can share GPU 0 within current memory reservations, with bounded CPU concurrency for preparation. Existing scientific supervisors still enforce their physical leases, memory, storage, clocks, process title and owned cleanup.
 
 Check cheap CPU-slot and RSS availability before expensive accounting capture. Keep authoritative fresh checks at admission. Data-loader workers return small immutable descriptors. They do not duplicate a complete parent tensor bank or create CUDA contexts.
 
@@ -63,7 +90,7 @@ TreeLoom's corrected implementation uses direct fast observed preparation, bound
 
 The canonical `configs/benchmarks/execution_policy.json` records the explicit user release and exact approved jobs. No CLI command approves new jobs automatically.
 
-The executable workflow.py controller resolves each maintained factory only after its declared predecessors genuinely succeed. The frozen plan binds all factory arguments, scientific source references, output scopes and finite caps. It covers shared American generation/inference, TreeLoom, native ARGformer and FLARE, European AncestralPaths and ARGMix comparisons, common scoring and the current empirical application. Existing native-chain workers remain unchanged. Source checks, physical GPU0 ownership and bounded owned-process supervision apply before scientific execution.
+The current readable controller resolves each maintained factory only after its declared predecessors genuinely succeed. The frozen plan binds all factory arguments, scientific source references, output scopes and finite caps. It covers shared American generation/inference, TreeLoom, native ARGformer and FLARE, European AncestralPaths and ARGMix comparisons, common scoring and the current empirical application. Existing native-chain workers remain unchanged. Source checks, physical GPU0 ownership and bounded owned-process supervision apply before scientific execution.
 
 The canonical policy lists the exact workflow reference, existing admitted job/input/receipt identities and a finite expiry. `run --execute` rechecks it before each process. Default `run` only plans. The CLI uses one fixed queue and logical controller lock. Existing physical lease ownership remains with the original guarded worker.
 
