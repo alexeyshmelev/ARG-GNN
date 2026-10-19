@@ -7,22 +7,77 @@
 **The LAI benchmark uses an automated queue of 326 stages.** It covers shared American and European simulations, full training, native competitors, paired scoring and Danish data application. Current execution and matched results are published below. All computation and Git commands run on anogena, using physical GPU 0 only.
 
 <!-- BEGIN CURRENT BENCHMARK DIAGNOSIS -->
-**Status checked 19 October:** the first native ARGformer validation pipeline has completed all five MLM epochs (**226,885 updates**), contrastive training, embeddings and ancestry retrieval. Its scientific worker exited successfully. This is one of the 15 American validation/TEST parents. No matched local ancestry accuracy comparison has completed.
+**19 October, repaired queue running:** the first native ARGformer validation pipeline completed all five MLM epochs (**226,885 optimizer updates**), contrastive training, embeddings and ancestry predictions. This is **1 of 15 American validation/TEST datasets**. FLARE predictions are complete for **all 15**. No matched local ancestry accuracy comparison has completed in this campaign.
 
-The queue has **149 successful stages**, **2 running CPU stages**, **7 failed stages**, **76 blocked stages** and **92 pending stages. GPU 0 was idle at this check while the next native ARGformer input was prepared.
+The new continuation preserves **150 completed stages**. ARGformer's next full MLM run is training on **GPU 0**. A fresh snapshot showed **82% GPU utilization and 21,943 MiB occupied**, with process name `AI Auto Research Pipeline Test`. TreeLoom's complete TRAIN000 preprocessing check is running on CPU with the repaired cut planner. An existing European inference job continues under its original supervisor.
 
-| Workstream | Verified status | Remaining issue |
+| Method or workstream | Completed | Current work and remaining blocker |
 | --- | --- | --- |
-| Native ARGformer | First validation parent completed full training and ancestry predictions | Next parent in CPU preparation, remaining 14 parents unfinished |
-| Native FLARE | All 15 American validation/TEST prediction stages complete | Common scoring awaits the complete comparison |
-| TreeLoom | Full observation/tree encoding and clade preparation ran | Full-parent qualification timed out at two hours during global cut planning. Full fresh benchmark training remains blocked |
-| European inputs and AncestralPaths | One 200 Mb TEST parent completed inference and native feature preparation. Another inference is running | Several native jobs were terminated by process-supervision assertions while below their RAM caps |
-| Released ARGMix | Four-source registry and input frame completed for the same successful European TEST parent | Training and validation inputs remain incomplete |
+| ARGformer | One complete native training and prediction pipeline, next dataset prepared | Next full MLM job started. Fourteen datasets still need completed training and predictions |
+| FLARE | Predictions for all 15 American validation/TEST datasets | Common scoring awaits the complete comparison |
+| TreeLoom | Previous full tree encoding and clade preparation exposed a cut-planning bottleneck | Repaired full-parent preparation check running. Full fresh training has not completed |
+| AncestralPaths | One 200 Mb TEST dataset inferred and native features prepared | Existing inference running. Failed inference retries wait for storage reservations |
+| Released ARGMix | Four-source registry and input frame for that successful European TEST dataset | Training/validation inputs and native fit remain incomplete |
 
-The TreeLoom source repeatedly constructs the same large integer array for each tree during cut planning. Hoisting that allocation is the identified correction, pending implementation and verification. The supervisor also needs to tolerate ordinary child-process churn while preserving resource accounting and exact ownership. **The previous repairs were insufficient to finish the benchmark.** Completed outputs and failed attempts are preserved. No benchmark superiority or new accuracy result is claimed.
+**Repairs deployed:** TreeLoom now builds the same integer node lookup once rather than once per tree. The supervisor measures finite groups of child processes and tolerates ordinary child exits and PID reuse. Small regression tests and independent source review passed. Full-data success and speedup remain unmeasured. All original data, training budgets, completed results and failed-attempt records are preserved.
 
-[Current status receipt](research/reviews/benchmark_status_20261019/status.json) · [Current queue](research/benchmark_repaired_current.json) · [Matched results](research/repaired_matched_benchmark_results.json)
+**Still outstanding:** European TreeLoom preprocessing needs its separate protocol-specific integration. Its two fits remain visibly held. European inference retries cannot all be admitted together under the 980 GB operational storage ceiling. The existing inference and ARGformer scratch-retirement stages can release their reserved capacity when they finish. No new accuracy or superiority claim is supported yet.
+
+[Active queue](research/benchmark_active_current.json) · [Matched results](research/active_matched_benchmark_results.json) · [Repair and launch record](research/reviews/benchmark_repairs_20261019/root_launch.json)
 <!-- END CURRENT BENCHMARK DIAGNOSIS -->
+
+<!-- BEGIN CURRENT BENCHMARK WORKFLOW -->
+## Active benchmark continuation
+
+Observed 2026-10-19T00:22:09.449622+00:00. 150 succeeded; 0 failed; 2 running; 174 pending; 0 blocked; 0 unknown.
+Run status: `running`. Physical GPU: 0.
+
+[Current queue details](research/benchmark_active_current.json) · [Authenticated matched scores](research/active_matched_benchmark_results.json)
+
+| Stage | Succeeded | Failed | Running | Pending | Blocked | Unknown |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| ap_features | 1 | 0 | 0 | 7 | 0 | 0 |
+| ap_fit | 0 | 0 | 0 | 1 | 0 | 0 |
+| ap_generate | 9 | 0 | 0 | 0 | 0 | 0 |
+| ap_infer | 1 | 0 | 0 | 7 | 0 | 0 |
+| ap_predict | 0 | 0 | 0 | 5 | 0 | 0 |
+| ap_registry | 1 | 0 | 0 | 7 | 0 | 0 |
+| ap_train_targets | 0 | 0 | 0 | 3 | 0 | 0 |
+| contrastive | 1 | 0 | 0 | 14 | 0 | 0 |
+| embeddings | 1 | 0 | 0 | 14 | 0 | 0 |
+| external | 8 | 0 | 0 | 1 | 0 | 0 |
+| factory | 1 | 0 | 0 | 16 | 0 | 0 |
+| fit_factory | 0 | 0 | 0 | 3 | 0 | 0 |
+| focal_factory | 35 | 0 | 0 | 0 | 0 | 0 |
+| generation_factory | 29 | 0 | 0 | 0 | 0 | 0 |
+| inference_factory | 29 | 0 | 0 | 0 | 0 | 0 |
+| mlm | 0 | 0 | 1 | 13 | 0 | 0 |
+| native | 15 | 0 | 0 | 0 | 0 | 0 |
+| prediction_factory | 0 | 0 | 0 | 17 | 0 | 0 |
+| prepare | 16 | 0 | 0 | 13 | 0 | 0 |
+| qualification_factory | 0 | 0 | 1 | 0 | 0 | 0 |
+| release_archive | 0 | 0 | 0 | 4 | 0 | 0 |
+| release_c4_registry | 1 | 0 | 0 | 7 | 0 | 0 |
+| release_c4_score | 0 | 0 | 0 | 1 | 0 | 0 |
+| release_c4_targets | 0 | 0 | 0 | 3 | 0 | 0 |
+| release_fit | 0 | 0 | 0 | 1 | 0 | 0 |
+| release_frame | 1 | 0 | 0 | 8 | 0 | 0 |
+| release_infer | 0 | 0 | 0 | 5 | 0 | 0 |
+| release_native6_score | 0 | 0 | 0 | 1 | 0 | 0 |
+| release_native_targets | 0 | 0 | 0 | 4 | 0 | 0 |
+| release_seal | 0 | 0 | 0 | 5 | 0 | 0 |
+| retrieval | 1 | 0 | 0 | 14 | 0 | 0 |
+
+Preserved jobs are still running under their original supervisors: 0 on GPU 0 and 1 on CPU. Their outputs feed this queue after genuine completion.
+
+Running workflow jobs: `AM_treeloom_full_parent_qualification`, `AM_argformer_american_validation_001_argformer_mlm`.
+Named external queue jobs running: none. External queue states are listed separately from workflow counts.
+
+No supported authenticated matched score has completed in this workflow.
+<!-- END CURRENT BENCHMARK WORKFLOW -->
+
+<details>
+<summary>Previous v7 queue, retained for its original jobs and failure history</summary>
 
 <!-- BEGIN REPAIRED BENCHMARK WORKFLOW -->
 ## Active benchmark continuation
@@ -70,6 +125,8 @@ Named external queue jobs running: none. External queue states are listed separa
 
 No supported authenticated matched score has completed in this workflow.
 <!-- END REPAIRED BENCHMARK WORKFLOW -->
+
+</details>
 
 
 <details>
@@ -232,52 +289,4 @@ The manuscript is a working AAAI draft. Benchmarking is incomplete.
 
 Metrics retain their original support, population definitions and provenance. Sample SD across simulations and variation across optimizer seeds are different quantities. The benchmark interface rejects missing evaluation targets and keeps native hard calls and zero probabilities intact.
 
-<!-- BEGIN CURRENT BENCHMARK WORKFLOW -->
-## Active benchmark continuation
 
-Observed 2026-10-19T00:22:09.449622+00:00. 150 succeeded; 0 failed; 2 running; 174 pending; 0 blocked; 0 unknown.
-Run status: `running`. Physical GPU: 0.
-
-[Current queue details](research/benchmark_active_current.json) · [Authenticated matched scores](research/active_matched_benchmark_results.json)
-
-| Stage | Succeeded | Failed | Running | Pending | Blocked | Unknown |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| ap_features | 1 | 0 | 0 | 7 | 0 | 0 |
-| ap_fit | 0 | 0 | 0 | 1 | 0 | 0 |
-| ap_generate | 9 | 0 | 0 | 0 | 0 | 0 |
-| ap_infer | 1 | 0 | 0 | 7 | 0 | 0 |
-| ap_predict | 0 | 0 | 0 | 5 | 0 | 0 |
-| ap_registry | 1 | 0 | 0 | 7 | 0 | 0 |
-| ap_train_targets | 0 | 0 | 0 | 3 | 0 | 0 |
-| contrastive | 1 | 0 | 0 | 14 | 0 | 0 |
-| embeddings | 1 | 0 | 0 | 14 | 0 | 0 |
-| external | 8 | 0 | 0 | 1 | 0 | 0 |
-| factory | 1 | 0 | 0 | 16 | 0 | 0 |
-| fit_factory | 0 | 0 | 0 | 3 | 0 | 0 |
-| focal_factory | 35 | 0 | 0 | 0 | 0 | 0 |
-| generation_factory | 29 | 0 | 0 | 0 | 0 | 0 |
-| inference_factory | 29 | 0 | 0 | 0 | 0 | 0 |
-| mlm | 0 | 0 | 1 | 13 | 0 | 0 |
-| native | 15 | 0 | 0 | 0 | 0 | 0 |
-| prediction_factory | 0 | 0 | 0 | 17 | 0 | 0 |
-| prepare | 16 | 0 | 0 | 13 | 0 | 0 |
-| qualification_factory | 0 | 0 | 1 | 0 | 0 | 0 |
-| release_archive | 0 | 0 | 0 | 4 | 0 | 0 |
-| release_c4_registry | 1 | 0 | 0 | 7 | 0 | 0 |
-| release_c4_score | 0 | 0 | 0 | 1 | 0 | 0 |
-| release_c4_targets | 0 | 0 | 0 | 3 | 0 | 0 |
-| release_fit | 0 | 0 | 0 | 1 | 0 | 0 |
-| release_frame | 1 | 0 | 0 | 8 | 0 | 0 |
-| release_infer | 0 | 0 | 0 | 5 | 0 | 0 |
-| release_native6_score | 0 | 0 | 0 | 1 | 0 | 0 |
-| release_native_targets | 0 | 0 | 0 | 4 | 0 | 0 |
-| release_seal | 0 | 0 | 0 | 5 | 0 | 0 |
-| retrieval | 1 | 0 | 0 | 14 | 0 | 0 |
-
-Preserved jobs are still running under their original supervisors: 0 on GPU 0 and 1 on CPU. Their outputs feed this queue after genuine completion.
-
-Running workflow jobs: `AM_treeloom_full_parent_qualification`, `AM_argformer_american_validation_001_argformer_mlm`.
-Named external queue jobs running: none. External queue states are listed separately from workflow counts.
-
-No supported authenticated matched score has completed in this workflow.
-<!-- END CURRENT BENCHMARK WORKFLOW -->
