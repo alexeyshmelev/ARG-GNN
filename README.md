@@ -7,23 +7,22 @@
 **The LAI benchmark uses an automated queue of 326 stages.** It covers shared American and European simulations, full training, native competitors, paired scoring and Danish data application. Current execution and matched results are published below. All computation and Git commands run on anogena, using physical GPU 0 only.
 
 <!-- BEGIN CURRENT BENCHMARK DIAGNOSIS -->
-**19 October 16:03 (Moscow): the repaired benchmark queue is running.** All **49 focused implementation checks passed**. It preserves **157 completed stages** and both healthy original workers. Four additional CPU jobs have started: full-dataset preparation checks for the two European protocols and verified lossless compression of two finished inference outputs. **No new matched local ancestry accuracy result has completed.**
+**20 October 01:40 (Moscow): data preparation has advanced, but full training remains a performance concern.** The queue has **163 completed stages**, up from 157 at the previous deployment. No new failures are recorded in this continuation. **No new matched accuracy or F1 results are available.**
 
-| Method or workstream | Verified progress | Current state |
+| Workstream | Verified progress | Remaining work |
 | --- | --- | --- |
-| ARGformer | First dataset completed its full native training and prediction pipeline. Second dataset completed five MLM epochs and **224,170 optimizer updates** | Full prediction pipelines remain complete for **1/15** datasets. Remaining GPU stages are queued |
-| FLARE | Predictions complete for **15/15** American validation/TEST datasets | Common scoring pending |
-| TreeLoom | American full-parent preparation check passed in **42.0 minutes**. **8/20** training datasets prepared and retained in RAM | **0/600 optimizer updates** in the current American fit. CPU preparation continues. European full-dataset preparation checks now running |
-| AncestralPaths | European TRAIN000 and TEST002 inference, native features and registries completed | Remaining inference is queued. Failed TEST004 is scheduled for a fresh attempt with repaired supervision |
-| Released ARGMix | TRAIN000 and TEST002 four-source registries and input frames completed | Validation inference continues. Training inputs and native fit remain incomplete |
+| American TreeLoom | **20/20 training datasets prepared** and retained in RAM | **0/600 completed optimizer updates recorded**. More than two hours elapsed after preparation without the first completed update. The process remains active |
+| European TreeLoom | Both full observed-parent preparation checks passed on the 200 Mb input, in 57.8 and 62.0 minutes | Complete remaining training inputs, then fit and predict |
+| AncestralPaths | TRAIN000 and TEST002 inference and features complete | TRAIN001 inference is running. Remaining cohorts are queued |
+| Released ARGMix | Validation inference and its native input frame completed | Remaining training inputs, native fit and scoring |
+| ARGformer | First complete native pipeline and second MLM phase remain completed | Full prediction pipelines complete for 1/15 datasets. Remaining GPU stages queued |
+| FLARE | Predictions complete for 15/15 American validation/test datasets | Common scoring pending |
 
-The repair removes stale fixed RAM estimates from new admissions, counts actual retained native outputs, and restores omitted completed-output storage charges. Future European fits acquire GPU 0 after their CPU observation preparation. The current American worker remains unchanged to preserve its prepared RAM pool, so it still reserves GPU 0 during CPU preparation.
+The first-update delay is a training-speed concern, not delayed epoch logging. Each completed parent update is immediately flushed to the progress file. The source performs two tree sweeps, recurrent history processing, 200 bidirectional GRU tiles and backward recomputation per parent. These are plausible overhead sources, but a live stage bottleneck has not yet been established. No training loss is available before the first update is recorded. Overall GPU 0 utilization includes other users and must not be attributed to TreeLoom.
 
-Lossless compression preserves original bytes through verified archives and restoration manifests. Final observed trees, source observations and downstream inputs remain accessible. Only measured savings are credited. **Storage remains a capacity constraint for later stages**, especially the remaining datasets and ARGformer checkpoints. Admission stays below the 980 GB operational ceiling within the user’s 1 TB limit.
+Two verified lossless archives recovered **31.08 GB** of accounted storage. Another European inference job has started. Further concurrent inference remains limited by the 980 GB operational ceiling. Existing jobs and scientific settings are preserved.
 
-The model, datasets, comparison protocols and training budgets are unchanged. The benchmark is unfinished and there is no new superiority claim.
-
-[Current queue](research/benchmark_resource_current.json) · [Matched results](research/resource_matched_benchmark_results.json) · [Repair and live checks](research/reviews/benchmark_repairs_20261019/live_deployment_v9.json)
+[Current queue](research/benchmark_resource_current.json) · [Matched results](research/resource_matched_benchmark_results.json) · [Latest verified status](research/reviews/benchmark_status_20261020/status.json)
 <!-- END CURRENT BENCHMARK DIAGNOSIS -->
 
 <!-- BEGIN CURRENT RESOURCE BENCHMARK WORKFLOW -->
