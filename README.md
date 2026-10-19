@@ -82,7 +82,7 @@ No supported authenticated matched score has completed in this workflow.
 <!-- BEGIN CURRENT BENCHMARK WORKFLOW -->
 ## Active benchmark continuation
 
-Observed 2026-10-19T12:53:27.526078+00:00. 157 succeeded; 1 failed; 2 running; 155 pending; 11 blocked; 0 unknown.
+Observed 2026-10-19T21:20:19.021933+00:00. 158 succeeded; 1 failed; 1 running; 155 pending; 11 blocked; 0 unknown.
 Run status: `running`. Physical GPU: 0.
 
 [Current queue details](research/benchmark_active_current.json) · [Authenticated matched scores](research/active_matched_benchmark_results.json)
@@ -92,7 +92,7 @@ Run status: `running`. Physical GPU: 0.
 | ap_features | 2 | 0 | 0 | 5 | 1 | 0 |
 | ap_fit | 0 | 0 | 0 | 1 | 0 | 0 |
 | ap_generate | 9 | 0 | 0 | 0 | 0 | 0 |
-| ap_infer | 2 | 0 | 1 | 5 | 0 | 0 |
+| ap_infer | 3 | 0 | 0 | 5 | 0 | 0 |
 | ap_predict | 0 | 0 | 0 | 4 | 1 | 0 |
 | ap_registry | 2 | 0 | 0 | 5 | 1 | 0 |
 | ap_train_targets | 0 | 0 | 0 | 3 | 0 | 0 |
@@ -121,7 +121,7 @@ Run status: `running`. Physical GPU: 0.
 | release_seal | 0 | 0 | 0 | 4 | 1 | 0 |
 | retrieval | 1 | 0 | 0 | 14 | 0 | 0 |
 
-Running workflow jobs: `C4__argmix_release_ap200mb_validation_000__validation_infer`, `AM_treeloom_fit`.
+Running workflow jobs: `AM_treeloom_fit`.
 Named external queue jobs running: none. External queue states are listed separately from workflow counts.
 
 No supported authenticated matched score has completed in this workflow.
