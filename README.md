@@ -29,19 +29,19 @@ The new continuation preserves **150 completed stages**. ARGformer's next full M
 <!-- BEGIN CURRENT BENCHMARK WORKFLOW -->
 ## Active benchmark continuation
 
-Observed 2026-10-19T07:51:33.181033+00:00. 152 succeeded; 1 failed; 2 running; 160 pending; 11 blocked; 0 unknown.
+Observed 2026-10-19T12:02:37.804285+00:00. 154 succeeded; 1 failed; 4 running; 156 pending; 11 blocked; 0 unknown.
 Run status: `running`. Physical GPU: 0.
 
 [Current queue details](research/benchmark_active_current.json) · [Authenticated matched scores](research/active_matched_benchmark_results.json)
 
 | Stage | Succeeded | Failed | Running | Pending | Blocked | Unknown |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| ap_features | 1 | 0 | 0 | 6 | 1 | 0 |
+| ap_features | 1 | 0 | 1 | 5 | 1 | 0 |
 | ap_fit | 0 | 0 | 0 | 1 | 0 | 0 |
 | ap_generate | 9 | 0 | 0 | 0 | 0 | 0 |
-| ap_infer | 1 | 0 | 1 | 6 | 0 | 0 |
+| ap_infer | 2 | 0 | 1 | 5 | 0 | 0 |
 | ap_predict | 0 | 0 | 0 | 4 | 1 | 0 |
-| ap_registry | 1 | 0 | 0 | 6 | 1 | 0 |
+| ap_registry | 2 | 0 | 0 | 5 | 1 | 0 |
 | ap_train_targets | 0 | 0 | 0 | 3 | 0 | 0 |
 | contrastive | 1 | 0 | 0 | 14 | 0 | 0 |
 | embeddings | 1 | 0 | 0 | 14 | 0 | 0 |
@@ -61,14 +61,14 @@ Run status: `running`. Physical GPU: 0.
 | release_c4_score | 0 | 0 | 0 | 0 | 1 | 0 |
 | release_c4_targets | 0 | 0 | 0 | 3 | 0 | 0 |
 | release_fit | 0 | 0 | 0 | 1 | 0 | 0 |
-| release_frame | 1 | 0 | 0 | 7 | 1 | 0 |
+| release_frame | 1 | 0 | 1 | 6 | 1 | 0 |
 | release_infer | 0 | 0 | 0 | 4 | 1 | 0 |
 | release_native6_score | 0 | 0 | 0 | 0 | 1 | 0 |
 | release_native_targets | 0 | 0 | 0 | 4 | 0 | 0 |
 | release_seal | 0 | 0 | 0 | 4 | 1 | 0 |
 | retrieval | 1 | 0 | 0 | 14 | 0 | 0 |
 
-Running workflow jobs: `AP__ancestralpaths_european_train_000__ap_infer`, `AM_treeloom_fit`.
+Running workflow jobs: `C4__argmix_release_ap200mb_validation_000__validation_infer`, `C4__ancestralpaths_european_train_000__release_frame`, `AP__ancestralpaths_european_train_000__ap_features`, `AM_treeloom_fit`.
 Named external queue jobs running: none. External queue states are listed separately from workflow counts.
 
 No supported authenticated matched score has completed in this workflow.
