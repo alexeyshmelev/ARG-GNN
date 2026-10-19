@@ -1,5 +1,17 @@
 # ARG-GNN
 
+<!-- readable-recovery-queue:start -->
+### Current recovery queue
+Updated 2026-10-19T23:53:26.537247+00:00. Status: running.
+183 pending, 1 running, 163 succeeded, 0 failed, 0 blocked, 0 unknown.
+Local active: STORAGE_RECOVERY_V2__closed_55b1be3124a091f1.
+Standalone work: AM_treeloom_fit: TreeLoom prepare_global_clade_episodes; AM_argformer_american_validation_001_argformer_contrastive: full native contrastive batches 380/2099.
+The earlier v9 queue block is a historical snapshot. This block describes the active successor.
+Ancestry accuracy is pending the frozen prediction and scoring barriers. Training loss is not accuracy.
+One optional external AP001 archive is deferred with its full retained storage charge and zero credit.
+[Current queue metadata](research/benchmark_readable_current.json).
+<!-- readable-recovery-queue:end -->
+
 **TreeLoom** learns local ancestry inference (LAI) from ordered collections of complete genealogical trees. Its GNN processes tree structure and follows persistent haplotypes across genomic intervals.
 
 ## Current task: execute the benchmark campaign
