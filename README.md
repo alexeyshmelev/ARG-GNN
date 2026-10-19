@@ -59,7 +59,7 @@ On a separate earlier set of five American validation simulations, FLARE achieve
 <!-- BEGIN CURRENT RESOURCE BENCHMARK WORKFLOW -->
 ## Active benchmark continuation
 
-Observed 2026-10-19T21:21:26.787709+00:00. 163 succeeded; 0 failed; 1 running; 172 pending; 0 blocked; 0 unknown.
+Observed 2026-10-19T23:04:51.968110+00:00. 163 succeeded; 1 failed; 1 running; 155 pending; 16 blocked; 0 unknown.
 Run status: `running`. Physical GPU: 0.
 
 [Current queue details](research/benchmark_resource_current.json) · [Authenticated matched scores](research/resource_matched_benchmark_results.json)
@@ -75,15 +75,15 @@ Run status: `running`. Physical GPU: 0.
 | ap_train_targets | 0 | 0 | 0 | 3 | 0 | 0 |
 | contrastive | 1 | 0 | 0 | 14 | 0 | 0 |
 | embeddings | 1 | 0 | 0 | 14 | 0 | 0 |
-| external | 9 | 0 | 0 | 1 | 0 | 0 |
-| factory | 3 | 0 | 0 | 22 | 0 | 0 |
+| external | 9 | 1 | 0 | 0 | 0 | 0 |
+| factory | 3 | 0 | 0 | 21 | 1 | 0 |
 | fit_factory | 0 | 0 | 0 | 2 | 0 | 0 |
 | focal_factory | 35 | 0 | 0 | 0 | 0 | 0 |
 | generation_factory | 29 | 0 | 0 | 0 | 0 | 0 |
 | inference_factory | 29 | 0 | 0 | 0 | 0 | 0 |
 | mlm | 1 | 0 | 0 | 13 | 0 | 0 |
 | native | 15 | 0 | 0 | 0 | 0 | 0 |
-| prediction_factory | 0 | 0 | 0 | 17 | 0 | 0 |
+| prediction_factory | 0 | 0 | 0 | 2 | 15 | 0 |
 | prepare | 16 | 0 | 0 | 13 | 0 | 0 |
 | qualification_factory | 3 | 0 | 0 | 0 | 0 | 0 |
 | release_archive | 0 | 0 | 0 | 4 | 0 | 0 |
@@ -97,8 +97,6 @@ Run status: `running`. Physical GPU: 0.
 | release_native_targets | 0 | 0 | 0 | 4 | 0 | 0 |
 | release_seal | 0 | 0 | 0 | 5 | 0 | 0 |
 | retrieval | 1 | 0 | 0 | 14 | 0 | 0 |
-
-Preserved jobs are still running under their original supervisors: 1 on GPU 0 and 0 on CPU. Their outputs feed this queue after genuine completion.
 
 Running workflow jobs: `AP__ancestralpaths_european_train_001__ap_infer`.
 Named external queue jobs running: none. External queue states are listed separately from workflow counts.
