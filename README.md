@@ -7,22 +7,21 @@
 **The LAI benchmark uses an automated queue of 326 stages.** It covers shared American and European simulations, full training, native competitors, paired scoring and Danish data application. Current execution and matched results are published below. All computation and Git commands run on anogena, using physical GPU 0 only.
 
 <!-- BEGIN CURRENT BENCHMARK DIAGNOSIS -->
-**20 October 01:40 (Moscow): data preparation has advanced, but full training remains a performance concern.** The queue has **163 completed stages**, up from 157 at the previous deployment. No new failures are recorded in this continuation. **No new matched accuracy or F1 results are available.**
+**20 October, 02:12 Moscow: benchmark repairs are in progress.** The previous fresh TreeLoom fit failed in its first full-length recurrent pass with `CUDNN_STATUS_NOT_SUPPORTED`, before completing an optimizer update. Its inputs, failure log and completed earlier work are preserved. **No new matched accuracy or F1 results are available.**
 
-| Workstream | Verified progress | Remaining work |
+| Workstream | Verified state | Next step |
 | --- | --- | --- |
-| American TreeLoom | **20/20 training datasets prepared** and retained in RAM | **0/600 completed optimizer updates recorded**. More than two hours elapsed after preparation without the first completed update. The process remains active |
-| European TreeLoom | Both full observed-parent preparation checks passed on the 200 Mb input, in 57.8 and 62.0 minutes | Complete remaining training inputs, then fit and predict |
-| AncestralPaths | TRAIN000 and TEST002 inference and features complete | TRAIN001 inference is running. Remaining cohorts are queued |
-| Released ARGMix | Validation inference and its native input frame completed | Remaining training inputs, native fit and scoring |
-| ARGformer | First complete native pipeline and second MLM phase remain completed | Full prediction pipelines complete for 1/15 datasets. Remaining GPU stages queued |
-| FLARE | Predictions complete for 15/15 American validation/test datasets | Common scoring pending |
+| American TreeLoom | 20/20 input datasets were prepared, but the failed fit completed **0/600 updates** | Test the repaired recurrent execution at the actual sequence length, then restart the unchanged training schedule |
+| ARGformer | VAL001 contrastive training has been launched on GPU 0 using its completed MLM checkpoint. The VAL000 pipeline already produced 10,000 predictions | Verify completed native batches and continue the remaining prediction pipelines |
+| FLARE | **15/15** American prediction outputs complete | Common scoring after the comparison outputs are ready |
+| AncestralPaths | TRAIN001 inference remains active, TRAIN000 and TEST002 are complete | Complete remaining European inputs and predictions |
+| European TreeLoom and released ARGMix | Initial complete-parent preparation and native input checks passed | Remaining inputs, full training and predictions |
 
-The first-update delay is a training-speed concern, not delayed epoch logging. Each completed parent update is immediately flushed to the progress file. The source performs two tree sweeps, recurrent history processing, 200 bidirectional GRU tiles and backward recomputation per parent. These are plausible overhead sources, but a live stage bottleneck has not yet been established. No training loss is available before the first update is recorded. Overall GPU 0 utilization includes other users and must not be attributed to TreeLoom.
+The continuation now permits GPU 0 to be shared with other users. It records the new native worker's actual batch progress and GPU memory separately. Other users' processes are unchanged. Future dispatch from the old controller is paused while its live European inference continues, preventing duplicate launches during queue repair.
 
-Two verified lossless archives recovered **31.08 GB** of accounted storage. Another European inference job has started. Further concurrent inference remains limited by the 980 GB operational ceiling. Existing jobs and scientific settings are preserved.
+The TreeLoom repair keeps the model, full-parent objective and 600-update budget fixed. Smaller recurrent execution chunks will carry hidden states and gradients across their boundaries. Synthetic CPU checks alone do not establish full-parent GPU performance. Lossless archival of closed intermediate files is also being prepared to keep future jobs within the 1 TB project limit.
 
-[Current queue](research/benchmark_resource_current.json) · [Matched results](research/resource_matched_benchmark_results.json) · [Latest verified status](research/reviews/benchmark_status_20261020/status.json)
+[Repair status](research/repairs/benchmark_recovery_20261020/recovery_status.json) · [Current queue](research/benchmark_resource_current.json) · [Matched results](research/resource_matched_benchmark_results.json)
 <!-- END CURRENT BENCHMARK DIAGNOSIS -->
 
 <!-- BEGIN COMPLETED WORK ACCOUNTING -->
@@ -39,7 +38,7 @@ Audited at 20 October 2026, 01:52 Moscow. These are verified training and predic
 
 The five completed fresh ARGformer stages took **17.74 hours of elapsed job time**. This includes loading and data movement, and does not measure GPU kernel time. An earlier separate ARGformer chain also completed 2,135 contrastive updates and retrieval. These receipts confirm real training, but do not account for every hour of the previous days, including failed attempts and repairs.
 
-**The fresh matched comparison still has no ancestry scores.** FLARE has completed predictions for all 15 American validation/test simulations on CPU. ARGformer has completed predictions for one. The American scoring job depends on all 45 method/dataset prediction outputs, of which 16 are complete. The current TreeLoom fit has 20/20 inputs prepared and 0/600 completed updates logged. Its first-update delay remains an unresolved performance problem.
+**The fresh matched comparison still has no ancestry scores.** FLARE has completed predictions for all 15 American validation/test simulations on CPU. ARGformer has completed predictions for one. The American scoring job depends on all 45 method/dataset prediction outputs, of which 16 are complete. The failed fresh TreeLoom fit had 20/20 inputs prepared and 0/600 completed updates. Its first recurrent pass ended with a cuDNN error. The replacement is being tested before restart.
 
 ### Scores that already exist, from earlier development experiments
 
@@ -59,7 +58,7 @@ On a separate earlier set of five American validation simulations, FLARE achieve
 <!-- BEGIN CURRENT RESOURCE BENCHMARK WORKFLOW -->
 ## Active benchmark continuation
 
-Observed 2026-10-19T23:04:51.968110+00:00. 163 succeeded; 1 failed; 1 running; 155 pending; 16 blocked; 0 unknown.
+Observed 2026-10-19T23:09:05.976161+00:00. 163 succeeded; 1 failed; 1 running; 155 pending; 16 blocked; 0 unknown.
 Run status: `running`. Physical GPU: 0.
 
 [Current queue details](research/benchmark_resource_current.json) · [Authenticated matched scores](research/resource_matched_benchmark_results.json)
@@ -105,7 +104,7 @@ No supported authenticated matched score has completed in this workflow.
 <!-- END CURRENT RESOURCE BENCHMARK WORKFLOW -->
 
 <details>
-<summary>Previous v8 queue, retained for its still-running original workers</summary>
+<summary>Previous v8 queue and original failure evidence</summary>
 
 <!-- BEGIN CURRENT BENCHMARK WORKFLOW -->
 ## Active benchmark continuation
