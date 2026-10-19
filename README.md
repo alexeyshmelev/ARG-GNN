@@ -29,7 +29,7 @@ The model, datasets, comparison protocols and training budgets are unchanged. Th
 <!-- BEGIN CURRENT RESOURCE BENCHMARK WORKFLOW -->
 ## Active benchmark continuation
 
-Observed 2026-10-19T13:23:20.336256+00:00. 159 succeeded; 0 failed; 2 running; 175 pending; 0 blocked; 0 unknown.
+Observed 2026-10-19T14:00:34.457994+00:00. 160 succeeded; 0 failed; 1 running; 175 pending; 0 blocked; 0 unknown.
 Run status: `running`. Physical GPU: 0.
 
 [Current queue details](research/benchmark_resource_current.json) · [Authenticated matched scores](research/resource_matched_benchmark_results.json)
@@ -55,7 +55,7 @@ Run status: `running`. Physical GPU: 0.
 | native | 15 | 0 | 0 | 0 | 0 | 0 |
 | prediction_factory | 0 | 0 | 0 | 17 | 0 | 0 |
 | prepare | 16 | 0 | 0 | 13 | 0 | 0 |
-| qualification_factory | 1 | 0 | 2 | 0 | 0 | 0 |
+| qualification_factory | 2 | 0 | 1 | 0 | 0 | 0 |
 | release_archive | 0 | 0 | 0 | 4 | 0 | 0 |
 | release_c4_registry | 2 | 0 | 0 | 6 | 0 | 0 |
 | release_c4_score | 0 | 0 | 0 | 1 | 0 | 0 |
@@ -70,7 +70,7 @@ Run status: `running`. Physical GPU: 0.
 
 Preserved jobs are still running under their original supervisors: 1 on GPU 0 and 1 on CPU. Their outputs feed this queue after genuine completion.
 
-Running workflow jobs: `AP__train_000__treeloom_preparation_qualification`, `C4__train_000__treeloom_preparation_qualification`.
+Running workflow jobs: `C4__train_000__treeloom_preparation_qualification`.
 Named external queue jobs running: none. External queue states are listed separately from workflow counts.
 
 No supported authenticated matched score has completed in this workflow.
