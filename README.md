@@ -29,7 +29,7 @@ The model, datasets, comparison protocols and training budgets are unchanged. Th
 <!-- BEGIN CURRENT RESOURCE BENCHMARK WORKFLOW -->
 ## Active benchmark continuation
 
-Observed 2026-10-19T13:02:04.321526+00:00. 157 succeeded; 0 failed; 4 running; 175 pending; 0 blocked; 0 unknown.
+Observed 2026-10-19T13:23:20.336256+00:00. 159 succeeded; 0 failed; 2 running; 175 pending; 0 blocked; 0 unknown.
 Run status: `running`. Physical GPU: 0.
 
 [Current queue details](research/benchmark_resource_current.json) · [Authenticated matched scores](research/resource_matched_benchmark_results.json)
@@ -46,7 +46,7 @@ Run status: `running`. Physical GPU: 0.
 | contrastive | 1 | 0 | 0 | 14 | 0 | 0 |
 | embeddings | 1 | 0 | 0 | 14 | 0 | 0 |
 | external | 8 | 0 | 0 | 2 | 0 | 0 |
-| factory | 1 | 0 | 2 | 22 | 0 | 0 |
+| factory | 3 | 0 | 0 | 22 | 0 | 0 |
 | fit_factory | 0 | 0 | 0 | 2 | 0 | 0 |
 | focal_factory | 35 | 0 | 0 | 0 | 0 | 0 |
 | generation_factory | 29 | 0 | 0 | 0 | 0 | 0 |
@@ -70,7 +70,7 @@ Run status: `running`. Physical GPU: 0.
 
 Preserved jobs are still running under their original supervisors: 1 on GPU 0 and 1 on CPU. Their outputs feed this queue after genuine completion.
 
-Running workflow jobs: `AP__ancestralpaths_european_train_000__ap_infer__lossless_archive_v9`, `AP__ancestralpaths_european_test_002__ap_infer__lossless_archive_v9`, `AP__train_000__treeloom_preparation_qualification`, `C4__train_000__treeloom_preparation_qualification`.
+Running workflow jobs: `AP__train_000__treeloom_preparation_qualification`, `C4__train_000__treeloom_preparation_qualification`.
 Named external queue jobs running: none. External queue states are listed separately from workflow counts.
 
 No supported authenticated matched score has completed in this workflow.
