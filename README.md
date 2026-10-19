@@ -16,24 +16,24 @@ One optional external AP001 archive is deferred with its full retained storage c
 
 ## Current task: execute the benchmark campaign
 
-**The LAI benchmark uses an automated queue of 326 stages.** It covers shared American and European simulations, full training, native competitors, paired scoring and Danish data application. Current execution and matched results are published below. All computation and Git commands run on anogena, using physical GPU 0 only.
+**The active LAI benchmark continuation uses a queue of 347 stages, including storage recovery.** It covers shared American and European simulations, full training, native competitors, paired scoring and Danish data application. Current execution and matched results are published below. All computation and Git commands run on anogena, using physical GPU 0 only.
 
 <!-- BEGIN CURRENT BENCHMARK DIAGNOSIS -->
-**20 October: benchmark recovery is advancing.** ARGformer has completed **120/2,099 full contrastive training updates** after its memory repair. TreeLoom passed forward and backward processing across 78,362 tree intervals on GPU 0, and its replacement fit is now preparing the first actual training dataset. **No new matched accuracy or F1 results are available yet.**
+**20 October: the repaired benchmark continuation is running.** It retains 163 completed stages, adopts the running ARGformer, TreeLoom and AncestralPaths jobs, and automatically dispatches their remaining training, prediction and scoring stages. **Fresh matched accuracy and F1 are still pending.** The live report above includes current progress and is pushed from the server every 15 minutes.
 
-| Workstream | Verified state | Next step |
+| Workstream | Verified state at this repair checkpoint | Next step |
 | --- | --- | --- |
-| American TreeLoom | Full-length recurrent GPU test passed in 2.5 s with 3.6 GiB reserved memory. Actual dataset preparation started | Complete the first full-parent update, then continue all 600 updates |
-| ARGformer | VAL001 contrastive training is progressing with its original full batch of 4,096. VAL000 already produced 10,000 predictions | Finish training, embeddings and retrieval, then continue the remaining simulations |
+| American TreeLoom | Full-length recurrent GPU test passed in 2.5 s with 3.6 GiB reserved memory. Replacement fit is preparing its first actual training dataset | Complete a full-parent update, retain it and continue the unchanged 600-update schedule |
+| ARGformer | VAL001 has completed **400/2,099** contrastive updates with the original full batch of 4,096. VAL000 already produced 10,000 predictions | Finish this pipeline and automatically continue the remaining simulations |
 | FLARE | **15/15** fresh American prediction outputs complete | Common scoring when comparison outputs are ready |
-| AncestralPaths | TRAIN001 inference remains active, TRAIN000 and TEST002 are complete | Complete remaining European inputs and predictions |
-| European TreeLoom and released ARGMix | Completed input checks and preparation qualifications retained | Resume remaining stages through the repaired queue |
+| AncestralPaths | TRAIN001 inference remains active, TRAIN000 and TEST002 are complete | Remaining inference stages start as archive completion releases their storage reservations |
+| European TreeLoom and released ARGMix | Completed input checks and preparation qualifications retained, corrected fit and prediction adapters integrated | Complete remaining inputs, training and predictions |
 
-Only physical GPU 0 is used, with sharing allowed. Other users' jobs are unchanged. The previous TreeLoom attempt failed before its first update with a cuDNN sequence-length error. The repair carries hidden states and gradients through smaller recurrent calls, preserving the model, data, full-parent objective and 600-update schedule. ARGformer uses activation recomputation to reduce memory while preserving its original batch and objective. Its earlier out-of-memory attempt is retained separately.
+Only physical GPU 0 is used, with sharing allowed. Other users' jobs are unchanged. The TreeLoom repair carries hidden states and gradients through smaller recurrent calls, preserving its model and full-parent objective. ARGformer uses activation recomputation to reduce memory while preserving its original batch and objective.
 
-Lossless compression of 12 closed intermediate-file scopes has started. Compressed copies are verified before removing their redundant raw counterparts. Existing results, observations and failure evidence are preserved. The static successor queue is still being completed, while the live native training and European inference continue. This is an active recovery, not a completed benchmark.
+The old TreeLoom cuDNN failure, native out-of-memory attempt and interrupted storage attempt remain preserved. The new storage worker verifies and reuses 114 already-compressed files before continuing the remaining files. It receives no storage credit until completion and actual worker exit are verified. All future jobs now use one capacity ledger, avoiding conflicting reservations between independent controllers.
 
-[Repair status](research/repairs/benchmark_recovery_20261020/recovery_status.json) · [Earlier queue snapshot](research/benchmark_resource_current.json) · [Matched results](research/resource_matched_benchmark_results.json)
+[Repair status](research/repairs/benchmark_recovery_20261020/recovery_status.json) · [Live queue](research/benchmark_readable_current.json) · [Matched results](research/resource_matched_benchmark_results.json)
 <!-- END CURRENT BENCHMARK DIAGNOSIS -->
 
 <!-- BEGIN COMPLETED WORK ACCOUNTING -->
@@ -315,7 +315,7 @@ These commands inspect small metadata. They do not train models or load scientif
 
 ## Model advantages and evidence
 
-TreeLoom preserves complete local trees, genomic order and persistent sample identity. The selected model uses bounded GPU windows for learned history. Its full-size CPU preparation needs the repair described above before representative training can proceed.
+TreeLoom preserves complete local trees, genomic order and persistent sample identity. The selected model uses bounded GPU windows for learned history. Its replacement fit uses the repaired full-size CPU preparation and preserves the frozen training schedule.
 
 On eight reused European development simulations, TreeLoom achieved 97.0778 ± 0.5674% modern span accuracy, compared with 94.4461 ± 1.1491% for the released ARGMix pipeline and 93.7830 ± 0.8385% for the derived four-source AncestralPaths endpoint. These are common-data development results with disclosed differences from the publications. TreeLoom-NoMem has higher boundary F1. No overall top-1 claim is established.
 
