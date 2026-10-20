@@ -2,7 +2,7 @@
 
 <!-- readable-recovery-queue:start -->
 ### Current recovery queue
-Updated 2026-10-20T10:51:35.322669+00:00. Status: running.
+Updated 2026-10-20T11:06:45.042311+00:00. Status: running.
 66 pending, 2 running, 181 succeeded, 2 failed, 96 blocked, 0 unknown.
 Local active: AP__ancestralpaths_european_train_002__ap_infer, AP__ancestralpaths_european_test_000__ap_infer.
 Standalone work: no live standalone generations.
