@@ -2,7 +2,7 @@
 
 <!-- readable-recovery-queue:start -->
 ### Current recovery queue
-Updated 2026-10-20T07:12:33.326264+00:00. Status: running.
+Updated 2026-10-20T07:16:11.600954+00:00. Status: running.
 72 pending, 1 running, 176 succeeded, 2 failed, 96 blocked, 0 unknown.
 Local active: AP__ancestralpaths_european_train_002__ap_infer.
 Standalone work: no live standalone generations.
@@ -70,8 +70,8 @@ On a separate earlier set of five American validation simulations, FLARE achieve
 <!-- BEGIN CURRENT RESOURCE BENCHMARK WORKFLOW -->
 ## Active benchmark continuation
 
-Observed 2026-10-19T23:09:05.976161+00:00. 163 succeeded; 1 failed; 1 running; 155 pending; 16 blocked; 0 unknown.
-Run status: `running`. Physical GPU: 0.
+Observed 2026-10-20T07:17:30.314165+00:00. 164 succeeded; 1 failed; 0 running; 155 pending; 16 blocked; 0 unknown.
+Run status: `drained_for_operational_update`. Physical GPU: 0.
 
 [Current queue details](research/benchmark_resource_current.json) · [Authenticated matched scores](research/resource_matched_benchmark_results.json)
 
@@ -80,7 +80,7 @@ Run status: `running`. Physical GPU: 0.
 | ap_features | 2 | 0 | 0 | 6 | 0 | 0 |
 | ap_fit | 0 | 0 | 0 | 1 | 0 | 0 |
 | ap_generate | 9 | 0 | 0 | 0 | 0 | 0 |
-| ap_infer | 2 | 0 | 1 | 5 | 0 | 0 |
+| ap_infer | 3 | 0 | 0 | 5 | 0 | 0 |
 | ap_predict | 0 | 0 | 0 | 5 | 0 | 0 |
 | ap_registry | 2 | 0 | 0 | 6 | 0 | 0 |
 | ap_train_targets | 0 | 0 | 0 | 3 | 0 | 0 |
@@ -109,7 +109,7 @@ Run status: `running`. Physical GPU: 0.
 | release_seal | 0 | 0 | 0 | 5 | 0 | 0 |
 | retrieval | 1 | 0 | 0 | 14 | 0 | 0 |
 
-Running workflow jobs: `AP__ancestralpaths_european_train_001__ap_infer`.
+Running workflow jobs: none.
 Named external queue jobs running: none. External queue states are listed separately from workflow counts.
 
 No supported authenticated matched score has completed in this workflow.
