@@ -2,10 +2,10 @@
 
 <!-- readable-recovery-queue:start -->
 ### Current recovery queue
-Updated 2026-10-20T00:09:23.293201+00:00. Status: running.
-182 pending, 1 running, 164 succeeded, 0 failed, 0 blocked, 0 unknown.
+Updated 2026-10-20T00:24:25.547202+00:00. Status: running.
+165 pending, 1 running, 164 succeeded, 1 failed, 16 blocked, 0 unknown.
 Local active: STORAGE_RECOVERY_V2__closed_b500c8c0f33998b7.
-Standalone work: AM_treeloom_fit: TreeLoom validate_complete_observed_bundle; AM_argformer_american_validation_001_argformer_contrastive: full native contrastive batches 560/2099.
+Standalone work: AM_argformer_american_validation_001_argformer_contrastive: full native contrastive batches 720/2099.
 The earlier v9 queue block is a historical snapshot. This block describes the active successor.
 Ancestry accuracy is pending the frozen prediction and scoring barriers. Training loss is not accuracy.
 One optional external AP001 archive is deferred with its full retained storage charge and zero credit.
