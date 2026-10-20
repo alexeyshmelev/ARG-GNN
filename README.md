@@ -2,9 +2,9 @@
 
 <!-- readable-recovery-queue:start -->
 ### Current recovery queue
-Updated 2026-10-20T03:33:09.101124+00:00. Status: running.
-154 pending, 2 running, 174 succeeded, 1 failed, 16 blocked, 0 unknown.
-Local active: STORAGE_RECOVERY_V2__closed_61cc1d8fdf83cf50, AP__ancestralpaths_european_train_002__ap_infer.
+Updated 2026-10-20T03:48:22.048319+00:00. Status: running.
+153 pending, 2 running, 175 succeeded, 1 failed, 16 blocked, 0 unknown.
+Local active: STORAGE_RECOVERY_V2__closed_d9356718118a64a0, AP__ancestralpaths_european_train_002__ap_infer.
 Standalone work: no live standalone generations.
 The earlier v9 queue block is a historical snapshot. This block describes the active successor.
 Ancestry accuracy is pending the frozen prediction and scoring barriers. Training loss is not accuracy.
