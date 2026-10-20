@@ -2,10 +2,10 @@
 
 <!-- readable-recovery-queue:start -->
 ### Current recovery queue
-Updated 2026-10-20T00:39:39.790610+00:00. Status: running.
+Updated 2026-10-20T00:54:52.167515+00:00. Status: running.
 164 pending, 1 running, 165 succeeded, 1 failed, 16 blocked, 0 unknown.
 Local active: STORAGE_RECOVERY_V2__closed_111ff4221a7fd0f3.
-Standalone work: AM_argformer_american_validation_001_argformer_contrastive: full native contrastive batches 900/2099.
+Standalone work: AM_argformer_american_validation_001_argformer_contrastive: full native contrastive batches 1080/2099.
 The earlier v9 queue block is a historical snapshot. This block describes the active successor.
 Ancestry accuracy is pending the frozen prediction and scoring barriers. Training loss is not accuracy.
 One optional external AP001 archive is deferred with its full retained storage charge and zero credit.
