@@ -2,9 +2,9 @@
 
 <!-- readable-recovery-queue:start -->
 ### Current recovery queue
-Updated 2026-10-21T01:24:44.623724+00:00. Status: running.
-143 pending, 8 running, 196 succeeded, 0 failed, 0 blocked, 0 unknown.
-Local active: AM_argformer_american_validation_001_argformer_embeddings, AM_treeloom_fit, AP__ancestralpaths_european_test_000__ap_infer__lossless_archive_v9, AP__ancestralpaths_european_train_000__ap_train_targets, AP__ancestralpaths_european_train_001__ap_train_targets, AP__ancestralpaths_european_train_002__ap_infer__lossless_archive_v9, C4__ancestralpaths_european_train_002__release_c4_targets, C4__argmix_release_ap200mb_validation_000__release_native_targets.
+Updated 2026-10-21T01:36:39.193360+00:00. Status: running.
+132 pending, 4 running, 204 succeeded, 2 failed, 5 blocked, 0 unknown.
+Local active: AP__ancestralpaths_european_train_002__ap_infer__lossless_archive_v9, AP__ancestralpaths_european_test_000__ap_infer__lossless_archive_v9, AM_treeloom_fit, AM_argformer_american_validation_001_argformer_embeddings.
 Live training stages: bounded stage metadata pending.
 Standalone work: no live standalone generations.
 The earlier v9 queue block is a historical snapshot. This block describes the active successor.
