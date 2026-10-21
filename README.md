@@ -2,7 +2,7 @@
 
 <!-- readable-recovery-queue:start -->
 ### Current recovery queue
-Updated 2026-10-21T14:00:09.173575+00:00. Status: running.
+Updated 2026-10-21T14:15:45.188624+00:00. Status: running.
 98 pending, 1 running, 224 succeeded, 3 failed, 21 blocked, 0 unknown.
 Local active: AP__ancestralpaths_european_test_004__ap_infer.
 Live training stages: bounded stage metadata pending.
