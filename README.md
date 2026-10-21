@@ -2,10 +2,10 @@
 
 <!-- readable-recovery-queue:start -->
 ### Current recovery queue
-Updated 2026-10-21T09:52:39.447408+00:00. Status: running.
-114 pending, 3 running, 223 succeeded, 2 failed, 5 blocked, 0 unknown.
-Local active: AP__ancestralpaths_european_test_003__ap_infer__lossless_archive_v9, AM_treeloom_fit, AP__ancestralpaths_european_test_004__ap_infer.
-Live training stages: AM_treeloom_fit: TreeLoom training: _second.
+Updated 2026-10-21T10:08:00.688240+00:00. Status: running.
+98 pending, 1 running, 224 succeeded, 3 failed, 21 blocked, 0 unknown.
+Local active: AP__ancestralpaths_european_test_004__ap_infer.
+Live training stages: bounded stage metadata pending.
 Standalone work: no live standalone generations.
 The earlier v9 queue block is a historical snapshot. This block describes the active successor.
 Ancestry accuracy is pending the frozen prediction and scoring barriers. Training loss is not accuracy.
