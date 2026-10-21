@@ -2,7 +2,7 @@
 
 <!-- readable-recovery-queue:start -->
 ### Current recovery queue
-Updated 2026-10-21T05:31:07.091492+00:00. Status: running.
+Updated 2026-10-21T05:46:18.151725+00:00. Status: running.
 128 pending, 3 running, 209 succeeded, 2 failed, 5 blocked, 0 unknown.
 Local active: AM_treeloom_fit, AP__ancestralpaths_european_test_001__ap_infer, AP__ancestralpaths_european_test_003__ap_infer.
 Live training stages: bounded stage metadata pending.
