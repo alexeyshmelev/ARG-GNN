@@ -1,0 +1,54 @@
+--- research/repairs/benchmark_recovery_20261020/scheduler/queue_native_worker_v1.py
++++ research/repairs/benchmark_resume_20261021/gpu/queue_native_worker_v1.py
+@@ -1,4 +1,4 @@
+-"""Readable native numerical child for the separately approved shared GPU0 route.
++"""Readable native numerical child for the separately approved shared GPU5 route.
+ 
+ No scheduler, admission, lease or subprocess launch. The outer worker owns the
+ process group. Source imports are inert until main/run is explicitly invoked.
+@@ -16,6 +16,7 @@
+ import time
+ 
+ from arggnn.benchmarking import american_competitors as api
++from .shared_gpu5_v1 import GPU5_UUID
+ 
+ 
+ def checkpoint_counters(state,epochs,updates):
+@@ -39,8 +40,8 @@
+ def _native(spec,out):
+     api.need(Path(sys.executable).resolve()==(api.ROOT/api.NATIVE_PYTHON).resolve()
+              and sys.dont_write_bytecode and sys.flags.no_user_site,"Exact isolated native interpreter -B -s required")
+-    api.need(os.environ.get("CUDA_VISIBLE_DEVICES")==api.GPU0_UUID and os.environ.get("ARGGNN_PHYSICAL_GPU")=="0",
+-             "Only admitted physical GPU0 may become visible")
++    api.need(os.environ.get("CUDA_VISIBLE_DEVICES")==GPU5_UUID and os.environ.get("ARGGNN_PHYSICAL_GPU")=="5",
++             "Only admitted physical GPU5 may become visible")
+     api.need(int(os.environ.get("WORLD_SIZE","1"))==1,"Single-device native world size must remain one")
+     import setproctitle
+     setproctitle.setproctitle("AI Auto Research Pipeline Test")
+@@ -116,7 +117,7 @@
+     def capture_trainer(*args,**kwargs):
+         api.need(not trainer_box,"Exactly one original native Trainer is permitted")
+         from composer.core import Callback
+-        from .native_telemetry_v1 import memory_callback
++        from research.repairs.benchmark_recovery_20261020.scheduler.native_telemetry_v1 import memory_callback
+         kwargs["callbacks"]=[*kwargs.get("callbacks",[]),memory_callback(Callback,torch,out,check)]
+         t=actual_trainer(*args,**kwargs);trainer_box["trainer"]=t
+         api.need(len(t.state.train_dataloader)==spec["expected_updates"]//(5 if phase=="mlm" else 1),
+@@ -134,7 +135,7 @@
+                      "Preserve explicitly named release temperature and uniform fallback")
+             initialization.update(complete_encoder_keys_equal=count,initializer_checkpoint_ref=checkpoint,
+                                   verified_before_optimizer=True,no_forward_or_optimizer_probe=True)
+-            from .activation_checkpoint_v1 import install_native
++            from research.repairs.benchmark_recovery_20261020.scheduler.activation_checkpoint_v1 import install_native
+             initialization["activation_checkpoint_execution"]=install_native(model,torch,api.ROOT/api.AUTHOR)
+             del saved
+             return model
+@@ -260,7 +261,7 @@
+              native_corpus_embeddings_ref=ram.descriptor("contrastive","RAM_tensors"),
+              native_retrieval_ref=retrieval_ref,external_truth_ref=None,prediction_ref=None)
+     writer=api.Writer(out/"seal",64*2**20,check,completion_name="prediction_seal.json")
+-    from .native_seal_v1 import native_top1_seal
++    from research.repairs.benchmark_recovery_20261020.scheduler.native_seal_v1 import native_top1_seal
+     def load_embedding(record):
+         for view in ("query_paths","contrastive"):
+             if record==ram.descriptor(view,"RAM_tensors"):return ram.values[view]

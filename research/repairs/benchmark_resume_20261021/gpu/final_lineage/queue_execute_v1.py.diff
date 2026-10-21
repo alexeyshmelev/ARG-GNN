@@ -1,0 +1,67 @@
+--- research/repairs/benchmark_recovery_20261020/scheduler/queue_execute_v1.py
++++ research/repairs/benchmark_resume_20261021/gpu/queue_execute_v1.py
+@@ -10,10 +10,10 @@
+ import subprocess
+ import sys
+ import time
+-from arggnn.benchmarking import contracts as c
++from . import contracts_gpu5_v1 as c
+ from arggnn.benchmarking import workflow_v4 as lifecycle
+ from research.reviews.benchmark_repairs_20261019.supervision.finite_pss_v1 import repaired_owned_group_class
+-from . import queue_gpu0_v1 as gpu
++from . import queue_gpu5_v1 as gpu
+ 
+ OwnedGroup = repaired_owned_group_class(lifecycle)
+ _DEFERRED_LEASES = []  # OS closes these only when the scientific process exits.
+@@ -40,7 +40,7 @@
+     if task['resource'] == 'gpu0':
+         gpu.validate_child(job, ref,first_cuda=True)
+     elif deferred:
+-        api.need(os.environ.get('CUDA_VISIBLE_DEVICES') == gpu.GPU0_UUID
++        api.need(os.environ.get('CUDA_VISIBLE_DEVICES') == gpu.GPU5_UUID
+                  and 'ARGGNN_READABLE_GPU_FD' not in os.environ, 'Deferred preparation has no CUDA lease')
+     else:
+         api.need(os.environ.get('CUDA_VISIBLE_DEVICES') == '', 'CPU worker cannot use CUDA')
+@@ -66,7 +66,7 @@
+     def bounded_runner(argv, cwd, env, limits, log_path):
+         argv=list(argv)
+         if len(argv)>4 and argv[3]=='-m' and argv[4]=='arggnn.benchmarking.american_competitor_worker':
+-            argv[4]='research.repairs.benchmark_recovery_20261020.scheduler.queue_native_worker_v1'
++            argv[4]='research.repairs.benchmark_resume_20261021.gpu.queue_native_worker_v1'
+         api.support.validate_native_command(argv)
+         api.need(Path(cwd).resolve().is_relative_to(c.ROOT), 'Native working directory escaped project')
+         log = c.contained_path(log_path)
+@@ -118,10 +118,10 @@
+             break
+         _DEFERRED_LEASES.append(context)
+         gpu.set_root(descriptor,tracker.root)
+-        os.environ.update(ARGGNN_PHYSICAL_GPU='0',ARGGNN_MAX_CUDA_RESERVED_BYTES=str(task['max_cuda_reserved_bytes']),
++        os.environ.update(ARGGNN_PHYSICAL_GPU='5',ARGGNN_MAX_CUDA_RESERVED_BYTES=str(task['max_cuda_reserved_bytes']),
+             ARGGNN_READABLE_GPU_FD=str(descriptor),ARGGNN_READABLE_JOB_REF=json.dumps(ref))
+         gpu.validate_child(job,ref,first_cuda=True)
+-        return dict(physical_gpu=0,gpu_uuid=gpu.GPU0_UUID,max_cuda_reserved_bytes=task['max_cuda_reserved_bytes'])
++        return dict(physical_gpu=5,gpu_uuid=gpu.GPU5_UUID,max_cuda_reserved_bytes=task['max_cuda_reserved_bytes'])
+ 
+     module, name = api.support.scientific_route(c.read_ref(job['plan_ref']), call)
+     function = getattr(importlib.import_module(module), name)
+@@ -150,8 +150,9 @@
+         temporary.mkdir()
+         cache.mkdir()
+         env = {key: value for key, value in os.environ.items()
+-               if not key.startswith('ARGGNN_GPU') and key != 'ARGGNN_PHYSICAL_GPU'}
+-        env.update(CUDA_VISIBLE_DEVICES=gpu.GPU0_UUID if descriptor is not None or deferred else '',
++               if not key.startswith(('ARGGNN_GPU', 'ARGGNN_READABLE_'))
++               and key not in ('ARGGNN_PHYSICAL_GPU', 'ARGGNN_MAX_CUDA_RESERVED_BYTES')}
++        env.update(CUDA_VISIBLE_DEVICES=gpu.GPU5_UUID if descriptor is not None or deferred else '',
+                    TMPDIR=str(temporary), TMP=str(temporary), TEMP=str(temporary),
+                    PYTHONDONTWRITEBYTECODE='1', PYTHONNOUSERSITE='1',
+                    PYTHONPATH=str(c.ROOT)+':'+str(c.ROOT/'src')+':'+str(c.ROOT/'scripts'),
+@@ -160,7 +161,7 @@
+                     'STDPOPSIM_CACHE', 'TORCHINDUCTOR_CACHE_DIR', 'TRITON_CACHE_DIR', 'CUDA_CACHE_PATH'):
+             env[key] = str(cache/key.lower())
+         if descriptor is not None:
+-            env.update(ARGGNN_PHYSICAL_GPU='0', ARGGNN_MAX_CUDA_RESERVED_BYTES=str(task['max_cuda_reserved_bytes']),
++            env.update(ARGGNN_PHYSICAL_GPU='5', ARGGNN_MAX_CUDA_RESERVED_BYTES=str(task['max_cuda_reserved_bytes']),
+                        ARGGNN_READABLE_GPU_FD=str(descriptor), ARGGNN_READABLE_JOB_REF=json.dumps(ref),
+                        PYTORCH_NVML_BASED_CUDA_CHECK='1')
+         if deferred:env['PYTORCH_NVML_BASED_CUDA_CHECK']='1'

@@ -2,9 +2,9 @@
 
 <!-- readable-recovery-queue:start -->
 ### Current recovery queue
-Updated 2026-10-21T01:21:38.590252+00:00. Status: running.
-155 pending, 9 running, 183 succeeded, 0 failed, 0 blocked, 0 unknown.
-Local active: AP__ancestralpaths_european_train_002__ap_infer__lossless_archive_v9, AP__ancestralpaths_european_test_000__ap_infer__lossless_archive_v9, AM_treeloom_fit, C4__ancestralpaths_european_train_002__release_frame, C4__ancestralpaths_european_train_002__release_c4_registry, C4__ancestralpaths_european_test_000__release_frame, C4__ancestralpaths_european_test_000__release_c4_registry, AP__ancestralpaths_european_train_002__ap_registry, AP__ancestralpaths_european_test_000__ap_registry.
+Updated 2026-10-21T01:22:43.314570+00:00. Status: running.
+153 pending, 9 running, 185 succeeded, 0 failed, 0 blocked, 0 unknown.
+Local active: AP__ancestralpaths_european_train_002__ap_infer__lossless_archive_v9, AP__ancestralpaths_european_test_000__ap_infer__lossless_archive_v9, C4__ancestralpaths_european_train_002__release_frame, C4__ancestralpaths_european_train_002__release_c4_registry, C4__ancestralpaths_european_test_000__release_frame, C4__ancestralpaths_european_test_000__release_c4_registry, AP__ancestralpaths_european_train_002__ap_features, AP__ancestralpaths_european_test_000__ap_features, AM_argformer_american_validation_001_argformer_embeddings.
 Live training stages: bounded stage metadata pending.
 Standalone work: no live standalone generations.
 The earlier v9 queue block is a historical snapshot. This block describes the active successor.
@@ -17,24 +17,24 @@ One optional external AP001 archive is deferred with its full retained storage c
 
 ## Current task: execute the benchmark campaign
 
-**The active LAI benchmark continuation uses a queue of 347 stages, including storage recovery.** It covers shared American and European simulations, full training, native competitors, paired scoring and Danish data application. Current execution and matched results are published below. All computation and Git commands run on anogena, using physical GPU 0 only.
+**The active LAI benchmark continuation uses a queue of 347 stages, including storage recovery.** It covers shared American and European simulations, full training, native competitors, paired scoring and Danish data application. Current execution and matched results are published below. All computation and Git commands run on anogena, using physical GPU 5 only.
 
 <!-- BEGIN CURRENT BENCHMARK DIAGNOSIS -->
-**20 October: the repaired benchmark continuation is running.** It retains 163 completed stages, adopts the running ARGformer, TreeLoom and AncestralPaths jobs, and automatically dispatches their remaining training, prediction and scoring stages. **Fresh matched accuracy and F1 are still pending.** The live report above includes current progress and is pushed from the server every 15 minutes.
+**21 October: the benchmark has resumed on physical GPU 5.** The successor carries forward **183 completed stages** and queues the remaining **164 stages**. It preserves completed models, data and prior failure records. **Fresh matched ancestry accuracy and F1 are still pending.** The live report above shows subsequent progress and is pushed from the server every 15 minutes.
 
-| Workstream | Verified state at this repair checkpoint | Next step |
+| Workstream | Verified state at restart | Next step |
 | --- | --- | --- |
-| American TreeLoom | Full-length recurrent GPU test passed in 2.5 s with 3.6 GiB reserved memory. Replacement fit is preparing its first actual training dataset | Complete a full-parent update, retain it and continue the unchanged 600-update schedule |
-| ARGformer | VAL001 has completed **400/2,099** contrastive updates with the original full batch of 4,096. VAL000 already produced 10,000 predictions | Finish this pipeline and automatically continue the remaining simulations |
-| FLARE | **15/15** fresh American prediction outputs complete | Common scoring when comparison outputs are ready |
-| AncestralPaths | TRAIN001 inference remains active, TRAIN000 and TEST002 are complete | Remaining inference stages start as archive completion releases their storage reservations |
-| European TreeLoom and released ARGMix | Completed input checks and preparation qualifications retained, corrected fit and prediction adapters integrated | Complete remaining inputs, training and predictions |
+| American TreeLoom | The previous fit exceeded its 128 GiB RAM cap before the first optimizer update. The successor reserves 512 GiB and saves full state after each completed update | Complete the unchanged 600 updates over 30 epochs |
+| ARGformer | VAL001 completed all **2,099 contrastive updates**. Its checkpoint is retained. A parent-directory validation error in the next stage is fixed. VAL000 already produced 10,000 predictions | Produce VAL001 embeddings and predictions, then continue the remaining simulations |
+| FLARE | **15/15** fresh American prediction outputs complete | Common scoring after all required comparison predictions |
+| AncestralPaths | Two additional inference stages completed successfully before the pause and are now adopted from their actual successful waits | Continue remaining inference and lossless storage stages |
+| European TreeLoom and released ARGMix | Completed inputs and preparation checks retained. Future execution uses the GPU 5 adapters | Complete training, predictions and paired scoring |
 
-Only physical GPU 0 is used, with sharing allowed. Other users' jobs are unchanged. The TreeLoom repair carries hidden states and gradients through smaller recurrent calls, preserving its model and full-parent objective. ARGformer uses activation recomputation to reduce memory while preserving its original batch and objective.
+Only physical GPU 5 is authorized. Project jobs may share it when memory permits. Process control is restricted to verified ARG-GNN jobs. No unrelated process was signalled or modified during the move.
 
-The old TreeLoom cuDNN failure, native out-of-memory attempt and interrupted storage attempt remain preserved. The new storage worker verifies and reuses 114 already-compressed files before continuing the remaining files. It receives no storage credit until completion and actual worker exit are verified. All future jobs now use one capacity ledger, avoiding conflicting reservations between independent controllers.
+The migration changes execution, memory allocation and output paths while preserving scientific models, data and training budgets. ARGMix retains the authors' training and inference functions with explicit process and file I/O bindings. The conservative storage projection before dispatch was **783.06 GB**, below the 980 GB operational ceiling.
 
-[Repair status](research/repairs/benchmark_recovery_20261020/recovery_status.json) · [Live queue](research/benchmark_readable_current.json) · [Matched results](research/resource_matched_benchmark_results.json)
+[Restart details](research/repairs/benchmark_resume_20261021/resume_status.json) · [Live queue](research/benchmark_readable_current.json) · [Matched results](research/resource_matched_benchmark_results.json)
 <!-- END CURRENT BENCHMARK DIAGNOSIS -->
 
 <!-- BEGIN COMPLETED WORK ACCOUNTING -->

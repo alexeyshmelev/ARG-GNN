@@ -1,5 +1,9 @@
 # ARG-GNN research instructions
 
+## Current user GPU assignment, 21 October 2026
+
+The user explicitly instructed: continue the benchmark on physical GPU 5. This supersedes every earlier GPU 0, GPU 2/3 or GPU 4/5 assignment below for future execution. Use only physical GPU 5, UUID GPU-3db85505-d061-e45d-d154-e7e8c1cad497. Multiple project jobs may share it when memory permits. Never signal or modify unrelated processes. Only verified ARG-GNN task-owned processes may be controlled. Preserve prior scientific work, source versions, failure records and settings. The old GPU 0 controller is retired and is not future execution authority. The GPU 5 successor must be explicitly bound in the canonical execution policy.
+
 ## Scope and isolation
 All project work is performed on anogena in /workspace-SR003.nfs2/ARG-GNN.
 All server writes must remain inside this repository, including environments, package caches, temporary files, data, checkpoints, logs and manuscript outputs.

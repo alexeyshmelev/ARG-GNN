@@ -1,0 +1,85 @@
+--- research/repairs/benchmark_recovery_20261020/scheduler/queue_reporting_v1.py
++++ research/repairs/benchmark_resume_20261021/gpu/queue_reporting_v1.py
+@@ -9,8 +9,51 @@
+ END='<!-- readable-recovery-queue:end -->'
+ 
+ 
++def tree_progress(output):
++    """Use the newest bounded progress file, including real training stages."""
++    choices=[]
++    for base in (output,output/'native'):
++        for filename,phase in (('training_live.json','training'),('preparation_live.json','preparation')):
++            path=base/filename
++            try:
++                info=path.stat()
++                if path.is_symlink() or info.st_size>65536:continue
++                sample=c.read_json(path)
++                if not isinstance(sample,dict) or sample.get('schema')!='treeloom_stage_progress_v1':continue
++                choices.append((info.st_mtime_ns,phase,path,sample))
++            except (OSError,ValueError,KeyError):continue
++    if not choices:return dict(stage='live; bounded progress metadata pending')
++    modified,phase,path,sample=max(choices,key=lambda item:item[0])
++    latest=sample.get('latest',{})
++    active=sample.get('active_stages',[])
++    mark=active[-1].get('stage') if active else latest.get('preparation_stage',latest.get('last_mark','running'))
++    result=dict(stage='TreeLoom '+phase+': '+str(mark),phase=phase,parent_id=sample.get('parent_id'),
++        latest=latest,active_stages=active,progress_path=str(path.relative_to(c.ROOT)),
++        progress_modified_ns=modified,peak_RSS_bytes=sample.get('peak_RSS_bytes'))
++    for base in (output,output/'native'):
++        checkpoint=base/'latest_checkpoint.json'
++        try:
++            if checkpoint.is_symlink() or checkpoint.stat().st_size>65536:continue
++            current=c.read_json(checkpoint)
++            result['completed_parent_updates']=current['complete_parent_updates']
++            result['checkpoint_epoch']=current.get('epoch')
++            result['checkpoint_parent_id']=current.get('parent_id')
++        except (OSError,ValueError,KeyError):continue
++    return result
++
++
++def local_status(plan,state):
++    rows={}
++    for task in plan['tasks']:
++        if state['tasks'][task['id']]['status']!='running' or task['resource']=='external':continue
++        output=c.contained_path(task['output_directory'])
++        row=tree_progress(output)
++        if row.get('phase'):rows[task['id']]=row
++    return rows
++
++
+ def standalone_status(plan):
+-    from .queue_adoption_v1 import generation_absent
++    from research.repairs.benchmark_recovery_20261020.scheduler.queue_adoption_v1 import generation_absent
+     rows={}
+     for task in plan['tasks']:
+         binding=task.get('standalone_predecessor')
+@@ -23,9 +66,7 @@
+                 row.update(stage='full native contrastive batches',latest_batch=sample.get('batch'),
+                     expected_updates=c.read_ref(binding['request_ref'])['call']['spec']['expected_updates'])
+             else:
+-                sample=c.read_json(output/'preparation_live.json')
+-                row.update(stage='TreeLoom '+str(sample.get('latest',{}).get('preparation_stage',sample.get('latest',{}).get('last_mark','running'))),
+-                    latest=sample.get('latest',{}),parent_id=sample.get('parent_id'))
++                row.update(tree_progress(output))
+         except (OSError,ValueError,KeyError):row['stage']='live; bounded progress metadata pending'
+         rows[task['id']]=row
+     return rows
+@@ -40,8 +81,9 @@
+         and state['tasks'][task['id']].get('result_ref')}
+     for result_ref in score_refs.values():c.read_ref(result_ref)
+     standalones=standalone_status(plan)
++    local=local_status(plan,state)
+     deferred=[dict(task_id=item['task']['id'],reason=item['reason']) for item in plan.get('deferred_optional_archive_tasks',[])]
+-    receipt=dict(live_standalone_stages=standalones,deferred_optional_archives=deferred,completed_score_result_refs=score_refs,plan_ref=reference,updated_utc=updated,run_status=state.get('run_status'),counts=counts,
++    receipt=dict(live_local_stages=local,live_standalone_stages=standalones,deferred_optional_archives=deferred,completed_score_result_refs=score_refs,plan_ref=reference,updated_utc=updated,run_status=state.get('run_status'),counts=counts,
+         waiting_reasons=state.get('waiting_reasons',{}),new_ancestry_accuracy=None,scientific_scores_claimed=False)
+     save(c.contained_path(plan['records_directory'])/'readable_progress.json',receipt)
+     active=[identifier for identifier,row in state['tasks'].items() if row['status']=='running']
+@@ -49,6 +91,7 @@
+         'Updated '+updated+'. Status: '+str(state.get('run_status'))+'.',
+         ', '.join(str(value)+' '+key for key,value in counts.items())+'.',
+         'Local active: '+(', '.join(active) if active else 'waiting for dependencies or capacity')+'.',
++        'Live training stages: '+('; '.join(key+': '+row['stage']+((' ('+str(row['completed_parent_updates'])+'/600 saved parent updates)') if 'completed_parent_updates' in row else '') for key,row in local.items()) if local else 'bounded stage metadata pending')+'.',
+         'Standalone work: '+('; '.join(key+': '+row['stage']+((' '+str(row['latest_batch'])+'/'+str(row['expected_updates'])) if 'latest_batch' in row else '') for key,row in standalones.items()) if standalones else 'no live standalone generations')+'.',
+         'The earlier v9 queue block is a historical snapshot. This block describes the active successor.',
+         ('Verified completed score artifacts: '+', '.join('['+key+']('+ref['path']+')' for key,ref in score_refs.items())+'.'

@@ -1,0 +1,50 @@
+--- research/repairs/benchmark_recovery_20261020/scheduler/readable_workflow_v1.py
++++ research/repairs/benchmark_resume_20261021/gpu/readable_workflow_v1.py
+@@ -22,15 +22,15 @@
+ import sys
+ import time
+ 
+-from arggnn.benchmarking import contracts as c
+-from arggnn.benchmarking.execution import GPU0_UUID, TITLE
++from . import contracts_gpu5_v1 as c
++from arggnn.benchmarking.execution import TITLE
+ from arggnn.benchmarking.workflow_v4 import scope_bytes
+ from . import queue_support_v1 as support
+-from . import queue_gpu0_v1 as shared_gpu
++from . import queue_gpu5_v1 as shared_gpu
+ from . import queue_execute_v1 as runtime
+ 
+-MODULE = "research.repairs.benchmark_recovery_20261020.scheduler.readable_workflow_v1"
+-SOURCE = "research/repairs/benchmark_recovery_20261020/scheduler/readable_workflow_v1.py"
++MODULE = "research.repairs.benchmark_resume_20261021.gpu.readable_workflow_v1"
++SOURCE = "research/repairs/benchmark_resume_20261021/gpu/readable_workflow_v1.py"
+ SCHEMA = "arggnn_executable_workflow_v1"
+ 
+ 
+@@ -74,7 +74,7 @@
+ 
+ def load_plan(ref, *, approved=False):
+     plan = c.read_ref(ref)
+-    need(plan.get("schema") == SCHEMA and plan.get("physical_gpu") == 0,
++    need(plan.get("schema") == SCHEMA and plan.get("physical_gpu") == 5,
+          "Frozen one-GPU workflow required")
+     need(type(plan.get("cpu_parallelism")) is int and 1 <= plan["cpu_parallelism"] <= 8,
+          "Explicit bounded CPU parallelism required")
+@@ -122,7 +122,7 @@
+                          for k in ("minimum_free_gpu_bytes","max_cuda_reserved_bytes"))
+                      and task["max_cuda_reserved_bytes"]<=74*2**30
+                      and task["minimum_free_gpu_bytes"]>=task["max_cuda_reserved_bytes"],
+-                     "Finite physicalGPU0 free-memory/allocator caps required")
++                     "Finite physicalGPU5 free-memory/allocator caps required")
+             need(c.contained_path(task["output_directory"]).is_relative_to(c.ROOT/"experiments/results"),
+                  "Project result scope required")
+     scopes=[c.contained_path(t["output_directory"]).resolve() for t in plan["tasks"] if t["resource"]!="external"]
+@@ -291,7 +291,7 @@
+                         if process.poll() is not None:
+                             code=process.wait();log.close();del running[task["id"]]
+                             if code==75 and not c.contained_path(task["output_directory"]).exists():
+-                                entry.update(status="pending",waiting_reason="GPU0 lease or memory is occupied",not_before=time.time()+30)
++                                entry.update(status="pending",waiting_reason="GPU5 lease or memory is occupied",not_before=time.time()+30)
+                                 entry.pop("reservation_bytes",None)
+                                 changed=True
+                                 continue

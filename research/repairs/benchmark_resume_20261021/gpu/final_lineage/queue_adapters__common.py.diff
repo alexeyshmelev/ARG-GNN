@@ -1,0 +1,51 @@
+--- research/repairs/benchmark_recovery_20261020/training/queue_adapters/common.py
++++ research/repairs/benchmark_resume_20261021/gpu/queue_adapters/common.py
+@@ -5,10 +5,10 @@
+ from arggnn.benchmarking import contracts as c
+ from arggnn.benchmarking import american_preparation as generation
+ from arggnn.benchmarking import treeloom_training as memory
+-from arggnn.benchmarking.execution import GPU0_UUID
++from ..shared_gpu5_v1 import GPU5_UUID
+ 
+-PACKAGE = "research.repairs.benchmark_recovery_20261020.training.queue_adapters"
+-DIRECTORY = "research/repairs/benchmark_recovery_20261020/training/queue_adapters"
++PACKAGE = "research.repairs.benchmark_resume_20261021.gpu.queue_adapters"
++DIRECTORY = "research/repairs/benchmark_resume_20261021/gpu/queue_adapters"
+ SOURCE_NAMES = ("common.py", "european_observations.py", "european_execution.py",
+                 "european_gru.py", "european_stage.py", "qualification.py",
+                 "american_prediction.py", "empirical.py")
+@@ -39,7 +39,7 @@
+ 
+ def _cpu_setup(spec, resource_check):
+     need(callable(resource_check), "The actual worker resource guard is required")
+-    need(os.environ.get("CUDA_VISIBLE_DEVICES") == GPU0_UUID
++    need(os.environ.get("CUDA_VISIBLE_DEVICES") == GPU5_UUID
+          and os.environ.get("PYTORCH_NVML_BASED_CUDA_CHECK") == "1"
+          and "ARGGNN_PHYSICAL_GPU" not in os.environ
+          and "ARGGNN_READABLE_GPU_FD" not in os.environ,
+@@ -67,12 +67,12 @@
+ 
+ 
+ def finish_gpu_setup(torch):
+-    need(os.environ.get("ARGGNN_PHYSICAL_GPU") == "0"
+-         and os.environ.get("CUDA_VISIBLE_DEVICES") == GPU0_UUID,
+-         "The callback must acquire the actual shared physical GPU0 reservation")
++    need(os.environ.get("ARGGNN_PHYSICAL_GPU") == "5"
++         and os.environ.get("CUDA_VISIBLE_DEVICES") == GPU5_UUID,
++         "The callback must acquire the actual shared physical GPU5 reservation")
+     need("ARGGNN_READABLE_GPU_FD" in os.environ,
+          "A genuine current readable shared reservation descriptor is required")
+-    need(torch.cuda.device_count() == 1, "Only physical GPU0 may be visible")
++    need(torch.cuda.device_count() == 1, "Only physical GPU5 may be visible")
+     torch.backends.cuda.matmul.allow_tf32 = False
+     torch.backends.cudnn.allow_tf32 = False
+     cap = int(os.environ.get("ARGGNN_MAX_CUDA_RESERVED_BYTES", "0"))
+@@ -83,7 +83,7 @@
+ 
+ def _setup_gpu(spec, resource_check):
+     need(callable(resource_check), "The actual prediction resource guard is required")
+-    need(os.environ.get("ARGGNN_PHYSICAL_GPU") == "0", "An admitted physical GPU0 worker is required")
++    need(os.environ.get("ARGGNN_PHYSICAL_GPU") == "5", "An admitted physical GPU5 worker is required")
+     def check(*args, **kwargs):
+         resource_check(*args, **kwargs)
+         need(memory._current_rss_bytes() <= spec["memory_envelope"]["max_rss_bytes"],

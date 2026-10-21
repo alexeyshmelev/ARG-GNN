@@ -1,0 +1,19 @@
+--- research/repairs/benchmark_recovery_20261020/training/queue_adapters/european_stage.py
++++ research/repairs/benchmark_resume_20261021/gpu/queue_adapters/european_stage.py
+@@ -1,6 +1,6 @@
+ """Full European30-pass TreeLoom fit and sampled-support held-out prediction.
+ 
+-ROOT's workflow owns GPU0 lease, process/RSS/storage/wall supervision and actual
++ROOT's workflow owns GPU5 lease, process/RSS/storage/wall supervision and actual
+ waits. No launcher or policy is installed. Native TRAIN labels stay separate from
+ observed bank preparation; held-out callables accept no truth/target reference.
+ """
+@@ -319,7 +319,7 @@
+         sampling_plan_ref=spec["sampling_plan_ref"],parents=seals,
+         all_original_TRAIN_observations_sealed_before_targets=True,private_truth_opened=False)
+     barrier_ref = writer.json("observation_barrier.json",barrier)
+-    _need(callable(acquire_gpu0), "Actual late shared GPU0 acquisition callback required")
++    _need(callable(acquire_gpu0), "Actual late shared GPU5 acquisition callback required")
+     acquire_gpu0()
+     common.finish_gpu_setup(torch)
+     model = install_chunked_gru(european.build_model(spec["protocol_id"]).to(device="cuda:0",dtype=torch.float32))

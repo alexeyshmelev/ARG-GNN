@@ -1,0 +1,33 @@
+--- research/repairs/benchmark_recovery_20261020/training/queue_adapters/european_execution.py
++++ research/repairs/benchmark_resume_20261021/gpu/queue_adapters/european_execution.py
+@@ -6,7 +6,7 @@
+ from types import SimpleNamespace
+ from functools import partial,wraps
+ from research.reviews.TreeLoom_GPU_history_source_20261017_v1.stable_leaf_history_v1 import stable_leaf_history_v1, NullProfileV1
+-from ..layout import block_indices
++from research.repairs.benchmark_recovery_20261020.training.layout import block_indices
+ 
+ def profiled(fn):
+     @wraps(fn)
+@@ -21,7 +21,7 @@
+ from torch.utils.checkpoint import checkpoint
+ from . import european_observations as observed
+ from .european_observations import implementation as frozen_default
+-from ..decoder import geometry_from_spans
++from research.repairs.benchmark_recovery_20261020.training.decoder import geometry_from_spans
+ 
+ def need(ok,message):
+     if not ok:raise ValueError(message)
+@@ -214,10 +214,10 @@
+          and callable(resource_check), "Exact European model and full observed parent required")
+     import os
+     parameter = next(model.parameters())
+-    need(os.environ.get("ARGGNN_PHYSICAL_GPU") == "0"
++    need(os.environ.get("ARGGNN_PHYSICAL_GPU") == "5"
+          and parameter.device.type == "cuda" and parameter.device.index in (None, 0)
+          and all(p.dtype == torch.float32 for p in model.parameters()),
+-         "A supervised physical GPU0 FP32 model is required")
++         "A supervised physical GPU5 FP32 model is required")
+     need(metadata.get("parent_id") == bundle.parent_id
+          and metadata.get("sampled_registry_ref") == bundle.sampled_registry_ref
+          and metadata.get("focal_identity_sha256") == bundle.focal_identity_sha256
