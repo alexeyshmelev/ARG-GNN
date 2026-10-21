@@ -2,9 +2,9 @@
 
 <!-- readable-recovery-queue:start -->
 ### Current recovery queue
-Updated 2026-10-21T03:09:31.865387+00:00. Status: running.
-129 pending, 2 running, 209 succeeded, 2 failed, 5 blocked, 0 unknown.
-Local active: AP__ancestralpaths_european_test_001__ap_infer, AP__ancestralpaths_european_test_003__ap_infer.
+Updated 2026-10-21T03:25:12.037175+00:00. Status: running.
+128 pending, 3 running, 209 succeeded, 2 failed, 5 blocked, 0 unknown.
+Local active: AM_treeloom_fit, AP__ancestralpaths_european_test_001__ap_infer, AP__ancestralpaths_european_test_003__ap_infer.
 Live training stages: bounded stage metadata pending.
 Standalone work: no live standalone generations.
 The earlier v9 queue block is a historical snapshot. This block describes the active successor.
