@@ -2,7 +2,7 @@
 
 <!-- readable-recovery-queue:start -->
 ### Current recovery queue
-Updated 2026-10-21T20:01:24.146599+00:00. Status: waiting_for_dependencies_or_capacity.
+Updated 2026-10-21T20:17:28.760112+00:00. Status: waiting_for_dependencies_or_capacity.
 77 pending, 0 running, 231 succeeded, 7 failed, 32 blocked, 0 unknown.
 Local active: waiting for dependencies or capacity.
 Live training stages: bounded stage metadata pending.
