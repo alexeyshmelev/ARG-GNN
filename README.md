@@ -2,9 +2,9 @@
 
 <!-- readable-recovery-queue:start -->
 ### Current recovery queue
-Updated 2026-10-21T20:49:21.899009+00:00. Status: waiting_for_dependencies_or_capacity.
-77 pending, 0 running, 231 succeeded, 7 failed, 32 blocked, 0 unknown.
-Local active: waiting for dependencies or capacity.
+Updated 2026-10-21T21:05:19.080337+00:00. Status: running.
+76 pending, 1 running, 231 succeeded, 7 failed, 32 blocked, 0 unknown.
+Local active: AM_argformer_american_validation_002_argformer_mlm.
 Live training stages: bounded stage metadata pending.
 Standalone work: no live standalone generations.
 The earlier v9 queue block is a historical snapshot. This block describes the active successor.
