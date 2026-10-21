@@ -2,9 +2,9 @@
 
 <!-- readable-recovery-queue:start -->
 ### Current recovery queue
-Updated 2026-10-21T17:22:39.959254+00:00. Status: running.
-98 pending, 1 running, 224 succeeded, 3 failed, 21 blocked, 0 unknown.
-Local active: AP__ancestralpaths_european_test_004__ap_infer.
+Updated 2026-10-21T17:38:40.087018+00:00. Status: running.
+80 pending, 3 running, 228 succeeded, 4 failed, 32 blocked, 0 unknown.
+Local active: AP__ancestralpaths_european_test_004__ap_infer__lossless_archive_v9, C4__ancestralpaths_european_train_001__release_archive, AP__ancestralpaths_european_test_004__ap_features.
 Live training stages: bounded stage metadata pending.
 Standalone work: no live standalone generations.
 The earlier v9 queue block is a historical snapshot. This block describes the active successor.
