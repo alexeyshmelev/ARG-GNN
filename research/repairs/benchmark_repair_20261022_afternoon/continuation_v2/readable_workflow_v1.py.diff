@@ -1,0 +1,29 @@
+--- /workspace-SR003.nfs2/ARG-GNN/research/repairs/benchmark_repair_20261022_afternoon/runtime/readable_workflow_v1.py
++++ /workspace-SR003.nfs2/ARG-GNN/research/repairs/benchmark_repair_20261022_afternoon/runtime_v2/readable_workflow_v1.py
+@@ -31,8 +31,8 @@
+ from . import overlay_predecessor_v1
+ overlay_predecessor_v1.install()
+ 
+-MODULE = "research.repairs.benchmark_repair_20261022_afternoon.runtime.readable_workflow_v1"
+-SOURCE = "research/repairs/benchmark_repair_20261022_afternoon/runtime/readable_workflow_v1.py"
++MODULE = "research.repairs.benchmark_repair_20261022_afternoon.runtime_v2.readable_workflow_v1"
++SOURCE = "research/repairs/benchmark_repair_20261022_afternoon/runtime_v2/readable_workflow_v1.py"
+ SCHEMA = "arggnn_executable_workflow_v1"
+ 
+ 
+@@ -100,12 +100,12 @@
+ 
+ def current_policy():
+     canonical=c.check_execution_release(c.file_ref(c.POLICY_PATH))
+-    approved=canonical.get("approved_recovery_workflow_ref")
++    approved=canonical.get("approved_recovery_continuation_workflow_ref")
+     need(isinstance(approved,dict) and set(approved)=={"path","sha256"},"Exact readable workflow ROOT approval required")
+     policy=dict(canonical,approved_workflow_ref=approved)
+     policy.pop("workflow_drain_ref",None)
+-    if "recovery_workflow_drain_ref" in canonical:
+-        policy["workflow_drain_ref"]=canonical["recovery_workflow_drain_ref"]
++    if "recovery_continuation_workflow_drain_ref" in canonical:
++        policy["workflow_drain_ref"]=canonical["recovery_continuation_workflow_drain_ref"]
+     return policy
+ 
+ 

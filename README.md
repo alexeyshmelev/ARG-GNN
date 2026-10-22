@@ -2,9 +2,9 @@
 
 <!-- readable-recovery-afternoon-v2-queue:start -->
 ### Current recovery queue
-Updated 2026-10-22T14:25:18.946218+00:00. Status: running.
-112 pending, 1 running, 237 succeeded, 0 failed, 0 blocked, 0 unknown.
-Local active: AP__ancestralpaths_european_train_001__ap_infer__closed_lossless_archive_20261022_v1.
+Updated 2026-10-22T14:30:12.246249+00:00. Status: running.
+111 pending, 1 running, 238 succeeded, 0 failed, 0 blocked, 0 unknown.
+Local active: AM_argformer_american_validation_002_argformer_embeddings.
 Live training stages: bounded stage metadata pending.
 Standalone work: no live standalone generations.
 The earlier v9 queue block is a historical snapshot. This block describes the active successor.
@@ -25,7 +25,7 @@ One optional external AP001 archive is deferred with its full retained storage c
 
 ## Current task: execute the benchmark campaign
 
-**The active LAI benchmark continuation uses a queue of 349 stages, including storage recovery and fresh qualifications.** It covers shared American and European simulations, full training, native competitors, paired scoring and Danish data application. Current execution and matched results are published below. All computation and Git commands run on anogena, using physical GPUs 2, 3 and 5.
+**The active LAI benchmark continuation uses a queue of 350 stages, including storage recovery and fresh qualifications.** It covers shared American and European simulations, full training, native competitors, paired scoring and Danish data application. Current execution and matched results are published below. All computation and Git commands run on anogena, using physical GPUs 2, 3 and 5.
 
 <!-- BEGIN CURRENT BENCHMARK DIAGNOSIS -->
 **Verified 22 October 17:17 Moscow: the benchmark is progressing, with a European memory failure repaired in the queue.** All 237 completed stages and the three healthy workers are preserved. Fresh matched ancestry accuracy and F1 are still pending.
@@ -51,7 +51,7 @@ The active storage projection is 952.57 GB, below the 980 GB operational ceiling
 
 <!-- readable-recovery-afternoon-queue:start -->
 ### Current recovery queue
-Updated 2026-10-22T14:25:42.246506+00:00. Status: running.
+Updated 2026-10-22T14:29:22.720642+00:00. Status: running.
 106 pending, 1 running, 237 succeeded, 1 failed, 4 blocked, 0 unknown.
 Local active: AM_treeloom_fit.
 Live training stages: AM_treeloom_fit: TreeLoom preparation: prepare_once_or_restore_complete_parent (2/600 saved parent updates).
@@ -64,7 +64,7 @@ One optional external AP001 archive is deferred with its full retained storage c
 
 <!-- readable-parallel-resource-overlay:start -->
 ### Current resource overlay queue
-Updated 2026-10-22T14:25:11.471440+00:00. Status: running.
+Updated 2026-10-22T14:29:57.417594+00:00. Status: running.
 88 pending, 2 running, 237 succeeded, 2 failed, 20 blocked, 0 unknown.
 Local active: AM_argformer_american_validation_003_argformer_mlm, AP__all_train__treeloom_fit.
 Live training stages: bounded stage metadata pending.

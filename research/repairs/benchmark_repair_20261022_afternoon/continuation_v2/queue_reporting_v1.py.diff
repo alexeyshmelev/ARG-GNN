@@ -1,0 +1,28 @@
+--- /workspace-SR003.nfs2/ARG-GNN/research/repairs/benchmark_repair_20261022_afternoon/runtime/queue_reporting_v1.py
++++ /workspace-SR003.nfs2/ARG-GNN/research/repairs/benchmark_repair_20261022_afternoon/runtime_v2/queue_reporting_v1.py
+@@ -5,8 +5,8 @@
+ from pathlib import Path
+ from arggnn.benchmarking import contracts as c
+ 
+-START='<!-- readable-recovery-afternoon-queue:start -->'
+-END='<!-- readable-recovery-afternoon-queue:end -->'
++START='<!-- readable-recovery-afternoon-v2-queue:start -->'
++END='<!-- readable-recovery-afternoon-v2-queue:end -->'
+ 
+ 
+ def tree_progress(output):
+@@ -97,12 +97,12 @@
+         ('Verified completed score artifacts: '+', '.join('['+key+']('+ref['path']+')' for key,ref in score_refs.items())+'.'
+          if score_refs else 'Ancestry accuracy is pending the frozen prediction and scoring barriers. Training loss is not accuracy.'),
+         ('One optional external AP001 archive is deferred with its full retained storage charge and zero credit.' if deferred else ''),
+-        '[Current queue metadata](research/benchmark_recovery_afternoon_current.json).',END])
++        '[Current queue metadata](research/benchmark_recovery_afternoon_v2_current.json).',END])
+     lock_path=c.ROOT/'.runtime/benchmarking/workflow_reporting/reporting.lock'
+     lock_path.parent.mkdir(parents=True,exist_ok=True)
+     with lock_path.open('a') as lock:
+         fcntl.flock(lock,fcntl.LOCK_EX)
+-        save(c.ROOT/'research/benchmark_recovery_afternoon_current.json',receipt)
++        save(c.ROOT/'research/benchmark_recovery_afternoon_v2_current.json',receipt)
+         readme=c.ROOT/'README.md';text=readme.read_text()
+         if START in text:
+             begin=text.index(START);end=text.index(END,begin)+len(END)
