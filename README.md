@@ -2,9 +2,9 @@
 
 <!-- readable-recovery-afternoon-v2-queue:start -->
 ### Current recovery queue
-Updated 2026-10-22T17:11:55.350003+00:00. Status: running.
-106 pending, 2 running, 242 succeeded, 0 failed, 0 blocked, 0 unknown.
-Local active: C4__all_train__c4_treeloom_fit, AM_argformer_american_validation_004_argformer_prepare.
+Updated 2026-10-22T17:27:22.690544+00:00. Status: running.
+101 pending, 2 running, 243 succeeded, 1 failed, 3 blocked, 0 unknown.
+Local active: C4__all_train__c4_treeloom_fit, AM_argformer_american_validation_003_argformer_contrastive.
 Live training stages: bounded stage metadata pending.
 Standalone work: no live standalone generations.
 The earlier v9 queue block is a historical snapshot. This block describes the active successor.
@@ -53,10 +53,10 @@ Other release archives still await capacity. A [format-based reservation assessm
 
 <!-- readable-recovery-afternoon-queue:start -->
 ### Current recovery queue
-Updated 2026-10-22T17:13:04.775594+00:00. Status: running.
-105 pending, 1 running, 238 succeeded, 1 failed, 4 blocked, 0 unknown.
+Updated 2026-10-22T17:28:13.124946+00:00. Status: running.
+103 pending, 1 running, 238 succeeded, 2 failed, 5 blocked, 0 unknown.
 Local active: AM_treeloom_fit.
-Live training stages: AM_treeloom_fit: TreeLoom preparation: prepare_once_or_restore_complete_parent (6/600 saved parent updates).
+Live training stages: AM_treeloom_fit: TreeLoom training: layout_constructor (6/600 saved parent updates).
 Standalone work: no live standalone generations.
 The earlier v9 queue block is a historical snapshot. This block describes the active successor.
 Ancestry accuracy is pending the frozen prediction and scoring barriers. Training loss is not accuracy.
@@ -66,9 +66,9 @@ One optional external AP001 archive is deferred with its full retained storage c
 
 <!-- readable-parallel-resource-overlay:start -->
 ### Current resource overlay queue
-Updated 2026-10-22T17:12:00.890450+00:00. Status: running.
-88 pending, 1 running, 238 succeeded, 2 failed, 20 blocked, 0 unknown.
-Local active: AP__all_train__treeloom_fit.
+Updated 2026-10-22T17:21:56.765930+00:00. Status: drained_for_operational_update.
+87 pending, 0 running, 238 succeeded, 3 failed, 21 blocked, 0 unknown.
+Local active: waiting for dependencies or capacity.
 Live training stages: bounded stage metadata pending.
 Standalone work: no live standalone generations.
 The earlier v9 queue block is a historical snapshot. This block describes the active successor.
