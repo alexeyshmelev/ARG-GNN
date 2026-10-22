@@ -2,7 +2,7 @@
 
 <!-- readable-recovery-afternoon-queue:start -->
 ### Current recovery queue
-Updated 2026-10-22T11:29:41.922874+00:00. Status: waiting_for_dependencies_or_capacity.
+Updated 2026-10-22T11:32:11.274827+00:00. Status: waiting_for_dependencies_or_capacity.
 113 pending, 0 running, 236 succeeded, 0 failed, 0 blocked, 0 unknown.
 Local active: waiting for dependencies or capacity.
 Live training stages: bounded stage metadata pending.
@@ -15,7 +15,7 @@ One optional external AP001 archive is deferred with its full retained storage c
 
 <!-- readable-parallel-resource-overlay:start -->
 ### Current resource overlay queue
-Updated 2026-10-22T11:28:56.373436+00:00. Status: running.
+Updated 2026-10-22T11:31:09.138242+00:00. Status: running.
 92 pending, 4 running, 236 succeeded, 1 failed, 16 blocked, 0 unknown.
 Local active: AM_argformer_american_validation_003_argformer_mlm, AM_argformer_american_validation_002_argformer_contrastive, AP__all_train__treeloom_fit, C4__all_train__c4_treeloom_fit.
 Live training stages: bounded stage metadata pending.
@@ -64,8 +64,8 @@ One optional external AP001 archive is deferred with its full retained storage c
 | Workstream | Device assignment | Current execution |
 | --- | --- | --- |
 | American TreeLoom | GPU 2 | Repaired full fit queued, waiting for 512 GiB host reservation. A complete backward is still required to establish memory sufficiency |
-| Native ARGformer, validation 003 | GPU 3 | Pretraining advancing. Last verified 47,759/226,425 updates at 11:22 UTC |
-| Native ARGformer, validation 002 | GPU 5 | All 223,655 pretraining updates completed. Contrastive fit advancing, 360/2,094 updates at 11:22 UTC |
+| Native ARGformer, validation 003 | GPU 3 | Pretraining advancing. Last verified 52,394/226,425 updates at 11:31 UTC |
+| Native ARGformer, validation 002 | GPU 5 | All 223,655 pretraining updates completed. Contrastive fit advancing, 543/2,094 updates at 11:31 UTC |
 | European TreeLoom, native AP endpoint | GPU 3 after CPU preparation | Current implementation qualification passed. Full CPU preparation is advancing |
 | European TreeLoom, four ancestry classes | GPU 5 after CPU preparation | Current implementation qualification passed. Full CPU preparation is advancing |
 | Released ARGMix | GPU 2 for fitting | First repaired Rust archive completed: 65,597,378 rows and 95,623 intervals. Three further archives await RAM |
