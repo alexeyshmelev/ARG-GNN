@@ -2,9 +2,9 @@
 
 <!-- readable-recovery-afternoon-v2-queue:start -->
 ### Current recovery queue
-Updated 2026-10-22T18:46:55.479589+00:00. Status: running.
-84 pending, 2 running, 243 succeeded, 2 failed, 19 blocked, 0 unknown.
-Local active: C4__all_train__c4_treeloom_fit, AM_argformer_american_validation_003_argformer_contrastive.
+Updated 2026-10-22T19:02:13.952229+00:00. Status: running.
+83 pending, 2 running, 244 succeeded, 2 failed, 19 blocked, 0 unknown.
+Local active: C4__all_train__c4_treeloom_fit, AM_argformer_american_validation_003_argformer_embeddings.
 Live training stages: bounded stage metadata pending.
 Standalone work: no live standalone generations.
 The earlier v9 queue block is a historical snapshot. This block describes the active successor.
