@@ -2,9 +2,9 @@
 
 <!-- readable-parallel-resource-overlay:start -->
 ### Current resource overlay queue
-Updated 2026-10-22T09:15:55.259589+00:00. Status: running.
-116 pending, 2 running, 231 succeeded, 0 failed, 0 blocked, 0 unknown.
-Local active: AP__train_000__treeloom_preparation_qualification_multigpu_20261022_v1, C4__train_000__treeloom_preparation_qualification_multigpu_20261022_v1.
+Updated 2026-10-22T09:31:27.705430+00:00. Status: running.
+97 pending, 3 running, 232 succeeded, 1 failed, 16 blocked, 0 unknown.
+Local active: AM_argformer_american_validation_003_argformer_prepare, AP__train_000__treeloom_preparation_qualification_multigpu_20261022_v1, C4__train_000__treeloom_preparation_qualification_multigpu_20261022_v1.
 Live training stages: bounded stage metadata pending.
 Standalone work: no live standalone generations.
 The earlier v9 queue block is a historical snapshot. This block describes the active successor.
@@ -15,10 +15,10 @@ One optional external AP001 archive is deferred with its full retained storage c
 
 <!-- readable-parallel-queue:start -->
 ### Current parallel queue
-Updated 2026-10-22T09:16:00.986219+00:00. Status: running.
-116 pending, 2 running, 231 succeeded, 0 failed, 0 blocked, 0 unknown.
-Local active: AM_treeloom_fit, C4__ancestralpaths_european_train_000__release_archive.
-Live training stages: AM_treeloom_fit: TreeLoom training: _second.
+Updated 2026-10-22T09:25:40.026116+00:00. Status: drained_for_operational_update.
+116 pending, 0 running, 232 succeeded, 1 failed, 0 blocked, 0 unknown.
+Local active: waiting for dependencies or capacity.
+Live training stages: bounded stage metadata pending.
 Standalone work: no live standalone generations.
 The earlier v9 queue block is a historical snapshot. This block describes the active successor.
 Ancestry accuracy is pending the frozen prediction and scoring barriers. Training loss is not accuracy.
@@ -28,7 +28,7 @@ One optional external AP001 archive is deferred with its full retained storage c
 
 <!-- readable-recovery-queue:start -->
 ### Current recovery queue
-Updated 2026-10-22T09:16:10.798859+00:00. Status: running.
+Updated 2026-10-22T09:31:04.177470+00:00. Status: running.
 76 pending, 1 running, 231 succeeded, 7 failed, 32 blocked, 0 unknown.
 Local active: AM_argformer_american_validation_002_argformer_mlm.
 Live training stages: bounded stage metadata pending.
