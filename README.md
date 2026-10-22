@@ -2,7 +2,7 @@
 
 <!-- readable-recovery-afternoon-v2-queue:start -->
 ### Current recovery queue
-Updated 2026-10-22T14:30:12.246249+00:00. Status: running.
+Updated 2026-10-22T14:35:41.346150+00:00. Status: running.
 111 pending, 1 running, 238 succeeded, 0 failed, 0 blocked, 0 unknown.
 Local active: AM_argformer_american_validation_002_argformer_embeddings.
 Live training stages: bounded stage metadata pending.
@@ -28,20 +28,22 @@ One optional external AP001 archive is deferred with its full retained storage c
 **The active LAI benchmark continuation uses a queue of 350 stages, including storage recovery and fresh qualifications.** It covers shared American and European simulations, full training, native competitors, paired scoring and Danish data application. Current execution and matched results are published below. All computation and Git commands run on anogena, using physical GPUs 2, 3 and 5.
 
 <!-- BEGIN CURRENT BENCHMARK DIAGNOSIS -->
-**Verified 22 October 17:17 Moscow: the benchmark is progressing, with a European memory failure repaired in the queue.** All 237 completed stages and the three healthy workers are preserved. Fresh matched ancestry accuracy and F1 are still pending.
+**Verified 22 October 17:35 Moscow: the benchmark is progressing, with a corrected European retry queued.** The queue has 238 completed stages. All 237 prior successes and the three original workers are preserved. Fresh matched ancestry accuracy and F1 are still pending.
 
 | Workstream | Current verified progress |
 | --- | --- |
 | American TreeLoom, GPU 2 | 2/600 full optimizer updates and checkpoint saved. The first complete backward passed under the 64 GiB cap. Preparing the next original training parent |
-| Native ARGformer, GPU 3 | VAL003 pretraining: 137,782/226,425 updates |
-| Native ARGformer, third validation simulation | VAL002 contrastive training completed all 2,094 updates with successful waits. Embeddings and ancestry predictions follow storage recovery |
+| Native ARGformer, GPU 3 | VAL003 pretraining: 147,422/226,425 updates |
+| Native ARGformer, third validation simulation | VAL002 contrastive training completed all 2,094 updates with successful waits. Embeddings are running, followed by ancestry predictions |
 | European TreeLoom, AP endpoint | All three training parents prepared. Waiting for its assigned GPU 3 lease |
 | European TreeLoom, four ancestry classes | The first fit hit its 32 GiB cap with zero updates. A fresh retry uses 68 GiB, preserving all 22 qualified sources and the full 90-update budget |
-| Storage recovery | Lossless archive step is running. Seven completed inference intermediates are eligible, with 28 observed-data, result and evidence files protected |
+| Storage recovery | Lossless archive step is succeeded, with 15.10 GB net recovered. Seven completed inference intermediates are eligible, with 28 observed-data, result and evidence files protected |
 
 The capacity order is lossless recovery, then VAL002 native embeddings, retrieval and scratch retirement, then the C4 retry. This prevents the C4 host reservation from starving the ready native prediction chain. Compression is verified before each raw replacement. Space is credited only after a successful complete archive, real process waits and exact measurement. No training budget or scientific method is reduced.
 
-The active storage projection is 952.57 GB, below the 980 GB operational ceiling and the 1 TB project limit. This is a reservation projection, not a new directory-size scan. The three preserved workers remain active under their original supervisors even when the newest controller's local counters list only the archive.
+The active storage projection is 978.25 GB, below the 980 GB operational ceiling and the 1 TB project limit. This is a reservation projection, not a new directory-size scan. The three preserved workers remain active under their original supervisors even when the newest controller's local counters list only the archive.
+
+Other release archives still await capacity. A [format-based reservation assessment](research/repairs/benchmark_repair_20261022_afternoon/continuation_v2/future_archive_capacity_assessment_v1.json) is retained for the next capacity update. Its proposal has not been applied.
 
 [Verified progress](research/repairs/benchmark_repair_20261022_afternoon/continuation_v2/actual_v3/current_status.json) · [Current queue](research/benchmark_recovery_afternoon_v2_current.json) · [Matched results](research/resource_matched_benchmark_results.json)
 <!-- END CURRENT BENCHMARK DIAGNOSIS -->
@@ -51,7 +53,7 @@ The active storage projection is 952.57 GB, below the 980 GB operational ceiling
 
 <!-- readable-recovery-afternoon-queue:start -->
 ### Current recovery queue
-Updated 2026-10-22T14:29:22.720642+00:00. Status: running.
+Updated 2026-10-22T14:35:05.255298+00:00. Status: running.
 106 pending, 1 running, 237 succeeded, 1 failed, 4 blocked, 0 unknown.
 Local active: AM_treeloom_fit.
 Live training stages: AM_treeloom_fit: TreeLoom preparation: prepare_once_or_restore_complete_parent (2/600 saved parent updates).
@@ -64,7 +66,7 @@ One optional external AP001 archive is deferred with its full retained storage c
 
 <!-- readable-parallel-resource-overlay:start -->
 ### Current resource overlay queue
-Updated 2026-10-22T14:29:57.417594+00:00. Status: running.
+Updated 2026-10-22T14:35:20.205325+00:00. Status: running.
 88 pending, 2 running, 237 succeeded, 2 failed, 20 blocked, 0 unknown.
 Local active: AM_argformer_american_validation_003_argformer_mlm, AP__all_train__treeloom_fit.
 Live training stages: bounded stage metadata pending.

@@ -45,6 +45,8 @@ def report():
         supplementary_archive=state['tasks'][archive_id],supplementary_credit_bytes=facade.archive.completed_storage_reduction(plan,state),
         storage_projection_bytes=q.storage_projection(plan,state),storage_ceiling_bytes=980000000000,
         new_matched_ancestry_scores=None,signals_sent=0,scientific_models_data_and_budgets_unchanged=True)
+    receipt['ARGformer_VAL002_embeddings']=state['tasks']['AM_argformer_american_validation_002_argformer_embeddings']
+    receipt['archive_net_storage_reduction_bytes']=max(0,receipt['supplementary_credit_bytes']-receipt['supplementary_archive'].get('retained_bytes',0)) if receipt['supplementary_archive']['status']=='succeeded' else 0
     q.save(ACTUAL/'current_status.json',receipt)
     with (c.ROOT/'.runtime/benchmarking/workflow_reporting/reporting.lock').open('a+') as lock:
         fcntl.flock(lock,fcntl.LOCK_EX)
@@ -53,6 +55,8 @@ def report():
         row['status']='released_archive_'+receipt['supplementary_archive']['status']
         row['method']='Preserve all models, simulations, seeds, 22 qualified European sources and 90 C4 updates. Retry C4 on GPU 5 with a 68 GiB allocator cap, 78 GiB admission floor and 512 GiB host reservation. Archive seven allowlisted completed AP intermediates with full decompression and hash verification, preserving 28 files. Credit only after genuine successful waits and exact measurement. Complete VAL002 embeddings, retrieval and scratch retirement before the C4 retry to respect full RAM reservations.'
         row['conclusion']='American TreeLoom completed its first full backward and optimizer update with a saved checkpoint. Native VAL002 finished all 2,094 contrastive updates. The C4 fit failed at its 32 GiB cap with 46.76 GiB physically free and zero updates. The 350-stage successor preserves all 237 completed stages and three healthy workers. The 68 GiB C4 cap and archive savings still require actual completion. No fresh matched ancestry accuracy is available.'
+        if receipt['supplementary_archive']['status']=='succeeded':
+            row['conclusion']='Lossless recovery completed with genuine successful waits and verified restoration. It freed '+str(receipt['archive_net_storage_reduction_bytes'])+' bytes net, and native VAL002 embeddings are '+receipt['ARGformer_VAL002_embeddings']['status']+'. American training and VAL003 pretraining continue. The C4 retry remains queued after native retirement, with unchanged scientific settings. No fresh ancestry score is claimed.'
         row['evidence']=list(dict.fromkeys(row['evidence']+[
             str((ACTUAL/'launch_receipt.json').relative_to(c.ROOT)),str((ACTUAL/'current_status.json').relative_to(c.ROOT)),
             str((HERE/'final_review_v3.json').relative_to(c.ROOT))]))
@@ -63,20 +67,22 @@ def report():
         start='<!-- BEGIN CURRENT BENCHMARK DIAGNOSIS -->';end='<!-- END CURRENT BENCHMARK DIAGNOSIS -->'
         first=text.index(start);last=text.index(end,first)+len(end)
         block=f'''{start}
-**Verified {now.strftime('%d %B %H:%M')} Moscow: the benchmark is progressing, with a European memory failure repaired in the queue.** All 237 completed stages and the three healthy workers are preserved. Fresh matched ancestry accuracy and F1 are still pending.
+**Verified {now.strftime('%d %B %H:%M')} Moscow: the benchmark is progressing, with a corrected European retry queued.** The queue has {receipt['counts'].get('succeeded',0)} completed stages. All 237 prior successes and the three original workers are preserved. Fresh matched ancestry accuracy and F1 are still pending.
 
 | Workstream | Current verified progress |
 | --- | --- |
 | American TreeLoom, GPU 2 | {am_updates}/600 full optimizer updates and checkpoint saved. The first complete backward passed under the 64 GiB cap. Preparing the next original training parent |
 | Native ARGformer, GPU 3 | VAL003 pretraining: {mlm_batch:,}/226,425 updates |
-| Native ARGformer, third validation simulation | VAL002 contrastive training completed all 2,094 updates with successful waits. Embeddings and ancestry predictions follow storage recovery |
+| Native ARGformer, third validation simulation | VAL002 contrastive training completed all 2,094 updates with successful waits. Embeddings are {receipt['ARGformer_VAL002_embeddings']['status']}, followed by ancestry predictions |
 | European TreeLoom, AP endpoint | All three training parents prepared. Waiting for its assigned GPU 3 lease |
 | European TreeLoom, four ancestry classes | The first fit hit its 32 GiB cap with zero updates. A fresh retry uses 68 GiB, preserving all 22 qualified sources and the full 90-update budget |
-| Storage recovery | Lossless archive step is {receipt['supplementary_archive']['status']}. Seven completed inference intermediates are eligible, with 28 observed-data, result and evidence files protected |
+| Storage recovery | Lossless archive step is {receipt['supplementary_archive']['status']}, with {receipt['archive_net_storage_reduction_bytes']/1e9:.2f} GB net recovered. Seven completed inference intermediates are eligible, with 28 observed-data, result and evidence files protected |
 
 The capacity order is lossless recovery, then VAL002 native embeddings, retrieval and scratch retirement, then the C4 retry. This prevents the C4 host reservation from starving the ready native prediction chain. Compression is verified before each raw replacement. Space is credited only after a successful complete archive, real process waits and exact measurement. No training budget or scientific method is reduced.
 
 The active storage projection is {receipt['storage_projection_bytes']/1e9:.2f} GB, below the 980 GB operational ceiling and the 1 TB project limit. This is a reservation projection, not a new directory-size scan. The three preserved workers remain active under their original supervisors even when the newest controller's local counters list only the archive.
+
+Other release archives still await capacity. A [format-based reservation assessment](research/repairs/benchmark_repair_20261022_afternoon/continuation_v2/future_archive_capacity_assessment_v1.json) is retained for the next capacity update. Its proposal has not been applied.
 
 [Verified progress](research/repairs/benchmark_repair_20261022_afternoon/continuation_v2/actual_v3/current_status.json) · [Current queue](research/benchmark_recovery_afternoon_v2_current.json) · [Matched results](research/resource_matched_benchmark_results.json)
 {end}'''
