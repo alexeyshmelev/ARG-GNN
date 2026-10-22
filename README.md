@@ -1,8 +1,21 @@
 # ARG-GNN
 
+<!-- readable-parallel-queue:start -->
+### Current parallel queue
+Updated 2026-10-22T08:15:04.528002+00:00. Status: running.
+116 pending, 2 running, 231 succeeded, 0 failed, 0 blocked, 0 unknown.
+Local active: AM_treeloom_fit, C4__ancestralpaths_european_train_000__release_archive.
+Live training stages: AM_treeloom_fit: TreeLoom preparation: prepare_once_or_restore_complete_parent.
+Standalone work: no live standalone generations.
+The earlier v9 queue block is a historical snapshot. This block describes the active successor.
+Ancestry accuracy is pending the frozen prediction and scoring barriers. Training loss is not accuracy.
+One optional external AP001 archive is deferred with its full retained storage charge and zero credit.
+[Current queue metadata](research/benchmark_parallel_current.json).
+<!-- readable-parallel-queue:end -->
+
 <!-- readable-recovery-queue:start -->
 ### Current recovery queue
-Updated 2026-10-22T07:59:59.624403+00:00. Status: running.
+Updated 2026-10-22T08:13:52.608204+00:00. Status: running.
 76 pending, 1 running, 231 succeeded, 7 failed, 32 blocked, 0 unknown.
 Local active: AM_argformer_american_validation_002_argformer_mlm.
 Live training stages: bounded stage metadata pending.
@@ -17,25 +30,25 @@ One optional external AP001 archive is deferred with its full retained storage c
 
 ## Current task: execute the benchmark campaign
 
-**The active LAI benchmark continuation uses a queue of 347 stages, including storage recovery.** It covers shared American and European simulations, full training, native competitors, paired scoring and Danish data application. Current execution and matched results are published below. All computation and Git commands run on anogena, using physical GPU 5 only.
+**The active LAI benchmark continuation uses a queue of 349 stages, including storage recovery and fresh qualifications.** It covers shared American and European simulations, full training, native competitors, paired scoring and Danish data application. Current execution and matched results are published below. All computation and Git commands run on anogena, using physical GPUs 2, 3 and 5.
 
 <!-- BEGIN CURRENT BENCHMARK DIAGNOSIS -->
-**22 October: ARGformer is training on physical GPU 5, but the comparison is incomplete.** The current queue has **231 completed, 1 running, 76 pending, 7 failed and 32 blocked stages**. The running job is the third American simulation's full five-epoch ARGformer pretraining, with **34,513 / 223,655 updates** observed. The GPU showed **100% utilization** at the status check. **Fresh matched ancestry accuracy and F1 remain unavailable.**
+**22 October: parallel benchmarking is active on the authorized GPU set {2, 3, 5}.** The new queue carries forward **231 completed stages**, preserves the existing ARGformer training on GPU 5, and schedules the remaining work across the added devices. It contains **349 stages**, including two fresh CPU qualification checks. **Fresh matched ancestry accuracy and F1 are still pending.**
 
-| Workstream | Verified state | Remaining work |
+| Workstream | Device assignment | Current execution |
 | --- | --- | --- |
-| American TreeLoom | First full-parent backward exceeded the 16 GiB CUDA allocator cap, with physical memory still available. This attempt completed **0/600 optimizer updates** | Repair CUDA memory allocation, complete full training, then predict |
-| ARGformer | Native training and ancestry predictions complete for **2/15** simulations. Full pretraining is active on the third | Finish the remaining native pipelines |
-| FLARE | **15/15** American predictions complete | Paired scoring after the comparison barrier |
-| AncestralPaths | **8/8** European genealogical inference stages complete | Complete dependent ancestry models and comparisons |
-| European TreeLoom | Both fits were rejected before launch because their old qualification records do not match the current qualification schema/source contract | Run fresh qualifications for the same inputs and current implementation |
-| Released ARGMix | Four archive stages failed because the stock Rust helper could not find `python` on PATH | Add the admitted native runtime bin to the child PATH, then continue the unchanged author pipeline |
+| American TreeLoom | GPU 2 | Fresh full 600-update fit launched with a 32 GiB CUDA cap and 512 GiB host reservation. Memory sufficiency remains to be demonstrated by a complete backward pass |
+| Native ARGformer | GPUs 3 and 5 | Existing GPU 5 training preserved. Future independent simulation pipelines use two separate device lanes, with separate data preparation and checkpoints |
+| European TreeLoom, native AP endpoint | GPU 3 | New qualification for the current implementation precedes the full fit |
+| European TreeLoom, four-class endpoint | GPU 5 | New qualification for the current implementation precedes the full fit |
+| Released ARGMix | GPU 2 | Archive PATH correction integrated. Original author code and settings retained |
+| FLARE | CPU | All 15 American prediction outputs retained for paired scoring |
 
-Versioned repairs are prepared and have passed focused source and metadata checks. They have not yet been integrated or dispatched. The active ARGformer run and all prior successful work are preserved. The persistent capacity-mutex warning in pending rows is stale reporting after brief controller lock contention, not evidence that training has stopped.
+The old readable queue block below describes the preserved GPU 5 worker and its historical failures. The **parallel queue** block and its linked JSON describe future execution. No failed attempt was relabelled as a success. Native retirement dependencies now form two independent lanes, allowing separate parents to prepare and train concurrently while keeping storage reservations.
 
-Only physical GPU 5 is authorized. Process control is restricted to verified ARG-GNN jobs. No unrelated process was modified or signalled during this check.
+All model definitions, simulated data, reference/query splits and training budgets are preserved. No unrelated process was signalled or changed. The storage projection before dispatch was **821.55 GB**, below the 980 GB operational ceiling. GitHub SSH connections are currently timing out on both standard SSH and the official port 443 endpoint, so new commits are saved on anogena pending network recovery.
 
-[Current diagnosis](research/repairs/benchmark_followup_20261022/status.json) · [Live queue](research/benchmark_readable_current.json) · [Matched results](research/resource_matched_benchmark_results.json)
+[Parallel restart details](research/repairs/benchmark_multigpu_20261022/status.json) · [Live parallel queue](research/benchmark_parallel_current.json) · [Matched results](research/resource_matched_benchmark_results.json)
 <!-- END CURRENT BENCHMARK DIAGNOSIS -->
 
 <!-- BEGIN COMPLETED WORK ACCOUNTING -->
