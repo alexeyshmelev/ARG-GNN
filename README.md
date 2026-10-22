@@ -2,10 +2,10 @@
 
 <!-- readable-full-vram-queue:start -->
 ### Current full-VRAM queue
-Updated 2026-10-22T19:32:30.895802+00:00. Status: drained_for_operational_update.
-88 pending, 0 running, 244 succeeded, 2 failed, 16 blocked, 0 unknown.
-Local active: waiting for dependencies or capacity.
-Live training stages: bounded stage metadata pending.
+Updated 2026-10-22T19:41:42.979719+00:00. Status: running.
+104 pending, 2 running, 244 succeeded, 0 failed, 0 blocked, 0 unknown.
+Local active: AM_treeloom_fit, AP__all_train__treeloom_fit.
+Live training stages: AM_treeloom_fit: TreeLoom preparation: prepare_once_or_restore_complete_parent.
 Standalone work: no live standalone generations.
 The earlier v9 queue block is a historical snapshot. This block describes the active successor.
 Ancestry accuracy is pending the frozen prediction and scoring barriers. Training loss is not accuracy.
@@ -30,12 +30,12 @@ One optional external AP001 archive is deferred with its full retained storage c
 **The active LAI benchmark continuation uses a queue of 350 stages, including storage recovery and fresh qualifications.** It covers shared American and European simulations, full training, native competitors, paired scoring and Danish data application. Current execution and matched results are published below. All computation and Git commands run on anogena, using physical GPUs 2, 3 and 5.
 
 <!-- BEGIN CURRENT BENCHMARK DIAGNOSIS -->
-**Verified 2026-10-22T22:28:24.690489+03:00: full GPU memory is authorized on physical GPUs 2, 3 and 5.** New workers have no artificial CUDA allocation cap. Healthy existing workers retain their original supervisors and finish normally. Other users' processes remain untouched.
+**Verified 2026-10-22T22:42:27.849648+03:00: full GPU memory is authorized on physical GPUs 2, 3 and 5.** New workers have no artificial CUDA allocation cap. Healthy existing workers retain their original supervisors and finish normally. Other users' processes remain untouched.
 
 | Workstream | Verified progress |
 | --- | --- |
-| American TreeLoom | 6/600 full training updates. The uncapped successor resumes the saved six-update checkpoint, with 594 updates remaining at launch |
-| European TreeLoom, four ancestry classes | 5/90 full training updates. The existing healthy fit continues |
+| American TreeLoom | 6/600 full training updates. The uncapped worker is running on GPU 2. Six updates and all optimizer states were restored. Update 7 is next, with 594 remaining |
+| European TreeLoom, four ancestry classes | 6/90 full training updates. The existing healthy fit continues |
 | European TreeLoom, AP endpoint | The old fit hit its 32 GiB allocator limit despite free device memory. Its uncapped retry preserves the complete 90-update budget |
 | Native ARGformer, fourth validation simulation | All 226,425 MLM updates and all 2,120 contrastive updates completed. Embeddings are running |
 | Native ARGformer, third validation simulation | Full prediction chain completed, producing 10,000 ancestry predictions. Disposable native scratch was retired after genuine completion |
@@ -43,7 +43,9 @@ One optional external AP001 archive is deferred with its full retained storage c
 
 The full queue preserves 244 completed stages and both healthy predecessor workers. Full-device leases prevent our new jobs from oversubscribing each other. Actual free memory is checked before launch. Host RAM and project storage accounting remain enforced.
 
-Conservative storage projection: 974.62 GB, within the 980 GB operational ceiling and the 1 TB user limit. No directory-wide scan was performed.
+The initial uncapped worker exposed a CUDA initialization ordering error before any new optimizer update. The corrected helper was checked on the actual GPU with a tiny tensor. That failure and the deliberate cancellation of its AP companion remain in the experiment history.
+
+Conservative storage projection: 972.39 GB, within the 980 GB operational ceiling and the 1 TB user limit. No directory-wide scan was performed.
 
 [Verified status](research/benchmark_current_verified_status.json) · [Full queue](research/benchmark_full_vram_current.json) · [Matched results](research/resource_matched_benchmark_results.json)
 <!-- END CURRENT BENCHMARK DIAGNOSIS -->
@@ -53,7 +55,7 @@ Conservative storage projection: 974.62 GB, within the 980 GB operational ceilin
 
 <!-- readable-recovery-afternoon-v2-queue:start -->
 ### Current recovery queue
-Updated 2026-10-22T19:32:01.996535+00:00. Status: running.
+Updated 2026-10-22T19:42:24.736314+00:00. Status: running.
 83 pending, 2 running, 244 succeeded, 2 failed, 19 blocked, 0 unknown.
 Local active: C4__all_train__c4_treeloom_fit, AM_argformer_american_validation_003_argformer_embeddings.
 Live training stages: bounded stage metadata pending.
