@@ -2,10 +2,10 @@
 
 <!-- readable-recovery-afternoon-queue:start -->
 ### Current recovery queue
-Updated 2026-10-22T12:37:01.031193+00:00. Status: waiting_for_dependencies_or_capacity.
-113 pending, 0 running, 236 succeeded, 0 failed, 0 blocked, 0 unknown.
-Local active: waiting for dependencies or capacity.
-Live training stages: bounded stage metadata pending.
+Updated 2026-10-22T12:53:38.541088+00:00. Status: running.
+111 pending, 1 running, 237 succeeded, 0 failed, 0 blocked, 0 unknown.
+Local active: AM_treeloom_fit.
+Live training stages: AM_treeloom_fit: TreeLoom preparation: prepare_once_or_restore_complete_parent.
 Standalone work: no live standalone generations.
 The earlier v9 queue block is a historical snapshot. This block describes the active successor.
 Ancestry accuracy is pending the frozen prediction and scoring barriers. Training loss is not accuracy.
@@ -15,9 +15,9 @@ One optional external AP001 archive is deferred with its full retained storage c
 
 <!-- readable-parallel-resource-overlay:start -->
 ### Current resource overlay queue
-Updated 2026-10-22T12:37:41.895131+00:00. Status: running.
-92 pending, 4 running, 236 succeeded, 1 failed, 16 blocked, 0 unknown.
-Local active: AM_argformer_american_validation_003_argformer_mlm, AM_argformer_american_validation_002_argformer_contrastive, AP__all_train__treeloom_fit, C4__all_train__c4_treeloom_fit.
+Updated 2026-10-22T12:52:37.131522+00:00. Status: running.
+92 pending, 3 running, 237 succeeded, 1 failed, 16 blocked, 0 unknown.
+Local active: AM_argformer_american_validation_003_argformer_mlm, AP__all_train__treeloom_fit, C4__all_train__c4_treeloom_fit.
 Live training stages: bounded stage metadata pending.
 Standalone work: no live standalone generations.
 The earlier v9 queue block is a historical snapshot. This block describes the active successor.
