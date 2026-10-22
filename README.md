@@ -1,8 +1,21 @@
 # ARG-GNN
 
+<!-- readable-recovery-afternoon-queue:start -->
+### Current recovery queue
+Updated 2026-10-22T11:29:41.922874+00:00. Status: waiting_for_dependencies_or_capacity.
+113 pending, 0 running, 236 succeeded, 0 failed, 0 blocked, 0 unknown.
+Local active: waiting for dependencies or capacity.
+Live training stages: bounded stage metadata pending.
+Standalone work: no live standalone generations.
+The earlier v9 queue block is a historical snapshot. This block describes the active successor.
+Ancestry accuracy is pending the frozen prediction and scoring barriers. Training loss is not accuracy.
+One optional external AP001 archive is deferred with its full retained storage charge and zero credit.
+[Current queue metadata](research/benchmark_recovery_afternoon_current.json).
+<!-- readable-recovery-afternoon-queue:end -->
+
 <!-- readable-parallel-resource-overlay:start -->
 ### Current resource overlay queue
-Updated 2026-10-22T11:20:33.660862+00:00. Status: running.
+Updated 2026-10-22T11:28:56.373436+00:00. Status: running.
 92 pending, 4 running, 236 succeeded, 1 failed, 16 blocked, 0 unknown.
 Local active: AM_argformer_american_validation_003_argformer_mlm, AM_argformer_american_validation_002_argformer_contrastive, AP__all_train__treeloom_fit, C4__all_train__c4_treeloom_fit.
 Live training stages: bounded stage metadata pending.
@@ -46,22 +59,23 @@ One optional external AP001 archive is deferred with its full retained storage c
 **The active LAI benchmark continuation uses a queue of 349 stages, including storage recovery and fresh qualifications.** It covers shared American and European simulations, full training, native competitors, paired scoring and Danish data application. Current execution and matched results are published below. All computation and Git commands run on anogena, using physical GPUs 2, 3 and 5.
 
 <!-- BEGIN CURRENT BENCHMARK DIAGNOSIS -->
-**22 October: parallel benchmarking is active on the authorized GPU set {2, 3, 5}.** The new queue carries forward **231 completed stages**, preserves the existing ARGformer training on GPU 5, and schedules the remaining work across the added devices. TreeLoom is preparing its first complete parent on GPU 2. The next GPU 3 native pipeline is waiting for its data-preparation storage reservation. It contains **349 stages**, including two fresh CPU qualification checks. **Fresh matched ancestry accuracy and F1 are still pending.**
+**22 October: the repaired benchmark queue is active, with 236 completed stages preserved.** American TreeLoom's 32 GiB attempt ran out of its CUDA allowance during backward, with physical GPU memory still available. It completed 0/600 updates. The retry uses a 64 GiB cap, 72 GiB free-memory admission and the original 512 GiB host reservation. Its model, data and 600-update/30-epoch training budget are unchanged. It is queued for the next available full RAM reservation. **Fresh matched ancestry accuracy and F1 remain pending.**
 
 | Workstream | Device assignment | Current execution |
 | --- | --- | --- |
-| American TreeLoom | GPU 2 | Fresh full 600-update fit launched with a 32 GiB CUDA cap and 512 GiB host reservation. Memory sufficiency remains to be demonstrated by a complete backward pass |
-| Native ARGformer | GPUs 3 and 5 | Existing GPU 5 training preserved. Future independent simulation pipelines use two separate device lanes, with separate data preparation and checkpoints |
-| European TreeLoom, native AP endpoint | GPU 3 | New qualification for the current implementation precedes the full fit |
-| European TreeLoom, four-class endpoint | GPU 5 | New qualification for the current implementation precedes the full fit |
-| Released ARGMix | GPU 2 | Archive PATH correction integrated. Original author code and settings retained |
+| American TreeLoom | GPU 2 | Repaired full fit queued, waiting for 512 GiB host reservation. A complete backward is still required to establish memory sufficiency |
+| Native ARGformer, validation 003 | GPU 3 | Pretraining advancing. Last verified 47,759/226,425 updates at 11:22 UTC |
+| Native ARGformer, validation 002 | GPU 5 | All 223,655 pretraining updates completed. Contrastive fit advancing, 360/2,094 updates at 11:22 UTC |
+| European TreeLoom, native AP endpoint | GPU 3 after CPU preparation | Current implementation qualification passed. Full CPU preparation is advancing |
+| European TreeLoom, four ancestry classes | GPU 5 after CPU preparation | Current implementation qualification passed. Full CPU preparation is advancing |
+| Released ARGMix | GPU 2 for fitting | First repaired Rust archive completed: 65,597,378 rows and 95,623 intervals. Three further archives await RAM |
 | FLARE | CPU | All 15 American prediction outputs retained for paired scoring |
 
-The current resource-overlay queue block describes future dispatch. The older parallel and readable queue blocks describe preserved workers and historical failures. The **parallel queue** block and its linked JSON describe future execution. No failed attempt was relabelled as a success. Native retirement dependencies now form two independent lanes, allowing separate parents to prepare and train concurrently while keeping storage reservations.
+The fresh recovery controller preserves the four healthy jobs as live predecessors. Its local counters can show zero running workers while those preserved jobs continue under their original supervisors. The older queue blocks describe those supervisors and historical failures. Use the afternoon recovery queue for future dispatch. No failure was relabelled as a success, and no unrelated process was changed.
 
-All model definitions, simulated data, reference/query splits and training budgets are preserved. No unrelated process was signalled or changed. The storage projection before dispatch was **821.55 GB**. Including the active archive and other full output reservations, the current projection is **960.15 GB**, below the unchanged 980 GB operational ceiling. The controller RAM reservation ceiling is now **1,536 GiB** on a host with about **2,015 GiB**, retaining the 64 GiB host margin and all individual job limits. GitHub SSH connections are currently timing out on both standard SSH and the official port 443 endpoint, so new commits are saved on anogena pending network recovery.
+All individual RAM limits remain intact. The aggregate reservation ceiling is 1,792 GiB on a host with about 2,015 GiB, with the original 64 GiB host margin. The integrated storage projection is 935.54 GB, below the 980 GB operational ceiling and 1 TB project limit. GPU 2's retry must wait until at least one 256 GiB native reservation drains. GitHub SSH connections have been timing out, so commits are retained on anogena pending network recovery.
 
-[Parallel restart details](research/repairs/benchmark_multigpu_20261022/status.json) · [Live queue](research/benchmark_parallel_resource_overlay_current.json) · [Matched results](research/resource_matched_benchmark_results.json)
+[Repair and progress](research/repairs/benchmark_repair_20261022_afternoon/orchestration/actual_v1/status.json) · [Current queue](research/benchmark_recovery_afternoon_current.json) · [Matched results](research/resource_matched_benchmark_results.json)
 <!-- END CURRENT BENCHMARK DIAGNOSIS -->
 
 <!-- BEGIN COMPLETED WORK ACCOUNTING -->
@@ -78,7 +92,7 @@ Audited at 20 October 2026, 01:52 Moscow. These are verified training and predic
 
 The five completed fresh ARGformer stages took **17.74 hours of elapsed job time**. This includes loading and data movement, and does not measure GPU kernel time. An earlier separate ARGformer chain also completed 2,135 contrastive updates and retrieval. These receipts confirm real training, but do not account for every hour of the previous days, including failed attempts and repairs.
 
-**The fresh matched comparison still has no ancestry scores.** FLARE has completed predictions for all 15 American validation/test simulations on CPU. ARGformer has completed predictions for one. The American scoring job depends on all 45 method/dataset prediction outputs, of which 16 are complete. The failed fresh TreeLoom fit had 20/20 inputs prepared and 0/600 completed updates. Its first recurrent pass ended with a cuDNN error. The repaired replacement has started actual training-data preparation after a successful full-length GPU recurrent test.
+**The fresh matched comparison still has no ancestry scores.** FLARE predictions are complete for 15/15 American simulations and native ARGformer predictions for 2/15. American TreeLoom has no completed fit in this fresh campaign. Its failed 32 GiB attempt is preserved, and the repaired 64 GiB retry is queued. See the current diagnosis above for active training and memory admission.
 
 ### Scores that already exist, from earlier development experiments
 

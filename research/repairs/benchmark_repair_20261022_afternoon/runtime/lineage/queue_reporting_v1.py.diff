@@ -1,0 +1,37 @@
+--- research/repairs/benchmark_multigpu_20261022/runtime/queue_reporting_v2.py
++++ research/repairs/benchmark_repair_20261022_afternoon/runtime/queue_reporting_v1.py
+@@ -5,8 +5,8 @@
+ from pathlib import Path
+ from arggnn.benchmarking import contracts as c
+ 
+-START='<!-- readable-parallel-queue:start -->'
+-END='<!-- readable-parallel-queue:end -->'
++START='<!-- readable-recovery-afternoon-queue:start -->'
++END='<!-- readable-recovery-afternoon-queue:end -->'
+ 
+ 
+ def tree_progress(output):
+@@ -87,7 +87,7 @@
+         waiting_reasons=state.get('waiting_reasons',{}),new_ancestry_accuracy=None,scientific_scores_claimed=False)
+     save(c.contained_path(plan['records_directory'])/'readable_progress.json',receipt)
+     active=[identifier for identifier,row in state['tasks'].items() if row['status']=='running']
+-    content='\n'.join([START,'### Current parallel queue',
++    content='\n'.join([START,'### Current recovery queue',
+         'Updated '+updated+'. Status: '+str(state.get('run_status'))+'.',
+         ', '.join(str(value)+' '+key for key,value in counts.items())+'.',
+         'Local active: '+(', '.join(active) if active else 'waiting for dependencies or capacity')+'.',
+@@ -97,12 +97,12 @@
+         ('Verified completed score artifacts: '+', '.join('['+key+']('+ref['path']+')' for key,ref in score_refs.items())+'.'
+          if score_refs else 'Ancestry accuracy is pending the frozen prediction and scoring barriers. Training loss is not accuracy.'),
+         ('One optional external AP001 archive is deferred with its full retained storage charge and zero credit.' if deferred else ''),
+-        '[Current queue metadata](research/benchmark_parallel_current.json).',END])
++        '[Current queue metadata](research/benchmark_recovery_afternoon_current.json).',END])
+     lock_path=c.ROOT/'.runtime/benchmarking/workflow_reporting/reporting.lock'
+     lock_path.parent.mkdir(parents=True,exist_ok=True)
+     with lock_path.open('a') as lock:
+         fcntl.flock(lock,fcntl.LOCK_EX)
+-        save(c.ROOT/'research/benchmark_parallel_current.json',receipt)
++        save(c.ROOT/'research/benchmark_recovery_afternoon_current.json',receipt)
+         readme=c.ROOT/'README.md';text=readme.read_text()
+         if START in text:
+             begin=text.index(START);end=text.index(END,begin)+len(END)

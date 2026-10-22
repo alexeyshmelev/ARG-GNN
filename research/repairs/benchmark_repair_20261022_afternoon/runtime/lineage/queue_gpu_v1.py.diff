@@ -1,0 +1,22 @@
+--- research/repairs/benchmark_multigpu_20261022/runtime/queue_gpu_v1.py
++++ research/repairs/benchmark_repair_20261022_afternoon/runtime/queue_gpu_v1.py
+@@ -6,8 +6,8 @@
+ import os
+ from pathlib import Path
+ import subprocess
+-from .shared_gpu_v1 import GPU_UUIDS, target, validate_visible_target, gpu_sample, identity
+-from . import contracts_parallel_v1 as c
++from research.repairs.benchmark_multigpu_20261022.runtime.shared_gpu_v1 import GPU_UUIDS, target, validate_visible_target, gpu_sample, identity
++from . import contracts_recovery_v1 as c
+ 
+ CAPACITY=c.ROOT/'.runtime/locks/benchmark_recovery_capacity_20261020.lock'
+ MARGIN=2*2**30
+@@ -43,7 +43,7 @@
+     plan=c.read_ref(job['plan_ref'])
+     need(plan.get('physical_gpus')==[2,3,5] and index in plan['physical_gpus'],'Exact parallel GPU2/3/5 plan required')
+     policy=c.check_execution_release(c.file_ref(c.POLICY_PATH))
+-    need(policy.get('approved_parallel_workflow_ref')==job['plan_ref'],'Exact parallel workflow must retain current approval')
++    need(policy.get('approved_recovery_workflow_ref')==job['plan_ref'],'Exact parallel workflow must retain current approval')
+     return plan
+ 
+ 

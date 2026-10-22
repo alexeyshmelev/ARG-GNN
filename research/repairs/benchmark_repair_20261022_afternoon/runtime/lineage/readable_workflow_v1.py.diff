@@ -1,0 +1,59 @@
+--- research/repairs/benchmark_multigpu_20261022/runtime/readable_workflow_v2.py
++++ research/repairs/benchmark_repair_20261022_afternoon/runtime/readable_workflow_v1.py
+@@ -22,15 +22,15 @@
+ import sys
+ import time
+ 
+-from . import contracts_parallel_v1 as c
++from . import contracts_recovery_v1 as c
+ from arggnn.benchmarking.execution import TITLE
+ from arggnn.benchmarking.workflow_v4 import scope_bytes
+-from . import queue_support_v1 as support
++from research.repairs.benchmark_multigpu_20261022.runtime import queue_support_v1 as support
+ from . import queue_gpu_v1 as shared_gpu
+-from . import queue_execute_v2 as runtime
+-
+-MODULE = "research.repairs.benchmark_multigpu_20261022.runtime.readable_workflow_v2"
+-SOURCE = "research/repairs/benchmark_multigpu_20261022/runtime/readable_workflow_v2.py"
++from . import queue_execute_v1 as runtime
++
++MODULE = "research.repairs.benchmark_repair_20261022_afternoon.runtime.readable_workflow_v1"
++SOURCE = "research/repairs/benchmark_repair_20261022_afternoon/runtime/readable_workflow_v1.py"
+ SCHEMA = "arggnn_executable_workflow_v1"
+ 
+ 
+@@ -98,12 +98,12 @@
+ 
+ def current_policy():
+     canonical=c.check_execution_release(c.file_ref(c.POLICY_PATH))
+-    approved=canonical.get("approved_parallel_workflow_ref")
++    approved=canonical.get("approved_recovery_workflow_ref")
+     need(isinstance(approved,dict) and set(approved)=={"path","sha256"},"Exact readable workflow ROOT approval required")
+     policy=dict(canonical,approved_workflow_ref=approved)
+     policy.pop("workflow_drain_ref",None)
+-    if "parallel_workflow_drain_ref" in canonical:
+-        policy["workflow_drain_ref"]=canonical["parallel_workflow_drain_ref"]
++    if "recovery_workflow_drain_ref" in canonical:
++        policy["workflow_drain_ref"]=canonical["recovery_workflow_drain_ref"]
+     return policy
+ 
+ 
+@@ -131,6 +131,9 @@
+     need(type(plan.get("max_parallel_rss_bytes")) is int and plan["max_parallel_rss_bytes"]>0
+          and type(plan.get("host_ram_margin_bytes")) is int and plan["host_ram_margin_bytes"]>=0,
+          "Explicit aggregate and host RAM bounds required")
++    total_ram=int(next(line.split()[1] for line in Path("/proc/meminfo").read_text().splitlines() if line.startswith("MemTotal:")))*1024
++    need(plan["host_ram_margin_bytes"]>=64*2**30 and plan["max_parallel_rss_bytes"]<=1792*2**30
++         and plan["max_parallel_rss_bytes"]+plan["host_ram_margin_bytes"]<=total_ram,"Physical RAM and original64GiB margin bound required")
+     by_id={t["id"]:t for t in plan["tasks"]}
+     def references(value):
+         if isinstance(value,dict):
+@@ -284,7 +287,7 @@
+         self.last=0
+     def submit(self,state,final=False):
+         if not final and time.monotonic()-self.last<60:return
+-        from .queue_reporting_v2 import publish
++        from .queue_reporting_v1 import publish
+         publish(self.plan,self.ref,state,save)
+         self.last=time.monotonic()
+     def close(self,state):self.submit(state,final=True)

@@ -1,0 +1,17 @@
+--- research/repairs/benchmark_multigpu_20261022/runtime/contracts_parallel_v1.py
++++ research/repairs/benchmark_repair_20261022_afternoon/runtime/contracts_recovery_v1.py
+@@ -1,4 +1,4 @@
+-"""Separate parallel release validation preserving active GPU5 primary authority."""
++"""Separate recovery release validation preserving all healthy predecessor approvals."""
+ from datetime import datetime, timezone
+ from arggnn.benchmarking.contracts import (
+     ROOT, POLICY_PATH, ContractError, contained_path, file_ref, fingerprint,
+@@ -24,7 +24,7 @@
+         raise ContractError('Execution approval has expired')
+     if policy.get('smoke_tests_only') is not False:
+         raise ContractError('Release smoke-only mode explicitly before benchmarking')
+-    for key in ('approved_readable_workflow_ref','approved_parallel_workflow_ref'):
++    for key in ('approved_readable_workflow_ref','approved_parallel_workflow_ref','approved_recovery_workflow_ref'):
+         ref_value=policy.get(key)
+         if not isinstance(ref_value,dict) or set(ref_value)!={'path','sha256'}:
+             raise ContractError('Exact primary and parallel workflow approvals required')

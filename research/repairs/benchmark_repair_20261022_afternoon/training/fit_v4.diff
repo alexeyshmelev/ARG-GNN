@@ -1,0 +1,61 @@
+--- research/repairs/benchmark_multigpu_20261022/scientific/fit_v3.py
++++ research/repairs/benchmark_repair_20261022_afternoon/training/fit_v4.py
+@@ -2,11 +2,11 @@
+ 
+ The queue owns assigned physical GPU admission, title, guards and genuine process waits.
+ Static original numerical modules remain unchanged. No gates or child launchers.
+-The 32 GiB allocator cap is provisional until a genuine full backward succeeds;
+-the queue must require at least 40 GiB free on assigned physical GPU before admission.
++The 64 GiB allocator cap is provisional until a genuine full backward succeeds;
++the queue must require at least 72 GiB free on assigned physical GPU before admission.
+ """
+ from collections import Counter
+-from . import gpu_binding
++from research.repairs.benchmark_multigpu_20261022.scientific import gpu_binding
+ from pathlib import Path
+ import gc
+ import json
+@@ -20,7 +20,7 @@
+ from research.repairs.benchmark_recovery_20261020.training.candidate_fit import create_pool
+ from research.repairs.benchmark_resume_20261021.training import checkpoint_v1 as checkpoints_io
+ 
+-MODULE='research.repairs.benchmark_multigpu_20261022.scientific.fit_v3'
++MODULE='research.repairs.benchmark_repair_20261022_afternoon.training.fit_v4'
+ JOB=dict(path='.runtime/benchmarking/workflow_20261019_v8/jobs/AM_treeloom_fit.json',
+     sha256='187e3177a9ccf587e1038ad4f477d6beaccb5128333977083bf06bd5084fe4a3')
+ BARRIER=dict(path='experiments/results/benchmark_campaign_20261018_workflow/release_v8/american/shared/AM_treeloom_fit/native/observation_barrier.json',
+@@ -69,10 +69,10 @@
+          'Fresh output scope required')
+     if resume_checkpoint_ref is not None:
+         need(file_ref(resume_checkpoint_ref['path']) == resume_checkpoint_ref, 'Exact completed checkpoint')
+-    spec=dict(schema='treeloom_upfront_RAM_resume_fit_v3',job_ref=JOB,observation_barrier_ref=BARRIER,
++    spec=dict(schema='treeloom_upfront_RAM_resume_fit_v4',job_ref=JOB,observation_barrier_ref=BARRIER,
+         output_directory=str(out.relative_to(ROOT)),max_rss_bytes=max_rss_bytes,
+         observation_cache_bytes=352*GIB,training_headroom_bytes=128*GIB,
+-        max_cuda_reserved_bytes=32*GIB,max_output_bytes=64*2**20,**gpu_binding.target(physical_gpu,gpu_uuid),
++        max_cuda_reserved_bytes=64*GIB,max_output_bytes=64*2**20,**gpu_binding.target(physical_gpu,gpu_uuid),
+         resume_checkpoint_ref=resume_checkpoint_ref,qualification_ref=qualification_ref,source_refs=source_refs())
+     return dict(module=MODULE,function='run_fit',spec=spec,python='.runtime/env/bin/python',
+         source_refs=spec['source_refs'])
+@@ -85,7 +85,7 @@
+          'Prescribed supervised title required before CUDA')
+     resource_check('TreeLoom_before_assigned_GPU_CUDA')
+     need(int(os.environ.get('ARGGNN_MAX_CUDA_RESERVED_BYTES','0')) == spec['max_cuda_reserved_bytes'],
+-         'Queue and fit must share the provisional 32 GiB allocator cap')
++         'Queue and fit must share the provisional 64 GiB allocator cap')
+     need(torch.cuda.device_count() == 1, 'Exactly one admitted visible device')
+     total=torch.cuda.get_device_properties(0).total_memory
+     torch.cuda.set_per_process_memory_fraction(spec['max_cuda_reserved_bytes']/total,0)
+@@ -104,10 +104,10 @@
+     from research.repairs.benchmark_recovery_20261020.training.progress import StageProgress
+     from research.repairs.benchmark_recovery_20261020.training.step import install_execution
+     gpu_binding.target(spec['physical_gpu'],spec['gpu_uuid'])
+-    need(spec['schema'] == 'treeloom_upfront_RAM_resume_fit_v3' and spec['job_ref'] == JOB
++    need(spec['schema'] == 'treeloom_upfront_RAM_resume_fit_v4' and spec['job_ref'] == JOB
+          and spec['observation_barrier_ref'] == BARRIER and spec['max_rss_bytes'] == 512*GIB
+          and spec['observation_cache_bytes'] == 352*GIB and spec['training_headroom_bytes'] == 128*GIB
+-         and spec['max_cuda_reserved_bytes'] == 32*GIB and spec['max_output_bytes'] == 64*2**20
++         and spec['max_cuda_reserved_bytes'] == 64*GIB and spec['max_output_bytes'] == 64*2**20
+          and spec['source_refs'] == source_refs(), 'Exact source-pinned upfront admission specification')
+     need(callable(resource_check), 'Actual queue resource guard required')
+     output=ROOT/spec['output_directory']

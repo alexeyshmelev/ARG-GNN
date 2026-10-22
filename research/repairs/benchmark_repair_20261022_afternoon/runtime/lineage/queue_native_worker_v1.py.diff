@@ -1,0 +1,29 @@
+--- research/repairs/benchmark_multigpu_20261022/runtime/queue_native_worker_v2.py
++++ research/repairs/benchmark_repair_20261022_afternoon/runtime/queue_native_worker_v1.py
+@@ -16,7 +16,7 @@
+ import time
+ 
+ from arggnn.benchmarking import american_competitors as api
+-from .shared_gpu_v1 import validate_visible_target
++from research.repairs.benchmark_multigpu_20261022.runtime.shared_gpu_v1 import validate_visible_target
+ 
+ 
+ def checkpoint_counters(state,epochs,updates):
+@@ -55,7 +55,7 @@
+     ipc.install_abstract_unix_v1("fresh_american_native")
+     sys.path[:0]=[str(api.ROOT/api.AUTHOR),str(api.ROOT)]
+     os.chdir(out)
+-    from .queue_native_admission_v2 import validate_worker_lease
++    from .queue_native_admission_v1 import validate_worker_lease
+     validate_worker_lease()
+     import torch
+     validate_worker_lease(first_cuda=True)
+@@ -279,7 +279,7 @@
+     def check(boundary):
+         api.need(time.monotonic()<deadline and resource.getrusage(resource.RUSAGE_SELF).ru_maxrss*1024<=spec["limits"]["max_rss_bytes"],
+                  "Native stage wall/RSS failstop reached")
+-    from .queue_native_admission_v2 import validate_worker_lease
++    from .queue_native_admission_v1 import validate_worker_lease
+     request=validate_worker_lease()
+     limit=request["task"]["max_output_bytes"]
+     resource.setrlimit(resource.RLIMIT_FSIZE,(limit,limit))
