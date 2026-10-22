@@ -2,7 +2,7 @@
 
 <!-- readable-recovery-afternoon-v2-queue:start -->
 ### Current recovery queue
-Updated 2026-10-22T19:02:13.952229+00:00. Status: running.
+Updated 2026-10-22T19:17:21.376303+00:00. Status: running.
 83 pending, 2 running, 244 succeeded, 2 failed, 19 blocked, 0 unknown.
 Local active: C4__all_train__c4_treeloom_fit, AM_argformer_american_validation_003_argformer_embeddings.
 Live training stages: bounded stage metadata pending.
