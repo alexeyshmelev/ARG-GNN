@@ -2,7 +2,7 @@
 
 <!-- readable-recovery-queue:start -->
 ### Current recovery queue
-Updated 2026-10-22T07:13:29.506955+00:00. Status: running.
+Updated 2026-10-22T07:28:34.018276+00:00. Status: running.
 76 pending, 1 running, 231 succeeded, 7 failed, 32 blocked, 0 unknown.
 Local active: AM_argformer_american_validation_002_argformer_mlm.
 Live training stages: bounded stage metadata pending.
