@@ -2,9 +2,9 @@
 
 <!-- readable-parallel-resource-overlay:start -->
 ### Current resource overlay queue
-Updated 2026-10-22T09:31:27.705430+00:00. Status: running.
-97 pending, 3 running, 232 succeeded, 1 failed, 16 blocked, 0 unknown.
-Local active: AM_argformer_american_validation_003_argformer_prepare, AP__train_000__treeloom_preparation_qualification_multigpu_20261022_v1, C4__train_000__treeloom_preparation_qualification_multigpu_20261022_v1.
+Updated 2026-10-22T09:47:34.529355+00:00. Status: running.
+94 pending, 3 running, 235 succeeded, 1 failed, 16 blocked, 0 unknown.
+Local active: AM_argformer_american_validation_003_argformer_mlm, AP__all_train__treeloom_fit, C4__all_train__c4_treeloom_fit.
 Live training stages: bounded stage metadata pending.
 Standalone work: no live standalone generations.
 The earlier v9 queue block is a historical snapshot. This block describes the active successor.
@@ -28,7 +28,7 @@ One optional external AP001 archive is deferred with its full retained storage c
 
 <!-- readable-recovery-queue:start -->
 ### Current recovery queue
-Updated 2026-10-22T09:31:04.177470+00:00. Status: running.
+Updated 2026-10-22T09:46:24.412604+00:00. Status: running.
 76 pending, 1 running, 231 succeeded, 7 failed, 32 blocked, 0 unknown.
 Local active: AM_argformer_american_validation_002_argformer_mlm.
 Live training stages: bounded stage metadata pending.
