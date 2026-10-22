@@ -2,9 +2,9 @@
 
 <!-- readable-parallel-resource-overlay:start -->
 ### Current resource overlay queue
-Updated 2026-10-22T11:04:35.640603+00:00. Status: running.
-94 pending, 3 running, 235 succeeded, 1 failed, 16 blocked, 0 unknown.
-Local active: AM_argformer_american_validation_003_argformer_mlm, AP__all_train__treeloom_fit, C4__all_train__c4_treeloom_fit.
+Updated 2026-10-22T11:20:33.660862+00:00. Status: running.
+92 pending, 4 running, 236 succeeded, 1 failed, 16 blocked, 0 unknown.
+Local active: AM_argformer_american_validation_003_argformer_mlm, AM_argformer_american_validation_002_argformer_contrastive, AP__all_train__treeloom_fit, C4__all_train__c4_treeloom_fit.
 Live training stages: bounded stage metadata pending.
 Standalone work: no live standalone generations.
 The earlier v9 queue block is a historical snapshot. This block describes the active successor.
