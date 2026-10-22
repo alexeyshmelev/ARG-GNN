@@ -2,7 +2,7 @@
 
 <!-- readable-recovery-afternoon-v2-queue:start -->
 ### Current recovery queue
-Updated 2026-10-22T16:27:32.724145+00:00. Status: running.
+Updated 2026-10-22T16:42:42.001362+00:00. Status: running.
 108 pending, 1 running, 241 succeeded, 0 failed, 0 blocked, 0 unknown.
 Local active: C4__all_train__c4_treeloom_fit.
 Live training stages: bounded stage metadata pending.
@@ -53,7 +53,7 @@ Other release archives still await capacity. A [format-based reservation assessm
 
 <!-- readable-recovery-afternoon-queue:start -->
 ### Current recovery queue
-Updated 2026-10-22T16:26:30.402692+00:00. Status: running.
+Updated 2026-10-22T16:41:48.031903+00:00. Status: running.
 106 pending, 1 running, 237 succeeded, 1 failed, 4 blocked, 0 unknown.
 Local active: AM_treeloom_fit.
 Live training stages: AM_treeloom_fit: TreeLoom preparation: prepare_once_or_restore_complete_parent (5/600 saved parent updates).
@@ -66,7 +66,7 @@ One optional external AP001 archive is deferred with its full retained storage c
 
 <!-- readable-parallel-resource-overlay:start -->
 ### Current resource overlay queue
-Updated 2026-10-22T16:26:37.180498+00:00. Status: running.
+Updated 2026-10-22T16:42:17.124858+00:00. Status: running.
 88 pending, 2 running, 237 succeeded, 2 failed, 20 blocked, 0 unknown.
 Local active: AM_argformer_american_validation_003_argformer_mlm, AP__all_train__treeloom_fit.
 Live training stages: bounded stage metadata pending.
