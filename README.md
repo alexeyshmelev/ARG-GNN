@@ -1,17 +1,19 @@
 # ARG-GNN
 
-<!-- readable-recovery-afternoon-v2-queue:start -->
-### Current recovery queue
-Updated 2026-10-22T19:17:21.376303+00:00. Status: running.
-83 pending, 2 running, 244 succeeded, 2 failed, 19 blocked, 0 unknown.
-Local active: C4__all_train__c4_treeloom_fit, AM_argformer_american_validation_003_argformer_embeddings.
+<!-- readable-full-vram-queue:start -->
+### Current full-VRAM queue
+Updated 2026-10-22T19:32:30.895802+00:00. Status: drained_for_operational_update.
+88 pending, 0 running, 244 succeeded, 2 failed, 16 blocked, 0 unknown.
+Local active: waiting for dependencies or capacity.
 Live training stages: bounded stage metadata pending.
 Standalone work: no live standalone generations.
 The earlier v9 queue block is a historical snapshot. This block describes the active successor.
 Ancestry accuracy is pending the frozen prediction and scoring barriers. Training loss is not accuracy.
 One optional external AP001 archive is deferred with its full retained storage charge and zero credit.
-[Current queue metadata](research/benchmark_recovery_afternoon_v2_current.json).
-<!-- readable-recovery-afternoon-v2-queue:end -->
+[Current queue metadata](research/benchmark_full_vram_current.json).
+<!-- readable-full-vram-queue:end -->
+
+
 
 
 
@@ -28,28 +30,39 @@ One optional external AP001 archive is deferred with its full retained storage c
 **The active LAI benchmark continuation uses a queue of 350 stages, including storage recovery and fresh qualifications.** It covers shared American and European simulations, full training, native competitors, paired scoring and Danish data application. Current execution and matched results are published below. All computation and Git commands run on anogena, using physical GPUs 2, 3 and 5.
 
 <!-- BEGIN CURRENT BENCHMARK DIAGNOSIS -->
-**Verified 22 October 17:35 Moscow: the benchmark is progressing, with a corrected European retry queued.** The queue has 238 completed stages. All 237 prior successes and the three original workers are preserved. Fresh matched ancestry accuracy and F1 are still pending.
+**Verified 2026-10-22T22:28:24.690489+03:00: full GPU memory is authorized on physical GPUs 2, 3 and 5.** New workers have no artificial CUDA allocation cap. Healthy existing workers retain their original supervisors and finish normally. Other users' processes remain untouched.
 
-| Workstream | Current verified progress |
+| Workstream | Verified progress |
 | --- | --- |
-| American TreeLoom, GPU 2 | 2/600 full optimizer updates and checkpoint saved. The first complete backward passed under the 64 GiB cap. Preparing the next original training parent |
-| Native ARGformer, GPU 3 | VAL003 pretraining: 147,422/226,425 updates |
-| Native ARGformer, third validation simulation | VAL002 contrastive training completed all 2,094 updates with successful waits. Embeddings are running, followed by ancestry predictions |
-| European TreeLoom, AP endpoint | All three training parents prepared. Waiting for its assigned GPU 3 lease |
-| European TreeLoom, four ancestry classes | The first fit hit its 32 GiB cap with zero updates. A fresh retry uses 68 GiB, preserving all 22 qualified sources and the full 90-update budget |
-| Storage recovery | Lossless archive step is succeeded, with 15.10 GB net recovered. Seven completed inference intermediates are eligible, with 28 observed-data, result and evidence files protected |
+| American TreeLoom | 6/600 full training updates. The uncapped successor resumes the saved six-update checkpoint, with 594 updates remaining at launch |
+| European TreeLoom, four ancestry classes | 5/90 full training updates. The existing healthy fit continues |
+| European TreeLoom, AP endpoint | The old fit hit its 32 GiB allocator limit despite free device memory. Its uncapped retry preserves the complete 90-update budget |
+| Native ARGformer, fourth validation simulation | All 226,425 MLM updates and all 2,120 contrastive updates completed. Embeddings are running |
+| Native ARGformer, third validation simulation | Full prediction chain completed, producing 10,000 ancestry predictions. Disposable native scratch was retired after genuine completion |
+| New matched ancestry accuracy and F1 | Pending full TreeLoom training and the common scoring stages. Training loss and stage counts are not accuracy |
 
-The capacity order is lossless recovery, then VAL002 native embeddings, retrieval and scratch retirement, then the C4 retry. This prevents the C4 host reservation from starving the ready native prediction chain. Compression is verified before each raw replacement. Space is credited only after a successful complete archive, real process waits and exact measurement. No training budget or scientific method is reduced.
+The full queue preserves 244 completed stages and both healthy predecessor workers. Full-device leases prevent our new jobs from oversubscribing each other. Actual free memory is checked before launch. Host RAM and project storage accounting remain enforced.
 
-The active storage projection is 978.25 GB, below the 980 GB operational ceiling and the 1 TB project limit. This is a reservation projection, not a new directory-size scan. The three preserved workers remain active under their original supervisors even when the newest controller's local counters list only the archive.
+Conservative storage projection: 974.62 GB, within the 980 GB operational ceiling and the 1 TB user limit. No directory-wide scan was performed.
 
-Other release archives still await capacity. A [format-based reservation assessment](research/repairs/benchmark_repair_20261022_afternoon/continuation_v2/future_archive_capacity_assessment_v1.json) is retained for the next capacity update. Its proposal has not been applied.
-
-[Verified progress](research/repairs/benchmark_repair_20261022_afternoon/continuation_v2/actual_v3/current_status.json) · [Current queue](research/benchmark_recovery_afternoon_v2_current.json) · [Matched results](research/resource_matched_benchmark_results.json)
+[Verified status](research/benchmark_current_verified_status.json) · [Full queue](research/benchmark_full_vram_current.json) · [Matched results](research/resource_matched_benchmark_results.json)
 <!-- END CURRENT BENCHMARK DIAGNOSIS -->
 <!-- preserved-worker-controllers:start -->
 <details>
 <summary>Preserved controllers and earlier attempts</summary>
+
+<!-- readable-recovery-afternoon-v2-queue:start -->
+### Current recovery queue
+Updated 2026-10-22T19:32:01.996535+00:00. Status: running.
+83 pending, 2 running, 244 succeeded, 2 failed, 19 blocked, 0 unknown.
+Local active: C4__all_train__c4_treeloom_fit, AM_argformer_american_validation_003_argformer_embeddings.
+Live training stages: bounded stage metadata pending.
+Standalone work: no live standalone generations.
+The earlier v9 queue block is a historical snapshot. This block describes the active successor.
+Ancestry accuracy is pending the frozen prediction and scoring barriers. Training loss is not accuracy.
+One optional external AP001 archive is deferred with its full retained storage charge and zero credit.
+[Current queue metadata](research/benchmark_recovery_afternoon_v2_current.json).
+<!-- readable-recovery-afternoon-v2-queue:end -->
 
 <!-- readable-recovery-afternoon-queue:start -->
 ### Current recovery queue
