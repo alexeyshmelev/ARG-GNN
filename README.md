@@ -2,7 +2,7 @@
 
 <!-- readable-recovery-afternoon-v2-queue:start -->
 ### Current recovery queue
-Updated 2026-10-22T17:27:22.690544+00:00. Status: running.
+Updated 2026-10-22T17:44:05.640152+00:00. Status: running.
 101 pending, 2 running, 243 succeeded, 1 failed, 3 blocked, 0 unknown.
 Local active: C4__all_train__c4_treeloom_fit, AM_argformer_american_validation_003_argformer_contrastive.
 Live training stages: bounded stage metadata pending.
@@ -53,10 +53,10 @@ Other release archives still await capacity. A [format-based reservation assessm
 
 <!-- readable-recovery-afternoon-queue:start -->
 ### Current recovery queue
-Updated 2026-10-22T17:28:13.124946+00:00. Status: running.
+Updated 2026-10-22T17:43:05.089346+00:00. Status: running.
 103 pending, 1 running, 238 succeeded, 2 failed, 5 blocked, 0 unknown.
 Local active: AM_treeloom_fit.
-Live training stages: AM_treeloom_fit: TreeLoom training: layout_constructor (6/600 saved parent updates).
+Live training stages: AM_treeloom_fit: TreeLoom training: _second (6/600 saved parent updates).
 Standalone work: no live standalone generations.
 The earlier v9 queue block is a historical snapshot. This block describes the active successor.
 Ancestry accuracy is pending the frozen prediction and scoring barriers. Training loss is not accuracy.
