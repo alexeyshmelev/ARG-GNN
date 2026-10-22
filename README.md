@@ -2,10 +2,10 @@
 
 <!-- readable-full-vram-queue:start -->
 ### Current full-VRAM queue
-Updated 2026-10-22T19:47:39.961914+00:00. Status: running.
-102 pending, 3 running, 245 succeeded, 0 failed, 0 blocked, 0 unknown.
-Local active: AM_treeloom_fit, AM_argformer_american_validation_004_argformer_mlm, AP__all_train__treeloom_fit.
-Live training stages: AM_treeloom_fit: TreeLoom preparation: prepare_once_or_restore_complete_parent.
+Updated 2026-10-22T20:03:05.061374+00:00. Status: running.
+86 pending, 2 running, 245 succeeded, 1 failed, 16 blocked, 0 unknown.
+Local active: AM_argformer_american_validation_004_argformer_mlm, AP__all_train__treeloom_fit.
+Live training stages: bounded stage metadata pending.
 Standalone work: no live standalone generations.
 The earlier v9 queue block is a historical snapshot. This block describes the active successor.
 Ancestry accuracy is pending the frozen prediction and scoring barriers. Training loss is not accuracy.
@@ -55,7 +55,7 @@ Conservative storage projection: 972.39 GB, within the 980 GB operational ceilin
 
 <!-- readable-recovery-afternoon-v2-queue:start -->
 ### Current recovery queue
-Updated 2026-10-22T19:46:59.880151+00:00. Status: running.
+Updated 2026-10-22T20:02:19.370644+00:00. Status: running.
 83 pending, 1 running, 245 succeeded, 2 failed, 19 blocked, 0 unknown.
 Local active: C4__all_train__c4_treeloom_fit.
 Live training stages: bounded stage metadata pending.
