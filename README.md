@@ -2,9 +2,9 @@
 
 <!-- readable-parallel-resource-overlay:start -->
 ### Current resource overlay queue
-Updated 2026-10-22T08:26:18.226568+00:00. Status: waiting_for_dependencies_or_capacity.
-118 pending, 0 running, 231 succeeded, 0 failed, 0 blocked, 0 unknown.
-Local active: waiting for dependencies or capacity.
+Updated 2026-10-22T08:30:06.102408+00:00. Status: running.
+116 pending, 2 running, 231 succeeded, 0 failed, 0 blocked, 0 unknown.
+Local active: AP__train_000__treeloom_preparation_qualification_multigpu_20261022_v1, C4__train_000__treeloom_preparation_qualification_multigpu_20261022_v1.
 Live training stages: bounded stage metadata pending.
 Standalone work: no live standalone generations.
 The earlier v9 queue block is a historical snapshot. This block describes the active successor.
@@ -15,7 +15,7 @@ One optional external AP001 archive is deferred with its full retained storage c
 
 <!-- readable-parallel-queue:start -->
 ### Current parallel queue
-Updated 2026-10-22T08:27:06.312815+00:00. Status: running.
+Updated 2026-10-22T08:29:25.029695+00:00. Status: running.
 116 pending, 2 running, 231 succeeded, 0 failed, 0 blocked, 0 unknown.
 Local active: AM_treeloom_fit, C4__ancestralpaths_european_train_000__release_archive.
 Live training stages: AM_treeloom_fit: TreeLoom preparation: prepare_once_or_restore_complete_parent.
@@ -28,7 +28,7 @@ One optional external AP001 archive is deferred with its full retained storage c
 
 <!-- readable-recovery-queue:start -->
 ### Current recovery queue
-Updated 2026-10-22T08:27:46.408743+00:00. Status: running.
+Updated 2026-10-22T08:29:53.317106+00:00. Status: running.
 76 pending, 1 running, 231 succeeded, 7 failed, 32 blocked, 0 unknown.
 Local active: AM_argformer_american_validation_002_argformer_mlm.
 Live training stages: bounded stage metadata pending.
