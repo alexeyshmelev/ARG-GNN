@@ -2,9 +2,9 @@
 
 <!-- readable-recovery-afternoon-v2-queue:start -->
 ### Current recovery queue
-Updated 2026-10-22T14:55:56.741927+00:00. Status: running.
-111 pending, 1 running, 238 succeeded, 0 failed, 0 blocked, 0 unknown.
-Local active: AM_argformer_american_validation_002_argformer_embeddings.
+Updated 2026-10-22T15:11:40.403574+00:00. Status: running.
+110 pending, 1 running, 239 succeeded, 0 failed, 0 blocked, 0 unknown.
+Local active: AM_argformer_american_validation_002_argformer_retrieval.
 Live training stages: bounded stage metadata pending.
 Standalone work: no live standalone generations.
 The earlier v9 queue block is a historical snapshot. This block describes the active successor.
@@ -53,7 +53,7 @@ Other release archives still await capacity. A [format-based reservation assessm
 
 <!-- readable-recovery-afternoon-queue:start -->
 ### Current recovery queue
-Updated 2026-10-22T14:54:59.931854+00:00. Status: running.
+Updated 2026-10-22T15:10:52.448519+00:00. Status: running.
 106 pending, 1 running, 237 succeeded, 1 failed, 4 blocked, 0 unknown.
 Local active: AM_treeloom_fit.
 Live training stages: AM_treeloom_fit: TreeLoom preparation: prepare_once_or_restore_complete_parent (3/600 saved parent updates).
@@ -66,7 +66,7 @@ One optional external AP001 archive is deferred with its full retained storage c
 
 <!-- readable-parallel-resource-overlay:start -->
 ### Current resource overlay queue
-Updated 2026-10-22T14:55:18.553972+00:00. Status: running.
+Updated 2026-10-22T15:10:33.163250+00:00. Status: running.
 88 pending, 2 running, 237 succeeded, 2 failed, 20 blocked, 0 unknown.
 Local active: AM_argformer_american_validation_003_argformer_mlm, AP__all_train__treeloom_fit.
 Live training stages: bounded stage metadata pending.
