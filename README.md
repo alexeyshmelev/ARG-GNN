@@ -2,7 +2,7 @@
 
 <!-- readable-recovery-queue:start -->
 ### Current recovery queue
-Updated 2026-10-22T00:12:35.625837+00:00. Status: running.
+Updated 2026-10-22T00:18:19.417086+00:00. Status: running.
 76 pending, 1 running, 231 succeeded, 7 failed, 32 blocked, 0 unknown.
 Local active: AM_argformer_american_validation_002_argformer_mlm.
 Live training stages: bounded stage metadata pending.
@@ -20,21 +20,22 @@ One optional external AP001 archive is deferred with its full retained storage c
 **The active LAI benchmark continuation uses a queue of 347 stages, including storage recovery.** It covers shared American and European simulations, full training, native competitors, paired scoring and Danish data application. Current execution and matched results are published below. All computation and Git commands run on anogena, using physical GPU 5 only.
 
 <!-- BEGIN CURRENT BENCHMARK DIAGNOSIS -->
-**21 October: the benchmark has resumed on physical GPU 5.** The successor carries forward **183 completed stages** and queues the remaining **164 stages**. It preserves completed models, data and prior failure records. **Fresh matched ancestry accuracy and F1 are still pending.** The live report above shows subsequent progress and is pushed from the server every 15 minutes.
+**22 October: ARGformer is training on physical GPU 5, but the comparison is incomplete.** The current queue has **231 completed, 1 running, 76 pending, 7 failed and 32 blocked stages**. The running job is the third American simulation's full five-epoch ARGformer pretraining, with **34,513 / 223,655 updates** observed. The GPU showed **100% utilization** at the status check. **Fresh matched ancestry accuracy and F1 remain unavailable.**
 
-| Workstream | Verified state at restart | Next step |
+| Workstream | Verified state | Remaining work |
 | --- | --- | --- |
-| American TreeLoom | The previous fit exceeded its 128 GiB RAM cap before the first optimizer update. The successor reserves 512 GiB and saves full state after each completed update | Complete the unchanged 600 updates over 30 epochs |
-| ARGformer | VAL001 completed all **2,099 contrastive updates**. Its checkpoint is retained. A parent-directory validation error in the next stage is fixed. VAL000 already produced 10,000 predictions | Produce VAL001 embeddings and predictions, then continue the remaining simulations |
-| FLARE | **15/15** fresh American prediction outputs complete | Common scoring after all required comparison predictions |
-| AncestralPaths | Two additional inference stages completed successfully before the pause and are now adopted from their actual successful waits | Continue remaining inference and lossless storage stages |
-| European TreeLoom and released ARGMix | Completed inputs and preparation checks retained. Future execution uses the GPU 5 adapters | Complete training, predictions and paired scoring |
+| American TreeLoom | First full-parent backward exceeded the 16 GiB CUDA allocator cap, with physical memory still available. This attempt completed **0/600 optimizer updates** | Repair CUDA memory allocation, complete full training, then predict |
+| ARGformer | Native training and ancestry predictions complete for **2/15** simulations. Full pretraining is active on the third | Finish the remaining native pipelines |
+| FLARE | **15/15** American predictions complete | Paired scoring after the comparison barrier |
+| AncestralPaths | **8/8** European genealogical inference stages complete | Complete dependent ancestry models and comparisons |
+| European TreeLoom | Both fits were rejected before launch because their old qualification records do not match the current qualification schema/source contract | Run fresh qualifications for the same inputs and current implementation |
+| Released ARGMix | Four archive stages failed because the stock Rust helper could not find `python` on PATH | Add the admitted native runtime bin to the child PATH, then continue the unchanged author pipeline |
 
-Only physical GPU 5 is authorized. Project jobs may share it when memory permits. Process control is restricted to verified ARG-GNN jobs. No unrelated process was signalled or modified during the move.
+Versioned repairs are prepared and have passed focused source and metadata checks. They have not yet been integrated or dispatched. The active ARGformer run and all prior successful work are preserved. The persistent capacity-mutex warning in pending rows is stale reporting after brief controller lock contention, not evidence that training has stopped.
 
-The migration changes execution, memory allocation and output paths while preserving scientific models, data and training budgets. ARGMix retains the authors' training and inference functions with explicit process and file I/O bindings. The conservative storage projection before dispatch was **783.06 GB**, below the 980 GB operational ceiling.
+Only physical GPU 5 is authorized. Process control is restricted to verified ARG-GNN jobs. No unrelated process was modified or signalled during this check.
 
-[Restart details](research/repairs/benchmark_resume_20261021/resume_status.json) · [Live queue](research/benchmark_readable_current.json) · [Matched results](research/resource_matched_benchmark_results.json)
+[Current diagnosis](research/repairs/benchmark_followup_20261022/status.json) · [Live queue](research/benchmark_readable_current.json) · [Matched results](research/resource_matched_benchmark_results.json)
 <!-- END CURRENT BENCHMARK DIAGNOSIS -->
 
 <!-- BEGIN COMPLETED WORK ACCOUNTING -->
