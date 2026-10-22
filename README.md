@@ -1,8 +1,21 @@
 # ARG-GNN
 
+<!-- readable-parallel-resource-overlay:start -->
+### Current resource overlay queue
+Updated 2026-10-22T08:26:18.226568+00:00. Status: waiting_for_dependencies_or_capacity.
+118 pending, 0 running, 231 succeeded, 0 failed, 0 blocked, 0 unknown.
+Local active: waiting for dependencies or capacity.
+Live training stages: bounded stage metadata pending.
+Standalone work: no live standalone generations.
+The earlier v9 queue block is a historical snapshot. This block describes the active successor.
+Ancestry accuracy is pending the frozen prediction and scoring barriers. Training loss is not accuracy.
+One optional external AP001 archive is deferred with its full retained storage charge and zero credit.
+[Current queue metadata](research/benchmark_parallel_resource_overlay_current.json).
+<!-- readable-parallel-resource-overlay:end -->
+
 <!-- readable-parallel-queue:start -->
 ### Current parallel queue
-Updated 2026-10-22T08:19:17.001188+00:00. Status: running.
+Updated 2026-10-22T08:27:06.312815+00:00. Status: running.
 116 pending, 2 running, 231 succeeded, 0 failed, 0 blocked, 0 unknown.
 Local active: AM_treeloom_fit, C4__ancestralpaths_european_train_000__release_archive.
 Live training stages: AM_treeloom_fit: TreeLoom preparation: prepare_once_or_restore_complete_parent.
@@ -15,7 +28,7 @@ One optional external AP001 archive is deferred with its full retained storage c
 
 <!-- readable-recovery-queue:start -->
 ### Current recovery queue
-Updated 2026-10-22T08:19:16.830159+00:00. Status: running.
+Updated 2026-10-22T08:27:46.408743+00:00. Status: running.
 76 pending, 1 running, 231 succeeded, 7 failed, 32 blocked, 0 unknown.
 Local active: AM_argformer_american_validation_002_argformer_mlm.
 Live training stages: bounded stage metadata pending.
@@ -33,7 +46,7 @@ One optional external AP001 archive is deferred with its full retained storage c
 **The active LAI benchmark continuation uses a queue of 349 stages, including storage recovery and fresh qualifications.** It covers shared American and European simulations, full training, native competitors, paired scoring and Danish data application. Current execution and matched results are published below. All computation and Git commands run on anogena, using physical GPUs 2, 3 and 5.
 
 <!-- BEGIN CURRENT BENCHMARK DIAGNOSIS -->
-**22 October: parallel benchmarking is active on the authorized GPU set {2, 3, 5}.** The new queue carries forward **231 completed stages**, preserves the existing ARGformer training on GPU 5, and schedules the remaining work across the added devices. It contains **349 stages**, including two fresh CPU qualification checks. **Fresh matched ancestry accuracy and F1 are still pending.**
+**22 October: parallel benchmarking is active on the authorized GPU set {2, 3, 5}.** The new queue carries forward **231 completed stages**, preserves the existing ARGformer training on GPU 5, and schedules the remaining work across the added devices. TreeLoom is preparing its first complete parent on GPU 2. The next GPU 3 native pipeline is waiting for its data-preparation storage reservation. It contains **349 stages**, including two fresh CPU qualification checks. **Fresh matched ancestry accuracy and F1 are still pending.**
 
 | Workstream | Device assignment | Current execution |
 | --- | --- | --- |
@@ -44,11 +57,11 @@ One optional external AP001 archive is deferred with its full retained storage c
 | Released ARGMix | GPU 2 | Archive PATH correction integrated. Original author code and settings retained |
 | FLARE | CPU | All 15 American prediction outputs retained for paired scoring |
 
-The old readable queue block below describes the preserved GPU 5 worker and its historical failures. The **parallel queue** block and its linked JSON describe future execution. No failed attempt was relabelled as a success. Native retirement dependencies now form two independent lanes, allowing separate parents to prepare and train concurrently while keeping storage reservations.
+The current resource-overlay queue block describes future dispatch. The older parallel and readable queue blocks describe preserved workers and historical failures. The **parallel queue** block and its linked JSON describe future execution. No failed attempt was relabelled as a success. Native retirement dependencies now form two independent lanes, allowing separate parents to prepare and train concurrently while keeping storage reservations.
 
-All model definitions, simulated data, reference/query splits and training budgets are preserved. No unrelated process was signalled or changed. The storage projection before dispatch was **821.55 GB**, below the 980 GB operational ceiling. GitHub SSH connections are currently timing out on both standard SSH and the official port 443 endpoint, so new commits are saved on anogena pending network recovery.
+All model definitions, simulated data, reference/query splits and training budgets are preserved. No unrelated process was signalled or changed. The storage projection before dispatch was **821.55 GB**. Including the active archive and other full output reservations, the current projection is **960.15 GB**, below the unchanged 980 GB operational ceiling. The controller RAM reservation ceiling is now **1,536 GiB** on a host with about **2,015 GiB**, retaining the 64 GiB host margin and all individual job limits. GitHub SSH connections are currently timing out on both standard SSH and the official port 443 endpoint, so new commits are saved on anogena pending network recovery.
 
-[Parallel restart details](research/repairs/benchmark_multigpu_20261022/status.json) · [Live parallel queue](research/benchmark_parallel_current.json) · [Matched results](research/resource_matched_benchmark_results.json)
+[Parallel restart details](research/repairs/benchmark_multigpu_20261022/status.json) · [Live queue](research/benchmark_parallel_resource_overlay_current.json) · [Matched results](research/resource_matched_benchmark_results.json)
 <!-- END CURRENT BENCHMARK DIAGNOSIS -->
 
 <!-- BEGIN COMPLETED WORK ACCOUNTING -->
