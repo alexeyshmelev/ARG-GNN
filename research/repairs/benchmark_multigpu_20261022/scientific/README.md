@@ -1,0 +1,20 @@
+# Explicit GPU assignment for TreeLoom scientific adapters
+
+Status: source preparation and metadata checks passed; no scientific stage or qualification was run here.
+
+The new `fit_v3.fit_factory` requires `physical_gpu` and `gpu_uuid` arguments. ROOT should bind American TreeLoom to physical GPU 2, UUID `GPU-976a5cd3-df12-2535-fa51-e3ea063688ba`, with a provisional 32 GiB CUDA allocator cap, 40 GiB minimum free GPU admission and 512 GiB RSS. The prior failed attempt completed zero optimizer updates and has no checkpoint: use a fresh output and null resume reference. The original 20 parents, 30 passes, 600 full-parent optimizer updates, full BPTT, numerical modules, RNG handling and checkpoint implementation are unchanged. The 32 GiB cap remains provisional until a real full backward and optimizer update succeed.
+
+`routes_v1.json` provides the new factory routes and allowlist additions. Every GPU scientific factory requires the same explicit `physical_gpu` and `gpu_uuid` in its factory arguments and task descriptor. American fit and prediction specifications store them at `spec`; European fit and prediction wrappers store them at `spec.scientific_spec`. CPU qualifications and empirical CPU work need no GPU arguments. Tasks naming the old adapter module directly must also be rebound to the new module; route aliases alone do not change direct module names.
+
+The central `gpu_binding.py` accepts only the exact authorized GPU 2, 3 and 5 UUID pairs. Eager setup checks the specification against `CUDA_VISIBLE_DEVICES`, `ARGGNN_PHYSICAL_GPU`, an inherited readable lease descriptor and actual `nvidia-smi` identity before CUDA initialization. Deferred European CPU preparation checks the intended visible UUID while lease fields are absent; after the unchanged `acquire_gpu0` callback, it performs the same acquired checks before initializing CUDA. Logical device `cuda:0` and the callback name remain unchanged. No GPU is discovered or selected dynamically by the scientific adapters.
+
+`qualification_plan_fragment_v1.json` contains fresh CPU qualifications with IDs ending `_multigpu_20261022_v1`, actual metadata descriptors and fit rebindings. AP fit targets GPU 3; C4 fit targets GPU 5. Both European fit task descriptors use 32 GiB CUDA cap and 40 GiB minimum free GPU admission; the original fit RSS envelopes are retained. The existing European allocator guard accepts these caps without changing the numerical body. Each qualifier binds exactly the same 22 candidate sources subsequently required by its fit. Historical qualification receipts remain untouched and are rejected by the new source contract. Successful new full-parent CPU qualification must produce its own genuine receipt before the respective fit can materialize. ROOT must likewise update downstream European prediction qualification references to these new qualification task IDs.
+
+The metadata tests used actual original input references for all 20 American parents and both European protocols. They checked all three authorized targets, invalid and crossed targets, deferred/acquired environment guards, pre-CUDA rejection, actual American factory descriptor equivalence to the prior 32 GiB fitter, European scientific specification equivalence and old-qualification rejection. UUID-query responses were mocked in the isolated guard unit checks; no GPU query or CUDA initialization was needed. No model, scientific array, truth payload, qualification or training stage was executed. The corrected package invocation is:
+
+```bash
+cd /workspace-SR003.nfs2/ARG-GNN
+PYTHONPATH="$PWD/src:$PWD" .runtime/env/bin/python -B -m research.repairs.benchmark_multigpu_20261022.scientific.metadata_acceptance_v1
+```
+
+The test output is `metadata_acceptance_v1.log`; the receipt is `metadata_acceptance_v1.result.json`. `source_manifest_v1.json` binds all required executable references and the qualification fragment. `scientific_source_changes.diff` records the exact adapter and fitter source changes against the prior versions. This preparation changed no pinned source, queue policy, live process or existing scientific output.

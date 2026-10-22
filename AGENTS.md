@@ -1,5 +1,9 @@
 # ARG-GNN research instructions
 
+## Current user GPU assignment, 22 October 2026
+
+The user explicitly added physical GPUs 2 and 3 to the ongoing GPU 5 work. The authorized set is now {2, 3, 5}, superseding the earlier one-device and two-device limits for this task. UUIDs are GPU-976a5cd3-df12-2535-fa51-e3ea063688ba (2), GPU-df11de7f-7a15-ebe2-085d-9c7d907f3786 (3), and GPU-3db85505-d061-e45d-d154-e7e8c1cad497 (5). Preserve the healthy existing GPU 5 ARGformer training. Only verified ARG-GNN processes may be controlled. Do not touch unrelated processes. Keep every historical source, result and failed attempt. New parallel execution must bind the additional authorization explicitly while leaving the current GPU 5 worker's original policy fields valid until it completes. The total project limit remains 1 TB.
+
 ## Current user GPU assignment, 21 October 2026
 
 The user explicitly instructed: continue the benchmark on physical GPU 5. This supersedes every earlier GPU 0, GPU 2/3 or GPU 4/5 assignment below for future execution. Use only physical GPU 5, UUID GPU-3db85505-d061-e45d-d154-e7e8c1cad497. Multiple project jobs may share it when memory permits. Never signal or modify unrelated processes. Only verified ARG-GNN task-owned processes may be controlled. Preserve prior scientific work, source versions, failure records and settings. The old GPU 0 controller is retired and is not future execution authority. The GPU 5 successor must be explicitly bound in the canonical execution policy.

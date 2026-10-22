@@ -1,0 +1,310 @@
+--- research/repairs/benchmark_resume_20261021/gpu/queue_adapters/american_prediction.py
++++ research/repairs/benchmark_multigpu_20261022/scientific/queue_adapters/american_prediction.py
+@@ -1,6 +1,6 @@
+ """Supervised American fixed-final TreeLoom fit and zero-truth prediction.
+ 
+-These are in-worker callables. ROOT owns the process, GPU5 lease, actual wait,
++These are in-worker callables. ROOT owns the process, assigned GPU lease, actual wait,
+ RSS/wall/storage admission and queue. Import/planning opens metadata/source only.
+ """
+ from __future__ import annotations
+@@ -99,7 +99,7 @@
+ def build_prediction_spec(*, parent_registry_ref, checkpoint_ref, training_completion_ref,
+                           heldout_inputs, output_directory, max_rss_bytes,
+                           preparation_headroom_bytes, prediction_headroom_bytes,
+-                          observation_cache_bytes=0, max_output_bytes=64*2**20):
++                          physical_gpu, gpu_uuid, observation_cache_bytes=0, max_output_bytes=64*2**20):
+     registry = fresh.FreshParentRegistry.from_ref(parent_registry_ref)
+     _completion_binding(registry, checkpoint_ref, training_completion_ref)
+     _heldout_bindings(registry, heldout_inputs)
+@@ -119,7 +119,7 @@
+                 memory_envelope=memory, observation_cache_bytes=observation_cache_bytes,
+                 max_output_bytes=max_output_bytes, preparation_limits=copy.deepcopy(training.LIMITS),
+                 requirements=requirements(), query_ancestry_truth_opened=False,
+-                checkpoint_selection="fixed_final_epoch30")
++                checkpoint_selection="fixed_final_epoch30",**common.gpu_binding.target(physical_gpu,gpu_uuid))
+ 
+ 
+ def _validate_spec(spec):
+@@ -130,7 +130,8 @@
+         output_directory=spec["output_directory"], max_rss_bytes=memory["max_rss_bytes"],
+         preparation_headroom_bytes=memory["preparation_headroom_bytes"],
+         prediction_headroom_bytes=memory["prediction_headroom_bytes"],
+-        observation_cache_bytes=spec["observation_cache_bytes"], max_output_bytes=spec["max_output_bytes"])
++        observation_cache_bytes=spec["observation_cache_bytes"], max_output_bytes=spec["max_output_bytes"],
++        physical_gpu=spec["physical_gpu"],gpu_uuid=spec["gpu_uuid"])
+     _need(spec == expected, "Exact source/identity-bound held-out prediction specification required")
+     return fresh.FreshParentRegistry.from_ref(spec["parent_registry_ref"])
+ 
+--- research/repairs/benchmark_resume_20261021/gpu/queue_adapters/american_workflow_v2.py
++++ research/repairs/benchmark_multigpu_20261022/scientific/queue_adapters/american_workflow_v2.py
+@@ -36,14 +36,14 @@
+                 native_preparation_ref=preparation_ref)
+ 
+ 
+-def prediction_factory(*, fit_result, preparation_refs, output_directory, max_rss_bytes):
++def prediction_factory(*, fit_result, preparation_refs, output_directory, max_rss_bytes, physical_gpu, gpu_uuid):
+     complete = _fit_result(fit_result)
+     model._need(type(preparation_refs) is dict and preparation_refs,
+                 "Original requested held-out preparation references are required")
+     call = model.prediction_factory(parent_registry_ref=c.file_ref(REGISTRY),
+         checkpoint_ref=complete["checkpoint_ref"], training_completion_ref=complete["completion_ref"],
+         heldout_inputs={parent:_observed_binding(ref) for parent,ref in preparation_refs.items()},
+-        output_directory=output_directory, max_rss_bytes=max_rss_bytes,
++        output_directory=output_directory, max_rss_bytes=max_rss_bytes,physical_gpu=physical_gpu,gpu_uuid=gpu_uuid,
+         preparation_headroom_bytes=128*GIB, prediction_headroom_bytes=64*GIB,
+         observation_cache_bytes=0, max_output_bytes=64*2**20)
+     references = [*call["source_refs"], c.file_ref(__file__)]
+--- research/repairs/benchmark_resume_20261021/gpu/queue_adapters/common.py
++++ research/repairs/benchmark_multigpu_20261022/scientific/queue_adapters/common.py
+@@ -5,10 +5,10 @@
+ from arggnn.benchmarking import contracts as c
+ from arggnn.benchmarking import american_preparation as generation
+ from arggnn.benchmarking import treeloom_training as memory
+-from ..shared_gpu5_v1 import GPU5_UUID
++from .. import gpu_binding
+ 
+-PACKAGE = "research.repairs.benchmark_resume_20261021.gpu.queue_adapters"
+-DIRECTORY = "research/repairs/benchmark_resume_20261021/gpu/queue_adapters"
++PACKAGE = "research.repairs.benchmark_multigpu_20261022.scientific.queue_adapters"
++DIRECTORY = "research/repairs/benchmark_multigpu_20261022/scientific/queue_adapters"
+ SOURCE_NAMES = ("common.py", "european_observations.py", "european_execution.py",
+                 "european_gru.py", "european_stage.py", "qualification.py",
+                 "american_prediction.py", "empirical.py")
+@@ -27,7 +27,7 @@
+               for name in ("execution.py", "decoder.py", "layout.py", "progress.py", "candidate_gru.py")]
+     names += ["research/reviews/workflow_progress_diagnosis_20261018/treeloom/" + name
+               for name in ("cache_v1.py", "resident_pool_v2.py", "indices_v1.py")]
+-    return [c.file_ref(name) for name in names]
++    return [c.file_ref(name) for name in names] + [c.file_ref(gpu_binding.__file__)]
+ 
+ 
+ def descriptor(module, function, spec, inherited=()):
+@@ -39,11 +39,7 @@
+ 
+ def _cpu_setup(spec, resource_check):
+     need(callable(resource_check), "The actual worker resource guard is required")
+-    need(os.environ.get("CUDA_VISIBLE_DEVICES") == GPU5_UUID
+-         and os.environ.get("PYTORCH_NVML_BASED_CUDA_CHECK") == "1"
+-         and "ARGGNN_PHYSICAL_GPU" not in os.environ
+-         and "ARGGNN_READABLE_GPU_FD" not in os.environ,
+-         "Observed preparation starts without an acquired GPU reservation")
++    gpu_binding.validate_env(spec, acquired=False)
+     def check(*args, **kwargs):
+         resource_check(*args, **kwargs)
+         need(memory._current_rss_bytes() <= spec["memory_envelope"]["max_rss_bytes"],
+@@ -66,13 +62,9 @@
+     return torch, check, writer
+ 
+ 
+-def finish_gpu_setup(torch):
+-    need(os.environ.get("ARGGNN_PHYSICAL_GPU") == "5"
+-         and os.environ.get("CUDA_VISIBLE_DEVICES") == GPU5_UUID,
+-         "The callback must acquire the actual shared physical GPU5 reservation")
+-    need("ARGGNN_READABLE_GPU_FD" in os.environ,
+-         "A genuine current readable shared reservation descriptor is required")
+-    need(torch.cuda.device_count() == 1, "Only physical GPU5 may be visible")
++def finish_gpu_setup(torch, spec):
++    gpu_binding.verify_before_cuda(torch, spec)
++    need(torch.cuda.device_count() == 1, "Exactly one admitted physical GPU may be visible")
+     torch.backends.cuda.matmul.allow_tf32 = False
+     torch.backends.cudnn.allow_tf32 = False
+     cap = int(os.environ.get("ARGGNN_MAX_CUDA_RESERVED_BYTES", "0"))
+@@ -83,7 +75,7 @@
+ 
+ def _setup_gpu(spec, resource_check):
+     need(callable(resource_check), "The actual prediction resource guard is required")
+-    need(os.environ.get("ARGGNN_PHYSICAL_GPU") == "5", "An admitted physical GPU5 worker is required")
++    gpu_binding.validate_env(spec)
+     def check(*args, **kwargs):
+         resource_check(*args, **kwargs)
+         need(memory._current_rss_bytes() <= spec["memory_envelope"]["max_rss_bytes"],
+@@ -102,5 +94,5 @@
+     torch.set_num_threads(8)
+     if torch.get_num_interop_threads() != 1:
+         torch.set_num_interop_threads(1)
+-    finish_gpu_setup(torch)
++    finish_gpu_setup(torch, spec)
+     return torch, check, writer
+--- research/repairs/benchmark_resume_20261021/gpu/queue_adapters/european_execution.py
++++ research/repairs/benchmark_multigpu_20261022/scientific/queue_adapters/european_execution.py
+@@ -4,6 +4,7 @@
+ Original SHA256: 8198f589aa7e7ad6b26cb530992ed44be2481ecde2c6ef0a7c98d396408de7e4.
+ """
+ from types import SimpleNamespace
++from .. import gpu_binding
+ from functools import partial,wraps
+ from research.reviews.TreeLoom_GPU_history_source_20261017_v1.stable_leaf_history_v1 import stable_leaf_history_v1, NullProfileV1
+ from research.repairs.benchmark_recovery_20261020.training.layout import block_indices
+@@ -214,10 +215,10 @@
+          and callable(resource_check), "Exact European model and full observed parent required")
+     import os
+     parameter = next(model.parameters())
+-    need(os.environ.get("ARGGNN_PHYSICAL_GPU") == "5"
+-         and parameter.device.type == "cuda" and parameter.device.index in (None, 0)
++    gpu_binding.validate_env()
++    need(parameter.device.type == "cuda" and parameter.device.index in (None, 0)
+          and all(p.dtype == torch.float32 for p in model.parameters()),
+-         "A supervised physical GPU5 FP32 model is required")
++         "A supervised assigned physical GPU FP32 model is required")
+     need(metadata.get("parent_id") == bundle.parent_id
+          and metadata.get("sampled_registry_ref") == bundle.sampled_registry_ref
+          and metadata.get("focal_identity_sha256") == bundle.focal_identity_sha256
+--- research/repairs/benchmark_resume_20261021/gpu/queue_adapters/european_stage.py
++++ research/repairs/benchmark_multigpu_20261022/scientific/queue_adapters/european_stage.py
+@@ -1,6 +1,6 @@
+ """Full European30-pass TreeLoom fit and sampled-support held-out prediction.
+ 
+-ROOT's workflow owns GPU5 lease, process/RSS/storage/wall supervision and actual
++ROOT's workflow owns the assigned GPU lease, process/RSS/storage/wall supervision and actual
+ waits. No launcher or policy is installed. Native TRAIN labels stay separate from
+ observed bank preparation; held-out callables accept no truth/target reference.
+ """
+@@ -101,7 +101,7 @@
+ 
+ def build_fit_spec(*,protocol_id,sampling_plan_ref,train_inputs,output_directory,max_rss_bytes,
+                    preparation_headroom_bytes,training_headroom_bytes,observation_cache_bytes,
+-                   max_sites,max_metadata_bytes,preparation_limits,max_output_bytes=64*2**20):
++                   max_sites,max_metadata_bytes,preparation_limits,physical_gpu,gpu_uuid,max_output_bytes=64*2**20):
+     plan = _parent_plan(sampling_plan_ref,protocol_id)
+     _input_shapes(train_inputs,plan["train_parent_ids"],training=True)
+     out = generation._path(output_directory)
+@@ -116,7 +116,8 @@
+         train_inputs=copy.deepcopy(train_inputs),output_directory=str(out.relative_to(c.ROOT)),
+         memory_envelope=envelope,observation_cache_bytes=observation_cache_bytes,**limits,
+         settings=copy.deepcopy(SETTINGS),optimizer_updates=30*len(train_inputs),
+-        requirements=requirements(),private_truth_in_observations=False)
++        requirements=requirements(),private_truth_in_observations=False,
++        **common.gpu_binding.target(physical_gpu,gpu_uuid))
+ 
+ 
+ def _fit_completion(ref,*,protocol_id,sampling_plan_ref,train_count):
+@@ -137,7 +138,7 @@
+ def build_prediction_spec(*,protocol_id,sampling_plan_ref,fit_completion_ref,heldout_inputs,
+                           output_directory,max_rss_bytes,preparation_headroom_bytes,
+                           prediction_headroom_bytes,observation_cache_bytes,max_sites,
+-                          max_metadata_bytes,preparation_limits,max_output_bytes=64*2**20):
++                          max_metadata_bytes,preparation_limits,physical_gpu,gpu_uuid,max_output_bytes=64*2**20):
+     plan = _parent_plan(sampling_plan_ref,protocol_id)
+     _input_shapes(heldout_inputs,plan["test_parent_ids"],training=False)
+     _fit_completion(fit_completion_ref,protocol_id=protocol_id,
+@@ -155,12 +156,12 @@
+         heldout_inputs=copy.deepcopy(heldout_inputs),output_directory=str(out.relative_to(c.ROOT)),
+         memory_envelope=envelope,observation_cache_bytes=observation_cache_bytes,**limits,
+         requirements=requirements(),query_ancestry_truth_opened=False,
+-        checkpoint_selection="fixed_final_epoch30")
++        checkpoint_selection="fixed_final_epoch30",**common.gpu_binding.target(physical_gpu,gpu_uuid))
+ 
+ 
+ def _validate(spec,*,fit):
+     keys = ("protocol_id","sampling_plan_ref","output_directory","observation_cache_bytes",
+-            "max_sites","max_metadata_bytes","preparation_limits","max_output_bytes")
++            "max_sites","max_metadata_bytes","preparation_limits","max_output_bytes","physical_gpu","gpu_uuid")
+     kwargs = {key:spec[key] for key in keys}
+     envelope = spec["memory_envelope"]
+     kwargs.update(max_rss_bytes=envelope["max_rss_bytes"],
+@@ -319,9 +320,9 @@
+         sampling_plan_ref=spec["sampling_plan_ref"],parents=seals,
+         all_original_TRAIN_observations_sealed_before_targets=True,private_truth_opened=False)
+     barrier_ref = writer.json("observation_barrier.json",barrier)
+-    _need(callable(acquire_gpu0), "Actual late shared GPU5 acquisition callback required")
++    _need(callable(acquire_gpu0), "Actual late assigned GPU acquisition callback required")
+     acquire_gpu0()
+-    common.finish_gpu_setup(torch)
++    common.finish_gpu_setup(torch, spec)
+     model = install_chunked_gru(european.build_model(spec["protocol_id"]).to(device="cuda:0",dtype=torch.float32))
+     optimizer = torch.optim.AdamW(model.parameters(),lr=.001,weight_decay=.0001,
+         betas=(.9,.999),eps=1e-8,maximize=False,amsgrad=False,foreach=False,fused=False)
+--- research/repairs/benchmark_followup_20261022/treeloom/fit_v2.py
++++ research/repairs/benchmark_multigpu_20261022/scientific/fit_v3.py
+@@ -1,11 +1,12 @@
+ """Original 600-update TreeLoom fit with upfront RAM admission and exact resume.
+ 
+-The queue owns physical GPU5 admission, title, guards and genuine process waits.
++The queue owns assigned physical GPU admission, title, guards and genuine process waits.
+ Static original numerical modules remain unchanged. No gates or child launchers.
+ The 32 GiB allocator cap is provisional until a genuine full backward succeeds;
+-the queue must require at least 40 GiB free on physical GPU5 before admission.
++the queue must require at least 40 GiB free on assigned physical GPU before admission.
+ """
+ from collections import Counter
++from . import gpu_binding
+ from pathlib import Path
+ import gc
+ import json
+@@ -19,8 +20,7 @@
+ from research.repairs.benchmark_recovery_20261020.training.candidate_fit import create_pool
+ from research.repairs.benchmark_resume_20261021.training import checkpoint_v1 as checkpoints_io
+ 
+-MODULE='research.repairs.benchmark_followup_20261022.treeloom.fit_v2'
+-GPU_UUID='GPU-3db85505-d061-e45d-d154-e7e8c1cad497'
++MODULE='research.repairs.benchmark_multigpu_20261022.scientific.fit_v3'
+ JOB=dict(path='.runtime/benchmarking/workflow_20261019_v8/jobs/AM_treeloom_fit.json',
+     sha256='187e3177a9ccf587e1038ad4f477d6beaccb5128333977083bf06bd5084fe4a3')
+ BARRIER=dict(path='experiments/results/benchmark_campaign_20261018_workflow/release_v8/american/shared/AM_treeloom_fit/native/observation_barrier.json',
+@@ -33,11 +33,11 @@
+     refs=read_ref(PREVIOUS_MANIFEST)['source_refs']
+     for ref in refs:
+         need(file_ref(ref['path']) == ref, 'Unchanged qualified numerical and RAM-pool source')
+-    return refs+[file_ref(__file__),file_ref(checkpoints_io.__file__)]
++    return refs+[file_ref(__file__),file_ref(checkpoints_io.__file__),file_ref(gpu_binding.__file__)]
+ 
+ 
+ def fit_factory(*,preparation_refs,generation_refs,output_directory,max_rss_bytes,qualification_ref,
+-                resume_checkpoint_ref=None):
++                physical_gpu,gpu_uuid,resume_checkpoint_ref=None):
+     from arggnn.benchmarking import american_workflow as american
+     job=read_ref(JOB);barrier=read_ref(BARRIER)
+     fresh,original,registry,plans=metadata_bindings(job,barrier)
+@@ -69,10 +69,10 @@
+          'Fresh output scope required')
+     if resume_checkpoint_ref is not None:
+         need(file_ref(resume_checkpoint_ref['path']) == resume_checkpoint_ref, 'Exact completed checkpoint')
+-    spec=dict(schema='treeloom_upfront_RAM_resume_fit_v2',job_ref=JOB,observation_barrier_ref=BARRIER,
++    spec=dict(schema='treeloom_upfront_RAM_resume_fit_v3',job_ref=JOB,observation_barrier_ref=BARRIER,
+         output_directory=str(out.relative_to(ROOT)),max_rss_bytes=max_rss_bytes,
+         observation_cache_bytes=352*GIB,training_headroom_bytes=128*GIB,
+-        max_cuda_reserved_bytes=32*GIB,max_output_bytes=64*2**20,physical_gpu=5,gpu_uuid=GPU_UUID,
++        max_cuda_reserved_bytes=32*GIB,max_output_bytes=64*2**20,**gpu_binding.target(physical_gpu,gpu_uuid),
+         resume_checkpoint_ref=resume_checkpoint_ref,qualification_ref=qualification_ref,source_refs=source_refs())
+     return dict(module=MODULE,function='run_fit',spec=spec,python='.runtime/env/bin/python',
+         source_refs=spec['source_refs'])
+@@ -80,23 +80,17 @@
+ 
+ def enable_gpu(torch,spec,output,resource_check):
+     import setproctitle
+-    need(os.environ.get('ARGGNN_PHYSICAL_GPU') == '5'
+-         and os.environ.get('CUDA_VISIBLE_DEVICES') == GPU_UUID
+-         and spec['gpu_uuid'] == GPU_UUID and spec['physical_gpu'] == 5
+-         and setproctitle.getproctitle() == 'AI Auto Research Pipeline Test',
+-         'Admitted physical GPU5 UUID and prescribed title required before CUDA')
+-    need(not torch.cuda.is_initialized(), 'No CUDA before explicit physical GPU5 proof')
+-    command=['nvidia-smi','-i','5','--query-gpu=uuid','--format=csv,noheader,nounits']
+-    result=subprocess.run(command,check=True,text=True,capture_output=True,timeout=15)
+-    need(result.stdout.strip() == GPU_UUID, 'Actual physical GPU5 UUID must match')
+-    resource_check('TreeLoom_before_GPU5_CUDA')
++    gpu_binding.verify_before_cuda(torch,spec)
++    need(setproctitle.getproctitle() == 'AI Auto Research Pipeline Test',
++         'Prescribed supervised title required before CUDA')
++    resource_check('TreeLoom_before_assigned_GPU_CUDA')
+     need(int(os.environ.get('ARGGNN_MAX_CUDA_RESERVED_BYTES','0')) == spec['max_cuda_reserved_bytes'],
+          'Queue and fit must share the provisional 32 GiB allocator cap')
+     need(torch.cuda.device_count() == 1, 'Exactly one admitted visible device')
+     total=torch.cuda.get_device_properties(0).total_memory
+     torch.cuda.set_per_process_memory_fraction(spec['max_cuda_reserved_bytes']/total,0)
+     torch.cuda.reset_peak_memory_stats(0)
+-    write_json(output/'gpu_binding.json',dict(physical_gpu=5,gpu_uuid=GPU_UUID,logical_device='cuda:0',
++    write_json(output/'gpu_binding.json',dict(**gpu_binding.target(spec['physical_gpu'],spec['gpu_uuid']),logical_device='cuda:0',
+         process_title=setproctitle.getproctitle(),max_cuda_reserved_bytes=spec['max_cuda_reserved_bytes']))
+ 
+ 
+@@ -109,7 +103,8 @@
+     from research.repairs.benchmark_recovery_20261020.training.candidate_gru import install_chunked_gru
+     from research.repairs.benchmark_recovery_20261020.training.progress import StageProgress
+     from research.repairs.benchmark_recovery_20261020.training.step import install_execution
+-    need(spec['schema'] == 'treeloom_upfront_RAM_resume_fit_v2' and spec['job_ref'] == JOB
++    gpu_binding.target(spec['physical_gpu'],spec['gpu_uuid'])
++    need(spec['schema'] == 'treeloom_upfront_RAM_resume_fit_v3' and spec['job_ref'] == JOB
+          and spec['observation_barrier_ref'] == BARRIER and spec['max_rss_bytes'] == 512*GIB
+          and spec['observation_cache_bytes'] == 352*GIB and spec['training_headroom_bytes'] == 128*GIB
+          and spec['max_cuda_reserved_bytes'] == 32*GIB and spec['max_output_bytes'] == 64*2**20

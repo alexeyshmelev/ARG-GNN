@@ -2,7 +2,7 @@
 
 <!-- readable-parallel-queue:start -->
 ### Current parallel queue
-Updated 2026-10-22T08:15:04.528002+00:00. Status: running.
+Updated 2026-10-22T08:19:17.001188+00:00. Status: running.
 116 pending, 2 running, 231 succeeded, 0 failed, 0 blocked, 0 unknown.
 Local active: AM_treeloom_fit, C4__ancestralpaths_european_train_000__release_archive.
 Live training stages: AM_treeloom_fit: TreeLoom preparation: prepare_once_or_restore_complete_parent.
@@ -15,7 +15,7 @@ One optional external AP001 archive is deferred with its full retained storage c
 
 <!-- readable-recovery-queue:start -->
 ### Current recovery queue
-Updated 2026-10-22T08:13:52.608204+00:00. Status: running.
+Updated 2026-10-22T08:19:16.830159+00:00. Status: running.
 76 pending, 1 running, 231 succeeded, 7 failed, 32 blocked, 0 unknown.
 Local active: AM_argformer_american_validation_002_argformer_mlm.
 Live training stages: bounded stage metadata pending.

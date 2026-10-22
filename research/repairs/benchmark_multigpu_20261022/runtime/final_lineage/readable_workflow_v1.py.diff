@@ -1,0 +1,93 @@
+--- research/repairs/benchmark_resume_20261021/gpu/readable_workflow_v1.py
++++ research/repairs/benchmark_multigpu_20261022/runtime/readable_workflow_v1.py
+@@ -22,15 +22,15 @@
+ import sys
+ import time
+ 
+-from . import contracts_gpu5_v1 as c
++from . import contracts_parallel_v1 as c
+ from arggnn.benchmarking.execution import TITLE
+ from arggnn.benchmarking.workflow_v4 import scope_bytes
+ from . import queue_support_v1 as support
+-from . import queue_gpu5_v1 as shared_gpu
++from . import queue_gpu_v1 as shared_gpu
+ from . import queue_execute_v1 as runtime
+ 
+-MODULE = "research.repairs.benchmark_resume_20261021.gpu.readable_workflow_v1"
+-SOURCE = "research/repairs/benchmark_resume_20261021/gpu/readable_workflow_v1.py"
++MODULE = "research.repairs.benchmark_multigpu_20261022.runtime.readable_workflow_v1"
++SOURCE = "research/repairs/benchmark_multigpu_20261022/runtime/readable_workflow_v1.py"
+ SCHEMA = "arggnn_executable_workflow_v1"
+ 
+ 
+@@ -63,19 +63,19 @@
+ 
+ def current_policy():
+     canonical=c.check_execution_release(c.file_ref(c.POLICY_PATH))
+-    approved=canonical.get("approved_readable_workflow_ref")
++    approved=canonical.get("approved_parallel_workflow_ref")
+     need(isinstance(approved,dict) and set(approved)=={"path","sha256"},"Exact readable workflow ROOT approval required")
+     policy=dict(canonical,approved_workflow_ref=approved)
+     policy.pop("workflow_drain_ref",None)
+-    if "readable_workflow_drain_ref" in canonical:
+-        policy["workflow_drain_ref"]=canonical["readable_workflow_drain_ref"]
++    if "parallel_workflow_drain_ref" in canonical:
++        policy["workflow_drain_ref"]=canonical["parallel_workflow_drain_ref"]
+     return policy
+ 
+ 
+ def load_plan(ref, *, approved=False):
+     plan = c.read_ref(ref)
+-    need(plan.get("schema") == SCHEMA and plan.get("physical_gpu") == 5,
+-         "Frozen one-GPU workflow required")
++    need(plan.get("schema") == SCHEMA and plan.get("physical_gpu") == 5 and plan.get("physical_gpus") == [2,3,5],
++         "Frozen explicit GPU2/3/5 parallel workflow required")
+     need(type(plan.get("cpu_parallelism")) is int and 1 <= plan["cpu_parallelism"] <= 8,
+          "Explicit bounded CPU parallelism required")
+     need(plan.get("sources") and plan.get("tasks"), "Sources and concrete tasks required")
+@@ -118,11 +118,12 @@
+             for key in ("max_seconds", "max_output_bytes", "max_rss_bytes"):
+                 need(type(task[key]) is int and task[key] > 0, "Finite task caps required")
+             if task["resource"]=="gpu0" or task.get("gpu_after_preparation") is True:
++                shared_gpu.target(task)
+                 need(all(type(task.get(k)) is int and 0<task[k]<=80*2**30
+                          for k in ("minimum_free_gpu_bytes","max_cuda_reserved_bytes"))
+                      and task["max_cuda_reserved_bytes"]<=74*2**30
+                      and task["minimum_free_gpu_bytes"]>=task["max_cuda_reserved_bytes"],
+-                     "Finite physicalGPU5 free-memory/allocator caps required")
++                     "Finite physicalGPU2/3/5 free-memory/allocator caps required")
+             need(c.contained_path(task["output_directory"]).is_relative_to(c.ROOT/"experiments/results"),
+                  "Project result scope required")
+     scopes=[c.contained_path(t["output_directory"]).resolve() for t in plan["tasks"] if t["resource"]!="external"]
+@@ -246,7 +247,7 @@
+         self.last=0
+     def submit(self,state,final=False):
+         if not final and time.monotonic()-self.last<60:return
+-        from .queue_reporting_v1 import publish
++        from research.repairs.benchmark_resume_20261021.gpu.queue_reporting_v1 import publish
+         publish(self.plan,self.ref,state,save)
+         self.last=time.monotonic()
+     def close(self,state):self.submit(state,final=True)
+@@ -291,7 +292,7 @@
+                         if process.poll() is not None:
+                             code=process.wait();log.close();del running[task["id"]]
+                             if code==75 and not c.contained_path(task["output_directory"]).exists():
+-                                entry.update(status="pending",waiting_reason="GPU5 lease or memory is occupied",not_before=time.time()+30)
++                                entry.update(status="pending",waiting_reason="Assigned GPU lease or memory is occupied",not_before=time.time()+30)
+                                 entry.pop("reservation_bytes",None)
+                                 changed=True
+                                 continue
+@@ -349,10 +350,12 @@
+                         for task in plan["tasks"]:
+                             entry=state["tasks"][task["id"]]
+                             if entry["status"]!="pending" or task["resource"]=="external":continue
++                            entry.pop("waiting_reason",None)
+                             deps=[state["tasks"][i]["status"] for i in task["dependencies"]]
+                             if any(s in ("failed","blocked") for s in deps):
+                                 entry.update(status="blocked",error="A required predecessor failed");save(state_path,state);continue
+-                            if not all(s=="succeeded" for s in deps):continue
++                            if not all(s=="succeeded" for s in deps):
++                                entry["waiting_reason"]="Required predecessors have not completed";continue
+                             dispatch_reason=dispatch_block_reason(plan,policy,ref,task["id"])
+                             if dispatch_reason:
+                                 entry["waiting_reason"]=dispatch_reason;continue

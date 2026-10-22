@@ -1,0 +1,27 @@
+--- research/repairs/benchmark_resume_20261021/gpu/queue_native_worker_v1.py
++++ research/repairs/benchmark_multigpu_20261022/runtime/queue_native_worker_v1.py
+@@ -1,4 +1,4 @@
+-"""Readable native numerical child for the separately approved shared GPU5 route.
++"""Readable native numerical child for the separately approved per-task GPU2/3/5 route.
+ 
+ No scheduler, admission, lease or subprocess launch. The outer worker owns the
+ process group. Source imports are inert until main/run is explicitly invoked.
+@@ -16,7 +16,7 @@
+ import time
+ 
+ from arggnn.benchmarking import american_competitors as api
+-from .shared_gpu5_v1 import GPU5_UUID
++from .shared_gpu_v1 import validate_visible_target
+ 
+ 
+ def checkpoint_counters(state,epochs,updates):
+@@ -40,8 +40,7 @@
+ def _native(spec,out):
+     api.need(Path(sys.executable).resolve()==(api.ROOT/api.NATIVE_PYTHON).resolve()
+              and sys.dont_write_bytecode and sys.flags.no_user_site,"Exact isolated native interpreter -B -s required")
+-    api.need(os.environ.get("CUDA_VISIBLE_DEVICES")==GPU5_UUID and os.environ.get("ARGGNN_PHYSICAL_GPU")=="5",
+-             "Only admitted physical GPU5 may become visible")
++    validate_visible_target()
+     api.need(int(os.environ.get("WORLD_SIZE","1"))==1,"Single-device native world size must remain one")
+     import setproctitle
+     setproctitle.setproctitle("AI Auto Research Pipeline Test")
