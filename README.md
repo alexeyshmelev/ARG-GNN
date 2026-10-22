@@ -1,8 +1,57 @@
 # ARG-GNN
 
+<!-- readable-recovery-afternoon-v2-queue:start -->
+### Current recovery queue
+Updated 2026-10-22T14:25:18.946218+00:00. Status: running.
+112 pending, 1 running, 237 succeeded, 0 failed, 0 blocked, 0 unknown.
+Local active: AP__ancestralpaths_european_train_001__ap_infer__closed_lossless_archive_20261022_v1.
+Live training stages: bounded stage metadata pending.
+Standalone work: no live standalone generations.
+The earlier v9 queue block is a historical snapshot. This block describes the active successor.
+Ancestry accuracy is pending the frozen prediction and scoring barriers. Training loss is not accuracy.
+One optional external AP001 archive is deferred with its full retained storage charge and zero credit.
+[Current queue metadata](research/benchmark_recovery_afternoon_v2_current.json).
+<!-- readable-recovery-afternoon-v2-queue:end -->
+
+
+
+
+
+
+
+
+
+**TreeLoom** learns local ancestry inference (LAI) from ordered collections of complete genealogical trees. Its GNN processes tree structure and follows persistent haplotypes across genomic intervals.
+
+## Current task: execute the benchmark campaign
+
+**The active LAI benchmark continuation uses a queue of 349 stages, including storage recovery and fresh qualifications.** It covers shared American and European simulations, full training, native competitors, paired scoring and Danish data application. Current execution and matched results are published below. All computation and Git commands run on anogena, using physical GPUs 2, 3 and 5.
+
+<!-- BEGIN CURRENT BENCHMARK DIAGNOSIS -->
+**Verified 22 October 17:17 Moscow: the benchmark is progressing, with a European memory failure repaired in the queue.** All 237 completed stages and the three healthy workers are preserved. Fresh matched ancestry accuracy and F1 are still pending.
+
+| Workstream | Current verified progress |
+| --- | --- |
+| American TreeLoom, GPU 2 | 2/600 full optimizer updates and checkpoint saved. The first complete backward passed under the 64 GiB cap. Preparing the next original training parent |
+| Native ARGformer, GPU 3 | VAL003 pretraining: 137,782/226,425 updates |
+| Native ARGformer, third validation simulation | VAL002 contrastive training completed all 2,094 updates with successful waits. Embeddings and ancestry predictions follow storage recovery |
+| European TreeLoom, AP endpoint | All three training parents prepared. Waiting for its assigned GPU 3 lease |
+| European TreeLoom, four ancestry classes | The first fit hit its 32 GiB cap with zero updates. A fresh retry uses 68 GiB, preserving all 22 qualified sources and the full 90-update budget |
+| Storage recovery | Lossless archive step is running. Seven completed inference intermediates are eligible, with 28 observed-data, result and evidence files protected |
+
+The capacity order is lossless recovery, then VAL002 native embeddings, retrieval and scratch retirement, then the C4 retry. This prevents the C4 host reservation from starving the ready native prediction chain. Compression is verified before each raw replacement. Space is credited only after a successful complete archive, real process waits and exact measurement. No training budget or scientific method is reduced.
+
+The active storage projection is 952.57 GB, below the 980 GB operational ceiling and the 1 TB project limit. This is a reservation projection, not a new directory-size scan. The three preserved workers remain active under their original supervisors even when the newest controller's local counters list only the archive.
+
+[Verified progress](research/repairs/benchmark_repair_20261022_afternoon/continuation_v2/actual_v3/current_status.json) · [Current queue](research/benchmark_recovery_afternoon_v2_current.json) · [Matched results](research/resource_matched_benchmark_results.json)
+<!-- END CURRENT BENCHMARK DIAGNOSIS -->
+<!-- preserved-worker-controllers:start -->
+<details>
+<summary>Preserved controllers and earlier attempts</summary>
+
 <!-- readable-recovery-afternoon-queue:start -->
 ### Current recovery queue
-Updated 2026-10-22T14:09:06.839624+00:00. Status: running.
+Updated 2026-10-22T14:25:42.246506+00:00. Status: running.
 106 pending, 1 running, 237 succeeded, 1 failed, 4 blocked, 0 unknown.
 Local active: AM_treeloom_fit.
 Live training stages: AM_treeloom_fit: TreeLoom preparation: prepare_once_or_restore_complete_parent (2/600 saved parent updates).
@@ -15,7 +64,7 @@ One optional external AP001 archive is deferred with its full retained storage c
 
 <!-- readable-parallel-resource-overlay:start -->
 ### Current resource overlay queue
-Updated 2026-10-22T14:10:20.978463+00:00. Status: running.
+Updated 2026-10-22T14:25:11.471440+00:00. Status: running.
 88 pending, 2 running, 237 succeeded, 2 failed, 20 blocked, 0 unknown.
 Local active: AM_argformer_american_validation_003_argformer_mlm, AP__all_train__treeloom_fit.
 Live training stages: bounded stage metadata pending.
@@ -52,31 +101,9 @@ One optional external AP001 archive is deferred with its full retained storage c
 [Current queue metadata](research/benchmark_readable_current.json).
 <!-- readable-recovery-queue:end -->
 
-**TreeLoom** learns local ancestry inference (LAI) from ordered collections of complete genealogical trees. Its GNN processes tree structure and follows persistent haplotypes across genomic intervals.
+</details>
+<!-- preserved-worker-controllers:end -->
 
-## Current task: execute the benchmark campaign
-
-**The active LAI benchmark continuation uses a queue of 349 stages, including storage recovery and fresh qualifications.** It covers shared American and European simulations, full training, native competitors, paired scoring and Danish data application. Current execution and matched results are published below. All computation and Git commands run on anogena, using physical GPUs 2, 3 and 5.
-
-<!-- BEGIN CURRENT BENCHMARK DIAGNOSIS -->
-**22 October: the repaired benchmark queue is active, with 236 completed stages preserved.** American TreeLoom's 32 GiB attempt ran out of its CUDA allowance during backward, with physical GPU memory still available. It completed 0/600 updates. The retry uses a 64 GiB cap, 72 GiB free-memory admission and the original 512 GiB host reservation. Its model, data and 600-update/30-epoch training budget are unchanged. It is queued for the next available full RAM reservation. **Fresh matched ancestry accuracy and F1 remain pending.**
-
-| Workstream | Device assignment | Current execution |
-| --- | --- | --- |
-| American TreeLoom | GPU 2 | Repaired full fit queued, waiting for 512 GiB host reservation. A complete backward is still required to establish memory sufficiency |
-| Native ARGformer, validation 003 | GPU 3 | Pretraining advancing. Last verified 52,394/226,425 updates at 11:31 UTC |
-| Native ARGformer, validation 002 | GPU 5 | All 223,655 pretraining updates completed. Contrastive fit advancing, 543/2,094 updates at 11:31 UTC |
-| European TreeLoom, native AP endpoint | GPU 3 after CPU preparation | Current implementation qualification passed. Full CPU preparation is advancing |
-| European TreeLoom, four ancestry classes | GPU 5 after CPU preparation | Current implementation qualification passed. Full CPU preparation is advancing |
-| Released ARGMix | GPU 2 for fitting | First repaired Rust archive completed: 65,597,378 rows and 95,623 intervals. Three further archives await RAM |
-| FLARE | CPU | All 15 American prediction outputs retained for paired scoring |
-
-The fresh recovery controller preserves the four healthy jobs as live predecessors. Its local counters can show zero running workers while those preserved jobs continue under their original supervisors. The older queue blocks describe those supervisors and historical failures. Use the afternoon recovery queue for future dispatch. No failure was relabelled as a success, and no unrelated process was changed.
-
-All individual RAM limits remain intact. The aggregate reservation ceiling is 1,792 GiB on a host with about 2,015 GiB, with the original 64 GiB host margin. The integrated storage projection is 935.54 GB, below the 980 GB operational ceiling and 1 TB project limit. GPU 2's retry must wait until at least one 256 GiB native reservation drains. GitHub SSH connections have been timing out, so commits are retained on anogena pending network recovery.
-
-[Repair and progress](research/repairs/benchmark_repair_20261022_afternoon/orchestration/actual_v1/status.json) · [Current queue](research/benchmark_recovery_afternoon_current.json) · [Matched results](research/resource_matched_benchmark_results.json)
-<!-- END CURRENT BENCHMARK DIAGNOSIS -->
 
 <!-- BEGIN COMPLETED WORK ACCOUNTING -->
 ## What the recent GPU jobs accomplished
