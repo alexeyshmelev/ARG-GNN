@@ -2,7 +2,7 @@
 
 <!-- readable-recovery-afternoon-queue:start -->
 ### Current recovery queue
-Updated 2026-10-22T11:50:36.778879+00:00. Status: waiting_for_dependencies_or_capacity.
+Updated 2026-10-22T12:07:25.909850+00:00. Status: waiting_for_dependencies_or_capacity.
 113 pending, 0 running, 236 succeeded, 0 failed, 0 blocked, 0 unknown.
 Local active: waiting for dependencies or capacity.
 Live training stages: bounded stage metadata pending.
@@ -15,7 +15,7 @@ One optional external AP001 archive is deferred with its full retained storage c
 
 <!-- readable-parallel-resource-overlay:start -->
 ### Current resource overlay queue
-Updated 2026-10-22T11:51:33.458422+00:00. Status: running.
+Updated 2026-10-22T12:06:23.303736+00:00. Status: running.
 92 pending, 4 running, 236 succeeded, 1 failed, 16 blocked, 0 unknown.
 Local active: AM_argformer_american_validation_003_argformer_mlm, AM_argformer_american_validation_002_argformer_contrastive, AP__all_train__treeloom_fit, C4__all_train__c4_treeloom_fit.
 Live training stages: bounded stage metadata pending.
