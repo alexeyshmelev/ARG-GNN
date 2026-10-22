@@ -1,17 +1,19 @@
 # ARG-GNN
 
-<!-- readable-full-vram-queue:start -->
-### Current full-VRAM queue
-Updated 2026-10-22T20:03:05.061374+00:00. Status: running.
-86 pending, 2 running, 245 succeeded, 1 failed, 16 blocked, 0 unknown.
-Local active: AM_argformer_american_validation_004_argformer_mlm, AP__all_train__treeloom_fit.
-Live training stages: bounded stage metadata pending.
+<!-- readable-gpu345-queue:start -->
+### Current GPU 3/4/5 queue
+Updated 2026-10-22T20:10:33.923516+00:00. Status: running.
+104 pending, 1 running, 245 succeeded, 0 failed, 0 blocked, 0 unknown.
+Local active: AM_treeloom_fit.
+Live training stages: AM_treeloom_fit: TreeLoom preparation: prepare_once_or_restore_complete_parent.
 Standalone work: no live standalone generations.
 The earlier v9 queue block is a historical snapshot. This block describes the active successor.
 Ancestry accuracy is pending the frozen prediction and scoring barriers. Training loss is not accuracy.
 One optional external AP001 archive is deferred with its full retained storage charge and zero credit.
-[Current queue metadata](research/benchmark_full_vram_current.json).
-<!-- readable-full-vram-queue:end -->
+[Current queue metadata](research/benchmark_gpu345_current.json).
+<!-- readable-gpu345-queue:end -->
+
+
 
 
 
@@ -27,35 +29,44 @@ One optional external AP001 archive is deferred with its full retained storage c
 
 ## Current task: execute the benchmark campaign
 
-**The active LAI benchmark continuation uses a queue of 350 stages, including storage recovery and fresh qualifications.** It covers shared American and European simulations, full training, native competitors, paired scoring and Danish data application. Current execution and matched results are published below. All computation and Git commands run on anogena, using physical GPUs 2, 3 and 5.
+**The active LAI benchmark continuation uses a queue of 350 stages, including storage recovery and fresh qualifications.** It covers shared American and European simulations, full training, native competitors, paired scoring and Danish data application. Current execution and matched results are published below. All computation and Git commands run on anogena, using physical GPUs 3, 4 and 5.
 
 <!-- BEGIN CURRENT BENCHMARK DIAGNOSIS -->
-**Verified 2026-10-22T22:42:27.849648+03:00: full GPU memory is authorized on physical GPUs 2, 3 and 5.** New workers have no artificial CUDA allocation cap. Healthy existing workers retain their original supervisors and finish normally. Other users' processes remain untouched.
+**Verified 2026-10-22T23:09:15.814521+03:00: only physical GPUs 3, 4 and 5 are authorized.** American TreeLoom has moved from GPU2 to GPU4 and is running without an artificial GPU memory limit.
 
-| Workstream | Verified progress |
+| Workstream | Current status |
 | --- | --- |
-| American TreeLoom | 6/600 full training updates. The uncapped worker is running on GPU 2. Six updates and all optimizer states were restored. Update 7 is next, with 594 remaining |
-| European TreeLoom, four ancestry classes | 6/90 full training updates. The existing healthy fit continues |
-| European TreeLoom, AP endpoint | The old fit hit its 32 GiB allocator limit despite free device memory. Its uncapped retry preserves the complete 90-update budget |
-| Native ARGformer, fourth validation simulation | All 226,425 MLM updates and all 2,120 contrastive updates completed. Embeddings are running |
-| Native ARGformer, third validation simulation | Full prediction chain completed, producing 10,000 ancestry predictions. Disposable native scratch was retired after genuine completion |
-| New matched ancestry accuracy and F1 | Pending full TreeLoom training and the common scoring stages. Training loss and stage counts are not accuracy |
+| American TreeLoom, GPU4 | Restored 6/600 completed updates and all optimizer state. Next update: 7. Completed updates replayed: 0 |
+| Native ARGformer, GPU3 | The ongoing fifth validation pretraining job is preserved. Completed fourth validation embeddings remain available for ancestry prediction |
+| European TreeLoom, GPU5 | Both the existing four-class fit and the AP preparation job are preserved under their original supervisors |
+| Fresh matched ancestry accuracy and F1 | Pending complete training and common scoring. This hardware move changes no scientific method or benchmark input |
 
-The full queue preserves 244 completed stages and both healthy predecessor workers. Full-device leases prevent our new jobs from oversubscribing each other. Actual free memory is checked before launch. Host RAM and project storage accounting remain enforced.
+The old GPU2 worker exited under its own supervisor, and its exact cancellation wait is retained. No unrelated process was signalled. Existing GPU3/5 source files, approvals and jobs remain unchanged. Legacy GPU fields in the policy exist solely for those original workers. New execution is governed by the current explicit GPU3/4/5 authority.
 
-The initial uncapped worker exposed a CUDA initialization ordering error before any new optimizer update. The corrected helper was checked on the actual GPU with a tiny tensor. That failure and the deliberate cancellation of its AP companion remain in the experiment history.
+Conservative storage projection: 968.60 GB, below the 980 GB operational ceiling and the 1 TB project limit. Full GPU memory remains enabled.
 
-Conservative storage projection: 972.39 GB, within the 980 GB operational ceiling and the 1 TB user limit. No directory-wide scan was performed.
-
-[Verified status](research/benchmark_current_verified_status.json) · [Full queue](research/benchmark_full_vram_current.json) · [Matched results](research/resource_matched_benchmark_results.json)
+[Verified migration](research/benchmark_current_verified_status.json) · [Current queue](research/benchmark_gpu345_current.json)
 <!-- END CURRENT BENCHMARK DIAGNOSIS -->
 <!-- preserved-worker-controllers:start -->
 <details>
 <summary>Preserved controllers and earlier attempts</summary>
 
+<!-- readable-full-vram-queue:start -->
+### Current full-VRAM queue
+Updated 2026-10-22T20:10:03.567340+00:00. Status: running.
+86 pending, 2 running, 245 succeeded, 1 failed, 16 blocked, 0 unknown.
+Local active: AM_argformer_american_validation_004_argformer_mlm, AP__all_train__treeloom_fit.
+Live training stages: bounded stage metadata pending.
+Standalone work: no live standalone generations.
+The earlier v9 queue block is a historical snapshot. This block describes the active successor.
+Ancestry accuracy is pending the frozen prediction and scoring barriers. Training loss is not accuracy.
+One optional external AP001 archive is deferred with its full retained storage charge and zero credit.
+[Current queue metadata](research/benchmark_full_vram_current.json).
+<!-- readable-full-vram-queue:end -->
+
 <!-- readable-recovery-afternoon-v2-queue:start -->
 ### Current recovery queue
-Updated 2026-10-22T20:02:19.370644+00:00. Status: running.
+Updated 2026-10-22T20:10:20.570202+00:00. Status: running.
 83 pending, 1 running, 245 succeeded, 2 failed, 19 blocked, 0 unknown.
 Local active: C4__all_train__c4_treeloom_fit.
 Live training stages: bounded stage metadata pending.

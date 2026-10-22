@@ -665,3 +665,13 @@ Evidence: [configs/benchmarks/executable_workflow_20261022_full_vram_v1.json](..
 **Next/repeat rule:** Do not repeat completed training updates or passed scientific qualifications. Resume the exact six-update checkpoint. Only genuinely failed and drained scopes may retry. Never modify unrelated processes.
 
 Evidence: [configs/benchmarks/executable_workflow_20261022_full_vram_v2.json](../configs/benchmarks/executable_workflow_20261022_full_vram_v2.json), [research/repairs/benchmark_full_vram_20261022/orchestration/actual_v2/launch_receipt.json](../research/repairs/benchmark_full_vram_20261022/orchestration/actual_v2/launch_receipt.json), [research/repairs/benchmark_full_vram_20261022/orchestration/actual_v2/current_status.json](../research/repairs/benchmark_full_vram_20261022/orchestration/actual_v2/current_status.json), [research/repairs/benchmark_full_vram_20261022/orchestration/actual_v2/final_review.json](../research/repairs/benchmark_full_vram_20261022/orchestration/actual_v2/final_review.json).
+
+## benchmark_GPU2_to_GPU4_migration_20261022: Continue the frozen benchmark on only the currently authorized GPUs3/4/5
+
+**GPU4_running_after_verified_checkpoint_restore.** Cancel only the owned GPU2 American worker for hardware migration. Preserve completed checkpoint, all optimizer state and original600-update schedule. Resume on GPU4 with full VRAM. Preserve healthy GPU3/5 jobs and historical evidence.
+
+**Conclusion:** The GPU2 job drained with actual direct cancellation wait. GPU4 initialized successfully and restored6completed updates without replay. This is an operational move, with no new ancestry score.
+
+**Next/repeat rule:** Never repeat completed updates or change biological/scientific inputs for a hardware migration. Future workers may use only GPUs3/4/5. Preserve unrelated processes.
+
+Evidence: [configs/benchmarks/executable_workflow_20261022_gpu345_v2.json](../configs/benchmarks/executable_workflow_20261022_gpu345_v2.json), [research/repairs/benchmark_gpu345_20261022/orchestration/actual_v2/launch_receipt.json](../research/repairs/benchmark_gpu345_20261022/orchestration/actual_v2/launch_receipt.json), [research/repairs/benchmark_gpu345_20261022/orchestration/actual_v2/current_status.json](../research/repairs/benchmark_gpu345_20261022/orchestration/actual_v2/current_status.json), [research/repairs/benchmark_gpu345_20261022/orchestration/GPU2_AM_control_receipt.json](../research/repairs/benchmark_gpu345_20261022/orchestration/GPU2_AM_control_receipt.json).
