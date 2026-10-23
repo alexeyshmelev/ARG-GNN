@@ -2,7 +2,7 @@
 
 <!-- readable-gpu345-queue:start -->
 ### Current GPU 3/4/5 queue
-Updated 2026-10-23T20:29:36.884123+00:00. Status: running.
+Updated 2026-10-23T20:32:45.733538+00:00. Status: running.
 90 pending, 2 running, 258 succeeded, 0 failed, 0 blocked, 0 unknown.
 Local active: AM_treeloom_fit, AM_argformer_american_test_001_argformer_mlm.
 Live training stages: AM_treeloom_fit: TreeLoom training: _second (53/600 saved parent updates).
@@ -55,7 +55,7 @@ Conservative storage projection: 968.60 GB, below the 980 GB operational ceiling
 | Comparison | Actual condition | Relation to the paper |
 | --- | --- | --- |
 | TreeLoom, native ARGformer and FLARE | Shared 30 Mb American simulations and identical frozen query records | Broad biological recipe reconstructed. Original sample ploidy and evaluator unresolved. Released ARGformer temperature/weighting differ from paper. Native top1 and FLARE focal projection are disclosed choices |
-| TreeLoom and released AncestralPaths | 476-person panel, three 200 Mb training sequences and five independent test sequences, six ancestry paths | Paper scale and demographic scenario restored. Released classifier is Dense, whereas paper describes CNN. Example/site sampling is a disclosed reconstruction |
+| TreeLoom and released AncestralPaths | 476-person panel, three 200 Mb training sequences and five independent test sequences, six ancestry paths | Paper scale and demographic scenario restored. Current queue uses the released Dense classifier. Deep history search recovered the earlier CNN and an example checkpoint. Exact paper-run data/settings and example/site sampling remain unresolved |
 | TreeLoom and released ARGMix | Four-source task on the AP 476-person 200 Mb panel, with BAA, uniform map and no genotype error | Not ARGMix's 1,611-person chr22/error scenario or its IID/misspecification design. Current 15-reference/no-ancestor release differs from paper 25-reference/three-ancestor representation |
 | TreeLoom and GST on original GST tasks | Absent from the active queue | Full candidate/native comparison unfinished. Earlier native 1,000-reaction validation pilot does not close this requirement |
 
@@ -64,6 +64,10 @@ Within each paired endpoint, code fixes common sample/site identities and requir
 **No fresh matched ancestry scores or all-method superiority claim are established.** The source audit found no defect invalidating the declared pairing, but actual completed predictions and scoring still require verification. Healthy running jobs were preserved.
 
 [Scope audit and source references](research/reviews/benchmark_scientific_scope_20261023_v1/audit.json) · [European deviations](docs/european_native_comparison_deviations_v1.md) · [ARGformer paper audit](docs/argformer_published_benchmark_audit_v1.md) · [ARGMix paper audit](docs/argmix_published_benchmark_audit_v1.md)
+
+
+**Deep repository reinspection, 23 October:** earlier missing-code claims were too broad. We recovered the historical AncestralPaths CNN and verified its example checkpoint metadata, ARGMix ancestor-extraction components, and deleted GSTv2/CIFAR source. We checked 9/12/27/18 reachable public commits for ARGMix/ARGformer/AncestralPaths/GST. These discoveries do not change running baselines or certify original-table reproduction. [Full corrections, file inventories and remaining work](research/reviews/author_repository_deep_audit_20261023_v1/REPORT.md).
+
 <!-- END SCIENTIFIC COMPARISON SCOPE -->
 
 <!-- preserved-worker-controllers:start -->
@@ -72,7 +76,7 @@ Within each paired endpoint, code fixes common sample/site identities and requir
 
 <!-- readable-full-vram-queue:start -->
 ### Current full-VRAM queue
-Updated 2026-10-23T20:30:36.601013+00:00. Status: running.
+Updated 2026-10-23T20:33:12.336210+00:00. Status: running.
 85 pending, 1 running, 247 succeeded, 1 failed, 16 blocked, 0 unknown.
 Local active: AP__all_train__treeloom_fit.
 Live training stages: bounded stage metadata pending.

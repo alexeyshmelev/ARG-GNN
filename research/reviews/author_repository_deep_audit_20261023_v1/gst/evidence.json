@@ -1,0 +1,75 @@
+{
+  "schema": "GST_author_repository_deep_audit_20261023_v1",
+  "observed_utc": "2026-10-23T20:29:43.103906+00:00",
+  "repository": "https://github.com/daenuprobst/gst-conference",
+  "current_commit": "6469d56aa131463325058b897b1e435c6d2edcd2",
+  "branches": [
+    "main",
+    "dev"
+  ],
+  "reachable_commit_count": 18,
+  "current_blob_count": 166,
+  "unique_text_variants": 194,
+  "python_variants": 52,
+  "historical_text_entries": 764,
+  "unresolved_source_downloads": 0,
+  "scope": "Static source, commit-tree and existing published-result inspection only. Author code and model/data payloads were not executed. Large historical archives were replaced by exact raw-text fetches after bounded acquisition refusal. Binary assets are inventoried rather than downloaded.",
+  "findings": [
+    {
+      "id": "GST1",
+      "finding": "The staged runtime is a selected subset, not the complete author tree",
+      "evidence": "16 staged files versus166 blobs in complete current main tree. Full current and dev trees and all18 reachable commits were enumerated.194 unique text blobs, including52 Python variants, indexed across history.",
+      "effect": "Previous assertions based only on staged files cannot establish repository-wide absence."
+    },
+    {
+      "id": "GST2",
+      "finding": "Deleted gst_v2.py is recoverable from public history",
+      "commit": "d8fd56a797998527b32e85b6b7469bf307161d60",
+      "path": "src/graph_set_transformer/models/gst_v2.py",
+      "sha256": "62b5ea04ef1ec0903fdf2ac65b3220e10ca0ae287559f6ec5a0cbb049cd0773c",
+      "lines": [
+        179,
+        204,
+        242,
+        302,
+        389
+      ],
+      "effect": "Earlier missing-module claim must be limited to current head. Historical module includes two gates, local node FFN and LayerScale. It is not interchangeable with current gst.py or automatically the exact paper model."
+    },
+    {
+      "id": "GST3",
+      "finding": "CIFAR benchmark scripts survive in historical commits",
+      "commit": "d8fd56a797998527b32e85b6b7469bf307161d60",
+      "paths": [
+        "scripts/train_gnn_benchmark.py",
+        "scripts/train_gnn_benchmark_fixed.py"
+      ],
+      "effect": "PyG GNNBenchmarkDataset official split loading and set construction can be inspected and recovered. Historical fixed runner has set size10 and five seeds, unlike paper sizes5/10 and three seeds. Variable runner uses training sizes5/10/20 and evaluation size1. No exact saved CIFAR table artifacts found in inspected histories."
+    },
+    {
+      "id": "GST4",
+      "finding": "Current synthetic and USPTO native runners exist; current BH/v2 runner import is broken in the tracked tree",
+      "evidence": "eval_synthetic.py and eval_rxn_center.py import actual gst.py. eval_react.py:108 and eval_synthetic_v2.py:139 import absent current gst_v2.py. Historical gst_v2 exists at a different commit, where current BH/v2 scripts were not present.",
+      "effect": "Synthetic/USPTO source is actionable. For BH, recover a coherent supported route or explicitly qualify an adaptation. Do not alias modules and label the combination unchanged author code."
+    },
+    {
+      "id": "GST5",
+      "finding": "Committed USPTO run is a distinct pilot, not a reproduction of printed Table3",
+      "evidence": "results/uspto15k_run/config.json sets max_train1000, five seeds, one layer, LR0.001. summary.md reports TEST AP0.6089/0.6195/0.6125/0.6158 and Student-t CI. Paper Table3 first block gives0.839/0.858/0.822/0.819 with mean/std and slightly different GST parameter counts.",
+      "effect": "Saved config/results provide real author provenance but cannot be treated as original Table3 values. Current paper permits comparison under a named source-native recipe, not automatic table reproduction."
+    },
+    {
+      "id": "GST6",
+      "finding": "Paper-source architecture and optimizer differences remain material",
+      "evidence": "Current gst.py uses one set gate; historical gst_v2 uses separate graph/set gates plus additional layers. Paper gives GST LR0.0001 vs baseline0.001. Current native script has a single all-model --lr argument. BH current source uses Adam while paper describes AdamW for non-CIFAR tasks.",
+      "effect": "Keep current release, historical version and paper-equation reconstruction separate. A model version and exact training condition must be frozen before new experiments."
+    },
+    {
+      "id": "GST7",
+      "finding": "Public data paths and parser are provided",
+      "evidence": "USPTO runner names wengong-jin/nips17-rexgen and train/valid/test files, graph/atom parser and labels. react_data.py contains BH download/split logic. Synthetic runner directly generates graph sets.",
+      "effect": "The missing candidate-versus-native benchmark is substantially unfinished project integration. It should not be described simply as unavailable author data/code."
+    }
+  ],
+  "training_jobs_changed": false
+}

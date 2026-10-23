@@ -1,0 +1,262 @@
+{
+  "schema": "argmix_deep_author_repository_audit_v1",
+  "completed_utc": "2026-10-23T20:28:03.008032+00:00",
+  "repository": "https://github.com/AI-sandbox/argmix",
+  "public_head": "c2481248eb0de5fda659d68f59c51e0e27becd20",
+  "pinned_source_root": ".runtime/author_sources/argmix_c2481248eb0d",
+  "allowed_write_root": "research/reviews/author_repository_deep_audit_20261023_v1/argmix",
+  "scope": {
+    "author_code_executed": false,
+    "author_imports_or_builds": false,
+    "tests_run": false,
+    "training_or_inference_run": false,
+    "gpu_or_job_changes": false,
+    "git_operations": false,
+    "public_api_requests": 9,
+    "codeload_source_snapshots": 9,
+    "source_archive_bytes": 2760406,
+    "all_advertised_refs_and_reachable_commits_examined": true,
+    "hidden_private_unreachable_refs_examined": false,
+    "last_shared_core_remaining": 15,
+    "last_core_observed_utc": "2026-10-23T20:24:50Z"
+  },
+  "source_census": {
+    "local_files": 86,
+    "public_author_files": 85,
+    "all_public_author_files_match_pinned": true,
+    "bytes": 1321307,
+    "lines": 36561,
+    "inline_rust_tests": 73,
+    "notebooks_in_any_advertised_snapshot": 0
+  },
+  "paper_comparison_source": {
+    "path": "research/reviews/ARGMix_published_benchmark_audit_20261015_v1/paper_text.txt",
+    "sha256": "883f7de565b731a95a8d02aed4c49d48a413e9b5ff931d00c928ae992d3db8c3",
+    "decisive_lines": [
+      41,
+      43,
+      45,
+      47
+    ],
+    "fresh_paper_download": false
+  },
+  "findings": [
+    {
+      "id": "ARGMIX-DEEP-01",
+      "conclusion": "Current public HEAD equals the pinned source; complete advertised history starts in parentless August release",
+      "severity_for_exact_paper_claim": "high",
+      "evidence": [
+        "repository.json",
+        "branches.json",
+        "tags.json",
+        "releases.json",
+        "commits.json",
+        "current_tree.json",
+        "history_snapshots.json",
+        "history_feature_checks.json",
+        "source_census.json"
+      ]
+    },
+    {
+      "id": "ARGMIX-DEEP-02",
+      "conclusion": "Usable low-level ancestor extraction survives, but unchanged supported build/train/export/infer rejects ancestor features",
+      "severity_for_exact_paper_claim": "high",
+      "source_refs": [
+        "src/rust/ancpath/src/sample_iterator.rs:536-585,648-662,1261-1283",
+        "src/rust/ancpath/src/fast_lca/engine.rs:932-954",
+        "src/rust/ancpath/src/lib.rs:114-124",
+        "src/rust/ancpath/src/bin/build_training.rs:326-330",
+        "src/train_joint_model.py:391-415",
+        "src/export_torchscript.py:70-83",
+        "src/run_inference.py:480-482,759-766"
+      ]
+    },
+    {
+      "id": "ARGMIX-DEEP-03",
+      "conclusion": "25 references alone is configurable and yields26 extracted nodes; it does not restore25+3=29-node original model",
+      "source_refs": [
+        "docs/config_reference.md:90",
+        "guides/hgdp_1kgp.md:261",
+        "src/rust/ancpath/src/bin/build_training.rs:326-330",
+        "src/tmrca_attn.py:305-330"
+      ]
+    },
+    {
+      "id": "ARGMIX-DEEP-04",
+      "conclusion": "Current simulator is real-founder mosaic forward simulation, no recovered original European coalescent/data/error recipe",
+      "severity_for_exact_paper_claim": "high",
+      "source_refs": [
+        "src/argmix_project.py:345-352",
+        "sim/scripts/forward_sim_multievent.py:215-280,340-380,424-439,528-598",
+        "templates/forward_blank/argmix.yaml:13-23",
+        "templates/forward_blank/events.yaml:1-12"
+      ]
+    },
+    {
+      "id": "ARGMIX-DEEP-05",
+      "conclusion": "Current callable evaluator exists and evaluates covered haplotype SNP calls/diploid dose, not recovered paper sampled-subgraph table evaluator",
+      "source_refs": [
+        "src/commands/model.py:147-167",
+        "src/final_test_metrics.py:618-651,741-860,1204-1333",
+        "src/jackknife.py:9-79"
+      ]
+    },
+    {
+      "id": "ARGMIX-DEEP-06",
+      "conclusion": "Development tests/source are explicitly outside tracked public tree; argmix_dev endpoint404 cannot distinguish private from nonexistent",
+      "scope_limit": true,
+      "source_refs": [
+        ".gitignore:7-9,18-38",
+        "pixi.toml:13"
+      ],
+      "evidence": [
+        "http_receipts.json",
+        "test_inventory.json"
+      ]
+    }
+  ],
+  "limits": [
+    "Static source audit, no runtime certification or measured accuracy",
+    "Private or inaccessible development repository cannot be assessed",
+    "No inference about unadvertised/unreachable commits or unpublished assets",
+    "No exact paper-reproduction claim from surviving low-level components"
+  ],
+  "artifacts": {
+    "REPORT.md": {
+      "bytes": 13515,
+      "sha256": "5f22ce7dd64c16c49f4ae8c37ba5e690750fd6f3b50a0e4b008631b94ba12dc5"
+    },
+    "branches.json": {
+      "bytes": 199,
+      "sha256": "d60a8fb9202a323f56b9f5b990707f73a0722d40ece646e981232e48346ae9ff"
+    },
+    "commits.json": {
+      "bytes": 28549,
+      "sha256": "8f641465405961ffc52f13d9fe2cd228b4fcfa2084402b7f521996c70eb7fe63"
+    },
+    "current_tree.json": {
+      "bytes": 24053,
+      "sha256": "07e4e277b1d1cb9aacc3b4047f264a08cc112aa0de1c737673fdc7c8933b884e"
+    },
+    "history_diff_0c3f4ff4d553.txt": {
+      "bytes": 6694,
+      "sha256": "b2df0e59bb6841f80abe58df7b5795b838affa4241671c8fe095823990ee9150"
+    },
+    "history_diff_32e11120a6d9.txt": {
+      "bytes": 23828,
+      "sha256": "65781fb97d1144318dae25c09c04254e2bfb6084e1d21638b87f487cd0a138ab"
+    },
+    "history_diff_80aeac437d93.txt": {
+      "bytes": 715,
+      "sha256": "415d924db09b18d2e2b0015a371addb2477bd7502c5d3c113330e2b48389d9ad"
+    },
+    "history_diff_8e9e0cc8b041.txt": {
+      "bytes": 474,
+      "sha256": "7c69503d71f3870de0db45b92787b6c31f83d5af0735b54dab5c9c8e082156b7"
+    },
+    "history_diff_ab061712139f.txt": {
+      "bytes": 1016,
+      "sha256": "a882a2a7127e0e1a48173016363060e9b9d44365c05c3e9f90c8ad01c36bfb5a"
+    },
+    "history_diff_b323a943d55d.txt": {
+      "bytes": 595,
+      "sha256": "5a2148676afedc1b9ec129e9f0d1adc826386c59a7cbdd03f2823dea2cc18267"
+    },
+    "history_diff_ba5844076c46.txt": {
+      "bytes": 392,
+      "sha256": "2ad6863c8644ab05b5b099244fa7e36f0dd281994f934fd500e2875cac27b60c"
+    },
+    "history_diff_c2481248eb0d.txt": {
+      "bytes": 6557,
+      "sha256": "5e1830bfa93d5004a63d9644af5f6ab5914ee0c18d2504dc86d5465a9f8deb1b"
+    },
+    "history_feature_checks.json": {
+      "bytes": 5289,
+      "sha256": "7f3cdf93cdcbb9a0e07d215e8d6fbab50538622243d1cb878cc983a7b7f911b5"
+    },
+    "history_snapshots.json": {
+      "bytes": 124125,
+      "sha256": "ac1b490c929a4ce404a625733c124e6703f7be8d597c063d0ada6906f1c97531"
+    },
+    "http_receipts.json": {
+      "bytes": 11069,
+      "sha256": "8e1e8a9accccdf6c114dda33c3a589f85cbfa8dce35db67999971f7980a0df6e"
+    },
+    "issues.json": {
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "public_links.json": {
+      "bytes": 1289,
+      "sha256": "1c67a2ec8a648c72990cbb177597c01ac2b68b4b5dfb02623837c0922a63ddd1"
+    },
+    "releases.json": {
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "repository.json": {
+      "bytes": 6150,
+      "sha256": "052ba827ad261d65338f6d9ba6de5d585270fce50eb433321800eea3aede7157"
+    },
+    "source_0c3f4ff4d553.tar.gz": {
+      "bytes": 306454,
+      "sha256": "d7aa6763ef0400ea4b483d298b8c40ee3f27a724ed4aacf93885f52178e02128"
+    },
+    "source_32e11120a6d9.tar.gz": {
+      "bytes": 307764,
+      "sha256": "50b9c39df8712434763820ffbb30f7c159493a399334f2ff3d9c1c33d1c09907"
+    },
+    "source_80aeac437d93.tar.gz": {
+      "bytes": 306504,
+      "sha256": "0d07e14dfd0ae80730f0e8eed7fb2502801c20ed6b098301fc30aa33f81d0950"
+    },
+    "source_8e9e0cc8b041.tar.gz": {
+      "bytes": 306452,
+      "sha256": "4e43b3e75bdb634e954f10e30eb2efca17505d70df6231f98771c7dc5777eada"
+    },
+    "source_ab061712139f.tar.gz": {
+      "bytes": 306417,
+      "sha256": "5f944eda305cd9a05f79d0e570aefa5246e5dc5cd7f99fe056622d54b8017776"
+    },
+    "source_b0d0213a3a4b.tar.gz": {
+      "bytes": 306413,
+      "sha256": "cfdb9024a360fe44d5708bccca8bdf2d181db5503fe1a4651409ca49578651a1"
+    },
+    "source_b323a943d55d.tar.gz": {
+      "bytes": 306426,
+      "sha256": "d5971cb9e0cb81685c426c929da3771eca18015b4466554a1e5fc1fa478900e4"
+    },
+    "source_ba5844076c46.tar.gz": {
+      "bytes": 306475,
+      "sha256": "66a4793d46a6b2962a21781f08af0f96d8bd12d703e79ee8bbfeb5c48aa87a27"
+    },
+    "source_c2481248eb0d.tar.gz": {
+      "bytes": 307501,
+      "sha256": "98c2cda680ca07c62723177599f2e7f37dc5b15d3ab05d2aa8c4a8f7f075747e"
+    },
+    "source_census.json": {
+      "bytes": 740766,
+      "sha256": "c39e985f67b2018bdba09f302abd6250df9554f4124ba96f1dcd598440a1274e"
+    },
+    "source_census.md": {
+      "bytes": 10641,
+      "sha256": "3ebbfea1e59eab785cbdc31aaed1c3c4c82a130b495d7d4489c7d2d714d2add3"
+    },
+    "source_excerpts.md": {
+      "bytes": 69321,
+      "sha256": "7637657a15f7f365b98cf0da88421d7d395b5f2e202caf522cb395234b039b56"
+    },
+    "static_symbol_inventory.json": {
+      "bytes": 175515,
+      "sha256": "331ec3275d099197bcc936a13e675589a42ab65bb60178139eb6ddfae41f3aa0"
+    },
+    "tags.json": {
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "test_inventory.json": {
+      "bytes": 12016,
+      "sha256": "4baa6e1369fb472100ad6d4c8224adb7be2aa0430693bd943f6102c7e23b0694"
+    }
+  }
+}

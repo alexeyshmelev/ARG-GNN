@@ -1,0 +1,158 @@
+{
+  "schema": "ARGformer_FLARE_deep_public_source_audit_20261023_v1",
+  "created_at_utc": "2026-10-23T20:28:17.634404+00:00",
+  "scope": "Source/configuration/documentation/public metadata audit. No author-module imports or scientific execution.",
+  "author_repository": "https://github.com/AI-sandbox/ARGformer",
+  "pinned_commit": "f7545be7bca0200fb39aeb7f94a8e5f0b6bf5596",
+  "official_current_files": 60,
+  "official_current_text_files": 59,
+  "local_extra_file": "ARG_GNN_SOURCE_RECEIPT.json",
+  "all_current_official_blobs_equal_local_pin": true,
+  "source_census_ref": "source_census.json",
+  "current_tree_verification_ref": "current_tree_local_verification.json",
+  "public_metadata_requests": 12,
+  "public_metadata_all_success": true,
+  "public_requests_ref": "public_requests.json",
+  "accessible_history": {
+    "commits": 12,
+    "snapshots_inspected": 12,
+    "all_nonroot_parents_resolved": true,
+    "root_commits": 1,
+    "linear_chain": true,
+    "one_current_branch_and_tag_both_pinned": true,
+    "tree_truncated": false,
+    "pagination_links_present": false,
+    "archive_download_bytes": 9993837,
+    "source_snapshots_ref": "historical_snapshots.json",
+    "source_variants_ref": "historical_core_variants.json"
+  },
+  "findings": [
+    {
+      "id": "AF01",
+      "status": "verified",
+      "finding": "No public ARGformer branch/tag/release/source update since pin; sole release has zero attached assets; sole checkpoint issue reply is Resolved via email, without an asset URL.",
+      "evidence": [
+        "public_api/branches.json",
+        "public_api/tags.json",
+        "public_api/releases.json",
+        "public_api/issues.json",
+        "public_api/issue1_comments.json",
+        "current_tree_local_verification.json"
+      ]
+    },
+    {
+      "id": "AF02",
+      "status": "verified_bounded_negative",
+      "finding": "No American simulation/inference recipe, query focal sampler/coordinate rule, Table1 PCA10 classifier/ancestry scorer, public checkpoint, or original data artifact recovered in all12 reachable snapshots.",
+      "evidence": [
+        "historical_snapshots.json",
+        "source_search.json",
+        "source_links.json",
+        "historical_core_variants.json"
+      ]
+    },
+    {
+      "id": "AF03",
+      "status": "verified",
+      "finding": "Full leaf-to-root raw tuple deduplication precedes sorted node vocabulary and a seed-42 random 90/10 path split. Paths are specific to an ARG namespace, not an independent-subject or independent-ARG holdout.",
+      "source": "src/data/prepare_data_pretrain.py:17-36,40-80,127-168"
+    },
+    {
+      "id": "AF04",
+      "status": "verified",
+      "finding": "Native input removes the extant leaf and retains up to 126 ancestors plus CLS/SEP in 128 tokens. Distinct full paths can have identical truncated inputs.",
+      "source": "src/arg_data.py:244-280"
+    },
+    {
+      "id": "AF05",
+      "status": "verified",
+      "finding": "MLM delegates masking to the Hugging Face collator with 0.30 selected-token probability. The release does not force every selected token to MASK. Its generic masking test explicitly asserts 80/10/10.",
+      "source": "src/arg_data.py:329-335; tests/test_mlm_masking.py:39-57; yamls/mlm.yaml:9-10,69-97"
+    },
+    {
+      "id": "AF06",
+      "status": "verified",
+      "finding": "The release objective uses normalized learned pooling and supervised in-batch contrastive loss at temperature 0.30. The YAML requests class weights, but train passes cfg.model while the weight loader seeks cfg.train_loader. The caught exception leaves uniform weights. No historical fix or alternative contrastive YAML was found.",
+      "source": "sequence_contrastive.py:411-495,580-623,821-841; yamls/contrastive.yaml:45-65",
+      "evidence": [
+        "historical_core_variants.json"
+      ]
+    },
+    {
+      "id": "AF07",
+      "status": "verified",
+      "finding": "The public contrastive CLI depends on absent yamls/defaults.yaml. Our wrapper bypasses it by loading the release YAML and calling unchanged train(cfg), without injecting model.train_loader. Several inherited tests reference missing configurations/modules and do not certify Table 1.",
+      "source": "sequence_contrastive.py:914-936; tests/test_classification.py:6-17; src/arggnn/benchmarking/american_competitor_worker.py:90-103,134-150"
+    },
+    {
+      "id": "AF08",
+      "status": "verified",
+      "finding": "Author extraction supports trained head_norm and final-layer normalized pooling, without PCA. Multiple requested splits are randomly interleaved. Our separate single-split calls and raw-path sidecars preserve record identity.",
+      "source": "embeddings.py:117-178,262-322; src/arggnn/benchmarking/american_competitor_worker.py:167-187"
+    },
+    {
+      "id": "AF09",
+      "status": "verified",
+      "finding": "Native retrieval returns normalized dot-product top-k indices/scores and optional supplied labels, with default k=1. It supplies no Table 1 ancestry voting or metric implementation, stable tie policy or self-exclusion.",
+      "source": "retrieve.py:13-34,78-97,117-168"
+    },
+    {
+      "id": "AF10",
+      "status": "verified",
+      "finding": "The current README PCA2 example centers haplotype/individual means over all supplied rows. It is not reference-fitted 10-PC local-path classification.",
+      "source": "README.md:135-181; aggregate_embeddings.py:21-76"
+    },
+    {
+      "id": "FL01",
+      "status": "verified",
+      "finding": "All 96 local Java sources exactly match the fresh official v0.6.0 tag archive. Current master has the same 96 Java files, with only the AdmixMain version banner changed. No algorithm/options update was found.",
+      "evidence": [
+        "flare_local_java_tag_verification.json",
+        "flare_current_tree_verification.json",
+        "flare_AdmixMain.java.diff.txt"
+      ]
+    },
+    {
+      "id": "FL02",
+      "status": "verified",
+      "finding": "Native default EM estimates admixture generations; gen=10 is an initial value. Our EM=true/gen=10 route therefore does not force 10 generations against a generation-12 simulation. Other thresholds are native defaults, with probs=true and nthreads=4 explicitly set.",
+      "source": "data/native_FLARE_build_existing_JDK_root_v1/flare/src/admix/AdmixPar.java:78-103; ParamEstimator.java:56-84; README.md:124-154,175-195; src/arggnn/american_c3_flare_common_v1.py:13-17"
+    },
+    {
+      "id": "FL03",
+      "status": "verified",
+      "finding": "The FLARE panel-probability GaussianMixture helper exists at both v0.6.0 and current master. It serves a separate unassigned-panel workflow, not ARGformer Table 1 PCA. Our native route uses known source panels without model or query ancestry inputs.",
+      "evidence": [
+        "public_current_flare/create_model_file.py",
+        "flare_tag_source_census.json"
+      ],
+      "source": "src/arggnn/benchmarking/american_competitors.py:397-404"
+    },
+    {
+      "id": "SCI01",
+      "status": "assessment",
+      "finding": "Supported claim is native author-release pipeline comparison on new shared biological reconstruction. Exact original data/Table1 reproduction and architecture-only attribution remain unsupported. No current pairwise-data defect established by this sourceaudit.",
+      "evidence": [
+        "benchmark_interface_source_refs.json",
+        "primary_paper_paragraphs.json"
+      ]
+    },
+    {
+      "id": "AF11",
+      "status": "verified",
+      "finding": "The repository retains different runtime recipes: requirements.txt uses Torch 2.3.0, Transformers 4.40.2 and Composer 0.22.x; pixi.toml uses Torch 2.4.0, Transformers 4.44.1 and Composer 0.24.1. This does not identify a unique original Table 1 environment.",
+      "source": "requirements.txt:1-7; pixi.toml:11-24,54-60"
+    }
+  ],
+  "limitations": [
+    "No private/email-supplied assets, unreachable commits, forks or unadvertised external storage inspected.",
+    "No scientificdata arrays/model/checkpoint payloads opened, no authorcode imported/run, no numericaltests executed; runtime conformance is a separate evidentiary question.",
+    "FLARE full reachable commit history not downloaded; freshcurrent Java sourcecomparison and pinnedtag sourceverification cover relevant changes.",
+    "Primary paper snapshot is the existing pinned fullJATS source; preprint bodies and publisher updates were not newly fetched."
+  ],
+  "actions_not_taken": [
+    "No pinnedsource/job/policy edits",
+    "No benchmarklaunches, installs, GPU use, process changes or Git operations"
+  ],
+  "compact_history_summary_ref": "compact_history_summary.json"
+}
