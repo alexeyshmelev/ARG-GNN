@@ -675,3 +675,7 @@ Evidence: [configs/benchmarks/executable_workflow_20261022_full_vram_v2.json](..
 **Next/repeat rule:** Never repeat completed updates or change biological/scientific inputs for a hardware migration. Future workers may use only GPUs3/4/5. Preserve unrelated processes.
 
 Evidence: [configs/benchmarks/executable_workflow_20261022_gpu345_v2.json](../configs/benchmarks/executable_workflow_20261022_gpu345_v2.json), [research/repairs/benchmark_gpu345_20261022/orchestration/actual_v2/launch_receipt.json](../research/repairs/benchmark_gpu345_20261022/orchestration/actual_v2/launch_receipt.json), [research/repairs/benchmark_gpu345_20261022/orchestration/actual_v2/current_status.json](../research/repairs/benchmark_gpu345_20261022/orchestration/actual_v2/current_status.json), [research/repairs/benchmark_gpu345_20261022/orchestration/GPU2_AM_control_receipt.json](../research/repairs/benchmark_gpu345_20261022/orchestration/GPU2_AM_control_receipt.json).
+
+## paper_based_benchmark_rebuild_20261024
+
+**Implementing.** Reference-paper comparison rebuild is authorized on GPUs 3, 4, 5. Reuse compatible data and keep earlier results as development evidence. Correct ARGMix representation, recover AP CNN, align ARGformer training settings, integrate GST and shared scoring. Full plan and issue ledger: [PLAN](benchmark_rebuild_20261024/PLAN.md). No new accuracy claim.

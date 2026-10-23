@@ -1,5 +1,9 @@
 # ARG-GNN research instructions
 
+## Current benchmark rebuild authority, 24 October 2026
+
+The latest user explicitly authorizes correcting the benchmark using the papers and reference code, making reasonable disclosed choices for unavailable details, and launching the complete corrected queue. Only physical GPUs 3, 4 and 5 are authorized, without artificial GPU RAM caps. This supersedes older device assignments and preparation-only holds below. Preserve historical evidence and healthy valid work, control only verified task-owned processes, use efficient multiworker data preparation and PyTorch/PyTorch Geometric for our models. Root owns integration, scheduling, Git and publication. Current plan: research/benchmark_rebuild_20261024/PLAN.md. User storage ceiling remains 1 TB. Earlier source-specific root directives describe their historical attempts, not a requirement to repeat obsolete approval chains for this newly authorized rebuild.
+
 ## Current user GPU assignment, 22 October 2026
 
 The user explicitly added physical GPUs 2 and 3 to the ongoing GPU 5 work. The authorized set is now {2, 3, 5}, superseding the earlier one-device and two-device limits for this task. UUIDs are GPU-976a5cd3-df12-2535-fa51-e3ea063688ba (2), GPU-df11de7f-7a15-ebe2-085d-9c7d907f3786 (3), and GPU-3db85505-d061-e45d-d154-e7e8c1cad497 (5). Preserve the healthy existing GPU 5 ARGformer training. Only verified ARG-GNN processes may be controlled. Do not touch unrelated processes. Keep every historical source, result and failed attempt. New parallel execution must bind the additional authorization explicitly while leaving the current GPU 5 worker's original policy fields valid until it completes. The total project limit remains 1 TB.
