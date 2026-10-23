@@ -1,28 +1,32 @@
 # ARG-GNN
 
 <!-- paper-benchmark-rebuild-current:start -->
-## Paper-based benchmark rebuild, 24 October
+## Paper-based comparison campaign, 24 October
 
-**The earlier release-based comparisons are development evidence. The corrected paper-oriented comparison is running, and no new superiority claim is made yet.**
+**The corrected 251-stage queue is running. Earlier scores remain development evidence. They do not establish superiority on all of the requested paper conditions.**
 
-| Component | Verified status |
+Every paired comparison uses the same simulated parent, observed data, reference/query identities and evaluation positions. Available publication settings are implemented explicitly. Unreleased details use documented reconstructions. This does not promise the exact numbers printed in a paper.
+
+| Comparison | Protocol and current evidence |
 |---|---|
-| Historical AncestralPaths CNN | Full 50,000-example fit finished: 5 epochs, 8,335 Adam updates. Five TEST predictions are running. |
-| FLARE | All 15 native outputs recorded complete. Observations and prediction identities checked for reuse. |
-| ARGformer | Corrected training and PCA10 evaluator implemented. Two preserved corpora ready, 13 need preparation because five older corpora were deleted by prior scratch-retirement jobs. |
-| ARGMix | 1,611-person recipe, 29-node representation and paper-equation correction implemented. CPU scientific tests and tiny native Relate run passed. Full paired queue integration continues. |
-| TreeLoom | Existing valid fits preserved. A serial ancestry-memory bottleneck is being replaced with the same recurrence computed in parallel. |
-| GST | Native graph-set layer is being adapted explicitly to the shared LAI task. Frozen TreeLoom is not applicable unchanged to GST's unordered cyclic synthetic graphs. |
+| AncestralPaths, TreeLoom and GST-LAI-8 | Shared 476-person observations. Historical CNN completed its full 50,000-example fit, 8,335 updates and all five TEST prediction products. TreeLoom and GST predictions must finish before the common score. The released Dense model is retained as a labelled control. |
+| ARGformer, FLARE and TreeLoom | Shared American simulation parents and evaluation positions. All 15 native FLARE outputs passed reuse checks. Corrected ARGformer uses full native pretraining and contrastive budgets, with its unreleased PCA classifier reconstructed explicitly. |
+| ARGMix and TreeLoom | Shared 1,611-person recipe, with five TRAIN, one validation, three IID and five misspecified parents. Paper-oriented ARGMix uses the 29-node representation, raw capped distances and the disclosed attention correction. Paired prediction barriers precede test scoring. |
+| GST-LAI-8 | The unchanged author GraphSetConv is adapted to ancestry inference using sets of eight complete trees. This is an explicitly new LAI baseline, not a reproduction of GST's original synthetic or molecular tables. |
 
-[Detailed plan and issue ledger](research/benchmark_rebuild_20261024/PLAN.md) · [AP execution plan](configs/benchmarks/paper_ap_cnn_execution_20261024.json) · [ARGformer implementation](research/benchmark_rebuild_20261024/american/IMPLEMENTATION.md)
+The TreeLoom architecture is frozen for this comparison. Its faster memory recurrence preserves complete-parent training and connected gradients. The American fit resumes from its authenticated 58-update checkpoint. ARGformer and GST use eight data-loading workers. New jobs are restricted to GPUs 3, 4 and 5, with full-device memory permitted. Temporary data retirement and conservative admission keep the project under the 1 TB limit.
 
-Training loss and training accuracy are not test results. Final matched scores and replicate standard deviations will be reported after the paired predictions and scoring finish.
+The first launch exposed a missing output-parent directory in the queue. Its failure and partial startup outputs were archived. The repaired launch uses the same scientific tasks and can now retry an explicitly repaired failed branch without interrupting healthy jobs.
+
+[Detailed plan and issue ledger](research/benchmark_rebuild_20261024/PLAN.md) · [Active queue](configs/benchmarks/paper_campaign_20261024_v2.json) · [Scientific integration review](research/benchmark_rebuild_20261024/integration/final_integration_review_v1.json) · [ARGformer reconstruction](research/benchmark_rebuild_20261024/american/IMPLEMENTATION.md)
+
+**Matched held-out scores are pending.** Training loss, training accuracy and GPU utilization are not substitutes for test results. Accuracy, class metrics and replicate standard deviations will be reported after the paired predictions and common scoring finish.
 <!-- paper-benchmark-rebuild-current:end -->
 
 
 <!-- readable-gpu345-queue:start -->
 ### Current GPU 3/4/5 queue
-Updated 2026-10-23T22:48:19.500605+00:00. Status: running.
+Updated 2026-10-23T23:03:20.343366+00:00. Status: running.
 74 pending, 1 running, 258 succeeded, 1 failed, 16 blocked, 0 unknown.
 Local active: AM_argformer_american_test_001_argformer_mlm.
 Live training stages: bounded stage metadata pending.
@@ -109,7 +113,7 @@ Within each paired endpoint, code fixes common sample/site identities and requir
 
 <!-- readable-full-vram-queue:start -->
 ### Current full-VRAM queue
-Updated 2026-10-23T22:49:03.385788+00:00. Status: running.
+Updated 2026-10-23T23:04:07.794995+00:00. Status: running.
 85 pending, 1 running, 247 succeeded, 1 failed, 16 blocked, 0 unknown.
 Local active: AP__all_train__treeloom_fit.
 Live training stages: bounded stage metadata pending.
