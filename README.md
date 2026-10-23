@@ -2,10 +2,10 @@
 
 <!-- readable-gpu345-queue:start -->
 ### Current GPU 3/4/5 queue
-Updated 2026-10-23T08:46:35.968506+00:00. Status: running.
+Updated 2026-10-23T09:02:41.692017+00:00. Status: running.
 95 pending, 2 running, 253 succeeded, 0 failed, 0 blocked, 0 unknown.
 Local active: AM_treeloom_fit, AM_argformer_american_test_000_argformer_mlm.
-Live training stages: AM_treeloom_fit: TreeLoom preparation: prepare_once_or_restore_complete_parent (25/600 saved parent updates).
+Live training stages: AM_treeloom_fit: TreeLoom training: _first (25/600 saved parent updates).
 Standalone work: no live standalone generations.
 The earlier v9 queue block is a historical snapshot. This block describes the active successor.
 Ancestry accuracy is pending the frozen prediction and scoring barriers. Training loss is not accuracy.
@@ -72,7 +72,7 @@ Within each paired endpoint, code fixes common sample/site identities and requir
 
 <!-- readable-full-vram-queue:start -->
 ### Current full-VRAM queue
-Updated 2026-10-23T08:47:34.398697+00:00. Status: running.
+Updated 2026-10-23T09:01:58.753069+00:00. Status: running.
 86 pending, 1 running, 246 succeeded, 1 failed, 16 blocked, 0 unknown.
 Local active: AP__all_train__treeloom_fit.
 Live training stages: bounded stage metadata pending.
@@ -85,7 +85,7 @@ One optional external AP001 archive is deferred with its full retained storage c
 
 <!-- readable-recovery-afternoon-v2-queue:start -->
 ### Current recovery queue
-Updated 2026-10-23T08:46:49.896719+00:00. Status: running.
+Updated 2026-10-23T09:01:48.143951+00:00. Status: running.
 83 pending, 1 running, 245 succeeded, 2 failed, 19 blocked, 0 unknown.
 Local active: C4__all_train__c4_treeloom_fit.
 Live training stages: bounded stage metadata pending.
