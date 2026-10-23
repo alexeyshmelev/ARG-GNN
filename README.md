@@ -22,10 +22,10 @@ Training loss and training accuracy are not test results. Final matched scores a
 
 <!-- readable-gpu345-queue:start -->
 ### Current GPU 3/4/5 queue
-Updated 2026-10-23T22:18:37.499762+00:00. Status: running.
+Updated 2026-10-23T22:32:40.449737+00:00. Status: running.
 90 pending, 2 running, 258 succeeded, 0 failed, 0 blocked, 0 unknown.
 Local active: AM_treeloom_fit, AM_argformer_american_test_001_argformer_mlm.
-Live training stages: AM_treeloom_fit: TreeLoom training: _second (57/600 saved parent updates).
+Live training stages: AM_treeloom_fit: TreeLoom training: context_forward (58/600 saved parent updates).
 Standalone work: no live standalone generations.
 The earlier v9 queue block is a historical snapshot. This block describes the active successor.
 Ancestry accuracy is pending the frozen prediction and scoring barriers. Training loss is not accuracy.
@@ -109,7 +109,7 @@ Within each paired endpoint, code fixes common sample/site identities and requir
 
 <!-- readable-full-vram-queue:start -->
 ### Current full-VRAM queue
-Updated 2026-10-23T22:18:25.705177+00:00. Status: running.
+Updated 2026-10-23T22:33:40.918314+00:00. Status: running.
 85 pending, 1 running, 247 succeeded, 1 failed, 16 blocked, 0 unknown.
 Local active: AP__all_train__treeloom_fit.
 Live training stages: bounded stage metadata pending.
