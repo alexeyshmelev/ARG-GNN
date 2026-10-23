@@ -1,0 +1,312 @@
+"""Dependency queue with shared GPU admission and real subprocess completion.
+
+This queue never signals pre-existing jobs. It may stop only its own process
+sessions on failure, timeout or explicit cancellation. Historical output remains.
+"""
+from __future__ import annotations
+import argparse
+import fcntl
+import json
+import os
+from pathlib import Path
+import signal
+import subprocess
+import sys
+import time
+from . import runtime as r
+from . import processes
+
+
+def validate(plan):
+    if plan['schema'] != 'paper_campaign_v1' or plan['physical_gpus'] != [3, 4, 5]:
+        raise ValueError('Explicit current campaign and GPU authority required')
+    ids = [t['id'] for t in plan['tasks']]
+    if len(ids) != len(set(ids)):
+        raise ValueError('Duplicate task identifier')
+    done = set()
+    while len(done) < len(ids):
+        available = {t['id'] for t in plan['tasks'] if set(t['dependencies']) <= done}
+        if not available - done:
+            raise ValueError('Missing or cyclic dependency')
+        done |= available
+    outputs = []
+    for task in plan['tasks']:
+        if task['kind'] == 'external':
+            if not task.get('result_ref') and not task.get('state_path'):
+                raise ValueError('External task needs an actual evidence source')
+            continue
+        if task['kind'] not in ('cpu', 'gpu'):
+            raise ValueError('Unsupported task resource')
+        for key in ('max_output_bytes', 'max_rss_bytes', 'max_seconds'):
+            if type(task[key]) is not int or task[key] <= 0:
+                raise ValueError('Positive finite task resource required: ' + key)
+        if not task.get('call') and not task.get('argv'):
+            raise ValueError('Task lacks an executable call')
+        if task.get('argv') and any(x in task['argv'] for x in ('-c', '-EncodedCommand')):
+            raise ValueError('Use a visible script/module rather than inline execution')
+        output = r.path(task['output_directory'])
+        if not output.is_relative_to(r.ROOT / 'experiments'):
+            raise ValueError('Task output must be in project experiments')
+        if any(output == prior or output.is_relative_to(prior) or prior.is_relative_to(output) for prior in outputs):
+            raise ValueError('Task output scopes overlap')
+        outputs.append(output)
+        r.path(task['python'])
+    if plan['storage_ceiling_bytes'] > 980_000_000_000:
+        raise ValueError('Operational storage ceiling exceeded')
+    return plan
+
+
+def resolve(value, state):
+    if isinstance(value, dict):
+        if '$task' in value:
+            row = state['tasks'][value['$task']]
+            if row['status'] != 'succeeded':
+                raise ValueError('Artifact dependency is unfinished')
+            result = row['result_ref']
+            if not value.get('raw_result_ref', False):
+                saved = r.read(result)
+                result = saved.get('value', result)
+            if value.get('read'):
+                result = r.read(result)
+            for key in value.get('path', []):
+                result = result[key]
+            return result
+        return {k: resolve(v, state) for k, v in value.items()}
+    if isinstance(value, list):
+        return [resolve(v, state) for v in value]
+    return value
+
+
+def gpu_state():
+    command = ['nvidia-smi', '--query-gpu=index,uuid,memory.free,utilization.gpu', '--format=csv,noheader,nounits']
+    output = subprocess.check_output(command, text=True, timeout=15)
+    result = {}
+    for line in output.splitlines():
+        index, uuid, free, utilization = [x.strip() for x in line.split(',')]
+        index = int(index)
+        if index in r.GPU_UUIDS:
+            if uuid != r.GPU_UUIDS[index]:
+                raise RuntimeError('Physical GPU UUID mapping changed')
+            result[index] = dict(uuid=uuid, free_bytes=int(free)*2**20, utilization=int(utilization))
+    if set(result) != set(r.GPU_UUIDS):
+        raise RuntimeError('Missing authorized GPU')
+    return result
+
+
+def environment(task, gpu):
+    env = os.environ.copy()
+    env.update(PYTHONPATH=str(r.ROOT / 'src') + ':' + str(r.ROOT), PYTHONDONTWRITEBYTECODE='1',
+               PYTHONUNBUFFERED='1', OMP_NUM_THREADS=str(task.get('cpu_threads', 4)),
+               MKL_NUM_THREADS=str(task.get('cpu_threads', 4)), OPENBLAS_NUM_THREADS=str(task.get('cpu_threads', 4)))
+    if gpu is not None:
+        env.update(CUDA_VISIBLE_DEVICES=r.GPU_UUIDS[gpu], ARGGNN_PHYSICAL_GPU=str(gpu),
+                   ARGGNN_GPU_MEMORY_POLICY='full_device', WORLD_SIZE='1', LOCAL_RANK='0')
+    else:
+        env.update(CUDA_VISIBLE_DEVICES='')
+        env.pop('ARGGNN_PHYSICAL_GPU', None)
+    return env
+
+
+def external_result(task):
+    if task.get('result_ref'):
+        r.read(task['result_ref'])
+        return task['result_ref']
+    source = json.loads(r.path(task['state_path']).read_text())
+    row = source['tasks'][task['source_task_id']]
+    if row['status'] == 'succeeded':
+        r.read(row['result_ref'])
+        return row['result_ref']
+    if row['status'] in ('failed', 'blocked', 'unknown'):
+        raise RuntimeError('External predecessor ' + row['status'])
+    return None
+
+
+def stop_owned(process, expected_start):
+    processes.drain(process, terminate=True)
+    return process.wait(timeout=5)
+
+
+def run(plan_path):
+    plan = validate(json.loads(r.path(plan_path).read_text()))
+    directory = r.path(plan['records_directory'])
+    directory.mkdir(parents=True, exist_ok=True)
+    lock = r.path('.runtime/benchmarking/paper_campaign_global.lock').open('a+')
+    fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    state_path = directory / 'state.json'
+    if state_path.exists():
+        raise ValueError('Use a reviewed continuation after an existing attempt, never silently replay')
+    state = dict(schema='paper_campaign_state_v1', plan_ref=r.ref(plan_path), controller_pid=os.getpid(),
+                 tasks={t['id']: dict(status='pending') for t in plan['tasks']})
+    running = {}
+    def cancel(signum, frame):
+        raise RuntimeError('Controller received explicit termination signal')
+    signal.signal(signal.SIGTERM, cancel)
+    signal.signal(signal.SIGINT, cancel)
+    try:
+        while True:
+            for task_id, (process, log, start, start_ticks) in list(running.items()):
+                task = next(t for t in plan['tasks'] if t['id'] == task_id)
+                row = state['tasks'][task_id]
+                code = process.poll()
+                if code is None:
+                    usage = processes.pss(process.pid)
+                    size = r.scope_bytes(r.path(task['output_directory']))
+                    for extra in task.get('additional_mutable_scopes', []):
+                        if r.scope_bytes(r.path(extra['path'])) > extra['max_bytes']:
+                            size = task['max_output_bytes'] + 1
+                    row['observed_pss_bytes'] = usage
+                    row['observed_output_bytes'] = size
+                    if usage > task['max_rss_bytes'] or size > task['max_output_bytes']:
+                        code = stop_owned(process, start_ticks)
+                        row['error'] = 'Resource reservation exceeded'
+                if code is None and time.time()-start > task['max_seconds']:
+                    code = stop_owned(process, start_ticks)
+                    row['error'] = 'Wall time limit exceeded'
+                if code is None:
+                    continue
+                drained = processes.drain(process)
+                if not drained:
+                    row.setdefault('leader_exit_unix', time.time())
+                    if time.time() - row['leader_exit_unix'] < 15:
+                        continue
+                    processes.drain(process, terminate=True)
+                    row['error'] = 'Task leader exited with surviving descendants, drained own session'
+                log.close()
+                output = r.path(task['output_directory'])
+                result = output / task.get('completion_file', 'result.json')
+                final_bytes = r.scope_bytes(output)
+                if final_bytes > task['max_output_bytes']:
+                    row['error'] = 'Final output exceeds reservation'
+                for extra in task.get('additional_mutable_scopes', []):
+                    if r.scope_bytes(r.path(extra['path'])) > extra['max_bytes']:
+                        row['error'] = 'Final auxiliary scope exceeds reservation'
+                success = code == 0 and result.is_file() and 'error' not in row
+                row.update(status='succeeded' if success else 'failed', actual_returncode=code,
+                           actual_wait=True, owned_process_group_absent=True, finished_unix=time.time(), retained_bytes=r.scope_bytes(output))
+                if success:
+                    row['result_ref'] = r.ref(result)
+                else:
+                    row.setdefault('error', 'Nonzero exit or absent completion artifact')
+                r.save(output / 'actual_wait.json', dict(row))
+                del running[task_id]
+            for task in plan['tasks']:
+                row = state['tasks'][task['id']]
+                if row['status'] != 'pending' or task['kind'] != 'external':
+                    continue
+                try:
+                    result = external_result(task)
+                    if result:
+                        row.update(status='succeeded', result_ref=result, reused=True)
+                except Exception as exc:
+                    row.update(status='blocked', error=str(exc))
+            snapshot = gpu_state()
+            state['gpu_observation'] = snapshot
+            baseline = plan['reserved_existing_project_bytes']
+            sizes = {t['id']: r.scope_bytes(r.path(t['output_directory'])) for t in plan['tasks'] if t['kind'] != 'external'}
+            reserved = sum(sizes.values())
+            for t in plan['tasks']:
+                if t['id'] in running:
+                    reserved += max(0, t['max_output_bytes'] - sizes[t['id']])
+                    for extra in t.get('additional_mutable_scopes', []):
+                        reserved += max(0, extra['max_bytes'] - r.scope_bytes(r.path(extra['path'])))
+            for task in plan['tasks']:
+                row = state['tasks'][task['id']]
+                if row['status'] != 'pending' or task['kind'] == 'external':
+                    continue
+                deps = [state['tasks'][d]['status'] for d in task['dependencies']]
+                if any(s in ('failed', 'blocked') for s in deps):
+                    row.update(status='blocked', error='Required predecessor failed')
+                    continue
+                if any(s != 'succeeded' for s in deps):
+                    row['waiting_reason'] = 'Required predecessor unfinished'
+                    continue
+                new_growth = task['max_output_bytes'] + sum(max(0, extra['max_bytes'] - r.scope_bytes(r.path(extra['path']))) for extra in task.get('additional_mutable_scopes', []))
+                if baseline + reserved + new_growth > plan['storage_ceiling_bytes']:
+                    row['waiting_reason'] = 'Storage reservation'
+                    continue
+                active = [t for t in plan['tasks'] if t['id'] in running]
+                if len(active) >= plan.get('max_parallel_tasks', 6):
+                    row['waiting_reason'] = 'Parallel worker capacity'
+                    continue
+                free_ram = int(next(l.split()[1] for l in Path('/proc/meminfo').read_text().splitlines() if l.startswith('MemAvailable:'))) * 1024
+                remaining_growth = sum(max(0, t['max_rss_bytes'] - state['tasks'][t['id']].get('observed_pss_bytes', 0)) for t in active)
+                for old in plan.get('existing_workers', []):
+                    p = Path('/proc') / str(old['pid']) / 'stat'
+                    if p.exists():
+                        fields = p.read_text().rsplit(')', 1)[1].split()
+                        if fields[19] == old['start_ticks']:
+                            remaining_growth += max(0, old['max_rss_bytes'] - processes.pss(old['pid']))
+                if free_ram < task['max_rss_bytes'] + remaining_growth + 64*2**30:
+                    row['waiting_reason'] = 'Host RAM headroom'
+                    continue
+                gpu = None
+                if task['kind'] == 'gpu':
+                    candidates = [i for i,g in snapshot.items() if g['free_bytes'] >= task['minimum_free_gpu_bytes']
+                                  and sum(state['tasks'][t['id']].get('physical_gpu') == i for t in active) < plan.get('max_jobs_per_gpu', 2)]
+                    if not candidates:
+                        row['waiting_reason'] = 'GPU headroom'
+                        continue
+                    gpu = min(candidates, key=lambda i: (snapshot[i]['utilization'], -snapshot[i]['free_bytes']))
+                elif sum(t['kind'] == 'cpu' for t in active) >= plan.get('max_cpu_tasks', 3):
+                    row['waiting_reason'] = 'CPU preparation lanes occupied'
+                    continue
+                concrete = resolve(task, state)
+                output = r.path(task['output_directory'])
+                if output.exists():
+                    row.update(status='blocked', error='Output already exists, no overwrite')
+                    continue
+                if not task.get('argv'):
+                    output.mkdir(parents=True)
+                task_file = directory / 'jobs' / (task['id'] + '.json')
+                r.save(task_file, concrete)
+                command = concrete.get('argv') or [str(r.path(task['python'])), '-B', '-s', '-m',
+                           'arggnn.benchmarking.paper_campaign.runtime', '--task', str(task_file)]
+                log_path = directory / 'logs' / (task['id'] + '.log')
+                log_path.parent.mkdir(exist_ok=True)
+                log = log_path.open('xb')
+                process = subprocess.Popen(command, cwd=r.ROOT, env=environment(task, gpu),
+                                           stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
+                start_ticks = (Path('/proc') / str(process.pid) / 'stat').read_text().rsplit(')', 1)[1].split()[19]
+                row.update(status='running', pid=process.pid, process_start_ticks=start_ticks,
+                           physical_gpu=gpu, reservation_bytes=task['max_output_bytes'],
+                           command=command, log_path=str(log_path.relative_to(r.ROOT)), started_unix=time.time())
+                row.pop('waiting_reason', None)
+                running[task['id']] = (process, log, time.time(), start_ticks)
+                reserved += new_growth
+                if gpu is not None:
+                    snapshot[gpu]['free_bytes'] -= task['minimum_free_gpu_bytes']
+                r.save(state_path, state)
+            state['updated_unix'] = time.time()
+            state['counts'] = {key: sum(row['status'] == key for row in state['tasks'].values())
+                               for key in ('pending', 'running', 'succeeded', 'failed', 'blocked')}
+            state['project_reserved_bytes'] = baseline + reserved
+            r.save(state_path, state)
+            if not running and all(row['status'] in ('succeeded', 'failed', 'blocked') for row in state['tasks'].values()):
+                return state
+            time.sleep(10)
+    finally:
+        for task_id, (process, log, start, ticks) in running.items():
+            code = stop_owned(process, ticks)
+            log.close()
+            state['tasks'][task_id].update(status='failed', actual_returncode=code,
+                                          actual_wait=True, error='Controller ended')
+        r.save(state_path, state)
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--plan', required=True)
+    parser.add_argument('--validate-only', action='store_true')
+    args = parser.parse_args()
+    if args.validate_only:
+        plan = validate(json.loads(r.path(args.plan).read_text()))
+        print(json.dumps(dict(valid=True, tasks=len(plan['tasks']))))
+    else:
+        result = run(args.plan)
+        print(json.dumps(result['counts']))
+        if result['counts']['failed'] or result['counts']['blocked']:
+            sys.exit(1)
+
+
+if __name__ == '__main__':
+    main()

@@ -28,11 +28,11 @@ The user authorized this rebuild on 24 October 2026. The objective is a fair com
 | B01 | Release experiments were conflated with paper comparisons | Preserve as named controls, build separate paper-oriented arms | In progress |
 | B02 | ARGMix release representation differs | Use 25 donors, three ancestors, query, raw capped distances and paper attention equation in an explicit corrected copy | Worker implementing |
 | B03 | ARGMix data scenario differs | 1,611-person chr22 recipe, BAA excluded, 0.001 allele-error reconstruction. Reuse authenticated TRAIN0 observations | Worker implementing |
-| B04 | AncestralPaths current Dense network differs from paper CNN | Recover historical architecture including exact flatten order and author training budget | Worker implementing |
+| B04 | AncestralPaths current Dense network differs from paper CNN | Historical 19,078-parameter CNN recovered, CPU checks passed, full 50,000-example fit completed with 8,335 updates | Resolved, prediction running |
 | B05 | ARGformer training defaults differ from paper | Fresh named arm with paper temperature, literal masking, extant token pooling and effective class weights | Worker implementing |
 | B06 | ARGformer ancestry classifier unreleased | Explicit PCA10 reconstruction with training reference labels only | Worker implementing |
 | B07 | GST omitted from active comparison | Prepare valid unordered-set candidate and author-task comparisons without invented ancestry identity | Root implementing |
-| B08 | Old TreeLoom steps are very expensive | Inspect actual stages and optimize batching/loading without silently changing frozen mathematics | Root investigating |
+| B08 | Old TreeLoom steps are very expensive | Serial per-hold memory recurrence identified. Parallel affine recurrence under implementation, unchanged full-parent objective | Worker implementing |
 | B09 | Storage near conservative projected capacity | Reuse data, calculate remaining reservations, keep total under 1 TB, no repeated broad scan | Root investigating |
 | B10 | Queue coverage and current scores hard to inspect | One campaign plan, explicit dependencies, status/metric receipts in README | Root implementing |
 | B11 | Historical instructions contain superseded GPU assignments | Current user authority is GPUs 3, 4, 5 | Resolved |
@@ -55,3 +55,7 @@ The user authorized this rebuild on 24 October 2026. The objective is a fair com
 6. Verify actual progress, record any failure, repair within the same declared condition, and publish receipts.
 
 The queue being prepared and launched is different from all benchmarks being completed. Final comparisons remain pending until real predictions and scoring finish.
+
+## First executed correction
+
+The historical AncestralPaths CNN completed all five epochs and 8,335 optimizer updates on the fixed 50,000-example training set. Genuine process exit0 and owned-session drain are recorded. Five independent TEST predictions follow. Training accuracy is not a held-out ancestry comparison. Source package and representative fit were not substituted by a smoke test.

@@ -1,0 +1,67 @@
+{
+  "findings": [
+    {
+      "concrete_trigger": "AP io._npz calls guard(uncompressed_array_bytes+headroom) before writing; runtime treats int as stage and checks current size only or returns early.",
+      "file": "src/arggnn/benchmarking/paper_campaign/runtime.py",
+      "fix": "Recognize integer prospective bytes; check current+prospective against remaining output scope synchronously on every write guard. Retain final uncached full scope verification.",
+      "id": "AP-RUNTIME-01",
+      "issue": "Byte headroom guard arguments are ignored and all checks throttle30s, including writes.",
+      "priority": "P1",
+      "symbol": "ResourceCheck.__call__"
+    },
+    {
+      "concrete_trigger": "A raw author argv or hung callable allocates beyond max_rss_bytes/max_output_bytes without calling the cooperative callback.",
+      "file": "src/arggnn/benchmarking/paper_campaign/scheduler.py",
+      "fix": "Parent must sample all owned processes/output scope and terminate its owned session on cap violations; enforce before completion.",
+      "id": "AP-RUNTIME-02",
+      "issue": "No parent-enforced RSS/output watchdog; raw argv does not run ResourceCheck.",
+      "priority": "P1",
+      "symbol": "run"
+    },
+    {
+      "concrete_trigger": "Leader writes result and exits0 while a child continues, or TERM exits leader but leaves descendants. process.poll()/wait return without complete session drain.",
+      "file": "src/arggnn/benchmarking/paper_campaign/scheduler.py",
+      "fix": "Track genuine owned session identities and require all owned descendants/group members absent before completion; preserve failed wait/drain receipts.",
+      "id": "AP-RUNTIME-03",
+      "issue": "Leader exit is treated as group completion; descendant absence is not checked.",
+      "priority": "P1",
+      "symbol": "stop_owned and run completion"
+    },
+    {
+      "concrete_trigger": "Two large jobs launch before either allocates, each sees the same MemAvailable and exceeds combined available memory.",
+      "file": "src/arggnn/benchmarking/paper_campaign/scheduler.py",
+      "fix": "Reserve unconsumed admitted maximum RSS against shared RAM headroom with explicit existing-job margin.",
+      "id": "AP-RUNTIME-04",
+      "issue": "No aggregate reservation subtraction for newly admitted process memory.",
+      "priority": "P1",
+      "symbol": "run RAM admission"
+    },
+    {
+      "concrete_trigger": "Other controllers consume a GPU after the snapshot; ARGGNN_MAX_CUDA_RESERVED_BYTES is an environment label rather than a runtime enforcement check.",
+      "file": "src/arggnn/benchmarking/paper_campaign/scheduler.py",
+      "fix": "Use shared locked GPU reservations and direct allocator/device checks in the worker/parent; retain UUID mapping.",
+      "id": "AP-RUNTIME-05",
+      "issue": "No shared inter-controller GPU admission lock or enforced GPU allocation cap.",
+      "priority": "P1",
+      "symbol": "gpu_state, environment and run admission"
+    },
+    {
+      "concrete_trigger": "AP fit calls io._new_output at final save. Passing outer task output would fail after completing training because scheduler already created it.",
+      "file": "src/arggnn/benchmarking/paper_campaign/runtime.py",
+      "fix": "AP factory will bind its native output to outer/native; ROOT factory kwargs must use outer task scope.",
+      "id": "AP-RUNTIME-06",
+      "issue": "Factories that require absent native output must not receive scheduler precreated outer output.",
+      "priority": "P1",
+      "symbol": "run_task factory output integration"
+    }
+  ],
+  "live_source_modified": false,
+  "review_mode": "complete source read and concrete control-flow review; no launch",
+  "schema": "paper_campaign_independent_AP_source_review_v1",
+  "scientific_jobs_started": 0,
+  "source_sha256": {
+    "src/arggnn/benchmarking/paper_campaign/runtime.py": "8567a30adcd404c4acb2be2c98795c30ace0a79c7f466b091cb91a2398010908",
+    "src/arggnn/benchmarking/paper_campaign/scheduler.py": "86d892071e4db2c0ce234b7f9005f96a9f271930f8d893327f989e8ebecf5823"
+  },
+  "status": "BLOCKED"
+}
