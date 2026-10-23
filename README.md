@@ -30,9 +30,9 @@ Verified initial progress: both corrected ARGformer runs wrote native checkpoint
 
 <!-- readable-gpu345-queue:start -->
 ### Current GPU 3/4/5 queue
-Updated 2026-10-23T23:06:28.936141+00:00. Status: running.
-74 pending, 1 running, 258 succeeded, 1 failed, 16 blocked, 0 unknown.
-Local active: AM_argformer_american_test_001_argformer_mlm.
+Updated 2026-10-23T23:08:57.823270+00:00. Status: drained_for_operational_update.
+74 pending, 0 running, 259 succeeded, 1 failed, 16 blocked, 0 unknown.
+Local active: waiting for dependencies or capacity.
 Live training stages: bounded stage metadata pending.
 Standalone work: no live standalone generations.
 The earlier v9 queue block is a historical snapshot. This block describes the active successor.
@@ -117,7 +117,7 @@ Within each paired endpoint, code fixes common sample/site identities and requir
 
 <!-- readable-full-vram-queue:start -->
 ### Current full-VRAM queue
-Updated 2026-10-23T23:07:32.903686+00:00. Status: running.
+Updated 2026-10-23T23:20:12.683933+00:00. Status: running.
 85 pending, 1 running, 247 succeeded, 1 failed, 16 blocked, 0 unknown.
 Local active: AP__all_train__treeloom_fit.
 Live training stages: bounded stage metadata pending.
