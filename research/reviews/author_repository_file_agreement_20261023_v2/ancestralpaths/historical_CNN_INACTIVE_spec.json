@@ -1,0 +1,206 @@
+{
+  "schema": "AncestralPaths_historical_CNN_INACTIVE_spec_v1",
+  "state": "INACTIVE_SOURCE_SPECIFICATION_ONLY",
+  "execution_authorized": false,
+  "condition_id": "ancestralpaths_historical_CNN_e6f5_shared_frozen_data",
+  "preserve_existing_condition": "released_Dense_77db3_on_paper_counts",
+  "source": {
+    "path": "research/reviews/author_repository_deep_audit_20261023_v1/ancestralpaths/history_source/previous_training.py",
+    "sha256": "fc90bb333e3589f3e4f76098dfc591222de1e40c7382a3f367e876270393b4eb",
+    "start_line": 199,
+    "end_line": 213
+  },
+  "source_commit": "e6f5d9c6be628007c662e1c71a07358cf350efaf",
+  "checkpoint_metadata_evidence": {
+    "path": "research/reviews/author_repository_deep_audit_20261023_v1/ancestralpaths/historical_checkpoint_hdf5_metadata.json",
+    "sha256": "a4b856d91a2cb98d3d7029c4c70b3dffb3e5fa235d77575b5298039091625f13"
+  },
+  "historical_example_checkpoint_sha256": "f5b32e639f7dce5db00bed48296b9a386aacca7c02364e3e6283f49dac951898",
+  "historical_example_checkpoint_use": "Configuration evidence only. Do not initialize fit from this checkpoint or read numerical values under this audit.",
+  "data_contract": {
+    "reuse_exact_existing_frozen_parents": true,
+    "reuse_exact_observed_genotypes_inferred_trees_maps_sample_order": true,
+    "reuse_exact_shared_feature_arrays_targets_and_example_registry": true,
+    "train_rows": 50000,
+    "train_rows_per_five_cohorts": 10000,
+    "test_parents": 5,
+    "test_rows_per_parent": 10000,
+    "test_rows_per_cohort_per_parent": 2000,
+    "no_truth_based_resampling_or_caps": true,
+    "no_frozen_data_mutation": true,
+    "paper_counts_shared_reconstruction_not_historical_812500_row_sampler": true
+  },
+  "features": {
+    "shape": [
+      "N",
+      5,
+      9
+    ],
+    "model_input": [
+      "N",
+      1,
+      5,
+      9
+    ],
+    "channel_axis": 1,
+    "rows": "five ordered informative ancestors",
+    "columns": [
+      "Bronze_Age",
+      "BAA",
+      "Yam",
+      "Neo",
+      "WHG",
+      "EHG",
+      "Ana",
+      "CHG",
+      "int_ancestor_age_div1500"
+    ],
+    "age_mode": "training_int",
+    "ancient_focal_self_inclusion": true,
+    "eligible_observed_reference_cohorts": "All eight ancient cohorts including admixed query groups; role=query does not remove them from feature references",
+    "empty_shells": "skip without consuming a row",
+    "padding": -15,
+    "arithmetic": "author repeated-add float64; final Keras inputfloat32"
+  },
+  "model": {
+    "layers": [
+      {
+        "type": "Conv2D",
+        "filters": 32,
+        "kernel": [
+          5,
+          1
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": "valid",
+        "dilation": [
+          1,
+          1
+        ],
+        "data_format": "channels_first",
+        "activation": "relu",
+        "use_bias": true,
+        "input_shape": [
+          1,
+          5,
+          9
+        ],
+        "output_shape": [
+          32,
+          1,
+          9
+        ]
+      },
+      {
+        "type": "Flatten",
+        "data_format": "channels_first",
+        "exact_semantics": "transpose N,32,1,9 to N,1,9,32 then flatten; flattened index=32*feature_position+filter",
+        "output_units": 288
+      },
+      {
+        "type": "Dense",
+        "units": 64,
+        "activation": "relu",
+        "use_bias": true
+      },
+      {
+        "type": "Dense",
+        "units": 6,
+        "activation": "softmax",
+        "use_bias": true
+      }
+    ],
+    "trainable_parameters": 19078,
+    "weight_shapes": [
+      [
+        5,
+        1,
+        1,
+        32
+      ],
+      [
+        32
+      ],
+      [
+        288,
+        64
+      ],
+      [
+        64
+      ],
+      [
+        64,
+        6
+      ],
+      [
+        6
+      ]
+    ],
+    "kernel_initializer": {
+      "class_name": "VarianceScaling",
+      "scale": 1,
+      "mode": "fan_avg",
+      "distribution": "uniform"
+    },
+    "bias_initializer": "Zeros",
+    "dropout": false,
+    "pooling": false
+  },
+  "training": {
+    "loss": "categorical_crossentropy",
+    "targets": "native_path_1based minus1, categorical six classes",
+    "optimizer": {
+      "class_name": "historical_Keras_Adam",
+      "learning_rate": 0.001,
+      "beta_1": 0.9,
+      "beta_2": 0.999,
+      "epsilon": 1e-07,
+      "decay": 0,
+      "amsgrad": false
+    },
+    "batch_size": 30,
+    "epochs": 5,
+    "shuffle": true,
+    "shuffle_origin": "historical Keras fit default, must be qualified",
+    "initial_optimizer_iterations": 0,
+    "expected_optimizer_updates_if_all50000_rows_retained": 8335,
+    "checkpoint_selection": "final_epoch5",
+    "validation_selection": false,
+    "early_stopping": false,
+    "seed": "Fresh predeclared seed, explicitly a new-run choice; exact historical seed unavailable",
+    "fresh_initialization": true
+  },
+  "runtime": {
+    "historical_Keras_metadata_version": "2.3.1",
+    "historical_backend": "tensorflow",
+    "historical_TensorFlow_version": null,
+    "qualified": false,
+    "CPU_NCHW_compatibility": "Unqualified; do not silently reinterpret input as NHWC or port the model",
+    "no_author_algorithm_port_authorized": true
+  },
+  "output": {
+    "native_path_axis_1based": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "all_raw_probabilities": true,
+    "derived_C4": "Separate optional founder endpoint, never BAA-excluded reproduction",
+    "metrics": "same exact frozen registry and common scorer as Dense; truth-row confusion recorded; precision transposed for native-style visualization; equal-parent mean and sampleSDddof1, unitfraction"
+  },
+  "future_qualification_requirements": [
+    "Independent source review of any adapter; preserve exact Conv/Flatten/layout and weight-order semantics",
+    "Pin runtime and verify legacy Adam/initializer/fit semantics before any model execution",
+    "Bind actual immutable frozen feature/target/registry hashes from current comparison",
+    "Use separately authorized new admission/output namespace and current execution policy; no old job replay",
+    "Preserve Dense result/checkpoint/runtime and all historical source/assets; do not relabel either model as exact paper reproduction"
+  ],
+  "no_model_built": true,
+  "no_author_import_or_execution": true
+}

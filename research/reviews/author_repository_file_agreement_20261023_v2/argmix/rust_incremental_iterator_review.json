@@ -1,0 +1,798 @@
+{
+  "schema": "ARGMix_Rust_incremental_iterator_semantic_review_v1",
+  "created_utc": "2026-10-23T21:17:54.941139+00:00",
+  "repository": "https://github.com/AI-sandbox/argmix",
+  "commit": "c2481248eb0de5fda659d68f59c51e0e27becd20",
+  "source_root": ".runtime/author_sources/argmix_c2481248eb0d",
+  "scope": "Five files assigned by the primary ARGMix reviewer; both binary-lift implementations and other Rust modules are owned by the companion review.",
+  "source_body_files": 5,
+  "source_body_lines": 4666,
+  "source_body_bytes": 166642,
+  "all_listed_source_files_full_body_read": true,
+  "review_boundary": "Full source semantic review, including comments and embedded tests, with manual examples only. This is not a proof for all trees, a Rust compilation check or an executed behavioral validation.",
+  "files": [
+    {
+      "relative": "src/rust/ancpath_incremental/src/engine.rs",
+      "purpose": "Incremental per-tree LCA cache, persistent subgraph rows, reference selection and streaming batches",
+      "callability_and_semantics": "The first eligible tree receives a full sample-reference and reference-reference cache rebuild. Later edge differences identify moved child roots and tracked sample descendants. Tagged pairs are recomputed selectively; local LCA and reference cache epochs are rebuilt only for touched prediction or reference samples. Persistent matrices have one sample plus num_refs positions, no ancestor positions, and directional time-relative cells with zero diagonal. Missing TMRCA becomes the configured cap. Linear and log transforms cap before conversion to u16. Reference selection uses uncapped linear u32 distance even when matrix cells use log scaling. The row-refresh optimization has the two manual counterexamples below. The dedicated stream consumes the positioned initial tree before advancing; the seek method constructs a fresh local iterator when needed. This module is not the ShardPoolIterator fast inference implementation.",
+      "decisive_lines": [
+        281,
+        341,
+        386,
+        501,
+        523,
+        530,
+        600,
+        633,
+        645,
+        674,
+        747,
+        773,
+        789,
+        864,
+        894,
+        911,
+        1028,
+        1054,
+        1137,
+        1165,
+        1221,
+        1306,
+        1318,
+        1335,
+        1394,
+        1421,
+        1447,
+        1473,
+        1481,
+        1492,
+        1501,
+        1514,
+        1523,
+        1531,
+        1794,
+        1808
+      ],
+      "read_segments": [
+        [
+          1,
+          500
+        ],
+        [
+          501,
+          790
+        ],
+        [
+          791,
+          1090
+        ],
+        [
+          1091,
+          1390
+        ],
+        [
+          1391,
+          1660
+        ],
+        [
+          1661,
+          1820
+        ]
+      ],
+      "source_sections": {
+        "cache_and_reference_selection": [
+          1,
+          565
+        ],
+        "engine_and_streaming_state": [
+          567,
+          1052
+        ],
+        "updates_and_matrix_rebuilds": [
+          1054,
+          1405
+        ],
+        "utility_semantics": [
+          1407,
+          1529
+        ],
+        "embedded_tests_read_only": [
+          1531,
+          1820
+        ]
+      },
+      "path": ".runtime/author_sources/argmix_c2481248eb0d/src/rust/ancpath_incremental/src/engine.rs",
+      "sha256": "4c338c107e8cbb16dc2a9f9028f856b7080079f8fe6ddaf3ff4c668c6bbaee95",
+      "bytes": 68990,
+      "line_count": 1820,
+      "review_mode": "full_body_semantic_review",
+      "read_coverage": [
+        1,
+        1820
+      ],
+      "review_method": "Complete numbered source, executable bodies, declarations, branches, comments and embedded test bodies read; engine lines 1 through 500 and the two small wrappers were completed before context continuation. No author code was imported, compiled or executed.",
+      "public_route": "https://github.com/AI-sandbox/argmix/blob/c2481248eb0de5fda659d68f59c51e0e27becd20/src/rust/ancpath_incremental/src/engine.rs"
+    },
+    {
+      "relative": "src/rust/ancpath_incremental/src/benchmark.rs",
+      "purpose": "Python-exposed incremental extraction throughput benchmark wrapper",
+      "callability_and_semantics": "Loads the relation tree sequence and incremental engine, fixes drop_top_m_nearest to zero, clamps batch size to at least one and reports extraction rows, batches, time, rows per second, tree progress and row-cap status. It does not train a model or compute ancestry accuracy. Its counters are extraction evidence only.",
+      "decisive_lines": [
+        21,
+        39,
+        54,
+        62,
+        70,
+        95
+      ],
+      "read_segments": [
+        [
+          1,
+          98
+        ]
+      ],
+      "source_sections": {
+        "complete_wrapper": [
+          1,
+          98
+        ]
+      },
+      "path": ".runtime/author_sources/argmix_c2481248eb0d/src/rust/ancpath_incremental/src/benchmark.rs",
+      "sha256": "5015c629829711e796100a10582c67ccdea2c87414748a7ab495729ff43b5aad",
+      "bytes": 2697,
+      "line_count": 98,
+      "review_mode": "full_body_semantic_review",
+      "read_coverage": [
+        1,
+        98
+      ],
+      "review_method": "Complete numbered source, executable bodies, declarations, branches, comments and embedded test bodies read; engine lines 1 through 500 and the two small wrappers were completed before context continuation. No author code was imported, compiled or executed.",
+      "public_route": "https://github.com/AI-sandbox/argmix/blob/c2481248eb0de5fda659d68f59c51e0e27becd20/src/rust/ancpath_incremental/src/benchmark.rs"
+    },
+    {
+      "relative": "src/rust/ancpath_incremental/src/sample_batch.rs",
+      "purpose": "Python incremental batch iterator with decoded and flat output forms",
+      "callability_and_semantics": "Builds population IDs from sorted unique metadata populations, with SAMPLE, ANC and PAD reserved as 0, 1 and 2. Matrix sequence length is one plus num_refs. __next__ uses next_batch_with_seek, whereas next_flat retains a tree iterator across calls through an unsafe widened lifetime; Drop removes the iterator before the owning tree sequence. Decoded ancestry labels are always None. Query population names come from metadata and are not truth-derived labels. The engine receives the explicit nearest-reference drop option.",
+      "decisive_lines": [
+        23,
+        46,
+        61,
+        81,
+        82,
+        100,
+        101,
+        111,
+        126,
+        133,
+        138,
+        178,
+        195,
+        212
+      ],
+      "read_segments": [
+        [
+          1,
+          231
+        ]
+      ],
+      "source_sections": {
+        "complete_wrapper_and_decoding": [
+          1,
+          231
+        ]
+      },
+      "path": ".runtime/author_sources/argmix_c2481248eb0d/src/rust/ancpath_incremental/src/sample_batch.rs",
+      "sha256": "825281ded7d3780211b889f17b07cfc10bd3376b6bbb4224c591ba8b2eb053ab",
+      "bytes": 6999,
+      "line_count": 231,
+      "review_mode": "full_body_semantic_review",
+      "read_coverage": [
+        1,
+        231
+      ],
+      "review_method": "Complete numbered source, executable bodies, declarations, branches, comments and embedded test bodies read; engine lines 1 through 500 and the two small wrappers were completed before context continuation. No author code was imported, compiled or executed.",
+      "public_route": "https://github.com/AI-sandbox/argmix/blob/c2481248eb0de5fda659d68f59c51e0e27becd20/src/rust/ancpath_incremental/src/sample_batch.rs"
+    },
+    {
+      "relative": "src/rust/ancpath/src/sample_iterator.rs",
+      "purpose": "Standalone Python sample and batch iterators with optional interval merging",
+      "callability_and_semantics": "Direct Python constructors pass num_ancs through without rejecting it. Subgraphs contain the sample, selected references, parent-chain ancestors and repeated sample-node matrix padding, with population PAD tokens for unfilled positions. Distances use quantized i32 node times. Matrix conversion is f64 to u16, which saturates for out-of-range positive values, followed by the configured cap; this differs from integer narrowing in the fast engine. Reference ranking applies the optional log transform before truncating to u32, so log mode can create new ties and select different references. Reference-pair values are cached on demand by per-tree epoch. Generated inference labels are None. Nonmerged output uses swap_remove(0), so the source FIFO comment does not describe actual row order after the first row. The output still carries each row node ID and interval. The backend_name argument is ignored by this standalone constructor. Tree iteration positions with tree_iterator_at_index and then calls next, which is a dependency-semantics concern recorded separately below.",
+      "decisive_lines": [
+        46,
+        88,
+        105,
+        152,
+        176,
+        260,
+        274,
+        296,
+        346,
+        373,
+        391,
+        433,
+        485,
+        504,
+        537,
+        551,
+        583,
+        618,
+        648,
+        666,
+        684,
+        697,
+        704,
+        727,
+        745,
+        759,
+        768,
+        816,
+        834,
+        844,
+        870,
+        897,
+        940,
+        998,
+        1266,
+        1284,
+        1346,
+        1365,
+        1391
+      ],
+      "read_segments": [
+        [
+          1,
+          260
+        ],
+        [
+          261,
+          550
+        ],
+        [
+          551,
+          850
+        ],
+        [
+          851,
+          1150
+        ],
+        [
+          1151,
+          1453
+        ]
+      ],
+      "source_sections": {
+        "selection_and_atomic_cache": [
+          1,
+          174
+        ],
+        "state_constructor_progress": [
+          176,
+          483
+        ],
+        "subgraph_and_distance_semantics": [
+          485,
+          725
+        ],
+        "tree_traversal_and_merging": [
+          727,
+          895
+        ],
+        "batch_adapters": [
+          897,
+          996
+        ],
+        "embedded_tests_read_only": [
+          998,
+          1259
+        ],
+        "direct_python_constructors": [
+          1261,
+          1453
+        ]
+      },
+      "path": ".runtime/author_sources/argmix_c2481248eb0d/src/rust/ancpath/src/sample_iterator.rs",
+      "sha256": "df75f4278bf3a77784cd5e40086f8e16de9f6d64690526b2714d6c14678fd0f9",
+      "bytes": 48634,
+      "line_count": 1453,
+      "review_mode": "full_body_semantic_review",
+      "read_coverage": [
+        1,
+        1453
+      ],
+      "review_method": "Complete numbered source, executable bodies, declarations, branches, comments and embedded test bodies read; engine lines 1 through 500 and the two small wrappers were completed before context continuation. No author code was imported, compiled or executed.",
+      "public_route": "https://github.com/AI-sandbox/argmix/blob/c2481248eb0de5fda659d68f59c51e0e27becd20/src/rust/ancpath/src/sample_iterator.rs"
+    },
+    {
+      "relative": "src/rust/ancpath/src/shard_pool_iterator.rs",
+      "purpose": "Bounded shard worker pool feeding TorchScript inference and optional TSV/HDF5 sinks",
+      "callability_and_semantics": "The constructor accepts only backend_name=fast and requires a model and vocabulary. Data workers construct FastSubgraphEngine and its streaming_session, validate ExtractedBatch, optionally merge rows, tokenize sorted population IDs and pack sample-reference distances from the first matrix row. Workers send explicit selected reference IDs, node IDs, intervals and shard IDs. max_count is passed separately to every shard, not enforced as a global total. Worker scheduling can interleave shard rows. The shared queue bounds buffering and send timeouts report failures; inference and HDF5 writer threads are distinct. run_to_completion returns inference processing statistics or an error, not a scientific accuracy evaluation. CUDA is requested by default with CPU fallback if unavailable. None of these runtime actions was executed during review.",
+      "decisive_lines": [
+        77,
+        102,
+        155,
+        190,
+        202,
+        255,
+        303,
+        331,
+        359,
+        386,
+        398,
+        406,
+        419,
+        467,
+        537,
+        549,
+        606,
+        650,
+        653,
+        655,
+        657,
+        701,
+        705,
+        725,
+        740,
+        754,
+        784,
+        850,
+        862,
+        878,
+        884,
+        907,
+        934,
+        948,
+        1010,
+        1033,
+        1058
+      ],
+      "read_segments": [
+        [
+          1,
+          300
+        ],
+        [
+          301,
+          590
+        ],
+        [
+          591,
+          890
+        ],
+        [
+          891,
+          1064
+        ]
+      ],
+      "source_sections": {
+        "tokenization_and_timing": [
+          1,
+          151
+        ],
+        "batch_pack_and_fast_data_worker": [
+          153,
+          508
+        ],
+        "shard_pool_worker": [
+          510,
+          594
+        ],
+        "constructor_validation_and_runtime_setup": [
+          596,
+          1008
+        ],
+        "completion_and_output_methods": [
+          1010,
+          1064
+        ]
+      },
+      "path": ".runtime/author_sources/argmix_c2481248eb0d/src/rust/ancpath/src/shard_pool_iterator.rs",
+      "sha256": "873299927fcb28008910d5010944b78c304e47d7d93fe6effff1b9c8d1b8ca47",
+      "bytes": 39322,
+      "line_count": 1064,
+      "review_mode": "full_body_semantic_review",
+      "read_coverage": [
+        1,
+        1064
+      ],
+      "review_method": "Complete numbered source, executable bodies, declarations, branches, comments and embedded test bodies read; engine lines 1 through 500 and the two small wrappers were completed before context continuation. No author code was imported, compiled or executed.",
+      "public_route": "https://github.com/AI-sandbox/argmix/blob/c2481248eb0de5fda659d68f59c51e0e27becd20/src/rust/ancpath/src/shard_pool_iterator.rs"
+    }
+  ],
+  "observations_requiring_primary_matrix_integration": [
+    {
+      "id": "RI01",
+      "status": "resolved_route_identity",
+      "finding": "ShardPool inference uses the fast engine, not the standalone or incremental iterators.",
+      "evidence": [
+        {
+          "file": "src/rust/ancpath/src/shard_pool_iterator.rs",
+          "ranges": [
+            [
+              331,
+              371
+            ],
+            [
+              701,
+              708
+            ]
+          ]
+        }
+      ],
+      "implication": "Only findings reachable through FastSubgraphEngine affect that inference route. Alternative iterator defects must not be presented as observed fast-route errors."
+    },
+    {
+      "id": "RI02",
+      "status": "confirmed_source_semantic_difference",
+      "finding": "Incremental linear distance caps before u16 conversion; standalone float conversion saturates. These do not share the fast integer narrowing behavior.",
+      "evidence": [
+        {
+          "file": "src/rust/ancpath_incremental/src/engine.rs",
+          "ranges": [
+            [
+              1492,
+              1525
+            ],
+            [
+              1793,
+              1804
+            ]
+          ]
+        },
+        {
+          "file": "src/rust/ancpath/src/sample_iterator.rs",
+          "ranges": [
+            [
+              684,
+              709
+            ]
+          ]
+        }
+      ],
+      "implication": "Do not claim backend equivalence for large distances. The fast engine narrowing observation is owned by the companion Rust review; the incremental source test was read but not run.",
+      "manual_example": "With a positive linear distance of 65536 and cap 1000, incremental yields 1000; standalone positive f64-to-u16 conversion saturates at 65535 before min and also yields 1000. The companion review reports that fast u64-to-u16 narrowing yields zero at this boundary."
+    },
+    {
+      "id": "RI03",
+      "status": "confirmed_source_semantic_difference",
+      "finding": "Standalone reference ranking changes with log_scale_tmrca; incremental ranking remains linear.",
+      "evidence": [
+        {
+          "file": "src/rust/ancpath/src/sample_iterator.rs",
+          "ranges": [
+            [
+              46,
+              56
+            ],
+            [
+              504,
+              522
+            ],
+            [
+              684,
+              709
+            ]
+          ]
+        },
+        {
+          "file": "src/rust/ancpath_incremental/src/engine.rs",
+          "ranges": [
+            [
+              501,
+              520
+            ],
+            [
+              1492,
+              1497
+            ]
+          ]
+        }
+      ],
+      "manual_example": "For reference indices [0, 1] with raw distances [2, 1], standalone log keys are [1, 1] after truncation, so the index tie-break selects reference 0. Linear ranking selects reference 1. This is a hand-worked source example, not an executed experiment.",
+      "implication": "Log-mode datasets from the standalone iterator are not automatically identical to fast or incremental selections. Matrix values may tie while population identities differ."
+    },
+    {
+      "id": "RI04",
+      "status": "static_counterexample_not_executed",
+      "finding": "The incremental row-refresh gate can miss a newly tied reference with a preferred index.",
+      "evidence": [
+        {
+          "file": "src/rust/ancpath_incremental/src/engine.rs",
+          "ranges": [
+            [
+              523,
+              537
+            ],
+            [
+              1164,
+              1185
+            ],
+            [
+              1688,
+              1699
+            ]
+          ]
+        }
+      ],
+      "manual_example": "Use one requested reference, drop_top_m_nearest=0 and an untouched prediction sample. Old distances [10, 5] select reference 1. Move only reference 0 so new distances are [5, 5]. Deterministic distance/index order should select reference 0. The gate tests new_distance < kth_distance or previous membership: 5 < 5 is false and reference 0 was not selected, so the row can remain stale.",
+      "implication": "An inactive incremental alternative needs a reference-selection invalidation fix and a dedicated boundary test before it can be claimed equivalent to full rebuilding. No source fix or test execution was performed."
+    },
+    {
+      "id": "RI05",
+      "status": "static_counterexample_not_executed",
+      "finding": "With nearest-reference dropping, moving a dropped reference outward can change the selected set while the incremental refresh gate skips the row.",
+      "evidence": [
+        {
+          "file": "src/rust/ancpath_incremental/src/engine.rs",
+          "ranges": [
+            [
+              501,
+              537
+            ],
+            [
+              1164,
+              1185
+            ],
+            [
+              1702,
+              1749
+            ]
+          ]
+        }
+      ],
+      "manual_example": "Use one requested reference, drop_top_m_nearest=1 and an untouched prediction sample. Old distances [1, 2, 3] drop reference 0 and retain reference 1. Move only reference 0 to distance 4, producing [4, 2, 3]. Full selection should now drop reference 1 and retain reference 2. The changed reference 0 is not in the retained set and its new distance 4 is not less than the retained kth distance 2, so the gate can retain reference 1.",
+      "implication": "Tracking only retained membership and the new kth-distance threshold is insufficient for nonzero drop augmentation. This is separate from source tests that check static selection; those do not exercise this transition."
+    },
+    {
+      "id": "RI06",
+      "status": "resolved_low_level_capability_boundary",
+      "finding": "Standalone Python iterator constructors support ancestor positions. The shard helper rejects ancestors only when merging is enabled.",
+      "evidence": [
+        {
+          "file": "src/rust/ancpath/src/sample_iterator.rs",
+          "ranges": [
+            [
+              260,
+              370
+            ],
+            [
+              537,
+              585
+            ],
+            [
+              648,
+              662
+            ],
+            [
+              1264,
+              1302
+            ],
+            [
+              1344,
+              1382
+            ]
+          ]
+        },
+        {
+          "file": "src/rust/ancpath/src/shard_pool_iterator.rs",
+          "ranges": [
+            [
+              303,
+              315
+            ],
+            [
+              331,
+              345
+            ],
+            [
+              649,
+              710
+            ]
+          ]
+        },
+        {
+          "file": "src/rust/ancpath/src/subgraph_merge_pipeline.rs",
+          "ranges": [
+            [
+              15,
+              38
+            ]
+          ],
+          "review_depth": "Targeted supporting excerpt, not an additional whole-file claim"
+        }
+      ],
+      "implication": "Upper archive or YAML entrypoint rejection of model.num_ancs is a route-specific restriction; it does not erase the retained low-level implementation. Main scientific configuration must identify the actual entrypoint."
+    },
+    {
+      "id": "RI07",
+      "status": "resolved_output_contract",
+      "finding": "Inference labels are absent in these iterator outputs; query population metadata is a separate field.",
+      "evidence": [
+        {
+          "file": "src/rust/ancpath_incremental/src/sample_batch.rs",
+          "ranges": [
+            [
+              178,
+              231
+            ]
+          ]
+        },
+        {
+          "file": "src/rust/ancpath/src/sample_iterator.rs",
+          "ranges": [
+            [
+              795,
+              803
+            ],
+            [
+              862,
+              876
+            ],
+            [
+              1304,
+              1319
+            ]
+          ]
+        }
+      ],
+      "implication": "These modules do not recover true ancestry or demonstrate ancestry accuracy. Training supervision must be traced through the separate truth/archive route."
+    },
+    {
+      "id": "RI08",
+      "status": "resolved_order_and_count_contract",
+      "finding": "Standalone nonmerged sample order is not FIFO; pooled max_count is per shard and shard scheduling can interleave rows.",
+      "evidence": [
+        {
+          "file": "src/rust/ancpath/src/sample_iterator.rs",
+          "ranges": [
+            [
+              432,
+              446
+            ]
+          ]
+        },
+        {
+          "file": "src/rust/ancpath/src/shard_pool_iterator.rs",
+          "ranges": [
+            [
+              202,
+              224
+            ],
+            [
+              549,
+              578
+            ],
+            [
+              650,
+              655
+            ],
+            [
+              878,
+              905
+            ],
+            [
+              926,
+              932
+            ]
+          ]
+        }
+      ],
+      "implication": "Match records with explicit shard, node and interval keys. Do not assume output position or interpret max_count as one global cap."
+    },
+    {
+      "id": "RI09",
+      "status": "resolved_benchmark_boundary",
+      "finding": "IncrementalBenchmarkRunner reports extraction throughput and progress only.",
+      "evidence": [
+        {
+          "file": "src/rust/ancpath_incremental/src/benchmark.rs",
+          "ranges": [
+            [
+              21,
+              98
+            ]
+          ]
+        },
+        {
+          "file": "src/rust/ancpath_incremental/src/engine.rs",
+          "ranges": [
+            [
+              864,
+              891
+            ],
+            [
+              1028,
+              1051
+            ]
+          ]
+        }
+      ],
+      "implication": "Rows per second and tree counts are not training, prediction or scoring results. A tree is counted when prepared, so the row_capped_partial predicate alone does not prove every row of the final prepared tree was emitted."
+    },
+    {
+      "id": "RI10",
+      "status": "dependency_semantics_unresolved_by_this_subset",
+      "finding": "Standalone traversal calls next after tree_iterator_at_index, while incremental traversal first consumes the positioned tree.",
+      "evidence": [
+        {
+          "file": "src/rust/ancpath/src/sample_iterator.rs",
+          "ranges": [
+            [
+              759,
+              774
+            ],
+            [
+              834,
+              844
+            ]
+          ]
+        },
+        {
+          "file": "src/rust/ancpath_incremental/src/engine.rs",
+          "ranges": [
+            [
+              674,
+              680
+            ],
+            [
+              953,
+              972
+            ],
+            [
+              1807,
+              1818
+            ]
+          ]
+        }
+      ],
+      "implication": "The dependency constructor and StreamingIterator contract must settle whether a tree is skipped. No off-by-one outcome is asserted here, and no dependency or author implementation was executed. Cargo.lock identifies tskit 0.15.0-alpha.3; the current subset did not inspect that crate implementation."
+    }
+  ],
+  "supporting_excerpts": [
+    {
+      "relative": "src/rust/ancpath/src/subgraph_merge_pipeline.rs",
+      "ranges": [
+        [
+          15,
+          38
+        ]
+      ],
+      "purpose": "Determine conditional ancestor rejection for tensor worker merge mode"
+    },
+    {
+      "relative": "src/rust/ancpath/src/lib.rs",
+      "ranges": [
+        [
+          118,
+          119
+        ]
+      ],
+      "purpose": "Confirm direct Python exposure of standalone sample and batch classes"
+    },
+    {
+      "relative": "src/rust/ancpath/Cargo.lock",
+      "ranges": [
+        [
+          1751,
+          1754
+        ]
+      ],
+      "purpose": "Identify the declared tskit dependency version without loading it"
+    }
+  ],
+  "not_executed": [
+    "author or project module imports",
+    "Rust or other compilation",
+    "embedded or external tests",
+    "package installation",
+    "training",
+    "prediction",
+    "ancestry scoring",
+    "GPU use",
+    "job changes",
+    "signals",
+    "author or project source edits",
+    "scientific configuration edits",
+    "git operations"
+  ],
+  "integration": "Companion rust_semantic_review.json covers the remaining Rust and lockfile assignment. Primary reviewer owns matrix integration, source census updates and manifest regeneration. This supplement edits only its own JSON and Markdown reports."
+}

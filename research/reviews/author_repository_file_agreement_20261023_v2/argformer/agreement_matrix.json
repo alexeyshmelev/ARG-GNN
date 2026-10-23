@@ -1,0 +1,472 @@
+{
+  "schema": "ARGformer_FLARE_paper_release_adapter_agreement_v2",
+  "entries": [
+    {
+      "id": "AF01",
+      "status": "resolved",
+      "topic": "Author source identity and history",
+      "paper_statement": "Paper availability identifies AI-sandbox/ARGformer.",
+      "release_or_adapter_finding": "All60 current official blobs match immutable pin f7545be7bca0200fb39aeb7f94a8e5f0b6bf5596;61 local files include our receipt.12 complete accessible snapshots supplied by prior fresh audit.",
+      "source_references": [
+        "research/reviews/author_repository_deep_audit_20261023_v1/argformer/current_tree_local_verification.json",
+        "research/reviews/author_repository_deep_audit_20261023_v1/argformer/historical_snapshots.json"
+      ],
+      "execution_route": "Pinned author source and source-pinned native wrapper",
+      "resolution": "Current release identity resolved. This is not a historical Table 1 artifact identity claim.",
+      "status_definition": "Source-backed answer found; no implication of exact historical reproduction."
+    },
+    {
+      "id": "AF02",
+      "status": "upstream-unavailable",
+      "topic": "Original simulation realization and sample unit",
+      "paper_statement": "Section 2.2 gives1600 samples:1000 admixed plus200 each EUR/AFR/EAS,30Mb,AmericanAdmixture_4B18,r=1e-8,mu=1.25e-8.",
+      "release_or_adapter_finding": "No simulation generator in released current or meaningful historical source. Paper does not disambiguate sample individuals versus haplotypes or provide realization seeds. Our source explicitly chooses1600 haplotypes paired into800 diploid individuals.",
+      "source_references": [
+        ".runtime/author_sources/argformer_f7545be7bca0/src/data/prepare_data_pretrain.py:22-36",
+        "src/arggnn/benchmarking/american_preparation.py:30-34,96-134"
+      ],
+      "execution_route": "Shared observed genotype generator, then native per-ARG representation training",
+      "resolution": "Known biological parameters resolved. Original ploidy/seed realization unavailable. Existing haploid convention is an explicit study reconstruction and cannot be promoted to original-paper truth.",
+      "status_definition": "Not recovered from complete accessible author source/history and paper evidence; requirements remain explicit."
+    },
+    {
+      "id": "AF03",
+      "status": "explicit-study-choice",
+      "topic": "Demography, mutation model and pulse truth",
+      "paper_statement": "Paper specifies catalog model default parameters and rates but no mutation substitution model, discrete-genome flag or lineage truth algorithm.",
+      "release_or_adapter_finding": "Shared generator declares JC69/discrete_genome=true and recorded pulse12 lineage destination. Catalog demographic source is directly pinned; generation12 is not FLARE gen=10 constraint.",
+      "source_references": [
+        "src/arggnn/benchmarking/american_preparation.py:21-34,131-136",
+        ".runtime/env/lib/python3.11/site-packages/stdpopsim/catalog/HomSap/demographic_models.py"
+      ],
+      "execution_route": "Same frozen genotype/roster parent for all methods",
+      "resolution": "Retain as disclosed reconstruction. Exact-paper realization remains unavailable; no science setting changed here.",
+      "status_definition": "Concrete disclosed reconstruction convention, not original-paper evidence."
+    },
+    {
+      "id": "AF04",
+      "status": "upstream-unavailable",
+      "topic": "Original tsinfer/tsdate reconstruction recipe",
+      "paper_statement": "Section 2.2 uses tsinfer+tsdate without phasing or genotype error.",
+      "release_or_adapter_finding": "No upstream inference recipe/version/options is present. Our maintained observation route sanitizes migrations/internal population labels and verifies observed identities; that does not reconstruct an unavailable original inferred ARG.",
+      "source_references": [
+        ".runtime/author_sources/argformer_f7545be7bca0/README.md:77-84",
+        "src/arggnn/benchmarking/american_observation.py",
+        "src/arggnn/benchmarking/american_focals.py:126-157"
+      ],
+      "execution_route": "Shared inferred genealogy observation",
+      "resolution": "Freeze and disclose actual inference software/config/seed as our reconstruction. Do not present true topology or hidden ancestry labels as native model input.",
+      "status_definition": "Not recovered from complete accessible author source/history and paper evidence; requirements remain explicit."
+    },
+    {
+      "id": "AF05",
+      "status": "resolved",
+      "topic": "Path extraction and identity",
+      "paper_statement": "Paper encodes unique marginal leaf-to-root paths.",
+      "release_or_adapter_finding": "Complete raw node tuples include extant leaf and all ancestors, deduplicate before truncation, with occurrence-to-tree map. Sorted vocabulary preserves node identity. One ARG namespace per checkpoint.",
+      "source_references": [
+        ".runtime/author_sources/argformer_f7545be7bca0/src/data/prepare_data_pretrain.py:40-80,99-154",
+        ".runtime/author_sources/argformer_f7545be7bca0/README.md:102-105,141-146"
+      ],
+      "execution_route": "Author preparation semantics reused with raw-path order sidecars",
+      "resolution": "Resolved to full raw tuple identity. Equal truncated inputs and equal embeddings must not be deduplicated.",
+      "status_definition": "Source-backed answer found; no implication of exact historical reproduction."
+    },
+    {
+      "id": "AF06",
+      "status": "resolved",
+      "topic": "Pretraining split unit",
+      "paper_statement": "Sections2.2/2.3 specify90/10 paths; supplement calls these unseen haplotypes.",
+      "release_or_adapter_finding": "Author code seed42 shuffles unique paths90/10 within a shared ARG/vocabulary. It does not split individuals or independent ARGs before pretraining.",
+      "source_references": [
+        ".runtime/author_sources/argformer_f7545be7bca0/src/data/prepare_data_pretrain.py:156-168",
+        "research/reviews/ARGformer_published_benchmark_audit_20261015_v1/supplement.txt:S2"
+      ],
+      "execution_route": "Native per-ARG unsupervised pretraining, separate study replicate split",
+      "resolution": "Resolve split as path holdout, not proof of subject-level or genealogy-level generalization. Preserve native split and disclose transductive scope.",
+      "status_definition": "Source-backed answer found; no implication of exact historical reproduction."
+    },
+    {
+      "id": "AF07",
+      "status": "explicit-study-choice",
+      "topic": "Training/test data hierarchy",
+      "paper_statement": "Paper trains a representation per ARG; does not specify our20 TRAIN/5VAL/10TEST independent parent study.",
+      "release_or_adapter_finding": "Our supervised model trains on TRAIN parents; native ARGformer fits each observed ARG and uses known source reference labels. All15 evaluation parents times3 method seals precede truth in maintained scorer.",
+      "source_references": [
+        "configs/benchmarks/paper_comparisons/argformer_american.json",
+        "src/arggnn/benchmarking/american_scoring.py:26-41,104-159,275-341"
+      ],
+      "execution_route": "Maintained shared-data comparison",
+      "resolution": "Explicit pipeline comparison with transductive native baseline; no architecture-only or identical-supervision attribution.",
+      "status_definition": "Concrete disclosed reconstruction convention, not original-paper evidence."
+    },
+    {
+      "id": "AF08",
+      "status": "conflict",
+      "topic": "Extant-node representation and truncation",
+      "paper_statement": "Paper Section 3.1 describes self-supervised representations pooled on the extant node; path definition includes leaf.",
+      "release_or_adapter_finding": "Released YAML skips leaf. max128 retains126 ancestors plusCLS/SEP; first_node selects first ancestor. Historical extant option also selected position1 with skip=true. Current docs rename it correctly.",
+      "source_references": [
+        ".runtime/author_sources/argformer_f7545be7bca0/src/arg_data.py:244-280",
+        ".runtime/author_sources/argformer_f7545be7bca0/yamls/mlm.yaml:80,95",
+        ".runtime/author_sources/argformer_f7545be7bca0/embeddings.py:145-150",
+        ".runtime/author_sources/argformer_f7545be7bca0/README.md:123-129",
+        "research/reviews/author_repository_deep_audit_20261023_v1/argformer/core_history_diffs.json"
+      ],
+      "execution_route": "MLM extraction alternative; contrastive active route uses trained head_norm",
+      "resolution": "Release behavior resolved, paper agreement conflict remains. A leaf-retaining experiment needs its own newly trained variant, not relabeling an existing checkpoint.",
+      "status_definition": "Explicit paper/release divergence with separate inactive remedy."
+    },
+    {
+      "id": "AF09",
+      "status": "conflict",
+      "topic": "Masked-token corruption semantics",
+      "paper_statement": "Paper2.1 replaces every independently selected token with MASK atp=.30.",
+      "release_or_adapter_finding": "Active ARG loader delegates HF DataCollatorForLanguageModeling. Packer utility/doc/test explicitly uses80%MASK,10%random,10%unchanged. Both token/node probability selection and corruption must be distinguished. Validation selects.15 versus train.30.",
+      "source_references": [
+        ".runtime/author_sources/argformer_f7545be7bca0/src/arg_data.py:126-128,329-335",
+        ".runtime/author_sources/argformer_f7545be7bca0/src/sequence_packer.py:284-345",
+        ".runtime/author_sources/argformer_f7545be7bca0/tests/test_mlm_masking.py:39-64",
+        ".runtime/author_sources/argformer_f7545be7bca0/yamls/mlm.yaml:79,94"
+      ],
+      "execution_route": "Active ARG HF collator, not generic SequencePacker",
+      "resolution": "Preserve released collator for release arm. A literal-mask.30 variant is concrete but inactive in remediation.json.",
+      "status_definition": "Explicit paper/release divergence with separate inactive remedy."
+    },
+    {
+      "id": "AF10",
+      "status": "resolved",
+      "topic": "Architecture and final config route",
+      "paper_statement": "Supplement specifies12 layers,12 heads,RoPE andFlashAttention2.",
+      "release_or_adapter_finding": "Release Flex configuration selects12/12,RoPE,prenorm,RMSNorm,GELU,unpadding and final norm. Base bert-base-uncased supplies768hidden/3072intermediate through configured base config. YAML overrides are setattr after base construction.",
+      "source_references": [
+        ".runtime/author_sources/argformer_f7545be7bca0/yamls/mlm.yaml:13-66",
+        ".runtime/author_sources/argformer_f7545be7bca0/src/flex_bert.py:250-281",
+        ".runtime/author_sources/argformer_f7545be7bca0/src/bert_layers/attention.py:714-931",
+        ".runtime/author_sources/argformer_f7545be7bca0/src/bert_layers/layers.py:327-364"
+      ],
+      "execution_route": "main.build_model -> create_flex_bert_mlm -> FlexBertForMaskedLM",
+      "resolution": "Architectural declared12/12/RoPE agreement resolved. Optional FA3/SDPA alternatives are source capabilities, not evidence of execution or exact A100 timing reproduction.",
+      "status_definition": "Source-backed answer found; no implication of exact historical reproduction."
+    },
+    {
+      "id": "AF11",
+      "status": "resolved",
+      "topic": "MLM optimizer, budget and checkpoints",
+      "paper_statement": "Supplement claims training efficiency and95.96% masked accuracy but does not give full original run recipe.",
+      "release_or_adapter_finding": "YAML supplies5 epochs,batch512,BF16,seed17,AdamW5e-4,beta(.9,.98),epsilon1e-6,decay1e-5,6%warmup. Main loads full state unless configured weights-only. Our wrapper disables autoresume, preserves numerics and verifies every actual saved optimizer counter.",
+      "source_references": [
+        ".runtime/author_sources/argformer_f7545be7bca0/yamls/mlm.yaml:99-154",
+        ".runtime/author_sources/argformer_f7545be7bca0/main.py:233-240,464-495",
+        "src/arggnn/benchmarking/american_competitor_worker.py:21-37,90-158"
+      ],
+      "execution_route": "Native training under I/O-only wrapper",
+      "resolution": "Release recipe resolved; original training log/checkpoint/efficiency metric realization remains unavailable. Masked accuracy is not ancestry accuracy.",
+      "status_definition": "Source-backed answer found; no implication of exact historical reproduction."
+    },
+    {
+      "id": "AF12",
+      "status": "conflict",
+      "topic": "Contrastive temperature",
+      "paper_statement": "Paper defaulttemperature=.05.",
+      "release_or_adapter_finding": "Model constructor and builder fallback.05, but executed release YAML overrides it to.30. Historical contrastive YAML and objective have a single invariant source variant.",
+      "source_references": [
+        ".runtime/author_sources/argformer_f7545be7bca0/sequence_contrastive.py:411-428,593-595",
+        ".runtime/author_sources/argformer_f7545be7bca0/yamls/contrastive.yaml:45-50",
+        "research/reviews/author_repository_deep_audit_20261023_v1/argformer/historical_core_variants.json"
+      ],
+      "execution_route": "train(cfg) -> build_contrastive_model(cfg.model)",
+      "resolution": "Keep released.30 baseline. Inactive paper-default.05 objective variant is specified separately; paper default is not evidence that the authors actual Table 1 run used it.",
+      "status_definition": "Explicit paper/release divergence with separate inactive remedy."
+    },
+    {
+      "id": "AF13",
+      "status": "conflict",
+      "topic": "Inverse-frequency class weighting",
+      "paper_statement": "Paper Eq.5 useswc=N/(C*Nc), normalized over valid anchors.",
+      "release_or_adapter_finding": "Weight formula exists, but build_contrastive_model receivescfg.model and then askscfg.train_loader. Missing nested field is caught; class_weights remainsNone. Balanced sampling is false. Our worker explicitly verifies.30/uniform fallback.",
+      "source_references": [
+        ".runtime/author_sources/argformer_f7545be7bca0/sequence_contrastive.py:485-495,598-623,821-841",
+        ".runtime/author_sources/argformer_f7545be7bca0/yamls/contrastive.yaml:50,62",
+        "src/arggnn/benchmarking/american_competitor_worker.py:134-150"
+      ],
+      "execution_route": "Native reference-label supervised contrastive route",
+      "resolution": "A real release/paper conflict, not absence of formula. Inactive remediation injects model.train_loader config alias and verifies exact weights before optimizer creation, preserving Eq5 normalization.",
+      "status_definition": "Explicit paper/release divergence with separate inactive remedy."
+    },
+    {
+      "id": "AF14",
+      "status": "resolved",
+      "topic": "Hard negatives and unused settings",
+      "paper_statement": "Paper Eq.4 denominates all nonself in-batch examples, same-class positives; anchors with no positive excluded.",
+      "release_or_adapter_finding": "Executed supervised loss matches this structural description. ARGContrastivePairs and explicit-negative collator exist but are never selected. YAML num_hard_negatives2 and sampling_temperature are ignored; symmetric is also unread. Pair sampler stored temperature does not weight sampling even if separately used.",
+      "source_references": [
+        ".runtime/author_sources/argformer_f7545be7bca0/sequence_contrastive.py:274-408,451-497,637-709",
+        ".runtime/author_sources/argformer_f7545be7bca0/yamls/contrastive.yaml:45-65"
+      ],
+      "execution_route": "ARGClassificationDataset -> supervised_contrastive_collate_fn -> ContrastiveModel",
+      "resolution": "Resolve prior suspected hidden negative mining: it is inactive. Do not implement extra negatives as an alleged paper fix.",
+      "status_definition": "Source-backed answer found; no implication of exact historical reproduction."
+    },
+    {
+      "id": "AF15",
+      "status": "upstream-unavailable",
+      "topic": "Contrastive reference label construction and original training roster",
+      "paper_statement": "Paper describes source/reference population labels.",
+      "release_or_adapter_finding": "Release requires aligned labels.pkl with exact sequence count but has no biological label creator. Our prepared known source references supply class labels only, with query truth inaccessible.",
+      "source_references": [
+        ".runtime/author_sources/argformer_f7545be7bca0/sequence_contrastive.py:229-271",
+        "src/arggnn/benchmarking/american_competitors.py:270-303",
+        "src/arggnn/benchmarking/american_competitor_worker.py:204-232"
+      ],
+      "execution_route": "Reference-only supervised contrastive set and retrieval corpus",
+      "resolution": "Original label/roster artifact unavailable; current study label mapping is explicit and source-backed. Do not substitute query ancestry truth.",
+      "status_definition": "Not recovered from complete accessible author source/history and paper evidence; requirements remain explicit."
+    },
+    {
+      "id": "AF16",
+      "status": "resolved",
+      "topic": "Learned pooling versus standalone mean",
+      "paper_statement": "Paper describes learned normalized pooling for contrastive embeddings.",
+      "release_or_adapter_finding": "Executed mean pooling head uses sequence mean, dense/SiLU and configured norm/dropout; no attention mask in head.mean. Standalone embedding mean masks padding and includes specials. They are different representations.",
+      "source_references": [
+        ".runtime/author_sources/argformer_f7545be7bca0/src/bert_layers/model.py:748-769",
+        ".runtime/author_sources/argformer_f7545be7bca0/sequence_contrastive.py:432-439,451-459",
+        ".runtime/author_sources/argformer_f7545be7bca0/embeddings.py:151-171"
+      ],
+      "execution_route": "Contrastive encode -> backbone.head -> L2 normalize; extractionhead_norm",
+      "resolution": "Preserve trained head_norm for release arm. Do not silently substitute attention-masked standalone mean. Paper does not specify padding aggregation enough to infer a correction.",
+      "status_definition": "Source-backed answer found; no implication of exact historical reproduction."
+    },
+    {
+      "id": "AF17",
+      "status": "resolved",
+      "topic": "Checkpoint initialization, extraction and selection",
+      "paper_statement": "Paper uses pretrained then contrastive encoder.",
+      "release_or_adapter_finding": "Classification from_composer unwrapsstate.model and allows missing pooling/classifier keys while checking encoder coverage. Our adapter checks everyMLMencoder tensor transfer and requires full budget counters. Extraction maps Composer prefixes and fails on missing encoder/head weights. MaxMetricTracker logs the maximum in-batch metric but does not select a checkpoint.",
+      "source_references": [
+        ".runtime/author_sources/argformer_f7545be7bca0/src/bert_layers/model.py:1278-1330",
+        ".runtime/author_sources/argformer_f7545be7bca0/embeddings.py:14-96",
+        ".runtime/author_sources/argformer_f7545be7bca0/sequence_contrastive.py:132-178,879-905",
+        "src/arggnn/benchmarking/american_competitor_worker.py:106-158"
+      ],
+      "execution_route": "Full-budget final native checkpoint then unmasked export",
+      "resolution": "Release/runtime compatibility resolved statically. Original paper checkpoint and epoch selection unavailable, not recovered from max metric log callback.",
+      "status_definition": "Source-backed answer found; no implication of exact historical reproduction."
+    },
+    {
+      "id": "AF18",
+      "status": "resolved",
+      "topic": "Embedding row identity and split interleaving",
+      "paper_statement": "Paper requires path-level embeddings and held-out queries.",
+      "release_or_adapter_finding": "Current export can randomly interleave requested splits and saves split names but no per-row split IDs. Our wrapper calls each split separately, exports allmax_samples0 and retains fullrawpath order sidecars. Labels cursor is safe under these enforcednum_workers0 ordered calls.",
+      "source_references": [
+        ".runtime/author_sources/argformer_f7545be7bca0/embeddings.py:181-238,262-399",
+        "src/arggnn/benchmarking/american_competitor_worker.py:161-246"
+      ],
+      "execution_route": "Four ordered single-split exports -> validated train/val concatenation",
+      "resolution": "Identity preserved under our adapter. Do not identify raw paths by truncated input IDs or extant ID alone.",
+      "status_definition": "Source-backed answer found; no implication of exact historical reproduction."
+    },
+    {
+      "id": "AF19",
+      "status": "upstream-unavailable",
+      "topic": "Table1PCA10classifier",
+      "paper_statement": "Paper Section 3.1 says PCA fit on unadmixed references, retain10PCs, project query and assign cluster membership.",
+      "release_or_adapter_finding": "NoPCA 10fit/project/cluster-label classifier in current or historical scientific source. README example fitsPCA 2to all aggregated rows. FLARE GaussianMixture helper clusters panel probabilities for FLARE2, not ARGformerPCA.",
+      "source_references": [
+        ".runtime/author_sources/argformer_f7545be7bca0/README.md:135-181",
+        ".runtime/author_sources/argformer_f7545be7bca0/aggregate_embeddings.py:21-76",
+        "research/reviews/author_repository_deep_audit_20261023_v1/argformer/public_current_flare/create_model_file.py",
+        "research/reviews/author_repository_deep_audit_20261023_v1/argformer/historical_snapshots.json"
+      ],
+      "execution_route": "No maintained nativePCAstage; proposed explicit-study evaluator only",
+      "resolution": "Reference-onlyPCA 10is paper-known. Cluster algorithm, centering/scaling, reference weighting, cluster-label mapping and tie rule remain unavailable. Inactive nearest-centroid specification is labelled a study choice.",
+      "status_definition": "Not recovered from complete accessible author source/history and paper evidence; requirements remain explicit."
+    },
+    {
+      "id": "AF20",
+      "status": "explicit-study-choice",
+      "topic": "LAI nearest-neighbor k and ties",
+      "paper_statement": "Paper Section 3.1 says nearest neighbors withoutk/voting rule; real-data sections explicitly top5.",
+      "release_or_adapter_finding": "Released retrieve.py defaultk1, normalized dot product; streaming topk has no stable tie/self exclusion. OurLAIrouteuses unchangedk1 and corpus reference labels, preserving native indices/scores.",
+      "source_references": [
+        ".runtime/author_sources/argformer_f7545be7bca0/retrieve.py:13-16,78-97,117-168",
+        "src/arggnn/benchmarking/american_competitor_worker.py:239-279"
+      ],
+      "execution_route": "Native top1seal -> external focal scorer",
+      "resolution": "k1is release-backed comparison, not recovered Table 1protocol. Real data top5must be separately specified. No silent tie rewrite or self exclusion in existing release output.",
+      "status_definition": "Concrete disclosed reconstruction convention, not original-paper evidence."
+    },
+    {
+      "id": "AF21",
+      "status": "explicit-study-choice",
+      "topic": "10k query sampling and genomic coordinate",
+      "paper_statement": "Paper gives10000unique admixed marginal paths but no sampler/seed/coordinate, handling repeat genomic occurrences or length weighting.",
+      "release_or_adapter_finding": "Our focal registry samples10000fullrawquerypaths uniformly without replacement, sorts chosen IDs, takes midpoint of each first occurrence; one path has equal focal weight.",
+      "source_references": [
+        "src/arggnn/benchmarking/american_focals.py:25-28,172-259",
+        "src/arggnn/american_c3_evaluate_v1.py:5-9,13-23"
+      ],
+      "execution_route": "Same frozen10000 record registry for all methods",
+      "resolution": "Concrete common-support study choice resolved, exact paper convention unavailable. Preserve all repeat identities; no eligibility changes after truth.",
+      "status_definition": "Concrete disclosed reconstruction convention, not original-paper evidence."
+    },
+    {
+      "id": "AF22",
+      "status": "explicit-study-choice",
+      "topic": "Metrics and uncertainty",
+      "paper_statement": "Table 1reports per-class precision/recall only, without replicate count, uncertainty or overall accuracy.",
+      "release_or_adapter_finding": "Our confusion matrix defines each class precision/recall/F1, macroF1and accuracy, zero_division0, one focal per record. Maintained scorer summarizes equal-parent means, sampleSDand paired deltas; hard-call native outputs are not posterior probabilities.",
+      "source_references": [
+        "src/arggnn/american_c3_evaluate_v1.py:13-23,125-151",
+        "src/arggnn/benchmarking/american_scoring.py:206-258"
+      ],
+      "execution_route": "Separate scorer after complete prediction barrier",
+      "resolution": "Definitions resolved as our study protocol. Original Table 1confusions, sampling uncertainty, exact counts and SD unavailable. Never report training/in-batch metric as held-out ancestry accuracy.",
+      "status_definition": "Concrete disclosed reconstruction convention, not original-paper evidence."
+    },
+    {
+      "id": "AF23",
+      "status": "upstream-unavailable",
+      "topic": "Real-data files and preprocessing",
+      "paper_statement": "Paper Section 2.3 and Supplement S1 identify Wohns 2022, the 1KGP, SGDP and HGDP sources, archaic and Oceania-America panels, 688 and 665 sample nodes, vocabularies of 184,963 and 119,067, and path totals.",
+      "release_or_adapter_finding": "The release supplies no exact cohort roster, genomic interval or accession manifest, population label map, source tree artifact, balancing sampler or archaic phasing pipeline. Generic aggregation and retrieval helpers do not supply these.",
+      "source_references": [
+        "research/reviews/ARGformer_published_benchmark_audit_20261015_v1/supplement.txt:S1",
+        ".runtime/author_sources/argformer_f7545be7bca0/README.md:60-84",
+        ".runtime/author_sources/argformer_f7545be7bca0/aggregate_embeddings.py:21-76",
+        ".runtime/author_sources/argformer_f7545be7bca0/retrieve.py:19-34"
+      ],
+      "execution_route": "No exact released real-data reproduction pipeline.",
+      "resolution": "Paper panel names and counts are resolved. Exact preprocessing and biological artifacts are upstream-unavailable. The inactive manifest requirements enumerate each missing field.",
+      "status_definition": "Not recovered from complete accessible author source/history and paper evidence; requirements remain explicit."
+    },
+    {
+      "id": "AF24",
+      "status": "upstream-unavailable",
+      "topic": "Real-data enrichment, probes, permutation and attention analyses",
+      "paper_statement": "Paper Section 3.2 reports top-five vote shares, log2 lift and permutation p < 0.001. Supplement S4 describes ridge depth probes, label permutations and attention motifs.",
+      "release_or_adapter_finding": "No released implementation supplies log lift, permutation replicate count or unit, ridge alpha or split, UMAP seeds, attention motif quantification, head selection or Figure 2 genotype PCA. Generic classifier Spearman metrics and a PCA visualization example are separate analyses.",
+      "source_references": [
+        "research/reviews/ARGformer_published_benchmark_audit_20261015_v1/paper.fulltext.xml:3.1-3.3",
+        "research/reviews/ARGformer_published_benchmark_audit_20261015_v1/supplement.txt:S3-S4",
+        ".runtime/author_sources/argformer_f7545be7bca0/src/flex_bert.py:546-561",
+        ".runtime/author_sources/argformer_f7545be7bca0/README.md:166-181"
+      ],
+      "execution_route": "Unreleased downstream figure and analysis pipeline.",
+      "resolution": "The paper partially specifies the targets. Exact analysis recipes remain unavailable. Any new analysis must freeze its explicit choices before truth access.",
+      "status_definition": "Not recovered from complete accessible author source/history and paper evidence; requirements remain explicit."
+    },
+    {
+      "id": "AF25",
+      "status": "resolved",
+      "topic": "Historical environment lead",
+      "paper_statement": "The paper does not pin the full environment of its original run.",
+      "release_or_adapter_finding": "The recovered 512-line historical environment.yaml pins Python 3.11.9, Torch 2.4, Transformers 4.44.1, Composer 0.24.1, Streaming 0.8 and torch-optimi 0.2.1. Current pixi constraints agree on these core versions. Minimal requirements.txt instead pins Torch 2.3 and Composer 0.22.",
+      "source_references": [
+        "research/reviews/author_repository_file_agreement_20261023_v2/argformer/historical_environment_05fcfda7.yaml",
+        "research/reviews/author_repository_file_agreement_20261023_v2/argformer/historical_environment_request.json",
+        ".runtime/author_sources/argformer_f7545be7bca0/pixi.toml:10-60",
+        ".runtime/author_sources/argformer_f7545be7bca0/requirements.txt:1-7"
+      ],
+      "execution_route": "Historical environment export and current pixi recipes compared as text.",
+      "resolution": "A richer historical runtime recipe is recovered. It does not identify the original Table 1 package builds, checkpoint or logs. No dependency installation was performed.",
+      "status_definition": "Source-backed answer found; no implication of exact historical reproduction."
+    },
+    {
+      "id": "AF26",
+      "status": "resolved",
+      "topic": "CLI/config/tests hidden routes",
+      "paper_statement": "The README publishes MLM and contrastive command lines.",
+      "release_or_adapter_finding": "The current MLM CLI merges mlm.yaml and is source-complete. The contrastive CLI still opens absent defaults.yaml. Several inherited smoke tests reference absent configurations or modules. Extraction toy tests do not implement ancestry evaluation. Earliest main.py referenced an absent UniqueTokenCoverage callback; later history removed that reference.",
+      "source_references": [
+        ".runtime/author_sources/argformer_f7545be7bca0/main.py:537-546",
+        ".runtime/author_sources/argformer_f7545be7bca0/sequence_contrastive.py:914-936",
+        ".runtime/author_sources/argformer_f7545be7bca0/tests/test_classification.py:6-21",
+        ".runtime/author_sources/argformer_f7545be7bca0/tests/test_sdpa_fa2.py:68-74",
+        "research/reviews/author_repository_file_agreement_20261023_v2/argformer/historical_1fdd42f0667a_main.py.diff.txt"
+      ],
+      "execution_route": "Maintained I/O wrapper loads release YAML directly and calls unchanged train(cfg).",
+      "resolution": "The maintained wrapper resolves the operational contrastive CLI gap by loading the release YAML and calling unchanged train(cfg). No author source was modified. Tests were inspected, not executed.",
+      "status_definition": "Source-backed answer found; no implication of exact historical reproduction."
+    },
+    {
+      "id": "FL01",
+      "status": "resolved",
+      "topic": "Official FLARE identity",
+      "paper_statement": "ARGformer Table 1 names FLARE without pinning its version or complete arguments.",
+      "release_or_adapter_finding": "All 96 local Java files match the official v0.6.0 tag. Current master changes only the AdmixMain version banner among those Java files. The existing JAR has a recorded source/build receipt and was not rebuilt in this audit.",
+      "source_references": [
+        "research/reviews/author_repository_deep_audit_20261023_v1/argformer/flare_local_java_tag_verification.json",
+        "research/reviews/author_repository_deep_audit_20261023_v1/argformer/flare_current_tree_verification.json",
+        "data/native_FLARE_build_existing_JDK_root_v1/receipts/binary_provenance.json"
+      ],
+      "execution_route": "Official native Java ancestry route, with optional panel-probability workflow separated.",
+      "resolution": "Official release identity is resolved. The original ARGformer Table 1 FLARE version and flags remain upstream-unavailable.",
+      "status_definition": "Source-backed answer found; no implication of exact historical reproduction."
+    },
+    {
+      "id": "FL02",
+      "status": "resolved",
+      "topic": "Native phased inputs, marker support and map",
+      "paper_statement": "Official FLARE documentation requires phased, nonmissing genotypes, a reference panel and a PLINK genetic map in cM. Multiple ALT alleles are supported.",
+      "release_or_adapter_finding": "AdmixReader joins exact CHROM, POS, REF and ALT, filters reference panel membership, rejects overlap between reference and study IDs, and applies a minimum to the second-largest reference allele count. Our converter keeps all sites and original phased pairing. Its uniform map spans 30 cM over 30 Mb. An unused BitArray overload writes the first allele twice; the native reference-record route uses phasedAlleles and nonMajAlleleIndices instead.",
+      "source_references": [
+        "data/native_FLARE_build_existing_JDK_root_v1/flare/README.md:65-122",
+        "data/native_FLARE_build_existing_JDK_root_v1/flare/src/admix/AdmixReader.java:95-177,330-370",
+        "data/native_FLARE_build_existing_JDK_root_v1/flare/src/vcf/VcfRecGTParser.java:364-399",
+        "src/arggnn/american_c3_flare_convert_v1.py:87-149"
+      ],
+      "execution_route": "Official native Java ancestry route, with optional panel-probability workflow separated.",
+      "resolution": "Supported native inputs are resolved. There is no demonstrated active converter or native parser defect. Do not invent a biallelic-only restriction or lower the native MAC threshold.",
+      "status_definition": "Source-backed answer found; no implication of exact historical reproduction."
+    },
+    {
+      "id": "FL03",
+      "status": "resolved",
+      "topic": "Native parameters and EM generation",
+      "paper_statement": "Official gen=10 is an initial value when em=true. The default is update-p=false.",
+      "release_or_adapter_finding": "Native EM estimates T and study ancestry proportions. With update-p=false, panel copying probabilities and pre-admixture switch rates retain their initialized values after reference-based initialization. Our route preserves native defaults and explicitly sets probs=true and nthreads=4. It passes no model or query ancestry file.",
+      "source_references": [
+        "data/native_FLARE_build_existing_JDK_root_v1/flare/src/admix/AdmixPar.java:78-174",
+        "data/native_FLARE_build_existing_JDK_root_v1/flare/src/admix/ParamEstimator.java:56-108",
+        "data/native_FLARE_build_existing_JDK_root_v1/flare/src/admix/EstimatedParams.java:44-52",
+        "src/arggnn/american_c3_flare_common_v1.py:13-17"
+      ],
+      "execution_route": "Official native Java ancestry route, with optional panel-probability workflow separated.",
+      "resolution": "The generation-10 versus generation-12 discrepancy is resolved: 10 is an EM initializer, not a forced admixture time. Original Table 1 flags remain unavailable.",
+      "status_definition": "Source-backed answer found; no implication of exact historical reproduction."
+    },
+    {
+      "id": "FL04",
+      "status": "resolved",
+      "topic": "FLARE2panel clustering is separate",
+      "paper_statement": "The official FLARE2 helper clusters panel-probability output to initialize a model file.",
+      "release_or_adapter_finding": "PanelEstimator, PanelHmm, EstimatedPanels and create_model_file.py serve the optional panel-probs workflow. Our known-source three-panel route uses panel-probs=false with no model file.",
+      "source_references": [
+        "data/native_FLARE_build_existing_JDK_root_v1/flare/src/admix/AdmixMain.java:54-73,107-161",
+        "research/reviews/author_repository_deep_audit_20261023_v1/argformer/public_current_flare/create_model_file.py",
+        "src/arggnn/benchmarking/american_competitors.py:397-404"
+      ],
+      "execution_route": "Official native Java ancestry route, with optional panel-probability workflow separated.",
+      "resolution": "This helper is a separate workflow. It supplies neither the ARGformer PCA classifier nor missing Table 1 settings.",
+      "status_definition": "Source-backed answer found; no implication of exact historical reproduction."
+    },
+    {
+      "id": "FL05",
+      "status": "explicit-study-choice",
+      "topic": "Native posterior/hard-call projection and scoring",
+      "paper_statement": "Native AN1 and AN2 report the most probable ancestry. Optional ANP1 and ANP2 contain rounded posterior vectors. The ARGformer paper does not give a marker-to-focal projection rule.",
+      "release_or_adapter_finding": "Native hard calls use unrounded probabilities, with the first ancestry index winning exact ties. Our adapter preserves AN1 and AN2 and remaps the ancestry header to the frozen class order. It projects to nearest marker midpoints, assigns midpoint ties to the right and carries endpoint calls to the domain edges. Raw rounded ANP vectors and strings remain unchanged.",
+      "source_references": [
+        "data/native_FLARE_build_existing_JDK_root_v1/flare/src/admix/AdmixRecBuilder.java:161-224,273-324",
+        "src/arggnn/american_c3_flare_evaluate_v1.py:95-222",
+        "src/arggnn/american_c3_flare_common_v1.py:12"
+      ],
+      "execution_route": "Official native Java ancestry route, with optional panel-probability workflow separated.",
+      "resolution": "Native call semantics are resolved. Projection is an explicit study choice. Do not replace native calls with argmax of rounded ANP or describe one-hot transport as posterior probabilities.",
+      "status_definition": "Concrete disclosed reconstruction convention, not original-paper evidence."
+    }
+  ]
+}

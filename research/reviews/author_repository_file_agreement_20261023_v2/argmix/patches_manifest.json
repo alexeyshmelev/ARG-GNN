@@ -1,0 +1,60 @@
+{
+  "schema": "argmix_two_inactive_unified_diffs_v1",
+  "state": "INACTIVE_SOURCE_ARTIFACTS_ONLY",
+  "patches": [
+    {
+      "patch": "attention_key_j.inactive.patch",
+      "state": "INACTIVE",
+      "activation_authorized": false,
+      "source_path": ".runtime/author_sources/argmix_c2481248eb0d/src/tmrca_attn.py",
+      "applicable_author_commit": "c2481248eb0de5fda659d68f59c51e0e27becd20",
+      "source_sha256": "8cc88e2acc4a93d3038ea0ac862f4d48e860c58dc202dc93b64c634c75fa76f4",
+      "target_sha256_if_applied": "6928f58d88b084ef506164e76b0f060dc050d7142a3f75124dbaf27e88737a31",
+      "patch_sha256": "2dbe0464f24c55485535b424acddc7260aef8d0a62f58a1157bd54193e3f4f2f",
+      "exact_source_match_required": true,
+      "static_in_memory_apply_passed": true,
+      "hunks": 1,
+      "source_unchanged_after_check": true,
+      "purpose": "Align only the relative-key index with the displayed paper Eq3 while preserving asymmetric psi(i,j), query/value terms, scale, masks and all remaining model behavior.",
+      "index_or_integer_proof": "Kscore has axes [batch,head,j,bucket]. D.transpose gives index[j,i]=psi(i,j). Gather gives key_j dot P_key[psi(i,j)] at [j,i]; final transpose restores [i,j].",
+      "scientific_scope": "An equation-aligned algorithm variant, not unchanged author release or recovered paper model. Performance effect remains unmeasured.",
+      "author_code_executed": false,
+      "required_before_any_activation": [
+        "Independent source review of exact patch and source/target hashes.",
+        "Separately authorized isolated implementation and synthetic tensor/native checks.",
+        "Frozen variant identity and paired full-data validation against preserved unchanged release.",
+        "No exact-paper reproduction claim from these two corrections alone."
+      ]
+    },
+    {
+      "patch": "fast_linear_clamp.inactive.patch",
+      "state": "INACTIVE",
+      "activation_authorized": false,
+      "source_path": ".runtime/author_sources/argmix_c2481248eb0d/src/rust/ancpath/src/fast_lca/engine.rs",
+      "applicable_author_commit": "c2481248eb0de5fda659d68f59c51e0e27becd20",
+      "source_sha256": "1daf49d5c4ac777a2b07ddc9b5dbb85ca166739f1d2e6975d21334b0d2aafa73",
+      "target_sha256_if_applied": "212e1ceb5da8560fda038000de682c29b218004f50724ebc76ef94424e07ed58",
+      "patch_sha256": "4e9f1e76a60d25eeba486a705652c88e562c05b55c04d0ebfbcbaf9f8408347d",
+      "exact_source_match_required": true,
+      "static_in_memory_apply_passed": true,
+      "hunks": 1,
+      "source_unchanged_after_check": true,
+      "purpose": "Make the existing raw linear option saturate at its requested cap before integer narrowing; preserve missing-LCA handling and the current log-scale branch.",
+      "index_or_integer_proof": "The absolute delta is compared in u64 with max_rel_distance widened to u64. Since capped<=u16::MAX, its final u16 cast is exact. Missing raw sentinel returns the original cap before this code.",
+      "scientific_scope": "Fixes the raw linear option only. Current available-release log-scale condition remains unchanged. This does not recover paper cohorts, weights, discretization or training settings.",
+      "author_code_executed": false,
+      "required_before_any_activation": [
+        "Independent source review of exact patch and source/target hashes.",
+        "Separately authorized isolated implementation and synthetic tensor/native checks.",
+        "Frozen variant identity and paired full-data validation against preserved unchanged release.",
+        "No exact-paper reproduction claim from these two corrections alone."
+      ]
+    }
+  ],
+  "author_files_modified": false,
+  "author_code_imported_or_executed": false,
+  "installs_or_tests_or_training": false,
+  "source_bytes_copied_to_new_executable": false,
+  "combined_target": "The patches touch different files and have independent applicability. Neither target source file is written here or substituted into any execution source tree.",
+  "root_symbolic_counterexamples_ref": "research/reviews/author_repository_file_agreement_20261023_v2/static_counterexamples.json"
+}

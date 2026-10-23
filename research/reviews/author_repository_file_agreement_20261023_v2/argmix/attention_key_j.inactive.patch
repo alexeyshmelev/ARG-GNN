@@ -1,0 +1,20 @@
+--- a/src/tmrca_attn.py
++++ b/src/tmrca_attn.py
+@@ -107,13 +107,15 @@
+         query_hop = torch.gather(
+             query_hop, 3, distance.unsqueeze(1).repeat(1, self.num_heads, 1, 1)
+         )
+ 
+         key_hop = torch.matmul(k, key_hop_emb.transpose(2,3))
++        # Score key j at the original directed distance psi(i, j).
++        # Gather in (j, i) order, then restore the (i, j) pair axes.
+         key_hop = torch.gather(
+-            key_hop, 3, distance.unsqueeze(1).repeat(1, self.num_heads, 1, 1)
+-        )
++            key_hop, 3, distance.transpose(-1, -2).unsqueeze(1).repeat(1, self.num_heads, 1, 1)
++        ).transpose(-1, -2)
+ 
+         #spatial_bias = query_hop + key_hop 
+         #disable spatial bias 
+         spatial_bias = key_hop + query_hop
+         #spatial_bias = 0

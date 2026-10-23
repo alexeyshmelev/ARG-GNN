@@ -1,0 +1,248 @@
+{
+  "schema": "ARGformer_FLARE_inactive_remediation_specification_v2",
+  "created_at_utc": "2026-10-23T21:06:57.422895+00:00",
+  "all_variants_inactive": true,
+  "execution_enabled": false,
+  "active_jobs_or_settings_modified": false,
+  "variants": [
+    {
+      "id": "ARGformer_release_untouched",
+      "status": "INACTIVE_SPECIFICATION_ONLY",
+      "execution_enabled": false,
+      "author_source_modified": false,
+      "purpose": "Preserve the current named author-release comparison as a control.",
+      "scientific_settings": {
+        "temperature": 0.3,
+        "class_weights": null,
+        "masking": "HF default 80 percent MASK, 10 percent random, 10 percent unchanged among selected positions",
+        "train_mlm_selection_probability": 0.3,
+        "eval_mlm_selection_probability": 0.15,
+        "skip_extant_tokens": true,
+        "contrastive_pooling": "native learned mean head followed by L2 normalization",
+        "retrieval_k": 1
+      },
+      "implementation": "Use the existing pinned author source and current I/O-only configuration wrapper. Do not change any active or historical configuration. Preserve full five-epoch MLM and one-epoch contrastive budgets, native batch sizes, precisions, seeds, optimizer schedules, raw paths, and common held-out focal support.",
+      "assertions": [
+        "Resolved effective configuration equals released numerical YAML fields.",
+        "Temperature is exactly 0.30 and class_weights is None before the optimizer exists.",
+        "Every encoder tensor transfers exactly from the selected MLM checkpoint.",
+        "All live and saved optimizer counters equal the complete data-derived budget.",
+        "Single-split extraction uses head_norm, max_samples=0, and raw-path row-order sidecars."
+      ],
+      "claim": "Available author-release pipeline on reconstructed shared data. Exact Table 1 reproduction remains false."
+    },
+    {
+      "id": "ARGformer_paper_default_objective",
+      "status": "INACTIVE_SPECIFICATION_ONLY",
+      "execution_enabled": false,
+      "author_source_modified": false,
+      "purpose": "Test the paper-known temperature default and inverse-frequency objective without overwriting the release control.",
+      "scientific_settings": {
+        "temperature": 0.05,
+        "class_weight_formula": "w_c = N / (C * N_c)",
+        "weight_scope": "Training reference labels only",
+        "anchor_normalization": "sum(w_y * loss_i) / sum(w_y) over anchors with a same-class nonself partner",
+        "balanced_sampling": false,
+        "explicit_negative_pairs": false
+      },
+      "implementation": "Create a separate experiment variant and new output namespace. Load the unchanged release YAML, then apply an explicit variant configuration containing model.contrastive.temperature=0.05 and model.train_loader=${train_loader}. The nested alias supplies exactly the root training loader to the existing author weight loader. Keep model.contrastive.use_class_weights=true. The original train(cfg) still calls the original build_contrastive_model(cfg.model). A wrapper must fail before optimizer construction if the computed nonempty class weights do not equal the independently counted reference training labels. Never accept the author warning fallback as a successful weighted variant.",
+      "assertions": [
+        "No query label or query ancestry truth is read when counting class weights.",
+        "Counters and the class-weight mapping are saved in a source-pinned variant receipt.",
+        "Temperature is exactly 0.05 and all class weights match N/(C*N_c).",
+        "The forward loss uses existing valid-anchor masking and Eq. 5 normalization.",
+        "All other numerical settings and same-parent observations remain identical to the release comparison.",
+        "An imbalanced synthetic reference-label check distinguishes weighted from uniform loss, including no-positive anchors, before any separately authorized scientific run."
+      ],
+      "claim": "Paper-default objective reconstruction, not a recovered original Table 1 run. The paper labels 0.05 a default and does not identify the actual historical run temperature."
+    },
+    {
+      "id": "ARGformer_literal_mask_objective",
+      "status": "INACTIVE_SPECIFICATION_ONLY",
+      "execution_enabled": false,
+      "author_source_modified": false,
+      "purpose": "Resolve the literal paper corruption equation in a separate sensitivity arm.",
+      "scientific_settings": {
+        "train_selected_probability": 0.3,
+        "selected_replacement": "Every selected non-special node token becomes MASK",
+        "unselected_labels": -100,
+        "special_tokens_selected": false
+      },
+      "implementation": "Implement a new local collator adapter with readable source. Reuse the unchanged author ARG dataset, vocabulary, padding, sampler and full corpus. Independently sample eligible node positions at 0.30 and replace every selected position by the existing MASK ID, leaving special tokens and padding excluded. Inject only this collator in a new variant. Keep the release arm unchanged. Treat validation masking as an explicitly declared choice because the paper does not specify its separate probability.",
+      "assertions": [
+        "Every supervised position equals MASK in the input and carries its original target label.",
+        "Special and padding positions are never selected.",
+        "The same observed path arrays and vocabulary are used.",
+        "No hidden switch to the generic text SequencePacker occurs."
+      ],
+      "claim": "Literal paper-equation sensitivity, separate from the available author release."
+    },
+    {
+      "id": "ARGformer_reference_PCA10_study_evaluator",
+      "status": "INACTIVE_BLOCKED_ON_PROTOCOL_FREEZE",
+      "execution_enabled": false,
+      "author_source_modified": false,
+      "purpose": "Make the paper-known reference-fitted ten-PC route concrete while exposing the missing cluster rule.",
+      "paper_known": {
+        "fit_population": "Unadmixed references only",
+        "components": 10,
+        "query_operation": "Project using frozen reference centering and axes"
+      },
+      "proposed_study_choices": {
+        "embedding": "Complete native head_norm path embeddings",
+        "reference_weighting": "Each unique reference path receives equal weight",
+        "centering": "Reference arithmetic mean",
+        "feature_scaling": "None",
+        "decomposition": "Float64 deterministic full SVD of centered references",
+        "classifier": "Nearest labeled class centroid in the ten-dimensional projected space",
+        "centroid_weighting": "Each path within a source class receives equal weight",
+        "distance": "Squared Euclidean",
+        "tie_rule": "First class in frozen EUR, EAS, AFR order",
+        "query_support": "The same frozen 10,000 query raw-path focal records as every competitor"
+      },
+      "implementation": "Create a new evaluator module and recipe with every above choice serialized and hashed before query truth access. Fit only reference observations and known source labels. Emit every prediction before opening held-out truth. Preserve native retrieval outputs and scores separately. Do not register the recipe as the original Table 1 PCA implementation.",
+      "assertions": [
+        "Changing query embeddings cannot change fitted reference mean, axes or centroids.",
+        "No query truth or query population ancestry labels reach fit().",
+        "A hand-constructed low-rank reference example verifies projection and tie behavior.",
+        "Predictions preserve the exact frozen raw-path registry, including equal truncated inputs."
+      ],
+      "claim": "Explicit reference-PCA10 and nearest-centroid study reconstruction. Original clustering, whitening/scaling, reference weighting and tie conventions are upstream-unavailable."
+    },
+    {
+      "id": "ARGformer_leaf_retaining_representation",
+      "status": "INACTIVE_OPTIONAL_NEW_STUDY",
+      "execution_enabled": false,
+      "author_source_modified": false,
+      "purpose": "Test the extant-node description separately from released ancestor-only inputs.",
+      "scientific_settings": {
+        "skip_extant_tokens": false,
+        "max_seq_len": 128,
+        "mlm_pooling": "first_node at input position 1 now denotes the extant node"
+      },
+      "implementation": "Use a new data/config/checkpoint identity and fresh full training. Re-tokenize the same full raw paths with the leaf retained, leaving space for only 125 ancestors. Record the changed truncation distribution and model inputs. Do not apply leaf-retaining extraction to an ancestor-only checkpoint and call it a paper reproduction.",
+      "claim": "Separate representation sensitivity. Paper and released inputs remain explicitly distinguished."
+    }
+  ],
+  "requirements_by_agreement_id": {
+    "AF02": [
+      "Original sample-unit/ploidy declaration",
+      "Original simulation seed and complete original generation script",
+      "Original sample/individual/haplotype roster"
+    ],
+    "AF03": [
+      "If changing our study, freeze a new mutation/discrete-genome/truth convention before generating data",
+      "Retain current same-parent shared observation and provenance"
+    ],
+    "AF04": [
+      "Original inferred tree artifact or exact tsinfer/tsdate versions, options, dating prior, seeds and sample-to-node bridge"
+    ],
+    "AF08": [
+      "Use the separate leaf-retaining variant only after protocol registration",
+      "Keep released ancestor-only inputs and checkpoint lineage unchanged"
+    ],
+    "AF09": [
+      "Use the separate literal-mask variant, preserving release-control collator",
+      "Declare validation corruption separately"
+    ],
+    "AF12": [
+      "Use the separate paper-default objective variant; preserve 0.30 release control"
+    ],
+    "AF13": [
+      "Supply the training-loader alias and fail on any weight-computation fallback",
+      "Verify exact inverse-frequency weights before the optimizer exists"
+    ],
+    "AF15": [
+      "Original biological label-generation source and original aligned reference training/validation roster",
+      "Continue excluding query ancestry truth from model inputs"
+    ],
+    "AF17": [
+      "Original checkpoint hashes, original training log and selection rule if claiming historical reproduction",
+      "Keep full-budget final checkpoints for the current release comparison"
+    ],
+    "AF19": [
+      "Original PCA centering/scaling, reference weighting, cluster algorithm, cluster-to-label mapping and tie policy",
+      "Until recovered, freeze the explicitly named study evaluator before implementation or scoring"
+    ],
+    "AF20": [
+      "Original LAI k and voting rule",
+      "Keep released k=1 route; real-data top-5 is a different paper-known task"
+    ],
+    "AF21": [
+      "Original 10,000-path sampler, seed and repeat-occurrence/coordinate/weighting rule",
+      "Keep our frozen first-occurrence midpoint registry unchanged"
+    ],
+    "AF22": [
+      "Original confusion counts, replicate structure and uncertainty procedure",
+      "Our study reports equal-parent sample SD and paired deltas with units"
+    ],
+    "AF23": [
+      "Real-data accession/tree hash and genomic interval",
+      "Exact cohort roster, haplotype/individual map and reference/query population mapping",
+      "Archaic phasing/inference provenance, full path/vocabulary statistics and source-group balancing recipe"
+    ],
+    "AF24": [
+      "Permutation count, randomization unit, null comparison and multiple-test rule",
+      "Ridge alpha, target extraction, probe split, permutation seeds and control specification",
+      "UMAP parameters/seeds and attention motif definitions/head-selection rule"
+    ],
+    "AF25": [
+      "Original environment/build or run logs if historical reproducibility is claimed",
+      "Preserve recovered historical environment and source hashes"
+    ],
+    "FL01": [
+      "Original Table 1 FLARE version and complete native command if claiming exact reproduction"
+    ],
+    "FL03": [
+      "Original Table 1 native model/EM/filter flags if claiming exact reproduction",
+      "Do not force gen=12 merely because the simulated pulse occurs at generation 12"
+    ],
+    "FL05": [
+      "Original marker-to-query-focal projection, edge and tie convention",
+      "Keep native unrounded hard calls and raw rounded posterior strings separate"
+    ],
+    "AF01": [
+      "Source-backed resolution recorded in the agreement matrix. No remediation or active change is required."
+    ],
+    "AF05": [
+      "Source-backed resolution recorded in the agreement matrix. No remediation or active change is required."
+    ],
+    "AF06": [
+      "Source-backed resolution recorded in the agreement matrix. No remediation or active change is required."
+    ],
+    "AF07": [
+      "Source-backed resolution recorded in the agreement matrix. No remediation or active change is required."
+    ],
+    "AF10": [
+      "Source-backed resolution recorded in the agreement matrix. No remediation or active change is required."
+    ],
+    "AF11": [
+      "Source-backed resolution recorded in the agreement matrix. No remediation or active change is required."
+    ],
+    "AF14": [
+      "Source-backed resolution recorded in the agreement matrix. No remediation or active change is required."
+    ],
+    "AF16": [
+      "Source-backed resolution recorded in the agreement matrix. No remediation or active change is required."
+    ],
+    "AF18": [
+      "Source-backed resolution recorded in the agreement matrix. No remediation or active change is required."
+    ],
+    "AF26": [
+      "Source-backed resolution recorded in the agreement matrix. No remediation or active change is required."
+    ],
+    "FL02": [
+      "Source-backed resolution recorded in the agreement matrix. No remediation or active change is required."
+    ],
+    "FL04": [
+      "Source-backed resolution recorded in the agreement matrix. No remediation or active change is required."
+    ]
+  },
+  "activation_preconditions": [
+    "A separate human or root-approved study protocol explicitly selects a variant.",
+    "Independent source review confirms exact code/configuration and complete shared support.",
+    "Scientific registration, source pins, finite resource admission and fresh namespaces precede execution.",
+    "Predictions are sealed before external truth; no tuning on TEST or retrospective support changes.",
+    "Original author pins, active jobs, historical outputs and current comparison settings remain unchanged."
+  ]
+}

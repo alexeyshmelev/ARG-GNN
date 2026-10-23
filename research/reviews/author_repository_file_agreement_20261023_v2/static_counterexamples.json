@@ -1,0 +1,143 @@
+{
+  "schema": "static_logical_counterexamples_v2",
+  "author_code_executed": false,
+  "gpu_used": false,
+  "scientific_results": false,
+  "scope": "Standard-library arithmetic illustrations of traced source semantics. Not execution of the author implementation or a measurement of benchmark impact.",
+  "ARGMix_attention": {
+    "source": "src/tmrca_attn.py:111-114",
+    "keys": [
+      1.0,
+      3.0
+    ],
+    "key_distance_embeddings": [
+      1.0,
+      2.0
+    ],
+    "distance_indices": [
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        0
+      ]
+    ],
+    "content_and_query_terms": "Held at zero for the illustrated query row.",
+    "scale": 1.0,
+    "released_key_term": [
+      [
+        1.0,
+        2.0
+      ],
+      [
+        3.0,
+        3.0
+      ]
+    ],
+    "paper_key_term": [
+      [
+        1.0,
+        6.0
+      ],
+      [
+        1.0,
+        3.0
+      ]
+    ],
+    "released_row0_softmax": [
+      0.2689414213699951,
+      0.7310585786300049
+    ],
+    "paper_row0_softmax": [
+      0.006692850924284856,
+      0.9933071490757153
+    ],
+    "conclusion": "The difference is not generally a row-constant and does not cancel under softmax.",
+    "asymmetric_distance_preserved": true,
+    "transposed_gather_then_restore": [
+      [
+        1.0,
+        6.0
+      ],
+      [
+        1.0,
+        3.0
+      ]
+    ],
+    "proposed_indexing_matches_equation_on_asymmetric_example": true
+  },
+  "ARGMix_linear_cast": {
+    "source": "src/rust/ancpath/src/fast_lca/engine.rs:827-835",
+    "maximum": 1000,
+    "cases": [
+      {
+        "absolute_time_difference": 0,
+        "release_integer_to_u16_then_min": 0,
+        "clip_before_integer_to_u16": 0
+      },
+      {
+        "absolute_time_difference": 999,
+        "release_integer_to_u16_then_min": 999,
+        "clip_before_integer_to_u16": 999
+      },
+      {
+        "absolute_time_difference": 1000,
+        "release_integer_to_u16_then_min": 1000,
+        "clip_before_integer_to_u16": 1000
+      },
+      {
+        "absolute_time_difference": 65535,
+        "release_integer_to_u16_then_min": 1000,
+        "clip_before_integer_to_u16": 1000
+      },
+      {
+        "absolute_time_difference": 65536,
+        "release_integer_to_u16_then_min": 0,
+        "clip_before_integer_to_u16": 1000
+      },
+      {
+        "absolute_time_difference": 65537,
+        "release_integer_to_u16_then_min": 1,
+        "clip_before_integer_to_u16": 1000
+      },
+      {
+        "absolute_time_difference": 131072,
+        "release_integer_to_u16_then_min": 0,
+        "clip_before_integer_to_u16": 1000
+      }
+    ],
+    "conclusion": "An integer narrowing cast before the cap wraps large distances. These illustrations do not establish how often affected times occur in a benchmark."
+  },
+  "inactive_patch_applicability": [
+    {
+      "command": [
+        "git",
+        "apply",
+        "--check",
+        "--directory=.runtime/author_sources/argmix_c2481248eb0d",
+        "research/reviews/author_repository_file_agreement_20261023_v2/argmix/attention_key_j.inactive.patch"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "",
+      "patch_sha256": "2dbe0464f24c55485535b424acddc7260aef8d0a62f58a1157bd54193e3f4f2f",
+      "applied": false
+    },
+    {
+      "command": [
+        "git",
+        "apply",
+        "--check",
+        "--directory=.runtime/author_sources/argmix_c2481248eb0d",
+        "research/reviews/author_repository_file_agreement_20261023_v2/argmix/fast_linear_clamp.inactive.patch"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "",
+      "patch_sha256": "4e9f1e76a60d25eeba486a705652c88e562c05b55c04d0ebfbcbaf9f8408347d",
+      "applied": false
+    }
+  ]
+}

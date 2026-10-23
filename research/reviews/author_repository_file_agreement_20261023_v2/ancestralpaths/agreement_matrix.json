@@ -1,0 +1,1267 @@
+{
+  "schema": "AncestralPaths_paper_author_project_agreement_v2",
+  "status_meaning": {
+    "resolved": "Evidence resolves definition or confirms behavior; not numerical validation",
+    "conflict": "Direct evidence disagrees and is retained explicitly",
+    "explicit-choice": "A disclosed new-run choice, not exact original recipe",
+    "upstream-unavailable": "Bounded searched source does not supply complete material"
+  },
+  "rows": [
+    {
+      "id": "AP01",
+      "status": "resolved",
+      "topic": "Historical convolutional classifier exists",
+      "paper_evidence": [
+        {
+          "id": "CNN",
+          "source": ".runtime/author_sources/ancestralpaths_supplement_41586_2023_6705_MOESM1_ESM.txt",
+          "sha256": "f4d21b9b08ead8f4f9a25ba6510123ff91d1f83005a46d8839b0feb87c839b7d",
+          "start_line_splitlines": 999,
+          "end_line_splitlines": 1004,
+          "quote": "implemented supervised machine learning, specifically a convolutional neural network. First\nwe simulate variant and tree sequence data from a demographic model of the history of the\npopulations under analysis, such as our model of European population structure. Next we\ninfer RELATE tree sequences from the simulated genotype data. We then extract training\nGNNs from the RELATE trees and train a neural network to predict the path given the true\npath label extracted from the corresponding simulated tree sequences. By training on GNNs"
+        }
+      ],
+      "code_evidence": [
+        {
+          "path": "research/reviews/author_repository_deep_audit_20261023_v1/ancestralpaths/history_source/previous_training.py",
+          "sha256": "fc90bb333e3589f3e4f76098dfc591222de1e40c7382a3f367e876270393b4eb",
+          "start_line": 199,
+          "end_line": 213
+        },
+        {
+          "path": ".runtime/author_sources/ancestralpaths_77db3cfae100/training.py",
+          "sha256": "13b4f30ab0df75fc461b764ae2cdbd1fdc071ff45200e6401e84faa565508e4f",
+          "start_line": 168,
+          "end_line": 179
+        }
+      ],
+      "author_source": "CNN at e6f5 and earlier; head replaces it with Dense512/dropout.",
+      "maintained_project": "Maintained original Dense condition is correctly labeled released Dense, but recipe still says CNN architecture not recovered.",
+      "resolution": "Correct missing-CNN provenance in future inactive metadata amendment. Preserve current Dense condition and all results; add a separately named historical CNN condition.",
+      "execution_authorized": false
+    },
+    {
+      "id": "AP02",
+      "status": "resolved",
+      "topic": "CNN channel and Flatten ordering",
+      "paper_evidence": [
+        {
+          "id": "features",
+          "source": ".runtime/author_sources/ancestralpaths_supplement_41586_2023_6705_MOESM1_ESM.txt",
+          "sha256": "f4d21b9b08ead8f4f9a25ba6510123ff91d1f83005a46d8839b0feb87c839b7d",
+          "start_line_splitlines": 1009,
+          "end_line_splitlines": 1020,
+          "quote": "Training data for the network is the set of GNN distributions for the first five informative\nnodes traversed towards the root extracted from the RELATE inferred trees. The GNN\ndistributions are configured as a 5 x n matrix, one row per 5 informative nodes examined.\n\n                                                                                               31\n\nColumns 1–n contain the proportions, between 0 and 1, of leaves belonging to each of n\nancient sampled groups and column n +1 contains the age of the node. Informative nodes\nare those that have at least one leaf from the set of ancient sampled groups. If the root of the\ntree is reached in less than five informative nodes, then the remaining rows of the matrix are\nfilled with −15 as ‘padding’. The training labels signify the path extracted from the\ncorresponding simulated tree sequences (determined simply using tskit)."
+        }
+      ],
+      "code_evidence": [
+        {
+          "path": "research/reviews/author_repository_deep_audit_20261023_v1/ancestralpaths/history_source/previous_training.py",
+          "sha256": "fc90bb333e3589f3e4f76098dfc591222de1e40c7382a3f367e876270393b4eb",
+          "start_line": 23,
+          "end_line": 26
+        },
+        {
+          "path": "research/reviews/author_repository_deep_audit_20261023_v1/ancestralpaths/history_source/previous_training.py",
+          "sha256": "fc90bb333e3589f3e4f76098dfc591222de1e40c7382a3f367e876270393b4eb",
+          "start_line": 199,
+          "end_line": 208
+        },
+        {
+          "path": "research/reviews/author_repository_file_agreement_20261023_v2/ancestralpaths/keras_2_3_1_core.py",
+          "sha256": "1a3d511c74ac93dc2dd6253f738c8cd7bbf226374bdf22c82582ff8268d47db0",
+          "start_line": 462,
+          "end_line": 521
+        },
+        {
+          "path": "research/reviews/author_repository_deep_audit_20261023_v1/ancestralpaths/historical_checkpoint_hdf5_metadata.json",
+          "sha256": "a4b856d91a2cb98d3d7029c4c70b3dffb3e5fa235d77575b5298039091625f13"
+        }
+      ],
+      "author_source": "Input N,1,5,9; Conv output N,32,1,9; Keras2.3.1 Flatten permutes to N,1,9,32 before flatten, feature-position-major/filter-minor.",
+      "maintained_project": "Current Dense accepts N,5,9 and cannot consume the historical CNN checkpoint.",
+      "resolution": "Inactive CNN must preserve Conv channels_first and exact Flatten permutation. Never substitute naive NCHW reshape or channels-last interpretation.",
+      "execution_authorized": false
+    },
+    {
+      "id": "AP03",
+      "status": "resolved",
+      "topic": "Checkpoint topology and parameter count",
+      "paper_evidence": [
+        {
+          "id": "CNN",
+          "source": ".runtime/author_sources/ancestralpaths_supplement_41586_2023_6705_MOESM1_ESM.txt",
+          "sha256": "f4d21b9b08ead8f4f9a25ba6510123ff91d1f83005a46d8839b0feb87c839b7d",
+          "start_line_splitlines": 999,
+          "end_line_splitlines": 1004,
+          "quote": "implemented supervised machine learning, specifically a convolutional neural network. First\nwe simulate variant and tree sequence data from a demographic model of the history of the\npopulations under analysis, such as our model of European population structure. Next we\ninfer RELATE tree sequences from the simulated genotype data. We then extract training\nGNNs from the RELATE trees and train a neural network to predict the path given the true\npath label extracted from the corresponding simulated tree sequences. By training on GNNs"
+        }
+      ],
+      "code_evidence": [
+        {
+          "path": "research/reviews/author_repository_deep_audit_20261023_v1/ancestralpaths/historical_checkpoint_hdf5_metadata.json",
+          "sha256": "a4b856d91a2cb98d3d7029c4c70b3dffb3e5fa235d77575b5298039091625f13"
+        }
+      ],
+      "author_source": "HDF5 metadata confirms Keras2.3.1/TensorFlow, kernel5x1x1x32, Dense288x64 and64x6, biases32/64/6, total19078.",
+      "maintained_project": "Dense condition has26630 parameters.",
+      "resolution": "Use checkpoint only as topology/configuration evidence. No numerical weight data or optimizer value was read; no paper-trained identity/performance inferred.",
+      "execution_authorized": false
+    },
+    {
+      "id": "AP04",
+      "status": "explicit-choice",
+      "topic": "Optimizer, initialization and fit semantics",
+      "paper_evidence": [
+        {
+          "id": "CNN",
+          "source": ".runtime/author_sources/ancestralpaths_supplement_41586_2023_6705_MOESM1_ESM.txt",
+          "sha256": "f4d21b9b08ead8f4f9a25ba6510123ff91d1f83005a46d8839b0feb87c839b7d",
+          "start_line_splitlines": 999,
+          "end_line_splitlines": 1004,
+          "quote": "implemented supervised machine learning, specifically a convolutional neural network. First\nwe simulate variant and tree sequence data from a demographic model of the history of the\npopulations under analysis, such as our model of European population structure. Next we\ninfer RELATE tree sequences from the simulated genotype data. We then extract training\nGNNs from the RELATE trees and train a neural network to predict the path given the true\npath label extracted from the corresponding simulated tree sequences. By training on GNNs"
+        }
+      ],
+      "code_evidence": [
+        {
+          "path": "research/reviews/author_repository_deep_audit_20261023_v1/ancestralpaths/history_source/previous_training.py",
+          "sha256": "fc90bb333e3589f3e4f76098dfc591222de1e40c7382a3f367e876270393b4eb",
+          "start_line": 203,
+          "end_line": 213
+        },
+        {
+          "path": "research/reviews/author_repository_deep_audit_20261023_v1/ancestralpaths/historical_checkpoint_hdf5_metadata.json",
+          "sha256": "a4b856d91a2cb98d3d7029c4c70b3dffb3e5fa235d77575b5298039091625f13"
+        },
+        {
+          "path": "src/arggnn/benchmarking/european_native_models.py",
+          "sha256": "24be8a3d95cfa52ee3fb437afdc8ab7fdc7d432ee81680018170e4ddb50385e6",
+          "start_line": 251,
+          "end_line": 271
+        }
+      ],
+      "author_source": "Adam lr0.001,beta1.9,beta2.999,epsilon1e-7,decay0,amsgradfalse; Glorot uniform and zero biases from metadata; batch30/five epochs, fresh fit and final save. No seed/validation selection specified.",
+      "maintained_project": "Dense uses TF2.15.1/Keras2.15, batch32, five epochs, seed, final checkpoint and7815 updates on50000 rows.",
+      "resolution": "Inactive CNN specification fixes recovered Adam settings and batch30, uses fresh predeclared seed and fresh state on same50000 rows, expected8335 updates. Runtime and optimizer semantic equivalence require later qualification, not assumed by matching names.",
+      "execution_authorized": false
+    },
+    {
+      "id": "AP05",
+      "status": "upstream-unavailable",
+      "topic": "Exact paper commit/data/checkpoint/run association",
+      "paper_evidence": [
+        {
+          "id": "train_parents",
+          "source": ".runtime/author_sources/ancestralpaths_supplement_41586_2023_6705_MOESM1_ESM.txt",
+          "sha256": "f4d21b9b08ead8f4f9a25ba6510123ff91d1f83005a46d8839b0feb87c839b7d",
+          "start_line_splitlines": 1034,
+          "end_line_splitlines": 1037,
+          "quote": "We simulated three 200Mbp tree sequences from our model of European population\nstructure, using different random seeds. RELATE tree sequences were inferred from the\ncorresponding simulated VCF files. Default parameters for RELATE were used; 1.25e-8\nmutation rate and starting population size estimate of haplotypes of 30,000."
+        },
+        {
+          "id": "test_counts",
+          "source": ".runtime/author_sources/ancestralpaths_supplement_41586_2023_6705_MOESM1_ESM.txt",
+          "sha256": "f4d21b9b08ead8f4f9a25ba6510123ff91d1f83005a46d8839b0feb87c839b7d",
+          "start_line_splitlines": 1047,
+          "end_line_splitlines": 1049,
+          "quote": "For testing, we generated five more simulated and RELATE inferred pairs of tree sequences\nand tested the classifier on 10,000 GNNs from each to obtain a mean accuracy of 93.12%\nwith a standard deviation of 0.29% across the five tree sequences."
+        }
+      ],
+      "code_evidence": [
+        {
+          "path": "research/reviews/author_repository_deep_audit_20261023_v1/ancestralpaths/primary_commits.json",
+          "sha256": "361ace59288bf8da75d81e3bbc021aba15b36f561b73852939707fb5025de6c9"
+        },
+        {
+          "path": "research/reviews/author_repository_deep_audit_20261023_v1/ancestralpaths/historical_checkpoint_hdf5_metadata.json",
+          "sha256": "a4b856d91a2cb98d3d7029c4c70b3dffb3e5fa235d77575b5298039091625f13"
+        }
+      ],
+      "author_source": "27 visible commits, one current branch/accepted archive, historical checkpoint and example data known; no run manifest binds them to paper93.12 or94.6 cells.",
+      "maintained_project": "New-seed comparison does not require original random draws, but cannot claim exact old table reproduction.",
+      "resolution": "Retain this provenance limit. Request an author manifest if exact-paper-result replication is needed; otherwise name new runs explicitly.",
+      "execution_authorized": false
+    },
+    {
+      "id": "AP06",
+      "status": "conflict",
+      "topic": "Simulation scale and early200Mb runner",
+      "paper_evidence": [
+        {
+          "id": "sequence",
+          "source": ".runtime/author_sources/ancestralpaths_supplement_41586_2023_6705_MOESM1_ESM.txt",
+          "sha256": "f4d21b9b08ead8f4f9a25ba6510123ff91d1f83005a46d8839b0feb87c839b7d",
+          "start_line_splitlines": 912,
+          "end_line_splitlines": 917,
+          "quote": "tree sequence files. We simulated chromosomes of length 200 Mbp with a recombination\nrate of 1e-8 per bp per generation and neutral mutations dropped onto the branches at a rate\nof 1.25e-8 per bp per generation. It is also possible to simulate using a real human\nchromosome recombination map in which case the sequence length is given by the file and a\nvariable recombination rate across the sequence is applied. To manipulate and examine\ntrees in tree sequence files we use the tskit python API."
+        },
+        {
+          "id": "train_parents",
+          "source": ".runtime/author_sources/ancestralpaths_supplement_41586_2023_6705_MOESM1_ESM.txt",
+          "sha256": "f4d21b9b08ead8f4f9a25ba6510123ff91d1f83005a46d8839b0feb87c839b7d",
+          "start_line_splitlines": 1034,
+          "end_line_splitlines": 1037,
+          "quote": "We simulated three 200Mbp tree sequences from our model of European population\nstructure, using different random seeds. RELATE tree sequences were inferred from the\ncorresponding simulated VCF files. Default parameters for RELATE were used; 1.25e-8\nmutation rate and starting population size estimate of haplotypes of 30,000."
+        }
+      ],
+      "code_evidence": [
+        {
+          "path": ".runtime/author_sources/ancestralpaths_77db3cfae100/simulate.py",
+          "sha256": "4ae51e2af2a7cc16393d2611d6745e47f63ed37d12c15631456abc135e6cd969",
+          "start_line": 119,
+          "end_line": 129
+        },
+        {
+          "path": "research/reviews/author_repository_file_agreement_20261023_v2/ancestralpaths/reconstructed_history/a33d008228a4bc5054119fc467833012f307441d1f895e67be7420cb536f9fe4/simulate.py",
+          "sha256": "a33d008228a4bc5054119fc467833012f307441d1f895e67be7420cb536f9fe4"
+        }
+      ],
+      "author_source": "Accepted/CNN-era simulator has ten2Mb parents. Oct3 simulator has three200Mb but uses undefined args.ts despite only-out/-ages parser and still mismatches five-TRAIN runner.",
+      "maintained_project": "Configured producer uses three independent200Mb TRAIN and five independent200Mb test parents.",
+      "resolution": "Treat200Mb/common-parent generation as paper-scale reconstruction, not an untouched execution of a coherent historical script.",
+      "execution_authorized": false
+    },
+    {
+      "id": "AP07",
+      "status": "explicit-choice",
+      "topic": "Native label-capped sampler versus paper counts",
+      "paper_evidence": [
+        {
+          "id": "training_counts",
+          "source": ".runtime/author_sources/ancestralpaths_supplement_41586_2023_6705_MOESM1_ESM.txt",
+          "sha256": "f4d21b9b08ead8f4f9a25ba6510123ff91d1f83005a46d8839b0feb87c839b7d",
+          "start_line_splitlines": 1039,
+          "end_line_splitlines": 1045,
+          "quote": "We extracted 10,000 training pairs of GNNs and true labels from each of the five admixed\nsample populations (GBR, Bronze Age, Yamnaya, Neolithic farmers and Bronze Age\nanatolians), 50,000 pairs in total. GNNs were taken from the trees covering evenly spaced\nsites across three tree sequences output from RELATE, avoiding most of the correlation\nbetween trees. True path labels were taken from the trees covering the same sites in the\ncorresponding simulated tree sequences. We trained the classifier to predict the path labels\nfrom the GNNs."
+        },
+        {
+          "id": "test_counts",
+          "source": ".runtime/author_sources/ancestralpaths_supplement_41586_2023_6705_MOESM1_ESM.txt",
+          "sha256": "f4d21b9b08ead8f4f9a25ba6510123ff91d1f83005a46d8839b0feb87c839b7d",
+          "start_line_splitlines": 1047,
+          "end_line_splitlines": 1049,
+          "quote": "For testing, we generated five more simulated and RELATE inferred pairs of tree sequences\nand tested the classifier on 10,000 GNNs from each to obtain a mean accuracy of 93.12%\nwith a standard deviation of 0.29% across the five tree sequences."
+        }
+      ],
+      "code_evidence": [
+        {
+          "path": "research/reviews/author_repository_deep_audit_20261023_v1/ancestralpaths/history_source/previous_training.py",
+          "sha256": "fc90bb333e3589f3e4f76098dfc591222de1e40c7382a3f367e876270393b4eb",
+          "start_line": 78,
+          "end_line": 101
+        },
+        {
+          "path": "research/reviews/author_repository_deep_audit_20261023_v1/ancestralpaths/history_source/previous_training.py",
+          "sha256": "fc90bb333e3589f3e4f76098dfc591222de1e40c7382a3f367e876270393b4eb",
+          "start_line": 110,
+          "end_line": 189
+        },
+        {
+          "path": ".runtime/author_sources/ancestralpaths_77db3cfae100/testing_bygroup.py",
+          "sha256": "3c129d9a24695a1ecc31c2c903af2a86a4ade2dddaffd62b9c8d1fa8ae37a1bf",
+          "start_line": 95,
+          "end_line": 120
+        },
+        {
+          "path": "src/arggnn/benchmarking/european_sampling.py",
+          "sha256": "75059d3ce21fa5d11a1535c5d69ded37e8aa594f7037156ac5f94bae3980d309",
+          "start_line": 25,
+          "end_line": 50
+        },
+        {
+          "path": "src/arggnn/benchmarking/european_sampling.py",
+          "sha256": "75059d3ce21fa5d11a1535c5d69ded37e8aa594f7037156ac5f94bae3980d309",
+          "start_line": 99,
+          "end_line": 137
+        }
+      ],
+      "author_source": "Historical five-TRAIN812500 rows; accepted three-TRAIN487500 rows. Test250000 rows,10000 per cohort per parent. Source modulo site-id stride and label caps may revisit examples, step can be0 or fractional and no pass bound exists.",
+      "maintained_project": "Frozen observation-only paper plan50000TRAIN total,10000 per cohort;10000 totalTEST per parent,2000 per cohort. SNP-rank bin midpoints and deterministic cohort permutation disclosed, no truth-conditioned caps.",
+      "resolution": "Keep shared plan and all frozen rows. Historical sampler fidelity and paper-count fidelity are separate possible conditions; never silently restore caps/reweighting or treat them as equivalent.",
+      "execution_authorized": false
+    },
+    {
+      "id": "AP08",
+      "status": "resolved",
+      "topic": "Parent split history",
+      "paper_evidence": [
+        {
+          "id": "train_parents",
+          "source": ".runtime/author_sources/ancestralpaths_supplement_41586_2023_6705_MOESM1_ESM.txt",
+          "sha256": "f4d21b9b08ead8f4f9a25ba6510123ff91d1f83005a46d8839b0feb87c839b7d",
+          "start_line_splitlines": 1034,
+          "end_line_splitlines": 1037,
+          "quote": "We simulated three 200Mbp tree sequences from our model of European population\nstructure, using different random seeds. RELATE tree sequences were inferred from the\ncorresponding simulated VCF files. Default parameters for RELATE were used; 1.25e-8\nmutation rate and starting population size estimate of haplotypes of 30,000."
+        },
+        {
+          "id": "test_counts",
+          "source": ".runtime/author_sources/ancestralpaths_supplement_41586_2023_6705_MOESM1_ESM.txt",
+          "sha256": "f4d21b9b08ead8f4f9a25ba6510123ff91d1f83005a46d8839b0feb87c839b7d",
+          "start_line_splitlines": 1047,
+          "end_line_splitlines": 1049,
+          "quote": "For testing, we generated five more simulated and RELATE inferred pairs of tree sequences\nand tested the classifier on 10,000 GNNs from each to obtain a mean accuracy of 93.12%\nwith a standard deviation of 0.29% across the five tree sequences."
+        }
+      ],
+      "code_evidence": [
+        {
+          "path": "research/reviews/author_repository_deep_audit_20261023_v1/ancestralpaths/history_source/previous_training.py",
+          "sha256": "fc90bb333e3589f3e4f76098dfc591222de1e40c7382a3f367e876270393b4eb",
+          "start_line": 78,
+          "end_line": 92
+        },
+        {
+          "path": ".runtime/author_sources/ancestralpaths_77db3cfae100/training.py",
+          "sha256": "13b4f30ab0df75fc461b764ae2cdbd1fdc071ff45200e6401e84faa565508e4f",
+          "start_line": 29,
+          "end_line": 44
+        },
+        {
+          "path": ".runtime/author_sources/ancestralpaths_77db3cfae100/testing_bygroup.py",
+          "sha256": "3c129d9a24695a1ecc31c2c903af2a86a4ade2dddaffd62b9c8d1fa8ae37a1bf",
+          "start_line": 95,
+          "end_line": 101
+        },
+        {
+          "path": "src/arggnn/benchmarking/european_sampling.py",
+          "sha256": "75059d3ce21fa5d11a1535c5d69ded37e8aa594f7037156ac5f94bae3980d309",
+          "start_line": 25,
+          "end_line": 44
+        }
+      ],
+      "author_source": "CNN TRAIN0-4 and TEST5-9 disjoint. Accepted TRAIN3,5,6 overlaps TEST5,6.",
+      "maintained_project": "Maintained shared plan enforces three+five distinct parent IDs.",
+      "resolution": "Preserve independent frozen parents for both Dense and inactive CNN; no historical overlap copied into new data.",
+      "execution_authorized": false
+    },
+    {
+      "id": "AP09",
+      "status": "resolved",
+      "topic": "Six labels are source-derived and query-conditional",
+      "paper_evidence": [
+        {
+          "id": "features",
+          "source": ".runtime/author_sources/ancestralpaths_supplement_41586_2023_6705_MOESM1_ESM.txt",
+          "sha256": "f4d21b9b08ead8f4f9a25ba6510123ff91d1f83005a46d8839b0feb87c839b7d",
+          "start_line_splitlines": 1009,
+          "end_line_splitlines": 1020,
+          "quote": "Training data for the network is the set of GNN distributions for the first five informative\nnodes traversed towards the root extracted from the RELATE inferred trees. The GNN\ndistributions are configured as a 5 x n matrix, one row per 5 informative nodes examined.\n\n                                                                                               31\n\nColumns 1–n contain the proportions, between 0 and 1, of leaves belonging to each of n\nancient sampled groups and column n +1 contains the age of the node. Informative nodes\nare those that have at least one leaf from the set of ancient sampled groups. If the root of the\ntree is reached in less than five informative nodes, then the remaining rows of the matrix are\nfilled with −15 as ‘padding’. The training labels signify the path extracted from the\ncorresponding simulated tree sequences (determined simply using tskit)."
+        },
+        {
+          "id": "BAA_exclusion",
+          "source": ".runtime/author_sources/ancestralpaths_supplement_41586_2023_6705_MOESM1_ESM.txt",
+          "sha256": "f4d21b9b08ead8f4f9a25ba6510123ff91d1f83005a46d8839b0feb87c839b7d",
+          "start_line_splitlines": 75,
+          "end_line_splitlines": 96,
+          "quote": "    3.1 Excluding Bronze Age Anatolians                                    43\n\n    3.2 Conditions affecting classifier performance                        44\n\n    3.3 Testing model misspecification                                     52\n\n    3.4 A method to estimate time since admixture                          58\n\n  References                                                               68\n4) Estimating allele frequency trajectories of trait-associated variants   72\n\n  Introduction                                                             72\n  Methods                                                                  73\n    SNP Ascertainment                                                      73\n\n    1000G ARG                                                              74\n\n    Modifications to CLUES                                                 74\n\n    Selection Analysis                                                     75\n\n  Results                                                                  80"
+        }
+      ],
+      "code_evidence": [
+        {
+          "path": ".runtime/author_sources/ancestralpaths_77db3cfae100/simulate.py",
+          "sha256": "4ae51e2af2a7cc16393d2611d6745e47f63ed37d12c15631456abc135e6cd969",
+          "start_line": 60,
+          "end_line": 80
+        },
+        {
+          "path": "research/reviews/author_repository_deep_audit_20261023_v1/ancestralpaths/history_source/previous_training.py",
+          "sha256": "fc90bb333e3589f3e4f76098dfc591222de1e40c7382a3f367e876270393b4eb",
+          "start_line": 121,
+          "end_line": 147
+        },
+        {
+          "path": "src/arggnn/ancestralpaths_native_bridge.py",
+          "sha256": "fb69904e3004ca7de6f16736e542949fb1b3695edb104cdf601187a7f8d33f2c",
+          "start_line": 393,
+          "end_line": 409
+        }
+      ],
+      "author_source": "1Ana_nonBAA,2CHG_nonBAA,3WHG,4EHG,5Ana_viaBAA,6CHG_viaBAA; census350 and group identity define BAA labels.",
+      "maintained_project": "Bridge derives/checks the same ontology; pure references are not evaluated as inferred queries.",
+      "resolution": "Retain all six labels and observed cohort identity. Source truth remains external supervision, never an inference feature.",
+      "execution_authorized": false
+    },
+    {
+      "id": "AP10",
+      "status": "resolved",
+      "topic": "Roster, cohort counts, sample ages and order",
+      "paper_evidence": [
+        {
+          "id": "roster",
+          "source": ".runtime/author_sources/ancestralpaths_supplement_41586_2023_6705_MOESM1_ESM.txt",
+          "sha256": "f4d21b9b08ead8f4f9a25ba6510123ff91d1f83005a46d8839b0feb87c839b7d",
+          "start_line_splitlines": 896,
+          "end_line_splitlines": 903,
+          "quote": "For our analysis of the time since admixture (see below), we chose 476 diploid individuals\n(952 haploid) including 91 GBR 1000 Genomes samples. During simulation, samples were\n                                                                                              27\n\ntaken from populations and times to match each real diploid sample, using their radiocarbon\nor context dates. We aimed to create a simulated dataset that closely matched our MesoNeo\nsubset genetically.\n"
+        }
+      ],
+      "code_evidence": [
+        {
+          "path": ".runtime/author_sources/ancestralpaths_77db3cfae100/simulate.py",
+          "sha256": "4ae51e2af2a7cc16393d2611d6745e47f63ed37d12c15631456abc135e6cd969",
+          "start_line": 82,
+          "end_line": 145
+        },
+        {
+          "path": ".runtime/author_sources/ancestralpaths_77db3cfae100/example/mesoneo_ages_pop.txt",
+          "sha256": "3cadb16abbc0a1913eadb183d324eadc26c035d61e5116cd58675f52a942b7de",
+          "start_line": 1,
+          "end_line": 476
+        },
+        {
+          "path": "research/reviews/author_repository_file_agreement_20261023_v2/ancestralpaths/historical_data_checks.json",
+          "sha256": "7d696460b525cc622a156e63e0255b86293e55edac63ffc7bf07302aae62257b"
+        }
+      ],
+      "author_source": "476 diploids:91GBR,81BronzeAge,7BAA,151Neo,13Yam,51WHG,43EHG,25Ana,14CHG. Simulator concatenates in that order, unlike physical roster rows.",
+      "maintained_project": "952 observed haplotypes,686 query and266 pure reference; name/phase joins guard identity.",
+      "resolution": "Named historical roster recovers476 public subject-ID leads and matches all ages/cohorts. All952 historical example ages/all476poplabels join correctly. These IDs still do not certify exact empirical QC/genotype artifact identity.",
+      "execution_authorized": false
+    },
+    {
+      "id": "AP11",
+      "status": "explicit-choice",
+      "topic": "BAA169 versus170 and time units",
+      "paper_evidence": [
+        {
+          "id": "BAA_time",
+          "source": ".runtime/author_sources/ancestralpaths_supplement_41586_2023_6705_MOESM1_ESM.txt",
+          "sha256": "f4d21b9b08ead8f4f9a25ba6510123ff91d1f83005a46d8839b0feb87c839b7d",
+          "start_line_splitlines": 834,
+          "end_line_splitlines": 836,
+          "quote": "Anatolian population formed from an admixture of CHGs with Ana −5,100 years ago (170\ngenerations ago). Around the start of the Bronze Age −4,900 years ago (166 generations\nago), migrants with Yam ancestry moved west into Europe and had a profound impact on the"
+        }
+      ],
+      "code_evidence": [
+        {
+          "path": ".runtime/author_sources/ancestralpaths_77db3cfae100/simulate.py",
+          "sha256": "4ae51e2af2a7cc16393d2611d6745e47f63ed37d12c15631456abc135e6cd969",
+          "start_line": 50,
+          "end_line": 80
+        },
+        {
+          "path": "research/reviews/author_repository_file_agreement_20261023_v2/ancestralpaths/reconstructed_history/3b6f102cf07a49f7a30ff196430806bf30f357967782e1874a11a41458cf0998/example/test.yaml",
+          "sha256": "3b6f102cf07a49f7a30ff196430806bf30f357967782e1874a11a41458cf0998"
+        },
+        {
+          "path": "configs/benchmarks/recipes/ancestralpaths_european.json",
+          "sha256": "981cd9d45d87fab743d88e8dfacfce4f5b72d5835c0f5a0f031e5c9a40a41f46"
+        }
+      ],
+      "author_source": "Max BAA age168+1 gives169; YAML confirms169, schematic and supplement say170. NE/WA split1500 generations conflicts with prose15000years parenthetical.",
+      "maintained_project": "Recipe explicitly chooses paper BAA170, remaining released graph and1500 generations.",
+      "resolution": "Preserve the documented paper-precedence choice in shared frozen data, and report it for both classifiers. Never replace frozen parents merely to make this audit match source169.",
+      "execution_authorized": false
+    },
+    {
+      "id": "AP12",
+      "status": "resolved",
+      "topic": "Ordered shells, feature order and padding",
+      "paper_evidence": [
+        {
+          "id": "features",
+          "source": ".runtime/author_sources/ancestralpaths_supplement_41586_2023_6705_MOESM1_ESM.txt",
+          "sha256": "f4d21b9b08ead8f4f9a25ba6510123ff91d1f83005a46d8839b0feb87c839b7d",
+          "start_line_splitlines": 1009,
+          "end_line_splitlines": 1020,
+          "quote": "Training data for the network is the set of GNN distributions for the first five informative\nnodes traversed towards the root extracted from the RELATE inferred trees. The GNN\ndistributions are configured as a 5 x n matrix, one row per 5 informative nodes examined.\n\n                                                                                               31\n\nColumns 1–n contain the proportions, between 0 and 1, of leaves belonging to each of n\nancient sampled groups and column n +1 contains the age of the node. Informative nodes\nare those that have at least one leaf from the set of ancient sampled groups. If the root of the\ntree is reached in less than five informative nodes, then the remaining rows of the matrix are\nfilled with −15 as ‘padding’. The training labels signify the path extracted from the\ncorresponding simulated tree sequences (determined simply using tskit)."
+        }
+      ],
+      "code_evidence": [
+        {
+          "path": "research/reviews/author_repository_deep_audit_20261023_v1/ancestralpaths/history_source/previous_training.py",
+          "sha256": "fc90bb333e3589f3e4f76098dfc591222de1e40c7382a3f367e876270393b4eb",
+          "start_line": 149,
+          "end_line": 177
+        },
+        {
+          "path": "src/arggnn/ancestralpaths_native_bridge.py",
+          "sha256": "fb69904e3004ca7de6f16736e542949fb1b3695edb104cdf601187a7f8d33f2c",
+          "start_line": 254,
+          "end_line": 299
+        },
+        {
+          "path": "src/arggnn/benchmarking/european_execution.py",
+          "sha256": "1f14ac6b23c3ed37b0564b7352fb5e5542538692e42afeceb03ea8f009ca5039",
+          "start_line": 186,
+          "end_line": 234
+        },
+        {
+          "path": "src/arggnn/benchmarking/european_native_models.py",
+          "sha256": "24be8a3d95cfa52ee3fb437afdc8ab7fdc7d432ee81680018170e4ddb50385e6",
+          "start_line": 127,
+          "end_line": 174
+        }
+      ],
+      "author_source": "Eight ancient-group proportions ordered BronzeAge,BAA,Yam,Neo,WHG,EHG,Ana,CHG plus int(age)/1500, five informative ancestors, unseen-leaf shells, skip empty nodes,-15 remainder.",
+      "maintained_project": "Maintained feature path calls bridge with training_int and float64 repeated addition, then casts final input float32 for Keras.",
+      "resolution": "Native training/test arithmetic agrees. This is a feature classifier over inferred trees, not a graph convolution. Keep same frozen feature rows for Dense and CNN.",
+      "execution_authorized": false
+    },
+    {
+      "id": "AP13",
+      "status": "resolved",
+      "topic": "Ancient focal self-inclusion is preserved",
+      "paper_evidence": [
+        {
+          "id": "features",
+          "source": ".runtime/author_sources/ancestralpaths_supplement_41586_2023_6705_MOESM1_ESM.txt",
+          "sha256": "f4d21b9b08ead8f4f9a25ba6510123ff91d1f83005a46d8839b0feb87c839b7d",
+          "start_line_splitlines": 1009,
+          "end_line_splitlines": 1020,
+          "quote": "Training data for the network is the set of GNN distributions for the first five informative\nnodes traversed towards the root extracted from the RELATE inferred trees. The GNN\ndistributions are configured as a 5 x n matrix, one row per 5 informative nodes examined.\n\n                                                                                               31\n\nColumns 1–n contain the proportions, between 0 and 1, of leaves belonging to each of n\nancient sampled groups and column n +1 contains the age of the node. Informative nodes\nare those that have at least one leaf from the set of ancient sampled groups. If the root of the\ntree is reached in less than five informative nodes, then the remaining rows of the matrix are\nfilled with −15 as ‘padding’. The training labels signify the path extracted from the\ncorresponding simulated tree sequences (determined simply using tskit)."
+        }
+      ],
+      "code_evidence": [
+        {
+          "path": "research/reviews/author_repository_deep_audit_20261023_v1/ancestralpaths/history_source/previous_training.py",
+          "sha256": "fc90bb333e3589f3e4f76098dfc591222de1e40c7382a3f367e876270393b4eb",
+          "start_line": 150,
+          "end_line": 170
+        },
+        {
+          "path": ".runtime/author_sources/ancestralpaths_77db3cfae100/testing_bygroup.py",
+          "sha256": "3c129d9a24695a1ecc31c2c903af2a86a4ade2dddaffd62b9c8d1fa8ae37a1bf",
+          "start_line": 160,
+          "end_line": 181
+        },
+        {
+          "path": "src/arggnn/ancestralpaths_native_bridge.py",
+          "sha256": "fb69904e3004ca7de6f16736e542949fb1b3695edb104cdf601187a7f8d33f2c",
+          "start_line": 279,
+          "end_line": 298
+        },
+        {
+          "path": "src/arggnn/benchmarking/european_execution.py",
+          "sha256": "1f14ac6b23c3ed37b0564b7352fb5e5542538692e42afeceb03ea8f009ca5039",
+          "start_line": 224,
+          "end_line": 232
+        }
+      ],
+      "author_source": "Collection begins at parent and includes every ancient descendant not previously seen, including focal ancient query; no leaf!=query condition. All ancient admixed cohorts contribute observed metadata.",
+      "maintained_project": "Bridge excludes only group8 modern leaves and previous leaves; focal self-inclusion remains. Query role limits targets, not eligible feature-reference cohorts.",
+      "resolution": "No discrepancy found and no silent exclusion authorized. A leave-focal-out or pure-reference-only condition would be a named algorithmic ablation, not a repair.",
+      "execution_authorized": false
+    },
+    {
+      "id": "AP14",
+      "status": "explicit-choice",
+      "topic": "Painting sibling pooling and training-versus-paint age",
+      "paper_evidence": [
+        {
+          "id": "features",
+          "source": ".runtime/author_sources/ancestralpaths_supplement_41586_2023_6705_MOESM1_ESM.txt",
+          "sha256": "f4d21b9b08ead8f4f9a25ba6510123ff91d1f83005a46d8839b0feb87c839b7d",
+          "start_line_splitlines": 1009,
+          "end_line_splitlines": 1020,
+          "quote": "Training data for the network is the set of GNN distributions for the first five informative\nnodes traversed towards the root extracted from the RELATE inferred trees. The GNN\ndistributions are configured as a 5 x n matrix, one row per 5 informative nodes examined.\n\n                                                                                               31\n\nColumns 1–n contain the proportions, between 0 and 1, of leaves belonging to each of n\nancient sampled groups and column n +1 contains the age of the node. Informative nodes\nare those that have at least one leaf from the set of ancient sampled groups. If the root of the\ntree is reached in less than five informative nodes, then the remaining rows of the matrix are\nfilled with −15 as ‘padding’. The training labels signify the path extracted from the\ncorresponding simulated tree sequences (determined simply using tskit)."
+        },
+        {
+          "id": "empirical",
+          "source": ".runtime/author_sources/ancestralpaths_supplement_41586_2023_6705_MOESM1_ESM.txt",
+          "sha256": "f4d21b9b08ead8f4f9a25ba6510123ff91d1f83005a46d8839b0feb87c839b7d",
+          "start_line_splitlines": 1133,
+          "end_line_splitlines": 1137,
+          "quote": "We inferred a RELATE tree sequence for each autosome of our subset of 476 MesoNeo\ngenomes, using the fine scale recombination map for each chromosome, a mutation rate of\n1.25e-8, and starting population size estimate of 30,000. All chromosomes for all samples\nwere painted by the classifier trained on the model of European population structure.\n"
+        }
+      ],
+      "code_evidence": [
+        {
+          "path": ".runtime/author_sources/ancestralpaths_77db3cfae100/paint.py",
+          "sha256": "8abb6f82bac2905c9260c5329aff08c2e73d583af3ac7409d3b7025657857623",
+          "start_line": 53,
+          "end_line": 109
+        },
+        {
+          "path": "src/arggnn/ancestralpaths_native_bridge.py",
+          "sha256": "fb69904e3004ca7de6f16736e542949fb1b3695edb104cdf601187a7f8d33f2c",
+          "start_line": 254,
+          "end_line": 299
+        }
+      ],
+      "author_source": "Painter copies shell rows to sam_rel but pads only sam; counted siblings may retain zeros. Painter age is float/1500 and feature arithmeticfloat32; TRAIN/test use integer age andfloat64 arrays.",
+      "maintained_project": "Bridge performs exact per-query padding; default training_int. This matches native TRAIN/test, intentionally avoids empirical painter shortcut defect.",
+      "resolution": "Keep current shared comparison unchanged. Separate empirical repair must document per-query padding and painting_float versus training_int, with author trained-feature domain recorded. No empirical run or correction here.",
+      "execution_authorized": false
+    },
+    {
+      "id": "AP15",
+      "status": "resolved",
+      "topic": "Truth coordinate and identity alignment",
+      "paper_evidence": [
+        {
+          "id": "source_truth",
+          "source": ".runtime/author_sources/ancestralpaths_supplement_41586_2023_6705_MOESM1_ESM.txt",
+          "sha256": "f4d21b9b08ead8f4f9a25ba6510123ff91d1f83005a46d8839b0feb87c839b7d",
+          "start_line_splitlines": 1043,
+          "end_line_splitlines": 1044,
+          "quote": "between trees. True path labels were taken from the trees covering the same sites in the\ncorresponding simulated tree sequences. We trained the classifier to predict the path labels"
+        }
+      ],
+      "code_evidence": [
+        {
+          "path": ".runtime/author_sources/ancestralpaths_77db3cfae100/testing_bygroup.py",
+          "sha256": "3c129d9a24695a1ecc31c2c903af2a86a4ade2dddaffd62b9c8d1fa8ae37a1bf",
+          "start_line": 127,
+          "end_line": 148
+        },
+        {
+          "path": "src/arggnn/ancestralpaths_native_bridge.py",
+          "sha256": "fb69904e3004ca7de6f16736e542949fb1b3695edb104cdf601187a7f8d33f2c",
+          "start_line": 412,
+          "end_line": 454
+        },
+        {
+          "path": "src/arggnn/benchmarking/european_execution.py",
+          "sha256": "1f14ac6b23c3ed37b0564b7352fb5e5542538692e42afeceb03ea8f009ca5039",
+          "start_line": 164,
+          "end_line": 183
+        },
+        {
+          "path": "src/arggnn/benchmarking/european_sampling.py",
+          "sha256": "75059d3ce21fa5d11a1535c5d69ded37e8aa594f7037156ac5f94bae3980d309",
+          "start_line": 140,
+          "end_line": 184
+        }
+      ],
+      "author_source": "Native labels use simulated tree covering same site with census-node time int350; identical sample indices assumed.",
+      "maintained_project": "Semantic(sample_id,haplotype) joins, actual inferred node IDs, VCF1based->original0based offset-1, local coverage offset, half-open truth intervals; exact census flags checked by producer/bridge.",
+      "resolution": "Retain explicit coordinate/identity join and no extrapolation. These are disclosed boundary checks, not author algorithm replacement.",
+      "execution_authorized": false
+    },
+    {
+      "id": "AP16",
+      "status": "explicit-choice",
+      "topic": "Relate chain and genetic maps",
+      "paper_evidence": [
+        {
+          "id": "train_parents",
+          "source": ".runtime/author_sources/ancestralpaths_supplement_41586_2023_6705_MOESM1_ESM.txt",
+          "sha256": "f4d21b9b08ead8f4f9a25ba6510123ff91d1f83005a46d8839b0feb87c839b7d",
+          "start_line_splitlines": 1034,
+          "end_line_splitlines": 1037,
+          "quote": "We simulated three 200Mbp tree sequences from our model of European population\nstructure, using different random seeds. RELATE tree sequences were inferred from the\ncorresponding simulated VCF files. Default parameters for RELATE were used; 1.25e-8\nmutation rate and starting population size estimate of haplotypes of 30,000."
+        },
+        {
+          "id": "empirical",
+          "source": ".runtime/author_sources/ancestralpaths_supplement_41586_2023_6705_MOESM1_ESM.txt",
+          "sha256": "f4d21b9b08ead8f4f9a25ba6510123ff91d1f83005a46d8839b0feb87c839b7d",
+          "start_line_splitlines": 1133,
+          "end_line_splitlines": 1137,
+          "quote": "We inferred a RELATE tree sequence for each autosome of our subset of 476 MesoNeo\ngenomes, using the fine scale recombination map for each chromosome, a mutation rate of\n1.25e-8, and starting population size estimate of 30,000. All chromosomes for all samples\nwere painted by the classifier trained on the model of European population structure.\n"
+        }
+      ],
+      "code_evidence": [
+        {
+          "path": ".runtime/author_sources/ancestralpaths_77db3cfae100/relate.sh",
+          "sha256": "691acafaefe4cc7185d5403a928e1fb125a1889b91b301f36daa50436345bf44",
+          "start_line": 5,
+          "end_line": 9
+        },
+        {
+          "path": ".runtime/author_sources/ancestralpaths_77db3cfae100/genetic_map_simulated.txt",
+          "sha256": "55328df62ee6cb3ae01083cbcca6b86b938b9275429b2a0d003c09b516f15045",
+          "start_line": 1,
+          "end_line": 3
+        },
+        {
+          "path": "src/arggnn/benchmarking/european_execution.py",
+          "sha256": "1f14ac6b23c3ed37b0564b7352fb5e5542538692e42afeceb03ea8f009ca5039",
+          "start_line": 164,
+          "end_line": 183
+        },
+        {
+          "path": "configs/benchmarks/recipes/ancestralpaths_european.json",
+          "sha256": "981cd9d45d87fab743d88e8dfacfce4f5b72d5835c0f5a0f031e5c9a40a41f46"
+        }
+      ],
+      "author_source": "VCF conversion/annotations->Relate mu1.25e-8,N30000,ages->five popsize iterations->tree. Current map2Mb; historical map200Mb. Exact Relate release not pinned.",
+      "maintained_project": "Maintained route retains post-five-size iteration trees and full200Mb uniform map, records retained SNP coverage and sample order. New runtime/version policy disclosed.",
+      "resolution": "Qualify exact intended future runtime and map separately; retain missing historical version as unavailable, not infer it from current documentation. Empirical map uses fine-scale per-autosome GRCh37 inputs.",
+      "execution_authorized": false
+    },
+    {
+      "id": "AP17",
+      "status": "resolved",
+      "topic": "Accuracy, confusion axes and uncertainty",
+      "paper_evidence": [
+        {
+          "id": "test_counts",
+          "source": ".runtime/author_sources/ancestralpaths_supplement_41586_2023_6705_MOESM1_ESM.txt",
+          "sha256": "f4d21b9b08ead8f4f9a25ba6510123ff91d1f83005a46d8839b0feb87c839b7d",
+          "start_line_splitlines": 1047,
+          "end_line_splitlines": 1049,
+          "quote": "For testing, we generated five more simulated and RELATE inferred pairs of tree sequences\nand tested the classifier on 10,000 GNNs from each to obtain a mean accuracy of 93.12%\nwith a standard deviation of 0.29% across the five tree sequences."
+        },
+        {
+          "id": "precision",
+          "source": ".runtime/author_sources/ancestralpaths_supplement_41586_2023_6705_MOESM1_ESM.txt",
+          "sha256": "f4d21b9b08ead8f4f9a25ba6510123ff91d1f83005a46d8839b0feb87c839b7d",
+          "start_line_splitlines": 1056,
+          "end_line_splitlines": 1057,
+          "quote": "normalised by the sum of the rows to show the precision i.e of the labels assigned a class,\nwhat proportion are true positives. The GBR obtains the lowest accuracy. GBR samples"
+        }
+      ],
+      "code_evidence": [
+        {
+          "path": ".runtime/author_sources/ancestralpaths_77db3cfae100/testing_bygroup.py",
+          "sha256": "3c129d9a24695a1ecc31c2c903af2a86a4ade2dddaffd62b9c8d1fa8ae37a1bf",
+          "start_line": 220,
+          "end_line": 249
+        },
+        {
+          "path": "src/arggnn/benchmarking/european_native_models.py",
+          "sha256": "24be8a3d95cfa52ee3fb437afdc8ab7fdc7d432ee81680018170e4ddb50385e6",
+          "start_line": 367,
+          "end_line": 395
+        },
+        {
+          "path": "src/arggnn/benchmarking/european_native_models.py",
+          "sha256": "24be8a3d95cfa52ee3fb437afdc8ab7fdc7d432ee81680018170e4ddb50385e6",
+          "start_line": 464,
+          "end_line": 496
+        },
+        {
+          "path": "src/arggnn/ancestralpaths_native_bridge.py",
+          "sha256": "fb69904e3004ca7de6f16736e542949fb1b3695edb104cdf601187a7f8d33f2c",
+          "start_line": 367,
+          "end_line": 389
+        }
+      ],
+      "author_source": "Raw cvscores[parent,cohort] percentages; kfold.log mean/std(axis1) yields within-parent cohort spread, ddof0. Native confusion predicted rows/truth columns, consistent with precision row normalization.",
+      "maintained_project": "Bridge keeps native axis convention. Maintained common scorer explicitly uses truth rows/prediction columns, correct precision denominators; across-five-parent mean/sampleSD ddof1 in fractions.",
+      "resolution": "Report orientation and units. Transpose before source-style precision plots. ddof1 is explicit new-run choice; paper says SD but does not specify divisor. Do not mix percentages with fractions or SD with SE.",
+      "execution_authorized": false
+    },
+    {
+      "id": "AP18",
+      "status": "resolved",
+      "topic": "Historical accuracy receipts do not establish paper identity",
+      "paper_evidence": [
+        {
+          "id": "test_counts",
+          "source": ".runtime/author_sources/ancestralpaths_supplement_41586_2023_6705_MOESM1_ESM.txt",
+          "sha256": "f4d21b9b08ead8f4f9a25ba6510123ff91d1f83005a46d8839b0feb87c839b7d",
+          "start_line_splitlines": 1047,
+          "end_line_splitlines": 1049,
+          "quote": "For testing, we generated five more simulated and RELATE inferred pairs of tree sequences\nand tested the classifier on 10,000 GNNs from each to obtain a mean accuracy of 93.12%\nwith a standard deviation of 0.29% across the five tree sequences."
+        }
+      ],
+      "code_evidence": [
+        {
+          "path": "research/reviews/author_repository_file_agreement_20261023_v2/ancestralpaths/historical_data_checks.json",
+          "sha256": "7d696460b525cc622a156e63e0255b86293e55edac63ffc7bf07302aae62257b"
+        },
+        {
+          "path": "research/reviews/author_repository_file_agreement_20261023_v2/ancestralpaths/reconstructed_history/eb36a66427a4e9e6741bc2b6137d04f3a69bda5c3276c57cb56bf3cee83b61c8/example/test.kfold.txt",
+          "sha256": "eb36a66427a4e9e6741bc2b6137d04f3a69bda5c3276c57cb56bf3cee83b61c8"
+        },
+        {
+          "path": "research/reviews/author_repository_file_agreement_20261023_v2/ancestralpaths/reconstructed_history/a1465b14444524d8aa32a8106d07474eac52bd10aa54d61f311bfdbbe9bd604f/example/test_confusion.txt",
+          "sha256": "a1465b14444524d8aa32a8106d07474eac52bd10aa54d61f311bfdbbe9bd604f"
+        }
+      ],
+      "author_source": "All six confusion files read. Each cohort totals50000, pooled250000 and exact elementwise sum. Pooled accuracy91.4504%; sampleSD across five sequence equal-cohort means0.8393percentagepoints, unlike93.12±0.29.",
+      "maintained_project": "No new model scoring performed; these are arithmetic consistency checks of old published text receipts.",
+      "resolution": "Preserve old receipts as a distinct historical example. The checkpoint architecture association is verified but its numerical weights/data performance is untested.",
+      "execution_authorized": false
+    },
+    {
+      "id": "AP19",
+      "status": "conflict",
+      "topic": "BAA-excluded four-path training is a distinct endpoint",
+      "paper_evidence": [
+        {
+          "id": "BAA_exclusion",
+          "source": ".runtime/author_sources/ancestralpaths_supplement_41586_2023_6705_MOESM1_ESM.txt",
+          "sha256": "f4d21b9b08ead8f4f9a25ba6510123ff91d1f83005a46d8839b0feb87c839b7d",
+          "start_line_splitlines": 75,
+          "end_line_splitlines": 96,
+          "quote": "    3.1 Excluding Bronze Age Anatolians                                    43\n\n    3.2 Conditions affecting classifier performance                        44\n\n    3.3 Testing model misspecification                                     52\n\n    3.4 A method to estimate time since admixture                          58\n\n  References                                                               68\n4) Estimating allele frequency trajectories of trait-associated variants   72\n\n  Introduction                                                             72\n  Methods                                                                  73\n    SNP Ascertainment                                                      73\n\n    1000G ARG                                                              74\n\n    Modifications to CLUES                                                 74\n\n    Selection Analysis                                                     75\n\n  Results                                                                  80"
+        },
+        {
+          "id": "main_94_6",
+          "source": ".runtime/author_sources/ancestralpaths_paper_PMC10781624.xml",
+          "sha256": "1a8ecd1ff10d3a181bf6d59edc23d2d58cc0c3a2c0cde21d3c7646f36ad43580",
+          "paragraph_index_0based": 10,
+          "quote": "Having identified that significant differences in ancestries persist in seemingly homogeneous present-day populations, we sought to disentangle these effects by developing a chromosome painting technique that allows us to label haplotypes on the basis of their genetic affinities to ancient individuals. To achieve this, we built a quantitative admixture graph model (Fig. 3 and Supplementary Note 3) that represents the four main ancestry flows contributing to present-day European genomes over the last 50,000 years20. We used this model to simulate genomes at time periods and in sample sizes equivalent to our empirical dataset and inferred tree sequences using Relate21,22. We trained a neural network classifier to estimate the path backwards in time through the population structure taken by each simulated individual, at each position in the genome. Our trained classifier was then used to infer the ancestral paths taken at each site, using 1,015 imputed ancient genomes from West Eurasia that passed quality filters. Using simulations, we show that our chromosome painting method has an average accuracy of 94.6% for the four ancestral paths leading to present-day Europeans and is robust to model misspecification.Fig. 3A schematic of the model of population structure in Europe.Quantitative admixture model used to simulate genomes to train the local ancestry neural network classifier. The model begins with the Out-of-Africa population, before splitting into basal Northern Europeans (NE) and West Asians (WA), who further split into EHG, WHG, CHG and ANA. These then admix to form Steppe pastoralist (Yam) and Neolithic farmer (Neo) populations. Moving down the figure is forwards in time and the population split times and admixture times are given in generations ago. Each branch is labelled with the effective population size of the population. Coloured lines represent the populations declared in the simulation that extend through time."
+        }
+      ],
+      "code_evidence": [
+        {
+          "path": "src/arggnn/ancestralpaths_native_bridge.py",
+          "sha256": "fb69904e3004ca7de6f16736e542949fb1b3695edb104cdf601187a7f8d33f2c",
+          "start_line": 353,
+          "end_line": 357
+        },
+        {
+          "path": "research/reviews/author_repository_deep_audit_20261023_v1/ancestralpaths/reachable_history_path_census.json",
+          "sha256": "2ec4f9f0d6a3535e9be55bc41024b9948609263fb801acb68f214e3cf0cf52d1"
+        }
+      ],
+      "author_source": "Note3.1 removes BAA and labels5/6 from fitting, reports94.3±.27. Six-label model restricted to nonBAA four paths reports94.6±.46. Full runner not recovered in64-path reachable scope.",
+      "maintained_project": "C4 collapse sums p1+p5,p2+p6,p3,p4 for founder view; cannot substitute for either separately defined restricted endpoint.",
+      "resolution": "Preserve native-six primary and derived-C4 label. Keep BAA-excluded fit upstream-unavailable unless a separately sourced runner or explicit reconstruction is approved; do not infer it by merging probabilities.",
+      "execution_authorized": false
+    },
+    {
+      "id": "AP20",
+      "status": "upstream-unavailable",
+      "topic": "GNOMix comparison implementation",
+      "paper_evidence": [
+        {
+          "id": "GNOMix",
+          "source": ".runtime/author_sources/ancestralpaths_supplement_41586_2023_6705_MOESM1_ESM.txt",
+          "sha256": "f4d21b9b08ead8f4f9a25ba6510123ff91d1f83005a46d8839b0feb87c839b7d",
+          "start_line_splitlines": 1100,
+          "end_line_splitlines": 1108,
+          "quote": "evenly spaced sites across the five sequences. Inference with GNOMix was done using the\ndefault logistic regression base and xgboost smoother modules. All other parameters were\ndefault including a window size of 0.2cM for Bronze Age, Neo and Yamnaya samples.\nBecause the GBR are 166 generations since admixture we decreased the window size to\n0.02cM to account for the smaller admixture tracts. The mean and standard deviation for\neach admixed population, across the five sequences, obtained by each method were used to\nperform two-sample T-tests (two-sided) to test for a significant difference in accuracy (Table\nS1).\n"
+        },
+        {
+          "id": "GNOMix_queries",
+          "source": ".runtime/author_sources/ancestralpaths_supplement_41586_2023_6705_MOESM1_ESM.txt",
+          "sha256": "f4d21b9b08ead8f4f9a25ba6510123ff91d1f83005a46d8839b0feb87c839b7d",
+          "start_line_splitlines": 1093,
+          "end_line_splitlines": 1096,
+          "quote": "test the four admixed populations as query sequences that are characterised by these four\npaths, GBR, Bronze Age, Neo, and Yam, and do not test the BAA. It should be noted\nhowever that the BAA could be tested with GNOMix using the Ana and CHG as ancestral\npopulations which would correspond to our paths 5 and 6."
+        }
+      ],
+      "code_evidence": [
+        {
+          "path": "research/reviews/author_repository_deep_audit_20261023_v1/ancestralpaths/reachable_history_path_census.json",
+          "sha256": "2ec4f9f0d6a3535e9be55bc41024b9948609263fb801acb68f214e3cf0cf52d1"
+        }
+      ],
+      "author_source": "Paper specifies four pure references, excludesBAA queries, LR base/xgboost smoother, window.02cMGBR and.2cMothercohorts, five200Mb parents and spaced-site metrics.",
+      "maintained_project": "No GNOMix executable evaluator/complete version/window/site command manifest in enumerated current/history files.",
+      "resolution": "Keep publication values as cited results only. A future named reconstruction needs GNOMix source/version, query-specific windows, same frozen queries/sites/truth and explicit sampling/support choices.",
+      "execution_authorized": false
+    },
+    {
+      "id": "AP21",
+      "status": "upstream-unavailable",
+      "topic": "Exact empirical genome/QC/phasing/map manifests",
+      "paper_evidence": [
+        {
+          "id": "empirical",
+          "source": ".runtime/author_sources/ancestralpaths_supplement_41586_2023_6705_MOESM1_ESM.txt",
+          "sha256": "f4d21b9b08ead8f4f9a25ba6510123ff91d1f83005a46d8839b0feb87c839b7d",
+          "start_line_splitlines": 1133,
+          "end_line_splitlines": 1137,
+          "quote": "We inferred a RELATE tree sequence for each autosome of our subset of 476 MesoNeo\ngenomes, using the fine scale recombination map for each chromosome, a mutation rate of\n1.25e-8, and starting population size estimate of 30,000. All chromosomes for all samples\nwere painted by the classifier trained on the model of European population structure.\n"
+        },
+        {
+          "id": "data_availability",
+          "source": ".runtime/author_sources/ancestralpaths_paper_PMC10781624.xml",
+          "sha256": "1a8ecd1ff10d3a181bf6d59edc23d2d58cc0c3a2c0cde21d3c7646f36ad43580",
+          "paragraph_index_0based": 71,
+          "quote": "All ancient genomic data used in this study are already published and listed in Supplementary Table 1. Data were aligned to the human reference GRCh37. Modern human genomes were obtained from the 1000 Genomes Project25, the Simons Genome Diversity Project81 and the Human Genome Diversity Project82. GWAS data were obtained from the GWAS Catalog24, the FinnGen Study48 and the UKB5."
+        },
+        {
+          "id": "roster",
+          "source": ".runtime/author_sources/ancestralpaths_supplement_41586_2023_6705_MOESM1_ESM.txt",
+          "sha256": "f4d21b9b08ead8f4f9a25ba6510123ff91d1f83005a46d8839b0feb87c839b7d",
+          "start_line_splitlines": 896,
+          "end_line_splitlines": 903,
+          "quote": "For our analysis of the time since admixture (see below), we chose 476 diploid individuals\n(952 haploid) including 91 GBR 1000 Genomes samples. During simulation, samples were\n                                                                                              27\n\ntaken from populations and times to match each real diploid sample, using their radiocarbon\nor context dates. We aimed to create a simulated dataset that closely matched our MesoNeo\nsubset genetically.\n"
+        }
+      ],
+      "code_evidence": [
+        {
+          "path": ".runtime/author_sources/ancestralpaths_77db3cfae100/README.md",
+          "sha256": "bd7890faaca2e5a6ffb95d909dbb60e134e69300b0e3a455af97258e96b49695",
+          "start_line": 50,
+          "end_line": 67
+        },
+        {
+          "path": ".runtime/author_sources/ancestralpaths_77db3cfae100/paint.py",
+          "sha256": "8abb6f82bac2905c9260c5329aff08c2e73d583af3ac7409d3b7025657857623",
+          "start_line": 112,
+          "end_line": 158
+        },
+        {
+          "path": "research/reviews/author_repository_file_agreement_20261023_v2/ancestralpaths/historical_data_checks.json",
+          "sha256": "7d696460b525cc622a156e63e0255b86293e55edac63ffc7bf07302aae62257b"
+        }
+      ],
+      "author_source": "Paper uses fine-scale maps/autosomes, GRCh37/published ancient data;476 diagnostic subset, broader963 time-analysis and1015/1518 other scopes must be distinguished.",
+      "maintained_project": "Historical named roster is a concrete identity lead; it does not identify all final VCFs, QC filters, phase versions, per-autosome maps, sample order and classifier joins.",
+      "resolution": "Document partial resolution. Future empirical application requires complete observed-data manifest and correct cohort-role mapping; no application or claim of reconstructed exact cohort here.",
+      "execution_authorized": false
+    },
+    {
+      "id": "AP22",
+      "status": "conflict",
+      "topic": "Painter interval output and map format",
+      "paper_evidence": [
+        {
+          "id": "empirical",
+          "source": ".runtime/author_sources/ancestralpaths_supplement_41586_2023_6705_MOESM1_ESM.txt",
+          "sha256": "f4d21b9b08ead8f4f9a25ba6510123ff91d1f83005a46d8839b0feb87c839b7d",
+          "start_line_splitlines": 1133,
+          "end_line_splitlines": 1137,
+          "quote": "We inferred a RELATE tree sequence for each autosome of our subset of 476 MesoNeo\ngenomes, using the fine scale recombination map for each chromosome, a mutation rate of\n1.25e-8, and starting population size estimate of 30,000. All chromosomes for all samples\nwere painted by the classifier trained on the model of European population structure.\n"
+        },
+        {
+          "id": "downstream",
+          "source": ".runtime/author_sources/ancestralpaths_supplement_41586_2023_6705_MOESM1_ESM.txt",
+          "sha256": "f4d21b9b08ead8f4f9a25ba6510123ff91d1f83005a46d8839b0feb87c839b7d",
+          "start_line_splitlines": 1896,
+          "end_line_splitlines": 1912,
+          "quote": "Repeat the above steps for testing distances 1-50cM in step 3 and 4. Over all autosomes,\nwe can then calculate the probability of being in path y given starting in path x, d cM away,\nfor all path combinations of x and y, including x=y. The shortest distance is 1cM, as in\nROLLOFF, to avoid the effect of background LD.\n\nThe probability when x=y decays exponentially with genetic distance and the rate of decay\ndepends on the time since admixture. Parameters are determined by nonlinear least squares\nregression of the data to the formula\n\n\n                       P(same path) = αe!\"#$% + θ                    (1)\n\n\nThe probability will asymptote to the probability of being in path x across the whole\nchromosome, which intuitively is the admixture fraction of path x, therefore the admixture\nfraction is given by θ. The β parameter represents the time since admixture in generations\n(Figure S24)."
+        }
+      ],
+      "code_evidence": [
+        {
+          "path": ".runtime/author_sources/ancestralpaths_77db3cfae100/paint.py",
+          "sha256": "8abb6f82bac2905c9260c5329aff08c2e73d583af3ac7409d3b7025657857623",
+          "start_line": 164,
+          "end_line": 185
+        },
+        {
+          "path": ".runtime/author_sources/ancestralpaths_77db3cfae100/README.md",
+          "sha256": "bd7890faaca2e5a6ffb95d909dbb60e134e69300b0e3a455af97258e96b49695",
+          "start_line": 65,
+          "end_line": 69
+        },
+        {
+          "path": ".runtime/author_sources/ancestralpaths_77db3cfae100/genetic_map_simulated.txt",
+          "sha256": "55328df62ee6cb3ae01083cbcca6b86b938b9275429b2a0d003c09b516f15045",
+          "start_line": 1,
+          "end_line": 3
+        }
+      ],
+      "author_source": "Actual interval allocation[S,5,N], missing rightbp/path/maxsoftmax assignments. _painted[N,S,3] is populated. Empirical map expects tab-separated Position(bp)/Rate(cM/Mb)/Map(cM), unlike released simulation map headers.",
+      "maintained_project": "Shared sampled-site comparison does not consume broken intervals and does not claim empirical path reconstruction.",
+      "resolution": "Prepare an isolated inactive interval adapter only after field/coordinate contract review. Keep broken source unchanged and preserve both original outputs; no silent repairs or extrapolation.",
+      "execution_authorized": false
+    },
+    {
+      "id": "AP23",
+      "status": "conflict",
+      "topic": "Admixture helpers cover only part of the paper analysis",
+      "paper_evidence": [
+        {
+          "id": "downstream",
+          "source": ".runtime/author_sources/ancestralpaths_supplement_41586_2023_6705_MOESM1_ESM.txt",
+          "sha256": "f4d21b9b08ead8f4f9a25ba6510123ff91d1f83005a46d8839b0feb87c839b7d",
+          "start_line_splitlines": 1896,
+          "end_line_splitlines": 1912,
+          "quote": "Repeat the above steps for testing distances 1-50cM in step 3 and 4. Over all autosomes,\nwe can then calculate the probability of being in path y given starting in path x, d cM away,\nfor all path combinations of x and y, including x=y. The shortest distance is 1cM, as in\nROLLOFF, to avoid the effect of background LD.\n\nThe probability when x=y decays exponentially with genetic distance and the rate of decay\ndepends on the time since admixture. Parameters are determined by nonlinear least squares\nregression of the data to the formula\n\n\n                       P(same path) = αe!\"#$% + θ                    (1)\n\n\nThe probability will asymptote to the probability of being in path x across the whole\nchromosome, which intuitively is the admixture fraction of path x, therefore the admixture\nfraction is given by θ. The β parameter represents the time since admixture in generations\n(Figure S24)."
+        }
+      ],
+      "code_evidence": [
+        {
+          "path": ".runtime/author_sources/ancestralpaths_77db3cfae100/admixture.py",
+          "sha256": "ab8ca5ab4b6c841b34c379ac12ffd8c5f48541a5af764ecd6b676592ced41cc2",
+          "start_line": 74,
+          "end_line": 160
+        },
+        {
+          "path": ".runtime/author_sources/ancestralpaths_77db3cfae100/exp_fit.R",
+          "sha256": "132996048173bc1540d9019863c9d63f6af54a01737c65d3cadbbdf06142ad71",
+          "start_line": 13,
+          "end_line": 28
+        },
+        {
+          "path": ".runtime/author_sources/ancestralpaths_77db3cfae100/exp_fit_bronze.R",
+          "sha256": "494bd01ad2cdb28402d2025012750526a82e820c53acea3199b17d8a89b23308",
+          "start_line": 15,
+          "end_line": 29
+        },
+        {
+          "path": ".runtime/author_sources/ancestralpaths_77db3cfae100/tracts_prob.py",
+          "sha256": "755cda542371bfe61d23fbc6d80ac89ebf3a8af7b27077b386bca0858a3bbfe8",
+          "start_line": 10,
+          "end_line": 25
+        }
+      ],
+      "author_source": "Random starting phase at1cM steps/1-50cM broadly agrees; R fits exp(beta*x) returning signed beta, while paper refers to positive time. Final inverse-SE combination/sample-age addition not in supplied runner. Present-day fitting not implemented.",
+      "maintained_project": "These downstream functions are not ancestry-accuracy metrics and have no role in existing Dense/CNN comparison.",
+      "resolution": "Mark final dates/weighted combination and sign/unit conversion upstream-unavailable; proposed isolated downstream reconstruction must resolve this and broken interval source first.",
+      "execution_authorized": false
+    },
+    {
+      "id": "AP24",
+      "status": "conflict",
+      "topic": "Additional downstream utility defects",
+      "paper_evidence": [
+        {
+          "id": "downstream",
+          "source": ".runtime/author_sources/ancestralpaths_supplement_41586_2023_6705_MOESM1_ESM.txt",
+          "sha256": "f4d21b9b08ead8f4f9a25ba6510123ff91d1f83005a46d8839b0feb87c839b7d",
+          "start_line_splitlines": 1896,
+          "end_line_splitlines": 1912,
+          "quote": "Repeat the above steps for testing distances 1-50cM in step 3 and 4. Over all autosomes,\nwe can then calculate the probability of being in path y given starting in path x, d cM away,\nfor all path combinations of x and y, including x=y. The shortest distance is 1cM, as in\nROLLOFF, to avoid the effect of background LD.\n\nThe probability when x=y decays exponentially with genetic distance and the rate of decay\ndepends on the time since admixture. Parameters are determined by nonlinear least squares\nregression of the data to the formula\n\n\n                       P(same path) = αe!\"#$% + θ                    (1)\n\n\nThe probability will asymptote to the probability of being in path x across the whole\nchromosome, which intuitively is the admixture fraction of path x, therefore the admixture\nfraction is given by θ. The β parameter represents the time since admixture in generations\n(Figure S24)."
+        }
+      ],
+      "code_evidence": [
+        {
+          "path": ".runtime/author_sources/ancestralpaths_77db3cfae100/chunk.py",
+          "sha256": "7b3c1e13e064163a0f2c706924ccc070e04c148f00e7e8e36ccca5ddf65a733a",
+          "start_line": 3,
+          "end_line": 18
+        },
+        {
+          "path": ".runtime/author_sources/ancestralpaths_77db3cfae100/find_nearest.py",
+          "sha256": "0fea04686441ce01202d5f86fa6f7253144423fbea3de313d2a55bbce8c903c4",
+          "start_line": 3,
+          "end_line": 10
+        },
+        {
+          "path": ".runtime/author_sources/ancestralpaths_77db3cfae100/painting.R",
+          "sha256": "16175a086728c5213dc09a59f3f75b5d84dc50762c55a67d494d07aff94d704b",
+          "start_line": 20,
+          "end_line": 39
+        },
+        {
+          "path": ".runtime/author_sources/ancestralpaths_77db3cfae100/tracts_prob.py",
+          "sha256": "755cda542371bfe61d23fbc6d80ac89ebf3a8af7b27077b386bca0858a3bbfe8",
+          "start_line": 47,
+          "end_line": 60
+        }
+      ],
+      "author_source": "Final singleton tract omitted by chunk; right-endpoint finder is not nearest; painting.R uses cM column with bp axis label; unused SciPy fitter has different sigma semantics and no return.",
+      "maintained_project": "No helper was run; maintained sampled-site classifier avoids these branches.",
+      "resolution": "Preserve all author functions. Any future repair must be explicitly named/compared and remain separate from source-native ancestry claims.",
+      "execution_authorized": false
+    },
+    {
+      "id": "AP25",
+      "status": "conflict",
+      "topic": "Current end-to-end pipeline is not qualified",
+      "paper_evidence": [
+        {
+          "id": "CNN",
+          "source": ".runtime/author_sources/ancestralpaths_supplement_41586_2023_6705_MOESM1_ESM.txt",
+          "sha256": "f4d21b9b08ead8f4f9a25ba6510123ff91d1f83005a46d8839b0feb87c839b7d",
+          "start_line_splitlines": 999,
+          "end_line_splitlines": 1004,
+          "quote": "implemented supervised machine learning, specifically a convolutional neural network. First\nwe simulate variant and tree sequence data from a demographic model of the history of the\npopulations under analysis, such as our model of European population structure. Next we\ninfer RELATE tree sequences from the simulated genotype data. We then extract training\nGNNs from the RELATE trees and train a neural network to predict the path given the true\npath label extracted from the corresponding simulated tree sequences. By training on GNNs"
+        },
+        {
+          "id": "train_parents",
+          "source": ".runtime/author_sources/ancestralpaths_supplement_41586_2023_6705_MOESM1_ESM.txt",
+          "sha256": "f4d21b9b08ead8f4f9a25ba6510123ff91d1f83005a46d8839b0feb87c839b7d",
+          "start_line_splitlines": 1034,
+          "end_line_splitlines": 1037,
+          "quote": "We simulated three 200Mbp tree sequences from our model of European population\nstructure, using different random seeds. RELATE tree sequences were inferred from the\ncorresponding simulated VCF files. Default parameters for RELATE were used; 1.25e-8\nmutation rate and starting population size estimate of haplotypes of 30,000."
+        }
+      ],
+      "code_evidence": [
+        {
+          "path": ".runtime/author_sources/ancestralpaths_77db3cfae100/pipeline.sh",
+          "sha256": "e5c625bb9929e824fe4914265d0666068856958af0a640a89776f2eaa41df28e",
+          "start_line": 13,
+          "end_line": 33
+        },
+        {
+          "path": ".runtime/author_sources/ancestralpaths_77db3cfae100/training.py",
+          "sha256": "13b4f30ab0df75fc461b764ae2cdbd1fdc071ff45200e6401e84faa565508e4f",
+          "start_line": 23,
+          "end_line": 27
+        },
+        {
+          "path": ".runtime/author_sources/ancestralpaths_77db3cfae100/testing_bygroup.py",
+          "sha256": "3c129d9a24695a1ecc31c2c903af2a86a4ade2dddaffd62b9c8d1fa8ae37a1bf",
+          "start_line": 210,
+          "end_line": 218
+        },
+        {
+          "path": ".runtime/author_sources/ancestralpaths_77db3cfae100/paint.py",
+          "sha256": "8abb6f82bac2905c9260c5329aff08c2e73d583af3ac7409d3b7025657857623",
+          "start_line": 106,
+          "end_line": 109
+        }
+      ],
+      "author_source": "Pipeline passes unsupported training-poplab; accepted Dense train and CNN-rank4 test/painter incompatible. Legacy imports/predict_classes/nb_epoch not current APIs.",
+      "maintained_project": "Maintained Dense model takes rank3, predict+argmax API, named panel/identity checks and explicit frozen sample plan.",
+      "resolution": "Keep mechanical API adapters disclosed; no inference that an unchanged accepted pipeline reproduces paper. CNN needs separate native-rank4 path and qualification.",
+      "execution_authorized": false
+    },
+    {
+      "id": "AP26",
+      "status": "resolved",
+      "topic": "README option abbreviation corrected",
+      "paper_evidence": [
+        {
+          "id": "empirical",
+          "source": ".runtime/author_sources/ancestralpaths_supplement_41586_2023_6705_MOESM1_ESM.txt",
+          "sha256": "f4d21b9b08ead8f4f9a25ba6510123ff91d1f83005a46d8839b0feb87c839b7d",
+          "start_line_splitlines": 1133,
+          "end_line_splitlines": 1137,
+          "quote": "We inferred a RELATE tree sequence for each autosome of our subset of 476 MesoNeo\ngenomes, using the fine scale recombination map for each chromosome, a mutation rate of\n1.25e-8, and starting population size estimate of 30,000. All chromosomes for all samples\nwere painted by the classifier trained on the model of European population structure.\n"
+        }
+      ],
+      "code_evidence": [
+        {
+          "path": ".runtime/author_sources/ancestralpaths_77db3cfae100/README.md",
+          "sha256": "bd7890faaca2e5a6ffb95d909dbb60e134e69300b0e3a455af97258e96b49695",
+          "start_line": 53,
+          "end_line": 63
+        },
+        {
+          "path": ".runtime/author_sources/ancestralpaths_77db3cfae100/paint.py",
+          "sha256": "8abb6f82bac2905c9260c5329aff08c2e73d583af3ac7409d3b7025657857623",
+          "start_line": 30,
+          "end_line": 38
+        }
+      ],
+      "author_source": "README uses-sample and parser defines-samples. Python argparse default allows a unique option prefix, so-sample is accepted for current parser. Historical args.sample attribute bug was fixed at e6f5.",
+      "maintained_project": "No new parser issue should be fabricated from spelling alone.",
+      "resolution": "Use canonical-samples in future readable commands; record historical attribute bug separately. Multiline examples need explicit continuations before execution.",
+      "execution_authorized": false
+    },
+    {
+      "id": "AP27",
+      "status": "conflict",
+      "topic": "Linked stdpopsim model is not the archived six-path graph",
+      "paper_evidence": [
+        {
+          "id": "code_availability",
+          "source": ".runtime/author_sources/ancestralpaths_paper_PMC10781624.xml",
+          "sha256": "1a8ecd1ff10d3a181bf6d59edc23d2d58cc0c3a2c0cde21d3c7646f36ad43580",
+          "paragraph_index_0based": 72,
+          "quote": "The scripts used to run the chromosome painting (Supplementary Note 2) and calculate ARS in the UKB (Supplementary Note 9) are available at https://github.com/will-camb/mesoneo_selection_paper (10.5281/zenodo.8301166). The software to perform the ancestral path chromosome painting described in Supplementary Note 3 is available on GitHub at https://github.com/AliPearson/AncestralPaths (10.5281/zenodo.8319452) and the demographic model is available in the stdpopsim library (https://popsim-consortium.github.io/stdpopsim-docs/stable/catalog.html#sec_catalog_homsap_models_ancienteurope_4a21). The analysis pipeline and ‘conda’ environment necessary to replicate the analysis of allele frequency trajectories of trait-associated variants in Supplementary Note 4 are available at https://github.com/ekirving/mesoneo_paper (10.5281/zenodo.8289755). The modified version of CLUES used in this study is available from https://github.com/standard-aaron/clues (10.5281/zenodo.8228252). The pipeline to replicate the analyses for Supplementary Note 7 can be found at https://github.com/albarema/neo (10.5281/zenodo.8301253). All other analyses relied on available software which has been fully referenced in the manuscript and detailed in the relevant Supplementary notes."
+        },
+        {
+          "id": "BAA_time",
+          "source": ".runtime/author_sources/ancestralpaths_supplement_41586_2023_6705_MOESM1_ESM.txt",
+          "sha256": "f4d21b9b08ead8f4f9a25ba6510123ff91d1f83005a46d8839b0feb87c839b7d",
+          "start_line_splitlines": 834,
+          "end_line_splitlines": 836,
+          "quote": "Anatolian population formed from an admixture of CHGs with Ana −5,100 years ago (170\ngenerations ago). Around the start of the Bronze Age −4,900 years ago (166 generations\nago), migrants with Yam ancestry moved west into Europe and had a profound impact on the"
+        }
+      ],
+      "code_evidence": [
+        {
+          "path": "research/reviews/author_repository_deep_audit_20261023_v1/ancestralpaths/linked_stdpopsim_AncientEurope_excerpt.txt",
+          "sha256": "559f1504bc0aa55b6d139e56edb168471d747868e8822c061088de472f2a48cb"
+        },
+        {
+          "path": ".runtime/author_sources/ancestralpaths_77db3cfae100/simulate.py",
+          "sha256": "4ae51e2af2a7cc16393d2611d6745e47f63ed37d12c15631456abc135e6cd969",
+          "start_line": 38,
+          "end_line": 80
+        }
+      ],
+      "author_source": "AncientEurope_4A21 has10populations,noBAA,growth.067 and event140/180/200 with different sizes; archive has11populations/BAA,no growth,166/177/259/169.",
+      "maintained_project": "Recipe follows archive plus explicit BAA170, not substituted catalogue graph.",
+      "resolution": "Keep exact model provenance. Main-paper link is not evidence of graph identity; no silent substitution.",
+      "execution_authorized": false
+    },
+    {
+      "id": "AP28",
+      "status": "upstream-unavailable",
+      "topic": "Sensitivity and additional-sample runners",
+      "paper_evidence": [
+        {
+          "id": "sensitivity",
+          "source": ".runtime/author_sources/ancestralpaths_supplement_41586_2023_6705_MOESM1_ESM.txt",
+          "sha256": "f4d21b9b08ead8f4f9a25ba6510123ff91d1f83005a46d8839b0feb87c839b7d",
+          "start_line_splitlines": 1459,
+          "end_line_splitlines": 1479,
+          "quote": "Unless otherwise specified, we simulated tree sequences of 20 Mbp in length with 1.25e-8\nmutation rate and constant recombination rate of 1e-8. All admixture events involve equal\nproportions contributed by each participating population. The ordering of population split and\nadmixture events is determined randomly by sampling from the active populations. The\ntiming of split events is three generations after the previous split event while the timing of\nadmixture events is fifteen generations following the previous admixture event. All\npopulations have an effective population size of 10,000. Twenty five diploid samples were\ntaken from all the ‘path’ populations that are present after all split events have occurred and\nalso from all admixed populations. The sampling time for each population was sampled\nuniformly from within the time each population was active and all samples per population\nwere taken at the same time. An example is shown in Figure S17.\n\nTraining GNNs and label pairs were extracted from all admixed populations. To gather the\nsame number of pairs for each path in each admixed population from sufficiently spaced\nsites, we simulated five training tree sequences and five testing sequences. The largest\nsource of variation is across tree sequences so testing was performed on each sequence\nseparately and a mean and standard deviation across sequences was calculated. Two\nsample t-tests were then performed to assess if there was a significant difference in classifier\naccuracy when a parameter was changed. We then pooled the testing GNNs and applied the\nclassifiers to produce confusion matrices and calculate precision values in each class.\n"
+        },
+        {
+          "id": "additional",
+          "source": ".runtime/author_sources/ancestralpaths_supplement_41586_2023_6705_MOESM1_ESM.txt",
+          "sha256": "f4d21b9b08ead8f4f9a25ba6510123ff91d1f83005a46d8839b0feb87c839b7d",
+          "start_line_splitlines": 1795,
+          "end_line_splitlines": 1805,
+          "quote": "3.3.5 Inference for additional samples\n\nThe number of ancient samples that are available continues to increase and so more\nsamples relevant to population histories can be incorporated into datasets. Likewise,\nsamples may be removed from datasets after more stringent filtering. To test whether\nclassifiers can generalise to more or fewer samples, we applied a classifier trained on a\nsimulation with 20 diploids taken from all sampled populations to testing data from a\nsimulation with a different number of diploids per sampled population (5, 10, 15, 25, 30, 50).\nGNNs were extracted using all samples in the demography, as if testing a corresponding\nclassifier.\n"
+        }
+      ],
+      "code_evidence": [
+        {
+          "path": "research/reviews/author_repository_deep_audit_20261023_v1/ancestralpaths/reachable_history_path_census.json",
+          "sha256": "2ec4f9f0d6a3535e9be55bc41024b9948609263fb801acb68f214e3cf0cf52d1"
+        },
+        {
+          "path": "research/reviews/author_repository_file_agreement_20261023_v2/ancestralpaths/reconstructed_history/79f70f26ae71187d4499f2f655d39d91fe26048aa635606950734d0e3aff7ffb/example/pipeline_slurm.sh",
+          "sha256": "79f70f26ae71187d4499f2f655d39d91fe26048aa635606950734d0e3aff7ffb"
+        }
+      ],
+      "author_source": "Paper has20Mb generic2/4/6/8path sweeps and sample/drift/model sensitivity. SLURM contains commented external paint_num_paths.py reference, but that file is absent from reachable64paths.",
+      "maintained_project": "No new sweep runner invented or run.",
+      "resolution": "Keep the bounded missing-material status; historical external reference is a precise new lead, not proof the omitted code is recovered.",
+      "execution_authorized": false
+    },
+    {
+      "id": "AP29",
+      "status": "resolved",
+      "topic": "Published release and history scope",
+      "paper_evidence": [
+        {
+          "id": "code_availability",
+          "source": ".runtime/author_sources/ancestralpaths_paper_PMC10781624.xml",
+          "sha256": "1a8ecd1ff10d3a181bf6d59edc23d2d58cc0c3a2c0cde21d3c7646f36ad43580",
+          "paragraph_index_0based": 72,
+          "quote": "The scripts used to run the chromosome painting (Supplementary Note 2) and calculate ARS in the UKB (Supplementary Note 9) are available at https://github.com/will-camb/mesoneo_selection_paper (10.5281/zenodo.8301166). The software to perform the ancestral path chromosome painting described in Supplementary Note 3 is available on GitHub at https://github.com/AliPearson/AncestralPaths (10.5281/zenodo.8319452) and the demographic model is available in the stdpopsim library (https://popsim-consortium.github.io/stdpopsim-docs/stable/catalog.html#sec_catalog_homsap_models_ancienteurope_4a21). The analysis pipeline and ‘conda’ environment necessary to replicate the analysis of allele frequency trajectories of trait-associated variants in Supplementary Note 4 are available at https://github.com/ekirving/mesoneo_paper (10.5281/zenodo.8289755). The modified version of CLUES used in this study is available from https://github.com/standard-aaron/clues (10.5281/zenodo.8228252). The pipeline to replicate the analyses for Supplementary Note 7 can be found at https://github.com/albarema/neo (10.5281/zenodo.8301253). All other analyses relied on available software which has been fully referenced in the manuscript and detailed in the relevant Supplementary notes."
+        }
+      ],
+      "code_evidence": [
+        {
+          "path": "research/reviews/author_repository_deep_audit_20261023_v1/ancestralpaths/zenodo_archive_comparison.json",
+          "sha256": "d949f42deed1ddd587defc8dcf5a38ff6af92a9af69d89539116f450564781f7"
+        },
+        {
+          "path": "research/reviews/author_repository_deep_audit_20261023_v1/ancestralpaths/current_tree_local_verification.json",
+          "sha256": "a7ecdf11f055a6943f74ee34501080a38cf41f8e4ed12e42f160b4ad3f6180a5"
+        },
+        {
+          "path": "research/reviews/author_repository_file_agreement_20261023_v2/ancestralpaths/historical_reconstruction.json",
+          "sha256": "82bc5c46c1db7122f26b457f7d1be1dff572d22f2de62d007b32a7445e7bb0f0"
+        }
+      ],
+      "author_source": "All17 current/published payload files match.27visible commits/64paths;69unique reconstructed text contents across71events. No second CNN runner in linked selection repository.",
+      "maintained_project": "Old blanketCNN-unavailable statement is superseded; exact-paper-binding still unresolved.",
+      "resolution": "Per-file modes explicitly distinguish31historical binary/genotype assets from reviewed text; never equate path census with full content review.",
+      "execution_authorized": false
+    },
+    {
+      "id": "AP30",
+      "status": "explicit-choice",
+      "topic": "Future CNN condition and activation boundary",
+      "paper_evidence": [
+        {
+          "id": "CNN",
+          "source": ".runtime/author_sources/ancestralpaths_supplement_41586_2023_6705_MOESM1_ESM.txt",
+          "sha256": "f4d21b9b08ead8f4f9a25ba6510123ff91d1f83005a46d8839b0feb87c839b7d",
+          "start_line_splitlines": 999,
+          "end_line_splitlines": 1004,
+          "quote": "implemented supervised machine learning, specifically a convolutional neural network. First\nwe simulate variant and tree sequence data from a demographic model of the history of the\npopulations under analysis, such as our model of European population structure. Next we\ninfer RELATE tree sequences from the simulated genotype data. We then extract training\nGNNs from the RELATE trees and train a neural network to predict the path given the true\npath label extracted from the corresponding simulated tree sequences. By training on GNNs"
+        },
+        {
+          "id": "training_counts",
+          "source": ".runtime/author_sources/ancestralpaths_supplement_41586_2023_6705_MOESM1_ESM.txt",
+          "sha256": "f4d21b9b08ead8f4f9a25ba6510123ff91d1f83005a46d8839b0feb87c839b7d",
+          "start_line_splitlines": 1039,
+          "end_line_splitlines": 1045,
+          "quote": "We extracted 10,000 training pairs of GNNs and true labels from each of the five admixed\nsample populations (GBR, Bronze Age, Yamnaya, Neolithic farmers and Bronze Age\nanatolians), 50,000 pairs in total. GNNs were taken from the trees covering evenly spaced\nsites across three tree sequences output from RELATE, avoiding most of the correlation\nbetween trees. True path labels were taken from the trees covering the same sites in the\ncorresponding simulated tree sequences. We trained the classifier to predict the path labels\nfrom the GNNs."
+        }
+      ],
+      "code_evidence": [
+        {
+          "path": "research/reviews/author_repository_deep_audit_20261023_v1/ancestralpaths/history_source/previous_training.py",
+          "sha256": "fc90bb333e3589f3e4f76098dfc591222de1e40c7382a3f367e876270393b4eb",
+          "start_line": 199,
+          "end_line": 213
+        },
+        {
+          "path": "src/arggnn/benchmarking/european_native_models.py",
+          "sha256": "24be8a3d95cfa52ee3fb437afdc8ab7fdc7d432ee81680018170e4ddb50385e6",
+          "start_line": 251,
+          "end_line": 330
+        },
+        {
+          "path": "research/reviews/author_repository_deep_audit_20261023_v1/ancestralpaths/historical_checkpoint_hdf5_metadata.json",
+          "sha256": "a4b856d91a2cb98d3d7029c4c70b3dffb3e5fa235d77575b5298039091625f13"
+        }
+      ],
+      "author_source": "Historical model is recoverable, exact old paper recipe is not fully bound.",
+      "maintained_project": "Current Dense condition and frozen observed data/features/targets/registries remain unchanged.",
+      "resolution": "Prepare only inactive specification. No queue, policy, source, runtime, training, scoring or checkpoint-read permission follows from this audit.",
+      "execution_authorized": false
+    }
+  ]
+}

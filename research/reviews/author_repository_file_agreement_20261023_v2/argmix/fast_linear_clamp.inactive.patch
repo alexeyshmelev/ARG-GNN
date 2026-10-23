@@ -1,0 +1,21 @@
+--- a/src/rust/ancpath/src/fast_lca/engine.rs
++++ b/src/rust/ancpath/src/fast_lca/engine.rs
+@@ -826,14 +826,14 @@
+ #[inline]
+ fn transform_tmrca_distance_linear(max_rel_distance: u16, node_time: i32, raw_tmrca: u32) -> i64 {
+     if raw_tmrca == NO_TMRCA {
+         return i64::from(max_rel_distance);
+     }
+-    i64::from(min(
+-        (node_time as i64 - raw_tmrca as i64).unsigned_abs() as u16,
+-        max_rel_distance,
+-    ))
++    let delta = (node_time as i64 - raw_tmrca as i64).unsigned_abs();
++    let capped = min(delta, u64::from(max_rel_distance));
++    // The cap is a u16, so narrowing after the comparison cannot wrap.
++    i64::from(capped as u16)
+ }
+ 
+ #[inline]
+ fn transform_tmrca_distance_log(max_rel_distance: u16, node_time: i32, raw_tmrca: u32) -> i64 {
+     let tmrca_opt = if raw_tmrca == NO_TMRCA {

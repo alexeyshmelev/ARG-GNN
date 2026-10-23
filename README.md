@@ -61,12 +61,25 @@ Conservative storage projection: 968.60 GB, below the 980 GB operational ceiling
 
 Within each paired endpoint, code fixes common sample/site identities and requires prediction seals before held-out ancestry scoring. Native-six AP and four-source ARGMix conditions use different output labels and support, so their scores must stay separate. Training budgets and information access differ by method. These experiments assess complete pipelines, not architecture alone.
 
-**No fresh matched ancestry scores or all-method superiority claim are established.** The source audit found no defect invalidating the declared pairing, but actual completed predictions and scoring still require verification. Healthy running jobs were preserved.
+**No fresh matched ancestry scores or all-method superiority claim are established.** The source review does not certify that released implementations match their papers. Completed predictions and common scoring still require verification. Existing jobs were preserved.
 
 [Scope audit and source references](research/reviews/benchmark_scientific_scope_20261023_v1/audit.json) · [European deviations](docs/european_native_comparison_deviations_v1.md) · [ARGformer paper audit](docs/argformer_published_benchmark_audit_v1.md) · [ARGMix paper audit](docs/argmix_published_benchmark_audit_v1.md)
 
 
 **Deep repository reinspection, 23 October:** earlier missing-code claims were too broad. We recovered the historical AncestralPaths CNN and verified its example checkpoint metadata, ARGMix ancestor-extraction components, and deleted GSTv2/CIFAR source. We checked 9/12/27/18 reachable public commits for ARGMix/ARGformer/AncestralPaths/GST. These discoveries do not change running baselines or certify original-table reproduction. [Full corrections, file inventories and remaining work](research/reviews/author_repository_deep_audit_20261023_v1/REPORT.md).
+
+<!-- BEGIN FILE AGREEMENT AUDIT V2 -->
+**File-by-file paper agreement audit, 24 October:** three reviewers and the primary agent accounted for all **433 current official files** across ARGMix, ARGformer, AncestralPaths, GST and FLARE. Exact path sets and payload hashes were checked. Per-file records distinguish full source reading, structured data/lock scans, Java data-flow review and image metadata review.
+
+- **ARGMix:** the attention key index differs from the paper equation. The fast raw-linear distance can wrap before clipping. Two exact inactive patches pass applicability checks. Donor tokens, ancestor geometry and multi-parent training also need explicit reconstruction work.
+- **AncestralPaths:** historical CNN topology and Keras Flatten order are recovered, with a concrete inactive specification. The released Dense model and historical CNN are separate conditions. Native sampling and some downstream painting code differ from the publication recipe.
+- **ARGformer:** the historical environment is recovered. Temperature, weighting, masking and extant pooling conflicts remain. The original PCA10 ancestry classifier is not released.
+- **GST and FLARE:** GST synthetic totals and all seven BH training counts are resolved, while model/version/training differences remain. All FLARE test fixtures were scanned. They contain no ancestry truth and are not a substitute for the American benchmark.
+
+**This audit changes no running baseline and establishes no new accuracy score.** Known corrections are prepared separately. Unreleased original settings remain explicit gaps, and the active queue still does not cover every original paper benchmark.
+
+[Full audit and repair status](research/reviews/author_repository_file_agreement_20261023_v2/REPORT.md) · [Every agreement and gap](research/reviews/author_repository_file_agreement_20261023_v2/gap_register.json) · [Coverage validation](research/reviews/author_repository_file_agreement_20261023_v2/coverage_validation.json)
+<!-- END FILE AGREEMENT AUDIT V2 -->
 
 <!-- END SCIENTIFIC COMPARISON SCOPE -->
 
