@@ -19,7 +19,7 @@ The user authorized this rebuild on 24 October 2026. The objective is a fair com
 | AncestralPaths | AP worker | Historical CNN complete; authenticated 476-person reuse, static TreeLoom prediction and shared scoring interfaces | CNN fit/predictions complete; remaining predictions/scores open |
 | ARGformer / FLARE | ARGformer worker | Corrected native ARGformer, explicit PCA10 reconstruction, 15 authenticated FLARE outputs and scratch lifecycle | Implementation and CPU qualification complete; corrected GPU fits/results open |
 | GST and TreeLoom integration | AP worker and root | GST-LAI-8 ancestry adapter and frozen full-parent TreeLoom routes with reviewed resume state | Code and bounded CPU qualification complete; migration/launch/performance open |
-| Queue, performance, storage, publication | Root | Explicit campaign DAG, authenticated source closure, storage reservations, real progress evidence, README and Git | Final admission/migration in progress; launch verification/publication open |
+| Queue, performance, storage, publication | Root | Explicit campaign DAG, authenticated source closure, storage reservations, real progress evidence, README and Git | Master v2 launched; remaining startup/performance/publication open |
 
 ## Issue ledger
 
@@ -34,7 +34,7 @@ The user authorized this rebuild on 24 October 2026. The objective is a fair com
 | B07 | GST omitted from active comparison | Implemented GST-LAI-8 with unchanged author GraphSetConv and an explicit ancestry input/output adapter on shared LAI data. Original GST synthetic and molecular tasks were not reproduced; no original-task or isolated-layer attribution claim | Closed: LAI-adapted implementation only; launch/performance/results remain open |
 | B08 | Old TreeLoom steps are very expensive | Implemented plaintext affine-prefix history, connected full-sequence GRU tiling and complete-parent decoder VJP. Frozen 49-tensor model and all Adam moments retained; CPU parity, strict continuation and cumulative checkpoint-history review passed | Closed: implementation/CPU qualification only; migration and measured GPU performance remain open |
 | B09 | Storage near conservative projected capacity | One 895.59 GB measurement plus conservative live-writer growth yields a 916.08 GB existing-project reservation; campaign operational ceiling is 990 GB. Scope bounds and sequential fresh-corpus retirement are implemented | Open: live admission/storage monitoring |
-| B10 | Queue coverage and current scores hard to inspect | Master draft and scientific joins reviewed; ARGMix/AP source closure authenticated. Final immutable resume binding, admitted queue, startup evidence, README and publication remain | Open: launch/integration verification and publication |
+| B10 | Queue coverage and current scores hard to inspect | Reviewed 251-task master v2 launched after preserved setup failure; ARGMix first stage completed with genuine wait, and next preparation admitted. Complete-parent/model progress, README and publication remain | Open: remaining startup/progress verification and publication |
 | B11 | Historical instructions contain superseded GPU assignments | Current user authority is GPUs 3, 4, 5 | Resolved |
 | B12 | Benchmark outputs not yet complete | Publish only measured held-out metrics with replicate SD, do not turn training loss into accuracy | Open |
 
@@ -101,3 +101,29 @@ Root deliberately ended only this newly launched queue and its four other owned 
 At 2026-10-23T22:52:41.290463+00:00, Root archived five exact initial output scopes under `experiments/results/paper_campaign_20261024/initial_setup_failure`, preserving 2,647,671 bytes. `integration/initial_attempt_archive.json` records original paths, archived paths and wait evidence; its SHA256 is `fa3837ece3f0592bf22e958f58000598d690d3b20b137c82c0e24bfb4abfb905`. Independent path checks found all five archive directories present and their original task leaves absent. The source first-attempt state still matches the archive manifest reference. Original logs and state remain evidence.
 
 The fixed ARGMix recipe and DAG namespace is retained for a deliberate retry; the failed generated leaf has been archived rather than overwritten. The coordinator is reviewing parent-directory creation, attempt-specific job/log paths, cumulative log/archive storage accounting and failed-branch recovery hooks before the second launch. Startup verification, complete-parent progress, GPU throughput and held-out scores remain open. No v2 launch is claimed in this ledger entry.
+
+
+## Second master launch and first persisted ARGMix completion
+
+Root launched the reviewed 251-task v2 campaign at 2026-10-23T22:58:08.776105+00:00, controller PID 198309, from `configs/benchmarks/paper_campaign_20261024_v2.json` (SHA256 `9f0ee40f25e9def145a85318bc723903b4ef96bd7c85060685c7f959ce3ccb9b`), with pushed commit `654703aca3dac1c53bfab117552435dc3c534517` verified in the launch receipt. The scientific task definitions are unchanged from v1. The new baseline adds exactly 2,836,426 bytes: 2,647,671 bytes of archived outputs and 188,755 bytes of retained first-attempt records. Independent review verified all 269 task source refs and six controller source refs, fresh task leaves before launch and empty first-attempt sessions. The 19 repair fixtures and exact argv-parent/cleanup fixture passed. See `integration/master_v2_independent_review.json`.
+
+By 2026-10-23T23:01:06.481447+00:00, ARGMix TRAIN0 adoption had completed in 40.48 seconds with genuine exit0, actual wait and no surviving owned process group. The persisted observation product has 311,599 sites, 3,222 haplotypes, 1,611 diploids and 2,972 query haplotypes; observed inputs contain no genealogy or founder truth. Historical data were authenticated and adapted without regeneration, repeated allele error or changes to the originals. Its `generation.json` SHA256 is `f66b4765295109874420df8c9047d88468571485a3ea737f944f0ad04031a04e`; the task retained 128,223,252 bytes including its log at completion.
+
+The next `published_recon_train_000.relate_inputs` preparation stage also completed with exit0, actual wait and an empty owned process group; its `relate_work/commands.json` SHA256 is `807dbc4b9f6c9eebcd86d220fed7b1d70dbe721e729307673874aa5dba0df160`. Native Relate then started as PID 200743. The recorded ARGMix snapshot contains two succeeded stages, one running stage, 147 pending stages and no errors. `argmix/master_v2_startup_progress_receipt.json` records the exact observed task rows and immutable completion/wait references. This establishes recovery of the missing-parent setup failure and persisted observation reuse. Full native inference, model optimization, GPU throughput, complete held-out prediction barriers and final scores remain open.
+
+## Initial production acceptance, corrected v2
+
+The complete 251-stage comparison DAG is launched and initial substantive training is verified. The scientific task definitions are unchanged from the independently reviewed first plan. All 269 scientific source pins and six controller source pins passed the final check. The first setup failure is preserved in the attempt archive and is not represented as a scientific model failure.
+
+| Ticket | Result | Status |
+|---|---|---|
+| B13 | Missing argv output parent repaired. Exact scheduler fixture completed with real exit zero and no surviving workers. | Closed |
+| B14 | Explicit failed-branch repair requests retain previous task definitions, logs and attempts, charge archived storage, reject running/succeeded task edits and preserve healthy workers. Nineteen fixtures and independent review passed. | Closed |
+| B15 | Both corrected ARGformer MLM runs saved native 500-update checkpoints with 256,000 sampled paths each, then advanced beyond 1,200 logged batches. No traceback. | Initial training accepted |
+| B16 | ARGMix adopted the authenticated TRAIN0 observations and prepared native Relate inputs. Both actual process waits returned zero. Native Relate is running. | Initial data stages accepted |
+| B17 | TreeLoom retains the authenticated 58-update state. Its new process is rebuilding the process-local CPU bank before resuming update 59. GST is reading its complete observed VCFs before starting eight data-loader workers. | Open, preparation advancing |
+| B18 | Full paired predictions, matched held-out metrics, replicate standard deviations and final model ranking. | Open, queued |
+
+The GPUs are assigned only within physical 3, 4 and 5. GPU 4 reached 94–100 percent utilization with two corrected native training jobs. Utilization of GPUs 3 and 5 varies while the new TreeLoom and GST jobs prepare CPU observations alongside retained legacy jobs. Continuous full utilization of all three GPUs is not yet demonstrated. Preparation file offsets and callbacks are advancing, so CPU preparation is not labelled as completed training.
+
+No held-out score or new superiority claim is inferred from the training counters. The queue being built, launched and initially healthy does not mean that all benchmarks have completed. Source, protocol reconstruction, progress and failure receipts remain separate and preserved.

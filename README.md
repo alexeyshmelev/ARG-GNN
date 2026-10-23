@@ -20,13 +20,17 @@ The first launch exposed a missing output-parent directory in the queue. Its fai
 
 [Detailed plan and issue ledger](research/benchmark_rebuild_20261024/PLAN.md) · [Active queue](configs/benchmarks/paper_campaign_20261024_v2.json) · [Scientific integration review](research/benchmark_rebuild_20261024/integration/final_integration_review_v1.json) · [ARGformer reconstruction](research/benchmark_rebuild_20261024/american/IMPLEMENTATION.md)
 
+Verified initial progress: both corrected ARGformer runs wrote native checkpoints at batch 500, corresponding to 256,000 sampled training paths each, and continued beyond 1,200 logged batches without errors. ARGMix completed observation adoption and Relate-input preparation and entered native Relate. The queue has five active tasks, eight completed or reused stages, and no failed or blocked tasks at this snapshot. TreeLoom and GST are still preparing complete observed data. Their new training updates are not yet claimed. GPU utilization varies during this initial CPU work.
+
+[ARGformer checkpoints and progress](research/benchmark_rebuild_20261024/american/master_v2_500update_progress_receipt.json) · [Current launch and health](research/benchmark_rebuild_20261024/integration/master_v2_initial_health.json) · [ARGMix progress](research/benchmark_rebuild_20261024/argmix/master_v2_startup_progress_receipt.json)
+
 **Matched held-out scores are pending.** Training loss, training accuracy and GPU utilization are not substitutes for test results. Accuracy, class metrics and replicate standard deviations will be reported after the paired predictions and common scoring finish.
 <!-- paper-benchmark-rebuild-current:end -->
 
 
 <!-- readable-gpu345-queue:start -->
 ### Current GPU 3/4/5 queue
-Updated 2026-10-23T23:03:20.343366+00:00. Status: running.
+Updated 2026-10-23T23:06:28.936141+00:00. Status: running.
 74 pending, 1 running, 258 succeeded, 1 failed, 16 blocked, 0 unknown.
 Local active: AM_argformer_american_test_001_argformer_mlm.
 Live training stages: bounded stage metadata pending.
@@ -113,7 +117,7 @@ Within each paired endpoint, code fixes common sample/site identities and requir
 
 <!-- readable-full-vram-queue:start -->
 ### Current full-VRAM queue
-Updated 2026-10-23T23:04:07.794995+00:00. Status: running.
+Updated 2026-10-23T23:07:32.903686+00:00. Status: running.
 85 pending, 1 running, 247 succeeded, 1 failed, 16 blocked, 0 unknown.
 Local active: AP__all_train__treeloom_fit.
 Live training stages: bounded stage metadata pending.
