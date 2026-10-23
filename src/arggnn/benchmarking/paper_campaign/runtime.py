@@ -53,6 +53,10 @@ def read(reference):
 
 
 def scope_bytes(directory):
+    if directory.is_symlink():
+        raise ValueError("Mutable scope cannot be a symbolic link")
+    if directory.is_file():
+        return directory.stat().st_size
     total = 0
     for current, dirs, files in os.walk(directory, followlinks=False):
         dirs[:] = [d for d in dirs if not (Path(current) / d).is_symlink()]

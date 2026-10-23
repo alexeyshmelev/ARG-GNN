@@ -29,6 +29,27 @@ def validate(plan):
         if not available - done:
             raise ValueError('Missing or cyclic dependency')
         done |= available
+    by_id = {t['id']: t for t in plan['tasks']}
+    def references(value):
+        if isinstance(value, dict):
+            if '$task' in value:
+                yield value['$task']
+            for item in value.values():
+                yield from references(item)
+        elif isinstance(value, list):
+            for item in value:
+                yield from references(item)
+    for task in plan['tasks']:
+        ancestors = set(task['dependencies'])
+        pending = list(ancestors)
+        while pending:
+            name = pending.pop()
+            for dependency in by_id[name]['dependencies']:
+                if dependency not in ancestors:
+                    ancestors.add(dependency)
+                    pending.append(dependency)
+        if not set(references(task)) <= ancestors:
+            raise ValueError('Artifact link lacks a dependency edge: ' + task['id'])
     outputs = []
     for task in plan['tasks']:
         if task['kind'] == 'external':
@@ -50,8 +71,14 @@ def validate(plan):
         if any(output == prior or output.is_relative_to(prior) or prior.is_relative_to(output) for prior in outputs):
             raise ValueError('Task output scopes overlap')
         outputs.append(output)
-        r.path(task['python'])
-    if plan['storage_ceiling_bytes'] > 980_000_000_000:
+        if not r.path(task['python']).is_file():
+            raise ValueError('Task interpreter is absent')
+        for extra in task.get('additional_mutable_scopes', []):
+            if not r.path(extra['path']).is_relative_to(r.ROOT / 'experiments') or extra['max_bytes'] <= 0:
+                raise ValueError('Explicit project-contained auxiliary write bound required')
+        if task.get('argv') and r.path(task['argv'][0]) != r.path(task['python']):
+            raise ValueError('Argv interpreter differs from declared runtime')
+    if plan['storage_ceiling_bytes'] > 1_000_000_000_000:
         raise ValueError('Operational storage ceiling exceeded')
     return plan
 
@@ -100,7 +127,7 @@ def environment(task, gpu):
                MKL_NUM_THREADS=str(task.get('cpu_threads', 4)), OPENBLAS_NUM_THREADS=str(task.get('cpu_threads', 4)))
     if gpu is not None:
         env.update(CUDA_VISIBLE_DEVICES=r.GPU_UUIDS[gpu], ARGGNN_PHYSICAL_GPU=str(gpu),
-                   ARGGNN_GPU_MEMORY_POLICY='full_device', WORLD_SIZE='1', LOCAL_RANK='0')
+                   ARGGNN_GPU_MEMORY_POLICY='full_device', ARGGNN_GPU_UUID_MAP=json.dumps(r.GPU_UUIDS), WORLD_SIZE='1', LOCAL_RANK='0')
     else:
         env.update(CUDA_VISIBLE_DEVICES='')
         env.pop('ARGGNN_PHYSICAL_GPU', None)
@@ -126,6 +153,32 @@ def stop_owned(process, expected_start):
     return process.wait(timeout=5)
 
 
+def pipeline_floor(plan, state, sizes, active_ids, candidate=None):
+    """Keep enough disk for a started native chain to finish and retire scratch.
+
+    The floor is an admission reservation, not a preallocated file or a model
+    limit. It prevents other pipelines from consuming a required successor's
+    temporary capacity while still permitting work that fits beside it.
+    """
+    extra = 0
+    for pool in plan.get('pipeline_storage_floors', []):
+        if all(state['tasks'][name]['status'] == 'succeeded' for name in pool['retirement_ids']):
+            continue
+        scope = r.path(pool['scope'])
+        member_ids = set(pool['task_ids'])
+        members = [t for t in plan['tasks'] if t['id'] in member_ids]
+        present = sum(sizes[t['id']] for t in members)
+        present += sum(max(0, t['max_output_bytes'] - sizes[t['id']])
+                       for t in members if t['id'] in active_ids)
+        if candidate is not None and candidate['id'] in member_ids:
+            present += candidate['max_output_bytes']
+        retained = sum(sizes[task['id']] for task_id, parent_scope in pool['retired_parent_scopes'].items()
+                       if state['tasks'][task_id]['status'] == 'succeeded'
+                       for task in members if r.path(task['output_directory']).is_relative_to(r.path(parent_scope)))
+        extra += max(0, retained + pool['next_parent_transient_bytes'] - present)
+    return extra
+
+
 def run(plan_path):
     plan = validate(json.loads(r.path(plan_path).read_text()))
     directory = r.path(plan['records_directory'])
@@ -137,6 +190,16 @@ def run(plan_path):
         raise ValueError('Use a reviewed continuation after an existing attempt, never silently replay')
     state = dict(schema='paper_campaign_state_v1', plan_ref=r.ref(plan_path), controller_pid=os.getpid(),
                  tasks={t['id']: dict(status='pending') for t in plan['tasks']})
+    outputs = [r.path(t['output_directory']) for t in plan['tasks'] if t['kind'] != 'external']
+    auxiliaries = {}
+    for task in plan['tasks']:
+        for extra in task.get('additional_mutable_scopes', []):
+            scope = r.path(extra['path'])
+            if not any(scope == root or scope.is_relative_to(root) for root in outputs):
+                auxiliaries[str(scope)] = r.scope_bytes(scope)
+    state['auxiliary_initial_bytes'] = auxiliaries
+    def used(task):
+        return r.scope_bytes(r.path(task['output_directory'])) + r.scope_bytes(directory / 'logs' / (task['id'] + '.log'))
     running = {}
     def cancel(signum, frame):
         raise RuntimeError('Controller received explicit termination signal')
@@ -150,13 +213,17 @@ def run(plan_path):
                 code = process.poll()
                 if code is None:
                     usage = processes.pss(process.pid)
-                    size = r.scope_bytes(r.path(task['output_directory']))
+                    size = used(task)
                     for extra in task.get('additional_mutable_scopes', []):
                         if r.scope_bytes(r.path(extra['path'])) > extra['max_bytes']:
                             size = task['max_output_bytes'] + 1
                     row['observed_pss_bytes'] = usage
                     row['observed_output_bytes'] = size
-                    if usage > task['max_rss_bytes'] or size > task['max_output_bytes']:
+                    scope_exceeded = any(
+                        r.path(task['output_directory']).is_relative_to(r.path(limit['path']))
+                        and r.scope_bytes(r.path(limit['path'])) > limit['max_bytes']
+                        for limit in plan.get('scope_limits', []))
+                    if usage > task['max_rss_bytes'] or size > task['max_output_bytes'] or scope_exceeded:
                         code = stop_owned(process, start_ticks)
                         row['error'] = 'Resource reservation exceeded'
                 if code is None and time.time()-start > task['max_seconds']:
@@ -174,7 +241,7 @@ def run(plan_path):
                 log.close()
                 output = r.path(task['output_directory'])
                 result = output / task.get('completion_file', 'result.json')
-                final_bytes = r.scope_bytes(output)
+                final_bytes = used(task)
                 if final_bytes > task['max_output_bytes']:
                     row['error'] = 'Final output exceeds reservation'
                 for extra in task.get('additional_mutable_scopes', []):
@@ -182,7 +249,7 @@ def run(plan_path):
                         row['error'] = 'Final auxiliary scope exceeds reservation'
                 success = code == 0 and result.is_file() and 'error' not in row
                 row.update(status='succeeded' if success else 'failed', actual_returncode=code,
-                           actual_wait=True, owned_process_group_absent=True, finished_unix=time.time(), retained_bytes=r.scope_bytes(output))
+                           actual_wait=True, owned_process_group_absent=True, finished_unix=time.time(), retained_bytes=used(task))
                 if success:
                     row['result_ref'] = r.ref(result)
                 else:
@@ -199,16 +266,24 @@ def run(plan_path):
                         row.update(status='succeeded', result_ref=result, reused=True)
                 except Exception as exc:
                     row.update(status='blocked', error=str(exc))
+            scope_usage = {limit['path']: r.scope_bytes(r.path(limit['path'])) for limit in plan.get('scope_limits', [])}
+            state['scope_usage_bytes'] = scope_usage
             snapshot = gpu_state()
             state['gpu_observation'] = snapshot
             baseline = plan['reserved_existing_project_bytes']
-            sizes = {t['id']: r.scope_bytes(r.path(t['output_directory'])) for t in plan['tasks'] if t['kind'] != 'external'}
-            reserved = sum(sizes.values())
+            sizes = {t['id']: used(t) for t in plan['tasks'] if t['kind'] != 'external'}
+            reserved = sum(sizes.values()) + sum(max(0, r.scope_bytes(Path(scope)) - initial) for scope, initial in auxiliaries.items())
+            # Source specs, state and controller stdout have a separately charged allowance.
+            reserved += plan.get('controller_metadata_allowance_bytes', 2**30)
+            auxiliary_reservations = set()
             for t in plan['tasks']:
                 if t['id'] in running:
                     reserved += max(0, t['max_output_bytes'] - sizes[t['id']])
                     for extra in t.get('additional_mutable_scopes', []):
-                        reserved += max(0, extra['max_bytes'] - r.scope_bytes(r.path(extra['path'])))
+                        scope = str(r.path(extra['path']))
+                        if scope not in auxiliary_reservations:
+                            reserved += max(0, extra['max_bytes'] - r.scope_bytes(r.path(scope))) if extra.get('growth_allowed', True) else 0
+                            auxiliary_reservations.add(scope)
             for task in plan['tasks']:
                 row = state['tasks'][task['id']]
                 if row['status'] != 'pending' or task['kind'] == 'external':
@@ -220,8 +295,14 @@ def run(plan_path):
                 if any(s != 'succeeded' for s in deps):
                     row['waiting_reason'] = 'Required predecessor unfinished'
                     continue
-                new_growth = task['max_output_bytes'] + sum(max(0, extra['max_bytes'] - r.scope_bytes(r.path(extra['path']))) for extra in task.get('additional_mutable_scopes', []))
-                if baseline + reserved + new_growth > plan['storage_ceiling_bytes']:
+                violated = next((limit for limit in plan.get('scope_limits', [])
+                    if r.path(task['output_directory']).is_relative_to(r.path(limit['path']))
+                    and scope_usage[limit['path']] > limit['max_bytes']), None)
+                if violated:
+                    row.update(status='blocked', error='Campaign scope limit exceeded: ' + violated['path'])
+                    continue
+                new_growth = task['max_output_bytes'] + sum(max(0, extra['max_bytes'] - r.scope_bytes(r.path(extra['path']))) for extra in task.get('additional_mutable_scopes', []) if extra.get('growth_allowed', True))
+                if baseline + reserved + new_growth + pipeline_floor(plan, state, sizes, set(running), task) > plan['storage_ceiling_bytes']:
                     row['waiting_reason'] = 'Storage reservation'
                     continue
                 active = [t for t in plan['tasks'] if t['id'] in running]
@@ -246,11 +327,19 @@ def run(plan_path):
                     if not candidates:
                         row['waiting_reason'] = 'GPU headroom'
                         continue
-                    gpu = min(candidates, key=lambda i: (snapshot[i]['utilization'], -snapshot[i]['free_bytes']))
+                    preferred = task.get('preferred_gpus', [])
+                    gpu = min(candidates, key=lambda i: (preferred.index(i) if i in preferred else len(preferred), snapshot[i]['utilization'], -snapshot[i]['free_bytes']))
                 elif sum(t['kind'] == 'cpu' for t in active) >= plan.get('max_cpu_tasks', 3):
                     row['waiting_reason'] = 'CPU preparation lanes occupied'
                     continue
-                concrete = resolve(task, state)
+                try:
+                    concrete = resolve(task, state)
+                    for source in concrete.get('source_refs', []):
+                        if r.ref(source['path']) != source:
+                            raise ValueError('Pinned source changed: ' + source['path'])
+                except Exception as exc:
+                    row.update(status='blocked', error=str(exc))
+                    continue
                 output = r.path(task['output_directory'])
                 if output.exists():
                     row.update(status='blocked', error='Output already exists, no overwrite')
@@ -279,7 +368,7 @@ def run(plan_path):
             state['updated_unix'] = time.time()
             state['counts'] = {key: sum(row['status'] == key for row in state['tasks'].values())
                                for key in ('pending', 'running', 'succeeded', 'failed', 'blocked')}
-            state['project_reserved_bytes'] = baseline + reserved
+            state['project_reserved_bytes'] = baseline + reserved + pipeline_floor(plan, state, sizes, set(running))
             r.save(state_path, state)
             if not running and all(row['status'] in ('succeeded', 'failed', 'blocked') for row in state['tasks'].values()):
                 return state

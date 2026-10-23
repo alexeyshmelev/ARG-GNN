@@ -15,26 +15,26 @@ The user authorized this rebuild on 24 October 2026. The objective is a fair com
 
 | Workstream | Owner | Deliverable | State |
 |---|---|---|---|
-| ARGMix | ARGMix worker | 1,611-person recipe, 29-node extraction, paper attention/raw-distance corrections, training and scoring | Implementing |
-| AncestralPaths | AP worker | Historical CNN, 476-person observations/support reuse, fit and scoring | Implementing |
-| ARGformer / FLARE | ARGformer worker | Paper-oriented masking, pooling, weights, PCA10 evaluation, paired scoring | Implementing |
-| GST and TreeLoom integration | Root | Original-task adapter, shared inputs and scientifically appropriate set-mode comparison | Implementing |
-| Queue, performance, storage, publication | Root | Readable executable DAG, reservations, progress evidence, README and Git | Implementing |
+| ARGMix | ARGMix worker | Frozen 1,611-person recipe, 29-node extraction, paper attention/raw-distance corrections, paired training and scoring routes | Implementation complete; production execution/results open |
+| AncestralPaths | AP worker | Historical CNN complete; authenticated 476-person reuse, static TreeLoom prediction and shared scoring interfaces | CNN fit/predictions complete; remaining predictions/scores open |
+| ARGformer / FLARE | ARGformer worker | Corrected native ARGformer, explicit PCA10 reconstruction, 15 authenticated FLARE outputs and scratch lifecycle | Implementation and CPU qualification complete; corrected GPU fits/results open |
+| GST and TreeLoom integration | AP worker and root | GST-LAI-8 ancestry adapter and frozen full-parent TreeLoom routes with reviewed resume state | Code and bounded CPU qualification complete; migration/launch/performance open |
+| Queue, performance, storage, publication | Root | Explicit campaign DAG, authenticated source closure, storage reservations, real progress evidence, README and Git | Final admission/migration in progress; launch verification/publication open |
 
 ## Issue ledger
 
 | ID | Issue | Resolution / remaining work | Status |
 |---|---|---|---|
 | B01 | Release experiments were conflated with paper comparisons | Preserve as named controls, build separate paper-oriented arms | In progress |
-| B02 | ARGMix release representation differs | Use 25 donors, three ancestors, query, raw capped distances and paper attention equation in an explicit corrected copy | Worker implementing |
-| B03 | ARGMix data scenario differs | 1,611-person chr22 recipe, BAA excluded, 0.001 allele-error reconstruction. Reuse authenticated TRAIN0 observations | Worker implementing |
-| B04 | AncestralPaths current Dense network differs from paper CNN | Historical 19,078-parameter CNN recovered, CPU checks passed, full 50,000-example fit completed with 8,335 updates | Resolved, prediction running |
-| B05 | ARGformer training defaults differ from paper | Fresh named arm with paper temperature, literal masking, extant token pooling and effective class weights | Worker implementing |
-| B06 | ARGformer ancestry classifier unreleased | Explicit PCA10 reconstruction with training reference labels only | Worker implementing |
-| B07 | GST omitted from active comparison | Prepare valid unordered-set candidate and author-task comparisons without invented ancestry identity | Root implementing |
-| B08 | Old TreeLoom steps are very expensive | Serial per-hold memory recurrence identified. Parallel affine recurrence under implementation, unchanged full-parent objective | Worker implementing |
-| B09 | Storage near conservative projected capacity | Reuse data, calculate remaining reservations, keep total under 1 TB, no repeated broad scan | Root investigating |
-| B10 | Queue coverage and current scores hard to inspect | One campaign plan, explicit dependencies, status/metric receipts in README | Root implementing |
+| B02 | ARGMix release representation differs | Implemented 25 donors, three ancestors and query; stable raw-TMRCA selection, capped raw distances, corrected paper attention and explicit author-key sensitivity source. CPU geometry/gradient checks passed | Closed: implementation only; production/results remain open |
+| B03 | ARGMix data scenario differs | Frozen 14-parent 1,611-person chr22 recipe, BAA excluded, 0.001 allele-error reconstruction and explicit unavailable-paper assumptions. Authenticated completed TRAIN0 observations reused; bounded native inference route implemented | Closed: recipe/data implementation only; production/results remain open |
+| B04 | AncestralPaths current Dense network differs from paper CNN | Historical 19,078-parameter CNN recovered, CPU checks passed, full 50,000-example fit completed with 8,335 updates | Resolved, five TEST predictions completed |
+| B05 | ARGformer training defaults differ from paper | Corrected named native arm implements paper temperature, literal MASK, retained extant-token pooling and actual inverse-frequency class weights; CPU and author-loader checks passed | Closed: implementation only; corrected full fits/results remain open |
+| B06 | ARGformer ancestry classifier unreleased | Implemented explicit PCA10 reconstruction using training reference labels and nearest class centroids; original row identities preserved. Hard calls are reported without posterior claims | Closed: reconstruction implementation only; held-out results remain open |
+| B07 | GST omitted from active comparison | Implemented GST-LAI-8 with unchanged author GraphSetConv and an explicit ancestry input/output adapter on shared LAI data. Original GST synthetic and molecular tasks were not reproduced; no original-task or isolated-layer attribution claim | Closed: LAI-adapted implementation only; launch/performance/results remain open |
+| B08 | Old TreeLoom steps are very expensive | Implemented plaintext affine-prefix history, connected full-sequence GRU tiling and complete-parent decoder VJP. Frozen 49-tensor model and all Adam moments retained; CPU parity, strict continuation and cumulative checkpoint-history review passed | Closed: implementation/CPU qualification only; migration and measured GPU performance remain open |
+| B09 | Storage near conservative projected capacity | One 895.59 GB measurement plus conservative live-writer growth yields a 916.08 GB existing-project reservation; campaign operational ceiling is 990 GB. Scope bounds and sequential fresh-corpus retirement are implemented | Open: live admission/storage monitoring |
+| B10 | Queue coverage and current scores hard to inspect | Master draft and scientific joins reviewed; ARGMix/AP source closure authenticated. Final immutable resume binding, admitted queue, startup evidence, README and publication remain | Open: launch/integration verification and publication |
 | B11 | Historical instructions contain superseded GPU assignments | Current user authority is GPUs 3, 4, 5 | Resolved |
 | B12 | Benchmark outputs not yet complete | Publish only measured held-out metrics with replicate SD, do not turn training loss into accuracy | Open |
 
@@ -58,4 +58,33 @@ The queue being prepared and launched is different from all benchmarks being com
 
 ## First executed correction
 
-The historical AncestralPaths CNN completed all five epochs and 8,335 optimizer updates on the fixed 50,000-example training set. Genuine process exit0 and owned-session drain are recorded. Five independent TEST predictions follow. Training accuracy is not a held-out ancestry comparison. Source package and representative fit were not substituted by a smoke test.
+The historical AncestralPaths CNN completed all five epochs and 8,335 optimizer updates on the fixed 50,000-example training set. Genuine process exit0 and owned-session drain are recorded. Five independent TEST prediction products also completed. Training accuracy is not a held-out ancestry comparison. Source package and representative fit were not substituted by a smoke test.
+
+## Earlier integration snapshot (24 October 2026)
+
+This snapshot records the earlier integration state. The current implementation status follows below.
+
+- Historical CNN completed all six fit/prediction tasks. Held-out scores await TreeLoom and GST predictions.
+- The corrected ARGformer delivery contains 58 executable preparation/training/prediction stages. All 15 existing FLARE outputs passed reuse checks.
+- The ARGMix delivery contains paired training and prediction routes for ARGMix and frozen TreeLoom. CPU geometry, gradients and two-tree recurrence checks passed.
+- GST-LAI-8 uses the unchanged author GraphSetConv with an explicitly new ancestry input/output adapter. This is an LAI comparison, not a reproduction of the original GST task.
+- One completed project-capacity measurement found 895.59 GB, with live-writer growth still requiring reservations. No repeated full-project scan is planned.
+- Existing live jobs are preserved. Old controllers may finish them but cannot dispatch further pending stages.
+- Full master integration, scratch lifecycle, GPU startup and progress verification remain unfinished.
+
+
+## Current implementation and integration status
+
+The implementation-only tickets B02, B03, B05, B06, B07 and B08 are closed. This records completed code and the stated bounded CPU qualification. It does not record completed production fits, a GPU speed improvement, reproduced published numbers or final held-out comparisons. Launch, performance, capacity monitoring and results remain open.
+
+- ARGMix is frozen with 150 executable jobs, the 14-parent recipe, paired ARGMix/TreeLoom predictions and an all-predictions barrier before evaluation truth joins. The AP native6 static prediction factory retains the original saved-fit checks and product schemas.
+- Corrected American ARGformer has 58 preparation/training/prediction tasks, 15 authenticated reusable FLARE outputs, static AST-identical author path functions and bounded scratch retirement. The two reused native corpora remain protected.
+- American TreeLoom retains all 49 FP32 trainable tensors, 32,132 parameters and the 600 complete-parent optimizer-update schedule. Independent review passed. CPU continuation from an actual saved 58-update model preserved all 49 Adam states; serialized update59 followed by reload matched uninterrupted update60 bitwise on the bounded synthetic case. This establishes continuation correctness on that case; production GPU speed and full-parent memory remain unmeasured.
+- The latest inspected inert master draft contains 251 tasks: 162 CPU, 82 GPU and seven external evidence nodes. Scientific join review passed with explicit remaining integration conditions. The ARGMix/AP builders now include the manifest, qualified external history and original dependency closure; 149 unique source references matched their hashes across all 150 ARGMix tasks and the AP prediction task.
+- GST-LAI-8 is explicitly LAI-adapted. Original GST synthetic and molecular benchmark tasks have not been reproduced. Its production resource estimates and held-out LAI results still require execution.
+- Root is executing the American TreeLoom migration from an immutable durable optimizer boundary. The final admitted campaign reference, actual process waits, startup progress and first full-parent timing must be recorded before launch verification can close. No launch or speed claim is inferred from the inert plan or CPU receipts.
+- The existing capacity reservation and scope limits govern admission. Fresh corrected-corpus retirement remains conditional on complete predictions and successful outer waits; historical evidence and retained final models, logs, vocabularies and PCA artifacts remain preserved.
+
+Evidence: `argmix/READY.json`, `argmix/paper_american_independent_review.json`, `american/status.json`, `american/treeloom_speed/model_transition_smoke_v5/completed.json`, `integration/master_scientific_join_review_v1.json`, `integration/capacity_reservation.json`, and `configs/benchmarks/paper_gst_lai_8_20261024_final.json` from the project root where applicable.
+
+Launch-state update is pending Root evidence. README and Git publication have not been updated by this ledger task.

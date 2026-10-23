@@ -1,0 +1,74 @@
+{
+  "argv_interpreter_matches_declared_runtime": true,
+  "findings": [
+    {
+      "id": "AP-STORAGE-01",
+      "minimal_fix": "Snapshot distinct auxiliary initial bytes once under lock; always charge current-initial positive growth and retain it after completion; add unused max-current allowance only while admitted.",
+      "numeric_example": {
+        "code_active_charge": 20,
+        "code_completed_charge": 0,
+        "current_aux_bytes": 80,
+        "initial_aux_bytes": 0,
+        "max_aux_bytes": 100,
+        "required_active_charge": 100,
+        "required_completed_charge": 80
+      },
+      "priority": "P1",
+      "problem": "Actual positive auxiliary growth is absent from reserved and disappears completely after completion.",
+      "symbol": "scheduler.run reserved auxiliary accounting"
+    },
+    {
+      "id": "AP-STORAGE-02",
+      "minimal_fix": "Charge each task log to its task output cap and project ledger; include compact controller metadata allowance.",
+      "priority": "P1",
+      "problem": "Task logs are written under records_directory/logs outside output_directory caps and storage sizes.",
+      "symbol": "scheduler.run log_path and storage supervision"
+    },
+    {
+      "id": "AP-STORAGE-03",
+      "minimal_fix": "Measure regular files explicitly; keep missing paths zero and no-follow behavior.",
+      "priority": "P1",
+      "problem": "os.walk on a regular-file auxiliary scope returns no entries.",
+      "symbol": "runtime.scope_bytes"
+    },
+    {
+      "id": "AP-DAG-01",
+      "minimal_fix": "Validate linked task identities and dependency ancestry; catch resolve errors per task and block only that task.",
+      "priority": "P2",
+      "problem": "Unvalidated missing or premature task links can throw outside the per-task exception handler and abort the controller.",
+      "symbol": "scheduler.validate and run resolve"
+    },
+    {
+      "concrete": "fit returns a file reference; predict returns a predictions map; score links path[predictions,parent]. Factories bind fresh outer/native products.",
+      "id": "AP-CONTRACT-01",
+      "priority": "informational",
+      "problem": "No defect found in delivered stage-link contracts.",
+      "symbol": "GST-LAI fit/predict/score"
+    }
+  ],
+  "need_final_master_config_contract_review": true,
+  "raw_argv_source_refs_checked_before_Popen": true,
+  "schema": "paper_campaign_independent_storage_DAG_review_v4",
+  "scientific_jobs_started_by_this_review": false,
+  "scope_file_fixture": {
+    "actual_bytes": 64,
+    "measured_bytes": 64,
+    "regular_file_measured_correctly": true
+  },
+  "source_edits_by_this_worker": false,
+  "source_refs": [
+    {
+      "path": "src/arggnn/benchmarking/paper_campaign/runtime.py",
+      "sha256": "1412abf76767545b9addbc6f27b1dcd449837b2b963bf277f5726171fa0defe2"
+    },
+    {
+      "path": "src/arggnn/benchmarking/paper_campaign/scheduler.py",
+      "sha256": "169f8f8f5e20c26942dce67d844aa2cef4a7f8c29b90caf236be208ffa4dba79"
+    },
+    {
+      "path": "src/arggnn/benchmarking/paper_campaign/processes.py",
+      "sha256": "9860e688fe204196b72d5a868edd4a0df9287f349dce1beb39b48d6a94604f84"
+    }
+  ],
+  "status": "CHANGES_REQUESTED"
+}

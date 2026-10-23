@@ -1,0 +1,46 @@
+{
+  "decode": "Frozen European one-layer bidirectional genomic_gru followed by original context+history classifier; full sequence per haplotype tile",
+  "history_execution": "Qualified plaintext affine-prefix _Direction, original FP32 theta/rho/source/global pooling,1024-hold bounded windows, panel-width guards952/3222",
+  "history_source_refs": [
+    {
+      "path": "research/benchmark_rebuild_20261024/american/treeloom_speed/parallel_history_window.py",
+      "sha256": "adc8361e4cfda47f00155c8cb7d2eb01473194d237ee7579b89a590d1bb54b4e"
+    },
+    {
+      "path": "research/benchmark_rebuild_20261024/american/treeloom_speed/stable_leaf_history_v2.py",
+      "sha256": "891dc3a3994c61246191b36e548657ac691e83eb432ca6ddb8cb4437934ce21e"
+    }
+  ],
+  "output": "src/arggnn/benchmarking/paper_argmix/paper_argmix_treeloom_executor.py",
+  "parity_receipts": [
+    {
+      "bytes": 1119,
+      "path": "research/benchmark_rebuild_20261024/argmix/smoke_treeloom_affine1611_cpu_v1/completed.json",
+      "sha256": "4283b141589673d2ab16dad8e15a720b20b1cc394216134e0bfc0df253544291"
+    },
+    {
+      "bytes": 1123,
+      "path": "research/benchmark_rebuild_20261024/argmix/smoke_treeloom_affineAP6_cpu_v1/completed.json",
+      "sha256": "82ce0638ccc543f0e5a89aad82b600112cb35ae48ec06370af65a626fedc9cae"
+    }
+  ],
+  "parity_tolerance": {
+    "atol": 1e-05,
+    "not_bitwise_identity": true,
+    "rtol": 0.0001
+  },
+  "pinned_sources_changed": false,
+  "replacements": {
+    ".expand(t,h,5)": ".expand(t,h,6)",
+    "F.one_hot(labels.clamp_min(0),3)": "F.one_hot(labels.clamp_min(0),4)",
+    "bank=self.bank;m=self.model;h=1600;d=32": "bank=self.bank;m=self.model;h=self.bank.sample_index.shape[1];d=32",
+    "class BoundedExecutionV1:": "class PaperEuropeanBoundedExecutionV1:",
+    "n>=1600": "n>=bundle.bank.sample_index.shape[1]",
+    "self.device.type==\"cuda\"": "self.device.type in (\"cpu\",\"cuda\")",
+    "torch.empty((10000,3),device=self.device)": "torch.empty((self.bundle.focal_hold.numel(),len(self.model.output_classes)),device=self.device)"
+  },
+  "runtime_source_generation": false,
+  "schema": "paper_argmix_static_treeloom_executor_derivation_v1",
+  "source": "research/reviews/TreeLoom_GPU_history_source_20261017_v1/bounded_execution_v1.py",
+  "source_sha256": "8198f589aa7e7ad6b26cb530992ed44be2481ecde2c6ef0a7c98d396408de7e4"
+}
