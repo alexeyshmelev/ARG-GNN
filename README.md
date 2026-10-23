@@ -2,10 +2,10 @@
 
 <!-- readable-gpu345-queue:start -->
 ### Current GPU 3/4/5 queue
-Updated 2026-10-23T01:07:47.526638+00:00. Status: running.
+Updated 2026-10-23T01:16:06.254710+00:00. Status: running.
 104 pending, 1 running, 245 succeeded, 0 failed, 0 blocked, 0 unknown.
 Local active: AM_treeloom_fit.
-Live training stages: AM_treeloom_fit: TreeLoom training: _second (12/600 saved parent updates).
+Live training stages: AM_treeloom_fit: TreeLoom training: _first (12/600 saved parent updates).
 Standalone work: no live standalone generations.
 The earlier v9 queue block is a historical snapshot. This block describes the active successor.
 Ancestry accuracy is pending the frozen prediction and scoring barriers. Training loss is not accuracy.
@@ -47,13 +47,32 @@ Conservative storage projection: 968.60 GB, below the 980 GB operational ceiling
 
 [Verified migration](research/benchmark_current_verified_status.json) · [Current queue](research/benchmark_gpu345_current.json)
 <!-- END CURRENT BENCHMARK DIAGNOSIS -->
+<!-- BEGIN SCIENTIFIC COMPARISON SCOPE -->
+## What the current benchmark can establish
+
+**Audited 2026-10-23T04:15:46.474888+03:00: the active queue does not cover all four original paper benchmarks.** It implements paired comparisons on new shared simulations. Fresh seeds are acceptable, but material differences in populations, models and evaluation rules remain. Completing its 350 stages alone does not complete the original research goal.
+
+| Comparison | Actual condition | Relation to the paper |
+| --- | --- | --- |
+| TreeLoom, native ARGformer and FLARE | Shared 30 Mb American simulations and identical frozen query records | Broad biological recipe reconstructed. Original sample ploidy and evaluator unresolved. Released ARGformer temperature/weighting differ from paper. Native top1 and FLARE focal projection are disclosed choices |
+| TreeLoom and released AncestralPaths | 476-person panel, three 200 Mb training sequences and five independent test sequences, six ancestry paths | Paper scale and demographic scenario restored. Released classifier is Dense, whereas paper describes CNN. Example/site sampling is a disclosed reconstruction |
+| TreeLoom and released ARGMix | Four-source task on the AP 476-person 200 Mb panel, with BAA, uniform map and no genotype error | Not ARGMix's 1,611-person chr22/error scenario or its IID/misspecification design. Current 15-reference/no-ancestor release differs from paper 25-reference/three-ancestor representation |
+| TreeLoom and GST on original GST tasks | Absent from the active queue | Full candidate/native comparison unfinished. Earlier native 1,000-reaction validation pilot does not close this requirement |
+
+Within each paired endpoint, code fixes common sample/site identities and requires prediction seals before held-out ancestry scoring. Native-six AP and four-source ARGMix conditions use different output labels and support, so their scores must stay separate. Training budgets and information access differ by method. These experiments assess complete pipelines, not architecture alone.
+
+**No fresh matched ancestry scores or all-method superiority claim are established.** The source audit found no defect invalidating the declared pairing, but actual completed predictions and scoring still require verification. Healthy running jobs were preserved.
+
+[Scope audit and source references](research/reviews/benchmark_scientific_scope_20261023_v1/audit.json) · [European deviations](docs/european_native_comparison_deviations_v1.md) · [ARGformer paper audit](docs/argformer_published_benchmark_audit_v1.md) · [ARGMix paper audit](docs/argmix_published_benchmark_audit_v1.md)
+<!-- END SCIENTIFIC COMPARISON SCOPE -->
+
 <!-- preserved-worker-controllers:start -->
 <details>
 <summary>Preserved controllers and earlier attempts</summary>
 
 <!-- readable-full-vram-queue:start -->
 ### Current full-VRAM queue
-Updated 2026-10-23T01:06:50.511241+00:00. Status: running.
+Updated 2026-10-23T01:16:05.401173+00:00. Status: running.
 86 pending, 2 running, 245 succeeded, 1 failed, 16 blocked, 0 unknown.
 Local active: AM_argformer_american_validation_004_argformer_mlm, AP__all_train__treeloom_fit.
 Live training stages: bounded stage metadata pending.
@@ -66,7 +85,7 @@ One optional external AP001 archive is deferred with its full retained storage c
 
 <!-- readable-recovery-afternoon-v2-queue:start -->
 ### Current recovery queue
-Updated 2026-10-23T01:07:34.950347+00:00. Status: running.
+Updated 2026-10-23T01:15:54.702234+00:00. Status: running.
 83 pending, 1 running, 245 succeeded, 2 failed, 19 blocked, 0 unknown.
 Local active: C4__all_train__c4_treeloom_fit.
 Live training stages: bounded stage metadata pending.
