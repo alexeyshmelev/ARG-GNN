@@ -15,6 +15,7 @@ import sys
 import time
 from . import runtime as r
 from . import processes
+from . import repairs
 
 
 def validate(plan):
@@ -199,7 +200,10 @@ def run(plan_path):
                 auxiliaries[str(scope)] = r.scope_bytes(scope)
     state['auxiliary_initial_bytes'] = auxiliaries
     def used(task):
-        return r.scope_bytes(r.path(task['output_directory'])) + r.scope_bytes(directory / 'logs' / (task['id'] + '.log'))
+        logs = directory / 'logs'
+        attempts = list(logs.glob(task['id'] + '.attempt*.log'))
+        attempts.append(logs / (task['id'] + '.log'))
+        return r.scope_bytes(r.path(task['output_directory'])) + sum(r.scope_bytes(p) for p in attempts)
     running = {}
     def cancel(signum, frame):
         raise RuntimeError('Controller received explicit termination signal')
@@ -207,6 +211,7 @@ def run(plan_path):
     signal.signal(signal.SIGINT, cancel)
     try:
         while True:
+            repairs.apply_pending(plan, state, directory)
             for task_id, (process, log, start, start_ticks) in list(running.items()):
                 task = next(t for t in plan['tasks'] if t['id'] == task_id)
                 row = state['tasks'][task_id]
@@ -270,7 +275,7 @@ def run(plan_path):
             state['scope_usage_bytes'] = scope_usage
             snapshot = gpu_state()
             state['gpu_observation'] = snapshot
-            baseline = plan['reserved_existing_project_bytes']
+            baseline = plan['reserved_existing_project_bytes'] + state.get('archived_attempt_bytes', 0)
             sizes = {t['id']: used(t) for t in plan['tasks'] if t['kind'] != 'external'}
             reserved = sum(sizes.values()) + sum(max(0, r.scope_bytes(Path(scope)) - initial) for scope, initial in auxiliaries.items())
             # Source specs, state and controller stdout have a separately charged allowance.
@@ -344,13 +349,16 @@ def run(plan_path):
                 if output.exists():
                     row.update(status='blocked', error='Output already exists, no overwrite')
                     continue
+                output.parent.mkdir(parents=True, exist_ok=True)
                 if not task.get('argv'):
-                    output.mkdir(parents=True)
-                task_file = directory / 'jobs' / (task['id'] + '.json')
+                    output.mkdir()
+                attempt = row.get('attempt', 1)
+                suffix = '' if attempt == 1 else '.attempt' + str(attempt)
+                task_file = directory / 'jobs' / (task['id'] + suffix + '.json')
                 r.save(task_file, concrete)
                 command = concrete.get('argv') or [str(r.path(task['python'])), '-B', '-s', '-m',
                            'arggnn.benchmarking.paper_campaign.runtime', '--task', str(task_file)]
-                log_path = directory / 'logs' / (task['id'] + '.log')
+                log_path = directory / 'logs' / (task['id'] + suffix + '.log')
                 log_path.parent.mkdir(exist_ok=True)
                 log = log_path.open('xb')
                 process = subprocess.Popen(command, cwd=r.ROOT, env=environment(task, gpu),
@@ -378,7 +386,9 @@ def run(plan_path):
             code = stop_owned(process, ticks)
             log.close()
             state['tasks'][task_id].update(status='failed', actual_returncode=code,
-                                          actual_wait=True, error='Controller ended')
+                                          actual_wait=True, owned_process_group_absent=True, finished_unix=time.time(), error='Controller ended')
+            task = next(t for t in plan['tasks'] if t['id'] == task_id)
+            r.save(r.path(task['output_directory']) / 'actual_wait.json', dict(state['tasks'][task_id]))
         r.save(state_path, state)
 
 

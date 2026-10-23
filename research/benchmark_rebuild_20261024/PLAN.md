@@ -87,4 +87,17 @@ The implementation-only tickets B02, B03, B05, B06, B07 and B08 are closed. This
 
 Evidence: `argmix/READY.json`, `argmix/paper_american_independent_review.json`, `american/status.json`, `american/treeloom_speed/model_transition_smoke_v5/completed.json`, `integration/master_scientific_join_review_v1.json`, `integration/capacity_reservation.json`, and `configs/benchmarks/paper_gst_lai_8_20261024_final.json` from the project root where applicable.
 
-Launch-state update is pending Root evidence. README and Git publication have not been updated by this ledger task.
+The implementation snapshot above predates the launch attempt recorded below. README and Git have not been modified by this ledger task.
+
+
+## First master launch and preserved setup failure
+
+The 251-task master campaign was launched at 2026-10-23T22:47:52.347813+00:00 as controller PID 193320, from `configs/benchmarks/paper_campaign_20261024_v1.json` (SHA256 `2b88e41c780987c11b541af87ec28c02a855e46776fce2d65130d268b0209d50`). The launch receipt records pushed commit `71886ba01eaf1ef11116c72950f1459f9ef07b61` and physical GPUs 3, 4 and 5. Launching this queue did not complete the benchmarks.
+
+The first ARGMix stage, `paper_argmix_published_recon_train_000.generated`, was admitted as PID 193868. It exited1 because the argv execution path had not created its required output parent directory. `paper_argmix_generator._fresh_directory` correctly rejected the missing parent. Storage and RAM did not prevent admission. The scheduler recorded a real wait and no surviving owned process group; its 149 dependent ARGMix stages became blocked. The failed generated scope contained only the 1,143-byte `actual_wait.json`, without scientific payloads.
+
+Root deliberately ended only this newly launched queue and its four other owned task sessions to prepare a coordinated retry. The final first-attempt state has six external successes, five failed tasks, 149 blocked tasks, 91 pending tasks and zero running tasks. The original ARGMix setup failure is distinguished from the four controller-ended task attempts. Root reports zero remaining sessions from this attempt and confirms that older legacy jobs were untouched.
+
+At 2026-10-23T22:52:41.290463+00:00, Root archived five exact initial output scopes under `experiments/results/paper_campaign_20261024/initial_setup_failure`, preserving 2,647,671 bytes. `integration/initial_attempt_archive.json` records original paths, archived paths and wait evidence; its SHA256 is `fa3837ece3f0592bf22e958f58000598d690d3b20b137c82c0e24bfb4abfb905`. Independent path checks found all five archive directories present and their original task leaves absent. The source first-attempt state still matches the archive manifest reference. Original logs and state remain evidence.
+
+The fixed ARGMix recipe and DAG namespace is retained for a deliberate retry; the failed generated leaf has been archived rather than overwritten. The coordinator is reviewing parent-directory creation, attempt-specific job/log paths, cumulative log/archive storage accounting and failed-branch recovery hooks before the second launch. Startup verification, complete-parent progress, GPU throughput and held-out scores remain open. No v2 launch is claimed in this ledger entry.
