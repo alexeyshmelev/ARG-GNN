@@ -1,11 +1,31 @@
 # ARG-GNN
 
+<!-- paper-benchmark-rebuild-current:start -->
+## Paper-based benchmark rebuild, 24 October
+
+**The earlier release-based comparisons are development evidence. The corrected paper-oriented comparison is running, and no new superiority claim is made yet.**
+
+| Component | Verified status |
+|---|---|
+| Historical AncestralPaths CNN | Full 50,000-example fit finished: 5 epochs, 8,335 Adam updates. Five TEST predictions are running. |
+| FLARE | All 15 native outputs recorded complete. Observations and prediction identities checked for reuse. |
+| ARGformer | Corrected training and PCA10 evaluator implemented. Two preserved corpora ready, 13 need preparation because five older corpora were deleted by prior scratch-retirement jobs. |
+| ARGMix | 1,611-person recipe, 29-node representation and paper-equation correction implemented. CPU scientific tests and tiny native Relate run passed. Full paired queue integration continues. |
+| TreeLoom | Existing valid fits preserved. A serial ancestry-memory bottleneck is being replaced with the same recurrence computed in parallel. |
+| GST | Native graph-set layer is being adapted explicitly to the shared LAI task. Frozen TreeLoom is not applicable unchanged to GST's unordered cyclic synthetic graphs. |
+
+[Detailed plan and issue ledger](research/benchmark_rebuild_20261024/PLAN.md) · [AP execution plan](configs/benchmarks/paper_ap_cnn_execution_20261024.json) · [ARGformer implementation](research/benchmark_rebuild_20261024/american/IMPLEMENTATION.md)
+
+Training loss and training accuracy are not test results. Final matched scores and replicate standard deviations will be reported after the paired predictions and scoring finish.
+<!-- paper-benchmark-rebuild-current:end -->
+
+
 <!-- readable-gpu345-queue:start -->
 ### Current GPU 3/4/5 queue
-Updated 2026-10-23T22:01:59.386450+00:00. Status: running.
+Updated 2026-10-23T22:18:37.499762+00:00. Status: running.
 90 pending, 2 running, 258 succeeded, 0 failed, 0 blocked, 0 unknown.
 Local active: AM_treeloom_fit, AM_argformer_american_test_001_argformer_mlm.
-Live training stages: AM_treeloom_fit: TreeLoom training: _second (56/600 saved parent updates).
+Live training stages: AM_treeloom_fit: TreeLoom training: _second (57/600 saved parent updates).
 Standalone work: no live standalone generations.
 The earlier v9 queue block is a historical snapshot. This block describes the active successor.
 Ancestry accuracy is pending the frozen prediction and scoring barriers. Training loss is not accuracy.
@@ -89,7 +109,7 @@ Within each paired endpoint, code fixes common sample/site identities and requir
 
 <!-- readable-full-vram-queue:start -->
 ### Current full-VRAM queue
-Updated 2026-10-23T22:03:33.769154+00:00. Status: running.
+Updated 2026-10-23T22:18:25.705177+00:00. Status: running.
 85 pending, 1 running, 247 succeeded, 1 failed, 16 blocked, 0 unknown.
 Local active: AP__all_train__treeloom_fit.
 Live training stages: bounded stage metadata pending.
