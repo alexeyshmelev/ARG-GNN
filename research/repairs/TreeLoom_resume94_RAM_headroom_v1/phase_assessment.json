@@ -1,0 +1,41 @@
+{
+  "schema": "TreeLoom_attempt2_measured_phase_assessment_v1",
+  "recorded_unix": 1792856831.6565862,
+  "warm_updates": 16,
+  "warm_gap_count": 15,
+  "warm_update_gap_seconds": {
+    "median": 557.39004945755,
+    "mean": 565.9061520417531,
+    "minimum": 531.3074538707733,
+    "maximum": 628.26979637146
+  },
+  "warm_stage_medians_seconds": {
+    "complete_parent_context_forward": 193.52258616359904,
+    "complete_parent_decoder": 41.511845622677356,
+    "complete_parent_trunk_backward": 248.31239785347134,
+    "layout_constructor": 44.34705526800826
+  },
+  "time_until_all20_compact_ready_seconds": 41936.27431201935,
+  "remaining506_updates_warm_rate_only_hours": 78.34426806264453,
+  "remaining_time_excludes_cold_repreparation": true,
+  "GPU_occupancy_not_inferred_from_wall_clock_stages": true,
+  "immediate_action": "Increase both task and factory maxRSS to768GiB and resume94; retain model, objective, schedule, data,352GiB compact pool,128GiB reserves and all guards.",
+  "capacity_basis": {
+    "available_host_bytes_at_diagnosis": 1633086132224,
+    "conservative_pool_plus_active_bank_plus_two_reserves_bytes": 688816951474,
+    "recommended_operational_RSS_limit_bytes": 824633720832,
+    "analytical_global_allocator_peak_proven": false
+  },
+  "optimization_assessment": "The warm-cache path removed most initial CPU starvation, but optimal GPU utilization is unproven. Median wall phases are~194s context forward,248s trunk backward,42s decoder and44s layout. Trunk sweeps dominate; kernel/batch tuning would require separate numerical qualification. More RAM fixes the observed admission failure without weakening guards.",
+  "successor_changed_paths": [
+    "/max_rss_bytes",
+    "/call/spec/arguments/max_rss_bytes",
+    "/call/spec/arguments/resume_checkpoint_ref/path",
+    "/call/spec/arguments/resume_checkpoint_ref/sha256",
+    "/call/spec/arguments/resume_evidence_ref/path",
+    "/call/spec/arguments/resume_evidence_ref/sha256"
+  ],
+  "successor_diff_verified": true,
+  "only_RAM_ceiling_and_resume_boundary_changed": true,
+  "no_source_edits_no_launch_no_signals_no_archive": true
+}

@@ -7,8 +7,8 @@
 
 | Workstream | Current verified result |
 |---|---|
-| American TreeLoom | **94/600 complete-parent updates saved.** The same model, optimizer and schedule resumed from update 94 after a host RAM reservation failure. Its next parent is being prepared. |
-| European TreeLoom | **60/90 complete-parent updates.** Continues on GPU 5. The diagnostic's recent mean was 24.1 minutes per update. |
+| American TreeLoom | **95/600 complete-parent updates recorded.** The same model, optimizer and schedule resumed from update 94 after a host RAM reservation failure. The next scheduled parent has been prepared and the fit continues. |
+| European TreeLoom | **61/90 complete-parent updates.** Continues on GPU 5. The diagnostic's recent mean was 24.1 minutes per update. |
 | Corrected ARGformer | Native pretraining stages advanced to downstream contrastive training. The current contrastive task runs on GPU 4. Training progress is not LAI accuracy. |
 | AncestralPaths | Historical CNN completed 8,335 optimizer updates and all five TEST prediction products. Common scoring awaits the paired models. |
 | FLARE | All 15 native American outputs passed reuse checks. Paired held-out comparison remains pending. |
@@ -26,12 +26,12 @@ The current American TreeLoom has a measured warm median of **9.29 minutes per f
 | Layout first-sweep outputs and gradients agree on a bounded real-tree check | Supports correct index/reduction reuse. It is not an ancestry result. |
 | Sparse remapping was slightly slower | Rejected as an American optimization. |
 | Primitive-input census: 63.89% repeated first-upward state occurrences | Sharing is predominantly in leaf/input computations. This is not a 63.89% runtime saving. The stricter source-ID census missed these identical-input cases. |
-| Site encoder: 445 distinct inputs among 1,089,600 feature rows | An exact implementation evaluates once per site/allele, then restores the same haplotype outputs and pooling. Qualification is underway. |
+| Categorical SNP encoder: 409,600 → 768 MLP evaluations in the measured chunk | Exact-equation prototype passed. Four-thread CPU warm forward was **1.77×** faster and the forward/backward probe **1.98×** faster. Outputs matched and maximum gradient error was 2.35e-7. GPU/full-training gain remains unmeasured. |
 | Rank-eight basis captures 98.11% of centered upward-state variation, but maximum relative vector error is 16.89% | Approximation remains deferred. Average compression quality does not establish preserved ancestry accuracy. |
 
 The frozen benchmark continues with its existing source. A scalable successor will be labelled separately and must earn its place through end-to-end time, memory, ancestry accuracy and boundary-resolution measurements. Generic caching or low rank alone is not a novelty claim.
 
-[Scalability plan](research/scalability_20261024/PLAN.md) · [Measured execution results](research/scalability_20261024/execution/REPORT.md) · [Scientific review](research/scalability_20261024/review/shared_computation_scientific_review.txt) · [Benchmark plan](research/benchmark_rebuild_20261024/PLAN.md) · [Detailed scores and historical comparisons](research/current_scoreboard.md)
+[Scalability plan](research/scalability_20261024/PLAN.md) · [Categorical SNP encoder results](research/scalability_20261024/categorical_site/REPORT.md) · [Measured execution results](research/scalability_20261024/execution/REPORT.md) · [Scientific review](research/scalability_20261024/review/shared_computation_scientific_review.txt) · [Benchmark plan](research/benchmark_rebuild_20261024/PLAN.md) · [Detailed scores and historical comparisons](research/current_scoreboard.md)
 <!-- paper-benchmark-rebuild-current:end -->
 
 
@@ -124,7 +124,7 @@ Within each paired endpoint, code fixes common sample/site identities and requir
 
 <!-- readable-full-vram-queue:start -->
 ### Current full-VRAM queue
-Updated 2026-10-24T16:27:12.773844+00:00. Status: running.
+Updated 2026-10-24T16:32:51.569951+00:00. Status: running.
 85 pending, 1 running, 247 succeeded, 1 failed, 16 blocked, 0 unknown.
 Local active: AP__all_train__treeloom_fit.
 Live training stages: bounded stage metadata pending.

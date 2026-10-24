@@ -1,0 +1,127 @@
+{
+  "schema": "TreeLoom_categorical_site_independent_source_review_v1",
+  "recorded_unix": 1792859438.2972891,
+  "reviewer": "argformer_file_paper_pass2",
+  "status": "pass_for_isolated_CPU_prototype",
+  "blocking_findings": [],
+  "review_method": "Source-only comparison with the existing C3 site/chunk encoder and pooling implementation, plus inspection of the sealed author measurement. No tests or numerical probes rerun by reviewer.",
+  "reviewed_source_refs": [
+    {
+      "path": "research/scalability_20261024/categorical_site/categorical_site.py",
+      "sha256": "ca87a268e79f080952ba145ddf178b685834b8f33d5bae015ca4230982bff52f"
+    },
+    {
+      "path": "research/scalability_20261024/categorical_site/measure.py",
+      "sha256": "8b27c3ce8efa378979702da8cbff6a8d9f1eceec73f51bdae61997e9faed72bf"
+    },
+    {
+      "path": "src/arggnn/american_c3_gnn_model_v1.py",
+      "sha256": "f1a64bf56a6edc6e2b5ead5d0b06dda1d64034bdfaa5f8fc166f7b5ddffb994d"
+    },
+    {
+      "path": "src/arggnn/mutation_routed_whole_tree_gnn_v1.py",
+      "sha256": "254f5155e31f81ae675e2bd08d38c97c9bf130d47e98efa2deea4c7344d9e073"
+    }
+  ],
+  "measurement_ref": {
+    "path": "research/scalability_20261024/categorical_site/measurement.json",
+    "sha256": "58ced1e70d76db2e2c7b80aac9ab48fbbbfbf58acb741fea2046975279eaca56"
+  },
+  "artifact_manifest_ref": {
+    "path": "research/scalability_20261024/categorical_site/artifact_manifest.json",
+    "sha256": "0536677e8ff483a3c96f92e531a27f4d5bd0f893dcde932a463cd89fe6d772cc"
+  },
+  "interface_ref": {
+    "path": "research/scalability_20261024/categorical_site/interface.json",
+    "sha256": "f2f462e2093a526eac9bbe2988d68dcff11ab054b8ca04717a2f5859b7a25477"
+  },
+  "report_ref": {
+    "path": "research/scalability_20261024/categorical_site/REPORT.md",
+    "sha256": "a9bacc6220ee14e6f547f6883ad4e14472f2caf5b61dbfe5f33a410dfcd5bfd7"
+  },
+  "checks": [
+    {
+      "check": "called_feature_identity",
+      "status": "pass",
+      "detail": "For every called site/allele, donor log frequencies, donor availability, panel log frequency, entropy and called flag match the existing15D input; observed haplotype identity is absent from that MLP input."
+    },
+    {
+      "check": "donor_masks",
+      "status": "pass",
+      "detail": "Unavailable donor channels are zeroed while availability flags retain the original mask. Allele-category batching does not change reference statistics."
+    },
+    {
+      "check": "missing_calls",
+      "status": "pass",
+      "detail": "Negative calls map safely to category0 but called=false excludes them from sums, maxima, counts and every MLP parameter gradient, matching the original operator."
+    },
+    {
+      "check": "unused_allele_slots",
+      "status": "pass",
+      "detail": "Unused slots substitute panel probability1 before log and then zero their entire feature row; this keeps padded zero-probability rows finite without changing any active-category input."
+    },
+    {
+      "check": "allele_axis",
+      "status": "pass",
+      "detail": "Allele count is taken from the authenticated donor tensor axis, with original gather bounds; no binary-only or ancestry-class substitution is introduced."
+    },
+    {
+      "check": "chunk_and_sample_order",
+      "status": "pass",
+      "detail": "The adapter iterates the same source chunks and unique_consecutive hold mapping, gathers into original site/haplotype order, and retains persistent sample output rows."
+    },
+    {
+      "check": "sum_max_count",
+      "status": "pass",
+      "detail": "Both per-chunk and cross-chunk index_add/scatter_reduce amax recipes match the original order, masks, max ties and count treatment."
+    },
+    {
+      "check": "post_pool_projection",
+      "status": "pass",
+      "detail": "Mean/count/empty/span normalizations and the current site_pool_projection are unchanged."
+    },
+    {
+      "check": "parameter_gradient_multiplicity",
+      "status": "pass",
+      "detail": "Gather backward sums every original use into the shared category encoding before the same MLP backward. No detach, manual gradient averaging or numeric-equality cache is used; preserving original max reductions retains tie behavior."
+    },
+    {
+      "check": "current_parameters_each_call",
+      "status": "pass",
+      "detail": "category_encoded is local and model.site_mlp is evaluated on every call. Only observed-input construction is factored; there is no retained learned state across calls or optimizer updates."
+    },
+    {
+      "check": "row_independent_MLP_contract",
+      "status": "pass",
+      "detail": "The current Linear/GELU/Linear/Tanh MLP has no dropout or batch-dependent operation. Exact factoring is scoped to that contract; a future changed MLP would need reevaluation."
+    },
+    {
+      "check": "scope_and_training_memory",
+      "status": "pass_with_documented_limit",
+      "detail": "The prototype is isolated and read-only with respect to live sources. Its diagnostic pooling adapter omits the existing training checkpoint wrapper; production checkpoint/recompute, memory and whole-update CUDA qualification remain open and are not claimed."
+    }
+  ],
+  "reported_test_evidence": {
+    "status": "passed",
+    "CPU_threads": 4,
+    "atol": 0.0001,
+    "rtol": 0.0001,
+    "real_and_missing_forward_outputs_exact": true,
+    "max_real_chunk_parameter_gradient_abs_error": 2.3469328880310059e-07,
+    "max_missing_case_parameter_gradient_abs_error": 3.3527612686157227e-08,
+    "slice_projection_max_abs_error": 0.0,
+    "real_chunk_warm_forward_speedup": 1.7695017954513375,
+    "real_chunk_forward_backward_speedup": 1.977025372616065,
+    "encoder_slice_forward_speedup": 2.4698217639839872
+  },
+  "limitations": [
+    "One observed TRAIN000 start slice and saved94 checkpoint; reported parameter gradients are weighted sum/max probes, not complete-model training gradients.",
+    "The terminal source chunk omits neighboring holds; no full-parent floating-kernel parity claim.",
+    "CPU encoder timings do not establish GPU, whole-update, preparation or end-to-end speedups.",
+    "No production integration, held-out ancestry/boundary score, superiority or novelty claim."
+  ],
+  "live_sources_edited": false,
+  "reviewer_tests_run": 0,
+  "reviewer_GPU_work": false,
+  "sealed_model_final_report_unchanged": true
+}

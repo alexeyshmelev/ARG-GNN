@@ -1,0 +1,44 @@
+{
+  "schema": "TreeLoom_execution_prototype_interface_v1",
+  "status": {
+    "S01": "measured_slice",
+    "S02": "prototype_verified",
+    "integration": "open"
+  },
+  "source_ref": {
+    "path": "research/scalability_20261024/execution/layout_plan.py",
+    "sha256": "16f345e4fe784e4bf64512a7e9060de1d1494a3dd02a0ba2a147a118114100d4"
+  },
+  "construct": "LayoutPlan.build(bank, native_nodes_per_tree, episode_member_hold, holds_per_block=64)",
+  "bind": "bound = plan.bind(restored_immutable_bank, native_nodes_per_tree, episode_member_hold)",
+  "reuse": "layout = bound.assert_binding(bank, native_nodes_per_tree, episode_member_hold)",
+  "tuple_contract": [
+    "first_hold",
+    "last_hold",
+    "first_node",
+    "last_node",
+    "local_parent",
+    "upward_levels",
+    "upward_children",
+    "upward_parent_rank",
+    "downward_levels",
+    "first_member",
+    "last_member"
+  ],
+  "index_storage": "Immutable int32 block-local arrays; transfer with explicit torch.long as current frozen executor.",
+  "binding_contract": "Trusted immutable CPU tensors with version counters and no external writable aliases, as in frozen bundle. Restored pointers require content bind once. Mutable NumPy fast binding unsupported.",
+  "model_integration_authorized": false,
+  "live_integration_performed": false,
+  "packet_ref": {
+    "path": "research/scalability_20261024/execution/representative_slice.npz",
+    "sha256": "6a9e5de1f8d839907d789f292f252b3ce95136fb212f39cf8ccfb13fba724e77"
+  },
+  "raw_native_interface": {
+    "parent": "int64[n], original local preorder",
+    "node_time": "float64[n] prior to bank FP32 conversion",
+    "sample_node": "int64[1600], original local node indices",
+    "sample_id": "int64[1600], persistent sample columns"
+  },
+  "strict_dependency_policy": "strict_source_identity_lower_bound",
+  "next_work": "Coordinate future model/runner integration through ROOT; retain all observed inputs and global history dependencies."
+}

@@ -676,6 +676,22 @@ Evidence: [configs/benchmarks/executable_workflow_20261022_full_vram_v2.json](..
 
 Evidence: [configs/benchmarks/executable_workflow_20261022_gpu345_v2.json](../configs/benchmarks/executable_workflow_20261022_gpu345_v2.json), [research/repairs/benchmark_gpu345_20261022/orchestration/actual_v2/launch_receipt.json](../research/repairs/benchmark_gpu345_20261022/orchestration/actual_v2/launch_receipt.json), [research/repairs/benchmark_gpu345_20261022/orchestration/actual_v2/current_status.json](../research/repairs/benchmark_gpu345_20261022/orchestration/actual_v2/current_status.json), [research/repairs/benchmark_gpu345_20261022/orchestration/GPU2_AM_control_receipt.json](../research/repairs/benchmark_gpu345_20261022/orchestration/GPU2_AM_control_receipt.json).
 
-## paper_based_benchmark_rebuild_20261024
+## paper_based_benchmark_rebuild_20261024: Compare frozen TreeLoom with reference methods on shared paper-recipe observations and held-out ancestry
 
-**Implementing.** Reference-paper comparison rebuild is authorized on GPUs 3, 4, 5. Reuse compatible data and keep earlier results as development evidence. Correct ARGMix representation, recover AP CNN, align ARGformer training settings, integrate GST and shared scoring. Full plan and issue ledger: [PLAN](benchmark_rebuild_20261024/PLAN.md). No new accuracy claim.
+**implementation_and_reuse_verification.** Explicit corrected paper-oriented arms, preserved released controls, independent simulation replicates, shared observations and scoring support
+
+**Conclusion:** Previous release-based results remain development evidence. No new ancestry advantage is claimed.
+
+**Next/repeat rule:** Reuse identical authenticated observations and results. Repeat fits only when architecture, objective, representation or declared training condition changes.
+
+Evidence: [research/benchmark_rebuild_20261024/PLAN.md](../research/benchmark_rebuild_20261024/PLAN.md).
+
+## treeloom_scalability_20261024: Shared tree structure and immutable execution layouts can reduce redundant computation on unchanged observed data. New approximations are conditional on measured bottlenecks and predictive validation.
+
+**exact_categorical_encoder_CPU_prototype_passed_live_integration_open.** Profile actual current dependencies, implement isolated exact layout reuse and computational DAG census, then decide whether a separately labelled model is justified.
+
+**Conclusion:** Reusable layouts halve stored index bytes on a 128-tree TRAIN slice. Primitive-input census finds 63.89% repeated first-upward occurrences, predominantly leaves. Site encoding has 445 distinct feature rows among 1,089,600 rows. Select exact categorical allele encoding first. Rank-eight residual capture is high but worst vector errors are substantial, so no approximate-model or accuracy claim. The categorical prototype reduces MLP rows 409600 to 768 for the measured chunk. Outputs match and maximum parameter-gradient error is 2.35e-7. CPU warm forward is 1.77x and one forward/backward probe 1.98x faster. GPU/full-step speed and accuracy remain unmeasured.
+
+**Next/repeat rule:** Compare to frozen TreeLoom. Do not repeat answered architecture pilots. Profile bounded TRAIN slices first.
+
+Evidence: [research/scalability_20261024/PLAN.md](../research/scalability_20261024/PLAN.md), [research/scalability_20261024/execution/measurement.json](../research/scalability_20261024/execution/measurement.json), [research/scalability_20261024/execution/test_results.json](../research/scalability_20261024/execution/test_results.json), [research/scalability_20261024/model/checkpoint_variation.json](../research/scalability_20261024/model/checkpoint_variation.json), [research/scalability_20261024/review/shared_computation_scientific_review.txt](../research/scalability_20261024/review/shared_computation_scientific_review.txt), [research/scalability_20261024/categorical_site/REPORT.md](../research/scalability_20261024/categorical_site/REPORT.md), [research/scalability_20261024/categorical_site/measurement.json](../research/scalability_20261024/categorical_site/measurement.json).

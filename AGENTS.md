@@ -1,5 +1,9 @@
 # ARG-GNN research instructions
 
+## Scalability research authority, 24 October 2026
+
+The user authorizes a separately labelled scalable TreeLoom method alongside the frozen benchmark. Keep simulation core, observed data, reference/query splits and evaluation support fixed. Use scientifically motivated vectorization or approximation only after profiling actual bottlenecks. Execution improvements are not automatically architecture novelty. An approximation needs explicit retained/discarded information, complexity and predictive evaluation including ancestry boundaries. Measure exact structure reuse and feature dependence before reusing hidden states. Preserve healthy existing jobs and source snapshots. Current ownership and issue ledger: research/scalability_20261024/PLAN.md. GPUs 3, 4, 5 remain the only eligible devices and the storage ceiling remains 1 TB.
+
 ## Current benchmark rebuild authority, 24 October 2026
 
 The latest user explicitly authorizes correcting the benchmark using the papers and reference code, making reasonable disclosed choices for unavailable details, and launching the complete corrected queue. Only physical GPUs 3, 4 and 5 are authorized, without artificial GPU RAM caps. This supersedes older device assignments and preparation-only holds below. Preserve historical evidence and healthy valid work, control only verified task-owned processes, use efficient multiworker data preparation and PyTorch/PyTorch Geometric for our models. Root owns integration, scheduling, Git and publication. Current plan: research/benchmark_rebuild_20261024/PLAN.md. User storage ceiling remains 1 TB. Earlier source-specific root directives describe their historical attempts, not a requirement to repeat obsolete approval chains for this newly authorized rebuild.

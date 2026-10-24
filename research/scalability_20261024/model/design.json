@@ -1,0 +1,47 @@
+{
+  "schema": "TreeLoom_shared_computation_design_v1",
+  "status": "dependency_census_and_CPU_proof_approved; no_new_model_or_live_integration",
+  "recommendation": "Measure exact feature-valid state reuse before changing the model. Build a hash-consed full-depth upward/downward cavity computation DAG from native interval edge changes. Recompute its learned values within every forward/optimizer update. If current-feature reuse is weak, separately register a factorized structural genealogy encoder plus position-local SNP correction as a changed model; do not label that an exact TreeLoom optimization.",
+  "current_bottleneck": {
+    "measured_warm_context_forward_seconds": 193.52258616359904,
+    "measured_warm_trunk_backward_seconds": 248.31239785347134,
+    "measured_warm_decoder_seconds": 41.511845622677356,
+    "measured_warm_layout_seconds": 44.34705526800826,
+    "American_TRAIN000": {"global_nodes": 106762, "interval_edges": 599269, "marginal_trees": 77472, "SNPs": 227474, "samples": 1600},
+    "interpretation": "The current observation bank duplicates native nodes across marginal trees. Global nodes/edges are far smaller, but structural redundancy does not establish numeric hidden-state redundancy. Two learned tree sweeps and their backward passes dominate warm wall time."
+  },
+  "exact_dependency_signatures": {
+    "base": "Exact node-age/root/sampled primitive features plus, for sampled leaves, the complete site-pooling source computation, hold span, observed reference role and sample age. Persistent sample column stays in the source/routing key for the conservative census.",
+    "upward": "Shared learned operator identity, base dependency ID, parent degree, and ordered child pairs of upward-state ID and exact upward-gate source ID. Preserve original reduction order.",
+    "edge_message": "Child upward ID, upward gate source, parent degree and shared weight identity.",
+    "outside": "Parent outside ID, parent base ID, parent full aggregate ID, recipient upward edge-message ID and exact downward-gate source ID. Preserve full-parent-sum minus recipient algebra, rather than replacing it with a differently ordered sibling sum.",
+    "second_sweep": "All first-sweep dependencies plus exact clade flags, own-state episode eligibility and sample-memory injection dependencies. These generally invalidate first-sweep sharing.",
+    "training": "Never cache numeric states across optimizer updates. A shared operation must retain all multiplicities in autograd. Numeric equality alone does not prove identical input Jacobians."
+  },
+  "input_interface": {
+    "format": "Observed-only NPZ arrays plus bounded JSON provenance; no truth fields",
+    "topology": ["parent:int64[N] forest-global occurrence indices, -1 roots", "node_offsets:int64[T+1]", "native_node_ids:int64[N] routing only", "sample_index:int64[T,H] persistent sample columns", "node_time:float32[N]", "spans:float32[T]"],
+    "features": ["edge_geometry:float32[N,4]", "branch_support_true:float32[N,5]", "site_hold:int64[S]", "genotype and all existing donor/panel/call/entropy arrays in original dtypes", "reference_class and sample_age", "base_dependency_id:int64[N]", "gate_dependency_id:int64[N]"],
+    "identity": "A sample column identifies the same observed haplotype at every genomic interval. Never merge the output rows or recurrent histories of different haplotypes. Native internal node IDs route computation; they are not learned embeddings.",
+    "position": "Keep original half-open marginal intervals, exact physical widths, SNP positions and focal coordinates. No window center substitutes for the original readout coordinate.",
+    "dependency_policy": "Strict source-identity census gives a conservative guaranteed-reuse count. It does not prove that a more extensive canonical primitive-input graph has no further reuse."
+  },
+  "complexity": {
+    "symbols": "T trees, H samples, N expanded node occurrences, E native interval edges, V native global nodes, S SNPs, d hidden width, U distinct upward operations, D distinct outside operations, M distinct upward messages, P distinct leaf-context pairs",
+    "current": "Per learned sweep O(N*d^2 + N*d); expanded metadata O(N); dense contexts O(T*H*d). Multiple sweeps, checkpoint recomputation and full sequence decoder add their existing costs.",
+    "prototype": "Packet compilation O(N + expanded edges) with exact tuple signatures; batched DAG evaluation O((U+D+M+P)*d^2), activations proportional to unique operations plus routing maps. This prototype deliberately uses a bounded packet rather than a production all-parent builder.",
+    "production_builder": "Stream tskit edge diffs and persistent child sets to avoid expanded-bank construction. Upward changes invalidate ancestors; outside/cavity changes may invalidate most of a tree. Worst case remains O(N*d^2), not O(E). DAG identity alone does not remove the T*H output/GRU floor.",
+    "storage": "Native observations remain O(V+E+S*H); DAG and query/sample interval routing add O(U+D+M+P). Dense per-tree maps may be replaced by exact runs only when their routing/value dependencies are identical."
+  },
+  "alternatives": {
+    "interval_edge_K_layer_GNN": "One interval-annotated global node state is not an exact tree state: it mixes edges that may never coexist at one position. Correctness requires interval-specific states or explicit positional queries. K local layers miss deep reference-to-query paths and impose a changed model; many layers risk oversmoothing.",
+    "window_approximation": "Window pooling merges topology and SNP evidence on both sides of real recombination/ancestry transitions. Genomic position embeddings do not restore discarded conditional structure. Report tract-length and breakpoint error versus distance to a boundary, alongside ancestry accuracy and calibration.",
+    "factorized_candidate": "Full-depth reference/age/geometry structural cavity DAG plus a position-local, all-observed-SNP readout and persistent-sample genomic sequence model. Reuse is enabled by separating features, but late genotype injection may lose mutation-conditioned lineage reasoning. This is an accuracy/efficiency tradeoff to test, not an exact rewrite."
+  },
+  "scientific_position": {
+    "known_components": ["Succinct tree sequences and interval edge diffs", "Hash-consing/common-subexpression elimination and incremental dynamic programming", "Full-depth tree/cavity message passing and rerooting", "Autograd gradient accumulation through shared expressions", "Feature factorization, local SNP evidence and sample-aligned sequence models"],
+    "candidate_contribution": "A measured, gradient-verified reuse scheme and its end-to-end accuracy/efficiency tradeoff on the same observed data. Hash-consing alone is not a new learned operator.",
+    "ledger_constraints": "H036/H038 establish the existing cavity/SNP/GRU family. H042 local topology flags exceeded more elaborate paired-clade controls; H043/H045 foreign-state/episode benefits were below utility criteria; H044 already examined position-local SNP readout; H050 higher-order history utility failed. Do not rebrand these components or assume improvement.",
+    "acceptance": "Same observed data, persistent sample/query identities, held-out ancestry accuracy and boundary metrics, preparation wall time, training/inference throughput, CPU/GPU peak memory, and total cost including caches/compilation. No simulation-core changes, superiority assumption or novelty claim."
+  }
+}

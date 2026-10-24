@@ -1,0 +1,129 @@
+{
+  "schema": "TreeLoom_scalability_model_final_report_v1",
+  "recorded_unix": 1792859067.0907297,
+  "status": "diagnosis_and_bounded_CPU_measurements_complete_no_training_or_live_change",
+  "decision": "Select exact categorical site-MLP input reuse for the next isolated implementation before approximate architecture changes.",
+  "decisive_measurement_ref": {
+    "path": "research/scalability_20261024/model/checkpoint_variation.json",
+    "sha256": "c3c1392007ae4bdf92005ec47003003fb9e7b3d42385e50a8ba7b4fcca62b359"
+  },
+  "protocol_ref": {
+    "path": "research/scalability_20261024/model/measurement_protocol.json",
+    "sha256": "ffa79945c9dcf65c838db9dc8ff7020037f1ec8e9f5d446daed323b11c668101"
+  },
+  "DAG_proof_ref": {
+    "path": "research/scalability_20261024/model/dag_cpu_proof.json",
+    "sha256": "a427348d0b8532694ac541b2f8888a4930bf5bf6564db8aefb6625809978c7a6"
+  },
+  "initial_design_ref": {
+    "path": "research/scalability_20261024/model/design.json",
+    "sha256": "4d55328c93170028b69a9c5dd53f0c9c52f376bb89019f06d00e3404a34367ef"
+  },
+  "packet_ref": {
+    "path": "research/scalability_20261024/execution/representative_slice.npz",
+    "sha256": "6a9e5de1f8d839907d789f292f252b3ce95136fb212f39cf8ccfb13fba724e77"
+  },
+  "checkpoint_ref": {
+    "path": "research/repairs/TreeLoom_resume94_RAM_headroom_v1/checkpoint.pt",
+    "sha256": "5ceebcd75ae978689f987a702ea5a157d6ddc2bd7d057e6aded56627bbf45276"
+  },
+  "measured_scope": {
+    "parent": "argformer_american_train_000",
+    "holds": 128,
+    "samples": 1600,
+    "sites": 681,
+    "first_sweep_only": true,
+    "truth_opened": false,
+    "optimizer_created": false,
+    "CUDA_initialized": false,
+    "seconds": 11.717649511992931,
+    "peak_process_RSS_bytes": 1156804608
+  },
+  "exact_reuse_breakdown": {
+    "node_occurrences": 317897,
+    "sampled_leaf_occurrences": 204800,
+    "internal_occurrences": 113097,
+    "primitive_site_MLP_inputs": 445,
+    "site_haplotype_rows": 1089600,
+    "primitive_base_sources": 2709,
+    "unique_upward_states": 114794,
+    "total_upward_reuse_fraction": 0.6388956171338516,
+    "unique_internal_upward_states_lower_bound": 112085,
+    "reused_internal_upward_states_upper_bound": 1012,
+    "internal_upward_reuse_fraction_upper_bound": 0.008948071124786688,
+    "note": "The internal count is a rigorous bound from total unique upward states and the maximum number of leaf states, not a separately measured exact internal-state count. Most total sharing is leaf/input sharing. Strict source-ID zero reuse was only a conservative lower bound, not evidence that primitive input reuse was absent."
+  },
+  "selected_exact_operator": {
+    "input": "Same original observed site allele call/missingness for each haplotype; same per-site donor frequencies, donor masks, panel allele frequencies and entropy; same original256-site chunk and hold membership.",
+    "equations": [
+      "f(s,a) is exactly the existing15D site-MLP input for observed allele/missing category a at site s.",
+      "e(s,a)=MLP_theta(f(s,a)); encoded(s,h)=e(s,genotype(s,h)).",
+      "Apply unchanged called masks and original per-hold, per-haplotype chunk sum/max/count pooling, followed by the same span/count/empty projection and role/age injection.",
+      "Autograd accumulates all gathered uses: dL/dtheta=sum(s,a) [sum(h with genotype(s,h)=a) dL/de(s,h)] dMLP_theta(f(s,a))/dtheta."
+    ],
+    "complexity_before": "O(S*H*C_MLP + S*H*d)",
+    "complexity_after": "O(S*A*C_MLP + S*H*d), where A is observed allele/missing categories; exact primitive deduplication across sites is optional.",
+    "unchanged": "All haplotypes, SNPs, native intervals, ancestry readout coordinates, sample identities, early mutation-conditioned lineage messages, model parameters, objective and simulation core.",
+    "expression_qualification": "Same learned operator and primitive inputs with original pooling reductions; FP32 batch-kernel differences still require output and parameter-gradient tolerance checks. Preserve max-tie and missing-call behavior.",
+    "no_two_by_two_scientific_confound": "The selected operator retains the current model and early allele interactions. It is an execution qualification, not a late-SNP versus early-SNP architectural intervention.",
+    "limits": "Pooling/gather remains O(SH*d); internal tree sweeps, second-sweep history and T*H sequence contexts remain. A large reduction in MLP rows is not an end-to-end speedup claim."
+  },
+  "low_rank_diagnostic": {
+    "upward_within_group_energy_fraction": 0.01590381078334705,
+    "message_within_group_energy_fraction": 0.010540459334048551,
+    "upward_rank8": {
+      "centered_energy_fraction": 0.9810502529144287,
+      "pointwise_error_norm_p99": 0.37616777420043945,
+      "pointwise_error_norm_max": 0.977677583694458,
+      "relative_pointwise_error_p99": 0.06524976342916489,
+      "relative_pointwise_error_max": 0.16886883974075317
+    },
+    "message_rank8": {
+      "centered_energy_fraction": 0.9832431674003601,
+      "pointwise_error_norm_p99": 0.04010915011167526,
+      "pointwise_error_norm_max": 0.14091071486473083,
+      "relative_pointwise_error_p99": 0.04776633158326149,
+      "relative_pointwise_error_max": 0.159224733710289
+    },
+    "upward_rank16": {
+      "centered_energy_fraction": 0.9971430897712708,
+      "pointwise_error_norm_p99": 0.14348052442073822,
+      "pointwise_error_norm_max": 0.449983149766922,
+      "relative_pointwise_error_p99": 0.024844231083989143,
+      "relative_pointwise_error_max": 0.0774473324418068
+    },
+    "message_rank16": {
+      "centered_energy_fraction": 0.9975600838661194,
+      "pointwise_error_norm_p99": 0.016274213790893555,
+      "pointwise_error_norm_max": 0.09643547981977463,
+      "relative_pointwise_error_p99": 0.01946309022605419,
+      "relative_pointwise_error_max": 0.10311205685138702
+    },
+    "interpretation": "Centered variation is small and spectrally concentrated at this checkpoint, but rare pointwise errors remain substantial. Span-weighted rank8 upward worst relative error is20.23percent. None of these vector errors establishes ancestry or boundary accuracy.",
+    "algorithm_caveat": "Posthoc projection of already-computed32D states to8D only reduces storage/transfer; it does not remove full sweep FLOPs. A cheap coefficient recurrence with validated error bounds would be a separate approximation."
+  },
+  "future_hypothesis_only": {
+    "status": "Candidate only; not selected, implemented or trained",
+    "structural_plus_correction": "h_v(x)=s_g(v)+B_r*a_v(x), where s is a reusable full-depth structural state and a is a position-dependent correction driven by the current observed SNP/base/gate inputs. Moving all genotype input to a late readout can lose mutation-conditioned lineage reasoning.",
+    "current_message_approximation": "For W*h, precompute W*s and W*B_r, giving O(d*r) rather than O(d*d) variation work if coefficients can be propagated cheaply. Gates, nonlinear updates and LayerNorm can create components outside the retained subspace; projecting them changes the operator and needs adaptive error control.",
+    "interval_functional_form": "m_e(x)=1_[left_e,right_e)(x) * g_e(x) * W*h_child(x)/degree_parent(x), followed by the same full-depth tree recurrence. Genomic coordinates and persistent sample routes stay explicit.",
+    "support_caution": "Projecting interval masks into a global low-rank basis can leak messages outside true edge support. Exact overlap Gram matrices preserve integrated linear forms, not pointwise topology. A credible candidate needs local support-respecting bases or exact final masks and incident-edge endpoint refinement, plus explicit projection/nonlinear error measurement.",
+    "complexity_caution": "Cost scales with total local basis/rank support and edge-overlap transforms, not simply global node count. Relate may have many persistent nodes; breakpoint refinement can erase savings. Full-depth topology must be retained or any shallow propagation loss declared.",
+    "boundary_caution": "L2/span averages can hide short-tract and transition errors. Adaptive refinement must consider pointwise residuals at observed topology/SNP changes, and future held-out tract/boundary metrics; no truth is used by this diagnostic."
+  },
+  "prior_art_and_ledger": {
+    "known_components": [
+      "Tree-sequence interval edges and edge diffs",
+      "Categorical feature factoring and gather/autograd multiplicity",
+      "Hash-consing/common-subexpression elimination",
+      "Full-depth tree/cavity message passing",
+      "Reduced-order/Galerkin/functional message representations"
+    ],
+    "ledger_context": "H036/H038 current cavity/SNP/GRU family; H042 local flags; H043/H045 small foreign-state/episode effects; H044 position-local SNP readout; H050 higher-order history utility not established. These are precedents, not evidence for a new mechanism.",
+    "novelty": "No new learned operator or priority claim from hash-consing, categorical evaluation or posthoc spectra. Acceptance remains total efficiency and held-out accuracy on identical observed data."
+  },
+  "independent_interface_read_review": "Execution agent ancestralpaths_file_paper_pass2 checked packet reconstruction, current feature mirroring, original level/rank order and caveats; no blocking interface issue.",
+  "no_further_models_or_tests_after_this_report": true,
+  "no_live_sources_edited": true,
+  "no_Git_no_signals_no_GPU": true
+}

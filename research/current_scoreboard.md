@@ -20,9 +20,9 @@ Native FLARE's earlier American three-source results appear above. The executabl
 
 
 <!-- FROZEN_BENCHMARK_PROGRESS_START -->
-## Launch snapshot and earlier results
+## Historical launch snapshot and earlier results
 
-Updated UTC: 2026-10-18T12:53:52.089475+00:00. Physical GPU 0 only.
+Snapshot UTC: 2026-10-18T12:53:52.089475+00:00. Historical allocation: GPU 0. The current campaign and GPU assignment are reported above.
 
 | Stage | Current verified status |
 |---|---|

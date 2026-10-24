@@ -27,8 +27,8 @@ def publish():
             "European comparisons": current.get("european_status", "European native workflow integration pending."),
             "Native FLARE": current.get("native_flare_status", "Previously completed five 30 Mb validation predictions and scores retained below."),
         }, maintained_campaign=current)
-    lines = [START, "## Launch snapshot and earlier results", "",
-             "Updated UTC: " + status["updated_utc"] + ". Physical GPU 0 only.", "",
+    lines = [START, "## Historical launch snapshot and earlier results", "",
+             "Snapshot UTC: " + status["updated_utc"] + ". Historical allocation: GPU 0. The current campaign and GPU assignment are reported above.", "",
              "| Stage | Current verified status |",
              "|---|---|"]
     lines += ["| " + name + " | " + value.replace("|", "/") + " |"
