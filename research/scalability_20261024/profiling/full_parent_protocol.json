@@ -1,0 +1,169 @@
+{
+  "schema": "TreeLoom_full_parent_paired_profile_protocol_v1",
+  "created_utc": "2026-10-24T17:07:51.499833+00:00",
+  "status": "frozen_runner_ready_for_ROOT_admission",
+  "launch_owner": "ROOT",
+  "profiling_agent_jobs_launched": 0,
+  "runner_ref": {
+    "path": "research/scalability_20261024/profiling/run_profile.py",
+    "sha256": "383924b779b60594c7b222439eff8a44f2fdcbb3eedc438cea8fe3093fa748e2"
+  },
+  "validated_slice_ref": {
+    "path": "research/scalability_20261024/profiling/runs/slice_gpu5_v1/data/completed.json",
+    "sha256": "60c83d6af7e3f971f99016e44d2b5a67ca77e0b62cbc34a774ae533c96b2de2b"
+  },
+  "operator_trace_ref": {
+    "path": "research/scalability_20261024/profiling/runs/slice_gpu5_trace_v1/data/completed.json",
+    "sha256": "eb86eb6ec01ec161dc34763c7f0c3552f8bb9f05b3b25d40ac835e34b1dbc699"
+  },
+  "checkpoint_ref": {
+    "path": "research/repairs/TreeLoom_resume94_RAM_headroom_v1/checkpoint.pt",
+    "sha256": "5ceebcd75ae978689f987a702ea5a157d6ddc2bd7d057e6aded56627bbf45276"
+  },
+  "upstream_integration_manifest_ref": {
+    "path": "research/scalability_20261024/integration/artifact_manifest.json",
+    "sha256": "5219230a9310197d5abef87d3b366cdec2d1a4b9d69fae0341b7ab2a7cdabb64"
+  },
+  "scientific_binding": {
+    "parent_id": "argformer_american_train_000",
+    "observation_ref": {
+      "path": "experiments/results/benchmark_campaign_20261018/fresh_american/argformer_american_train_000/inference/observed/manifest.json",
+      "sha256": "83c64fbff2c1b4c1d728b756733020f9ba21a69b0698c51154a996897ef505e0"
+    },
+    "focal_registry_ref": {
+      "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_000/AM_argformer_american_train_000_focals/native/focals.npz",
+      "sha256": "aa86a5013d0b4ab85ad50011fccee167b59516d7a6c93d7ddaf372db827a2c94"
+    },
+    "truth_ref": {
+      "path": "experiments/results/benchmark_campaign_20261018/fresh_american/argformer_american_train_000/generation/private/truth/c3_pulse_ancestry.npz",
+      "sha256": "0184d7f1c0d26ea5760cac3b13edad5aba4a9c21dbc324f2a6ad04ef3576fc95"
+    },
+    "native_holds": 77472,
+    "haplotypes": 1600,
+    "original_sites": 227474,
+    "original_fixed_focals": 10000,
+    "sequence_length_bp": 30000000,
+    "preparation": "One original load_observation and runtime.prepare_observation; same immutable expanded prepared bank reused for all arms.",
+    "label_join": "Original full TRAIN observation barrier from checkpoint94; authentic labels joined only after observation preparation.",
+    "heldout_truth_opened": false,
+    "support_reduced": false,
+    "gradient_truncation": false,
+    "precision": "FP32; TF32 and autocast disabled",
+    "loss": "Original mean focal cross entropy",
+    "optimizer": "AdamW lr0.001 weight_decay0.0001 betas0.9,0.999 eps1e-8; clip_norm1",
+    "state_restore": "All 49 model tensors, optimizer moments/counters and saved RNG independently restored at 94 before every arm.",
+    "diagnostic_update": "Every arm independently 94 to 95; no production checkpoint saved"
+  },
+  "preparation_limits": {
+    "max_nodes": 400000000,
+    "max_holds": 100000,
+    "max_episode_payload_bytes": 8589934592
+  },
+  "limits_provenance": {
+    "original_workflow_job_ref": {
+      "path": ".runtime/benchmarking/workflow_20261019_v8/jobs/AM_treeloom_fit.json",
+      "sha256": "187e3177a9ccf587e1038ad4f477d6beaccb5128333977083bf06bd5084fe4a3"
+    },
+    "original_field": "call.spec.training_spec.preparation_limits",
+    "current_training_source_ref": {
+      "path": "research/benchmark_rebuild_20261024/american/treeloom_speed/training_v2.py",
+      "sha256": "224a59c7b45ae54a8f81d821bcd7d7b08fccfbed706dfadd2a4372a2eadbcf74"
+    },
+    "current_source_constant": "LIMITS",
+    "current_paper_job_ref": {
+      "path": ".runtime/benchmarking/paper_campaign_20261024_v2/jobs/paper_american_treeloom_fit.attempt2.json",
+      "sha256": "666cce5a28d39dbba560b43f2e913b2bf78f6ded1516a592291c847957a0526e"
+    },
+    "note": "The current paper job carries scientific arguments and no preparation_limits field; current training_v2.LIMITS matches the original workflow values and profiler full prepare call exactly."
+  },
+  "execution_partitions": {
+    "holds_per_block": 32,
+    "haplotypes_per_gru": 8,
+    "history_holds_per_window": 1024,
+    "meaning": "Per-tree GNN blocks and full-sequence haplotype tiles. History carries remain connected across 1024-hold windows. Global episodes/cuts and all 10000 labels are retained."
+  },
+  "root_admission_request": {
+    "host": "anogena",
+    "physical_gpu": 5,
+    "visible_uuid": "GPU-3db85505-d061-e45d-d154-e7e8c1cad497",
+    "max_rss_bytes": 274877906944,
+    "gpu_process_budget_bytes": 8589934592,
+    "integrated_layout_cache_limit_bytes": 8589934592,
+    "max_wait_seconds": 86400,
+    "max_runtime_seconds": 14400,
+    "admission": "Wait for real capacity while preserving healthy jobs and reservations; ROOT controls admission, supervisor, launch and cleanup.",
+    "gpu_guard": "Runner checks soft Torch reserved memory at stage boundaries. It is not a hard allocator cap; ROOT external process-level VRAM supervision remains required.",
+    "host_guard": "Runner checks RSS and reserves layout construction workspace. 256 GiB is a guarded operational budget, not an analytical peak guarantee.",
+    "status_note": "ROOT reports supervisor 390236 launched and waiting for host growth; ROOT retains immutable full_profile_submission.json dispatch evidence."
+  },
+  "environment": {
+    "PYTHONPATH": "src:.",
+    "ARGGNN_PHYSICAL_GPU": "5",
+    "CUDA_VISIBLE_DEVICES": "GPU-3db85505-d061-e45d-d154-e7e8c1cad497",
+    "ARGGNN_GPU_MEMORY_POLICY": "full_device",
+    "process_title": "AI Auto Research Pipeline Test"
+  },
+  "command_argv": [
+    ".runtime/env/bin/python",
+    "-B",
+    "-m",
+    "research.scalability_20261024.profiling.run_profile",
+    "--mode",
+    "full",
+    "--output",
+    "<fresh-project-contained-output>/data",
+    "--holds-per-block",
+    "32",
+    "--haplotypes-per-gru",
+    "8",
+    "--gpu-memory-gib",
+    "8",
+    "--max-rss-gib",
+    "256",
+    "--warm-repeats",
+    "1"
+  ],
+  "call_order": [
+    "original same_process_first_call reset94",
+    "integrated same_process_first_call reset94 cold integrated layout cache",
+    "integrated warm_layout_and_libraries reset94",
+    "original warm_layout_and_libraries reset94"
+  ],
+  "measurement": {
+    "trace_transfers": false,
+    "common_preparation": "Recorded once, separately from arm wall times",
+    "cold_definition": "Same-process first calls only; neither arm is an independent process-cold GPU measurement.",
+    "warm_definition": "Same shared bank, same process libraries, integrated immutable layout reuse; weights/moments/RNG restored.",
+    "synchronized_top_level_stages": true,
+    "nested_stages_additive": false,
+    "comparisons": "Logits, raw pre-clip gradients, updated parameters and Adam moments against original first-call baseline.",
+    "atol": 0.0001,
+    "rtol": 0.0001,
+    "expected_Adam_counters": 95,
+    "recorded_memory": "Torch allocated/reserved peaks, process RSS, lifetime ru_maxrss; ROOT process-level guardian evidence separately.",
+    "interpretation": "One same-parent paired diagnostic, not multi-parent training throughput or an accuracy/benchmark result."
+  },
+  "memory_evidence": {
+    "historical_qualification_ref": {
+      "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v8/inherited/AM_treeloom_full_parent_qualification/native/qualification.json",
+      "sha256": "7d295697200f13c210398dadc72c044e2d75c977b300fa404fef1271aa7a8372"
+    },
+    "native_node_occurrences": 205369272,
+    "expanded_prepared_tensor_bytes": 30005238092,
+    "historical_preparation_and_pack_peak_RSS_bytes": 63457189888,
+    "one_FP32_N_by_32_array_bytes": 26287266816,
+    "two_first_sweep_node_arrays_bytes": 52574533632,
+    "one_full_context_array_bytes": 15866265600,
+    "prepared_plus_node_pair_plus_context_and_VJP_bytes": 114312302924,
+    "excluded_from_floor": "Metadata, layout/cache workspace, autograd ownership, forcing/history tensors, library workspace and allocator overhead.",
+    "qualification_executed_model": false,
+    "peak_RAM_and_GPU_proven": false,
+    "compact_live_pool_reuse": "Unavailable across processes; no disk archive of the resident compact bank. Independent one-parent preparation is required."
+  },
+  "required_outputs": [
+    "data/completed.json",
+    "four per-arm JSON receipts",
+    "ROOT actual_wait.json and resource-supervision receipt"
+  ],
+  "failure_policy": "ROOT records the failure or budget exhaustion; no automatic scientific support reduction, live source edits, healthy-job restart or alternate GPU launch."
+}

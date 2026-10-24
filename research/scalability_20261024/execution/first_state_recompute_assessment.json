@@ -1,0 +1,57 @@
+{
+  "schema": "TreeLoom_first_state_recompute_source_assessment_v1",
+  "status": "analysis_only_not_implemented_not_profiled",
+  "integration_sources_changed": false,
+  "live_sources_changed": false,
+  "new_jobs_launched": false,
+  "source_refs": [
+    {
+      "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v8/inherited/AM_treeloom_full_parent_qualification/native/qualification.json",
+      "sha256": "7d295697200f13c210398dadc72c044e2d75c977b300fa404fef1271aa7a8372"
+    },
+    {
+      "path": "research/benchmark_rebuild_20261024/american/treeloom_speed/staged_execution_v2.py",
+      "sha256": "12870a3b4514fef5153bbd66114e4e54a2bb002072d1392cd84f3519f6677927"
+    }
+  ],
+  "actual_TRAIN000_metadata": {
+    "native_nodes": 205369272,
+    "native_holds": 77472,
+    "haplotypes": 1600,
+    "expanded_tensor_bytes": 30005238092,
+    "observed_prepare_pack_restore_peak_rss_bytes": 63457189888
+  },
+  "dependency_findings": [
+    "Current first-sweep pair outputs are CPU tensors up/out. The forcing checkpoint takes both as tensor inputs; non-reentrant checkpoint retains its inputs for replay. Therefore deleting Python out/pairs references does not release all first-state storage before backward.",
+    "A single outer checkpoint could run first+forcing directly and return only differentiable force plus a no-grad per-block abs(up).max summary, avoiding up/out as checkpoint inputs or returned persistent states.",
+    "After complete global force/history, a second outer checkpoint could recompute unchanged first up and call unchanged second sweep, returning only leaf context. Its tensor inputs would be history values and eligibility rather than N-by32 first states.",
+    "Global stable-leaf history still consumes every group's force and returns every group's value. No force/value/context gradient may be detached. Both recomputed first branches share the same model parameters and immutable observation inputs; their parameter gradients sum to the original chain rule.",
+    "The finite own-state proof depends on upward only through the maximum absolute value. Its global maximum can be formed from no-grad per-block maxima; the original episode/span denominator, eligibility and finite/overflow inequality must remain exact.",
+    "Use one combined checkpoint per branch. Keeping an inner forcing checkpoint with up/out inputs could defeat the memory goal. No closure may capture up/out tensors after its invocation."
+  ],
+  "memory_bytes": {
+    "one_persistent_first_Nx32_state": 26287266816,
+    "persistent_first_up_out_pair": 52574533632,
+    "context_TxHx32": 15866265600,
+    "context_and_decoder_VJP": 31732531200,
+    "expanded_bank_plus_context_and_VJP_lower_components": 61737769292,
+    "immutable_layout_index_arrays_approx_20N_excluding_headers": 4107385440,
+    "rough_nonpool_globalpeak_minus_finalcompactpool": 196309175320,
+    "rough_subtraction_after_one_pair_removal": 143734641688,
+    "requested_available_headroom_95GiB": 102005473280
+  },
+  "memory_limits": [
+    "The up/out pair is52.57GB/48.96GiB for actual N=205369272. This is a source-supported storage size, not a measured reduction in process peak.",
+    "Additional first-state adjoint/replay storage may also shrink, but peak liveness and allocator retention are unmeasured.",
+    "The196.31GB rough nonpool delta comes from a historical global peak minus final compact-pool bytes; those times may not align. It is not a proven standalone peak.",
+    "Subtracting one pair from that rough delta still gives143.73GB/133.86GiB, above95GiB. This proposal alone does not establish fit.",
+    "The existing expanded bank, full context/VJP, global history, compact pool, layout cache, runtime and temporary buffers remain. Preparation had its own observed63.46GB peak at a different phase."
+  ],
+  "time_tradeoff": [
+    "First-sweep work is recomputed separately on force and second-context branches instead of sharing one retained up tensor.",
+    "Structural forward sweeps increase from2 to3 per block. With non-reentrant replay, first-sweep forward/replay work is approximately doubled, while second-sweep work is unchanged; first-sweep gradients are propagated twice rather than once with combined adjoints.",
+    "Whole-step overhead is unmeasured. Extra site/base computation, CPU-GPU transfers and synchronization matter, even after categorical encoding/layout reuse.",
+    "An implementation would preserve equations but change floating-point accumulation order; future all49-gradient/loss/optimizer-state parity and measured peak/time checks would be required."
+  ],
+  "conclusion": "Mechanically feasible exact-equation rematerialization candidate with a credible48.96GiB persistent-state target. No implementation, peak-memory fit, speed or numerical-parity claim is made. Frozen integration remains unchanged."
+}

@@ -1,0 +1,131 @@
+{
+  "scope": "128 observed TRAIN trees, instrumented kernel diagnostic",
+  "measurements": [
+    {
+      "kind": "original",
+      "numerical_check": {
+        "reference": true
+      },
+      "copy_events": [
+        {
+          "name": "aten::_to_copy",
+          "calls": 2296,
+          "cpu_total_us": 448673.95699998655,
+          "device_total_us": 154164.85699999973
+        },
+        {
+          "name": "aten::copy_",
+          "calls": 3624,
+          "cpu_total_us": 452166.8320000138,
+          "device_total_us": 166092.0619999988
+        },
+        {
+          "name": "cudaMemcpyAsync",
+          "calls": 3004,
+          "cpu_total_us": 217388.03599999603,
+          "device_total_us": 0
+        },
+        {
+          "name": "Memcpy HtoD (Pageable -> Device)",
+          "calls": 1763,
+          "cpu_total_us": 0,
+          "device_total_us": 49741.23200000108
+        },
+        {
+          "name": "Memcpy DtoD (Device -> Device)",
+          "calls": 1022,
+          "cpu_total_us": 0,
+          "device_total_us": 10686.921000000963
+        },
+        {
+          "name": "Memcpy DtoH (Device -> Pinned)",
+          "calls": 74,
+          "cpu_total_us": 0,
+          "device_total_us": 172.03499999968335
+        },
+        {
+          "name": "Memcpy DtoH (Device -> Pageable)",
+          "calls": 145,
+          "cpu_total_us": 0,
+          "device_total_us": 102208.5269999964
+        }
+      ],
+      "phase_seconds": {
+        "profile_model_optimizer_transfer": 0.03809510823339224,
+        "profile_layout": 0.029315752908587456,
+        "profile_context_forward": 0.9223347650840878,
+        "profile_decoder_forward_backward": 0.37874762807041407,
+        "profile_trunk_backward": 1.5352454502135515,
+        "profile_clip_optimizer": 0.06419569812715054
+      }
+    },
+    {
+      "kind": "integrated",
+      "numerical_check": {
+        "passed": true,
+        "atol": 0.0001,
+        "rtol": 0.0001,
+        "logits_max_abs_error": 4.76837158203125e-07,
+        "gradients_max_abs_error": 1.1920928955078125e-07,
+        "parameters_max_abs_error": 1.4901161193847656e-08,
+        "moments_max_abs_error": 3.259629011154175e-09
+      },
+      "copy_events": [
+        {
+          "name": "aten::_to_copy",
+          "calls": 3560,
+          "cpu_total_us": 236663.49300000156,
+          "device_total_us": 110031.42399999952
+        },
+        {
+          "name": "aten::copy_",
+          "calls": 6176,
+          "cpu_total_us": 275473.8859999925,
+          "device_total_us": 127398.9619999972
+        },
+        {
+          "name": "cudaMemcpyAsync",
+          "calls": 3028,
+          "cpu_total_us": 164732.6850000029,
+          "device_total_us": 0
+        },
+        {
+          "name": "Memcpy HtoD (Pageable -> Device)",
+          "calls": 1763,
+          "cpu_total_us": 0,
+          "device_total_us": 40746.60799999939
+        },
+        {
+          "name": "Memcpy DtoD (Device -> Device)",
+          "calls": 1046,
+          "cpu_total_us": 0,
+          "device_total_us": 10680.479999999967
+        },
+        {
+          "name": "Memcpy DtoH (Device -> Pinned)",
+          "calls": 74,
+          "cpu_total_us": 0,
+          "device_total_us": 168.88900000022113
+        },
+        {
+          "name": "Memcpy DtoH (Device -> Pageable)",
+          "calls": 145,
+          "cpu_total_us": 0,
+          "device_total_us": 67293.50200000018
+        }
+      ],
+      "phase_seconds": {
+        "profile_model_optimizer_transfer": 0.01658425386995077,
+        "profile_layout": 0.03523659612983465,
+        "profile_context_forward": 0.5349885020405054,
+        "profile_decoder_forward_backward": 0.240754971280694,
+        "profile_trunk_backward": 1.161741130053997,
+        "profile_clip_optimizer": 0.010131509974598885
+      }
+    }
+  ],
+  "decision": "Retain model equations. Do not choose low-rank layers from this trace.",
+  "basis": "Indexed autograd and transfers are material. Width-32 linear layers are not established as the dominant remaining cost.",
+  "limitation": "Nested operator timings overlap. Profiler event collection/finalization adds large overhead. Do not use traced total_seconds as training throughput.",
+  "next_step": "Run paired full-parent uninstrumented profile when host capacity admits it. Assess exact transfer/index execution before changing the operator."
+}

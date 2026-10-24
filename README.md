@@ -7,8 +7,8 @@
 
 | Workstream | Current verified result |
 |---|---|
-| American TreeLoom | **95/600 complete-parent updates recorded.** The same model, optimizer and schedule resumed from update 94 after a host RAM reservation failure. The next scheduled parent has been prepared and the fit continues. |
-| European TreeLoom | **61/90 complete-parent updates.** Continues on GPU 5. The diagnostic's recent mean was 24.1 minutes per update. |
+| American TreeLoom | **96/600 complete-parent updates recorded.** The same model, optimizer and schedule resumed from update 94 after a host RAM reservation failure. The next scheduled parent has been prepared and the fit continues. |
+| European TreeLoom | **62/90 complete-parent updates.** Continues on GPU 5. The diagnostic's recent mean was 24.1 minutes per update. |
 | Corrected ARGformer | Native pretraining stages advanced to downstream contrastive training. The current contrastive task runs on GPU 4. Training progress is not LAI accuracy. |
 | AncestralPaths | Historical CNN completed 8,335 optimizer updates and all five TEST prediction products. Common scoring awaits the paired models. |
 | FLARE | All 15 native American outputs passed reuse checks. Paired held-out comparison remains pending. |
@@ -26,8 +26,10 @@ The current American TreeLoom has a measured warm median of **9.29 minutes per f
 | Layout first-sweep outputs and gradients agree on a bounded real-tree check | Supports correct index/reduction reuse. It is not an ancestry result. |
 | Sparse remapping was slightly slower | Rejected as an American optimization. |
 | Primitive-input census: 63.89% repeated first-upward state occurrences | Sharing is predominantly in leaf/input computations. This is not a 63.89% runtime saving. The stricter source-ID census missed these identical-input cases. |
-| Categorical SNP encoder: 409,600 → 768 MLP evaluations in the measured chunk | Exact-equation prototype passed. Four-thread CPU warm forward was **1.77×** faster and the forward/backward probe **1.98×** faster. Outputs matched and maximum gradient error was 2.35e-7. GPU/full-training gain remains unmeasured. |
+| Categorical SNP encoder: 409,600 → 768 MLP evaluations in the measured chunk | Exact-equation prototype passed. Four-thread CPU warm forward was **1.77×** faster and the forward/backward probe **1.98×** faster. Outputs matched and maximum gradient error was 2.35e-7. The integrated GPU slice result is below. Full-parent gain remains unmeasured. |
 | Rank-eight basis captures 98.11% of centered upward-state variation, but maximum relative vector error is 16.89% | Approximation remains deferred. Average compression quality does not establish preserved ancestry accuracy. |
+
+**Integrated GPU result:** the exact successor passed a paired test on the real 128-tree TRAIN slice, including all 49 parameter gradients and the clipped AdamW update. One warm run took **1.26 s versus 2.06 s**, a **1.63x** ratio. Peak PyTorch reserved GPU memory fell from **1.53 GB to 0.98 GB**. Maximum gradient and updated-parameter differences were **3.28e-7** and **2.98e-8**. This uses the 22 registered focal labels within the slice. It is a restricted-window timing test, not a full-parent speedup or held-out accuracy result. The full-parent comparison is queued for GPU 5 and waits for host RAM after the existing jobs' growth allowances. It will start automatically when admitted. [Full-parent submission](research/scalability_20261024/full_profile_submission.json). [Measured receipt](research/scalability_20261024/root_integration_measurement.json) · [Paired run](research/scalability_20261024/profiling/runs/slice_gpu5_v1/data/completed.json).
 
 The frozen benchmark continues with its existing source. A scalable successor will be labelled separately and must earn its place through end-to-end time, memory, ancestry accuracy and boundary-resolution measurements. Generic caching or low rank alone is not a novelty claim.
 
@@ -124,7 +126,7 @@ Within each paired endpoint, code fixes common sample/site identities and requir
 
 <!-- readable-full-vram-queue:start -->
 ### Current full-VRAM queue
-Updated 2026-10-24T16:58:40.295314+00:00. Status: running.
+Updated 2026-10-24T17:07:43.467584+00:00. Status: running.
 85 pending, 1 running, 247 succeeded, 1 failed, 16 blocked, 0 unknown.
 Local active: AP__all_train__treeloom_fit.
 Live training stages: bounded stage metadata pending.

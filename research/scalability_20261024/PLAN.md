@@ -18,14 +18,14 @@ A new architecture is not an exact execution repair. Label it separately and mea
 | ID | Question / deliverable | Owner | State |
 |---|---|---|---|
 | S01 | Which current operations actually repeat, and how much time/memory do they cost? | Execution worker | 128 real TRAIN trees measured, further full-parent profiling open |
-| S02 | Reuse immutable execution layouts without changing TreeLoom equations | Execution worker | Prototype verified, integration open |
+| S02 | Reuse immutable execution layouts without changing TreeLoom equations | Execution worker | Isolated integration and lease accounting passed source/CPU/GPU slice qualification, full-parent profile pending |
 | S03 | Can identical computational states be shared across trees under the actual feature dependencies? | Model worker | Both censuses and saved-checkpoint spectrum complete, first-sweep scope only |
 | S04 | Is a new factorized or approximate operator justified by measured redundancy? | Root + model worker | Exact categorical SNP encoding selected first, low rank deferred after outlier-error check |
 | S05 | What is established prior art and what would constitute a defensible scientific contribution? | Independent worker | Primary-source review complete, generic sharing novelty rejected |
-| S06 | Measure forward/backward, transfer, preprocessing, peak RAM/VRAM and end-to-end training throughput | Root | Representative pilot pending code review |
+| S06 | Measure forward/backward, transfer, preprocessing, peak RAM/VRAM and end-to-end training throughput | Root | Paired GPU slice passed, full-parent profiling requires host capacity |
 | S07 | Compare ancestry accuracy, per-class recall/F1, calibration and tract boundaries on unchanged data | Root | Pending a qualified candidate and substantive fit |
 | S08 | Apply capacity-only failed ARGMix bridge repair without losing completed Relate output | Root + ARGMix worker | Applied at revision 5, bridge pending host RAM admission |
-| S09 | Evaluate the site MLP once per observed allele and gather to haplotypes with the original pooling | Execution worker | Prototype and independent source review passed, production integration open |
+| S09 | Evaluate the site MLP once per observed allele and gather to haplotypes with the original pooling | Execution worker | Integrated checkpoint path passed paired GPU slice including all 49 gradients and AdamW update |
 
 ## Method decisions
 
@@ -73,3 +73,39 @@ On four CPU threads, warm chunk forward improved from 189.3 ms to 107.0 ms (1.77
 Remaining engineering work is safe executor integration, GPU/end-to-end profiling, and reduction of full-parent preparation/expanded-bank costs. Remaining scientific work is a justified new operator if exact improvements are insufficient, followed by matched predictive and boundary evaluation. No new architecture or superiority claim is established by this optimization.
 
 Latest benchmark snapshot: American TreeLoom has completed update 95 after restoration at 94. European TreeLoom has 61 update receipts. Both continue without a scientific change. The ARGMix conversion repair is applied but waits for legitimate host RAM growth reservations to become available.
+
+
+## Authorized integration phase
+
+The owner approved safe integration and full-pipeline profiling. The isolated successor lives in `integration/`, with paired measurements in `profiling/`. Running benchmark sources and checkpoint history remain unchanged.
+
+- Execution worker: integrate exact categorical site encoding into the existing checkpoint recomputation path and cache immutable layouts with a finite memory budget.
+- Profiling worker: compare original and integrated execution from the same saved model and optimizer state, first on the observed 128-tree TRAIN slice, then on an entire TRAIN parent.
+- Independent reviewer: audit gradients, pooling, cache lifetime, unchanged data support and the interpretation of measurements.
+- Root: schedule bounded GPU work, inspect results, publish measurements and choose subsequent model research from observed costs.
+
+The slice contains 22 registered TRAIN query positions. It is a restricted-window differentiability and timing test, not a full-parent optimizer update or held-out accuracy result. A full-parent profile retains every tree, all 1,600 haplotypes, all 10,000 registered targets, connected chromosome history and the unchanged training objective. Both arms use identical execution partitions and FP32 arithmetic.
+
+The full-parent preparation and backward working set require substantial host RAM. A profile must fit alongside the current jobs or wait for capacity. GPU occupancy alone is insufficient to admit a second complete-parent working set. No running baseline is restarted to obtain a favorable timing.
+
+
+## Integrated GPU qualification
+
+The paired executor test on GPU 5 completed successfully. It retained all 128 observed trees, 1,600 haplotypes and the 22 registered TRAIN focal labels within that interval. Both arms restarted from the same update-94 model, optimizer moments and RNG state. No resulting diagnostic update was written into the production fit.
+
+One warm original run took 2.0581 seconds and one warm integrated run took 1.2629 seconds, a 1.63x ratio. Peak PyTorch reserved GPU memory was 1.533 GB and 0.977 GB respectively. Across the integrated checks, maximum logit difference was 4.77e-7, raw-gradient difference 3.28e-7, updated-parameter difference 2.98e-8 and Adam-state difference 3.96e-9. The chosen FP32 tolerance was 1e-4 absolute and relative.
+
+These timings cover the diagnostic forward, decoder loss and backward, complete slice trunk backward, clipping, AdamW and measurement overhead. Observation preparation was measured separately at 0.91 seconds. There is only one warm timing per arm, under shared-device conditions. These results do not establish a full-parent speedup or improved ancestry accuracy. A separate instrumented trace investigates remaining costs and is excluded from the timing headline.
+
+A cache eviction defect found during integration review was repaired before the GPU run. Active executors now hold a charged lease, preventing layouts used by an unfinished backward pass from being evicted or disappearing from memory accounting.
+
+
+## Full-parent profile dispatched
+
+A guarded supervisor is active for the four-run full-parent comparison on GPU 5. It currently waits for host RAM after accounting for the verified growth allowances of the existing campaign and European fit. The profile requests a 256 GiB host budget, an 8 GiB soft PyTorch GPU budget plus CUDA context headroom, and at most 64 MiB of output. Admission may wait up to 24 hours, followed by a four-hour execution limit. It starts automatically if capacity is available, preserves actual waits and exits on its own resource violation without signalling benchmark workers.
+
+All 77,472 trees, 227,474 SNPs, 1,600 haplotypes and 10,000 focal TRAIN targets are retained. Both arms use 32 trees per execution block and 8 decoder haplotypes per tile, with complete genomic history. The profile's four diagnostic updates each restore checkpoint 94, including AdamW moments and RNG. There is no training restart, simulation rerun or change to benchmark results.
+
+The instrumented slice trace points to copies and indexed autograd as material remaining costs. Dense linear layers are not established as the dominant bottleneck. Low-rank architecture changes remain deferred. A separate exact recomputation analysis identifies 48.96 GiB of retained first-sweep states as a possible memory target, at increased sweep cost. No implementation, speedup or predictive benefit is claimed for that tradeoff.
+
+See `full_profile_submission.json` for the immutable submission snapshot and the live server status path. Full-parent performance, full-parent numerical qualification and any subsequent architectural experiment remain open.
