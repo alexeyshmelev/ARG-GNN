@@ -127,3 +127,17 @@ The complete 251-stage comparison DAG is launched and initial substantive traini
 The GPUs are assigned only within physical 3, 4 and 5. GPU 4 reached 94–100 percent utilization with two corrected native training jobs. Utilization of GPUs 3 and 5 varies while the new TreeLoom and GST jobs prepare CPU observations alongside retained legacy jobs. Continuous full utilization of all three GPUs is not yet demonstrated. Preparation file offsets and callbacks are advancing, so CPU preparation is not labelled as completed training.
 
 No held-out score or new superiority claim is inferred from the training counters. The queue being built, launched and initially healthy does not mean that all benchmarks have completed. Source, protocol reconstruction, progress and failure receipts remain separate and preserved.
+
+## Resource failure and GPU3 diagnosis
+
+- B19 open: GST replicated all three observed parents into eight spawn workers and exceeded the 128GiB host bound. Repair worker count and host reservation without changing its model or examples.
+- B20 open: native Relate topology workers exceeded the 32GiB host bound. Preserve successful MakeChunks/Paint and resume uncompleted topology commands with an adequate bound.
+- B21 open: TreeLoom eagerly prepares20 expanded CPU banks before its next update. Restore the qualified compact cache and prepare in the required training order with bounded prefetch. Its saved58updates remain intact.
+- The two corrected ARGformer fits continue. No unrelated processes are touched. The initial healthy launch snapshot is not a statement that later failures did not occur.
+
+### Resource repairs submitted and accepted
+
+- B19: the controller accepted the reviewed four-worker GST runtime and started attempt2 on GPU3. The unchanged model and all examples are preserved. Actual production training progress is still being checked.
+- B20: the controller accepted the verified Relate resume with256GiB. Successful MakeChunks/Paint and all78native files are retained. The failed4041-byte receipt directory is preserved.
+- B21: compact lazy preparation and bounded prefetch are being qualified in a separate source package. The live TreeLoom job has not been interrupted.
+- All failed attempts and repair definitions are retained. No healthy competitor fit was restarted.

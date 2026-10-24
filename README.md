@@ -3,7 +3,7 @@
 <!-- paper-benchmark-rebuild-current:start -->
 ## Paper-based comparison campaign, 24 October
 
-**The corrected 251-stage queue is running. Earlier scores remain development evidence. They do not establish superiority on all of the requested paper conditions.**
+**Resource repair in progress: GST restarted on GPU 3 with four workers and a corrected RAM reservation. The controller accepted the Relate resume repair. TreeLoom still needs its preparation pipeline replacement. Both corrected ARGformer fits continue. Matched held-out scores remain pending.**
 
 Every paired comparison uses the same simulated parent, observed data, reference/query identities and evaluation positions. Available publication settings are implemented explicitly. Unreleased details use documented reconstructions. This does not promise the exact numbers printed in a paper.
 
@@ -14,13 +14,13 @@ Every paired comparison uses the same simulated parent, observed data, reference
 | ARGMix and TreeLoom | Shared 1,611-person recipe, with five TRAIN, one validation, three IID and five misspecified parents. Paper-oriented ARGMix uses the 29-node representation, raw capped distances and the disclosed attention correction. Paired prediction barriers precede test scoring. |
 | GST-LAI-8 | The unchanged author GraphSetConv is adapted to ancestry inference using sets of eight complete trees. This is an explicitly new LAI baseline, not a reproduction of GST's original synthetic or molecular tables. |
 
-The TreeLoom architecture is frozen for this comparison. Its faster memory recurrence preserves complete-parent training and connected gradients. The American fit resumes from its authenticated 58-update checkpoint. ARGformer and GST use eight data-loading workers. New jobs are restricted to GPUs 3, 4 and 5, with full-device memory permitted. Temporary data retirement and conservative admission keep the project under the 1 TB limit.
+The TreeLoom architecture is frozen for this comparison. Its faster memory recurrence preserves complete-parent training and connected gradients. The American fit resumes from its authenticated 58-update checkpoint. ARGformer uses eight data-loading workers. GST uses four after its replicated inputs exceeded the previous host-RAM reservation. New jobs are restricted to GPUs 3, 4 and 5, with full-device memory permitted. Temporary data retirement and conservative admission keep the project under the 1 TB limit.
 
 The first launch exposed a missing output-parent directory in the queue. Its failure and partial startup outputs were archived. The repaired launch uses the same scientific tasks and can now retry an explicitly repaired failed branch without interrupting healthy jobs.
 
 [Detailed plan and issue ledger](research/benchmark_rebuild_20261024/PLAN.md) · [Active queue](configs/benchmarks/paper_campaign_20261024_v2.json) · [Scientific integration review](research/benchmark_rebuild_20261024/integration/final_integration_review_v1.json) · [ARGformer reconstruction](research/benchmark_rebuild_20261024/american/IMPLEMENTATION.md)
 
-Verified initial progress: both corrected ARGformer runs wrote native checkpoints at batch 500, corresponding to 256,000 sampled training paths each, and continued beyond 1,200 logged batches without errors. ARGMix completed observation adoption and Relate-input preparation and entered native Relate. The queue has five active tasks, eight completed or reused stages, and no failed or blocked tasks at this snapshot. TreeLoom and GST are still preparing complete observed data. Their new training updates are not yet claimed. GPU utilization varies during this initial CPU work.
+Earlier initial snapshot (before these resource failures): both corrected ARGformer runs wrote native checkpoints at batch 500, corresponding to 256,000 sampled training paths each, and continued beyond 1,200 logged batches without errors. ARGMix completed observation adoption and Relate-input preparation and entered native Relate. The queue has five active tasks, eight completed or reused stages, and no failed or blocked tasks at this snapshot. TreeLoom and GST are still preparing complete observed data. Their new training updates are not yet claimed. GPU utilization varies during this initial CPU work.
 
 [ARGformer checkpoints and progress](research/benchmark_rebuild_20261024/american/master_v2_500update_progress_receipt.json) · [Current launch and health](research/benchmark_rebuild_20261024/integration/master_v2_initial_health.json) · [ARGMix progress](research/benchmark_rebuild_20261024/argmix/master_v2_startup_progress_receipt.json)
 
@@ -29,7 +29,7 @@ Verified initial progress: both corrected ARGformer runs wrote native checkpoint
 
 
 <!-- readable-gpu345-queue:start -->
-### Current GPU 3/4/5 queue
+### Historical queue snapshot, superseded by the campaign above
 Updated 2026-10-23T23:08:57.823270+00:00. Status: drained_for_operational_update.
 74 pending, 0 running, 259 succeeded, 1 failed, 16 blocked, 0 unknown.
 Local active: waiting for dependencies or capacity.
@@ -55,9 +55,9 @@ One optional external AP001 archive is deferred with its full retained storage c
 
 **TreeLoom** learns local ancestry inference (LAI) from ordered collections of complete genealogical trees. Its GNN processes tree structure and follows persistent haplotypes across genomic intervals.
 
-## Current task: execute the benchmark campaign
+## Earlier benchmark campaign and development history
 
-**The active LAI benchmark continuation uses a queue of 350 stages, including storage recovery and fresh qualifications.** It covers shared American and European simulations, full training, native competitors, paired scoring and Danish data application. Current execution and matched results are published below. All computation and Git commands run on anogena, using physical GPUs 3, 4 and 5.
+**The earlier LAI benchmark continuation used 350 stages, including storage recovery and fresh qualifications. The current campaign is described at the top of this README.** It covers shared American and European simulations, full training, native competitors, paired scoring and Danish data application. Current execution and matched results are published below. All computation and Git commands run on anogena, using physical GPUs 3, 4 and 5.
 
 <!-- BEGIN CURRENT BENCHMARK DIAGNOSIS -->
 **Verified 2026-10-22T23:09:15.814521+03:00: only physical GPUs 3, 4 and 5 are authorized.** American TreeLoom has moved from GPU2 to GPU4 and is running without an artificial GPU memory limit.
@@ -117,7 +117,7 @@ Within each paired endpoint, code fixes common sample/site identities and requir
 
 <!-- readable-full-vram-queue:start -->
 ### Current full-VRAM queue
-Updated 2026-10-24T00:24:19.729684+00:00. Status: running.
+Updated 2026-10-24T00:37:01.434292+00:00. Status: running.
 85 pending, 1 running, 247 succeeded, 1 failed, 16 blocked, 0 unknown.
 Local active: AP__all_train__treeloom_fit.
 Live training stages: bounded stage metadata pending.

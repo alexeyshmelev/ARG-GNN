@@ -1,0 +1,93 @@
+{
+  "archive_plan_ref": {
+    "path": "research/benchmark_rebuild_20261024/argmix/paper_argmix_native_ram_archive_plan.json",
+    "sha256": "0cc035369bb735268bac04bb81fd1bcb60d3d3764050e1b7a9da280b47fcfaac"
+  },
+  "created_utc": "2026-10-24T00:31:01.970753+00:00",
+  "exact_new_argv": [
+    "/workspace-SR003.nfs2/ARG-GNN/.runtime/env/bin/python",
+    "-B",
+    "/workspace-SR003.nfs2/ARG-GNN/research/benchmark_rebuild_20261024/argmix/paper_argmix_relate_resume.py",
+    "--spec",
+    "/workspace-SR003.nfs2/ARG-GNN/research/benchmark_rebuild_20261024/argmix/paper_argmix_train000_paint_resume_spec.json",
+    "--output",
+    "/workspace-SR003.nfs2/ARG-GNN/experiments/paper_argmix_1611_rebuild_20261024_v1/published_recon_train_000/native_run",
+    "--max-output-bytes",
+    "268435456",
+    "--timeout-seconds",
+    "86400"
+  ],
+  "execution_preconditions": [
+    "ROOT first applies coordinated GST repair, establishing plan revision1.",
+    "ROOT verifies and archives only the exact4041-byte failed native_run leaf using archive_plan; keep relate_work and its78sealed products unchanged.",
+    "ROOT creates an actual immutable archive manifest with archived_bytes4041 and binds its ref into request_template.archive_manifest_ref.",
+    "ROOT rechecks expected plan revision and affected attempts, validates the final request and submits it through the existing repair_requests path.",
+    "No healthy nonARGMix task or the two completed ARGMix predecessor tasks is reset."
+  ],
+  "findings": {
+    "actual_old_concrete_RSS_bytes": 34359738368,
+    "existing_native_work_bytes": 10783117924,
+    "observed_failed_PSS_bytes": 77530059776,
+    "old_driver_resume_supported": false,
+    "retained_native_bytes": 8765290670,
+    "retained_native_files": 78,
+    "retained_painting_sections": 69,
+    "successful_native_stages": [
+      "MakeChunks",
+      "chunk0_Paint"
+    ],
+    "successful_topology_sections": 0
+  },
+  "helper_ref": {
+    "path": "research/benchmark_rebuild_20261024/argmix/paper_argmix_relate_resume.py",
+    "sha256": "9d2a1c32aaee2b7451b2b539c26193f1bd5ce8765a548e56d6aa4335d223c7f3"
+  },
+  "limitations": [
+    "256GiB is a finite operational reservation with3.55x headroom over the observed interrupted72.2GiB; it is not a demonstrated peak-memory bound.",
+    "No native process, archived move, deletion, repair submission, source-pin rewrite or Git operation was performed during this preparation.",
+    "The resume driver is intentionally tied to this exact fully painted single-chunk inventory and rejects any extra unproven topology output; later interruptions require explicit review."
+  ],
+  "proposed_repair": {
+    "archive_native_run_only_bytes": 4041,
+    "keep_native_work_cap_bytes": 25769803776,
+    "keep_whole_ARGMix_cap_bytes": 42949672960,
+    "mutation_rate_population_sample_ages_and_seed_unchanged": true,
+    "native_work_files_to_delete_or_move": [],
+    "native_workers_unchanged": 8,
+    "new_native_commands": 142,
+    "outer_RSS_bytes": 274877906944,
+    "preserve_successful_predecessors": 2,
+    "replace_native_resource_tasks": 14,
+    "reset_failed_or_blocked_tasks": 148,
+    "reused_completed_waits": 2
+  },
+  "repair_draft_ref": {
+    "path": "research/benchmark_rebuild_20261024/argmix/paper_argmix_native_ram256_repair_draft.json",
+    "sha256": "3d59edf0f2c9f790399b736daee421725c0b11ae11a83e6b159b02217a7dc557"
+  },
+  "resume_spec_ref": {
+    "path": "research/benchmark_rebuild_20261024/argmix/paper_argmix_train000_paint_resume_spec.json",
+    "sha256": "ce0eb80cc238feb6fb7d76c6bf59d3a90a0e1f61b2f1b5ae79afe8118d0d0e43"
+  },
+  "root_coordination_required": true,
+  "schema": "paper_argmix_native_RAM_resume_preparation_review_v1",
+  "status": "PREPARED_NOT_APPLIED",
+  "validation": {
+    "all140_postpaint_chunk_commands_unique": true,
+    "all78_retained_native_files_SHA256_sealed": true,
+    "all_replacement_source_hashes_match": true,
+    "all_section_seeds_and_ages_match_original": true,
+    "archive_destination_absent": true,
+    "candidate_scheduler_DAG_validation_passed": true,
+    "helper_AST_parses": true,
+    "no_bare_exec_eval_compile": true,
+    "no_inner_RSS_limit": true,
+    "old_native_run_still_present": true,
+    "static_stage_plan_blocks": [
+      69,
+      1,
+      69,
+      1
+    ]
+  }
+}
