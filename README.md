@@ -119,7 +119,7 @@ Within each paired endpoint, code fixes common sample/site identities and requir
 
 <!-- readable-full-vram-queue:start -->
 ### Current full-VRAM queue
-Updated 2026-10-24T15:55:30.673098+00:00. Status: running.
+Updated 2026-10-24T16:11:23.473458+00:00. Status: running.
 85 pending, 1 running, 247 succeeded, 1 failed, 16 blocked, 0 unknown.
 Local active: AP__all_train__treeloom_fit.
 Live training stages: bounded stage metadata pending.
@@ -485,9 +485,9 @@ On eight reused European development simulations, TreeLoom achieved 97.0778 ± 0
 Native FLARE previously completed five American validation parents. The new independent American comparison is reported separately in the current workflow results. American three-source ancestry and European four-source ancestry are separate protocols. GST is an adapted architecture control rather than a native LAI competitor.
 
 <!-- FROZEN_BENCHMARK_PROGRESS_START -->
-## Launch snapshot and earlier results
+## Historical launch snapshot and earlier results
 
-Updated UTC: 2026-10-18T12:53:52.089475+00:00. Physical GPU 0 only.
+Snapshot UTC: 2026-10-18T12:53:52.089475+00:00. Historical allocation: GPU 0. The current campaign and GPU assignment are reported above.
 
 | Stage | Current verified status |
 |---|---|
