@@ -1,0 +1,72 @@
+{
+  "checks": {
+    "all_8_manifest_pins_match": true,
+    "each_complete_parent_full_bank_identity_and_focals_reverified_before_own_labels": true,
+    "future_waits_under_pool_lock_only_after_done": true,
+    "main_does_not_wait_for_future_while_training_reservation_held": true,
+    "model_seed_scope_and_saved_RNG_restore_precede_first_prefetch": true,
+    "no_active_impossible_memory_admission_fails_instead_of_hanging": true,
+    "no_eviction_no_cold_rebuild_no_expanded_tensor_IPC": true,
+    "no_generated_source_exec_compile_eval_calls": true,
+    "no_global_RNG_calls_found_in_prepare_pack_restore_routes": true,
+    "once_only_preparations_match_remaining_schedule_even_after580": true,
+    "one_CPU_producer_and_one_lookahead_only": true,
+    "optimizer_and_model_mutated_on_main_thread_only": true,
+    "original_all20_observed_barrier_authenticated_before_truth": true,
+    "producer_has_observed_refs_only_and_never_joins_truth": true,
+    "producer_reserve_is_max_preparation_and_training": true,
+    "qualified_codec_restores_exact_values_and_global_RNG": true,
+    "resource_writer_and_progress_cap_checks_serialized": true,
+    "resume_58_plus_542_updates_keeps_49_Adam_states_and_original_schedule": true,
+    "training_reserve_precedes_labels_and_prefetch": true,
+    "waiting_producer_notified_after_training_checkpoint_context_exit": true
+  },
+  "deadlock_trace": "Training admission creates its token, then submits lookahead and completes labels/update/checkpoint/event without joining the producer. Leaving that context removes the token and notifies waiters. Only the following load waits on a missing parent, with no training token held. Producer and restore phases acquire independent finite reservations and fail explicitly if the resident state cannot fit without active work.",
+  "memory_capacity_qualification": {
+    "all20_compact_metadata_upper_bound_bytes": 373741732426,
+    "analytical_peak_proof": false,
+    "configured_outer_512GiB_bytes": 549755813888,
+    "conservative_sum_before_process_overhead_bytes": 551377998002,
+    "limitation": "The conservative component bounds can slightly exceed512GiB before process overhead. They are not measured actual peak demand. The governor must retain live RSS checks and may reject insufficient capacity; production capacity/throughput is not established by this review.",
+    "max_original_width_parent_bound_bytes": 40197312104,
+    "training_reserve_bytes": 137438953472
+  },
+  "qualified_CPU_receipt_ref": {
+    "path": "research/repairs/TreeLoom_lazy_compact_prefetch_20261024_v1/cpu_smoke_v2/completed.json",
+    "sha256": "fbdf3e8ec0e141808a53070400cbab0bfba142f3ff8b04d7af959d225a001187"
+  },
+  "reviewer_changed_sources": false,
+  "reviewer_opened_full_scientific_payloads": false,
+  "reviewer_scope": "Independent static control-flow/lock/RNG/scientific-contract review; author-produced CPU qualification inspected, no production launch or signal.",
+  "reviewer_sent_signals": false,
+  "reviewer_started_jobs": false,
+  "schema": "TreeLoom_lazy_compact_prefetch_independent_review_v1",
+  "scientific_invariants": {
+    "all_native_trees_nodes_sites_samples_retained": true,
+    "checkpoint_selection": "fixed_final_epoch30",
+    "complete_TRAIN_parents": 20,
+    "final_updates": 600,
+    "full_parent_focals": 10000,
+    "initial_updates": 58,
+    "model_parameters": 32132,
+    "next_parent": "argformer_american_train_013",
+    "no_heldout_truth": true,
+    "remaining_updates": 542,
+    "trainable_tensors": 49
+  },
+  "source_refs": [
+    {
+      "path": "research/repairs/TreeLoom_lazy_compact_prefetch_20261024_v1/pool.py",
+      "sha256": "f527f761b610e3dda4eb7ccbbc422979040b36976500dd04bcb2e5e41eb85bf9"
+    },
+    {
+      "path": "research/repairs/TreeLoom_lazy_compact_prefetch_20261024_v1/training.py",
+      "sha256": "663205ae4f4cf8644a708dce83670fe85b001744af7fb6aff3791efddfa42373"
+    },
+    {
+      "path": "research/repairs/TreeLoom_lazy_compact_prefetch_20261024_v1/source_pins.json",
+      "sha256": "e3124023a38c7850f0ce368f82ad6f49413e928035787bc76d30761c560b1fef"
+    }
+  ],
+  "status": "PASS_code_and_CPU_qualification"
+}

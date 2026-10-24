@@ -3,7 +3,7 @@
 <!-- paper-benchmark-rebuild-current:start -->
 ## Paper-based comparison campaign, 24 October
 
-**Resource repair in progress: GST restarted on GPU 3 with four workers and a corrected RAM reservation. The controller accepted the Relate resume repair. TreeLoom still needs its preparation pipeline replacement. Both corrected ARGformer fits continue. Matched held-out scores remain pending.**
+**Resource repairs applied: GST is loading observations for its four-worker retry on GPU 3. Relate has resumed topology inference. TreeLoom now has a reviewed lazy compact preparation pipeline and is waiting for host RAM capacity. Both corrected ARGformer fits continue. GPU 3 optimizer progress and matched held-out scores are not yet established.**
 
 Every paired comparison uses the same simulated parent, observed data, reference/query identities and evaluation positions. Available publication settings are implemented explicitly. Unreleased details use documented reconstructions. This does not promise the exact numbers printed in a paper.
 
@@ -14,7 +14,7 @@ Every paired comparison uses the same simulated parent, observed data, reference
 | ARGMix and TreeLoom | Shared 1,611-person recipe, with five TRAIN, one validation, three IID and five misspecified parents. Paper-oriented ARGMix uses the 29-node representation, raw capped distances and the disclosed attention correction. Paired prediction barriers precede test scoring. |
 | GST-LAI-8 | The unchanged author GraphSetConv is adapted to ancestry inference using sets of eight complete trees. This is an explicitly new LAI baseline, not a reproduction of GST's original synthetic or molecular tables. |
 
-The TreeLoom architecture is frozen for this comparison. Its faster memory recurrence preserves complete-parent training and connected gradients. The American fit resumes from its authenticated 58-update checkpoint. ARGformer uses eight data-loading workers. GST uses four after its replicated inputs exceeded the previous host-RAM reservation. New jobs are restricted to GPUs 3, 4 and 5, with full-device memory permitted. Temporary data retirement and conservative admission keep the project under the 1 TB limit.
+The TreeLoom architecture is frozen for this comparison. Its faster memory recurrence preserves complete-parent training and connected gradients. The American fit will resume from its authenticated 58-update checkpoint, preparing the next scheduled parent first and retaining compact observations with bounded prefetch. It no longer requires a fresh all-20-parent startup scan. ARGformer uses eight data-loading workers. GST uses four after its replicated inputs exceeded the previous host-RAM reservation. New jobs are restricted to GPUs 3, 4 and 5, with full-device memory permitted. Temporary data retirement and conservative admission keep the project under the 1 TB limit.
 
 The first launch exposed a missing output-parent directory in the queue. Its failure and partial startup outputs were archived. The repaired launch uses the same scientific tasks and can now retry an explicitly repaired failed branch without interrupting healthy jobs.
 
@@ -23,6 +23,8 @@ The first launch exposed a missing output-parent directory in the queue. Its fai
 Earlier initial snapshot (before these resource failures): both corrected ARGformer runs wrote native checkpoints at batch 500, corresponding to 256,000 sampled training paths each, and continued beyond 1,200 logged batches without errors. ARGMix completed observation adoption and Relate-input preparation and entered native Relate. The queue has five active tasks, eight completed or reused stages, and no failed or blocked tasks at this snapshot. TreeLoom and GST are still preparing complete observed data. Their new training updates are not yet claimed. GPU utilization varies during this initial CPU work.
 
 [ARGformer checkpoints and progress](research/benchmark_rebuild_20261024/american/master_v2_500update_progress_receipt.json) · [Current launch and health](research/benchmark_rebuild_20261024/integration/master_v2_initial_health.json) · [ARGMix progress](research/benchmark_rebuild_20261024/argmix/master_v2_startup_progress_receipt.json)
+
+Current repair snapshot (2026-10-24T00:44:57.745495+00:00): 4 running stages, 8 completed or reused, 0 failed and 0 blocked. ARGformer logged batches 33000 and 23000 in its first native training epoch. These are pretraining counters, not LAI accuracy. [Live repair evidence](research/benchmark_rebuild_20261024/integration/resource_repairs_live_status.json).
 
 **Matched held-out scores are pending.** Training loss, training accuracy and GPU utilization are not substitutes for test results. Accuracy, class metrics and replicate standard deviations will be reported after the paired predictions and common scoring finish.
 <!-- paper-benchmark-rebuild-current:end -->
@@ -117,7 +119,7 @@ Within each paired endpoint, code fixes common sample/site identities and requir
 
 <!-- readable-full-vram-queue:start -->
 ### Current full-VRAM queue
-Updated 2026-10-24T00:40:25.571770+00:00. Status: running.
+Updated 2026-10-24T00:45:02.097188+00:00. Status: running.
 85 pending, 1 running, 247 succeeded, 1 failed, 16 blocked, 0 unknown.
 Local active: AP__all_train__treeloom_fit.
 Live training stages: bounded stage metadata pending.

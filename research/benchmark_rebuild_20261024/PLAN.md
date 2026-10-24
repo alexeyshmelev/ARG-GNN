@@ -141,3 +141,11 @@ No held-out score or new superiority claim is inferred from the training counter
 - B20: the controller accepted the verified Relate resume with256GiB. Successful MakeChunks/Paint and all78native files are retained. The failed4041-byte receipt directory is preserved.
 - B21: compact lazy preparation and bounded prefetch are being qualified in a separate source package. The live TreeLoom job has not been interrupted.
 - All failed attempts and repair definitions are retained. No healthy competitor fit was restarted.
+
+### Applied repair revision3, 2026-10-24T00:44:57.745495+00:00
+
+- B19 implementation closed, production verification open: GST attempt2 is loading complete observed VCFs with four workers configured, fit320GiB. No new GPU update is claimed yet.
+- B20 resume repair closed, native inference in progress: original MakeChunks/Paint and78files preserved, topology processes resumed with256GiB.
+- B21 implementation closed, admission open: independent20check review and focused CPU qualification passed. Exact affected eager preparation session terminated, actual wait consumed,7525B archived. Model/Adam/RNG checkpoint58 retained. New runtime preserves600full-parent updates and prepares parent013 first, with one CPU lookahead and lossless compact cache.
+- B22 open: combined host RAM reservations delay the repaired TreeLoom fit. Current shortage was about37GiB with all GPU fits reserved. No unrelated process was signalled, and no memory guard was bypassed.
+- The compact cache upper bounds are conservative. Full production peak and throughput remain to be measured. All common scoring gates and scientific inputs remain unchanged.
