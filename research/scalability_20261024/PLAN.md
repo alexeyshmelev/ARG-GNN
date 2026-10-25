@@ -109,3 +109,10 @@ All 77,472 trees, 227,474 SNPs, 1,600 haplotypes and 10,000 focal TRAIN targets 
 The instrumented slice trace points to copies and indexed autograd as material remaining costs. Dense linear layers are not established as the dominant bottleneck. Low-rank architecture changes remain deferred. A separate exact recomputation analysis identifies 48.96 GiB of retained first-sweep states as a possible memory target, at increased sweep cost. No implementation, speedup or predictive benefit is claimed for that tradeoff.
 
 See `full_profile_submission.json` for the immutable submission snapshot and the live server status path. Full-parent performance, full-parent numerical qualification and any subsequent architectural experiment remain open.
+
+
+## Recovery and live progress, 25 October
+
+The original full-parent profile was admitted but yielded before producing a timing result when new campaign reservations required capacity. Its actual failed wait is retained. A fresh unchanged retry in `profiling/runs/full_gpu5_v2` is preparing the complete observation on the CPU before GPU execution. It remains opportunistic alongside the benchmark.
+
+American TreeLoom has reached 235/600 complete-parent updates. European TreeLoom has completed 90/90 updates and retains its final checkpoint, but its prediction path omitted the bounded GRU adapter used during fitting. Prediction-only repair, an ARGMix preprocessing capacity repair, and GST cursor/checkpoint repairs are being prepared independently. Healthy training continues. No new matched ancestry scores or full-parent scalability result are claimed.

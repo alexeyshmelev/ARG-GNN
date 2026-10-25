@@ -1,23 +1,23 @@
 # ARG-GNN
 
 <!-- paper-benchmark-rebuild-current:start -->
-## Current benchmark and scalability work, 24 October
+## Current benchmark and scalability work, 25 October
 
-**The corrected benchmark is running. No new matched ancestry advantage is claimed yet. In parallel, scalability work is measuring how to reduce repeated tree computation without changing simulations or benchmark data.**
+**American TreeLoom and native ARGformer training are progressing. European TreeLoom training has finished. The ARGMix memory failure is repaired, European prediction is queued for retry, and the GST loader repair is qualified. No new matched ancestry advantage is established yet.**
 
 | Workstream | Current verified result |
 |---|---|
-| American TreeLoom | **96/600 complete-parent updates recorded.** The same model, optimizer and schedule resumed from update 94 after a host RAM reservation failure. The next scheduled parent has been prepared and the fit continues. |
-| European TreeLoom | **62/90 complete-parent updates.** Continues on GPU 5. The diagnostic's recent mean was 24.1 minutes per update. |
-| Corrected ARGformer | Native pretraining stages advanced to downstream contrastive training. The current contrastive task runs on GPU 4. Training progress is not LAI accuracy. |
+| American TreeLoom | **237/600 training updates recorded**, on GPU 3. Each update retains the complete simulated parent, frozen model, optimizer and full genomic history. |
+| European TreeLoom | **90/90 training updates finished.** Prediction repair passed CPU and small CUDA checks. Its automatic retry is queued after the full-parent profile exits, reusing the final checkpoint without retraining. |
+| Corrected ARGformer | Native predictions completed for **two TEST parents and one validation parent**. MLM training for validation parent 001 continues on GPU 4. These products still require common ancestry scoring. |
 | AncestralPaths | Historical CNN completed 8,335 optimizer updates and all five TEST prediction products. Common scoring awaits the paired models. |
 | FLARE | All 15 native American outputs passed reuse checks. Paired held-out comparison remains pending. |
-| ARGMix | Native TRAIN0 Relate completed successfully. The following conversion exceeded its RAM reservation. Its capacity-only repair is applied, with conversion awaiting host RAM admission. |
-| GST-LAI-8 | Three complete-parent updates recorded. Data loading is a serious measured concern. This is an explicitly adapted LAI baseline, not a reproduction of GST's molecular/synthetic tables. |
+| ARGMix | TRAIN000 Relate, conversion and preprocessing completed. The RAM repair passed. TRAIN001 simulation and Relate inputs also completed. Its native Relate run currently waits for storage admission, about **443 MB** short of its required reservation under the 990 GB operating ceiling. |
+| GST-LAI-8 | Previous fit timed out with three durable updates and no recoverable checkpoint. The repaired cursor and checkpoints passed window, optimizer/resume and observed-tree checks. **Fit restart is prepared but not submitted.** This is an adapted LAI baseline. |
 
 Every paired comparison uses the same observed parent, reference/query identities and evaluation positions. Available publication settings are implemented explicitly. Unreleased details use documented reconstructions. The simulations and observed data are fixed for the new scalability work. Eligible GPUs are **3, 4 and 5** and the project storage limit is **1 TB**.
 
-The current American TreeLoom has a measured warm median of **9.29 minutes per full-parent update**. Context forward and trunk backward dominate its measured wall time. This motivates model and execution work beyond simply allocating more GPU memory.
+The current American TreeLoom has a measured warm median of **9.74 minutes per full-parent update** over the latest ten updates. Context forward and trunk backward dominate its measured wall time. This motivates model and execution work beyond simply allocating more GPU memory.
 
 | Scalability result on 128 observed TRAIN trees | Interpretation |
 |---|---|
@@ -29,9 +29,11 @@ The current American TreeLoom has a measured warm median of **9.29 minutes per f
 | Categorical SNP encoder: 409,600 → 768 MLP evaluations in the measured chunk | Exact-equation prototype passed. Four-thread CPU warm forward was **1.77×** faster and the forward/backward probe **1.98×** faster. Outputs matched and maximum gradient error was 2.35e-7. The integrated GPU slice result is below. Full-parent gain remains unmeasured. |
 | Rank-eight basis captures 98.11% of centered upward-state variation, but maximum relative vector error is 16.89% | Approximation remains deferred. Average compression quality does not establish preserved ancestry accuracy. |
 
-**Integrated GPU result:** the exact successor passed a paired test on the real 128-tree TRAIN slice, including all 49 parameter gradients and the clipped AdamW update. One warm run took **1.26 s versus 2.06 s**, a **1.63x** ratio. Peak PyTorch reserved GPU memory fell from **1.53 GB to 0.98 GB**. Maximum gradient and updated-parameter differences were **3.28e-7** and **2.98e-8**. This uses the 22 registered focal labels within the slice. It is a restricted-window timing test, not a full-parent speedup or held-out accuracy result. The full-parent comparison is queued for GPU 5 and waits for host RAM after the existing jobs' growth allowances. It will start automatically when admitted. [Full-parent submission](research/scalability_20261024/full_profile_submission.json). [Measured receipt](research/scalability_20261024/root_integration_measurement.json) · [Paired run](research/scalability_20261024/profiling/runs/slice_gpu5_v1/data/completed.json).
+**Integrated GPU result:** the exact successor passed a paired test on the real 128-tree TRAIN slice, including all 49 parameter gradients and the clipped AdamW update. One warm run took **1.26 s versus 2.06 s**, a **1.63x** ratio. Peak PyTorch reserved GPU memory fell from **1.53 GB to 0.98 GB**. Maximum gradient and updated-parameter differences were **3.28e-7** and **2.98e-8**. This uses the 22 registered focal labels within the slice. It is a restricted-window timing test, not a full-parent speedup or held-out accuracy result. The first full-parent profile was cancelled when a benchmark job needed the reserved host capacity. A fresh retry is now preparing the complete TRAIN000 observation for GPU 5. No full-parent timing result exists yet. [Full-parent retry](research/repairs/benchmark_recovery_20261025/full_profile_restart.json). [Measured receipt](research/scalability_20261024/root_integration_measurement.json) · [Paired run](research/scalability_20261024/profiling/runs/slice_gpu5_v1/data/completed.json).
 
-The frozen benchmark continues with its existing source. A scalable successor will be labelled separately and must earn its place through end-to-end time, memory, ancestry accuracy and boundary-resolution measurements. Generic caching or low rank alone is not a novelty claim.
+Verified 2026-10-25T23:40:41.329749+03:00. Campaign stages: 32 succeeded or reused, 2 running, 2 failed, 2 blocked and 213 pending. The failed European and GST rows persist until their reviewed retries are submitted. Stage counts are not completed method comparisons. [Live-check record](research/repairs/benchmark_recovery_20261025/status_after_repairs.json) · [Repairs and remaining work](research/repairs/benchmark_recovery_20261025/REPORT.md).
+
+The healthy frozen benchmark fits continue with their existing source. A scalable successor will be labelled separately and must earn its place through end-to-end time, memory, ancestry accuracy and boundary-resolution measurements. Generic caching or low rank alone is not a novelty claim.
 
 [Scalability plan](research/scalability_20261024/PLAN.md) · [Categorical SNP encoder results](research/scalability_20261024/categorical_site/REPORT.md) · [Measured execution results](research/scalability_20261024/execution/REPORT.md) · [Scientific review](research/scalability_20261024/review/shared_computation_scientific_review.txt) · [Benchmark plan](research/benchmark_rebuild_20261024/PLAN.md) · [Detailed scores and historical comparisons](research/current_scoreboard.md)
 <!-- paper-benchmark-rebuild-current:end -->
@@ -126,9 +128,9 @@ Within each paired endpoint, code fixes common sample/site identities and requir
 
 <!-- readable-full-vram-queue:start -->
 ### Current full-VRAM queue
-Updated 2026-10-25T03:56:44.479492+00:00. Status: running.
-85 pending, 1 running, 247 succeeded, 1 failed, 16 blocked, 0 unknown.
-Local active: AP__all_train__treeloom_fit.
+Updated 2026-10-25T04:01:33.323012+00:00. Status: drained_for_operational_update.
+85 pending, 0 running, 248 succeeded, 1 failed, 16 blocked, 0 unknown.
+Local active: waiting for dependencies or capacity.
 Live training stages: bounded stage metadata pending.
 Standalone work: no live standalone generations.
 The earlier v9 queue block is a historical snapshot. This block describes the active successor.
