@@ -126,7 +126,7 @@ Within each paired endpoint, code fixes common sample/site identities and requir
 
 <!-- readable-full-vram-queue:start -->
 ### Current full-VRAM queue
-Updated 2026-10-25T00:01:19.765737+00:00. Status: running.
+Updated 2026-10-25T00:17:10.192560+00:00. Status: running.
 85 pending, 1 running, 247 succeeded, 1 failed, 16 blocked, 0 unknown.
 Local active: AP__all_train__treeloom_fit.
 Live training stages: bounded stage metadata pending.
