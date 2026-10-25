@@ -53,16 +53,25 @@ Inputs comprise phased observed variants, inferred topology and node ages, sampl
 
 A multilayer perceptron (MLP) encodes called alleles relative to observed donor and panel allele frequencies. Mean and maximum pooling summarize this evidence within each tree interval for each haplotype. Reference labels and sampling ages supply further information at sampled nodes. Inferred ages and indicators for sampled nodes and roots describe all nodes, including internal ancestors. Their encoded features initialize a state $b_v$. Learned gates use branch geometry and agreement between inferred mutations and observed alleles to scale messages.
 
-Figure~\ref{fig:architecture} summarizes the model. Both graph traversals include the complete inferred tree. Sample identities align their outputs across intervals, and each sampled haplotype has a separate genomic sequence.
+Figure~\ref{fig:architecture} summarizes the model. The encoder makes two rounds through each complete inferred tree, each comprising an upward traversal and a downward traversal. These are four full traversals, with the same node operator reused at every tree depth rather than a fixed stack of four message passing layers. Sample identities align their outputs across intervals, and each sampled haplotype has a separate genomic sequence.
 
-\begin{figure*}[!t]
+\begin{figure*}[p]
 \centering
 \includegraphics[width=\textwidth]{figures/TreeLoom_architecture.pdf}
-\caption{\textbf{a,} Three marginal trees of an illustrative ARG, observed alleles and reference population labels. Each sample has the same identity across trees. One SNP per interval is shown. The encoder pools sites within each interval. The cut $t_c=350$ generations defines groups of sampled descendants.
-\textbf{b,} MLPs and site pooling initialize node features $b$. Each GNN application processes the complete tree $T_t$ upward then downward, with branch features setting message gates. Both applications share weights. Clade adapters describe structural changes and persistence. Their correction and memory correction $\delta$ modify $b$ before application (2).
-\textbf{c,} Projected group states are copied to member haplotypes. A bidirectional exponential moving average (EMA) follows each haplotype along the genome, with decay determined by interval length and a learned distance scale. Group averaging, subtraction of the current projected group state (Center), and a linear map return $\delta$ to the group representative. Memory follows sampled haplotypes, not inferred ancestral identity.
-\textbf{d,} Shown for one query $q$, a bidirectional GRU processes its local embeddings and interval geometry. Concatenating local and recurrent embeddings, an MLP and softmax give ancestry probabilities. Argmax produces the ancestry track. Colors and symbols are defined in the legend. Vectors and probabilities are illustrative, not fitted results.}
+\caption{\textbf{a,} Marginal trees, observed alleles and reference ancestry. The age cut defines descendant groups.
+\textbf{b,} Two rounds each traverse complete trees upward then downward, sharing weights between rounds. Corrections $s$ and $\delta$ modify initial features before round 2. Figure~\ref{fig:operators} expands the node operations.
+\textbf{c,} At the marked ancestor, $u+o$ projects to group context $f_2$. Copies enter separate forward and reverse tracks for r1 and r2. The inset expands each memory update. Directions and current group members are averaged, $f_2$ is subtracted, and projection gives $\delta$. History follows haplotypes when groups change. Other intervals' context inputs are omitted.
+\textbf{d,} Query embeddings enter a BiGRU, classifier and softmax. The symbols $\parallel$, $\tfrac12\Sigma$ and $\times$ denote concatenation, averaging two vectors and scalar multiplication. Colors follow the legend. Values are illustrative.}
 \label{fig:architecture}
+\end{figure*}
+
+\begin{figure*}[p]
+\centering
+\includegraphics[width=\textwidth]{figures/TreeLoom_operators.pdf}
+\caption{\textbf{a,} Upward node update. Each child state passes through a linear map and its edge gate. Their arithmetic mean joins the node input $b$, then passes through a linear map, tanh, a residual addition and layer normalization. This operation repeats from leaves to root.
+\textbf{b,} Downward node update. Parent outside state $o_p$, input $b_p$ and mean child message $a_p$ are combined, excluding the recipient's normalized contribution $m_{q\to p}$. Two linear maps, an edge gate, tanh and normalization produce the child's outside state. This repeats from root to leaves, starting with zero outside state at the root. Edge features generate each directional gate through a linear map and sigmoid.
+\textbf{c,} Structural corrections encode changes in descendant groups. Descendant groups appear, disappear or persist across trees. Binary flags select two factored transformations of the current upward state $u$. The examples mark loss at $T_1$, gain at $T_2$ and persistence across all three trees. Neighboring hidden states do not enter these circuits. Matrices have separate weights between the two corrections. The symbol $\odot$ is elementwise multiplication, $\parallel$ is concatenation, and $\times$ multiplies by a scalar. Diagram state $u$ is the upward state $h_v$ in the equations.}
+\label{fig:operators}
 \end{figure*}
 
 
