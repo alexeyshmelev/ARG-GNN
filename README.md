@@ -1,7 +1,17 @@
 # ARG-GNN
 
+<!-- owner-stop-current:start -->
+## Experiments stopped at the owner's request, 25 October
+
+**All current GPU experiments, the campaign controller and the automatic European prediction retry are stopped. GPUs 3, 4 and 5 were verified free. Do not launch or resume this project without new authorization from the owner.**
+
+Saved checkpoints, completed results, datasets and logs are preserved. Interrupted workers have actual exit records. Their controller rows use `failed` for this requested interruption, which is not an experimental finding. The benchmark snapshot below is historical.
+
+[Stop verification and checkpoint inventory](research/operations_stop_20261025/stopped.json) · [Resume restriction](research/operations_stop_20261025/PAUSED.md)
+<!-- owner-stop-current:end -->
+
 <!-- paper-benchmark-rebuild-current:start -->
-## Current benchmark and scalability work, 25 October
+## Last benchmark snapshot before the requested stop, 25 October
 
 **American TreeLoom and native ARGformer training are progressing. European TreeLoom training has finished. The ARGMix memory failure is repaired, European prediction is queued for retry, and the GST loader repair is qualified. No new matched ancestry advantage is established yet.**
 
