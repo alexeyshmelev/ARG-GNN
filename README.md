@@ -10,6 +10,10 @@ Saved checkpoints, completed results, datasets and logs are preserved. Interrupt
 [Stop verification and checkpoint inventory](research/operations_stop_20261025/stopped.json) · [Resume restriction](research/operations_stop_20261025/PAUSED.md)
 <!-- owner-stop-current:end -->
 
+<!-- figure-redesign-current:start -->
+**Figure 1 redesigned, 26 October:** clearer tree GNN and haplotype-memory flow, separate recurrent readout, and a legend for every color. [Figure](paper/figures/TreeLoom_architecture.png) · [Updated paper](paper/current_full_panel_working.pdf) · [Editable figure and review](paper/figure_redesign_20261026/README.md). Experimental results are unchanged and experiments remain stopped.
+<!-- figure-redesign-current:end -->
+
 <!-- paper-benchmark-rebuild-current:start -->
 ## Last benchmark snapshot before the requested stop, 25 October
 
@@ -557,7 +561,7 @@ Native FLARE's earlier American three-source results appear above. The executabl
 
 The manuscript is a working AAAI draft. Benchmarking is incomplete.
 
-[Working PDF](paper/current_full_panel_working.pdf) · [LaTeX](paper/anchor_kernel_working.tex) · [Overleaf bundle](paper/current_full_panel_overleaf_working.zip)
+[Working PDF](paper/current_full_panel_working.pdf) · [LaTeX](paper/current_full_panel_working.tex) · [Overleaf bundle](paper/current_full_panel_overleaf_working.zip)
 
 [Detailed current scores](research/current_scoreboard.json) · [Experiment ledger](research/experiment_ledger.md) · [All recorded metric receipts](research/all_recorded_metric_receipts.json) · [Research history](docs/research_history_before_benchmark_refactor_20261018.md)
 
