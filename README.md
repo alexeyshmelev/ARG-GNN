@@ -1,17 +1,28 @@
 # ARG-GNN
 
 <!-- owner-stop-current:start -->
-## Experiments stopped at the owner's request, 25 October
+## Benchmarks resumed with owner authorization, 26 October
 
-**All current GPU experiments, the campaign controller and the automatic European prediction retry are stopped. GPUs 3, 4 and 5 were verified free. Do not launch or resume this project without new authorization from the owner.**
+The owner authorized continuing the benchmarks. The new queue reuses **32 completed stages** and has **220 remaining stages**, including an additional European interim comparison. Four workers have started on physical GPUs **3, 4 and 5**, with task titles `AI Auto Research Pipeline Test`. Other users' processes are untouched.
 
-Saved checkpoints, completed results, datasets and logs are preserved. Interrupted workers have actual exit records. Their controller rows use `failed` for this requested interruption, which is not an experimental finding. The benchmark snapshot below is historical.
+| Workstream | Verified continuation |
+|---|---|
+| American TreeLoom, GPU 3 | Restored **238/600** complete-parent updates and optimizer state. Actively encoding the next observed parent for update 239. No new completed update is claimed yet. |
+| Native ARGformer, GPU 4 | Restored **119,500** MLM updates with optimizer, schedule and data cursor. Fresh training has advanced to **120,599/224,170** logged updates. The original five-epoch budget is retained. |
+| European TreeLoom, GPU 5 | Reuses the completed **90/90** fit for repaired held-out prediction. |
+| GST-LAI-8, GPU 5 | Repaired loader started. Original full fit restarts because no prior checkpoint survived. |
+| ARGMix | **11 completed stages reused.** The next Relate stage awaits host RAM admission alongside the four GPU workers. |
+| Matched ancestry scores | Pending predictions and common scoring. An interim CNN + Dense + TreeLoom European comparison is queued without waiting for GST. |
 
-[Stop verification and checkpoint inventory](research/operations_stop_20261025/stopped.json) · [Resume restriction](research/operations_stop_20261025/PAUSED.md)
+Verified 2026-10-26T20:48:01.789032+03:00. **4 running, 32 succeeded, 216 pending, no failed or blocked stages.** GPU 4 was actively training at the check. GPUs 3 and 5 were awaiting their workers' active CPU input preparation. No new matched ancestry score is available.
+
+The model, datasets and evaluation supports are unchanged. Global storage admission is **995 GB**, within the **1 TB** owner limit. The reviewed queue preserves interrupted evidence and checkpoints. ARGformer restores its training state, but persistent worker masking RNG was not saved, so an identical uninterrupted random mask stream is not claimed.
+
+[Continuation and repairs](research/operations_resume_20261026/README.md) · [Latest verified status](research/operations_resume_20261026/latest_status.json) · [Queue plan](configs/benchmarks/paper_campaign_resume_20261026_v1.json) · [Historical stop record](research/operations_stop_20261025/stopped.json)
 <!-- owner-stop-current:end -->
 
 <!-- figure-redesign-current:start -->
-**TreeLoom figures simplified, 26 October:** [prediction flow](paper/figures/TreeLoom_architecture.png) follows one query leaf from the observed trees to ancestry probabilities. [Encoder](paper/figures/TreeLoom_encoder.png) explains the two tree rounds, clade context and leaf memory. Routine implementation detail is removed. A fresh reader recovered the main computation from the images alone, with remaining feature definitions clarified in the captions. [Updated 10-page paper](paper/current_full_panel_working.pdf) · [Overleaf bundle](paper/current_full_panel_overleaf_working.zip) · [Full reader reports and source check](paper/figure_redesign_20261026_v6/README.md). All eight table source blocks are unchanged. Experiments remain stopped.
+**TreeLoom figures simplified, 26 October:** [prediction flow](paper/figures/TreeLoom_architecture.png) follows one query leaf from the observed trees to ancestry probabilities. [Encoder](paper/figures/TreeLoom_encoder.png) explains the two tree rounds, clade context and leaf memory. Routine implementation detail is removed. A fresh reader recovered the main computation from the images alone, with remaining feature definitions clarified in the captions. [Updated 10-page paper](paper/current_full_panel_working.pdf) · [Overleaf bundle](paper/current_full_panel_overleaf_working.zip) · [Full reader reports and source check](paper/figure_redesign_20261026_v6/README.md). All eight table source blocks are unchanged. Experiments stayed stopped during that figure revision.
 <!-- figure-redesign-current:end -->
 
 <!-- paper-benchmark-rebuild-current:start -->
