@@ -55,17 +55,17 @@ A multilayer perceptron (MLP) encodes called alleles relative to observed donor 
 
 Figure~\ref{fig:architecture} summarizes the model. The encoder makes two rounds through each complete inferred tree, each comprising an upward traversal and a downward traversal. These are four full traversals, with the same node operator reused at every tree depth rather than a fixed stack of four message passing layers. Sample identities align their outputs across intervals, and each sampled haplotype has a separate genomic sequence.
 
-\begin{figure*}[p]
+\begin{figure*}[!t]
 \centering
 \includegraphics[width=\textwidth]{figures/TreeLoom_architecture.pdf}
-\caption{TreeLoom prediction flow. \textbf{a,} Node inputs. \textbf{b,} Site and leaf encoding. \textbf{c,} Node initialization, gates and the encoder expanded in Figure~\ref{fig:encoder}. \textbf{d,} Leaf sequence assembly and interval measurements. \textbf{e,} Genomic recurrence and classification. Observed values come from a saved example with five leaves, three intervals and four ancestry classes. Hidden activations and probabilities are schematic. All sample ages are zero.}
+\caption{TreeLoom predicts local ancestry along the genome. \textbf{a,} Ordered trees, alleles and reference labels. \textbf{b,} Two rounds encode all nodes. \textbf{c,} Readouts for the same query leaf form a sequence with interval lengths and distances between adjacent interval midpoints. \textbf{d,} A bidirectional GRU and the local leaf embeddings feed the ancestry head. Outlined rows follow leaf $q$, whose ancestry label is withheld. A, C, W and E denote Ana, CHG, WHG and EHG. Hidden values and probabilities are schematic.}
 \label{fig:architecture}
 \end{figure*}
 
-\begin{figure*}[p]
+\begin{figure*}[!t]
 \centering
 \includegraphics[width=\textwidth]{figures/TreeLoom_encoder.pdf}
-\caption{Expansion of ENC in Figure~\ref{fig:architecture}c. \textbf{a,} Two rounds sharing weights. \textbf{b,} Upward and downward tree operations. \textbf{c,} Leaf memory and group corrections. \textbf{d,} Structural corrections. Hidden values are schematic. The decay example uses 5000\,bp. Here $U,A$ correspond to $h,s$ in the equations, and memory $m,\alpha,L,\ell$ to $z,\rho,w,\lambda$.}
+\caption{Expansion of the encoder in Figure~\ref{fig:architecture}b. \textbf{a,} Shared upward and downward tree passes run before and after summing the two corrections with the original node embeddings. \textbf{b,} Clade presence and the current upward state produce a structural correction. \textbf{c,} A fixed ancestral age partitions leaves into groups, which supply context from both directional states. Memory follows each leaf across intervals, then averages within current groups. The group correction subtracts the local group context before projection and returns to the current representative. The example follows $r1$ through groups $d,b,b$.}
 \label{fig:encoder}
 \end{figure*}
 

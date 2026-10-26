@@ -1,0 +1,1 @@
+The reader recovered the principal computation correctly. Acceptance was withheld because age-based group selection was ambiguous. The next revision labels age-cut groups, genomic distance decay and sharing across rounds and trees. No new implementation operations are expanded.

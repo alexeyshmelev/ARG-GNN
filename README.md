@@ -11,7 +11,7 @@ Saved checkpoints, completed results, datasets and logs are preserved. Interrupt
 <!-- owner-stop-current:end -->
 
 <!-- figure-redesign-current:start -->
-**TreeLoom tensor diagrams, 26 October:** [prediction flow](paper/figures/TreeLoom_architecture.png) and [encoder expansion](paper/figures/TreeLoom_encoder.png) trace concrete input rows, learned layers, tensor assembly, both tree rounds and leaf memory. A fresh reader traced a named leaf across intervals and a named ancestor through the computation using only the images. The stricter review replaces revision 4's broad conceptual reading, which did not meet the owner's requirements. [Paper](paper/current_full_panel_working.pdf) · [Overleaf bundle](paper/current_full_panel_overleaf_working.zip) · [Review and source checks](paper/figure_redesign_20261026_v5/README.md). All eight table source blocks are unchanged. Experiments remain stopped.
+**TreeLoom figures simplified, 26 October:** [prediction flow](paper/figures/TreeLoom_architecture.png) follows one query leaf from the observed trees to ancestry probabilities. [Encoder](paper/figures/TreeLoom_encoder.png) explains the two tree rounds, clade context and leaf memory. Routine implementation detail is removed. A fresh reader recovered the main computation from the images alone, with remaining feature definitions clarified in the captions. [Updated 10-page paper](paper/current_full_panel_working.pdf) · [Overleaf bundle](paper/current_full_panel_overleaf_working.zip) · [Full reader reports and source check](paper/figure_redesign_20261026_v6/README.md). All eight table source blocks are unchanged. Experiments remain stopped.
 <!-- figure-redesign-current:end -->
 
 <!-- paper-benchmark-rebuild-current:start -->
