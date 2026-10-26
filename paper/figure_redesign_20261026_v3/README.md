@@ -9,7 +9,7 @@ The revised figures separate the overall architecture, haplotype memory and exac
 | Owner comment | Implemented change |
 |---|---|
 | Redundant standalone direction labels | Removed. Arrows on the tree branches show traversal direction. |
-| Internal-node embeddings missing | Figure 1b draws feature vectors at internal nodes and leaves after every traversal. Root outside state is explicitly zero. |
+| Internal-node embeddings missing | Reopened after owner review. Small vector glyphs were added, but Figure 1b still fails to make the all-node output and node-to-vector correspondence clear. See the open oversight below. |
 | Unclear number or type of GNN layers | Figure 1b shows two complete rounds with four traversals and shared weights. Figure 3a,b expands the actual node operators. These are not four fixed GCN layers. |
 | Meaning of the 32-to-8 and 8-to-32 transformations | Figure 2 shows both as learned Linear blocks. Figure 3 shows the separate structural projections. |
 | Unexplained age threshold | Figure 2a shows the resulting descendant groups and their representative ancestors. The selected group contains r1 and r2. The complete tree is retained. |
@@ -50,3 +50,9 @@ Run on anogena from the repository root:
 ```
 
 The generator loads the preserved toy tree sequence and writes PDF, SVG and PNG versions beside itself. It does not simulate data, load a model or allocate CUDA. Canonical copies are in `paper/figures/`. The three caption snippets are kept beside the generator. The integration script records the one-time manuscript replacement and verifies table preservation before writing.
+
+## Open owner-reported oversight: all-node embeddings in Figure 1b
+
+Record only, do not redraw yet. The owner cannot clearly see that the encoder produces embeddings for every node, including internal ancestors and sampled leaves. The current small vector glyphs and the text saying "32 features at every node" do not adequately communicate the resulting collection of node embeddings or which vector belongs to which node. The prior visual review did not resolve this communication defect.
+
+In the next requested revision, make the node-to-vector correspondence and the all-node output explicit after each traversal. Visually distinguish the embeddings of internal ancestors and sampled nodes, and show that selection of sampled haplotypes for the final ancestry readout occurs afterward. Preserve the zero root outside state. This issue remains open. The figures and manuscript are unchanged by this record.
