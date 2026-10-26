@@ -1,0 +1,158 @@
+{
+  "code_changed": false,
+  "conservative_model": {
+    "candidate_preparation_break_even_seconds_if_GPU1010_and_restart600_and_lost_step1010": 1162.1531402222813,
+    "effective_warm_parents_credited": 3,
+    "formula": "Old lower estimate=(20-effective_warm)*1521.36. Candidate pipeline=Pnew+19*max(Pnew,G)+G. Subtract 600 seconds restart overhead and optionally 1010 seconds lost unfinished GPU work.",
+    "fully_credit_in_flight_preparation": true,
+    "next_distinct_parent_horizon": 20,
+    "remaining_original_cold_parents": 17,
+    "remaining_warm_training_reference_hours": 58.4,
+    "scenarios": [
+      {
+        "candidate_pipeline_estimate_seconds": 15624.0,
+        "candidate_preparation_seconds": 752.0,
+        "gpu_step_seconds": 584.0,
+        "gross_saving_seconds": 10239.062804445624,
+        "name": "process4_with_historical_warm_GPU",
+        "net_after_restart_and_full_lost_gpu_step_seconds": 8629.062804445624,
+        "net_after_ten_minute_restart_seconds": 9639.062804445624,
+        "old_cold_preparation_lower_estimate_seconds": 25863.062804445624
+      },
+      {
+        "candidate_pipeline_estimate_seconds": 20952.0,
+        "candidate_preparation_seconds": 752.0,
+        "gpu_step_seconds": 1010.0,
+        "gross_saving_seconds": 4911.062804445624,
+        "name": "process4_with_current_slow_GPU",
+        "net_after_restart_and_full_lost_gpu_step_seconds": 3301.0628044456244,
+        "net_after_ten_minute_restart_seconds": 4311.062804445624,
+        "old_cold_preparation_lower_estimate_seconds": 25863.062804445624
+      },
+      {
+        "candidate_pipeline_estimate_seconds": 23010.0,
+        "candidate_preparation_seconds": 1100.0,
+        "gpu_step_seconds": 1010.0,
+        "gross_saving_seconds": 2853.0628044456244,
+        "name": "process4_at_1100_seconds_with_current_slow_GPU",
+        "net_after_restart_and_full_lost_gpu_step_seconds": 1243.0628044456244,
+        "net_after_ten_minute_restart_seconds": 2253.0628044456244,
+        "old_cold_preparation_lower_estimate_seconds": 25863.062804445624
+      },
+      {
+        "candidate_pipeline_estimate_seconds": 21207.659608686343,
+        "candidate_preparation_seconds": 1007.6596086863428,
+        "gpu_step_seconds": 1010.0,
+        "gross_saving_seconds": 4655.4031957592815,
+        "name": "serial_nominal_only_no_concurrency_validation",
+        "net_after_restart_and_full_lost_gpu_step_seconds": 3045.4031957592815,
+        "net_after_ten_minute_restart_seconds": 4055.4031957592815,
+        "old_cold_preparation_lower_estimate_seconds": 25863.062804445624
+      }
+    ],
+    "warm_cache_sensitivity_current_GPU": [
+      {
+        "effective_warm": 3,
+        "net_seconds_after_restart_and_lost_step": 3301.0628044456244
+      },
+      {
+        "effective_warm": 4,
+        "net_seconds_after_restart_and_lost_step": 1779.7061688899994
+      },
+      {
+        "effective_warm": 5,
+        "net_seconds_after_restart_and_lost_step": 258.3495333343744
+      },
+      {
+        "effective_warm": 6,
+        "net_seconds_after_restart_and_lost_step": -1263.0071022212505
+      }
+    ]
+  },
+  "evidence_refs": [
+    {
+      "path": "experiments/results/paper_american_20261024/treeloom_fit/native/resume_20261026_update238/progress.jsonl",
+      "sha256": "6ff0ff62f9246c90e7fc3efdd7b2202c2b1ff2a458996c75137a6f9a58a205fb"
+    },
+    {
+      "path": "experiments/results/paper_american_20261024/treeloom_fit/native/resume_20261026_update238/latest_checkpoint.json",
+      "sha256": "2a2e176e6aff963864f29182333785c0f328897996ef2b01725ed5c328500864"
+    },
+    {
+      "path": "experiments/results/paper_american_20261024/treeloom_fit/native/progress.jsonl",
+      "sha256": "3254299775c58df9272ba571087b39759eee1ab5d7232caaf0350efb638f1a52"
+    },
+    {
+      "path": "research/preprocessing_optimization_20261026/integration/full_reference.json",
+      "sha256": "09447bc584521ed4bb9e28fcb0b4ab53fcd99a05a5c40cfdff1f598517a85bb5"
+    },
+    {
+      "path": "research/preprocessing_optimization_20261026/integration/full_candidate.json",
+      "sha256": "13b06abd75afa0a199b5649de744b97871259be891ae50b55fa40cac678a15c0"
+    },
+    {
+      "path": "research/preprocessing_optimization_20261026/tree/full_process_parent_serialization_failure.log",
+      "sha256": "cf809df6e022ae17ae6c5d9dc41684ce3a33acbbc78a3fdec984d721560ff232"
+    }
+  ],
+  "interpretation": [
+    "The latest snapshot has three ready cached parents and update240 durable; the earlier third preparation completed while this review was being calculated. Crediting three warm parents leaves17 old cold preparations. The nominal process4 model saves about1.36 to2.84 hours before restart and lost-work charges; with ten minutes restart plus a whole1010-second lost GPU step it saves about0.92 to2.40 hours.",
+    "Savings occur during the once-per-parent cold cache fill. All20 compact parents then remain cached; do not multiply preparation savings by the remaining360 optimizer updates.",
+    "A 1100-second concurrent process4 preparation still has positive modeled payback at this cache size, but at about1162 seconds or slower the pessimistic restart/lost-work case loses its conservative margin.",
+    "By five effectively warm parents the pessimistic case has only a few minutes of modeled margin; at six it is negative. Reassess instead of automatically migrating after a long qualification delay.",
+    "The first process4 equality run is not a completed release proof because its report failed to serialize. Waiting for the repaired qualification does not require stopping the current training."
+  ],
+  "jobs_changed": false,
+  "limits": [
+    "This is a decision estimate, not a hard wall-clock bound. Parent durations vary; timings came from one full parent on a shared host and the live cold preparation includes packing and contention.",
+    "The pipeline model assumes the current one-parent producer overlaps training and that the measured candidate preparation persists under concurrent training. No full production concurrent process4 training measurement exists yet.",
+    "Separate spawn workers remove branch-support Python work from the main interpreter, and ctypes CDLL kernels release the GIL, but global episode/cut preparation and Python assembly remain in the parent producer thread. GPU launch scheduling, memory bandwidth and other host work can still limit overlap.",
+    "The observed927\u20131010-second cold GPU steps versus about580\u2013584-second warm steps cannot be attributed exclusively to the GIL or assumed to disappear after migration.",
+    "Migration preserves only the latest durable optimizer/RNG boundary. RAM caches are rebuilt and any unfinished GPU update can be lost; stop near a durable boundary when practical.",
+    "No whole-training twofold speedup is supported. At584 seconds per remaining warm update,360 updates alone represent about58.4 hours before cache stalls and other overhead."
+  ],
+  "model_executed": false,
+  "observation": {
+    "attempt": 4,
+    "cached_bytes": 42657828545,
+    "checkpoint_ref": {
+      "path": "experiments/results/paper_american_20261024/treeloom_fit/native/resume_20261026_update238/checkpoints/latest.pt",
+      "sha256": "df62eebf8ef0c14ab33c41aa0d87e7967e5d7d508b541d60117084271d248183"
+    },
+    "durable_complete_parent_updates": 240,
+    "full_process_parent_qualification_record_exists": false,
+    "historical_last20_adjacent_update_median_seconds": 579.8019330501556,
+    "in_flight_preparations": [],
+    "last_update_observed_unix": 1793040503.4962287,
+    "pid": 1005353,
+    "ready_cache_count": 3,
+    "ready_cache_parents": [
+      "argformer_american_train_004",
+      "argformer_american_train_009",
+      "argformer_american_train_016"
+    ],
+    "remaining_updates": 360,
+    "task_status": "running"
+  },
+  "observed_UTC": "2026-10-26T19:02:08.226673+00:00",
+  "observed_unix": 1793041328.2266731,
+  "recommendation": "Conditional yes while the effective warm cache remains small: release only after full process4 qualification, then recheck the latest checkpoint, cache and active GPU work immediately before deciding to stop.",
+  "schema": "exact_preprocessing_migration_benefit_review_v1",
+  "status": "pass",
+  "timing_inputs": {
+    "current_cold_overlap_GPU_range_seconds": [
+      927,
+      1010
+    ],
+    "original_full_parent_preparation_seconds": 1521.356635555625,
+    "process4_full_parent_preparation_approx_seconds": 752.0,
+    "process4_timing_evidence": "First full run reached validation and equality before JSON serialization failed; provisional until the repaired report run passes.",
+    "recent_observed_prepare_and_pack_seconds": [
+      1554.653046131134,
+      1741.4806306362152,
+      1833.8907158374786
+    ],
+    "serial_full_parent_preparation_seconds": 1007.6596086863428,
+    "warm_GPU_planning_seconds": 584
+  }
+}

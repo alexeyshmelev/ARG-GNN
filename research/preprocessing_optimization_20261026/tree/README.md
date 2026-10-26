@@ -20,7 +20,7 @@ Build the readable C++ source with `bash research/preprocessing_optimization_202
 
 `process_parity.json` verifies 1, 2, 4 and 8 processes, uneven transport chunks, byte-based chunk admission, oversized-tree serial fallback, worker-error cleanup, admission-error cleanup and unchanged parent Python/NumPy/Torch random states. Full serialized inputs and outputs fit the charged transport bound in the exercised fixtures. No test opens ancestry truth.
 
-These are extensive bounded tests, not a mathematical claim that every possible malformed machine-level input has been enumerated. Full-parent bundle hashes and an independent integration review remain required before production binding.
+These are extensive bounded tests, not a mathematical claim that every possible malformed machine-level input has been enumerated. The complete observed-parent bundle now also passes exact qualification. Production binding remains owned by the orchestrator and its separate integration review.
 
 ## Measured native input timing
 
@@ -45,3 +45,19 @@ A chunk contains at most 128 complete trees by default and at most 64 MiB of cha
 The first full-parent qualification exposed an incorrect memory guard: Linux process spawning can retain the parent's pre-exec high-water `ru_maxrss`. The guard now uses current `/proc/self/statm` RSS and records a worker-local observed peak. The failure is retained in `full_process_parent_spawn_highwater_failure.log`. The corrected full run starts workers at approximately 0.6 GiB each and monitors actual aggregate descendant RSS in addition to worker guards.
 
 `full_process_parent.py` prepares the complete TRAIN000 observation, hashes the whole bundle and metadata with the same signature as the original integration test, and compares with `integration/full_reference.json`. It admits 128 GiB for the parent and 8 GiB for its worker subtree. It performs no GPU work, training or ancestry scoring. Root owns production integration, runtime admission and Git commits.
+
+## Complete observed-parent qualification
+
+The final bounded four-process source passed the complete `argformer_american_train_000` observation in `full_process_parent.json`. Every bundle array, metadata value and model input matches the current benchmark reference by complete signatures. No ancestry truth or model execution was involved.
+
+| Full observed preparation | Seconds | Speedup over current |
+|---|---:|---:|
+| Current benchmark code | 1521.36 | 1.00 |
+| Compiled serial | 1007.66 | 1.51 |
+| Compiled with 4 spawned workers | 769.01 | 1.98 |
+
+This is a 49.5% reduction in complete observed preparation time on this parent. Preparation timing includes the final process guards and worker startup. It excludes the separate immutable-hash qualification pass and is not an end-to-end training-speed measurement. Episode continuity and cut metadata still contain serial work, so constant GPU saturation and universal optimality are not claimed.
+
+The run processed 606 bounded chunks using exactly four workers. Every reported native thread pool and Torch pool used one thread, CUDA was not initialized in workers, and all four workers exited after preparation. Sampled peak RSS was 58,822,332,416 bytes (54.78 GiB) for the parent and 2,677,768,192 bytes (2.49 GiB) for all descendants together. The observed simultaneous parent-plus-descendant peak was 58,835,169,280 bytes (54.79 GiB). Independent parent and descendant maxima must not be added and reported as the simultaneous peak. These are summed resident pages sampled every second, not a unique physical-memory measurement. Maximum worker-local observed RSS was 679,161,856 bytes, below its 1.5 GiB allowance.
+
+All serial and process numerical source hashes match the reviewed manifests. A prior attempt completed the comparison but failed while serializing a NumPy integer diagnostic. Its partial file and log are preserved as `full_process_parent_serialization_failure.json.partial` and `full_process_parent_serialization_failure.log`. The harness now tests numeric scalar serialization, rejects nonfinite or unsupported values, preserves existing evidence, and publishes reports atomically. The complete rerun above passed without changing numerical sources. `test_report_serialization.py` and the independent `observed/harness_serialization_review.json` record this reporting repair.
