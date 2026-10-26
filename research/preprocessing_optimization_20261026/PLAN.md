@@ -80,6 +80,6 @@ Exact preprocessing identity is established on the qualified complete parents an
 - Closed: real owned worker exit, checkpoint capture at update 241, preserved history, legitimate scheduler repair and successful checkpoint/optimizer/RNG restoration on GPU 3.
 - Closed: four CPU preparation workers observed in production. Native compute pools use one thread per worker. An additional OS support thread is not an additional compute pool.
 - Closed: post-migration audit of all 257 source pins and PID/start identities of the three other active workers.
-- Pending: first complete production preparation and optimizer update. The benchmark queue remains active, with no failed or blocked stages after migration.
+- Closed: first complete production preparation and active GPU training, with four-worker next-input preparation overlapping the first GNN sweep. Production preparation plus packing took 896.095 seconds. A new optimizer update is not yet claimed. The benchmark queue remains active, with no failed or blocked stages after migration.
 
 Operational evidence: `review/resource592_migration_review.json`, `review/pidfd_recovery_review.json`, `review/post_migration_source_audit.json` and `integration/migration/`. Historical archives and checkpoints remain on the server.
