@@ -66,3 +66,9 @@ The owner requests "leaf embeddings" instead of "haplotype embeddings" in the di
 Record only. The owner cannot see how leaf embeddings are assembled before the BiGRU. For one query leaf q, its 32-component embeddings from successive trees form the rows of a T by 32 sequence matrix, ordered by genomic interval. The same leaf identity is followed across all T trees. Each row receives that interval's three geometry features, producing a T by 35 input to the BiGRU. This is stacking along the sequence axis, not flattening all trees into one vector or pooling different leaves.
 
 The next requested revision must visibly connect the same leaf in successive trees to its individual vectors, show those vectors becoming ordered matrix rows, and show the three geometry columns appended to each row before the BiGRU. The present detached vector glyphs and "Concat per tree" block do not make that assembly explicit. This communication issue remains open. No figure, model or experiment is changed by this record.
+
+## Open owner-reported oversight: meaning of the three geometry entries
+
+Record only. Figure 1c does not clearly map the three cells in each interval vector to interval length L_t, previous-center distance d_minus and next-center distance d_plus. The chromosome measurements, log transformation and resulting vector entries are not connected clearly enough for the reader to infer their meaning. The "3 features per interval" label does not resolve this issue.
+
+In the next requested revision, visibly associate each measured distance with its corresponding vector entry, preserve the entry order [L_t, d_minus, d_plus], explain the zero at missing neighbors, and make clear that these are three additional geometry features appended to the 32 learned leaf features. Describe this as the current design choice, not an established optimal number of features. This issue remains open. The figures and manuscript are unchanged by this record.
