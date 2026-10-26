@@ -1,24 +1,25 @@
 # ARG-GNN
 
 <!-- owner-stop-current:start -->
-## Benchmarks resumed with owner authorization, 26 October
+## Benchmark progress, 27 October
 
-The owner authorized continuing the benchmarks. The new queue reuses **32 completed stages** and has **220 remaining stages**, including an additional European interim comparison. Four workers have started on physical GPUs **3, 4 and 5**, with task titles `AI Auto Research Pipeline Test`. Other users' processes are untouched.
+**The complete comparison is still days away, plausibly a week or more under the current schedule.** Native ARGformer has about 158–207 hours of serial work after its current dataset, based on three completed runs. ARGMix adds uncertainty because most data preparation and both model fits remain. The nearest useful table is the European interim comparison, estimated in roughly 2–3 hours if the current prediction pace continues.
 
-| Workstream | Verified continuation |
-|---|---|
-| American TreeLoom, GPU 3 | Restored **238/600** complete-parent updates and optimizer state. Actively encoding the next observed parent for update 239. No new completed update is claimed yet. |
-| Native ARGformer, GPU 4 | Restored **119,500** MLM updates with optimizer, schedule and data cursor. Fresh training has advanced to **120,599/224,170** logged updates. The original five-epoch budget is retained. |
-| European TreeLoom, GPU 5 | Reuses the completed **90/90** fit for repaired held-out prediction. |
-| GST-LAI-8, GPU 5 | Repaired loader started. Original full fit restarts because no prior checkpoint survived. |
-| ARGMix | **11 completed stages reused.** The next Relate stage awaits host RAM admission alongside the four GPU workers. |
-| Matched ancestry scores | Pending predictions and common scoring. An interim CNN + Dense + TreeLoom European comparison is queued without waiting for GST. |
+| Workstream | Completed | Remaining |
+|---|---|---|
+| American TreeLoom, GPU 3 | **247/600** complete-parent training updates. Six completed updates since the optimized restart at 241. | About **93 hours of fit** at the recent median of 15.9 minutes/update, then prediction and scoring. The input cache is still warming. |
+| European TreeLoom, GPU 5 | **90/90** training updates and **3/5** TEST predictions. | Two predictions, then interim scoring against CNN and Dense. GST joins the final table later. |
+| Native ARGformer, GPU 4 | **3/15** evaluation datasets completed. Current validation001 MLM is **212,499/224,170** updates (94.8%). | Finish current MLM, contrastive training and prediction, then 11 new native dataset pipelines. Roughly **7–9 days** of serial training/prediction at observed rates, plus preparation and scoring. |
+| FLARE | **15/15** native prediction products complete, with all referenced hashes verified. | Common American ancestry scoring alongside the paired models. |
+| AncestralPaths CNN | Training and **5/5** TEST prediction products complete. Dense-control predictions are also available. | Common European ancestry scoring. |
+| GST-LAI-8, GPU 5 | **12/90** training updates, with recovery checkpoint. | Roughly **20–22 hours of fit**, then prediction and scoring. This is an LAI adaptation, not a reproduction of the GST paper's original task. |
+| ARGMix | **1/14** datasets fully prepared. Native Relate is active for the second, TRAIN001. | Finish all dataset preparation, train both ARGMix and TreeLoom, predict and score. No reliable finish estimate yet. |
 
-Verified 2026-10-26T20:48:01.789032+03:00. **4 running, 32 succeeded, 216 pending, no failed or blocked stages.** GPU 4 was actively training at the check. GPUs 3 and 5 were awaiting their workers' active CPU input preparation. No new matched ancestry score is available.
+Verified **2026-10-27T00:43:14.750925+03:00**. Queue: **5 running, 32 succeeded, 215 pending, 0 failed, 0 blocked**. These are workflow stages of different sizes, not a completion percentage. **No final matched ancestry ranking is available yet.** Training loss and ARGformer masked-token accuracy are not ancestry accuracy.
 
-The model, datasets and evaluation supports are unchanged. Global storage admission is **995 GB**, within the **1 TB** owner limit. The reviewed queue preserves interrupted evidence and checkpoints. ARGformer restores its training state, but persistent worker masking RNG was not saved, so an identical uninterrupted random mask stream is not claimed.
+All work remains on anogena, using physical GPUs **3, 4 and 5**, within the **1 TB** owner limit. Native competitor implementations and simulation settings are unchanged by the preprocessing optimization. Benchmark completion still precedes final real-data analysis and the finished paper. No jobs were changed for this status update.
 
-[Continuation and repairs](research/operations_resume_20261026/README.md) · [Latest verified status](research/operations_resume_20261026/latest_status.json) · [Queue plan](configs/benchmarks/paper_campaign_resume_20261026_v1.json) · [Historical stop record](research/operations_stop_20261025/stopped.json)
+[Status evidence and estimate basis](research/benchmark_status_20261027/status.json) · [Queue plan](configs/benchmarks/paper_campaign_resume_20261026_v1.json) · [Previous restart snapshot](research/benchmark_status_20261027/previous_resume_snapshot.md) · [Preprocessing verification](research/preprocessing_optimization_20261026/REPORT.md)
 <!-- owner-stop-current:end -->
 
 **Preprocessing audit, 26 October:** preparation is not yet fully parallel. At the original audit, American TreeLoom used one background preparation worker. The qualified deployment below now uses four encoding processes within that producer. GST has four loader workers, but its initial VCF joins run serially before they start. European TreeLoom uses eight CPU threads during encoding but prepares and predicts parents sequentially. Native ARGformer has eight persistent loader workers and is actively training. [Measured bottlenecks and concrete execution improvements](research/preprocessing_efficiency_20261026/REPORT.md). No model, simulation or running job was changed by this audit.
