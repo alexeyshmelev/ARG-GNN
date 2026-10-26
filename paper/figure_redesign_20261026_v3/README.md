@@ -112,3 +112,9 @@ Use the visual flow to explain which representations enter and leave the operati
 ## Recorded simplification: remove the ordinary-edge legend entry
 
 The owner flags "Tree edge / data flow" as an unnecessary legend entry. Remove this entry in the next requested redesign. Ordinary tree edges and directed connectors do not need a definition. Reserve legend space for meaningful colors and unfamiliar symbols, retaining the requirement to explain every semantic color. This is a record only. The figures remain unchanged.
+
+## Recorded simplification: replace the expanded EMA inset with its formula
+
+The owner specifically identifies the oversized exponential-average inset as suitable for replacement by a formula. In the next requested redesign, replace the two Scale blocks, coefficient box, addition node and their wiring with the compact recurrence m_t = alpha_t * m_previous + (1 - alpha_t) * f_t, where alpha_t = exp(-L_t / ell). Briefly define the previous memory, current group context, interval length and learned positive distance scale. Keep the memory operation's inputs and output identifiable in the overall flow. The same rule applies in both genomic directions. Remove the redundant M callout along with the expanded inset.
+
+This makes the earlier guidance about using formulas concrete for this panel. The update itself has one learned distance scale, while the current context comes from its separate learned projection. Do not make this arithmetic appear to be an additional multilayer network. Recorded only, with no redraw or experiment changes.
