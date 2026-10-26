@@ -695,3 +695,23 @@ Evidence: [research/benchmark_rebuild_20261024/PLAN.md](../research/benchmark_re
 **Next/repeat rule:** Compare to frozen TreeLoom. Do not repeat answered architecture pilots. Profile bounded TRAIN slices first.
 
 Evidence: [research/scalability_20261024/PLAN.md](../research/scalability_20261024/PLAN.md), [research/scalability_20261024/execution/measurement.json](../research/scalability_20261024/execution/measurement.json), [research/scalability_20261024/execution/test_results.json](../research/scalability_20261024/execution/test_results.json), [research/scalability_20261024/model/checkpoint_variation.json](../research/scalability_20261024/model/checkpoint_variation.json), [research/scalability_20261024/review/shared_computation_scientific_review.txt](../research/scalability_20261024/review/shared_computation_scientific_review.txt), [research/scalability_20261024/categorical_site/REPORT.md](../research/scalability_20261024/categorical_site/REPORT.md), [research/scalability_20261024/categorical_site/measurement.json](../research/scalability_20261024/categorical_site/measurement.json).
+
+## ap_four_path_reconstruction_20261027: A separately trained four-path AncestralPaths classifier is the required Note3.1 condition and cannot be replaced by summing six-class outputs.
+
+**implemented_33_cpu_checks_passed_full_training_not_started.** Exclude BAA before informative-shell selection and normalization, preserve observed genealogies and original non-BAA focal rows, train a fresh four-output historical CNN for five epochs.
+
+**Conclusion:** Fresh four-output CNN and 15-stage preparation/fit/predict/score plan implemented. 33 CPU tests pass, including BAA-only shell selection, exact focal alignment, label rejection, all-method TEST barrier and checkpoint round trip. No ancestry score or full training run yet.
+
+**Next/repeat rule:** Distinct four-path training condition. Never rerun or relabel the existing six-path fit as this experiment. No new simulated or inferred trees required.
+
+Evidence: [research/benchmark_corrections_20261027/PLAN.md](../research/benchmark_corrections_20261027/PLAN.md), [configs/benchmarks/paper_ancestralpaths_four_20261027.json](../configs/benchmarks/paper_ancestralpaths_four_20261027.json), [research/benchmark_corrections_20261027/verification.json](../research/benchmark_corrections_20261027/verification.json).
+
+## argmix_public_roster_recovery_20261027: Original public metadata can recover ARGMix reference identities and real date records without arbitrary cohort membership or synthetic ages.
+
+**partial_recovery_validated_exact_roster_and_age_policy_unresolved.** Join original supplementary sample and reference tables, published QC and painted lists, and modern cohort metadata. Preserve every conflicting date version and validate source hashes and sample identities.
+
+**Conclusion:** Recovered 116 references matching CHG13, EHG42, WHG48 and Yamnaya13. The 992 ancient candidate intersection still requires 3 farmer and 39 other exclusions. Farmer ADMIXTURE assignments and modern660 membership are unresolved. Published date sources disagree for 166 painted individuals, including 107 references with conflicts within the workbook. No complete roster or replacement simulations were generated.
+
+**Next/repeat rule:** Reuse these authenticated source joins. Resolve final membership and date conventions using new source evidence rather than repeating candidate counts or inventing exclusions.
+
+Evidence: [research/argmix_roster_recovery_20261027/public_metadata/REPORT.md](../research/argmix_roster_recovery_20261027/public_metadata/REPORT.md), [research/argmix_roster_recovery_20261027/public_metadata/derived/recovery_summary.json](../research/argmix_roster_recovery_20261027/public_metadata/derived/recovery_summary.json), [research/argmix_roster_recovery_20261027/public_metadata/derived/source_manifest.json](../research/argmix_roster_recovery_20261027/public_metadata/derived/source_manifest.json), [research/argmix_roster_recovery_20261027/public_metadata/derived/validation_receipt.json](../research/argmix_roster_recovery_20261027/public_metadata/derived/validation_receipt.json).

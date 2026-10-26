@@ -1,5 +1,14 @@
 # ARG-GNN
 
+<!-- requested-corrections-20261027:start -->
+## Requested benchmark additions, 27 October
+
+**AncestralPaths four-class training is implemented as a separate condition.** It recomputes input features with Bronze Age Anatolian (BAA) references excluded and trains a fresh four-output CNN. This is direct four-class training, not merged six-class predictions. The original six-class benchmark remains intact. All 33 CPU checks passed. A separate 15-stage CPU plan is prepared, with 40,000 training examples and five independent test parents. Full four-class training has not been launched, so no new accuracy score is claimed. A matched four-output TreeLoom fit remains necessary for a new comparison. [Scientific definition and execution plan](research/benchmark_corrections_20261027/ANCESTRALPATHS_FOUR.md).
+
+**ARGMix original metadata are partly recovered.** Public reference identities and dated records recover 13 CHG, 42 EHG, 48 WHG and 13 Yamnaya individuals, matching the paper's four cohort counts. The exact final roster is still unresolved: 3 farmer exclusions, 39 other ancient exclusions, individual farmer ancestry assignments and the selection of 660 modern Europeans remain unknown. Published date sources also disagree for some individuals. All source versions and candidate identities are preserved, with no arbitrary membership or age choices. Existing simulations have not been replaced. [Recovery report and source tables](research/argmix_roster_recovery_20261027/public_metadata/REPORT.md).
+
+<!-- requested-corrections-20261027:end -->
+
 <!-- owner-stop-current:start -->
 ## Benchmark progress, 27 October
 
