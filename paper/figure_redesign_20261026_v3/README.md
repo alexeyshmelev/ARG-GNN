@@ -60,3 +60,9 @@ In the next requested revision, make the node-to-vector correspondence and the a
 ## Recorded terminology correction: leaf embeddings
 
 The owner requests "leaf embeddings" instead of "haplotype embeddings" in the diagram and its explanation because the visible objects are leaves. Use "leaf embeddings" for the sampled-node readout and make the selection of leaves from all node embeddings explicit. Define once in the caption that each sampled leaf represents one haplotype. This wording must also make clear that the same leaf identity is followed across trees. Apply this correction with the next requested figure revision. This record does not redraw the figures or change the model.
+
+## Open owner-reported oversight: stacking leaf embeddings
+
+Record only. The owner cannot see how leaf embeddings are assembled before the BiGRU. For one query leaf q, its 32-component embeddings from successive trees form the rows of a T by 32 sequence matrix, ordered by genomic interval. The same leaf identity is followed across all T trees. Each row receives that interval's three geometry features, producing a T by 35 input to the BiGRU. This is stacking along the sequence axis, not flattening all trees into one vector or pooling different leaves.
+
+The next requested revision must visibly connect the same leaf in successive trees to its individual vectors, show those vectors becoming ordered matrix rows, and show the three geometry columns appended to each row before the BiGRU. The present detached vector glyphs and "Concat per tree" block do not make that assembly explicit. This communication issue remains open. No figure, model or experiment is changed by this record.
