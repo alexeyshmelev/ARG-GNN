@@ -118,3 +118,17 @@ The owner flags "Tree edge / data flow" as an unnecessary legend entry. Remove t
 The owner specifically identifies the oversized exponential-average inset as suitable for replacement by a formula. In the next requested redesign, replace the two Scale blocks, coefficient box, addition node and their wiring with the compact recurrence m_t = alpha_t * m_previous + (1 - alpha_t) * f_t, where alpha_t = exp(-L_t / ell). Briefly define the previous memory, current group context, interval length and learned positive distance scale. Keep the memory operation's inputs and output identifiable in the overall flow. The same rule applies in both genomic directions. Remove the redundant M callout along with the expanded inset.
 
 This makes the earlier guidance about using formulas concrete for this panel. The update itself has one learned distance scale, while the current context comes from its separate learned projection. Do not make this arithmetic appear to be an additional multilayer network. Recorded only, with no redraw or experiment changes.
+
+## Proposed redesign: replace horizontal leaf tracks with vertical representation flow
+
+The owner rejects the r1/r2 track layout, where incoming and outgoing vectors sit on the same horizontal paths and the forward/reverse routes are difficult to follow. The requested improvement is a different visual organization, not a cosmetic adjustment of arrow heights.
+
+Proposed layout for the next figure revision:
+
+1. Start at the top with one context sequence matrix per leaf. Each matrix has T rows in genomic order and eight feature columns. Each row is the context of that leaf's group in the corresponding tree, not an ancestry output or the final 32-component leaf embedding. Show how these rows come from the group-context distribution step.
+2. Split each sequence into two compact parallel blocks for forward and reverse exponential memory. Represent the recurrence with the recorded compact formula. Indicate genomic direction within the blocks, while all diagram-level input/output arrows continue downward.
+3. Put both output matrices below the blocks with rows aligned in the same genomic order. Average matching rows across the two directions. This is an elementwise mean, not concatenation or averaging across genomic positions. It yields one T by 8 memory matrix per leaf.
+4. For the illustrated T2 group, visibly select the T2 row from r1 and r2. Stack those two eight-component rows, then average over the current group's leaves. Explain that this selection and group aggregation occur separately at every interval with its actual group membership.
+5. Continue downward through subtraction of the current group context, the Linear 8-to-32 projection and injection at the group ancestor before round 2. Show the destination at the bottom, without a long return route around the page.
+
+This proposal preserves the exact memory computation and separates the leaf, genomic-interval and scan-direction axes. It should use compact matrices, distinct meaningful colors and short connections. It remains to be drawn and visually verified during the requested redesign. The current figures and experiments are unchanged.
