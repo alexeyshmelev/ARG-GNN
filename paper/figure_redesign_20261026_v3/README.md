@@ -86,3 +86,9 @@ This is a requirement for the whole diagram, not a request for additional explan
 The owner requests replacing the large repeated tree drawings inside the encoder with compact blocks labeled "Upward message passing" and "Downward message passing", optionally using a small tree icon. The current drawings consume too much space. Preserve the two rounds and their shared weights, but use the recovered space to show the continuous representation flow, node-embedding matrices, dimensions and important transformations.
 
 This supersedes the choice to repeat a full tree inside every traversal block. It does not remove the requirement to make embeddings for all nodes explicit. Show that correspondence through the input/output representation and a compact key where needed. Keep the biological tree example at the input. This is recorded for the next requested redesign. No figures or experiments are changed by this record.
+
+## Open owner-reported oversight: overuse of purple
+
+Record only. The owner objects to purple being used throughout the figures for learned blocks and feature vectors. Reusing this hue obscures the distinction between probabilities, embeddings and operations. A legend alone does not resolve the ambiguity.
+
+For the next requested redesign, reserve a purple intensity scale for probabilities, as suggested by the owner. Choose distinct, restrained colors for other meaningful representation or operation categories, including embeddings and learned layers. Use the same color only for the same semantic category and provide a legend for every color. Keep ancestry identity colors consistent and distinguish them from the probability intensity scale. Do not introduce decorative colors or a different color for every individual block. This supersedes the v3 choice of violet learned blocks and purple feature values. The issue remains open. No figures or experiments are changed by this record.
