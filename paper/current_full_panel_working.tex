@@ -51,35 +51,34 @@ Let $T_t=(V_t,E_t)$ be the inferred local tree covering interval $I_t$ of physic
 
 Inputs comprise phased observed variants, inferred topology and node ages, sampling ages, and the known source labels of reference haplotypes. Query labels are masked. Simulated ancestry provides training targets and evaluation truth, but does not define the input features, inferred trees, structural groups or prediction intervals.
 
-A multilayer perceptron (MLP) encodes called alleles relative to observed donor and panel allele frequencies. Mean and maximum pooling summarize this evidence within each tree interval for each haplotype. Reference labels and sampling ages supply further information at sampled nodes. Inferred ages and indicators for sampled nodes and roots describe all nodes, including internal ancestors. Their encoded features initialize a state $b_v$. Learned gates use branch geometry and agreement between inferred mutations and observed alleles to scale messages.
+A multilayer perceptron (MLP) encodes called alleles relative to observed donor and panel allele frequencies. Mean and maximum pooling summarize this evidence within each tree interval for each haplotype. Reference labels and sampling ages supply further information at sampled nodes. Inferred ages and indicators for sampled nodes and roots describe all nodes, including internal ancestors. Their encoded features initialize a state $b_v$. Learned gates use branch geometry and agreement between observed allele partitions and inferred branches to scale messages.
 
 Figure~\ref{fig:architecture} summarizes the model. The encoder makes two rounds through each complete inferred tree, each comprising an upward traversal and a downward traversal. These are four full traversals, with the same node operator reused at every tree depth rather than a fixed stack of four message passing layers. Sample identities align their outputs across intervals, and each sampled haplotype has a separate genomic sequence.
 
-\begin{figure*}[p]
+\begin{figure*}[!t]
 \centering
 \includegraphics[width=\textwidth]{figures/TreeLoom_architecture.pdf}
-\caption{\textbf{a,} Three marginal trees with the same sampled haplotypes. The allele matrix shows one illustrative site per interval. Observed allele frequencies and callability feed the site MLP, then pooling. Reference labels, sampling ages and node features also enter the feature MLPs. Query ancestry is unknown.
-\textbf{b,} Vectors at every node show upward states $u$ and outside states $o$, including internal ancestors. Root outside state is zero. Two complete rounds reuse the same node operators, expanded in Figure~\ref{fig:operators}. Memory and structure modify input $b$ before round 2. Concatenating the final states gives one local embedding per haplotype per tree.
-\textbf{c,} Interval length $L_t$ and adjacent center distances $d_-,d_+$ form three geometry features, each transformed by $\log(1+x)/\log(2000001)$. Missing neighbors give zero. Geometry joins each local query embedding before the BiGRU and classifier. Feature colors and ancestry probabilities are illustrative, not fitted results. Colors and shapes follow the legend.}
+\caption{TreeLoom predicts local ancestry for each query leaf and interval. Each sampled leaf represents one haplotype.
+\textbf{a,} Node features initialize all nodes, including ancestors. Observed site features are encoded and pooled over called sites within each interval separately for each leaf. Reference labels and sampling ages join this pooled evidence, and the resulting features are added only to leaf rows. Query ancestry labels are masked. Branch geometry and observed allele--branch agreement supply learned message gates.
+\textbf{b,} The two rounds of the tree encoder are expanded in Figure~\ref{fig:encoder}. Its output has upward and outside embeddings for every node. Selecting leaf rows, concatenating the two states and projecting gives a local leaf embedding of width 32.
+\textbf{c,} Rows for the same query leaf are stacked in tree order. Interval length and distances to adjacent interval centers add three columns before the BiGRU. Its output joins the original local embedding for classification. Four ancestry classes illustrate the European condition. All matrix values and probabilities are schematic, not fitted results.}
 \label{fig:architecture}
 \end{figure*}
 
-\begin{figure*}[p]
+\begin{figure*}[!t]
 \centering
-\includegraphics[width=\textwidth]{figures/TreeLoom_memory.pdf}
-\caption{\textbf{a,} The age cut produces groups $G_1,G_2,G_3$. The marked ancestor of r1 and r2 supplies upward and outside states. Their sum projects to $f_2$, copied to both group members. The complete tree remains in the GNN.
-\textbf{b,} Each haplotype retains separate forward and reverse exponential memories. Both labeled $m_2$ outputs are states at $T_2$. Direction means are computed per haplotype, then averaged within the current group. Subtracting $f_2$ and projecting gives correction $\delta$, added at the group ancestor before round 2. The connected expansion of M shows both vector and scalar inputs. Interval length $L_t$ and learned scale $\ell$ determine retention $\alpha_t$. The first state in each direction equals its current context. The same update applies at other intervals, whose context inputs are omitted. This exponential memory is distinct from the final BiGRU. Feature values are illustrative.}
-\label{fig:memory}
+\includegraphics[width=\textwidth]{figures/TreeLoom_encoder.pdf}
+\caption{Expansion of the tree encoder in Figure~\ref{fig:architecture}b.
+\textbf{a,} A complete upward traversal produces $U^1$, followed by a downward traversal producing $O^1$. Rows retain node identities. Upward state $U$ corresponds to $h$ in the equations.
+\textbf{b,} Each leaf joins the group represented by its highest ancestor no older than 350 generations. Older samples remain singleton groups. A projection of the representative's summed states gives the group context $f$, copied to its leaves. Separate histories follow each leaf across trees, even when its group changes. Forward and reverse exponential memories are averaged per leaf and then over the current group's leaves. Subtracting the current context and projecting gives a correction $\Delta$, added only at group representatives. The $T_2$ example is repeated at every interval. Here $m,\alpha,L,\ell$ correspond to $z,\rho,w,\lambda$ in the text.
+\textbf{c,} Exact descendant sets determine gain, loss and persistence flags for proper clades. These flags may overlap. Learned factored maps $G,L,P$ transform the current upward state and place correction $S$ at its clade representative. Their equations appear in the supplement.
+\textbf{d,} Both corrections enter the original base before the second complete upward and downward round, which reuses the first round's weights. Both all-node outputs return to leaf selection in Figure~\ref{fig:architecture}b.}
+\label{fig:encoder}
 \end{figure*}
 
-\begin{figure*}[p]
-\centering
-\includegraphics[width=\textwidth]{figures/TreeLoom_operators.pdf}
-\caption{\textbf{a,} Upward update at one node. Each child state is transformed and gated before the arithmetic mean over children. This mean joins input $b$, followed by a linear map, tanh, residual addition and learned layer normalization. The operator repeats from leaves to root.
-\textbf{b,} Downward update. Parent outside state $o_p$, input $b_p$ and mean child message $a_p$ are combined, excluding the recipient's normalized contribution $m_{q\to p}$. The displayed maps and edge gate give outside state $o_q$. The root starts at zero. Nine observed edge features produce separate directional gates.
-\textbf{c,} Descendant pairs illustrate loss, gain and persistence across trees. Binary flags select factored transformations of the current upward state $u_v$, with separate weights for the two corrections. Neighboring hidden states do not enter these circuits. The symbol $\odot$ denotes elementwise product, Scale $\times$ multiplies a vector by a scalar, and $\parallel$ concatenates. Input signs define subtraction order. Diagram state $u$ is $h$ in the equations. Colors have the meanings shown in the legend.}
-\label{fig:operators}
-\end{figure*}
+
+
+
 
 
 
@@ -109,7 +108,7 @@ Structural features compare trees without identifying their internal ancestors. 
 
 A clade is gained when it is absent from the preceding tree and lost when it is absent from the following tree. Two learned residuals use these flags and the persistence of clades in consecutive trees to transform the current node state. They use the current tree's features, with neighboring trees determining where the transformations apply. Their equations are given in the supplement.
 
-Sample memory supplies a different kind of context (Figure~\ref{fig:memory}). A fixed age cut partitions each tree into groups of haplotypes sharing an ancestor at the cut. A sample older than the cut retains its own sampled node. For group $k$ in tree $t$, a projection of the representative's summed upward and outside states gives $f_{tk}$. Write $k_t(q)$ for haplotype $q$'s group.
+Sample memory supplies a different kind of context (Figure~\ref{fig:encoder}b). A fixed age cut partitions each tree into groups of haplotypes sharing an ancestor at the cut. A sample older than the cut retains its own sampled node. For group $k$ in tree $t$, a projection of the representative's summed upward and outside states gives $f_{tk}$. Write $k_t(q)$ for haplotype $q$'s group.
 
 A forward exponential average follows the same haplotype through successive trees,
 \begin{equation}
@@ -125,7 +124,7 @@ The initial state is its current context. A reverse scan applies the same rule i
 The two directions are averaged. Within each current group, the mean haplotype history is compared with the current group context. A learned projection of that difference is added at the group representative. The second complete graph traversal propagates this contribution together with the structural residuals, using the first traversal's weights and observed gates. History stays attached to sampled chromosomes even when their groups change.
 
 \subsection{Genomic Context and Ancestry Probabilities}
-After the second traversal, a projection of the upward and outside states gives a local embedding $e_{tq}\in\mathbb{R}^{d}$. Aligning embeddings by haplotype identity produces one ordered sequence per haplotype. A one layer bidirectional GRU (BiGRU) processes those embeddings and interval geometry,
+After the second traversal, a projection of the upward and outside states gives a local leaf embedding $e_{tq}\in\mathbb{R}^{d}$. Stacking leaf embeddings in tree order while preserving leaf identity produces one sequence per sampled chromosome. A one layer bidirectional GRU (BiGRU) processes those embeddings and interval geometry,
 \begin{equation}
 r_{1:T,q}=\operatorname{BiGRU}
 \left([e_{tq},\operatorname{geometry}(I_t)]_{t=1}^T\right).
