@@ -1,0 +1,45 @@
+# Candidate review, 26 October 2026
+
+The parser and serial integer kernels have no remaining demonstrated valid-input mismatch in this independent review. Integration remains conditional on final source/binary pins, full-parent equivalence and measured benefit, and a source-authenticated wrapper. The experimental parallel encoder is a separate candidate. This review author has run only bounded CPU fixtures, not training or a GPU test.
+
+## Parser
+
+Independent result: PASS, 2,586 additional whole-VCF cases. `parser_adversarial.json` binds the exact reviewed sources and test result. The test verifies AST identity between the copied scalar oracle and the actual production statements, allowing only the explicit `ts.num_sites` to `n_sites` argument extraction. It also verifies unchanged AST for every preceding/following statement of the full observation loader.
+
+The independent cases cover signed/zero-padded/underscored and Unicode integer spellings, vertical/form-feed/nonbreaking whitespace, invalid alleles/GT ignored only on unretained rows, invalid unretained coordinates/column widths still rejected, missing/repeated headers, FORMAT position and duplicate GT fields, empty delimiters, CR/CRLF and absent final newline. Exact array bytes, exception type/message and callback sequence matched.
+
+The fast path admits only one-byte ASCII calls 0 through allele-count-1 or missing dot with an exact three-byte phased GT. Other forms use the original scalar logic. The limited field split plus explicit tab count preserves the original whole-row width guard. No change to scientific targets, inference, model, sample order or retained-site order was found.
+
+The implementation agent's earlier 9.14x result is a 2,048-row observed-input microbenchmark, not a full-parent or campaign speedup. Complete actual TRAIN-file parity/performance remains separate evidence.
+
+## Serial structural kernels
+
+Independent result after repair: PASS, 30 complete tree sequences with 3, 4, 63, 64, 65, 127, 128, 129, 257 and 1,600 haplotypes, permuted numeric IDs, unary chains, repeated clades separated by isolated holds, and ages at adjacent FP32 values around 350. Every episode/cut tensor and semantic metadata value matched the CURRENT recovery runtime. See `tree_adversarial.json`.
+
+The first review found six public-entry validation regressions: candidate `build_episodes` and `prepare_cut_plan_v1` accepted absent, reversed or root-containing depth levels rejected by the current implementation. The implementation agent added `validate_bank_levels`; independent rerun confirms the same rejection type/message for all six. Initial evidence is preserved in `tree_adversarial.initial.json`.
+
+The C++ memory-safety review found that initially unchecked private ABI calls could dereference invalid roots/adjacency or loop on a sibling cycle. Through the normal production entry points, parent/sample bounds and generated acyclic adjacency already excluded these paths. Hardening nevertheless matters when helpers are reused. The implementation agent added index/shape checks and bounded sibling traversal. A further requested `members < h` check before writing proper-clade output handles malformed repeated-subtree adjacency that could otherwise overflow the h-row output buffer before the final leaf-count rejection. Bind the final rebuilt library and final safety-suite result before production use.
+
+On valid rooted trees, arbitrary-width masks use all `(h+63)//64` words; union is exact; unary duplicates collapse to their deepest branching representative; masks are converted back to exact Python integers. `unordered_map` is used for lookup and first-encounter IDs, never iterated to define output order. FP32 reductions, geometry, donor support and cut information formulas remain in the unchanged Python/Torch path; the native code handles integer layout/grouping and exact integer-to-FP32 counts.
+
+The tested host is little-endian. The mask serialization uses native uint64 word layout with `int.from_bytes(..., sys.byteorder)`; a future big-endian host would need explicit word-order review. This is not a blocker for the pinned current host/runtime, but portability should not be claimed automatically.
+
+## Parallel execution and integration
+
+The inspected spawn/process encoder uses bounded FIFO futures and therefore preserves assembly order. Its prepared native-tree arrays are independent, and it leaves global clade/cut merging outside the workers. The maximum admitted process count for this release is four, each with a 1.5 GiB resident-memory guard; the fixed wrapper reserves eight GiB for the children and transport inside the existing aggregate task memory limit. The encoder bounds each transported input/output chunk, drains pending work before an oversized whole-tree serial fallback, and applies threadpoolctl to already loaded native pools. These are execution bounds and periodic guards, not a proof that no short-lived allocation can exceed the sampled memory value. Process4 requires separate small-fixture and complete-parent proof roles before release authentication succeeds.
+
+At the parent's request, this reviewer implemented hardening in `integration/hooks.py`, `integration/treeloom_resume.py`, `integration/test_resume_contract.py` and the staged `integration/migrate.py`. A separate reviewer must review these changes before release; this report is not independent approval of its own implementation. All original scientific sources and native author methods remain unchanged.
+
+The hook now pins the continuation wrapper and optional process source, validates all six original binding points before any mutation, records owner/source/function identities and fixed partial arguments, rolls back its own assignments if installation fails, and rechecks effective bindings before publishing completion. Serial mode remains the default; the explicit release worker count selects either serial or the bounded process4 adapter.
+
+The release now requires `exact_preprocessing_release_v1`, an exact candidate source list, worker count one or four, and a complete unique set of named proof envelopes. Every `exact_preprocessing_proof_v1` envelope must pass and authenticate nonempty underlying passed JSON evidence; the independent review role can also cite Markdown. An empty proof list, missing or duplicated roles, pending/failing evidence, changed wrapper or unqualified worker count is rejected.
+
+Restore requires `exact_preprocessing_preserved_history_v1`, at most 4096 files and 80 MiB, and at most eight MiB of manifest metadata. It checks the entire manifest, sizes, hashes, path normalization, ancestor symlinks, duplicates, prefix collisions and absence of prior completion before creating the destination. Resource admission precedes all copy blocks, destinations use exclusive creation, hashes are verified after copying, and partial failures remain as evidence. Attempts have explicit safe identifiers and distinct immutable leaves even at the same update boundary. The unchanged trainer validates the registry, observation metadata, memory envelope and resume evidence before restoration; its original model/Adam/RNG validation still runs before continuation.
+
+Focused CPU-only result: PASS, 39 restore/proof/attempt/binding checks in `integration/resume_contract.json`. No model was executed and no process worker was created by this suite. It checks exact six-binding receipts, mutation detection and fixed process4 budget forwarding using a tiny stub. The initial five-check report is retained as `integration/resume_contract.initial.json`.
+
+Migration was reviewed and patched without running `stop`, `prepare` or `submit`. The staged helper verifies a contiguous digest-authenticated repair chain, authenticates the release, identifies only the existing own TreeLoom PID/start ticks/controller and rechecks task/plan identity immediately before a pidfd signal. It validates a stable durable checkpoint and original RNG/schedule/barrier, captures it with exclusive durable writes, bounds the history before an atomic same-filesystem archive rename, verifies archived hashes, rejects conflicting source pins and publishes the scheduler submission with one atomic link. A read-only `inspect` invocation passed against the live plan. The parent owns the final net-benefit decision, cancellation, archive accounting, actual repair submission and deployment.
+
+The parent's GPU comparison used exact preprocessing tensors and unchanged model execution but observed nonzero FP32 differences. Its unchanged baseline-versus-baseline repeat had maximum logits/gradient/parameter differences of 3.28e-7 / 3.58e-7 / 1.49e-8; the candidate comparison had 4.77e-7 / 2.98e-7 / 1.49e-8. Those numbers support numerical agreement within observed backend variation, not bitwise identical final training output. Exact-input claims remain separate from output-determinism claims.
+
+Rollout conditions, author-method boundaries, source/resume rules and wider performance opportunities are detailed in `ACCEPTANCE_MATRIX.md`.
