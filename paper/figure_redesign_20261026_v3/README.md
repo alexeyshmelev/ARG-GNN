@@ -132,3 +132,13 @@ Proposed layout for the next figure revision:
 5. Continue downward through subtraction of the current group context, the Linear 8-to-32 projection and injection at the group ancestor before round 2. Show the destination at the bottom, without a long return route around the page.
 
 This proposal preserves the exact memory computation and separates the leaf, genomic-interval and scan-direction axes. It should use compact matrices, distinct meaningful colors and short connections. It remains to be drawn and visually verified during the requested redesign. The current figures and experiments are unchanged.
+
+## Open owner-reported oversight: expanded operators lack a clear parent connection
+
+Record only. The owner cannot tell where Figure 3 starts, how it connects to the preceding figures, or whether it expands an existing operation or adds a new stage. Panels a and b are intended to expand the upward and downward node updates in the overview. Panel c expands its structural correction. These parent relationships are not visually explicit enough. The owner rejects the present presentation despite the prior visual review.
+
+In a future requested revision, make each expansion visibly identifiable with its parent block using consistent names, symbols, representations and clear input/output correspondence. Give each panel an obvious entry point. Do not expect the reader to infer the relationship from a figure reference alone. Avoid disconnected detailed circuits, and use formulas where expanding arithmetic into boxes harms clarity.
+
+The owner requires a future fresh agent with no prior architecture context or explanatory hints to reconstruct the entire input-to-output computation from the figures. The review must cover representation changes, dimensions, identities, ordering, branches, aggregation axes and connections between overview and expansions. Compare its account against the implementation and record all errors and ambiguities. A generic aesthetic verdict or a narrow collision check is insufficient. The acceptance target is a complete, correct account of the depicted flow, not a favorable opinion.
+
+A new blind-reader agent was started during this exchange, then interrupted when the owner clarified "Just record for now". No completed result from that review is claimed. This issue and the future review requirement remain open. No figures, model or experiments are changed by this record.
