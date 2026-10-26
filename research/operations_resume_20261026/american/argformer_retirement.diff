@@ -1,0 +1,94 @@
+--- src/arggnn/benchmarking/paper_american/retirement.py
++++ research/operations_resume_20261026/american/argformer_retirement.py
+@@ -9,10 +9,33 @@
+ import os
+ from pathlib import Path
+ import stat
+-from . import protocol as p
++from arggnn.benchmarking.paper_american import protocol as p
+ 
+ CAMPAIGN = p.ROOT / "experiments/results/paper_american_20261024"
+ PROTECTED_REUSED = {"argformer_american_test_000", "argformer_american_test_001"}
++
++RESUMED_PARENT = "argformer_american_validation_001"
++RESUME_LEAF = "resume_20261026_batch119500"
++PRESERVED_CHECKPOINT_BYTES = 2014910662
++
++def producer_output(base, stage):
++    native = base / stage / "native"
++    return native / RESUME_LEAF if stage == "mlm" else native
++
++def retained_nonmodel_bound():
++    return 128 * 2**20 + PRESERVED_CHECKPOINT_BYTES
++
++def preserved_checkpoint(request):
++    need(request["parent_id"] == RESUMED_PARENT,
++         "Only the stopped validation001 parent uses this retirement adapter")
++    evidence = p.read(request["resume_evidence_ref"])
++    reference = evidence["checkpoint_ref"]
++    expected = CAMPAIGN / RESUMED_PARENT / "mlm/native/checkpoints/ep2-ba119500-rank0.pt"
++    need(evidence["schema"] == "american_argformer_full_state_resume_20261026"
++         and p.path(reference["path"]) == expected
++         and expected.stat().st_size == PRESERVED_CHECKPOINT_BYTES,
++         "Exact preserved interrupted checkpoint and storage charge required")
++    return reference
+ 
+ def need(ok, message):
+     if not ok:
+@@ -70,7 +93,7 @@
+         executed = p.read(value["self_spec_ref"])
+         need(executed["parent_id"] == parent and executed["stage"] == stage
+              and executed["variant"] == "paper_aligned"
+-             and p.path(executed["output_directory"]) == base/stage/"native",
++             and p.path(executed["output_directory"]) == producer_output(base, stage),
+              "Exact corrected executed-spec lineage required")
+         if stage != "mlm":
+             need(executed["checkpoint_completion_ref"] == records[
+@@ -142,6 +165,7 @@
+ def run_task(request, *, resource_check):
+     need(callable(resource_check), "ROOT resource callback required")
+     need(os.environ.get("CUDA_VISIBLE_DEVICES", "") == "", "Retirement is a CPU-only task")
++    preserved = preserved_checkpoint(request)
+     base, prep_ref, prep, records = _chain(request)
+     out = p.path(request["output_directory"])
+     need(out == base/"retire/native" and not out.exists(), "Fresh dedicated corrected retirement output required")
+@@ -159,7 +183,7 @@
+     compact = _compact(torch, _ordinary(contrastive["checkpoint_ref"]["path"]),
+                        out/"final_model.pt", maximum, resource_check)
+     # Preserve canonical source/config/vocabulary/focal/provenance records in place.
+-    retained = [prep_ref, prep["vocab_ref"], prep["observation_ref"], prep["focals_ref"],
++    retained = [preserved, request["resume_evidence_ref"], prep_ref, prep["vocab_ref"], prep["observation_ref"], prep["focals_ref"],
+                 compact["model_ref"], records["predict"]["value"]["prediction_ref"],
+                 records["predict"]["value"]["reference_pca_ref"]]
+     for item in records.values():
+@@ -192,7 +216,7 @@
+              "Exact full-budget original checkpoint required")
+         checkpoint_metadata[stage] = {key: item for key, item in value.items()
+                                       if key not in ("self_spec_ref",)}
+-        directory = native/"checkpoints"
++        directory = producer_output(base, stage)/"checkpoints"
+         for target in directory.iterdir():
+             if target.is_symlink():
+                 # Keep symlink metadata; never follow it or delete through it.
+@@ -215,8 +239,8 @@
+     total_parent_bytes = sum(path.stat().st_size for path in base.rglob("*")
+                              if path.is_file() and not path.is_symlink())
+     remaining_nonmodel_bytes = total_parent_bytes - sum(item["bytes"] for item in inventory) - p.path(compact["model_ref"]["path"]).stat().st_size
+-    need(remaining_nonmodel_bytes <= 128*2**20-8*2**20,
+-         "Surviving source/vocab/statistics/logs must fit128MiB before any deletion")
++    need(remaining_nonmodel_bytes <= retained_nonmodel_bound()-8*2**20,
++         "Surviving metadata plus preserved interrupted checkpoint exceed explicit retention bound")
+     receipt["predicted_retained_nonmodel_bytes_before_receipt"] = remaining_nonmodel_bytes
+     inventory_ref = p.save(receipt, out/"retirement_inventory.json")
+     # The root scheduler has already reaped every producer. Repeat its exact waits.
+@@ -235,7 +259,9 @@
+                   parent_id=request["parent_id"], inventory_ref=inventory_ref,
+                   final_model_ref=compact["model_ref"], all_model_tensors_bitwise_preserved=True,
+                   retired_bytes=sum(item["bytes"] for item in inventory),
+-                  retired_file_count=len(inventory), retained_nonmodel_cap_bytes=128*2**20,
++                  retired_file_count=len(inventory), retained_nonmodel_cap_bytes=retained_nonmodel_bound(),
++                  preserved_interrupted_checkpoint_ref=preserved,
++                  preserved_interrupted_checkpoint_bytes=PRESERVED_CHECKPOINT_BYTES,
+                   prediction_completion_ref=records["predict"]["reference"],
+                   historical_files_deleted=False, reused_TEST000_TEST001_preparations_deleted=False,
+                   original_sources_modified=False, all45_prediction_barrier_inputs_preserved=True)

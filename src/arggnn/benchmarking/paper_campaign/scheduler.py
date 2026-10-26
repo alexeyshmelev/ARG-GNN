@@ -16,6 +16,7 @@ import time
 from . import runtime as r
 from . import processes
 from . import repairs
+from . import continuation
 
 
 def validate(plan):
@@ -182,6 +183,9 @@ def pipeline_floor(plan, state, sizes, active_ids, candidate=None):
 
 def run(plan_path):
     plan = validate(json.loads(r.path(plan_path).read_text()))
+    for source in plan.get('controller_source_refs', []):
+        if r.ref(source['path']) != source:
+            raise ValueError('Controller source changed: ' + source['path'])
     directory = r.path(plan['records_directory'])
     directory.mkdir(parents=True, exist_ok=True)
     lock = r.path('.runtime/benchmarking/paper_campaign_global.lock').open('a+')
@@ -189,8 +193,12 @@ def run(plan_path):
     state_path = directory / 'state.json'
     if state_path.exists():
         raise ValueError('Use a reviewed continuation after an existing attempt, never silently replay')
+    seeded = continuation.initial_rows(plan)
     state = dict(schema='paper_campaign_state_v1', plan_ref=r.ref(plan_path), controller_pid=os.getpid(),
-                 tasks={t['id']: dict(status='pending') for t in plan['tasks']})
+                 tasks=seeded if seeded is not None else {t['id']: dict(status='pending') for t in plan['tasks']})
+    if seeded is not None:
+        state['continuation_ref'] = plan['continuation_ref']
+        state['archived_attempt_bytes'] = r.read(plan['continuation_ref'])['archived_attempt_bytes']
     outputs = [r.path(t['output_directory']) for t in plan['tasks'] if t['kind'] != 'external']
     auxiliaries = {}
     for task in plan['tasks']:
@@ -346,11 +354,11 @@ def run(plan_path):
                     row.update(status='blocked', error=str(exc))
                     continue
                 output = r.path(task['output_directory'])
-                if output.exists():
+                if output.exists() and not continuation.permit_existing_output(task, row):
                     row.update(status='blocked', error='Output already exists, no overwrite')
                     continue
                 output.parent.mkdir(parents=True, exist_ok=True)
-                if not task.get('argv'):
+                if not task.get('argv') and not output.exists():
                     output.mkdir()
                 attempt = row.get('attempt', 1)
                 suffix = '' if attempt == 1 else '.attempt' + str(attempt)
