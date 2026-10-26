@@ -56,3 +56,7 @@ The generator loads the preserved toy tree sequence and writes PDF, SVG and PNG 
 Record only, do not redraw yet. The owner cannot clearly see that the encoder produces embeddings for every node, including internal ancestors and sampled leaves. The current small vector glyphs and the text saying "32 features at every node" do not adequately communicate the resulting collection of node embeddings or which vector belongs to which node. The prior visual review did not resolve this communication defect.
 
 In the next requested revision, make the node-to-vector correspondence and the all-node output explicit after each traversal. Visually distinguish the embeddings of internal ancestors and sampled nodes, and show that selection of sampled haplotypes for the final ancestry readout occurs afterward. Preserve the zero root outside state. This issue remains open. The figures and manuscript are unchanged by this record.
+
+## Recorded terminology correction: leaf embeddings
+
+The owner requests "leaf embeddings" instead of "haplotype embeddings" in the diagram and its explanation because the visible objects are leaves. Use "leaf embeddings" for the sampled-node readout and make the selection of leaves from all node embeddings explicit. Define once in the caption that each sampled leaf represents one haplotype. This wording must also make clear that the same leaf identity is followed across trees. Apply this correction with the next requested figure revision. This record does not redraw the figures or change the model.
