@@ -72,3 +72,14 @@ Initial status on 2026-10-26 had all component and full-parent gates open. Mater
 The source-pin audit of the four live workers passed: GST 71 references, European TreeLoom 171, native ARGformer 15 and American TreeLoom 145. This optimization changes only our preprocessing execution. Frozen models, simulations, sample order, losses, training budgets, metrics and native competitors remain unchanged.
 
 Exact preprocessing identity is established on the qualified complete parents and extensive edge cases. The GPU diagnostic is a bounded real training slice with explicit tolerances and an unchanged-reference control. It is neither a new ancestry accuracy result nor proof of a bitwise identical entire training trajectory. Episode continuity and cut metadata retain serial work. Full training speedup, permanent GPU saturation and the absence of future optimization needs are not established.
+
+## Production migration update
+
+- Closed: independent 592 GiB resource review. The full cache and both working reserves remain unchanged.
+- Closed: pidfd API compatibility repair, tested and independently reviewed. The first launcher failed before any signal, and its evidence remains recorded.
+- Closed: real owned worker exit, checkpoint capture at update 241, preserved history, legitimate scheduler repair and successful checkpoint/optimizer/RNG restoration on GPU 3.
+- Closed: four CPU preparation workers observed in production. Native compute pools use one thread per worker. An additional OS support thread is not an additional compute pool.
+- Closed: post-migration audit of all 257 source pins and PID/start identities of the three other active workers.
+- Pending: first complete production preparation and optimizer update. The benchmark queue remains active, with no failed or blocked stages after migration.
+
+Operational evidence: `review/resource592_migration_review.json`, `review/pidfd_recovery_review.json`, `review/post_migration_source_audit.json` and `integration/migration/`. Historical archives and checkpoints remain on the server.

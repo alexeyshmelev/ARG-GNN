@@ -1,6 +1,6 @@
 # Exact preprocessing optimization report
 
-The qualified implementation substantially reduces two measured preprocessing stages while preserving the existing scientific inputs and model. Release evidence is complete in `integration/release.json`. Production American migration is still pending RAM592 review and live verification. The European parser and lookahead wrapper are also not deployed.
+The qualified implementation substantially reduces two measured preprocessing stages while preserving the existing scientific inputs and model. Release evidence is complete in `integration/release.json`. American training now uses the qualified four-process preparation on GPU 3, resuming from completed update 241. The first production preparation is active. The European parser and lookahead wrapper remain undeployed.
 
 ## Measured improvement
 
@@ -29,6 +29,8 @@ Twelve authenticated proof roles, complete-parent records, continuation contract
 
 ## Deployment boundary
 
-The American production change awaits the RAM592 review, checkpoint-preserving migration and verification that actual training advances. The European parser is qualified on the complete input. The one-parent lookahead wrapper has scheduling and cleanup contract tests, including fixed-logit product parity, but no complete real prediction qualification. Both European components remain undeployed.
+The scheduler accepted the American replacement as attempt 5. It restored update 241, the original optimizer moments and RNG state. Four preparation processes are active. The task RAM reservation is 592 GiB, retaining the full 352 GiB cache and both 128 GiB working reserves. Admission retains the scheduler's 64 GiB host margin and accounts for the native Relate job, which also started. The first completed optimizer update under the replacement is still pending. The European parser is qualified on the complete input. The one-parent lookahead wrapper has scheduling and cleanup contract tests, including fixed-logit product parity, but no complete real prediction qualification. Both European components remain undeployed.
 
 Frozen model architecture, simulation recipes, sample order, losses, training budgets, metrics and native competitor implementations are untouched. This release does not introduce an accuracy gain. Remaining serial work and future workloads may reveal further bottlenecks. It does not promise permanent full GPU utilization or that future optimization will never be needed.
+
+The first migration launcher failed before signalling because this Python lacks the native pidfd API. A separately reviewed recovery uses the controller's existing Linux syscall fallback. Its tests cover unavailable APIs, changing process identity, changing harmless telemetry and prevention of duplicate dispatch. The failed attempt and original launcher are preserved. Post-migration review confirms the three pre-existing workers remain live and all 257 of their source pins are unchanged.
