@@ -108,3 +108,7 @@ The owner finds both EMA and M unclear and permits formulas where they explain a
 For the next requested redesign, critically assess each proposed addition for clarity before applying it. Prefer a short, defined recurrence for the memory arithmetic: m_new = alpha * m_previous + (1 - alpha) * f_current, with alpha = exp(-L / ell). Here f_current is the current group context copied to the leaf, L is the current genomic interval length and ell is a learned positive length scale. The same rule applies in either scan direction, and the first state initializes to its current context. Define every symbol close to the formula or in a short caption. Remove the redundant M label if the expanded inset is replaced.
 
 Use the visual flow to explain which representations enter and leave the operation, their shapes and their identities. Use a formula for arithmetic when expanding that arithmetic into boxes and wires creates clutter. Do not attempt to resolve the existing layout failure merely by adding more labels, equations or connectors. This records guidance for the future redesign and does not change the figures or experiments.
+
+## Recorded simplification: remove the ordinary-edge legend entry
+
+The owner flags "Tree edge / data flow" as an unnecessary legend entry. Remove this entry in the next requested redesign. Ordinary tree edges and directed connectors do not need a definition. Reserve legend space for meaningful colors and unfamiliar symbols, retaining the requirement to explain every semantic color. This is a record only. The figures remain unchanged.
