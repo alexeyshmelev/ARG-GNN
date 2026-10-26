@@ -55,24 +55,17 @@ A multilayer perceptron (MLP) encodes called alleles relative to observed donor 
 
 Figure~\ref{fig:architecture} summarizes the model. The encoder makes two rounds through each complete inferred tree, each comprising an upward traversal and a downward traversal. These are four full traversals, with the same node operator reused at every tree depth rather than a fixed stack of four message passing layers. Sample identities align their outputs across intervals, and each sampled haplotype has a separate genomic sequence.
 
-\begin{figure*}[!t]
+\begin{figure*}[p]
 \centering
 \includegraphics[width=\textwidth]{figures/TreeLoom_architecture.pdf}
-\caption{TreeLoom predicts local ancestry for each query leaf and interval. Each sampled leaf represents one haplotype.
-\textbf{a,} Node features initialize all nodes, including ancestors. Observed site features are encoded and pooled over called sites within each interval separately for each leaf. Reference labels and sampling ages join this pooled evidence, and the resulting features are added only to leaf rows. Query ancestry labels are masked. Branch geometry and observed allele--branch agreement supply learned message gates.
-\textbf{b,} The two rounds of the tree encoder are expanded in Figure~\ref{fig:encoder}. Its output has upward and outside embeddings for every node. Selecting leaf rows, concatenating the two states and projecting gives a local leaf embedding of width 32.
-\textbf{c,} Rows for the same query leaf are stacked in tree order. Interval length and distances to adjacent interval centers add three columns before the BiGRU. Its output joins the original local embedding for classification. Four ancestry classes illustrate the European condition. All matrix values and probabilities are schematic, not fitted results.}
+\caption{TreeLoom prediction flow. \textbf{a,} Node inputs. \textbf{b,} Site and leaf encoding. \textbf{c,} Node initialization, gates and the encoder expanded in Figure~\ref{fig:encoder}. \textbf{d,} Leaf sequence assembly and interval measurements. \textbf{e,} Genomic recurrence and classification. Observed values come from a saved example with five leaves, three intervals and four ancestry classes. Hidden activations and probabilities are schematic. All sample ages are zero.}
 \label{fig:architecture}
 \end{figure*}
 
-\begin{figure*}[!t]
+\begin{figure*}[p]
 \centering
 \includegraphics[width=\textwidth]{figures/TreeLoom_encoder.pdf}
-\caption{Expansion of the tree encoder in Figure~\ref{fig:architecture}b.
-\textbf{a,} A complete upward traversal produces $U^1$, followed by a downward traversal producing $O^1$. Rows retain node identities. Upward state $U$ corresponds to $h$ in the equations.
-\textbf{b,} Each leaf joins the group represented by its highest ancestor no older than 350 generations. Older samples remain singleton groups. A projection of the representative's summed states gives the group context $f$, copied to its leaves. Separate histories follow each leaf across trees, even when its group changes. Forward and reverse exponential memories are averaged per leaf and then over the current group's leaves. Subtracting the current context and projecting gives a correction $\Delta$, added only at group representatives. The $T_2$ example is repeated at every interval. Here $m,\alpha,L,\ell$ correspond to $z,\rho,w,\lambda$ in the text.
-\textbf{c,} Exact descendant sets determine gain, loss and persistence flags for proper clades. These flags may overlap. Learned factored maps $G,L,P$ transform the current upward state and place correction $S$ at its clade representative. Their equations appear in the supplement.
-\textbf{d,} Both corrections enter the original base before the second complete upward and downward round, which reuses the first round's weights. Both all-node outputs return to leaf selection in Figure~\ref{fig:architecture}b.}
+\caption{Expansion of ENC in Figure~\ref{fig:architecture}c. \textbf{a,} Two rounds sharing weights. \textbf{b,} Upward and downward tree operations. \textbf{c,} Leaf memory and group corrections. \textbf{d,} Structural corrections. Hidden values are schematic. The decay example uses 5000\,bp. Here $U,A$ correspond to $h,s$ in the equations, and memory $m,\alpha,L,\ell$ to $z,\rho,w,\lambda$.}
 \label{fig:encoder}
 \end{figure*}
 
@@ -108,7 +101,7 @@ Structural features compare trees without identifying their internal ancestors. 
 
 A clade is gained when it is absent from the preceding tree and lost when it is absent from the following tree. Two learned residuals use these flags and the persistence of clades in consecutive trees to transform the current node state. They use the current tree's features, with neighboring trees determining where the transformations apply. Their equations are given in the supplement.
 
-Sample memory supplies a different kind of context (Figure~\ref{fig:encoder}b). A fixed age cut partitions each tree into groups of haplotypes sharing an ancestor at the cut. A sample older than the cut retains its own sampled node. For group $k$ in tree $t$, a projection of the representative's summed upward and outside states gives $f_{tk}$. Write $k_t(q)$ for haplotype $q$'s group.
+Sample memory supplies a different kind of context (Figure~\ref{fig:encoder}c). A fixed age cut partitions each tree into groups of haplotypes sharing an ancestor at the cut. A sample older than the cut retains its own sampled node. For group $k$ in tree $t$, a projection of the representative's summed upward and outside states gives $f_{tk}$. Write $k_t(q)$ for haplotype $q$'s group.
 
 A forward exponential average follows the same haplotype through successive trees,
 \begin{equation}

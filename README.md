@@ -11,7 +11,7 @@ Saved checkpoints, completed results, datasets and logs are preserved. Interrupt
 <!-- owner-stop-current:end -->
 
 <!-- figure-redesign-current:start -->
-**TreeLoom figure revision, 26 October:** the main paper now has two diagrams. [Prediction flow](paper/figures/TreeLoom_architecture.png) and [expanded tree encoder](paper/figures/TreeLoom_encoder.png) show node and leaf representations, sequence stacking, structural corrections, sample memory and genomic classification. A fresh agent reconstructed every key conceptual stage from the images alone after two failed rounds and revisions. [Updated ten-page paper](paper/current_full_panel_working.pdf) · [Overleaf bundle](paper/current_full_panel_overleaf_working.zip) · [Review record](paper/figure_redesign_20261026_v4/review.md). All eight result tables are unchanged. Experiments remain stopped.
+**TreeLoom tensor diagrams, 26 October:** [prediction flow](paper/figures/TreeLoom_architecture.png) and [encoder expansion](paper/figures/TreeLoom_encoder.png) trace concrete input rows, learned layers, tensor assembly, both tree rounds and leaf memory. A fresh reader traced a named leaf across intervals and a named ancestor through the computation using only the images. The stricter review replaces revision 4's broad conceptual reading, which did not meet the owner's requirements. [Paper](paper/current_full_panel_working.pdf) · [Overleaf bundle](paper/current_full_panel_overleaf_working.zip) · [Review and source checks](paper/figure_redesign_20261026_v5/README.md). All eight table source blocks are unchanged. Experiments remain stopped.
 <!-- figure-redesign-current:end -->
 
 <!-- paper-benchmark-rebuild-current:start -->
