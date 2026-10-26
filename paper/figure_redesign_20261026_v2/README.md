@@ -32,3 +32,7 @@ From the repository root on anogena:
 The generator reads the previously saved illustrative tree sequence. It does not simulate data, load model weights or allocate CUDA. It writes PDF, SVG and PNG files beside itself. Canonical figure copies are in `paper/figures/`. Captions are preserved in the two `.tex` snippets. Build hashes and verification are in `integration.json`.
 
 All experiments remain stopped. This revision changes presentation only. No model, checkpoint, data or benchmark result was modified.
+
+## Pending owner correction, 26 October 2026
+
+Record only, do not redraw yet: the separate direction labels above the tree blocks (up/down arrows with round subscripts, including ↑₁ and ↓₁) are redundant. The arrows drawn on the tree edges already communicate message direction. Remove those additional direction labels in the next requested figure revision. The present figures remain unchanged.
