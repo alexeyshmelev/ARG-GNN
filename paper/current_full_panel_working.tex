@@ -58,21 +58,30 @@ Figure~\ref{fig:architecture} summarizes the model. The encoder makes two rounds
 \begin{figure*}[p]
 \centering
 \includegraphics[width=\textwidth]{figures/TreeLoom_architecture.pdf}
-\caption{\textbf{a,} Marginal trees, observed alleles and reference ancestry. The age cut defines descendant groups.
-\textbf{b,} Two rounds each traverse complete trees upward then downward, sharing weights between rounds. Corrections $s$ and $\delta$ modify initial features before round 2. Figure~\ref{fig:operators} expands the node operations.
-\textbf{c,} At the marked ancestor, $u+o$ projects to group context $f_2$. Copies enter separate forward and reverse tracks for r1 and r2. The inset expands each memory update. Directions and current group members are averaged, $f_2$ is subtracted, and projection gives $\delta$. History follows haplotypes when groups change. Other intervals' context inputs are omitted.
-\textbf{d,} Query embeddings enter a BiGRU, classifier and softmax. The symbols $\parallel$, $\tfrac12\Sigma$ and $\times$ denote concatenation, averaging two vectors and scalar multiplication. Colors follow the legend. Values are illustrative.}
+\caption{\textbf{a,} Three marginal trees with the same sampled haplotypes. The allele matrix shows one illustrative site per interval. Observed allele frequencies and callability feed the site MLP, then pooling. Reference labels, sampling ages and node features also enter the feature MLPs. Query ancestry is unknown.
+\textbf{b,} Vectors at every node show upward states $u$ and outside states $o$, including internal ancestors. Root outside state is zero. Two complete rounds reuse the same node operators, expanded in Figure~\ref{fig:operators}. Memory and structure modify input $b$ before round 2. Concatenating the final states gives one local embedding per haplotype per tree.
+\textbf{c,} Interval length $L_t$ and adjacent center distances $d_-,d_+$ form three geometry features, each transformed by $\log(1+x)/\log(2000001)$. Missing neighbors give zero. Geometry joins each local query embedding before the BiGRU and classifier. Feature colors and ancestry probabilities are illustrative, not fitted results. Colors and shapes follow the legend.}
 \label{fig:architecture}
 \end{figure*}
 
 \begin{figure*}[p]
 \centering
+\includegraphics[width=\textwidth]{figures/TreeLoom_memory.pdf}
+\caption{\textbf{a,} The age cut produces groups $G_1,G_2,G_3$. The marked ancestor of r1 and r2 supplies upward and outside states. Their sum projects to $f_2$, copied to both group members. The complete tree remains in the GNN.
+\textbf{b,} Each haplotype retains separate forward and reverse exponential memories. Both labeled $m_2$ outputs are states at $T_2$. Direction means are computed per haplotype, then averaged within the current group. Subtracting $f_2$ and projecting gives correction $\delta$, added at the group ancestor before round 2. The connected expansion of M shows both vector and scalar inputs. Interval length $L_t$ and learned scale $\ell$ determine retention $\alpha_t$. The first state in each direction equals its current context. The same update applies at other intervals, whose context inputs are omitted. This exponential memory is distinct from the final BiGRU. Feature values are illustrative.}
+\label{fig:memory}
+\end{figure*}
+
+\begin{figure*}[p]
+\centering
 \includegraphics[width=\textwidth]{figures/TreeLoom_operators.pdf}
-\caption{\textbf{a,} Upward node update. Each child state passes through a linear map and its edge gate. Their arithmetic mean joins the node input $b$, then passes through a linear map, tanh, a residual addition and layer normalization. This operation repeats from leaves to root.
-\textbf{b,} Downward node update. Parent outside state $o_p$, input $b_p$ and mean child message $a_p$ are combined, excluding the recipient's normalized contribution $m_{q\to p}$. Two linear maps, an edge gate, tanh and normalization produce the child's outside state. This repeats from root to leaves, starting with zero outside state at the root. Edge features generate each directional gate through a linear map and sigmoid.
-\textbf{c,} Structural corrections encode changes in descendant groups. Descendant groups appear, disappear or persist across trees. Binary flags select two factored transformations of the current upward state $u$. The examples mark loss at $T_1$, gain at $T_2$ and persistence across all three trees. Neighboring hidden states do not enter these circuits. Matrices have separate weights between the two corrections. The symbol $\odot$ is elementwise multiplication, $\parallel$ is concatenation, and $\times$ multiplies by a scalar. Diagram state $u$ is the upward state $h_v$ in the equations.}
+\caption{\textbf{a,} Upward update at one node. Each child state is transformed and gated before the arithmetic mean over children. This mean joins input $b$, followed by a linear map, tanh, residual addition and learned layer normalization. The operator repeats from leaves to root.
+\textbf{b,} Downward update. Parent outside state $o_p$, input $b_p$ and mean child message $a_p$ are combined, excluding the recipient's normalized contribution $m_{q\to p}$. The displayed maps and edge gate give outside state $o_q$. The root starts at zero. Nine observed edge features produce separate directional gates.
+\textbf{c,} Descendant pairs illustrate loss, gain and persistence across trees. Binary flags select factored transformations of the current upward state $u_v$, with separate weights for the two corrections. Neighboring hidden states do not enter these circuits. The symbol $\odot$ denotes elementwise product, Scale $\times$ multiplies a vector by a scalar, and $\parallel$ concatenates. Input signs define subtraction order. Diagram state $u$ is $h$ in the equations. Colors have the meanings shown in the legend.}
 \label{fig:operators}
 \end{figure*}
+
+
 
 
 
@@ -100,7 +109,7 @@ Structural features compare trees without identifying their internal ancestors. 
 
 A clade is gained when it is absent from the preceding tree and lost when it is absent from the following tree. Two learned residuals use these flags and the persistence of clades in consecutive trees to transform the current node state. They use the current tree's features, with neighboring trees determining where the transformations apply. Their equations are given in the supplement.
 
-Sample memory supplies a different kind of context. A fixed age cut partitions each tree into groups of haplotypes sharing an ancestor at the cut. A sample older than the cut retains its own sampled node. For group $k$ in tree $t$, a projection of the representative's summed upward and outside states gives $f_{tk}$. Write $k_t(q)$ for haplotype $q$'s group.
+Sample memory supplies a different kind of context (Figure~\ref{fig:memory}). A fixed age cut partitions each tree into groups of haplotypes sharing an ancestor at the cut. A sample older than the cut retains its own sampled node. For group $k$ in tree $t$, a projection of the representative's summed upward and outside states gives $f_{tk}$. Write $k_t(q)$ for haplotype $q$'s group.
 
 A forward exponential average follows the same haplotype through successive trees,
 \begin{equation}

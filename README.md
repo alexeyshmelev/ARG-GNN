@@ -11,7 +11,7 @@ Saved checkpoints, completed results, datasets and logs are preserved. Interrupt
 <!-- owner-stop-current:end -->
 
 <!-- figure-redesign-current:start -->
-**TreeLoom figures redesigned, 26 October:** four directed tree traversals in two rounds, explicit haplotype memory tracks, and a companion figure with the exact GNN node updates and structural corrections. Every color has a legend. [Overview](paper/figures/TreeLoom_architecture.png) · [Node operations](paper/figures/TreeLoom_operators.png) · [Updated 11-page paper](paper/current_full_panel_working.pdf) · [Editable figures and review](paper/figure_redesign_20261026_v2/README.md). All eight result tables are unchanged. Experiments remain stopped.
+**TreeLoom figures redesigned, 26 October:** three diagrams show the architecture, haplotype memory and exact GNN operations. Internal-node embeddings, learned projections, both memory weighting inputs, directional/group averaging and interval geometry are explicit. Meaningful colors have legends. [Architecture](paper/figures/TreeLoom_architecture.png) · [Memory](paper/figures/TreeLoom_memory.png) · [Node operations](paper/figures/TreeLoom_operators.png) · [Updated 12-page paper](paper/current_full_panel_working.pdf) · [Recorded comments and review](paper/figure_redesign_20261026_v3/README.md). All eight result tables are unchanged. Experiments remain stopped.
 <!-- figure-redesign-current:end -->
 
 <!-- paper-benchmark-rebuild-current:start -->
