@@ -1,0 +1,147 @@
+--- aggregate_guard_v1.py
++++ aggregate_guard_v2.py
+@@ -225,6 +225,10 @@
+     def close(self):
+         try:
+             self.stop_monitor()
++            # A final in-flight scan may fail while stop_monitor joins.
++            # Completion must observe that failure before releasing ownership.
++            if self._error is not None:
++                raise GuardFailure('Aggregate monitor failed during close: ' + str(self._error))
+         finally:
+             self._closed = True
+             self._lease.close()
+--- contracts_v1.py
++++ contracts_v2.py
+@@ -6,7 +6,7 @@
+ HERE=Path(__file__).parent
+ RUNS=ROOT/'research/efficiency_20261027/root/runs'
+ AGGREGATE=RUNS/'european_independent_validation_200mb_v1'
+-MODULE='research.efficiency_20261027.execution.european_full_val_runner.worker_v1'
++MODULE='research.efficiency_20261027.execution.european_full_val_runner.worker_v2'
+ GIB=2**30
+ HOST_CAP=128*GIB
+ RESERVATION=120*GIB+128*2**20
+@@ -69,7 +69,7 @@
+ 
+ 
+ def retained_attempts():
+-    from .aggregate_guard_v1 import measure
++    from .aggregate_guard_v2 import measure
+     reference=ref(RETAINED_PATH);value=read(reference)
+     need(value['reservation_bytes']==RETAINED_SHORT_RESERVATION and len(value['attempts'])==2,
+          'Single conservative16GiB retained-short evidence reservation')
+@@ -86,7 +86,7 @@
+ 
+ 
+ def verify_sources(digest,review_ref):
+-    manifest_ref=ref(HERE/'source_pins_v1.json');need(manifest_ref['sha256']==digest,'Exact full validation runner source manifest')
++    manifest_ref=ref(HERE/'source_pins_v2.json');need(manifest_ref['sha256']==digest,'Exact full validation runner source manifest')
+     manifest=read(manifest_ref)
+     need(manifest['schema']=='European_full_VAL_ROOT_runner_sources_v1','Exact full validation source schema')
+     for item in manifest['source_refs']:need(ref(item['path'])==item,'Pinned source/evidence changed: '+item['path'])
+--- worker_v1.py
++++ worker_v2.py
+@@ -11,9 +11,9 @@
+ from arggnn import prepare_ancestralpaths_full_panel_discovery_v1 as full
+ from research.efficiency_20261027.architecture.european_cohort_candidate import validation_generation_v2 as generation, validation_sampling as sampling
+ from arggnn.benchmarking import european_native_relate as native_relate
+-from .aggregate_guard_v1 import AggregateOwner
+-from .native_supervisor_v1 import NativeSupervisor, process_table, owned_family
+-from .contracts_v1 import (ROOT, AGGREGATE, HOST_CAP, MAX_SECONDS, HEADROOM, METADATA_CAP,
++from .aggregate_guard_v2 import AggregateOwner
++from .native_supervisor_v2 import NativeSupervisor, process_table, owned_family
++from .contracts_v2 import (ROOT, AGGREGATE, HOST_CAP, MAX_SECONDS, HEADROOM, METADATA_CAP,
+     need, ref, read, verify_sources, native_bindings, validate_release, validate_worker_records, PLAN_REF, owner_authorization,
+     ROOT_STATUS_MAX_AGE_SECONDS, retained_attempts)
+ 
+--- guardian_v1.py
++++ guardian_v2.py
+@@ -12,9 +12,9 @@
+ import subprocess
+ import time
+ from research.efficiency_20261027.root.run_guarded_profile_with_peer import identity,current_memory,campaign_growth,peer_growth,write
+-from .aggregate_guard_v1 import measure
+-from .native_supervisor_v1 import process_table,owned_family,signal_owned,reap_adopted
+-from .contracts_v1 import ROOT,AGGREGATE,MODULE,HOST_CAP,RESERVATION,OPERATING,MAX_SECONDS,GIB,need,ref,read,verify_sources,validate_release,retained_attempts,RETAINED_SHORT_RESERVATION,PROJECT_CAP,PROJECT_ADMISSION_CAP,owner_authorization,ROOT_STATUS_MAX_AGE_SECONDS,GROWTH_INTERVAL_SECONDS
++from .aggregate_guard_v2 import measure
++from .native_supervisor_v2 import process_table,owned_family,signal_owned,reap_adopted
++from .contracts_v2 import ROOT,AGGREGATE,MODULE,HOST_CAP,RESERVATION,OPERATING,MAX_SECONDS,GIB,need,ref,read,verify_sources,validate_release,retained_attempts,RETAINED_SHORT_RESERVATION,PROJECT_CAP,PROJECT_ADMISSION_CAP,owner_authorization,ROOT_STATUS_MAX_AGE_SECONDS,GROWTH_INTERVAL_SECONDS
+ 
+ HOST_MARGIN=64*GIB
+ OUTER_LOG_CAP=8*2**20
+--- native_supervisor_v1.py
++++ native_supervisor_v2.py
+@@ -13,8 +13,8 @@
+ import subprocess
+ import time
+ from arggnn.benchmarking.paper_campaign.processes import _pidfd_open, _pidfd_send
+-from .aggregate_guard_v1 import AggregateOwner, GuardFailure, METADATA, RESERVATION, OPERATING
+-from .contracts_v1 import validate_native_config
++from .aggregate_guard_v2 import AggregateOwner, GuardFailure, METADATA, RESERVATION, OPERATING
++from .contracts_v2 import validate_native_config
+ 
+ LOG_LIMIT = 192 * 2**20
+ DRAIN_LIMIT = 255 * 2**20
+--- test_contracts_v1.py
++++ test_contracts_v2.py
+@@ -6,7 +6,7 @@
+ from pathlib import Path
+ import tempfile
+ from unittest.mock import patch
+-from . import contracts_v1 as c,aggregate_guard_v1 as guard,worker_v1 as worker
++from . import contracts_v2 as c,aggregate_guard_v2 as guard,worker_v2 as worker
+ 
+ HERE=Path(__file__).parent
+ CHECKS=[]
+@@ -25,7 +25,7 @@
+ 
+ def main():
+     parser=argparse.ArgumentParser(__doc__)
+-    parser.add_argument('--receipt',default=str(HERE/'CONTRACTS_CPU_v1.json'))
++    parser.add_argument('--receipt',default=str(HERE/'CONTRACTS_CPU_v2.json'))
+     args=parser.parse_args()
+     destination=Path(args.receipt)
+     assert destination.is_relative_to(HERE)
+@@ -118,9 +118,9 @@
+         rejected('altered_release_'+key,lambda key=key,value=value:c.validate_release(dict(release,**{key:value}),manifest_ref,review_ref,[]))
+     for path in HERE.glob('*.py'):ast.parse(path.read_text(),filename=str(path))
+     check('all_full_runner_sources_parse')
+-    report=dict(schema='European_full_VAL_ROOT_runner_CPU_contracts_v1',passed=True,checks=CHECKS,check_count=len(CHECKS),
++    report=dict(schema='European_full_VAL_ROOT_runner_CPU_contracts_v2',passed=True,checks=CHECKS,check_count=len(CHECKS),
+         original_plan_ref=c.PLAN_REF,owner_storage_authorization_ref=auth,
+-        source_refs=[c.ref(HERE/name) for name in ('contracts_v1.py','aggregate_guard_v1.py','worker_v1.py','guardian_v1.py','native_supervisor_v1.py','test_contracts_v1.py')],
++        source_refs=[c.ref(HERE/name) for name in ('contracts_v2.py','aggregate_guard_v2.py','worker_v2.py','guardian_v2.py','native_supervisor_v2.py','test_contracts_v2.py')],
+         simulation_native_model_GPU_executions=0,real_scientific_payloads_opened=False,
+         source_algorithms_reused_without_changes=True,retained_evidence_unchanged=True)
+     with destination.open('x') as stream:json.dump(report,stream,indent=2,sort_keys=True);stream.write('\n')
+--- test_native_binding_v1.py
++++ test_native_binding_v2.py
+@@ -4,7 +4,7 @@
+ import json
+ from pathlib import Path
+ from unittest.mock import patch
+-from . import contracts_v1 as contracts, aggregate_guard_v1 as guard, native_supervisor_v1 as local
++from . import contracts_v2 as contracts, aggregate_guard_v2 as guard, native_supervisor_v2 as local
+ from research.efficiency_20261027.integration_candidate.european_short_development_val import native_supervisor_v5 as reviewed
+ from research.efficiency_20261027.execution import test_native_terminal_v5 as fixtures
+ 
+@@ -13,14 +13,14 @@
+ 
+ def main():
+     parser=argparse.ArgumentParser(__doc__)
+-    parser.add_argument('--fixture-root',default=str(HERE/'native_binding_fixtures_v1'))
+-    parser.add_argument('--receipt',default=str(HERE/'NATIVE_BINDING_CPU_v1.json'))
++    parser.add_argument('--fixture-root',default=str(HERE/'native_binding_fixtures_v2'))
++    parser.add_argument('--receipt',default=str(HERE/'NATIVE_BINDING_CPU_v2.json'))
+     args=parser.parse_args();base=Path(args.fixture_root);destination=Path(args.receipt)
+     assert base.is_relative_to(HERE) and destination.is_relative_to(HERE)
+     original=Path(reviewed.__file__).read_text()
+     expected=original.replace('from .aggregate_guard_v3 import AggregateOwner, GuardFailure, METADATA',
+-        'from .aggregate_guard_v1 import AggregateOwner, GuardFailure, METADATA, RESERVATION, OPERATING')
+-    expected=expected.replace('from .short_plan_v1 import validate_native_config','from .contracts_v1 import validate_native_config')
++        'from .aggregate_guard_v2 import AggregateOwner, GuardFailure, METADATA, RESERVATION, OPERATING')
++    expected=expected.replace('from .short_plan_v1 import validate_native_config','from .contracts_v2 import validate_native_config')
+     expected=expected.replace('storage_reservation_bytes=16*2**30, operating_threshold_bytes=12*2**30',
+         'storage_reservation_bytes=RESERVATION, operating_threshold_bytes=OPERATING')
+     expected=expected.replace("schema='short_native_owned_launch_v2'","schema='full_validation_native_owned_launch_v1'")

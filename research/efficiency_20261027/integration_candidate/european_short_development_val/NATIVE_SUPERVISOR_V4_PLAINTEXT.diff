@@ -1,0 +1,60 @@
+--- research/efficiency_20261027/integration_candidate/european_short_development_val/native_supervisor_v3.py
++++ research/efficiency_20261027/integration_candidate/european_short_development_val/native_supervisor_v4.py
+@@ -21,6 +21,8 @@
+ LABELS = ('convert_vcf', 'annotate_observed_cohorts', 'relate_initial',
+           'five_population_size_iterations', 'convert_post_size')
+ MAX_STEPS = len(LABELS)
++TERMINAL_DRAIN_SECONDS = 5.0
++FAILED_DRAIN_SECONDS = 10.0
+ 
+ 
+ def process_table():
+@@ -174,6 +176,7 @@
+         known = {}
+         failure = None
+         shutdown_at = None
++        terminal_started = None
+         max_rss = 0
+         try:
+             for path in paths:
+@@ -241,9 +244,37 @@
+                 code = child.poll()
+                 if code is not None and code != 0 and failure is None:
+                     failure = 'Native command exited unsuccessfully'
+-                if code is not None and live and set(live) != {child.pid} and failure is None:
+-                    failure = 'Native leader returned with owned descendants still active'
+-                if code is not None and not live and not selector.get_map():
++                if code is not None:
++                    if terminal_started is None:
++                        terminal_started = time.monotonic()
++                    # The pre-select snapshot can outlive both the native
++                    # leader and its final shell child. Reobserve only exact
++                    # owned generations after poll, then reap adopted children.
++                    family = owned_family(process_table(), leader, known)
++                    known.update(family)
++                    record['waits'].extend(reap_adopted(family, child.pid))
++                    family = owned_family(process_table(), leader, known)
++                    known.update(family)
++                    live = {pid:row for pid,row in family.items() if row['state'] != 'Z'}
++                    terminal_elapsed = time.monotonic() - terminal_started
++                    record['terminal_drain_seconds'] = terminal_elapsed
++                    record['terminal_drain_limit_seconds'] = TERMINAL_DRAIN_SECONDS
++                    for waited in record['waits']:
++                        status = waited.get('wait_status')
++                        if status is not None and os.waitstatus_to_exitcode(status) != 0:
++                            failure = failure or 'Adopted native descendant exited unsuccessfully'
++                    if not live and not selector.get_map():
++                        break
++                    # Continue the same resource checks and pipe reads during
++                    # a finite natural drain; no child is signaled on success.
++                    if terminal_elapsed >= TERMINAL_DRAIN_SECONDS and failure is None:
++                        failure = 'Owned native family or log streams exceeded terminal drain bound'
++                if (failure is not None and shutdown_at is not None
++                        and time.monotonic() - shutdown_at >= FAILED_DRAIN_SECONDS):
++                    # The finalizer still signals and waits on owned children.
++                    # Surviving families or unread pipes cannot become success.
++                    if selector.get_map():
++                        record['complete_log'] = False
+                     break
+             code = child.wait()
+             record['returncode'] = code

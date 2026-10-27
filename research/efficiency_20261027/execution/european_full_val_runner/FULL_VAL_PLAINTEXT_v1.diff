@@ -1,0 +1,621 @@
+--- research/efficiency_20261027/execution/european_short_val_runner/contracts_v3.py
++++ research/efficiency_20261027/execution/european_full_val_runner/contracts_v1.py
+@@ -1,106 +1,125 @@
+-"""Exact one-parent ROOT orchestration and readable native-source gates."""
+-import hashlib
++"""Exact full200Mb preregistration and ROOT owner-authorized operational gates."""
+ import json
+-import os
+ from pathlib import Path
+-import stat
+-from research.efficiency_20261027.integration_candidate.european_short_development_val import short_plan_v1 as plan
++from research.efficiency_20261027.execution.european_short_val_runner.contracts_v3 import ROOT,need,contained,ref,read
+ 
+-ROOT=plan.ROOT
+ HERE=Path(__file__).parent
+ RUNS=ROOT/'research/efficiency_20261027/root/runs'
+-# One immutable aggregate location prevents accidental fresh16GiB reservations
+-# for a retry. This runner cannot retry,extend the registration,or remove output.
+-AGGREGATE=RUNS/'european_short_development_val_10mb_v2'
+-RETAINED_AGGREGATE=RUNS/'european_short_development_val_10mb_v1'
+-RETAINED_REF_PATH=HERE/'RETAINED_FAILED_ATTEMPT_v1.json'
++AGGREGATE=RUNS/'european_independent_validation_200mb_v1'
++MODULE='research.efficiency_20261027.execution.european_full_val_runner.worker_v1'
++GIB=2**30
++HOST_CAP=128*GIB
++RESERVATION=120*GIB+128*2**20
++OPERATING=RESERVATION-4*GIB
++MAX_SECONDS=86400+604800
++HEADROOM=GIB
++METADATA_CAP=256*2**20
+ ROOT_STATUS_MAX_AGE_SECONDS=120
+ GROWTH_INTERVAL_SECONDS=30
+-MODULE='research.efficiency_20261027.execution.european_short_val_runner.worker_v3'
+-GIB=2**30
+-HOST_CAP=64*GIB
+-RESERVATION=16*GIB
+-OPERATING=12*GIB
+-MAX_SECONDS=21600
+-METADATA_CAP=256*2**20
+-HEADROOM=GIB
+-SOURCE_REF=dict(path='research/efficiency_20261027/integration_candidate/european_short_development_val/source_manifest_v3.json',sha256='08e1875adac650366ba64cb3f5cc78fab849d15a875007140907307a0469b024')
+-SOURCE_REVIEW_REF=dict(path='research/efficiency_20261027/fidelity/EUROPEAN_SHORT_DEVELOPMENT_VAL_V3_SOURCE_REVIEW.json',sha256='ed6c539c3853b2f89e12080784ee1d2d1f9cf5f05eb64c6e89f9812456b1a91f')
++PROJECT_CAP=1_200_000_000_000
++PROJECT_ADMISSION_CAP=PROJECT_CAP-5_000_000_000
++RETAINED_SHORT_RESERVATION=16*GIB
++RETAINED_PATH=HERE/'RETAINED_SHORT_ATTEMPTS_v1.json'
++PLAN_REF=dict(path='research/efficiency_20261027/architecture/european_cohort_candidate/independent_validation_plan_v2.json',sha256='919d2feb0debf2071441aa1893a0f4b21537611789c158709901a26aea31321b')
+ NATIVE_CONFIG_REF=dict(path='configs/benchmarks/ap200mb_native_runtime_v2.json',sha256='a86720db22c176bf194ed1a3ec704e82126f4be14fb514fc4ac43c3c5176482e')
++NATIVE_CHAIN_REF=dict(path='research/efficiency_20261027/execution/european_short_val_runner/NATIVE_CHAIN_REVIEW_v1.json',sha256='a4e811711325b87500d4661c16474ca45f83dcca0d440e54302f743eb763fd3a')
++OWNER_AUTH_PATH=ROOT/'research/efficiency_20261027/root/owner_storage_authorization_1p2TB_v1.json'
+ 
+ 
+-def need(ok,message):
+-    if not ok:raise ValueError(message)
++def validate_plan():
++    plan=read(PLAN_REF);recipe=read(plan['canonical_recipe_ref']);sampling=read(plan['sampling_plan_ref'])
++    need(plan['parameters']==recipe['parameters'] and recipe['parameters']['length_bp']==200000000
++         and recipe['parameters']['haplotypes']==952 and len(plan['parents'])==1,
++         'Exact original complete200Mb recipe and one independent validation parent')
++    parent=plan['parents'][0]
++    need(parent['parent_id']=='ancestralpaths_european_validation_20261027_000'
++         and parent['split']=='validation' and parent['seeds']==dict(ancestry=3519499615,mutations=1701692571,
++             relate_initial=1802632633,relate_size_base=1864819694), 'Original preregistered parent and independent seeds')
++    need(sampling['sequence_length_bp']==200000000 and sampling['validation_examples_per_parent']==10000
++         and sampling['validation_parent_ids']==[parent['parent_id']], 'Original full-length10000-row validation sampling')
++    for role in ('generator','registry','inference'):
++        need(ref(plan[role]['source_ref']['path'])==plan[role]['source_ref'],'Frozen scientific source changed')
++    return dict(plan=plan,recipe=recipe,parent=parent,sampling_plan=sampling)
+ 
+ 
+-def contained(path):
+-    path=ROOT/Path(path)
+-    need(path.is_relative_to(ROOT) and '..' not in path.parts and path.resolve()==path,'Canonical contained ordinary path')
+-    return path
++def validate_native_config(config):
++    need(config==read(NATIVE_CONFIG_REF),'Exact original full200Mb native runtime configuration')
++    return config
+ 
+ 
+-def ref(path):
+-    path=contained(path);info=path.stat()
+-    need(stat.S_ISREG(info.st_mode) and not path.is_symlink(),'Ordinary reference file')
+-    digest=hashlib.sha256()
+-    with path.open('rb') as stream:
+-        for block in iter(lambda:stream.read(2**20),b''):digest.update(block)
+-    return dict(path=str(path.relative_to(ROOT)),sha256=digest.hexdigest())
++def native_bindings():
++    config=validate_native_config(read(NATIVE_CONFIG_REF))
++    installation=read(config['relate']['installation']);release=contained(installation['release_root'])
++    chain=read(NATIVE_CHAIN_REF)
++    expected={str(release/key):digest for key,digest in config['relate']['tool_sha256'].items()}
++    need(chain['passed'] is True and chain['encoded_executable_payloads'] is False
++         and chain['native_config_ref']==NATIVE_CONFIG_REF and chain['reviewed_native_tools']==expected,
++         'Original installed plaintext native chain review and exact seven tools')
++    for path,digest in expected.items():need(ref(path)['sha256']==digest,'Native binary/script changed')
++    return config,expected,NATIVE_CHAIN_REF
+ 
+ 
+-def read(reference,cap=8*2**20):
+-    path=contained(reference['path']);need(path.stat().st_size<=cap and ref(path)==reference,'Exact bounded metadata reference')
+-    value=json.loads(path.read_text());need(ref(path)==reference,'Metadata remained immutable during read')
+-    return value
++def owner_authorization():
++    reference=ref(OWNER_AUTH_PATH);value=read(reference)
++    need(value['schema']=='ARGGNN_owner_storage_authorization_v1' and value['authorized_limit_bytes']==PROJECT_CAP
++         and value['scope']==str(ROOT)+' on anogena' and value['existing_jobs_unchanged'] is True
++         and value['failed_attempt_evidence_preserved'] is True and value['automatic_deletion_authorized'] is False,
++         'Explicit owner1.2TB authorization without deletion or live-job changes')
++    return reference
++
++
++def retained_attempts():
++    from .aggregate_guard_v1 import measure
++    reference=ref(RETAINED_PATH);value=read(reference)
++    need(value['reservation_bytes']==RETAINED_SHORT_RESERVATION and len(value['attempts'])==2,
++         'Single conservative16GiB retained-short evidence reservation')
++    total=0
++    for item in value['attempts']:
++        scope=contained(item['directory']);need(scope.parent==RUNS and scope!=AGGREGATE,'Exact retained ROOT scope')
++        terminal=read(item['actual_wait_ref'])
++        need(terminal['actual_wait'] is True and terminal['actual_returncode']==1
++             and terminal['owned_family_absent'] is True,'Both short attempts actually failed and were reaped')
++        for evidence in item['evidence_refs']:need(ref(evidence['path'])==evidence,'Retained terminal evidence changed')
++        total+=measure(scope)['charged_bytes']
++    need(total<=RETAINED_SHORT_RESERVATION,'Retained short scopes exceed their conservative combined allowance')
++    return reference,total
+ 
+ 
+ def verify_sources(digest,review_ref):
+-    manifest_ref=ref(HERE/'source_pins_v3.json');need(manifest_ref['sha256']==digest,'Exact orchestration manifest')
++    manifest_ref=ref(HERE/'source_pins_v1.json');need(manifest_ref['sha256']==digest,'Exact full validation runner source manifest')
+     manifest=read(manifest_ref)
+-    need(manifest.get('schema')=='European_short_VAL_ROOT_runner_sources_v3','Exact ROOT runner source schema')
+-    for item in manifest['source_refs']:need(ref(item['path'])==item,'Pinned source changed: '+item['path'])
+-    need(SOURCE_REF in manifest['source_refs'] and SOURCE_REVIEW_REF in manifest['source_refs'],'Original immutable stage review included')
+-    read(SOURCE_REF);old_review=read(SOURCE_REVIEW_REF)
+-    need(old_review.get('passed') is True,'Original v3 stage review still passed')
++    need(manifest['schema']=='European_full_VAL_ROOT_runner_sources_v1','Exact full validation source schema')
++    for item in manifest['source_refs']:need(ref(item['path'])==item,'Pinned source/evidence changed: '+item['path'])
++    need(owner_authorization() in manifest['source_refs'] and PLAN_REF in manifest['source_refs'],
++         'Exact owner authorization and immutable full-size registration pinned')
+     review=read(review_ref)
+-    need(review.get('schema')=='European_short_VAL_ROOT_runner_review_v3' and review.get('passed') is True
+-         and review.get('source_manifest_ref')==manifest_ref,'Exact independently reviewed ROOT orchestration')
+-    registered=plan.validate_plan()
+-    need(registered['registration']['initial_parent_count']==1 and registered['registration']['additional_parent_admitted'] is False,
+-         'Only the one original prospectively registered10Mb parent')
+-    return manifest_ref,registered
+-
+-
+-def native_bindings():
+-    config=read(NATIVE_CONFIG_REF);plan.validate_native_config(config)
+-    installation=read(config['relate']['installation']);release=contained(installation['release_root'])
+-    chain_ref=ref(HERE/'NATIVE_CHAIN_REVIEW_v1.json');chain=read(chain_ref)
+-    need(chain.get('schema')=='European_short_VAL_plaintext_native_chain_review_v1' and chain.get('passed') is True
+-         and chain.get('native_config_ref')==NATIVE_CONFIG_REF and chain.get('encoded_executable_payloads') is False,
+-         'Exact reviewed plaintext native chain')
+-    expected={str(release/key):digest for key,digest in config['relate']['tool_sha256'].items()}
+-    need(chain.get('reviewed_native_tools')==expected,'Every declared native binary and script reviewed')
+-    for path,digest in expected.items():need(ref(path)['sha256']==digest,'Exact installed native tool hash')
+-    return config,expected,chain_ref
++    need(review['schema']=='European_full_VAL_ROOT_runner_review_v1' and review['passed'] is True
++         and review['source_manifest_ref']==manifest_ref and review['native_terminal_race_fix_reviewed'] is True,
++         'Independent exact full validation runner and native drain review required')
++    return manifest_ref,validate_plan()
+ 
+ 
+ def validate_release(value,manifest_ref,review_ref,peers):
+-    need(value.get('schema')=='European_short_VAL_ROOT_execution_release_v1' and value.get('passed') is True
++    need(value.get('schema')=='European_full_VAL_ROOT_execution_release_v1' and value.get('passed') is True
+          and value.get('execution_authorized') is True and value.get('source_manifest_ref')==manifest_ref
+-         and value.get('independent_source_review_ref')==review_ref and value.get('plan_ref')==plan.PLAN_REF
++         and value.get('independent_source_review_ref')==review_ref and value.get('plan_ref')==PLAN_REF
++         and value.get('owner_storage_authorization_ref')==owner_authorization()
+          and value.get('aggregate_directory')==str(AGGREGATE.relative_to(ROOT))
+          and value.get('host_cap_bytes')==HOST_CAP and value.get('reservation_bytes')==RESERVATION
+          and value.get('operating_stop_bytes')==OPERATING and value.get('max_seconds')==MAX_SECONDS
+          and value.get('CUDA_VISIBLE_DEVICES')=='' and value.get('peer_directories')==peers
+-         and value.get('global_project_ceiling_bytes')==1_000_000_000_000
++         and value.get('global_project_ceiling_bytes')==PROJECT_CAP
+          and value.get('ROOT_live_global_storage_and_peer_admission_required') is True
+          and value.get('model_fit_prediction_or_scoring_authorized') is False
+          and value.get('ROOT_status_max_age_seconds')==ROOT_STATUS_MAX_AGE_SECONDS
+          and value.get('growth_refresh_interval_seconds')==GROWTH_INTERVAL_SECONDS
+-         and value.get('retained_attempt_ref')==ref(RETAINED_REF_PATH),
+-         'Exact ROOT one-parent authorization,aggregate allowance and current peer binding')
+-    need(type(peers) is list and len(peers)==len(set(peers)),'Explicit unique current peers;empty is allowed only by ROOT release')
+-    for peer in peers:need(contained(peer).parent==RUNS and contained(peer) not in (AGGREGATE,RETAINED_AGGREGATE),'Each exact other ROOT run peer; retained attempt shares this reservation')
++         and value.get('retained_attempts_ref')==ref(RETAINED_PATH)
++         and value.get('retained_short_reservation_in_other_bytes')==RETAINED_SHORT_RESERVATION,
++         'Exact ROOT full-size execution release and original finite resource envelope')
++    need(type(peers) is list and len(peers)==len(set(peers)),'Distinct explicit current ROOT peers')
++    retained={item['directory'] for item in read(ref(RETAINED_PATH))['attempts']}
++    for peer in peers:need(contained(peer).parent==RUNS and contained(peer)!=AGGREGATE and peer not in retained,
++                          'Retained short scopes are counted once through other-project allowance')
+     return value
+ 
+ 
+@@ -109,25 +128,9 @@
+     need(request.get('command')==launch.get('actual_argv')==expected
+          and launch.get('pid')==pid and launch.get('process_start_ticks')==ticks
+          and request.get('supervisor_pid')==parent and request.get('supervisor_start_ticks')==parent_ticks,
+-         'Exact readable ROOT request/launch and actual live generations')
++         'Exact visible ROOT command and actual guardian/worker generations')
+     need(request.get('host_cap_bytes')==HOST_CAP and request.get('output_cap_bytes')==RESERVATION
+          and request.get('operating_stop_bytes')==OPERATING and request.get('max_seconds')==MAX_SECONDS
+          and request.get('CUDA_VISIBLE_DEVICES')=='' and request.get('aggregate_directory')==str(AGGREGATE.relative_to(ROOT)),
+-         'Exact ROOT admitted CPU-only aggregate and finite budget')
++         'Exact admitted CPU-only full-size output and finite total budget')
+     return request
+-
+-
+-def retained_attempt():
+-    """Authenticate the terminated predecessor and charge its actual retained bytes."""
+-    from research.efficiency_20261027.integration_candidate.european_short_development_val.aggregate_guard_v3 import measure
+-    reference=ref(RETAINED_REF_PATH);value=read(reference)
+-    need(value.get('aggregate_directory')==str(RETAINED_AGGREGATE.relative_to(ROOT)),
+-         'Only the fixed failed predecessor shares the original reservation')
+-    terminal=read(value['actual_wait_ref'])
+-    need(terminal.get('actual_wait') is True and terminal.get('actual_returncode')==1
+-         and terminal.get('owned_family_absent') is True,'Failed predecessor actually waited and owned family absent')
+-    for item in value['file_refs']:need(ref(item['path'])==item,'Retained failed evidence changed')
+-    charge=value['charged_bytes']
+-    need(type(charge) is int and 0<=charge<OPERATING,'Bounded retained predecessor charge')
+-    need(measure(RETAINED_AGGREGATE)['charged_bytes']==charge,'Retained predecessor real byte charge changed')
+-    return reference,charge
+--- research/efficiency_20261027/integration_candidate/european_short_development_val/aggregate_guard_v3.py
++++ research/efficiency_20261027/execution/european_full_val_runner/aggregate_guard_v1.py
+@@ -1,4 +1,4 @@
+-"""One finite aggregate owner for all short-development output and failed attempts.
++"""One finite aggregate owner for one full200Mb validation output scope.
+ 
+ Periodic external-write monitoring plus the 4 GiB reserve is provisional; this
+ is not a filesystem quota or a mathematical native-write bound. No import I/O.
+@@ -13,8 +13,8 @@
+ import threading
+ import time
+ 
+-RESERVATION = 16 * 2**30
+-OPERATING = 12 * 2**30
++RESERVATION = 120 * 2**30 + 128 * 2**20
++OPERATING = RESERVATION - 4 * 2**30
+ METADATA = 256 * 2**20
+ MAX_SAMPLE_AGE = 5.0
+ SCAN_INTERVAL = 1.0
+@@ -77,6 +77,8 @@
+         self.max_family_rss_bytes = max_family_rss_bytes
+         self.max_seconds = max_seconds
+         self.started = time.monotonic()
++        self.stage = None
++        self.stage_started = None
+         self._lock = threading.RLock()
+         self._stopped = threading.Event()
+         self._thread = None
+@@ -96,11 +98,21 @@
+             self._lease.close()
+             raise
+ 
++    def set_stage(self, name):
++        if name not in (None, 'generation', 'native'):
++            raise GuardFailure('Only the registered serial generation/native stages')
++        self.stage = name
++        self.stage_started = time.monotonic()
++        self.refresh()
++        self.check()
++
+     def path(self, path):
+         return confined(self.scope, path)
+ 
+     def refresh(self):
+         sample = measure(self.scope)
++        sample['stage_charged_bytes'] = {name: measure(self.scope / name)['charged_bytes']
++            if (self.scope / name).exists() else 0 for name in ('generation', 'native')}
+         with self._lock:
+             previous = self._last
+             if sample['supervisor_metadata_bytes'] >= METADATA:
+@@ -129,6 +141,13 @@
+             raise GuardFailure('Aggregate operating stop threshold reached')
+         if time.monotonic() - self.started >= self.max_seconds:
+             raise GuardFailure('Aggregate wall bound reached')
++        for name, limit in (('generation', 24 * 2**30), ('native', 96 * 2**30)):
++            if sample['stage_charged_bytes'][name] >= limit:
++                raise GuardFailure('Original full validation stage output cap reached: ' + name)
++        if self.stage is not None:
++            limit = 86400 if self.stage == 'generation' else 604800
++            if time.monotonic() - self.stage_started >= limit:
++                raise GuardFailure('Original full validation stage wall bound reached')
+         self.execution_check()
+         return sample
+ 
+@@ -141,6 +160,10 @@
+         self.check()
+         if self._last['charged_bytes'] + prospective_bytes >= OPERATING:
+             raise GuardFailure('Prospective Python/native write headroom exceeds operating limit')
++        if self.stage is not None:
++            limit = (24 if self.stage == 'generation' else 96) * 2**30
++            if self._last['stage_charged_bytes'][self.stage] + prospective_bytes >= limit:
++                raise GuardFailure('Prospective write exceeds original stage output cap')
+ 
+     def reserve_stream_write(self, size):
+         if type(size) is not int or size < 0:
+@@ -167,7 +190,7 @@
+                 except BaseException as error:
+                     self._error = repr(error)
+                     return
+-        self._thread = threading.Thread(target=scan, name='short-development-storage', daemon=True)
++        self._thread = threading.Thread(target=scan, name='full-validation-storage', daemon=True)
+         self._thread.start()
+ 
+     def stop_monitor(self):
+--- research/efficiency_20261027/execution/european_short_val_runner/worker_v3.py
++++ research/efficiency_20261027/execution/european_full_val_runner/worker_v1.py
+@@ -1,4 +1,4 @@
+-"""One ROOT-admitted short development parent; no execution on import."""
++"""One ROOT-admitted full200Mb independent validation parent; no execution on import."""
+ import argparse
+ import json
+ import math
+@@ -9,13 +9,13 @@
+ import threading
+ import time
+ from arggnn import prepare_ancestralpaths_full_panel_discovery_v1 as full
+-from research.efficiency_20261027.integration_candidate.european_short_development_val import generation_v3, native_relate_v3, sampling_v1
+-from research.efficiency_20261027.integration_candidate.european_short_development_val.aggregate_guard_v3 import AggregateOwner
+-from research.efficiency_20261027.integration_candidate.european_short_development_val.native_supervisor_v3 import NativeSupervisor, process_table, owned_family
+-from .contracts_v3 import (ROOT, AGGREGATE, HOST_CAP, MAX_SECONDS, HEADROOM, METADATA_CAP,
+-    need, ref, read, verify_sources, native_bindings, validate_release, validate_worker_records, plan,
+-    ROOT_STATUS_MAX_AGE_SECONDS, retained_attempt)
+-from .retained_allowance_v1 import configure_retained_allowance
++from research.efficiency_20261027.architecture.european_cohort_candidate import validation_generation_v2 as generation, validation_sampling as sampling
++from arggnn.benchmarking import european_native_relate as native_relate
++from .aggregate_guard_v1 import AggregateOwner
++from .native_supervisor_v1 import NativeSupervisor, process_table, owned_family
++from .contracts_v1 import (ROOT, AGGREGATE, HOST_CAP, MAX_SECONDS, HEADROOM, METADATA_CAP,
++    need, ref, read, verify_sources, native_bindings, validate_release, validate_worker_records, PLAN_REF, owner_authorization,
++    ROOT_STATUS_MAX_AGE_SECONDS, retained_attempts)
+ 
+ 
+ def wait_for_launch(timeout=10):
+@@ -47,7 +47,7 @@
+     diagnostics=dict(max_status_age_seconds=0.,max_full_check_seconds=0.)
+     def check():
+         need(not (AGGREGATE/'execution_hold').exists(),'ROOT execution hold active')
+-        need(time.time()<deadline and time.monotonic()<monotonic_deadline,'ROOT six-hour total wall expired')
++        need(time.time()<deadline and time.monotonic()<monotonic_deadline,'ROOT full-validation finite total wall expired')
+         # Hold and wall checks above are immediate,including each log callback.
+         # Repeated metadata hashes and global process reads are sampled at most
+         # once per second across both the monitor and stage threads. The ROOT
+@@ -76,7 +76,7 @@
+                  +' maximum_seconds='+str(ROOT_STATUS_MAX_AGE_SECONDS))
+             family=owned_family(table,own,known);known.update(family)
+             rss=guardian['rss_bytes']+sum(row['rss_bytes'] for row in family.values() if row['state']!='Z')
+-            need(rss<HOST_CAP,'Complete guardian and recursive worker family64GiB RSS ceiling')
++            need(rss<HOST_CAP,'Complete guardian and recursive worker family128GiB RSS ceiling')
+             last_sample[0]=time.monotonic()
+             diagnostics['max_full_check_seconds']=max(diagnostics['max_full_check_seconds'],last_sample[0]-sample_started)
+     check.diagnostics=diagnostics
+@@ -85,45 +85,50 @@
+ 
+ 
+ def run_stages(owner,frozen,native_config,reviewed_tools):
+-    """Only the immutable registered generator,native pipeline and sampler."""
+-    parent={key:frozen['registration'][key] for key in ('parent_id','split','seeds')}
+-    recipe=frozen['recipe'];generation=owner.path(AGGREGATE/'generation')
++    """Original full-size scientific functions, exact frozen parent/seeds/sampler."""
++    parent=frozen['parent'];recipe=frozen['recipe']
++    generation_directory=owner.path(AGGREGATE/'generation')
+     native_directory=owner.path(AGGREGATE/'native')
+-    owner(16384);generation.mkdir()
+-    generated=generation_v3.generate_parent(recipe,parent,generation,guard=owner,
+-        execution_check=owner.execution_check,write_headroom_bytes=HEADROOM)
++    owner.set_stage('generation')
++    owner(16384);generation_directory.mkdir()
++    simulation_parent=dict(parent,seeds={key:parent['seeds'][key] for key in ('ancestry','mutations')})
++    generated=generation.generate_validation_parent(recipe,simulation_parent,generation_directory,guard=owner,
++        execution_check=owner.execution_check,write_headroom_bytes=HEADROOM,require_paper_match=True)
+     observed={}
+-    for name in native_relate_v3.OBSERVED_FILES:
+-        path=generation/'observed'/name
+-        binding=ref(path);record=generated['generation']['files']['observed/'+name]
++    for name in native_relate.OBSERVED_FILES:
++        path=generation_directory/'observed'/name
++        binding=ref(path);record=generated['files']['observed/'+name]
+         need(binding['sha256']==record['sha256'] and path.stat().st_size==record['bytes'],
+-             'Exact generated observed whitelist bytes')
++             'Exact complete generated observed whitelist bytes')
+         observed[name]=binding
+-    owner.check()
++    owner.check();owner.set_stage('native')
+     native=NativeSupervisor(owner,reviewed_native_tools=reviewed_tools)
+-    inferred=native_relate_v3.infer_parent(recipe,parent,generation/'observed',native_directory,
++    inferred=native_relate.infer_parent(recipe,parent,generation_directory/'observed',native_directory,
+         native_config=native_config,expected_input_refs=observed,native_step=native,guard=owner,
+         execution_check=owner.execution_check,write_headroom_bytes=HEADROOM,max_metadata_bytes=METADATA_CAP)
+-    owner.check()
++    owner.check();owner.set_stage(None)
+     inference_ref=ref(native_directory/'inference.json')
+-    need(read(inference_ref,METADATA_CAP)==inferred,'Exact complete observed inference receipt')
++    need(read(inference_ref,METADATA_CAP)==inferred,'Exact full observed inference receipt')
+     expected_rows=ref(native_directory/'observed_sample_manifest.json')
+-    need(inferred['observed_sample_manifest']==expected_rows,'Observed sample mapping remains in exact native directory')
++    need(inferred['observed_sample_manifest']==expected_rows,'Exact native observed sample mapping')
+     rows=read(expected_rows,METADATA_CAP)
+-    registry=sampling_v1.build_validation_registry(frozen['sampling_plan'],parent['parent_id'],rows,
++    registry=sampling.build_validation_registry(frozen['sampling_plan'],parent['parent_id'],rows,
+         inferred['post_five_iterations'],observation_ref=inference_ref)
+     need(registry['examples']==10000 and registry['labels_present'] is False
+-         and registry['query_truth_read'] is False,'Exact10000 observed sampled rows with no labels')
++         and registry['query_truth_read'] is False and registry['split']=='validation'
++         and len(json.dumps(registry,sort_keys=True,allow_nan=False).encode())<128*2**20,
++         'Original10000 label-free validation rows within128MiB registry allowance')
+     registry_path=owner.path(AGGREGATE/'sampled_registry.json')
+-    full.json_write(registry_path,registry,owner)
+-    owner.check()
+-    return dict(parent_id=parent['parent_id'],split='validation',sequence_length_bp=10000000,
++    full.json_write(registry_path,registry,owner);owner.check()
++    return dict(parent_id=parent['parent_id'],split='validation',sequence_length_bp=200000000,
++        generation_ref=ref(generation_directory/'generation.json'),
+         inference_ref=inference_ref,inferred_tree_ref=inferred['inferred_tree'],
+         observed_sample_manifest_ref=expected_rows,native_commands_ref=inferred['commands'],
+-        sampled_registry_ref=ref(registry_path),observed_input_refs=observed,
+-        sampled_examples=10000,development_evidence_only=True,independent_chromosome_replication=False,
++        sampled_registry_ref=ref(registry_path),observed_input_refs=observed,sampled_examples=10000,
++        full_independent_validation_parent=True,across_parent_variance_established=False,
+         generation_truth_retained_and_charged=True,downstream_truth_or_oracle_read=False,
+         model_fit_prediction_or_scoring_performed=False,original_TRAIN_TEST_unchanged=True)
++
+ 
+ 
+ def main(argv=None):
+@@ -139,19 +144,20 @@
+     release=read(release_ref)
+     validate_release(release,manifest_ref,review_ref,release.get('peer_directories'))
+     config,tools,chain_ref=native_bindings()
+-    retained_ref,retained_bytes=retained_attempt()
++    retained_ref,retained_bytes=retained_attempts()
+     request_ref,launch_ref=wait_for_launch();request=read(request_ref);launch=read(launch_ref)
+     need(request.get('source_manifest_ref')==manifest_ref and request.get('independent_source_review_ref')==review_ref
+          and request.get('execution_release_ref')==release_ref and request.get('peer_directories')==release['peer_directories']
+          and request.get('other_project_reserved_bytes')==release['other_project_reserved_bytes']
+-          and request.get('retained_attempt_ref')==release['retained_attempt_ref']==retained_ref
++          and request.get('retained_attempts_ref')==release['retained_attempts_ref']==retained_ref
+           and request.get('retained_charged_bytes')==retained_bytes,
+          'Worker matches exact ROOT source and global reservation binding')
+     check,remaining=execution_checker(request_ref,launch_ref,release_ref,request,launch,argv)
+-    allowance=configure_retained_allowance(retained_bytes)
++    allowance=dict(full_scope_reservation_bytes=120*2**30+128*2**20,
++        retained_short_reservation_in_other_bytes=16*2**30,retained_short_charged_bytes=retained_bytes)
+     owner=None
+     def cancelled(signum,frame):
+-        raise KeyboardInterrupt('ROOT shortVAL worker received signal '+str(signum))
++        raise KeyboardInterrupt('ROOT fullVAL worker received signal '+str(signum))
+     signal.signal(signal.SIGTERM,cancelled);signal.signal(signal.SIGINT,cancelled)
+     try:
+         owner=AggregateOwner(AGGREGATE,execution_check=check,max_family_rss_bytes=HOST_CAP,max_seconds=remaining)
+@@ -164,8 +170,8 @@
+             XDG_CACHE_HOME=str(cache),NUMBA_CACHE_DIR=str(cache),MPLCONFIGDIR=str(cache))
+         result=run_stages(owner,frozen,config,tools)
+         owner.write_json(AGGREGATE/'observed_artifacts.json',dict(
+-            schema='European_short_VAL_observed_artifacts_v1',status='prepared',
+-            source_manifest_ref=manifest_ref,source_review_ref=review_ref,plan_ref=plan.PLAN_REF,
++            schema='European_full_VAL_observed_artifacts_v1',status='prepared',
++            source_manifest_ref=manifest_ref,source_review_ref=review_ref,plan_ref=PLAN_REF,owner_storage_authorization_ref=owner_authorization(),
+             execution_release_ref=release_ref,native_chain_review_ref=chain_ref,
+             storage_metrics=dict(owner.metrics),retained_allowance=allowance,
+             execution_check_metrics=dict(check.diagnostics),finished_unix=time.time(),**result))
+--- research/efficiency_20261027/execution/european_short_val_runner/guardian_v3.py
++++ research/efficiency_20261027/execution/european_full_val_runner/guardian_v1.py
+@@ -1,4 +1,4 @@
+-"""Narrow CPU guardian using existing ROOT admission and v3 owned-family tools.
++"""Narrow CPU guardian using existing ROOT admission and reviewed owned-family tools.
+ 
+ Only ROOT invokes this entrypoint. No GPU is acquired. One fixed aggregate
+ attempt is allowed;all data,logs and failed evidence remain charged and retained.
+@@ -12,9 +12,9 @@
+ import subprocess
+ import time
+ from research.efficiency_20261027.root.run_guarded_profile_with_peer import identity,current_memory,campaign_growth,peer_growth,write
+-from research.efficiency_20261027.integration_candidate.european_short_development_val.aggregate_guard_v3 import measure
+-from research.efficiency_20261027.integration_candidate.european_short_development_val.native_supervisor_v3 import process_table,owned_family,signal_owned,reap_adopted
+-from .contracts_v3 import ROOT,AGGREGATE,MODULE,HOST_CAP,RESERVATION,OPERATING,MAX_SECONDS,GIB,need,ref,read,verify_sources,validate_release,retained_attempt,RETAINED_AGGREGATE,ROOT_STATUS_MAX_AGE_SECONDS,GROWTH_INTERVAL_SECONDS
++from .aggregate_guard_v1 import measure
++from .native_supervisor_v1 import process_table,owned_family,signal_owned,reap_adopted
++from .contracts_v1 import ROOT,AGGREGATE,MODULE,HOST_CAP,RESERVATION,OPERATING,MAX_SECONDS,GIB,need,ref,read,verify_sources,validate_release,retained_attempts,RETAINED_SHORT_RESERVATION,PROJECT_CAP,PROJECT_ADMISSION_CAP,owner_authorization,ROOT_STATUS_MAX_AGE_SECONDS,GROWTH_INTERVAL_SECONDS
+ 
+ HOST_MARGIN=64*GIB
+ OUTER_LOG_CAP=8*2**20
+@@ -53,11 +53,12 @@
+ 
+ 
+ def combined_storage(retained_bytes):
+-    retained=measure(RETAINED_AGGREGATE)
+-    need(retained['charged_bytes']==retained_bytes,'Retained failed attempt charge changed')
++    _,current_retained=retained_attempts()
++    need(current_retained==retained_bytes,'Retained failed short scope bytes changed during full validation')
+     current=measure(AGGREGATE)
+-    return dict(current,retained_charged_bytes=retained_bytes,
+-                combined_charged_bytes=current['charged_bytes']+retained_bytes)
++    return dict(current,retained_short_charged_bytes=retained_bytes,
++                retained_short_reservation_in_other_bytes=RETAINED_SHORT_RESERVATION)
++
+ 
+ 
+ def main(argv=None):
+@@ -74,16 +75,17 @@
+     manifest_ref,_=verify_sources(args.source_pins_sha256,review_ref)
+     release_ref=dict(path=args.execution_release_path,sha256=args.execution_release_sha256)
+     release=validate_release(read(release_ref),manifest_ref,review_ref,args.peer_directory)
+-    retained_ref,retained_bytes=retained_attempt()
++    retained_ref,retained_bytes=retained_attempts()
+     other=release.get('other_project_reserved_bytes')
+     need(type(other) is int and other>=0 and release.get('reservation_scope_excluded_from_other_bytes') is True,
+-         'ROOT exact other project commitments without double counting this16GiB')
++         'ROOT exact other project commitments excluding this full validation reservation')
+     peer_output=0
+     for peer in args.peer_directory:
+         request=read(ref(ROOT/peer/'request.json'));amount=request.get('output_cap_bytes')
+         need(type(amount) is int and amount>=0,'Every explicit ROOT peer declares output allowance')
+         peer_output+=amount
+-    need(other>=peer_output,'Other project commitments cover every explicit peer output allowance')
++    need(other>=peer_output+RETAINED_SHORT_RESERVATION,
++         'Other project commitments cover peers plus the retained short16GiB allowance')
+     need(not AGGREGATE.exists(),'One fresh fixed aggregate attempt only;failed evidence is never retried or removed')
+     AGGREGATE.mkdir()
+     started=time.monotonic();created=time.time();deadline=created+MAX_SECONDS
+@@ -91,16 +93,16 @@
+         '--source-review-sha256',args.source_review_sha256,'--execution-release-path',args.execution_release_path,
+         '--execution-release-sha256',args.execution_release_sha256]
+     command=['.runtime/env/bin/python3.11','-B','-m',MODULE,*worker_args]
+-    request=dict(schema='European_short_VAL_ROOT_request_v1',command=command,host_cap_bytes=HOST_CAP,
++    request=dict(schema='European_full_VAL_ROOT_request_v1',command=command,host_cap_bytes=HOST_CAP,
+         output_cap_bytes=RESERVATION,operating_stop_bytes=OPERATING,max_seconds=MAX_SECONDS,CUDA_VISIBLE_DEVICES='',
+         aggregate_directory=str(AGGREGATE.relative_to(ROOT)),peer_directories=args.peer_directory,
+-        other_project_reserved_bytes=other,retained_attempt_ref=retained_ref,retained_charged_bytes=retained_bytes,
++        other_project_reserved_bytes=other,retained_attempts_ref=retained_ref,retained_charged_bytes=retained_bytes,
+         ROOT_status_max_age_seconds=ROOT_STATUS_MAX_AGE_SECONDS,growth_refresh_interval_seconds=GROWTH_INTERVAL_SECONDS,
+         supervisor_pid=os.getpid(),supervisor_start_ticks=identity(os.getpid()),
+         source_manifest_ref=manifest_ref,independent_source_review_ref=review_ref,execution_release_ref=release_ref,
+         created_unix=created,deadline_unix=deadline)
+     write(AGGREGATE/'request.json',request)
+-    def cancelled(signum,frame):raise KeyboardInterrupt('ROOT shortVAL guardian received signal '+str(signum))
++    def cancelled(signum,frame):raise KeyboardInterrupt('ROOT fullVAL guardian received signal '+str(signum))
+     signal.signal(signal.SIGTERM,cancelled);signal.signal(signal.SIGINT,cancelled)
+     child=leader=None;known={};log=None;peak=0;last_growth=-float('inf');growth=0;details=[]
+     peak_admission_seconds=0.;last_status_unix=None;peak_status_gap_seconds=0.
+@@ -108,15 +110,16 @@
+         nonlocal growth,details,last_growth,peak_admission_seconds
+         need(ref(release_ref['path'])==release_ref,'ROOT execution release changed')
+         need(not (AGGREGATE/'execution_hold').exists(),'ROOT execution hold active')
+-        need(time.monotonic()-started<MAX_SECONDS,'Six-hour total admission+run wall bound')
++        need(time.monotonic()-started<MAX_SECONDS,'Original eight-day total admission+run wall bound')
+         scan_started=time.monotonic();scan_started_unix=time.time()
+         state,growth,details=campaign_growth()
+         for peer in args.peer_directory:
+             amount,detail=peer_growth(peer);growth+=amount;details.append(detail)
+         committed=state['project_reserved_bytes']+other+RESERVATION
+-        need(committed<=995_000_000_000,'ROOT campaign+other+single16GiB allowance exceeds project admission ceiling')
++        need(committed<=PROJECT_ADMISSION_CAP,
++             'ROOT campaign+other+full validation exceeds owner-authorized project admission ceiling')
+         need(time.monotonic()-started<MAX_SECONDS and not (AGGREGATE/'execution_hold').exists(),
+-             'Six-hour wall or ROOT hold after slow admission scan')
++             'Original eight-day wall or ROOT hold after slow admission scan')
+         last_growth=time.monotonic();scan_seconds=last_growth-scan_started
+         peak_admission_seconds=max(peak_admission_seconds,scan_seconds)
+         return dict(admission_started_unix=scan_started_unix,admission_finished_unix=time.time(),
+@@ -124,7 +127,8 @@
+              growth_refresh_interval_seconds=GROWTH_INTERVAL_SECONDS,ROOT_status_max_age_seconds=ROOT_STATUS_MAX_AGE_SECONDS,
+              retained_charged_bytes=retained_bytes,campaign_project_reserved_bytes=state['project_reserved_bytes'],other_project_reserved_bytes=other,
+             own_aggregate_reservation_bytes=RESERVATION,total_committed_bytes=committed,
+-            project_admission_ceiling_bytes=995_000_000_000,global_project_ceiling_bytes=1_000_000_000_000)
++            project_admission_ceiling_bytes=PROJECT_ADMISSION_CAP,global_project_ceiling_bytes=PROJECT_CAP,
++             owner_storage_authorization_ref=owner_authorization())
+     try:
+         while True:
+             budget=admission();available=current_memory();required=HOST_CAP+growth+HOST_MARGIN
+@@ -152,11 +156,11 @@
+             family=capture_family(leader,known,os.getpid());table=process_table()
+             rss=table.get(os.getpid(),{}).get('rss_bytes',HOST_CAP)+sum(row['rss_bytes'] for row in family.values() if row['state']!='Z')
+             peak=max(peak,rss);storage=combined_storage(retained_bytes)
+-            need(rss<HOST_CAP,'Complete recursive owned family64GiB RSS ceiling')
+-            need(storage['combined_charged_bytes']<OPERATING,'Combined predecessor plus current12GiB operating stop')
++            need(rss<HOST_CAP,'Complete recursive owned family128GiB RSS ceiling')
++            need(storage['charged_bytes']<OPERATING,'Full validation aggregate operating stop')
+             need((AGGREGATE/'worker.stdout.log').stat().st_size<OUTER_LOG_CAP,'Finite captured outer log allowance')
+             need(current_memory()>=HOST_MARGIN,'Host memory pressure')
+-            need(time.monotonic()-started<MAX_SECONDS and not (AGGREGATE/'execution_hold').exists(),'Six-hour wall or ROOT hold')
++            need(time.monotonic()-started<MAX_SECONDS and not (AGGREGATE/'execution_hold').exists(),'Original eight-day wall or ROOT hold')
+             if time.monotonic()-last_growth>=GROWTH_INTERVAL_SECONDS:
+                 budget=admission()
+                 need(current_memory()+rss>=HOST_CAP+growth+HOST_MARGIN,'Campaign/peer growth needs capacity')
+--- research/efficiency_20261027/integration_candidate/european_short_development_val/native_supervisor_v5.py
++++ research/efficiency_20261027/execution/european_full_val_runner/native_supervisor_v1.py
+@@ -13,8 +13,8 @@
+ import subprocess
+ import time
+ from arggnn.benchmarking.paper_campaign.processes import _pidfd_open, _pidfd_send
+-from .aggregate_guard_v3 import AggregateOwner, GuardFailure, METADATA
+-from .short_plan_v1 import validate_native_config
++from .aggregate_guard_v1 import AggregateOwner, GuardFailure, METADATA, RESERVATION, OPERATING
++from .contracts_v1 import validate_native_config
+ 
+ LOG_LIMIT = 192 * 2**20
+ DRAIN_LIMIT = 255 * 2**20
+@@ -175,7 +175,7 @@
+                       owner={k:self.owner_identity[k] for k in ('pid','start','session')},
+                       requested_scan_interval_seconds=1., maximum_sample_age_seconds=5.,
+                       complete_log=True, excluded_log_bytes=0, waits=[], terminal_family_absent=False,
+-                      storage_reservation_bytes=16*2**30, operating_threshold_bytes=12*2**30,
++                      storage_reservation_bytes=RESERVATION, operating_threshold_bytes=OPERATING,
+                       provisional_external_write_bound=True)
+         paths = [self.owner.path(work / (label + '.' + stream + '.log')) for stream in ('stdout','stderr')]
+         logs = []
+@@ -200,7 +200,7 @@
+             record['leader'] = {k:leader[k] for k in ('pid','start','session','pgrp')}
+             known = {child.pid: leader}
+             self.owner.write_json(work / (label + '.launch.json'), dict(
+-                schema='short_native_owned_launch_v2', status='launched', argv=argv,
++                schema='full_validation_native_owned_launch_v1', status='launched', argv=argv,
+                 leader=record['leader'], owner=record['owner'],
+                 work=str(work), TMPDIR=str(temporary), started_monotonic=started))
+             for pipe, output in zip((child.stdout, child.stderr), logs):

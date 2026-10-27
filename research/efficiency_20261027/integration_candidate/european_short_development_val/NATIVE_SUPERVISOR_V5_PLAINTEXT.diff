@@ -1,0 +1,46 @@
+--- research/efficiency_20261027/integration_candidate/european_short_development_val/native_supervisor_v4.py
++++ research/efficiency_20261027/integration_candidate/european_short_development_val/native_supervisor_v5.py
+@@ -96,6 +96,15 @@
+         except ChildProcessError:
+             pass
+     return waits
++
++
++def adopted_wait_failure(waits):
++    """Every actually waited adopted descendant must have exited successfully."""
++    for waited in waits:
++        status = waited.get('wait_status')
++        if status is not None and os.waitstatus_to_exitcode(status) != 0:
++            return 'Adopted native descendant exited unsuccessfully'
++    return None
+ 
+ 
+ class NativeSupervisor:
+@@ -259,10 +268,7 @@
+                     terminal_elapsed = time.monotonic() - terminal_started
+                     record['terminal_drain_seconds'] = terminal_elapsed
+                     record['terminal_drain_limit_seconds'] = TERMINAL_DRAIN_SECONDS
+-                    for waited in record['waits']:
+-                        status = waited.get('wait_status')
+-                        if status is not None and os.waitstatus_to_exitcode(status) != 0:
+-                            failure = failure or 'Adopted native descendant exited unsuccessfully'
++                    failure = failure or adopted_wait_failure(record['waits'])
+                     if not live and not selector.get_map():
+                         break
+                     # Continue the same resource checks and pipe reads during
+@@ -281,6 +287,7 @@
+             record['waits'].append(dict(pid=child.pid, returncode=code, method='Popen.wait'))
+             remaining = owned_family(process_table(), leader, known)
+             record['waits'].extend(reap_adopted(remaining, child.pid))
++            failure = failure or adopted_wait_failure(record['waits'])
+             remaining = owned_family(process_table(), leader, known)
+             record['terminal_family_absent'] = not remaining
+             if remaining:
+@@ -323,6 +330,7 @@
+                     if pipe is not None:
+                         pipe.close()
+             self.active = False
++            failure = failure or adopted_wait_failure(record['waits'])
+             record.update(elapsed_seconds=time.monotonic()-started, max_family_rss_bytes=max_rss,
+                           aggregate_log_bytes=self.log_bytes, failure=failure,
+                           storage_metrics=dict(self.owner.metrics),

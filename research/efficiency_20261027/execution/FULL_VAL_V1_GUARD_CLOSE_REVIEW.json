@@ -1,0 +1,36 @@
+{
+  "close_returned_without_error": true,
+  "deterministic_bounded_thread_reproduction": true,
+  "existing_jobs_modified": false,
+  "findings": [
+    {
+      "detail": "A monitor scan fails after the final foreground check while close waits for it. close returns successfully despite owner._error being set, so worker can exit0 and guardian can mark finished.",
+      "priority": "required_before_launch",
+      "required_fix": "After stopping and joining the monitor, propagate any stored monitor error before permitting successful close. Preserve lease cleanup using finally. Add a deterministic late-failure test and a clean-close test."
+    }
+  ],
+  "model_or_GPU_calls": 0,
+  "monitor_failure": "GuardFailure('Synthetic resource failure after final foreground check')",
+  "native_tool_executions": 0,
+  "passed": false,
+  "schema": "European_full_VAL_guard_close_review_v1",
+  "scientific_payloads_opened": false,
+  "source_manifest_ref": {
+    "path": "research/efficiency_20261027/execution/european_full_val_runner/source_pins_v1.json",
+    "sha256": "4587125200ec09562004916cb08340f1e638ce2557181e9b6f524d867edfa6ec"
+  },
+  "source_refs": [
+    {
+      "path": "research/efficiency_20261027/execution/european_full_val_runner/aggregate_guard_v1.py",
+      "sha256": "abd8cce1478931dd74bb345eac9ccf2b8957a263138124644fbf5ba36df70fa9"
+    },
+    {
+      "path": "research/efficiency_20261027/execution/european_full_val_runner/worker_v1.py",
+      "sha256": "dd3a95e7d415f863948effb72f8a8eef5a771e527ba092dbbc9641edf579c707"
+    },
+    {
+      "path": "research/efficiency_20261027/execution/review_fullval_guard_v1.py",
+      "sha256": "7acac88607ffb24e835b7113bbdf45e8fdbf345e391fb7823720aef7cec727a8"
+    }
+  ]
+}
