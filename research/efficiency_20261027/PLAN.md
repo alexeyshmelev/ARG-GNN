@@ -8,15 +8,15 @@ Use physical GPUs 3, 4 and 5. Keep all project computation and writes under the 
 
 | Ticket | Status | Next action |
 |---|---|---|
-| E01: full-parent exact executor | Deployed | American attempt 7 continues from checkpoint 268. Checkpoint 276 is durable. |
+| E01: full-parent exact executor | Deployed | American attempt 7 continues from checkpoint 268. Checkpoint 278 is durable. |
 | E02: sustained utilization | Open | Observe the next production executor across cold preparation and warm updates, with compute-client identities recorded. No 80 percent claim yet. |
 | E04: boundary fusion and GPU residency | Qualified | Combine the accepted implementation with preparation changes in one checkpoint transition. |
-| E06: concurrent parent preparation | Report repair | Serial compute finished, but the oversized completion report failed before the concurrent arm. Use bounded signatures, then rerun both arms. Preserve encoded values, parent order and RNG. |
-| E07: combined deployment | Source v3 qualified | Scheduler admission now requires 76 GiB free GPU memory. Finish the repaired preparation comparison, review terminal evidence and preserve the latest durable checkpoint for one transition. Not deployed. |
-| E08: memory lifetime and GPU context | CPU tests and source review passed | Release upward states after their last use, then assess keeping final context and its gradients on GPU. Separate candidate, no production changes. |
+| E06: concurrent parent preparation | Real comparison v2 running | The report now uses complete canonical signatures within the output bound. Finish both arms, verify exact prepared values, RNG, actual process concurrency and supply time. |
+| E07: combined deployment | Source v4 qualified, memory routing being added | Before forward propagation, select the qualified resident or explicit executor using actual parent size and live memory. Finish real preparation evidence and preserve the latest durable checkpoint for one transition. Not deployed. |
+| E08: memory lifetime and GPU context | Diagnostic completed, deferred | Prefix downstream checks pass but 47 of 59 million context values exceed the original strict tolerance. No full-chromosome qualification. Defer this optional candidate to avoid another deployment delay and cache rebuild. |
 | E09: monitoring overhead | Measured, not changed | One live process PSS scan took 1.95 seconds. Record actual callback frequency and cost in the successor before changing scheduling. |
-| A01: European observed cohort inputs | Resource scheduling repair | First qualification was stopped by the supervisor before numerical testing. Restore the eight observed cohort channels supplied to the CNN after stable admission. Fixed 90-update fit is prepared separately. |
-| A02: independent development validation | Implementation | Prepare a separate 10 Mb VAL with unchanged demography, roster, rates and native inference. Keep original 200 Mb TRAIN and TEST unchanged. |
+| A01: European observed cohort inputs | Qualification and fit preparation | Retry qualification after the CPU comparison releases its allowance. Add deterministic RNG/cursor resume before the fixed 90-update fit. Keep all original training data and the final-epoch rule. |
+| A02: independent development validation | Source v3 reviewed, not launched | Admit one aggregate 16 GiB allowance and a finite resource envelope before generating the independent 10 Mb VAL. Original 200 Mb TRAIN and TEST stay unchanged. |
 | B01: ancestry benchmarks | Running | Finish American TreeLoom, native ARGformer, GST, ARGMix and direct four-class comparisons. Report only completed common scoring. |
 
 ## Accepted measurements
@@ -61,7 +61,7 @@ Current European TreeLoom accuracy is 54.80 ± 1.02 percent across the same five
 - [Full residency review](fidelity/UPWARD_RESIDENCY_FULL_V2_COMPLETION_REVIEW.json)
 - [Full boundary fusion review](fidelity/BOUNDARY_FULL_V1_COMPLETION_REVIEW.json)
 - [Corrected profiler review](fidelity/BOUNDARY_ACTIVITY_V3_COMPLETION_REVIEW.json)
-- [Concurrent preparation source review](fidelity/TWO_PARENT_PREPARATION_V1_SOURCE_REVIEW.json)
+- [Concurrent preparation source review](fidelity/TWO_PARENT_PREPARATION_V2_SOURCE_REVIEW.json)
 - [European cohort qualification wrapper review](fidelity/EUROPEAN_QUALIFICATION_CLI_V1_SOURCE_REVIEW.json)
 - [Short validation feasibility](fidelity/EUROPEAN_SHORT_DEVELOPMENT_VAL_FEASIBILITY_v1.json)
 - [Monitoring cost](execution/MONITOR_COST_READONLY_v1.json)
