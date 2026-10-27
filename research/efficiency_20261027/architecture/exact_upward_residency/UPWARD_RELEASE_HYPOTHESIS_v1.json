@@ -1,0 +1,113 @@
+{
+  "GPU_jobs_launched": 0,
+  "arithmetic": {
+    "FP32_bytes": 4,
+    "admission_proven": false,
+    "current_two_bank_bytes": 52574533632,
+    "final_context_bytes": 15866265600,
+    "full_parent_nodes": 205369272,
+    "holds": 77472,
+    "hypothetical_sum_GiB": 70.03514766693115,
+    "hypothetical_sum_with_16GiB_scratch_bytes": 75199667200,
+    "hypothetical_upward_plus_context_plus_context_VJP_bytes": 58019798016,
+    "proposed_bank_transition_bound": "U plus largest actual upward/direct block overlap; exact block bound must come from the authenticated layout.",
+    "reserved_GPU_soft_budget_bytes": 79456894976,
+    "residual_before_extra_block_allocator_and_other_lifetimes_bytes": 4257227776,
+    "samples": 1600,
+    "scratch_assumption_bytes": 17179869184,
+    "upward_bank_bytes": 26287266816,
+    "width": 32
+  },
+  "conclusion": "The original saved upward block has no later numerical consumer after its second-block VJP returns. The later forcing/first-sweep VJP recomputes fresh upward/outside values. Releasing each original block at that boundary could replace it with its direct VJP and lower bank storage from two complete banks to one complete bank plus the current-block overlap. This is a lifetime hypothesis, not a measured peak or launch admission.",
+  "final_context_residency_cautions": [
+    "GPU final context and its VJP are two additional complete tensors. Bound full-sequence decoder activations and workspaces under the real haplotype tile/GRU execution, not only trunk scratch.",
+    "Current torch.cat(contexts) temporarily holds input blocks and the full destination. A resident route must account that duplicate or use a separately reviewed preallocated output construction.",
+    "Readout/history forcing and derivatives, current block construction, PyG/CUDA workspaces, allocator fragmentation and any asynchronous copies need a joint stage-by-stage capacity bound.",
+    "The illustrative70.04GiB sum plus unknown margins does not establish that the existing74GiB soft budget or current peers can admit this route.",
+    "A residency successor needs separate source review, CPU lifetime/failure/repeated-use tests, strict prefix/full-parent comparisons and ROOT live admission. The ongoing full upward-residency candidate and its receipts remain unchanged."
+  ],
+  "implementation_authorized_by_this_assessment": false,
+  "ongoing_full_candidate_modified": false,
+  "production_files_modified": false,
+  "proposed_invariants": [
+    "A single-use, context-owned private block list with an explicit forward/backward state machine; reject repeated backward, concurrent reuse and a second forward while the first context is live.",
+    "Retain autograd saved-tensor version checks for parameters and normal CPU boundaries. A manual upward list needs explicit dtype/device/shape/stride/storage-offset/storage-size/pointer/version stamps and no external mutable aliases.",
+    "Check that each direct VJP owns distinct contiguous private FP32 storage while the old upward block is still alive. Do not release early, overwrite upward in place, or assume autograd outputs cannot alias inputs.",
+    "After the complete second VJP, release every local graph/leaf/alias before removing the old block owner. Account current-block upward and direct VJP simultaneously during transition.",
+    "Keep contribution order exactly second blocks reversed, complete history theta, then forcing followed by first for each reversed block. Do not move first-sweep VJPs earlier to gain memory.",
+    "Never reuse learned states across optimizer steps. Preserve first-order-only differentiation and fail explicitly for retain_graph/repeated-backward use that the new destructive lifetime cannot support.",
+    "Define cleanup for failed backward, abandoned context and executor destruction without cycles or a retained bank. Autograd saved-tensor hooks/offload/checkpoint integration no longer automatically governs manually owned upward tensors.",
+    "Use live-storage identities with release generations so allocator address reuse does not become a false alias violation. A scalar ledger must own no tensors.",
+    "Prove release with alias-aware lifetime checks and CUDA allocated/reserved peaks; weakref death of one tensor object alone does not prove its storage is gone. Respect asynchronous stream use and record_stream ownership; do not infer allocator reuse from Python del alone."
+  ],
+  "schema": "TreeLoom_upward_release_lifetime_hypothesis_v1",
+  "source_evidence": [
+    {
+      "finding": "save_for_backward retains all upward tensors; backward also creates saved/upward tuples. Clearing a separate list cannot release storage while these owners remain.",
+      "lines": [
+        72,
+        105,
+        108
+      ],
+      "path": "upward_residency.py"
+    },
+    {
+      "finding": "The original upward block is used as the detached up_leaf in the second VJP. Release can occur only after autograd.grad returns and all local leaves, outputs and values aliases are gone.",
+      "lines": [
+        147,
+        164,
+        165
+      ],
+      "path": "upward_residency.py"
+    },
+    {
+      "finding": "History differentiates saved forcing and theta. The final first/forcing phase recomputes fresh first_up/out and consumes direct_up_vjp, not the original saved upward block.",
+      "lines": [
+        171,
+        178,
+        193,
+        203,
+        213
+      ],
+      "path": "upward_residency.py"
+    },
+    {
+      "finding": "Current future_bytes, add_direct, require_both_complete and final lifetime receipt require or describe two full banks. They cannot certify the proposed lifetime without a separately versioned ledger and admission model.",
+      "lines": [
+        106,
+        130,
+        149,
+        157,
+        164
+      ],
+      "path": "memory_v1.py"
+    }
+  ],
+  "source_refs": [
+    {
+      "path": "research/efficiency_20261027/architecture/exact_upward_residency/upward_residency.py",
+      "sha256": "69d14e53e4e8b569636cca7409d90f244109df6cad64dda7807b1c8247860d08"
+    },
+    {
+      "path": "research/efficiency_20261027/architecture/exact_upward_residency/memory_v1.py",
+      "sha256": "20a0727e5e347fe6f0904433911c80e5d1bcbdc4bda8ba9d3ccbacd5122c691a"
+    },
+    {
+      "path": "research/efficiency_20261027/architecture/exact_upward_residency/compare_full_v2.py",
+      "sha256": "860898710934038fb115bf24e5fb8875edfdebec99427031a1caa1b7ba171832"
+    }
+  ],
+  "status": "source_assessment_only_not_implemented_or_qualified",
+  "strict_comparison_contract": {
+    "argmax_changes": 0,
+    "future_instruction": "Reuse the established central strict comparison contract where applicable, with complete category counts and no weakening of tolerances.",
+    "gradients_parameters_Adam": {
+      "atol": 1e-06,
+      "rtol": 0.0001
+    },
+    "logits_and_loss": {
+      "atol": 1e-06,
+      "rtol": 1e-05
+    }
+  }
+}

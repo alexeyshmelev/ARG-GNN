@@ -89,3 +89,10 @@ Closed tickets: full exact512qualification, actual-module startup regression, ch
 - Do not repeatedly restart production for incremental improvements. Combine qualified changes into one checkpoint transition and include cache rebuilding in the measured cost.
 
 - Adaptive v1 is not ready for real qualification: independent review found that separate phase and child-credit admission can overcommit the declared host envelope. V2 must account for both atomically. A larger explicitly admitted successor RAM budget is permissible because the inherited 592 GiB cap is operational, not scientific.
+
+## Full residency accepted, preparation qualification running
+
+- E04 full residency prerequisite passed. Original TRAIN000, all 77,472 trees and 10,000 targets retained. The paired full call fell from 318.3155 to 237.0062 seconds. All 49 gradients, 49 parameters and 147 Adam tensors passed the strict comparator with zero changed predicted classes. Peak allocated GPU memory was 59.85 GB and reserved memory 64.80 GB. Independent completion review is UPWARD_RESIDENCY_FULL_V2_COMPLETION_REVIEW.json.
+- E05 closed. Corrected physical activity distinguishes kernels, copies and annotation ranges. Shared-device activity in the new full candidate averaged 69.09 percent and does not establish exclusive TreeLoom utilization or the 80 percent target.
+- E06 adaptive v2 fixed the joint phase/child-credit admission bug. Source and real-comparison launcher reviews passed. The CPU-only two-parent comparison is running under root/runs/two_parent_preparation_v1. No production transition yet.
+- American production checkpoint 274 is durable. The successor must restore the latest checkpoint available at transition, including optimizer and RNG, rather than any earlier qualification checkpoint.
