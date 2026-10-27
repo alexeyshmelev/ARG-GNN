@@ -1,0 +1,97 @@
+--- research/efficiency_20261027/execution/hot_block_pack_v1.py
++++ research/efficiency_20261027/execution/hot_block_pack_v2.py
+@@ -6,6 +6,7 @@
+ the next complete parent gets a fresh pack. No LRU, launcher or production hook.
+ """
+ from types import SimpleNamespace
++from functools import wraps
+ import threading
+ import weakref
+ import numpy as np
+@@ -112,11 +113,19 @@
+         return record
+ 
+ 
++def serialized(method):
++    @wraps(method)
++    def call(self,*args,**kwargs):
++        with self.lock:
++            return method(self,*args,**kwargs)
++    return call
++
++
+ class BlockInputPack:
+     """Finite strong device storage plus a weak exact live-bank binding.
+ 
+     All original input tensors remain CPU. Mutation/replacement, different
+-    provenance/layout/thread/stream, premature release and second-update reuse
++    provenance/layout/stream, premature release and second-update reuse
+     fail closed. A failed execution can explicitly abort, invalidating its graph.
+     """
+     def __init__(self,bank,layout,*,device,provenance,max_payload_bytes,admit,CPU_test_only=False):
+@@ -133,7 +142,7 @@
+         self.source_stamp=source_stamp(bank)
+         self.layout_stamp=layout_stamp(self.layout)
+         self.layout_id=id(self.layout)
+-        self.owner_thread=threading.get_ident()
++        self.lock=threading.RLock()
+         self.stream=torch.cuda.current_stream(self.device).cuda_stream if self.device.type=='cuda' else None
+         self.block_count=len(self.layout)
+         self.positions={id(z):index for index,z in enumerate(self.layout)}
+@@ -152,7 +161,6 @@
+ 
+     def _binding(self,bank,provenance):
+         need(self.phase not in ('closed','aborted'),'Closed or aborted pack cannot be reused')
+-        need(threading.get_ident()==self.owner_thread,'One original pack owner thread required')
+         if self.device.type=='cuda':
+             need(torch.cuda.current_stream(self.device).cuda_stream==self.stream,
+                  'Pack cannot move to an unrecorded CUDA stream')
+@@ -160,16 +168,19 @@
+              and source_stamp(bank)==self.source_stamp and id(self.layout)==self.layout_id,
+              'Original immutable bank, provenance and layout binding must remain exact')
+ 
++    @serialized
+     def begin_forward(self):
+         need(self.phase=='bound','Pack is single-update; create a fresh pack for another parent update')
+         self._binding(self.bank(),self.provenance)
+         self.phase='forward_and_backward'
+ 
++    @serialized
+     def backward_complete(self):
+         need(self.phase=='forward_and_backward','One original successful explicit backward required')
+         self._binding(self.bank(),self.provenance)
+         self.phase='backward_complete'
+ 
++    @serialized
+     def block(self,bank,z,*,provenance):
+         self._binding(bank,provenance)
+         need(self.phase in ('bound','forward_and_backward'),'Block input use outside the original complete update')
+@@ -215,6 +226,7 @@
+             self.abort()
+             raise
+ 
++    @serialized
+     def close(self):
+         need(self.phase in ('bound','backward_complete','closed'),'Retain the pack through complete trunk backward; abort a failed graph explicitly')
+         self.entries.clear()
+@@ -223,6 +235,7 @@
+         self.payload_bytes=0
+         self.phase='closed'
+ 
++    @serialized
+     def abort(self):
+         self.entries.clear()
+         self.layout=()
+@@ -230,10 +243,11 @@
+         self.payload_bytes=0
+         self.phase='aborted'
+ 
++    @serialized
+     def snapshot(self):
+         return dict(phase=self.phase,blocks=self.block_count,block_copies=self.copies,cache_hits=self.hits,
+             total_payload_bytes=self.total_bytes,retained_payload_bytes=self.payload_bytes,
+             peak_payload_bytes=self.peak_payload_bytes,max_payload_bytes=self.max_payload_bytes,
+             source_device='cpu',pack_device=str(self.device),learned_values_cached=False,
+             CPU_context_boundary_preserved=True,restored_bank_reuse=False,
+-            cross_update_reuse=False,one_owner_thread_and_stream=True)
++            cross_update_reuse=False,serialized_access_and_one_stream=True,autograd_engine_thread_allowed=True)

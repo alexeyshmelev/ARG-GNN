@@ -1,0 +1,159 @@
+{
+  "GPU3_specific_capacity_or_availability_checked": false,
+  "actual_measured_baseline_stage_memory": [
+    {
+      "after_allocated_bytes": 17453056,
+      "before_allocated_bytes": 17453056,
+      "interval_peak_allocated_bytes": 2877199872,
+      "interval_peak_reserved_bytes": 7486832640,
+      "kind": "explicit_cpu_vjp",
+      "stage": "profile_context_forward"
+    },
+    {
+      "after_allocated_bytes": 17573888,
+      "before_allocated_bytes": 17453056,
+      "interval_peak_allocated_bytes": 6616546304,
+      "interval_peak_reserved_bytes": 13499367424,
+      "kind": "explicit_cpu_vjp",
+      "stage": "profile_decoder_forward_backward"
+    },
+    {
+      "after_allocated_bytes": 17644032,
+      "before_allocated_bytes": 17573888,
+      "interval_peak_allocated_bytes": 7908911616,
+      "interval_peak_reserved_bytes": 13591642112,
+      "kind": "explicit_cpu_vjp",
+      "stage": "profile_trunk_backward"
+    },
+    {
+      "after_allocated_bytes": 15884505088,
+      "before_allocated_bytes": 17453056,
+      "interval_peak_allocated_bytes": 31750770688,
+      "interval_peak_reserved_bytes": 36775657472,
+      "kind": "explicit_resident_vjp",
+      "stage": "profile_context_forward"
+    },
+    {
+      "after_allocated_bytes": 31751677952,
+      "before_allocated_bytes": 15884505088,
+      "interval_peak_allocated_bytes": 38350650368,
+      "interval_peak_reserved_bytes": 58655244288,
+      "kind": "explicit_resident_vjp",
+      "stage": "profile_decoder_forward_backward"
+    },
+    {
+      "after_allocated_bytes": 31751748096,
+      "before_allocated_bytes": 31751677952,
+      "interval_peak_allocated_bytes": 39647450112,
+      "interval_peak_reserved_bytes": 58747518976,
+      "kind": "explicit_resident_vjp",
+      "stage": "profile_trunk_backward"
+    }
+  ],
+  "all_resident_combination": {
+    "arithmetic_not_measured_combined_peak": true,
+    "disposition": "Not supported as an 80 GiB admission candidate under the existing 16 GiB scratch reserve. Persistent payload plus that reserve exceeds the measured total device capacity. Even adding states to prior allocated peak nearly fills the device and exceeds prior initial free capacity; reserved-memory arithmetic exceeds capacity substantially.",
+    "nominal_payload_addition_to_measured_resident_allocated_peak_bytes": 83357192496,
+    "nominal_payload_addition_to_measured_resident_reserved_peak_bytes": 102457261360,
+    "payload_plus_existing_16GiB_scratch_reserve_bytes": 92622142768,
+    "persistent_payload_bytes": 75442273584,
+    "physical_free_at_observed_baseline_start_bytes": 82653216768,
+    "physical_total_in_observed_GPU5_baseline_bytes": 85094825984
+  },
+  "critical_implementation_constraints": [
+    "A resident-up extension must explicitly copy each second-pass direct-up gradient to CPU. Merely replacing saved up with GPU tensors in existing code would accumulate a second full 26.287 GB GPU gradient bank.",
+    "Removing retained outside CPU state does not itself free persistent GPU capacity; it is a host-memory saving. The proposed resident up consumes an additional full up bank.",
+    "Forward preallocation could remove torch.cat duplication, but cannot remove the decoder context plus VJP pair under the existing decoder API. In-place buffer reuse would require a separately verified ownership/autograd design.",
+    "Releasing up-state after second VJP needs a deliberate storage ownership change; ctx.save_for_backward holds every saved tensor until backward completes. Do not assume release from last mathematical use.",
+    "Full forcing/readout do not need GPU residency for the current bounded history implementation. Adding them globally is a separate option, not part of this budget."
+  ],
+  "evidence_refs": [
+    {
+      "path": "research/efficiency_20261027/root/runs/selected_full_gpu5_v1/data/completed.json",
+      "sha256": "cf1a77fda3fa89515d3b2f1b39273cc986b406ee141a41ba404b3495d5b97e03"
+    },
+    {
+      "path": "research/efficiency_20261027/execution/HOT_BLOCK_PACK_ASSESSMENT_v2.json",
+      "sha256": "730c0253801b30cf232e42b6c7ab2045f365008d5321673576b06e4c59b97db1"
+    },
+    {
+      "path": "research/efficiency_20261027/architecture/compact_interval_assessment/TRAIN000_compact_counts_v2.json",
+      "sha256": "15700864847882b71ab79f9579a1826bf13f05088602144decbee1614e7dc0fa"
+    }
+  ],
+  "lifetime_if_resident_up_and_context_and_hotpack": [
+    {
+      "device_live": "Growing up-state and input pack plus one first-sweep block; outside device state is local and released.",
+      "full_persistent_upper_bytes": 43709742384,
+      "phase": "first forward"
+    },
+    {
+      "device_live": "Full up-state and pack plus bounded history windows; complete forcing/readout remain CPU.",
+      "full_persistent_bytes": 43709742384,
+      "phase": "complete history forward"
+    },
+    {
+      "device_live": "Full up-state and pack plus context chunk list and the new concatenated context; both context copies coexist at torch.cat.",
+      "named_payload_bytes": 75442273584,
+      "phase": "second forward concatenation"
+    },
+    {
+      "device_live": "Full up-state and pack plus complete context and zeros_like full context gradient, plus one recurrent tile/tape.",
+      "persistent_payload_bytes": 75442273584,
+      "phase": "decoder"
+    },
+    {
+      "device_live": "Same full context pair, full up-state and pack plus one second-sweep tape; write direct-up VJP to CPU per block.",
+      "persistent_payload_bytes": 75442273584,
+      "phase": "second VJP"
+    },
+    {
+      "device_live": "Context and VJP remain caller-owned; pack remains held until explicit release. Saving all GPU up tensors in ctx.save_for_backward would keep them alive until custom backward returns, even after their last mathematical use.",
+      "phase": "history VJP and fused first VJPs",
+      "unchanged_save_contract_persistent_payload_bytes": 75442273584
+    },
+    {
+      "device_live": "Hotpack post-hook marks completion but does not free entries; release_layout drops them. Caller must also release context and VJP. Physical free bytes require observation.",
+      "phase": "completion"
+    }
+  ],
+  "named_state_bytes": {
+    "both_context_buffers": 31732531200,
+    "first_stage_outside_CPU_removed": 26287266816,
+    "forcing_CPU": 1201468032,
+    "full_context": 15866265600,
+    "full_context_VJP": 15866265600,
+    "full_hotpack": 17422475568,
+    "full_up": 26287266816,
+    "mandatory_direct_up_VJP_CPU": 26287266816,
+    "readout_CPU": 1201468032
+  },
+  "next_action": "Complete the already requested bounded learned boundary-fusion comparison first. No full-parent or residency combination was launched or prepared for launch.",
+  "no_new_scientific_payload_read": true,
+  "schema": "full_up_state_GPU_residency_lifetime_assessment_v1",
+  "source_read_refs": [
+    {
+      "path": "research/efficiency_20261027/root/context_residency.py",
+      "sha256": "e2d59f25b4bda24411539728f35fc10f019ffcfe585f7dbf7667d0115083ef56"
+    },
+    {
+      "path": "research/efficiency_20261027/execution/explicit_resident_vjp.py",
+      "sha256": "687ca3455224c8d07c491220b2293f3372d4afd672ebaf94c045284a5221c8c6"
+    },
+    {
+      "path": "research/efficiency_20261027/execution/hot_block_executor_v2.py",
+      "sha256": "840c648fd3d812033058a4a6a86438c43f2ff5a9a807de7dd52aed02243eee2b"
+    }
+  ],
+  "status": "Static lifetime assessment plus existing measured full-parent baseline; no implementation, allocation or launch",
+  "up_resident_hotpack_CPU_context_alternative": {
+    "additional_nominal_transfer_saving_over_boundary_fusion_bytes": 78861800448,
+    "arithmetic_not_admission": true,
+    "avoided_transfers": "Forward first up D2H; second-forward up H2D; second-backward up H2D. Direct-up VJP remains CPU and its D2H/H2D pair remains.",
+    "disposition": "Plausible future isolated-lane candidate with substantially more headroom, keeping context/VJP and forcing/readout on CPU. It still requires its own source implementation, exact gradients, measured lifetime peak and explicit resource admission. Current hotpack 48 GiB soft cap is insufficient for the whole up+pack+16 GiB reserve, so no existing guard may be silently bypassed.",
+    "nominal_addition_to_measured_CPU_context_allocated_peak_bytes": 51618654000,
+    "nominal_addition_to_measured_CPU_context_reserved_peak_bytes": 57301384496,
+    "payload_plus_existing_16GiB_scratch_reserve_bytes": 60889611568,
+    "persistent_GPU_payload_bytes": 43709742384
+  }
+}

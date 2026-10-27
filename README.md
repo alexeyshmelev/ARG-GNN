@@ -19,7 +19,7 @@ The four-group column sums the six-class probabilities. It is **not** the separa
 <!-- efficiency-20261027:start -->
 ## TreeLoom efficiency work, 27 October
 
-**The requested 80% sustained useful GPU utilization has not been reached.** An exact execution optimization passed full-chromosome checks and has been admitted on GPU 3. The worker restored update **268/600**, optimizer moments and the original parent schedule. Its input cache is rebuilding. The first new optimizer update and sustained production throughput are still being verified.
+**The requested 80% sustained useful GPU utilization has not been reached.** An exact execution optimization passed full-chromosome checks and has been admitted on GPU 3. The worker restored update **268/600**, optimizer moments and the original parent schedule. The first resumed update, **269/600**, is complete and checkpointed. It retained all 10,000 targets and took **473.03 s** on TRAIN001 with concurrent preparation of the next parent. The input cache is still rebuilding. This is a production progress check, not a paired speedup measurement.
 
 | Executor on the same full TRAIN chromosome | Update time | Peak allocated GPU memory | Decision |
 |---|---:|---:|---|
@@ -52,7 +52,7 @@ Further work targets fixed-input transfers and fusion of consecutive model opera
 
 | Workstream | Completed | Remaining |
 |---|---|---|
-| American TreeLoom, GPU 3 | **268/600** complete chromosome updates preserved. The selected executor restored this checkpoint and is rebuilding the input cache. | Verify the first resumed update and sustained throughput, then finish training, prediction and common ancestry scoring. |
+| American TreeLoom, GPU 3 | **269/600** complete chromosome updates. The first optimized update retained all targets and the original schedule. Input caching continues. | Measure sustained throughput, then finish training, prediction and common ancestry scoring. |
 | European TreeLoom | **90/90** updates and **5/5** TEST predictions. | Current six-class model trails CNN and Dense. A separate condition will restore the observed cohort information missing from its inputs. |
 | Native ARGformer, GPU 4 | **4/15** native prediction datasets complete. Validation002 MLM is active. | Remaining native pretraining, contrastive stages and predictions, then common ancestry scoring. |
 | FLARE | **15/15** native prediction products complete. | Common American ancestry scoring alongside paired methods. |

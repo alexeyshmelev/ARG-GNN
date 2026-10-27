@@ -1,0 +1,113 @@
+{
+  "CPU_effect": "Relative to the current boundary-fusion candidate, upward and direct-up CPU numerical banks are no longer allocated, removing up to 2A named host bytes in the second/history backward phases. This is not a peak RSS prediction; original observations, layout and preparation transients remain.",
+  "GPU_launches": 0,
+  "TRAIN000_memory": {
+    "GPU3_actual_capacity_or_free_not_checked": true,
+    "arithmetic_is_not_allocation_admission": true,
+    "capacity_minus_payload_and_scratch_bytes": 15340423168,
+    "existing_scratch_reserve_bytes": 17179869184,
+    "maximum_two_full_banks_bytes": 52574533632,
+    "nominal_two_banks_plus_prior_CPU_context_allocated_peak_bytes": 60483445248,
+    "nominal_two_banks_plus_prior_CPU_context_reserved_peak_bytes": 66166175744,
+    "observed_GPU5_initial_free_bytes": 82653216768,
+    "observed_GPU5_total_capacity_bytes": 85094825984,
+    "one_up_or_direct_up_bank_bytes": 26287266816,
+    "two_banks_plus_scratch_bytes": 69754402816
+  },
+  "actual_lifetime_contract": [
+    {
+      "description": "Save each block upward tensor directly on its original GPU; do not concatenate all up blocks. U/forcing forward is fused already. Release only local outside state and other first-block temporaries. GPU upward storage grows once to A.",
+      "persistent_device_bytes_upper": 26287266816,
+      "phase": "first forward"
+    },
+    {
+      "description": "Saved upward A remains. Complete forcing/readout/eligibility stay CPU with original bounded GPU history windows.",
+      "persistent_device_bytes": 26287266816,
+      "phase": "history forward"
+    },
+    {
+      "description": "_second consumes resident upward directly; its context still returns to CPU. CPU context concatenation creates no full GPU context buffer.",
+      "persistent_device_bytes": 26287266816,
+      "phase": "second forward"
+    },
+    {
+      "description": "Full context and decoder VJP remain CPU. Only the existing full-history haplotype tile and recurrent tapes occupy GPU scratch.",
+      "persistent_device_bytes": 26287266816,
+      "phase": "original CPU-context decoder"
+    },
+    {
+      "description": "Resident upward blocks become detached GPU leaves. Returned direct-up gradients are GPU tensors and stay in the list. Upward A remains saved; direct-up grows from 0 to A. Readout VJP is copied to its original complete CPU boundary.",
+      "persistent_device_bytes_upper": 52574533632,
+      "phase": "second blocks backward"
+    },
+    {
+      "description": "Both upward and direct-up A banks remain resident. Complete history is differentiated once; force VJP remains CPU. This is the largest persistent-bank phase.",
+      "persistent_device_bytes": 52574533632,
+      "phase": "complete history backward"
+    },
+    {
+      "description": "Recompute the first tree graph on device exactly as the current boundary candidate. Add forcing gradient into the existing GPU direct-up tensor, then execute first VJP. Clear each consumed list entry after its block; direct-up shrinks in reverse block order. Original upward A is still retained by ctx.save_for_backward until backward returns.",
+      "persistent_device_bytes_upper": 52574533632,
+      "phase": "fused forcing/first backward"
+    },
+    {
+      "description": "Release saved upward with the custom autograd node and direct-up references; the executor/caller must not keep auxiliary device aliases. Observe allocator/physical release rather than infer it.",
+      "phase": "backward completion"
+    }
+  ],
+  "additional_nominal_transfer_saving_over_boundary_fusion": {
+    "D2H_bytes": 52574533632,
+    "H2D_bytes": 78861800448,
+    "first_backward_direct_up_H2D_bytes": 26287266816,
+    "first_up_forward_D2H_bytes": 26287266816,
+    "scope": "Logical payload; unmeasured bus traffic and speed. Topology/site inputs still transfer with the original four block calls; no hotpack saving included.",
+    "second_backward_direct_up_D2H_bytes": 26287266816,
+    "second_backward_up_H2D_bytes": 26287266816,
+    "second_forward_up_H2D_bytes": 26287266816,
+    "total_bytes": 131436334080,
+    "total_with_existing_boundary_fusion_nominal_savings_bytes": 266021368128
+  },
+  "admission_requirements": [
+    "Complete the real-prefix boundary-fusion numerical/Adam/timeline qualification first; no implementation before that gate per ROOT.",
+    "For every future parent, compute A from authenticated native-node metadata and reserve 2A plus full scratch before first allocation. Do not admit only the first A and hope the gradient bank fits later.",
+    "Future guards must account for cumulative allocated/reserved memory, physical free bytes, the other process families and all inherited GPU/host limits. No guard weakening, cache flush workaround or silent CPU/dtype/workload fallback.",
+    "Measure stage-specific allocated/reserved peaks at second-VJP growth, complete-history VJP and fused first VJP on a bounded precursor, then separately qualify a full parent only if authorized.",
+    "Do not change the 1 TB decimal disk cap or create observation caches."
+  ],
+  "evidence_refs": [
+    {
+      "path": "research/efficiency_20261027/root/runs/selected_full_gpu5_v1/data/completed.json",
+      "sha256": "cf1a77fda3fa89515d3b2f1b39273cc986b406ee141a41ba404b3495d5b97e03"
+    },
+    {
+      "path": "research/efficiency_20261027/architecture/compact_interval_assessment/TRAIN000_compact_counts_v2.json",
+      "sha256": "15700864847882b71ab79f9579a1826bf13f05088602144decbee1614e7dc0fa"
+    },
+    {
+      "path": "research/efficiency_20261027/architecture/exact_boundary_fusion/ASSESSMENT_v1.json",
+      "sha256": "d0ca85b229c7d72dddf044324966672fc299c3b362e7d2f790f093a79bdfc01b"
+    }
+  ],
+  "feasibility_conclusion": "For this measured TRAIN000, two GPU banks plus the existing 16 GiB scratch reserve fit arithmetically below the previously observed 85.095 GB device capacity, with about 15.34 GB remaining. The selected CPU-context allocated/reserved peaks are compatible with this being a plausible isolated-lane successor. They are not a bound for the new first-tape/forcing overlap or allocator fragmentation. No claim that GPU3 is currently available, that any other parent fits, or that a launch is admitted.",
+  "implementation_prepared": false,
+  "schema": "up_and_direct_VJP_GPU_residency_CPU_context_lifetime_v1",
+  "source_contract_for_future_successor": {
+    "decoder_and_external_API": "Unchanged CPU context and CPU supplied gradient, complete registered targets and original decoder; no resident decoder or gradient-buffer reuse.",
+    "determinism": "All current boundary fusion recomputation/GPU numerical caveats remain. No stochastic-state changes or optimizer between forward and VJP.",
+    "forward_save": "Replace upward.append(up.to(cpu)) by upward.append(up), update immutable-boundary validation and receipt to distinguish saved GPU upward from CPU forcing/readout/eligible. Save original parameters as before.",
+    "initialization_and_partitions": "Original admitted 512-hold large initializer, immutable bank/layout guards and same model/checkpoint/optimizer. No input pack or altered site/topology partition.",
+    "last_phase": "Existing boundary candidate direct_up_vjp[index].to(device) becomes a no-op; same add order and separate U then first parameter VJPs. Clearing list entries permits gradient-bank release.",
+    "second_backward": "Detach saved GPU up, run unchanged _second VJP, retain values[0].detach() on GPU. This retains all direct gradients by design; do not add a CPU copy. Keep readout_vjp CPU as before.",
+    "second_forward": "Same _second body; up.to(device) becomes a no-op. Keep final .to(cpu).",
+    "versions_and_mutation": "Saved upward numerical tensors must remain immutable; detached leaf aliasing is read-only. Only direct-up gradient buffers are added into. Preserve saved-parameter version checks."
+  },
+  "status": "Conditional source-contract and lifetime feasibility assessment only; implementation deferred until boundary-fusion real GPU qualification",
+  "supersedes_direction": {
+    "hotpack_closed_for_this_direction": true,
+    "new_direction": "No hotpack. Keep original final context and decoder VJP on CPU; retain only first upward states and accumulated direct-up VJPs on GPU. The prior resident-context warning remains valid.",
+    "prior_assessment_ref": {
+      "path": "research/efficiency_20261027/architecture/exact_boundary_fusion/RESIDENCY_LIFETIME_assessment_v1.json",
+      "sha256": "855b9edbfee9ed38385bbdccadfabff4bbf63176bca5cf6983f4049b1978acca"
+    }
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "schema": "TreeLoom_boundary_fusion_preparation_independent_review_v1",
+  "status": "pass_for_preparation",
+  "reviewed_at_utc": "2026-10-27T03:17:42.893971+00:00",
+  "reviewer": "independent_fidelity",
+  "scope": "Bounded source and existing syntheticCPUevidence review for the next paired prefix diagnostic; noGPU/fullparent/deploymentapproval.",
+  "source_refs": [
+    {
+      "path": "research/efficiency_20261027/architecture/exact_boundary_fusion/boundary_fusion.py",
+      "sha256": "5427d8d63cbeddd599ea72e39ade273e79d80a7831ffc200ad32fe8a0ec3bb8a"
+    },
+    {
+      "path": "research/efficiency_20261027/architecture/exact_boundary_fusion/test_cpu.py",
+      "sha256": "25cdbe6751a5c28852d97a82b6ff4de3f97f4ca69cdf36468e1a7082e2d8212f"
+    },
+    {
+      "path": "research/efficiency_20261027/architecture/exact_boundary_fusion/large_boundary_executor_v1.py",
+      "sha256": "6af0a5ffa2961ea8cb37e85f6e333a94c26ec82cdd82259e4591de70d6c4c5ad"
+    }
+  ],
+  "CPU_receipt_ref": {
+    "path": "research/efficiency_20261027/architecture/exact_boundary_fusion/CPU_results_v1.json",
+    "sha256": "67d26376c77be3926c5795cc5a1b334d9a54fb35d0c3ead4185a2c2515d8dba9"
+  },
+  "original_backward_source_ref": {
+    "path": "research/efficiency_20261027/execution/explicit_vjp.py",
+    "sha256": "19163f7d11d80c7279f987ad50b5514e761868e163aa3bfb6ef15f209e8bb757"
+  },
+  "finite_guard_review_ref": {
+    "path": "research/efficiency_20261027/fidelity/EXACT_FORWARD_FUSION_PREPARATION_REVIEW.json",
+    "sha256": "a7a93f730e532d52efacd09c84bb497df78e2bfb82bd3dfc322d6554d701a368"
+  },
+  "findings": [
+    "Forward calls the original block/site/base/tree sweep closure, gathers representatives in original order and applies the samebinaryFP32sum and LinearU. Full forcing/readout/eligible/upwardCPUboundaries remain; savedoutsideCPU is removed.",
+    "Backward preserves sharedparameter contribution order: allsecondblockVJPs in reverse, onecompletehistory theta contribution, then forcingU followed byfirst-sweep contribution for eachreverseblock. The same detached-value accumulator adds in that order and returns throughautograd without mutating parameter.grad internally.",
+    "The recomputedfirst graph remains attached. Detached deviceup/out leaves isolate the forcingU VJP, preventing a double path through first-sweep weights; its resulting adjoints combine with the stored directup adjoint before onefirst-sweep VJP.",
+    "Allsecond/history VJP computations and nativeblock counts remain; the test confirms identical12blockconstructions across3blocks,3forcing/first/secondbackward blocks and onefullhistoryVJP.",
+    "The savedparameter tuple preserves autogradversion validation, and explicit identity/order checks reject a changed modelparameter set. No optimizer or crossupdate learnedstate reuse is introduced.",
+    "Transfers use default synchronous .to operations; there is no pinnedCPU/nonblocking streamhandoff. SavedCPUstates remain alive until used, and perblockdevicegraphs/adjoints are released after firstVJP. DirectCPUupVJPs remain live through completehistory as before.",
+    "The inherited first closure contains no newRNG/statefulmodule behavior. The CPUtest verifies RNG, parameters and registeredbuffers unchanged through each forward/backward.",
+    "The same finite maximum/eligibility proof reviewed forforwardfusion applies. NaN/Infhandling is intentionally stricter than oldPythonmax, while finite-path guard algebra is unchanged.",
+    "The optional512factory reuses the exact existing largeinitializer and its completebundle/cache/CPUbank/logicalCUDA/full-device guards; only context_forward dispatch differs."
+  ],
+  "existing_CPU_evidence": {
+    "holds": 3,
+    "haplotypes": 1600,
+    "nodes": 4815,
+    "sites": 7,
+    "cut_groups": 12,
+    "real_site_MLP": true,
+    "missing_and_empty_hold_and_tied_site_pooling": true,
+    "changed_cuts": true,
+    "context_max_abs_error": 0.0,
+    "computed_connected_trunk_gradients": 37,
+    "preserved_decoder_gradients": 12,
+    "gradient_max_abs_error": 0.0,
+    "RNG_parameters_buffers_unchanged": true,
+    "retained_CPU_bytes_original": 1233411,
+    "retained_CPU_bytes_candidate": 617091,
+    "optimizer_step": false,
+    "GPU_initialized": false
+  },
+  "qualification_focus": [
+    "ForcingUweightgrad now uses recomputedfirst outputs instead of originalsavedup/out. Deterministic finite algebra is sound, but GPUscatter/reduction determinism is not established byCPUbitexactness. The plannedstrictpaired49gradient/updatedparameter/Adammoment test must measure this.",
+    "The first-sweep autogradgraph now overlaps the forcingVJP. RemovedCPU/D2Hpayload does not establish a lowerGPUpeak; record allocator and processfamily resource evidence.",
+    "Keep unprofiled paired strictnumerical/timing runs separate from onecapped learnedprofiler trace perarm. Require sourcepinned freshoutputs, complete originalprefixfocals/history, exactsamecheckpoint/RNG/optimizer and actualwait/groupabsence.",
+    "CPU37computed+12preservedgradient proof is not a complete49gradient focaldecoder/Adamupdate or fullparentqualification. No conclusion about productionaccuracy or fulltraining speed follows yet."
+  ],
+  "reviewer_tests_rerun": false,
+  "reviewer_scientific_payload_reads": false,
+  "production_modified": false,
+  "launch_approved_by_this_review": false
+}

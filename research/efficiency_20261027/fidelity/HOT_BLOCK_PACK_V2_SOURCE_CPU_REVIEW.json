@@ -1,0 +1,113 @@
+{
+  "schema": "TreeLoom_hot_block_pack_independent_review_v1",
+  "status": "pass_for_isolated_experiment",
+  "reviewed_at_utc": "2026-10-27T02:57:52.081930+00:00",
+  "reviewer": "independent_fidelity",
+  "scope": "Read-only source and existing CPU evidence review; not GPU qualification, production integration or performance approval.",
+  "candidate_source_refs": [
+    {
+      "path": "research/efficiency_20261027/execution/hot_block_pack_v2.py",
+      "sha256": "c061da191b59cf618f8ec6d8b9d6982328cf587a55b0fecdef02fcf830cabd33"
+    },
+    {
+      "path": "research/efficiency_20261027/execution/hot_block_executor_v2.py",
+      "sha256": "840c648fd3d812033058a4a6a86438c43f2ff5a9a807de7dd52aed02243eee2b"
+    },
+    {
+      "path": "research/efficiency_20261027/execution/test_hot_block_pack_v3.py",
+      "sha256": "fe3ac7ff527f58084389fe734f2c08a3fc652370ea10d23a5900edb25c803e58"
+    }
+  ],
+  "CPU_receipt_ref": {
+    "path": "research/efficiency_20261027/execution/hot_block_pack_CPU_v3.json",
+    "sha256": "fe18d87a99fa176084f41d6583511ba99c6873f7077ee7285ff27e242a33b9ce"
+  },
+  "receipt_text_source_refs_independently_verified": [
+    {
+      "path": "research/efficiency_20261027/execution/hot_block_pack_v2.py",
+      "sha256": "c061da191b59cf618f8ec6d8b9d6982328cf587a55b0fecdef02fcf830cabd33"
+    },
+    {
+      "path": "research/efficiency_20261027/execution/hot_block_executor_v2.py",
+      "sha256": "840c648fd3d812033058a4a6a86438c43f2ff5a9a807de7dd52aed02243eee2b"
+    },
+    {
+      "path": "research/efficiency_20261027/execution/test_hot_block_pack_v3.py",
+      "sha256": "fe3ac7ff527f58084389fe734f2c08a3fc652370ea10d23a5900edb25c803e58"
+    },
+    {
+      "path": "research/efficiency_20261027/execution/explicit_vjp.py",
+      "sha256": "19163f7d11d80c7279f987ad50b5514e761868e163aa3bfb6ef15f209e8bb757"
+    },
+    {
+      "path": "research/scalability_20261024/integration/executors.py",
+      "sha256": "6eae27fd94830d2c70290c9ef50c1156371bd5df6ee23fabcfdd356c0958fa2a"
+    }
+  ],
+  "numerical_refs_retained_as_receipt_data_not_read_or_hashed": [
+    {
+      "path": "research/preprocessing_optimization_20261026/integration/migration/update241.pt",
+      "sha256": "12b8fbdd4bfa164ca3aab28d967d1154a3ce389cfc49aefca0fbdf9dc143de24"
+    },
+    {
+      "path": "research/scalability_20261024/execution/representative_slice.npz",
+      "sha256": "6a9e5de1f8d839907d789f292f252b3ce95136fb212f39cf8ccfb13fba724e77"
+    }
+  ],
+  "inherited_source_refs": [
+    {
+      "path": "research/efficiency_20261027/execution/large_block_executors.py",
+      "sha256": "73f6be72a297b52bc6da060f6788902f8133e04999d47e0e36215895a5f33ee4"
+    },
+    {
+      "path": "research/scalability_20261024/integration/executors.py",
+      "sha256": "6eae27fd94830d2c70290c9ef50c1156371bd5df6ee23fabcfdd356c0958fa2a"
+    },
+    {
+      "path": "research/efficiency_20261027/execution/explicit_vjp.py",
+      "sha256": "19163f7d11d80c7279f987ad50b5514e761868e163aa3bfb6ef15f209e8bb757"
+    }
+  ],
+  "findings": [
+    "The pack caches exactly the original block structural and observed tensors, with the same values, shapes, ordering and original int64 index width. No learned states, context or prediction tensors enter the cache.",
+    "The production-style constructor retains original complete-bundle/type checks, CPU bank/cut placement, explicit full-device policy, logicalcuda0 requirement and budgeted layout lease. It selects512hold blocks and inherits all original numerical trunk methods.",
+    "Lifetime is restricted to one original bank and complete update. Exact tensor identity/pointer/version/shape/stride/device flags, provenance, original immutable block tuple and byte-backed readonly layout stamps are checked.",
+    "Strong device entries survive the forward and all three original backward passes. A custom-autograd-node posthook marks completion after original backward returns; release before that fails, explicit abort invalidates the pack, and a second forward is rejected.",
+    "Version2 removes invalid Python-thread affinity and serializes metadata/access with an RLock while retaining the sameCUDAstream guard. CPUv3 exercises the complete actual-slice backward from another Python thread.",
+    "Admission uses actual allocated/reserved/free measurements and checks reserved plus remaining payload plus at least16GiB scratch against a soft budget no larger than64GiB; physical free must independently cover remaining payload plus scratch. It never empties the allocator.",
+    "No integration hooks, launchers, production binding changes or cross-parent/cross-update cache reuse are introduced."
+  ],
+  "existing_CPU_evidence": {
+    "actual_observed_holds": 128,
+    "haplotypes": 1600,
+    "block_holds": [
+      65,
+      63
+    ],
+    "history_window": 17,
+    "context_and_loss_bit_exact": true,
+    "computed_connected_trunk_gradients_bit_exact": 37,
+    "preserved_preexisting_decoder_gradients": 12,
+    "cached_copies": 2,
+    "cache_hits": 6,
+    "pack_payload_bytes": 27067624,
+    "full_restricted_bidirectional_history": true,
+    "RNG_unchanged": true,
+    "premature_release_and_second_forward_rejected": true,
+    "CUDA_initialized": false,
+    "GPU_launches": 0,
+    "probe_loss": "Nonlinear scalar of original context; no focal decoder loss or optimizer update."
+  },
+  "limitations": [
+    "CPU thread continuation does not establish CUDA-stream lifecycle behavior; that requires a separately admitted GPU diagnostic.",
+    "The test49gradient dictionary comprises37computed trunk gradients and12preset decoder gradients. It is not a complete49parameter training-gradient or Adam-step equivalence proof.",
+    "Allocation arithmetic is a prospective reservation check, not measured peak proof. Existing peer commitments and full process-family limits still govern any future GPU diagnostic.",
+    "No full-parent GPU, focal-decoder, optimizer-state, H2D timing or end-to-end speed claim is supported by the CPU receipt.",
+    "Future production consideration requires the strict full-parent forward/loss, all-gradient, updated-parameter and Adam-moment comparison with zeroargmaxchanges and actual lifecycle/resource evidence."
+  ],
+  "approved_integration_unchanged": true,
+  "reviewer_tests_rerun": false,
+  "reviewer_numerical_payload_reads": false,
+  "reviewer_execution_or_launch": false,
+  "production_modified": false
+}

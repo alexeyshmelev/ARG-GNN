@@ -1,0 +1,148 @@
+{
+  "CPU_evidence": {
+    "RNG_parameters_and_buffers_unchanged": true,
+    "all_37_trunk_tensors_exercised": true,
+    "all_4_site_MLP_tensors_exercised": true,
+    "all_gradient_max_abs_error": 0.0,
+    "block_calls_per_executor": 12,
+    "context_max_abs_error": 0.0,
+    "no_GPU": true,
+    "no_scientific_payload": true,
+    "peak_RSS_bytes": 638709760,
+    "preexisting_decoder_gradients_preserved": 12,
+    "scope": "Synthetic two-level trees with changed cuts across holds; all inherited categorical site MLP, mean/max/missing/empty-hold pooling, base, PyG sweeps, episode/cut and full bidirectional history paths.",
+    "wall_seconds": 0.5303276926279068
+  },
+  "CPU_receipt_ref": {
+    "path": "research/efficiency_20261027/architecture/exact_boundary_fusion/CPU_results_v1.json",
+    "sha256": "67d26376c77be3926c5795cc5a1b334d9a54fb35d0c3ead4185a2c2515d8dba9"
+  },
+  "GPU_launched": false,
+  "GPU_named_temporary_envelope": {
+    "backward_dense_gradient_vectors_bytes": 532398336,
+    "backward_selected_and_force_and_index_envelope_bytes": 160152072,
+    "backward_sum_envelope_bytes": 692550408,
+    "forward_selected_and_force_and_index_envelope_bytes": 116275400,
+    "maximum512_block_groups": 274233,
+    "maximum512_block_nodes": 1386454,
+    "reason": "The first-sweep tape now overlaps the forcing VJP; forcing up/out gradients and a copied direct-up gradient can coexist. Out-of-place gather sum is used in this candidate. The prior forward-only 296K bound does not describe this source.",
+    "scope": "Conservative named tensors around the first-sweep graph alone, not total peak or proven incremental allocated bytes. Kernel/library/allocator/autograd internals excluded."
+  },
+  "candidate_API": {
+    "class": "LargeBoundaryFusedExecution",
+    "constructor_contract": "Same _LargeInitialization, LargeBlockLayoutCache, frozen_module and resource guards as selected LargeExplicitVJPExecution; factory requires holds_per_block=512.",
+    "context_residency": "CPU",
+    "factory": "build_executor(model, bundle, metadata, **kwargs)",
+    "hotpack_combined": false,
+    "module": "research.efficiency_20261027.architecture.exact_boundary_fusion.large_boundary_executor_v1",
+    "normal_execution": "context_forward followed by original CPU-context decoder and complete context backward; explicit_vjp_snapshot and release_layout inherited.",
+    "outside_CPU_boundary_retained": false,
+    "upward_residency": "CPU"
+  },
+  "closure": {
+    "block_construction_calls_removed": 0,
+    "direct_up_CPU_preserved": true,
+    "forward": "Inherited _block, _sites, _base, sweep_tree_state_v1; original representative-order gather+sum+memory.U on device; save only up, forcing, readout, eligibility and original parameters.",
+    "full_history_truncated": false,
+    "last_phase": "Recompute first on device once, detach its two outputs for separate U VJP, accumulate U parameter contribution, add direct-up gradient then forcing-up gradient on device, VJP first outputs into model parameters, then accumulate first contribution.",
+    "optimizer_or_clipping_inside": false,
+    "parameter_accumulation_order": "All reversed second blocks; complete-history theta; then forcing contribution followed by first contribution for each reversed block. No joint first+U parameter VJP.",
+    "parameter_grad_mutated_inside": false,
+    "second_and_history_backward": "Same original _second VJP and stable_leaf_history_v2 VJP in the same reverse block/full-history order."
+  },
+  "count_receipt_ref": {
+    "path": "research/efficiency_20261027/architecture/compact_interval_assessment/TRAIN000_compact_counts_v2.json",
+    "sha256": "15700864847882b71ab79f9579a1826bf13f05088602144decbee1614e7dc0fa"
+  },
+  "maximum_block_node_evidence_ref": {
+    "path": "research/efficiency_20261027/execution/HOT_BLOCK_PACK_ASSESSMENT_v2.json",
+    "sha256": "730c0253801b30cf232e42b6c7ab2045f365008d5321673576b06e4c59b97db1"
+  },
+  "next_preparation_scope": "Execution owns one authenticated 1153-hold real prefix with baseline selected CPU512, all49 model parameter gradients and Adam state comparisons, unprofiled paired clocks, plus a separately labeled capped CUDA/CPU timeline. No full-parent benchmark, production replacement or launch by this assessment.",
+  "observation_disk_cache_bytes": 0,
+  "production_modified": false,
+  "project_disk_cap_bytes": 1000000000000,
+  "qualification_risks": [
+    "The original forcing VJP used saved forward values; the fused U VJP uses recomputed first values. Identical parameters, deterministic first closure and unchanged RNG/buffers are necessary. CPU proof confirms these only on its fixture.",
+    "No dropout, running-stat mutation or stochastic/side-effectful _block/_sites/_base/sweep implementation may be added without requalification. Resource callbacks and profiling must not change model state.",
+    "Direct-up plus forcing-up addition and representative-gradient scatter move from CPU to CUDA. The cut construction has unique representatives per native tree and disjoint expanded nodes across trees, avoiding repeated representative-index reductions; GPU numerical equivalence, subnormal behavior and allocator/tape peaks still require actual checks.",
+    "Forward finite guard intentionally fails closed for any NaN/Inf, whereas old Python max could ignore a later NaN. Valid finite equations preserved; invalid behavior stricter.",
+    "A tuple of saved upward CPU tensors and complete direct-up CPU gradients remains. This is not up-state residency, resident decoder context or hotpack integration.",
+    "CPU proof bypasses production constructors using synthetic data and preserves decoder gradients; no actual optimizer step, real-parent learned data, CUDA numerical behavior or speed was qualified."
+  ],
+  "read_extent": "Explicit VJP and categorical-site source read completely; inherited execution/model/history/cut relevant call paths and construction constraints examined. Not a whole-repository audit.",
+  "schema": "exact_boundary_device_fusion_assessment_v1",
+  "source_read_inventory": [
+    {
+      "path": "research/efficiency_20261027/execution/explicit_vjp.py",
+      "sha256": "19163f7d11d80c7279f987ad50b5514e761868e163aa3bfb6ef15f209e8bb757"
+    },
+    {
+      "path": "research/efficiency_20261027/execution/large_block_executors.py",
+      "sha256": "73f6be72a297b52bc6da060f6788902f8133e04999d47e0e36215895a5f33ee4"
+    },
+    {
+      "path": "research/scalability_20261024/integration/executors.py",
+      "sha256": "6eae27fd94830d2c70290c9ef50c1156371bd5df6ee23fabcfdd356c0958fa2a"
+    },
+    {
+      "path": "research/scalability_20261024/categorical_site/categorical_site.py",
+      "sha256": "ca87a268e79f080952ba145ddf178b685834b8f33d5bae015ca4230982bff52f"
+    },
+    {
+      "path": "research/benchmark_rebuild_20261024/american/treeloom_speed/staged_execution_v2.py",
+      "sha256": "12870a3b4514fef5153bbd66114e4e54a2bb002072d1392cd84f3519f6677927"
+    },
+    {
+      "path": "research/benchmark_rebuild_20261024/american/treeloom_speed/stable_leaf_history_v2.py",
+      "sha256": "891dc3a3994c61246191b36e548657ac691e83eb432ca6ddb8cb4437934ce21e"
+    },
+    {
+      "path": "src/arggnn/anonymous_clade_gnn_v1.py",
+      "sha256": "2f878e6334079cff083f67b6da8eda129dd30e7beebc62ae2a93d51796c3f137"
+    },
+    {
+      "path": "research/reviews/order2_cut_memory_implementation_20261015_v1/order2_cut_memory_v1.py",
+      "sha256": "3b496b163e11147643aa576dfe1f37a75544d466624ef2bd4377fc62d1533265"
+    }
+  ],
+  "source_refs": [
+    {
+      "path": "research/efficiency_20261027/architecture/exact_boundary_fusion/boundary_fusion.py",
+      "sha256": "5427d8d63cbeddd599ea72e39ade273e79d80a7831ffc200ad32fe8a0ec3bb8a"
+    },
+    {
+      "path": "research/efficiency_20261027/architecture/exact_boundary_fusion/large_boundary_executor_v1.py",
+      "sha256": "6af0a5ffa2961ea8cb37e85f6e333a94c26ec82cdd82259e4591de70d6c4c5ad"
+    },
+    {
+      "path": "research/efficiency_20261027/architecture/exact_boundary_fusion/test_cpu.py",
+      "sha256": "25cdbe6751a5c28852d97a82b6ff4de3f97f4ca69cdf36468e1a7082e2d8212f"
+    }
+  ],
+  "status": "Sealed source and synthetic CPU proof; ready for independent bounded learned GPU qualification preparation only",
+  "transfer_accounting": {
+    "CPU_boundary_after_bytes": 28771539482,
+    "CPU_boundary_before_bytes": 55058806298,
+    "G_cut_groups": 37545876,
+    "N_expanded_nodes": 205369272,
+    "backward_D2H_bytes_removed": 63387745920,
+    "backward_H2D_net_bytes_removed": 35598644064,
+    "backward_terms": {
+      "new_index_H2D": 300367008,
+      "removed_first_output_D2H": 52574533632,
+      "removed_local_force_D2H": 1201468032,
+      "removed_out_gradient_H2D": 26287266816,
+      "removed_selected_float_H2D": 9611744256,
+      "removed_selected_gradient_D2H": 9611744256,
+      "unchanged_force_VJP_H2D": 1201468032
+    },
+    "combined_D2H_bytes_removed": 89675012736,
+    "combined_H2D_net_bytes_removed": 44910021312,
+    "combined_bidirectional_payload_bytes_removed": 134585034048,
+    "forward_D2H_bytes_removed": 26287266816,
+    "forward_H2D_net_bytes_removed": 9311377248,
+    "retained_CPU_bytes_removed": 26287266816,
+    "scope": "Nominal logical FP32 copy payload removed versus original explicit CPU-boundary executor; excludes topology, sites, history/decoder traffic and allocator effects. Not measured DMA bytes or speedup."
+  }
+}

@@ -1,0 +1,108 @@
+{
+  "CPU_evidence": {
+    "CPU_timings_are_not_throughput_evidence": true,
+    "actual_differentiated_trunk_tensors": 33,
+    "backward_blocks": 3,
+    "context_max_abs_error": 0.0,
+    "full_history_backward_calls": 1,
+    "parameter_gradient_max_abs_error": 0.0,
+    "peak_RSS_bytes": 606076928,
+    "preexisting_decoder_gradient_tensors": 12,
+    "retained_CPU_boundary_bytes": 1536771,
+    "synthetic_site_MLP_not_exercised": true,
+    "wall_seconds": 0.28746854048222303
+  },
+  "CPU_test_ref": {
+    "path": "research/efficiency_20261027/architecture/exact_forward_fusion/CPU_results_v1.json",
+    "sha256": "fc93bf2050f7a69bbdb6ad7549bdcc9be2397777a3a3160315289a1a21f2b986"
+  },
+  "closure": {
+    "backward": "_ForwardFusionTrunk.backward is the exact original _ExplicitTrunk.backward function object; save order/ctx fields unchanged",
+    "complete_history": "identical stable_leaf_history_v2 and all native holds",
+    "first": "tick -> inherited _block + inherited _sites -> inherited _base -> original sweep_tree_state_v1",
+    "forcing": "original representatives/group offsets -> device gather -> selected sum -> original memory.U -> CPU forcing",
+    "optimizer": "No optimizer, clipping or parameter.grad mutation inside candidate",
+    "second": "identical inherited _second and every original upward CPU boundary"
+  },
+  "deployment": {
+    "GPU_launched": false,
+    "execution_integration_owner": "ROOT/execution",
+    "executor_registered": false,
+    "production_changed": false,
+    "qualification_required": true
+  },
+  "exact_finite_FP32_equations": {
+    "basis": "FP32 CPU/device copies preserve numerical values and gather order. Same selected FP32 binary addition and same U matrix shape/order. No reassociation of tree/history reductions.",
+    "fused": "fC=D2H(U(gather(uG,H2D(I))+gather(oG,H2D(I))));uC=D2H(uG);oC=D2H(oG)",
+    "original": "uC=D2H(uG);oC=D2H(oG);fC=D2H(U(H2D(gather(uC,I))+H2D(gather(oC,I))))",
+    "stateful_module_constraint": "The observed call closure uses a Linear U and read-only model parameters, no dropout/running-stat update or optimizer between these operations."
+  },
+  "finite_guard": {
+    "finite_path_exact": true,
+    "method": "Per-block device aminmax; scalar maximum(-min,max); one final device maximum reduced to CPU; original denominator/eligibility algebra remains.",
+    "nonfinite_behavior": "Fails closed on anyNaN/Inf device maximum. The old Python max over block floats could ignore a laterNaN, so behavior is stricter only for invalid nonfinite inputs."
+  },
+  "risks": [
+    "Added first-phase GPU temporaries must fit measured allocator headroom at selected512block layout.",
+    "Different scheduling may alter GPU kernel allocation or asynchronous synchronization; CPU equality is not GPU qualification.",
+    "Fusion removes transfer work but retains all original expandedCPU boundaries and full backward work.",
+    "Profile labels combine original first+forcing stages; compare end-to-end service clocks with the sameCPUthreads, not mismatched stage names."
+  ],
+  "schema": "exact_first_forcing_forward_fusion_assessment_v1",
+  "source_refs": [
+    {
+      "path": "research/efficiency_20261027/architecture/exact_forward_fusion/forward_fusion.py",
+      "sha256": "27e58af153f297876ac3460e9d7b233b4282ad42ab0c281db6f2d378a46bda34"
+    },
+    {
+      "path": "research/efficiency_20261027/architecture/exact_forward_fusion/test_cpu.py",
+      "sha256": "c01f11d41e2e3e400308471b954cfd2fe989ff8b7e72cc23747e8cd0af874368"
+    },
+    {
+      "path": "research/efficiency_20261027/execution/explicit_vjp.py",
+      "sha256": "19163f7d11d80c7279f987ad50b5514e761868e163aa3bfb6ef15f209e8bb757"
+    },
+    {
+      "path": "research/scalability_20261024/integration/executors.py",
+      "sha256": "6eae27fd94830d2c70290c9ef50c1156371bd5df6ee23fabcfdd356c0958fa2a"
+    },
+    {
+      "path": "research/benchmark_rebuild_20261024/american/treeloom_speed/staged_execution_v2.py",
+      "sha256": "12870a3b4514fef5153bbd66114e4e54a2bb002072d1392cd84f3519f6677927"
+    },
+    {
+      "path": "research/benchmark_rebuild_20261024/american/treeloom_speed/stable_leaf_history_v2.py",
+      "sha256": "891dc3a3994c61246191b36e548657ac691e83eb432ca6ddb8cb4437934ce21e"
+    },
+    {
+      "path": "src/arggnn/anonymous_clade_gnn_v1.py",
+      "sha256": "2f878e6334079cff083f67b6da8eda129dd30e7beebc62ae2a93d51796c3f137"
+    }
+  ],
+  "status": "Algebraically beneficial transfer opportunity; small CPU check passed; unintegrated and unqualified on GPU",
+  "symbolic_cost": {
+    "B": "Number of tree blocks",
+    "CPU_boundary_savings_claimed": false,
+    "G": "All cut-group occurrences",
+    "K": "Maximum cut-group occurrences in one block",
+    "N": "All expanded node occurrences",
+    "TRAIN000_upward_CPU_scan_payload_bytes": 26287266816,
+    "added_first_phase_named_device_temporary_upper_bytes": "296*K + 4*B + O(1)",
+    "additional_named_device_temporary_ceiling_at512holds_bytes": 242483200,
+    "d": 32,
+    "full_parent_reduction_claimed": false,
+    "global_cut_group_count_not_read": true,
+    "maximum_K_at512holds": 819200,
+    "new_forward_index_H2D_bytes": "8*G",
+    "new_reduced_maximum_D2H_bytes": 4,
+    "nominal_net_H2D_reduction_bytes": "248*G",
+    "original_up_out_boundary_bytes": 52574533632,
+    "r": 8,
+    "removed_CPU_upward_abs_scan_payload_bytes": "128*N",
+    "removed_forward_selected_state_H2D_bytes": "256*G",
+    "temporary_terms": "Two selected32channel buffers(256*K) + int64 indices(8*K) +8channel forcing(32*K); aminmax uses scalar outputs. Excludes CUDA kernel/library workspace/allocator.",
+    "unchanged_CPU_first_boundary_bytes": "256*N",
+    "unchanged_D2H_up_out_bytes": "256*N",
+    "unchanged_forcing_D2H_bytes": "32*G"
+  }
+}

@@ -1,0 +1,188 @@
+{
+  "artifact_refs": [
+    {
+      "bytes": 146563,
+      "path": "research/efficiency_20261027/root/runs/hot_block_transfer_gpu5_v1/data/completed.json",
+      "sha256": "57dc24e83ea9a313698cb9a76a598fdd05119015efc785c2117a919117deeb52"
+    },
+    {
+      "bytes": 342,
+      "path": "research/efficiency_20261027/root/runs/hot_block_transfer_gpu5_v1/data/exact_values.json",
+      "sha256": "230a096daa77c83c540c174644c722baf34b54cd1b02c9b4135e6a5df5446d9a"
+    },
+    {
+      "bytes": 34218,
+      "path": "research/efficiency_20261027/root/runs/hot_block_transfer_gpu5_v1/data/configuration.json",
+      "sha256": "7e59176d07e7cfd2c1e93fa58bb38a37a3bec58af0394faaf23cd3312fbfbc2e"
+    },
+    {
+      "bytes": 265,
+      "path": "research/efficiency_20261027/root/runs/hot_block_transfer_gpu5_v1/actual_wait.json",
+      "sha256": "1d1953b97864f9b8facbb7fca5c2d6a6387264785c8ab4b34bfef02f1286ee9f"
+    },
+    {
+      "bytes": 1683,
+      "path": "research/efficiency_20261027/root/runs/hot_block_transfer_gpu5_v1/launch.json",
+      "sha256": "84d63591933012c10e7d6390be7a69066060412bd573168d01bf2d7413fd6bac"
+    },
+    {
+      "bytes": 933,
+      "path": "research/efficiency_20261027/root/runs/hot_block_transfer_gpu5_v1/request.json",
+      "sha256": "49ad792632dc3ac215910151a22bfa69b2248f09442238ecaac5183ad27be052"
+    }
+  ],
+  "checks": {
+    "12_block_calls_per_round": true,
+    "14_rounds_follow_AB_warmup_AB_BA_alternation": true,
+    "actual_command_matches_request": true,
+    "actual_wait_clean": true,
+    "all_six_paired_savings_positive": true,
+    "candidate_fresh_and_released_each_round": true,
+    "candidate_no_learned_or_cross_update_cache": true,
+    "candidate_three_copies_nine_hits": true,
+    "cold_first_plus_three_pass_matches_total": true,
+    "completed_without_failure_receipt": true,
+    "exact_input_values_dtypes_shapes_order_reported": true,
+    "exact_values_receipt_matches": true,
+    "independent_pid_and_owned_group_absent": true,
+    "no_truth_model_or_history_execution": true,
+    "output_under_cap": true,
+    "payload_and_tensor_copy_counts": true,
+    "recorded_gpu_allocator_under_cap": true,
+    "recorded_host_measurements_under_cap": true,
+    "reported_medians_recomputed": true,
+    "reviewed_manifest_matches": true,
+    "round_receipts_match_completion": true,
+    "same_sync_boundaries": true,
+    "scope_1153holds_all1600haps": true,
+    "source_ref_metadata_matches_configuration": true,
+    "walltime_under_cap": true,
+    "warm_allocator_no_flush": true,
+    "worker_identity_matches": true
+  },
+  "conclusion": "Exact device input equality and the expected three-copy/nine-reuse lifecycle are reported. All six cold-pack-inclusive paired transfer timings favor the pack. This supports the narrowly measured transfer behavior only.",
+  "experiment_closed": true,
+  "independent_lifecycle_observation": {
+    "owned_group_members": [],
+    "pid_absent": true
+  },
+  "limitations": [
+    "Transfer-only prefix measurement; no end-to-end training speed or full-parent peak claim.",
+    "Every candidate round includes binding, cold pack and all four passes. No pack survives a round.",
+    "Original imported block conversion is unchanged. No learned forward, decoder, backward, loss or optimizer executes.",
+    "Exact device input comparison is outside timing. Payload bytes are actual tensor sizes, not bus traffic.",
+    "Allocator remains warm across rounds; cold means new pack and cold input copies, not cold CUDA context.",
+    "No per-tensor synchronization; both arms synchronize after pass1 and pass4.",
+    "RSS lifetime peak includes preparation; per-round fields are boundary RSS, not sampled round peaks.",
+    "Only small JSON receipts, manifest metadata, output sizes and process identities were read. No scientific payload or broad source hashes were reread.",
+    "Paired savings vary from about 15 to 294 ms; six short pairs do not establish stable end-to-end throughput.",
+    "The candidate cold first pass is slower at the observed median; benefits arise from the next three reuse passes.",
+    "Resource fields are distinct observations: boundary RSS, reported ru_maxrss and sampled family PSS are not interchangeable exact peak measurements.",
+    "No learned GPU gradient/Adam equivalence, full-parent peak, production deployment or full-parent speedup is established by this transfer-only run."
+  ],
+  "metrics": {
+    "actual_payload_bytes_per_round": {
+      "hotpack": 251465924,
+      "original": 1005863696,
+      "saved": 754397772
+    },
+    "launch_to_actual_wait_seconds": 44.024049282073975,
+    "max_round_boundary_rss_bytes": 1547063296,
+    "median_paired_saved_seconds": 0.09425805695354939,
+    "paired_results": [
+      {
+        "hotpack_seconds": 0.10885008983314037,
+        "original_over_hotpack": 1.1413964337553324,
+        "original_seconds": 0.12424110434949398,
+        "repeat": 1,
+        "saved_seconds": 0.015391014516353607
+      },
+      {
+        "hotpack_seconds": 0.08342416863888502,
+        "original_over_hotpack": 1.7979616508744378,
+        "original_seconds": 0.1499934559687972,
+        "repeat": 2,
+        "saved_seconds": 0.06656928732991219
+      },
+      {
+        "hotpack_seconds": 0.06527789309620857,
+        "original_over_hotpack": 2.8681182984484135,
+        "original_seconds": 0.18722471967339516,
+        "repeat": 3,
+        "saved_seconds": 0.12194682657718658
+      },
+      {
+        "hotpack_seconds": 0.07558911014348269,
+        "original_over_hotpack": 4.895488014893057,
+        "original_seconds": 0.3700455827638507,
+        "repeat": 4,
+        "saved_seconds": 0.294456472620368
+      },
+      {
+        "hotpack_seconds": 0.09767694864422083,
+        "original_over_hotpack": 1.5524561754369823,
+        "original_seconds": 0.1516391821205616,
+        "repeat": 5,
+        "saved_seconds": 0.05396223347634077
+      },
+      {
+        "hotpack_seconds": 0.07606480177491903,
+        "original_over_hotpack": 2.9803665572278675,
+        "original_seconds": 0.22670099139213562,
+        "repeat": 6,
+        "saved_seconds": 0.1506361896172166
+      }
+    ],
+    "peak_recorded_allocated_bytes_by_arm": {
+      "hotpack": 255290880,
+      "original": 115034112
+    },
+    "peak_recorded_reserved_bytes": 362807296,
+    "peak_sampled_family_pss_bytes": 1252829184,
+    "reported_process_lifetime_peak_rss_bytes": 1521586176,
+    "scope": {
+      "haplotypes": 1600,
+      "layout_seconds": 0.2215934619307518,
+      "native_holds": 1153,
+      "native_nodes": 2958892,
+      "parent_id": "argformer_american_train_000",
+      "physical_support_bp": [
+        0,
+        514937
+      ],
+      "preparation_seconds": 16.305030492134392,
+      "sites": 3846
+    },
+    "timed_medians_seconds": {
+      "hotpack": 0.07974448520690203,
+      "original": 0.16943195089697838
+    },
+    "timing_components_median_seconds": {
+      "hotpack": {
+        "binding_host_seconds": 0.001917762216180563,
+        "binding_plus_cold_first_pass_seconds": 0.07461640145629644,
+        "remaining_three_pass_seconds": 0.005177108105272055
+      },
+      "original": {
+        "binding_host_seconds": 3.003515303134918e-07,
+        "binding_plus_cold_first_pass_seconds": 0.042930595111101866,
+        "remaining_three_pass_seconds": 0.12391344271600246
+      }
+    },
+    "total_output_bytes": 271177,
+    "worker_reported_total_seconds": 21.026651519350708
+  },
+  "prior_runner_review_ref": {
+    "bytes": 7488,
+    "path": "research/efficiency_20261027/fidelity/HOT_BLOCK_TRANSFER_V1_RUNNER_REVIEW.json",
+    "sha256": "3fac58fe8ddb018ff81aaa36f7af3001e6f21398a857efc21df3b46980699579"
+  },
+  "reviewed_manifest_ref": {
+    "bytes": 33024,
+    "path": "research/efficiency_20261027/execution/source_pins_hot_transfer_v1.json",
+    "sha256": "75aeafb6853caf037a8deac297e66658353d439a0f8bbe23ba2db6a091654a81"
+  },
+  "reviewed_unix": 1793071520.7940538,
+  "schema": "treeloom_hot_transfer_completion_fidelity_review_v1",
+  "status": "pass_scoped_transfer_microbenchmark"
+}

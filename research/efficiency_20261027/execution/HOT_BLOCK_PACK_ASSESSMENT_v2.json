@@ -1,0 +1,145 @@
+{
+  "CPU_proof": {
+    "CPU_copy_validation_seconds": 0.023652727715671062,
+    "CPU_payload_bytes": 27067624,
+    "CPU_three_pass_lookup_seconds": 0.0032544322311878204,
+    "CPU_timings_not_GPU_performance": true,
+    "RNG_unchanged": true,
+    "actual_observed_holds": 128,
+    "all_input_values_dtypes_order_bit_exact": true,
+    "block_holds": 65,
+    "complete_restricted_history_window": 17,
+    "connected_trunk_gradient_tensors": 37,
+    "context_and_loss_bit_exact": true,
+    "copies": 2,
+    "full_original_backward_on_different_python_thread": true,
+    "full_parent_GPU_optimizer_qualification": false,
+    "gradient_max_abs_difference": 0.0,
+    "haplotypes": 1600,
+    "hits": 6,
+    "original_numerical_methods_inherited_identically": true,
+    "preexisting_decoder_gradient_tensors_preserved": 12,
+    "ragged_final_block": 63,
+    "test_history": "Initial testv1 attempted ordinary assignment to an already-frozen bank dataclass. Version2 tests deliberate hostile replacement via object.__setattr__; version3 also validates cross-thread backward. Earlier tests and artifacts are retained."
+  },
+  "CPU_qualification_ref": {
+    "path": "research/efficiency_20261027/execution/hot_block_pack_CPU_v3.json",
+    "sha256": "fe18d87a99fa176084f41d6583511ba99c6873f7077ee7285ff27e242a33b9ce"
+  },
+  "GPU_launches": 0,
+  "actual_observed_metadata_ref": {
+    "path": "research/preprocessing_optimization_20261026/integration/full_candidate.json",
+    "sha256": "13b06abd75afa0a199b5649de744b97871259be891ae50b55fa40cac678a15c0"
+  },
+  "audit_source_ref": {
+    "path": "research/efficiency_20261027/execution/audit_hot_block_pack_v4.py",
+    "sha256": "838260dc22411f978c7a4654b300b6599fb62265177edc3eae47dc9489596d8e"
+  },
+  "benefit_assessment": {
+    "baseline_full_update_seconds": 380.41530763171613,
+    "evidence": "75percent fewer _block H2D bytes and copies; every update still pays one complete pack. No transfer bandwidth or end-to-end GPU speedup has been measured.",
+    "illustrative_rates_are_assumptions_not_measurements": true,
+    "illustrative_saved_transfer_seconds_at_10_20_30_decimal_GB_per_second": [
+      5.2267426704,
+      2.6133713352,
+      1.7422475568
+    ],
+    "priority": "A short bounded transfer measurement is justified by the52.267GB avoided payload and unchanged math. A full-parent benchmark or another production restart is not yet justified by byte counts alone.",
+    "unmeasured_costs": [
+      "Persistent input fragmentation",
+      "Per-parent pack fill and finite binding checks",
+      "Allocator pressure from17.422GB extra resident inputs",
+      "Reduced GPU sharing headroom"
+    ]
+  },
+  "bounded_GPU_proposal": {
+    "final_stage": "Only after independent bounded correctness/performance approval: one full TRAIN000/all10000targets comparison with payload cap18GiB,soft48GiB,scratch16GiB or stricter independently measured admission. No inference that other19parents fit.",
+    "first_stage": "ROOT-owned fresh visible512-block,1153-hold authenticated observed prefix; original H2D copies versus one packed copy plus3hits. Alternate6rounds after one warmup, synchronize only whole measured phases, compare all copied values exactly outside timing. No TRAIN truth or optimizer required for this transfer measurement.",
+    "first_stage_caps": {
+      "CPU_threads": 8,
+      "blocks": 3,
+      "complete_scratch_reserve_bytes": 17179869184,
+      "holds_per_block": 512,
+      "max_wall_seconds": 600,
+      "maximum_payload_bytes": 536870912,
+      "native_holds": 1153,
+      "soft_GPU_budget_bytes": 25769803776
+    },
+    "first_stage_go_no_go": "Report cold-pack-inclusive total4pass time, lookup cost, source-validation cost, allocated/reserved peaks and transfer bytes. Do not use cached-hit-only timing as update speed. Advance only if a repeatable useful absolute saving survives all costs and preserved GPU headroom.",
+    "production": "Keep integrationv3/current worker unchanged. Any future migration needs separate release and warm-pool amortization; schedule qualification on an independently admitted spare lane. No combined first/forcing fusion claim.",
+    "second_stage": "Only after useful transfer evidence: original CPU-context explicit512 versus packed candidate on the same1153-hold restricted slice, same checkpoint/targets/RNG/AdamW, all49gradients and optimizer states, strict logits/loss/argmax comparison,6balanced timing rounds, full allocation telemetry and actual wait. CPU proof does not replace this.",
+    "status": "proposal_only_no_launch"
+  },
+  "full_GPU_allocation_attempted": false,
+  "full_TRAIN000_payload": {
+    "avoided_repeated_H2D_payload_bytes": 52267426704,
+    "blocks": 152,
+    "copy_count_reduction_fraction": 0.75,
+    "exact_pack_payload_bytes": 17422475568,
+    "index_width": "Original torch.long on device; no int32 kernel change",
+    "maximum512block_nodes": 1386454,
+    "native_holds": 77472,
+    "native_nodes": 205369272,
+    "note": "Reference labels and sample ages remain duplicated exactly as each original block namespace, totaling2.918MB. This dominant block-only pack excludes site features and second-stage flags/member/cut indices.",
+    "original_four_pass_payload_bytes": 69689902272,
+    "repeated_shared_reference_age_bytes": 2918400,
+    "unique_per_block_fields_bytes": 17419557168
+  },
+  "full_baseline_ref": {
+    "path": "research/efficiency_20261027/root/runs/selected_full_gpu5_v1/data/completed.json",
+    "sha256": "cf1a77fda3fa89515d3b2f1b39273cc986b406ee141a41ba404b3495d5b97e03"
+  },
+  "implementation": {
+    "Lru_or_background_prefetch": false,
+    "cold_pack_rebuilt_each_complete_parent_update": true,
+    "complete_context_stays_CPU": true,
+    "cross_update_or_restored_bank_reuse": false,
+    "factory": "build_executor",
+    "learned_or_optimizer_state_cached": false,
+    "module": "research.efficiency_20261027.execution.hot_block_executor_v2",
+    "original_cpu_bank_retained": true,
+    "overridden_behavior": "Only immutable _block input copies and one-update cache lifetime. Original first/second/base/sites/forcing/finite-episode/history/explicit backward equations remain inherited.",
+    "per_parent_pack": true,
+    "required_options": [
+      "hot_pack_max_payload_bytes",
+      "hot_pack_soft_budget_bytes",
+      "hot_pack_scratch_reserve_bytes"
+    ],
+    "variant": "CPU-context explicit VJP,512holds,64GRUhaps,1024history in future qualification"
+  },
+  "lifetime_and_invalidation": {
+    "binding": "Exact live CPU bank identity, source tensor identity/pointer/version/shape/stride/dtype, byte-backed immutable original layout tuples, explicit provenance, and original CUDA stream.",
+    "device_inputs": "Cached tensors must stay non-grad and their identity/pointer/version/shape/dtype stamps match on reuse.",
+    "error": "No shortened parent, dtype fallback, alternate block size, retry launcher or partial-gradient success. Failures propagate; explicit abort invalidates later graph reuse.",
+    "lease": "Original custom-trunk autograd node post-hook marks successful complete backward. close before that fails. Any failed candidate call must abort_hot_pack before releasing the executor.",
+    "release": "Clears all strong device entries and held CPU layout references. Existing layout lease releases only afterward. Actual CUDA allocation/free state must be reread; dropping references is not proof of physical release.",
+    "source_mutation": "Torch in-place changes and tensor replacement are rejected. Raw-storage/NumPy writes bypassing Torch version tracking remain forbidden by the existing immutable-bank contract; this candidate does not claim to detect such unsupported external writes.",
+    "thread_handling": "RLock serializes cache state; CUDA autograd engine thread continuation is allowed. v1 thread-affinity guard was superseded before anyGPU test."
+  },
+  "production_modified": false,
+  "resource_closure": {
+    "CPU_metadata": "Finite per-block namespaces/tensor stamps and source/immutable-layout stamps; host caller retains original preparation/training headroom.",
+    "admission": "Before first allocation and each cold block: actual CUDA reserved+remaining entire pack+16GiB complete scratch <= explicit soft cap; physical free >= remaining pack+16GiB. Caller existing resource check also runs. No allocator empty_cache or silent fallback.",
+    "all20_parent_peak_guarantee": false,
+    "allocator_reuse_or_physical_release_inferred_from_accounting": false,
+    "baseline_allocated_peak_bytes": 7908911616,
+    "baseline_reserved_peak_bytes": 13591642112,
+    "example_full_TRAIN000_payload_cap_bytes": 19327352832,
+    "example_soft_budget_bytes": 51539607552,
+    "extra_host_working_storage": "Existing layout arrays reused. Relative sample indices allocate one block-local CPU tensor (at most6,553,600bytes for512x1600 int64) and PyTorch conversion/staging uses original transfer path. No full host clone or pinned-memory pool is introduced.",
+    "initial_admission_required_payload_plus_scratch_bytes": 34602344752,
+    "largest_new_pack_fraction": "All blocks remain resident; original measured single-block activation, context-copy, decoder and backward workspace must still fit. The nominal addition double counts some original current-block inputs but cannot bound allocator fragmentation or a different peak.",
+    "nominal_arithmetic_is_not_admission": true,
+    "nominal_payload_plus_allocated_peak_bytes": 25331387184,
+    "nominal_payload_plus_reserved_peak_bytes": 31014117680,
+    "required_scratch_reserve_bytes": 17179869184,
+    "synchronous_transfers_and_same_stream_only": true,
+    "training_original_RSS_cap_changed": false
+  },
+  "schema": "TreeLoom_hot_block_pack_assessment_v2",
+  "source_pins_ref": {
+    "path": "research/efficiency_20261027/execution/source_pins_hot_block_v2.json",
+    "sha256": "734a5d201e501575e3c33eb412e139ae0a237c498b46ef7db942e725401841ad"
+  },
+  "status": "CPU_exact_candidate_no_GPU_qualification"
+}

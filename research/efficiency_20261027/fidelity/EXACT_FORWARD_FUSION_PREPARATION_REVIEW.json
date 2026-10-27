@@ -1,0 +1,84 @@
+{
+  "schema": "TreeLoom_exact_forward_fusion_preparation_review_v1",
+  "status": "pass_for_preparation",
+  "reviewer": "independent_fidelity",
+  "reviewed_at_utc": "2026-10-27T03:07:50.210228+00:00",
+  "scope": "Finite-path source algebra, exact inherited backward contract and existing synthetic CPU evidence. No GPU launch/integration or full-model qualification approval.",
+  "candidate_source_ref": {
+    "path": "research/efficiency_20261027/architecture/exact_forward_fusion/forward_fusion.py",
+    "sha256": "27e58af153f297876ac3460e9d7b233b4282ad42ab0c281db6f2d378a46bda34"
+  },
+  "test_source_ref": {
+    "path": "research/efficiency_20261027/architecture/exact_forward_fusion/test_cpu.py",
+    "sha256": "c01f11d41e2e3e400308471b954cfd2fe989ff8b7e72cc23747e8cd0af874368"
+  },
+  "CPU_receipt_ref": {
+    "path": "research/efficiency_20261027/architecture/exact_forward_fusion/CPU_results_v1.json",
+    "sha256": "fc93bf2050f7a69bbdb6ad7549bdcc9be2397777a3a3160315289a1a21f2b986"
+  },
+  "assessment_ref": {
+    "path": "research/efficiency_20261027/architecture/exact_forward_fusion/ASSESSMENT_v1.json",
+    "sha256": "e06d9d49c42a741511df674a3980bb3d008984a199610b32529276bd00d14633"
+  },
+  "measured_bytes_addendum_ref": {
+    "path": "research/efficiency_20261027/architecture/exact_forward_fusion/MEASURED_BYTES_addendum_v1.json",
+    "sha256": "f53aeb995b9a4b90b2c41ebe68667e18a44e48fe039ca2537025eae634b7e09a"
+  },
+  "assessment_source_refs_verified": 7,
+  "source_mismatches": [],
+  "findings": [
+    "The original first sweep calls the same inherited block/site/base operations and same sweep_tree_state_v1. The fusion gathers original representatives ondevice before making the unchanged complete upward/outsideCPUcopies.",
+    "On finite FP32 values, gather preserves values and order; the same binary addition acts on the same contiguous selected rows before the same Linear memory.U. Inplace addition mutates a fresh index_select result and aliases neither upward nor outside boundary.",
+    "Linear memory.U and the reviewed call closure contain no dropout, running-stat mutation or parameter update between these reordered operations. No tree/history reduction is reassociated.",
+    "The perblock aminmax and maximum(-min,max), followed by scalar maximum across blocks, match finite absolute maximum. Denominator/eligibility and original overflow proof algebra remain unchanged.",
+    "NaN/Inf handling is explicitly stricter: device reductions failclosed for nonfinite maxima, whereas old Pythonmax could ignore a laterNaN. Finite-path equivalence is the supported claim, not identical invalid-input behavior.",
+    "The candidate backward is assigned the exact original _ExplicitTrunk.backward function object. Saved forcing/readout/eligible/upward/outside/parameter order and ctx fields match the original contract; original full-history backward and second sweep remain unchanged.",
+    "The candidate keeps every expandedCPUboundary and full backward pass. It is an unregistered forward scheduling/transfer candidate, not an architecture, data-reduction or context-residency change."
+  ],
+  "CPU_evidence": {
+    "synthetic_holds": 3,
+    "haplotypes": 1600,
+    "nodes": 4803,
+    "tree_blocks": 3,
+    "context_max_abs_error": 0.0,
+    "computed_trunk_gradients": 33,
+    "preserved_preexisting_decoder_gradients": 12,
+    "gradient_max_abs_error": 0.0,
+    "unused_site_MLP_parameters": 4,
+    "full_history_backward_calls": 1,
+    "all_three_boundary_errors_zero": true,
+    "eligibility_and_absmax_equal": true,
+    "nonfinite_guard_rejection_checked": true,
+    "optimizer_step": false,
+    "CUDA_initialized": false
+  },
+  "byte_arithmetic": {
+    "count_receipt_ref": {
+      "path": "/workspace-SR003.nfs2/ARG-GNN/research/efficiency_20261027/architecture/compact_interval_assessment/TRAIN000_compact_counts_v2.json",
+      "sha256": "15700864847882b71ab79f9579a1826bf13f05088602144decbee1614e7dc0fa"
+    },
+    "count_receipt_hash_verified": true,
+    "count_payload_not_independently_recomputed": true,
+    "cut_groups": 37545876,
+    "blocks": 152,
+    "max_groups_per512block": 274233,
+    "removed_float_H2D_bytes": 9611744256,
+    "added_index_H2D_bytes": 300367008,
+    "net_H2D_reduction_bytes": 9311377248,
+    "named_added_firstphase_temporary_upper_bytes": 81173576,
+    "removed_CPU_abs_scan_payload_bytes": 26287266816,
+    "unchanged_up_out_CPU_and_D2H_bytes": 52574533632,
+    "allocator_and_kernel_workspaces_excluded": true
+  },
+  "limitations": [
+    "The synthetic CPU fixture substitutes pooled site inputs and does not exercise actual siteMLP, focaldecoder, Adam update or fullparentGPUexecution.",
+    "The45gradient entries are33computed tensors plus12preexistingdecoder tensors; they are not49newfullmodel gradients.",
+    "Byte counts are transfer/payload arithmetic, not timing or GPU allocatorpeak evidence. Added firstphase residency/workspaces still require a bounded qualification.",
+    "Original constructor guards remain inherited. Any future512integration adapter and production release remain execution-owner work requiring review.",
+    "Future promotion requires strict fullparent numerical/update parity and resource/lifecycle evidence; this review introduces no blocker for the already running approvedCPU512trainer."
+  ],
+  "reviewer_tests_rerun": false,
+  "reviewer_scientific_payload_reads": false,
+  "GPU_launched": false,
+  "production_modified": false
+}

@@ -1,0 +1,50 @@
+{
+  "schema": "TreeLoom_hot_transfer_advancement_inference_v1",
+  "status": "assumption_only_no_GPU_measurement",
+  "full_parent_accounting_ref": {
+    "path": "research/efficiency_20261027/execution/HOT_BLOCK_PACK_ASSESSMENT_v2.json",
+    "sha256": "730c0253801b30cf232e42b6c7ab2045f365008d5321673576b06e4c59b97db1"
+  },
+  "baseline_result_ref": {
+    "path": "research/efficiency_20261027/root/runs/selected_full_gpu5_v1/data/completed.json",
+    "sha256": "cf1a77fda3fa89515d3b2f1b39273cc986b406ee141a41ba404b3495d5b97e03"
+  },
+  "transfer_plan_ref": {
+    "path": "research/efficiency_20261027/execution/HOT_BLOCK_TRANSFER_PLAN_v1.json",
+    "sha256": "e579057fd1ca187e1291447ec9b97f02ed904eb8712d36c86aa6ab96b8ab0c9e"
+  },
+  "measured_selected_update_seconds": 380.41530763171613,
+  "avoided_full_TRAIN000_payload_bytes": 52267426704,
+  "assumptions": [
+    {
+      "assumed_effective_copy_GB_per_second": 10,
+      "idealized_gross_copy_seconds_removed": 5.2267426704,
+      "fraction_of_measured_selected_update": 0.013739569795282954,
+      "percent_of_measured_selected_update": 1.3739569795282955
+    },
+    {
+      "assumed_effective_copy_GB_per_second": 20,
+      "idealized_gross_copy_seconds_removed": 2.6133713352,
+      "fraction_of_measured_selected_update": 0.006869784897641477,
+      "percent_of_measured_selected_update": 0.6869784897641478
+    },
+    {
+      "assumed_effective_copy_GB_per_second": 30,
+      "idealized_gross_copy_seconds_removed": 1.7422475568,
+      "fraction_of_measured_selected_update": 0.004579856598427651,
+      "percent_of_measured_selected_update": 0.4579856598427651
+    }
+  ],
+  "formula": "gross_saved_seconds = avoided_tensor_payload_bytes / assumed_effective_bytes_per_second; fraction = gross_saved_seconds / measured_selected_update_seconds",
+  "interpretation": [
+    "Rates10,20,30GB/s are explicit hypotheses, not measured hardware throughput. Results are not measured speedups or mathematical upper bounds.",
+    "The hypotheses imply about0.46to1.37percent of the measured full update before pack validation, binding, allocation and persistent-residency costs.",
+    "Original per-tensor conversion and blocking-copy overhead may differ from a constant-bandwidth approximation. Actual four-pass microbenchmark totals are needed to assess net transfer-stage benefit.",
+    "A possible future byte-scaled estimate is median paired prefix saved seconds times full avoided payload divided by actual prefix avoided payload. It remains an extrapolation with no full-parent wall-time or peak guarantee.",
+    "A large relative component speedup can remove only a small fraction of total update wall time. Do not advance on the component ratio alone.",
+    "If the inferred absolute saving is small, close the candidate without full GPU qualification or production restart. ROOT owns advancement thresholds and scheduling.",
+    "The next useful low-duty diagnostic would measure an actual bounded learned forward/backward CPU/CUDA timeline, preserving checkpoint, math and resource guards. No such trace is launched or prepared by this addendum."
+  ],
+  "GPU_launched": false,
+  "production_changed": false
+}
