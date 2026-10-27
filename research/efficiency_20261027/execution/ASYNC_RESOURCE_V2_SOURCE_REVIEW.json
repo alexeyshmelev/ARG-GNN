@@ -1,0 +1,46 @@
+{
+  "additional_timing_checks": 3,
+  "closed_findings": [
+    "Scan duration is bounded before successful lease renewal, and an existing expired lease cannot be erased at completion",
+    "Timed lock acquisition rechecks wall/freshness/error before and after acquisition; waiting writes fail before executing after deadline"
+  ],
+  "extra_checks": [
+    "Sub-lease scan duration that nevertheless crosses existing lease fails and latches",
+    "Overlong final scan prevents successful completion",
+    "Waiting prospective write fails its wall budget before periodic scan releases"
+  ],
+  "independent_CPU_tests_passed": 16,
+  "model_or_GPU_calls": 0,
+  "no_deployment_authorized": true,
+  "original_tests_rerun": 13,
+  "passed": true,
+  "prior_failed_review_ref": {
+    "path": "research/efficiency_20261027/execution/ASYNC_RESOURCE_V1_SOURCE_REVIEW.json",
+    "sha256": "f552eb5c82eb246d70b00897ef37c552ac624bdd6a3b15373bd8b478437906ed"
+  },
+  "production_modified": false,
+  "real_resource_scans": 0,
+  "schema": "TreeLoom_async_resource_independent_review_v2",
+  "scientific_payloads_opened": false,
+  "source_integration_conditions": [
+    "Source-only approval of this wrapper; an actual integration patch must bind the exact original ResourceCheck and give it exclusive callback ownership.",
+    "Keep existing trainer own-RSS and phase checks; preserve all numeric caps and integer prospective-write semantics.",
+    "Start before dispatch; close and propagate final-scan/join failure before declaring completion.",
+    "Retain ROOT external guardian for a callback that itself cannot return or a Python computation that does not reach cooperative checks.",
+    "30second delay begins after scan completion; report actual cadence and sampled protection without claiming a hard resource quota."
+  ],
+  "source_refs": [
+    {
+      "path": "research/efficiency_20261027/root/async_resource_checks/check_v2.py",
+      "sha256": "7904ce00d5b4d1ce405a7ebceeb29ce49220eaf9d4218a3a50c6c0bc499f8069"
+    },
+    {
+      "path": "research/efficiency_20261027/root/async_resource_checks/test_v2.py",
+      "sha256": "f2ea4a4662172442fd94137e919d82996fdfd3b78372debe2c65db64aa75996a"
+    },
+    {
+      "path": "research/efficiency_20261027/execution/review_async_resource_v2.py",
+      "sha256": "c081a34e26dfe7fce3691d22b38a45de564055379f61971bfb0d5f3b5b8a8977"
+    }
+  ]
+}

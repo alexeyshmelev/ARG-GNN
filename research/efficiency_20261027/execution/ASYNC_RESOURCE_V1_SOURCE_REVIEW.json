@@ -1,0 +1,51 @@
+{
+  "additional_reproductions": 2,
+  "existing_tests_passed": true,
+  "existing_tiny_tests_independently_rerun": 11,
+  "findings": [
+    {
+      "detail": "The completion timestamp becomes last_success even when a scan itself exceeds maximum_scan_age_seconds. A130s initial scan is accepted with a120s lease; a long periodic scan can likewise erase a missed stale interval.",
+      "priority": "required_before_integration",
+      "requested_fix": "Record successful scan start and completion separately, bound scan duration, and latch timeout failures before refreshing the successful-scan lease. Initial/final scans must enforce the same finite contract.",
+      "title": "Completed slow scan renews lease without bounding scan duration"
+    },
+    {
+      "detail": "The writer checks state only before waiting on an unbounded callback lock. A blocked periodic scan allows its lease to expire; after the scan returns, last_success is reset and the waiting write is accepted.",
+      "priority": "required_before_integration",
+      "requested_fix": "Use bounded lock acquisition with repeated cheap wall/failure/freshness checks, and revalidate after acquiring the lock before running or accepting the prospective-write scan. Do not silently renew a lease already missed while waiting.",
+      "title": "Prospective write waits indefinitely for callback lock and can cross freshness deadline"
+    }
+  ],
+  "model_or_GPU_calls": 0,
+  "observations": {
+    "initial_130second_scan_accepted_with120second_lease": true,
+    "writer_remained_blocked_after_100ms_lease_expired": true,
+    "writer_was_accepted_after_200ms_block_and_freshness_reset": true
+  },
+  "passed": false,
+  "production_modified": false,
+  "real_processes_signaled": 0,
+  "real_processes_started": 0,
+  "schema": "TreeLoom_async_resource_independent_review_v1",
+  "scientific_payloads_opened": false,
+  "source_clarifications": [
+    "Periodic scan cadence is30seconds after completion, so a27.3second scan yields about57.3seconds between starts; the receipt discloses this difference.",
+    "Numeric caps and source algorithm remain unchanged, but this is still cooperative sampled protection; a stuck callback cannot be safely canceled as a Python thread, so ROOT outer guardian stays authoritative.",
+    "Integration must give this wrapper exclusive ownership of the original callback; remaining aliases must not invoke its mutable next_check and status writer concurrently.",
+    "Caller must close the wrapper before reporting completion and must propagate close failure; no live installation has been reviewed."
+  ],
+  "source_refs": [
+    {
+      "path": "research/efficiency_20261027/root/async_resource_checks/check_v1.py",
+      "sha256": "462536afdbda0dfb00bd833c67724b72e18799b5830b8bc962cf2a6bce5ca31d"
+    },
+    {
+      "path": "research/efficiency_20261027/root/async_resource_checks/test_v1.py",
+      "sha256": "db1dc2761843f6dbc4d6c2ec4051c03b31f247e4a8fc1c0ae85d766e2fbd3e71"
+    },
+    {
+      "path": "research/efficiency_20261027/execution/review_async_resource_v1.py",
+      "sha256": "62cd30b6c4d89b5870e0aeab2139f3030a68c996904cddceaa6bdf10450eb9d3"
+    }
+  ]
+}
