@@ -22,7 +22,7 @@ The owner requests accurate, resource-efficient training with a target of at lea
 - [x] Establish current GPU3 process identity and original training call.
 - [x] Delegate three independent areas with explicit ownership.
 - [ ] Record complete training/preparation activity and diagnose major idle causes.
-- [ ] Inspect literature and source coverage, marking unavailable material explicitly.
+- [x] Inspect literature and source coverage, marking unavailable material explicitly.
 - [ ] Implement and validate exact changes against the existing model.
 - [ ] Qualify a scalable model only if architectural bottlenecks remain.
 - [ ] Measure representative end-to-end performance under unchanged observations.
@@ -51,6 +51,17 @@ The fidelity review finished the substantive ARGMix and AncestralPaths source fi
 
 ## Exact blockwise backward qualification
 
-The explicit VJP executor returns parameter contributions through autograd and retains the complete bidirectional genomic history. It changes the lifetime of gradients across tree blocks. It does not truncate history, remove targets or reuse learned state between updates. On the actual128-tree slice, four blocks, all1600sample columns and22registered targets,16paired calls passed strict FP32 checks of logits, loss, all49gradients, updated parameters and optimizer moments, with zero changed predicted classes. Six balanced warm rounds measured1.330seconds integrated versus1.120seconds explicit. Full TRAIN000 qualification is running in root/runs/explicit_full_gpu5_v1. This is engineering evidence, not a new ancestry score.
+The explicit VJP executor returns parameter contributions through autograd and retains the complete bidirectional genomic history. It changes the lifetime of gradients across tree blocks. It does not truncate history, remove targets or reuse learned state between updates. On the actual128-tree slice, four blocks, all1600sample columns and22registered targets,16paired calls passed strict FP32 checks of logits, loss, all49gradients, updated parameters and optimizer moments, with zero changed predicted classes. Six balanced warm rounds measured1.330seconds integrated versus1.120seconds explicit. Full TRAIN000 qualification completed with actual exit zero. All 10,000 original targets and all 49 gradients, parameters and optimizer states passed the strict comparator against integrated CPU8. Loss was identical and no predicted class changed. Update time was 424.363 seconds versus 511.194 seconds. Peak allocated GPU memory was 6.617 GB versus 52.064 GB. This is one fixed-order comparison on a shared GPU. This is engineering evidence, not a new ancestry score.
 
-A separately named composition keeps final context and its decoder VJP on GPU. CPU chain-rule and strided-input tests pass. It is not yet GPU-qualified. Its full transient context concatenation requires twice the context bytes plus scratch. The production worker is preserved until a representative numerical, memory and throughput result justifies a checkpoint transition.
+A separately named composition keeps final context and its decoder VJP on GPU. CPU chain-rule and strided-input tests pass. The composition passed 24 strict observed-prefix GPU comparisons with zero changed classes. Full-parent composition has not been qualified. Its full transient context concatenation requires twice the context bytes plus scratch. The production worker is preserved until a representative numerical, memory and throughput result justifies a checkpoint transition.
+
+
+## Current integration queue
+
+1. Completed: strict full-chromosome explicit backward comparison. The independent review confirms unchanged observations, all targets, complete history and optimizer update within FP32 tolerances.
+2. In progress: larger tree blocks of 128, 512 and 1,024 on the same 1,153-tree observed prefix. The first attempt failed while serializing a NumPy integer in logging metadata, before CUDA. Preserve the failure and repair only the metadata emission in a versioned successor.
+3. In progress: staged Transport GPU qualification. The architecture agent is preparing a paired TRAIN/VAL pilot using the staged executor. Changed-model accuracy remains untested.
+4. Prepared next: strict full-parent comparison of the selected final executor directly against original execution. Select block size and context placement from measured timing and memory, preserving all original supervision and history.
+5. In preparation: immutable production successor, memory admission and checkpoint transition. Current benchmark jobs remain active. No diagnostic result has been deployed yet.
+
+The full explicit backward run's shared-device stage means were 14.0 percent for first layout construction, 44.8 percent for context forward, 86.6 percent for decoding and 71.7 percent for trunk backward. Device sharing prevents attributing these values wholly to TreeLoom. The sustained useful-utilization target remains unmet. Increasing activity is insufficient unless useful throughput and predictive accuracy are retained.

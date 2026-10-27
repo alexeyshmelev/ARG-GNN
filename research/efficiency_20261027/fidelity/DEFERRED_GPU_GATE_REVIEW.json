@@ -1,0 +1,73 @@
+{
+  "CPU_evidence": {
+    "CUDA_initialized": false,
+    "PID_reuse_without_old_group_accepted": true,
+    "free_GPU_query_deferred_until_exact_wait": true,
+    "insufficient_current_GPU_memory_waits_then_rechecks": true,
+    "invalid_completion_cases_rejected": 7,
+    "remaining_group_rejected": true,
+    "still_alive_original_identity_rejected": true
+  },
+  "base_numerical_review_ref": {
+    "path": "research/efficiency_20261027/fidelity/LARGE_BLOCK_RUNNER_ADMISSION_REVIEW.json",
+    "sha256": "d96a9f96590ba198b55361b3b47cffa90d9ccf0b3352ed9f3af0e1c9a5bb064b"
+  },
+  "decision": "No static blocker to ROOT-guarded CPU preparation concurrent with explicitly named predecessor; CUDA admission remains gated on exact completed process/session and fresh physical GPU memory.",
+  "evidence_ref": {
+    "path": "research/efficiency_20261027/execution/deferred_gate_CPU_test/completed.json",
+    "sha256": "daea86a8585e461d7daec408c43b96c5b5a99c62438d48cf1dd8bc776797fdfa"
+  },
+  "gate": {
+    "actual_returncode_required": 0,
+    "actual_wait_required": true,
+    "atomic_status_receipts": true,
+    "before_gate_each_poll_CUDA_uninitialized": true,
+    "before_preparation_CUDA_uninitialized": true,
+    "current_free_required": "Declared GPU budget plus2GiB CUDA context margin",
+    "current_original_PID_start_must_be_absent": true,
+    "exact_PID_and_start_match_required": true,
+    "independent_proc_process_group_and_session_absence": true,
+    "launch_and_request_refs_frozen": true,
+    "launch_visible_argv_matches_request": true,
+    "owned_group_absent_receipt_required": true,
+    "physical_GPU_UUID_checked_by_NVML": true,
+    "poll_seconds_default": 5,
+    "poll_seconds_max": 30,
+    "predecessor_directory_inside_ROOT_owned_runs": true,
+    "signals_sent": false,
+    "timeout_seconds_default": 14400
+  },
+  "limitations": [
+    "The gate proves lifecycle/memory admission conditions, not predecessor scientific qualification. ROOT must independently review numerical completion before any adoption claim.",
+    "GPU free memory is a current observation, not a reservation against external allocations; external resource supervision and peer-aware host growth guards remain necessary.",
+    "CPU preparation children/IPC and resident prepared prefix remain within the separately admitted family envelope while waiting.",
+    "Timeout, invalid receipt, source mutation or predecessor nonzero exit fails closed; no job retry, signals or smaller-workload fallback.",
+    "The unchanged numerical runner retains strict128/512/1024 prefix comparison and all earlier limits; this wrapper does not authorize full-parent deployment."
+  ],
+  "reviewed_scope": [
+    "Complete107line read-only gate",
+    "Exact base-runner versus deferred-runner diff",
+    "Complete CPU fixture harness and pass receipt",
+    "Complete root supervisor source for imported identity and NVML functions; gate does not call its main or signal methods"
+  ],
+  "reviewed_unix": 1793065458.405968,
+  "schema": "TreeLoom_deferred_GPU_gate_independent_review_v1",
+  "source_refs": [
+    {
+      "path": "research/efficiency_20261027/execution/deferred_gpu_gate.py",
+      "sha256": "1f57cfbaf46592f7636416a4215108541ebd560032985b4d5622823dde5b5961"
+    },
+    {
+      "path": "research/efficiency_20261027/execution/compare_large_blocks_deferred.py",
+      "sha256": "1f922092eaf9a47c9575cf6ba40fd6c1e3a796c0ba91a80c5dd643df1a9441c1"
+    },
+    {
+      "path": "research/efficiency_20261027/execution/test_deferred_gpu_gate.py",
+      "sha256": "d8e13cf7d311b84551ee2dd704ba6ab7299c0a01cef991427c713cb181d8c76f"
+    },
+    {
+      "path": "research/efficiency_20261027/root/run_guarded_profile_with_peer.py",
+      "sha256": "c3a0a787cbff60938bd875438ed66711519c3030677fcd3ce087201c90006eec"
+    }
+  ]
+}

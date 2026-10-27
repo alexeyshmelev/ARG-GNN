@@ -1,0 +1,95 @@
+{
+  "schema": "TreeLoom_Transport_critical_LAI_contribution_assessment_v1",
+  "status": "Hypothesis and discriminating experiment only; no implementation or training authorized by this report",
+  "source_refs": [
+    {
+      "path": "research/efficiency_20261027/architecture/treeloom_transport.py",
+      "sha256": "167ef0769a555dd891abb731af4998f90108352fd963d1a43f0f46e008d66182"
+    },
+    {
+      "path": "research/benchmark_rebuild_20261024/american/treeloom_speed/static_model_v2.py",
+      "sha256": "dbb648c2b72c38e6f9a77f3db903738135b63bbf76d358104d6db485133cfc47"
+    },
+    {
+      "path": "research/reviews/order2_cut_memory_implementation_20261015_v1/order2_cut_memory_v1.py",
+      "sha256": "3b496b163e11147643aa576dfe1f37a75544d466624ef2bd4377fc62d1533265"
+    },
+    {
+      "path": "src/arggnn/american_c3_gnn_model_v1.py",
+      "sha256": "f1a64bf56a6edc6e2b5ead5d0b06dda1d64034bdfaa5f8fc166f7b5ddffb994d"
+    },
+    {
+      "path": "src/arggnn/anonymous_clade_gnn_v1.py",
+      "sha256": "2f878e6334079cff083f67b6da8eda129dd30e7beebc62ae2a93d51796c3f137"
+    },
+    {
+      "path": "research/efficiency_20261027/architecture/design_and_evidence.json",
+      "sha256": "5788af04f83948c59246385c374f57e593d22b78d560e52912da79e2b8288812"
+    },
+    {
+      "path": "research/efficiency_20261027/architecture/novelty_primary_fetches.json",
+      "sha256": "cd2fb2949b4999d2b8fc8591cbd2190ec3eb98f631492fc40ccb9c167cd2fa0f"
+    }
+  ],
+  "main_conclusion": "No demonstrated function that current TreeLoom cannot learn. Persistent sampled identity is already central to its stable-leaf memory and per-haplotype bidirectional GRU. Transport changes the inductive bias and execution cost; a new kernel or generic combination is not a defensible novelty claim.",
+  "established_prior_art": [
+    {
+      "mechanism": "Normalized weighted tree path-product filtering",
+      "references": [
+        "https://arxiv.org/abs/1909.12513",
+        "https://arxiv.org/abs/2012.03482"
+      ]
+    },
+    {
+      "mechanism": "Parallel affine recurrence and input-selective state-space scans",
+      "references": [
+        "https://arxiv.org/abs/1709.04057",
+        "https://arxiv.org/abs/2312.00752"
+      ]
+    },
+    {
+      "mechanism": "Tree state-space traversal",
+      "references": [
+        "https://arxiv.org/abs/2406.02395"
+      ]
+    }
+  ],
+  "plausible_task_specific_contribution": "A resource-qualified LAI system that alternates allele-informed whole-tree evidence exchange with learned, multiscale memory indexed by the same sampled genomes across every original interval, then feeds that memory back into the current genealogy before prediction. The contribution would be the demonstrated biological-task benefit and accuracy/efficiency tradeoff on complete inferred tree sequences, not invention of its operators.",
+  "learned_biases": [
+    {
+      "transport": "Per-channel positive branch-duration decay, modulated by inferred branch geometry and observed allele support, learns which genealogical distances carry useful ancestry evidence.",
+      "comparison": "Current TreeLoom already learns separate upward/downward edge gates. The new exponential metric and normalization impose a different, more constrained distance bias; they are not proven more expressive or a calibrated coalescent likelihood."
+    },
+    {
+      "transport": "Each genomic channel learns a tree-state-dependent retention rate and forcing vector. First-round histories are written to the actual sample occurrences and can influence other leaves through the second current-tree filter.",
+      "comparison": "The existing internal stable-leaf mechanism has rank8 forcing and one shared learned physical length scale, with group-state copying and regrouping at a350-generation cut. Its later BiGRU already has state-dependent recurrence and per-sample identity. Transport offers broader32-channel feature-selective early feedback, but weaker recurrent state dependence."
+    },
+    {
+      "transport": "Two separately parameterized tree/history rounds can distinguish a first observation aggregation from refinement after genomic memory.",
+      "comparison": "Current TreeLoom shares its nonlinear tree-sweep weights across two passes and injects structural/memory corrections into the original base before pass2. Different parameter sharing is an architectural choice, not a new biological capability."
+    }
+  ],
+  "what_is_removed_or_changed": [
+    "Explicit repeated-clade own-state episode coupling is removed. Original local gained/lost clade flags remain input features, so it is inaccurate to say all clade information is removed.",
+    "The350-generation cut, copying of current group states to stable leaves, regrouping of leaf memories at current representatives, rank8 correction and original-base second-pass residual are replaced by direct sampled-leaf history reinsertion.",
+    "Nonlinear, recipient-excluded upward/outside transformations at every depth become a symmetric, normalized, channelwise path filter followed by a nonlinear update. The new filter cannot generally reproduce the old depth-dependent nonlinear composition.",
+    "A state-dependent bidirectional GRU becomes input-selective affine recurrence; rates and forcing cannot condition on the preceding learned hidden state. Left/right tree paths share the same learned edge decay."
+  ],
+  "accuracy_and_biological_risks": [
+    "Normalized positive averages can erase rare informative configurations and over-smooth ancestral boundaries. Keeping every node/site in computation is not injective information retention.",
+    "Removing own-state episodes and biologically motivated cut groups may lose information carried by recurring clades. A sample-aligned path can retain continuity without reconstructing ancestral identity.",
+    "Decay may underflow along long paths in FP32; strong genomic retention can blur short tracts, while aggressive forgetting can remove useful weak-SNP evidence. Learned support gates can also exploit inference artifacts.",
+    "The input genealogy is an inferred tsinfer/tsdate reconstruction. Learned rates are ancestry-predictive parameters, not proof of true ancestral transmission, recombination events or posterior uncertainty.",
+    "First-round transport includes all reference/query samples, but no new evidence yet establishes useful transfer to sparse-SNP or high-topology-change intervals. Numerical parity and throughput are independent of predictive quality."
+  ],
+  "one_discriminating_ablation": {
+    "name": "Break only the stable-sample alignment of the first genomic feedback path",
+    "design": "After the resource gate and a promising unchanged-data accuracy pilot, compare ordinary Transport with one matched control. Immediately before the first genomic scan, use a different deterministic observation-only sample-column permutation at each native interval, restricted within observed reference-role/class and sample-age groups. Invert the current-interval permutation before history reinsertion. Keep tree/SNP inputs, all1600 samples, parameters, current-tree routing, final sample-aligned genomic scan, optimizer and update budget identical. This preserves each interval input multiset while breaking across-interval identity only in early feedback.",
+    "rationale": "Both arms retain ordinary final per-haplotype genomic smoothing. A reproducible advantage for correct early alignment would support the specific claim that the same genome should accumulate evidence across changing genealogies and return that evidence to tree reasoning. It would not prove a new kernel or superiority over existing TreeLoom.",
+    "controls": "Use predeclared permutations independent of ancestry truth, paired initialization seeds and identical complete-parent training order. Do not tune the permutation or strata on VAL. Keep the current TreeLoom arm in the broader accuracy/efficiency pilot.",
+    "readout": "Seal predictions for all five original VAL parents before separate scoring. Use unchanged original focal CE and accuracy as primary comparisons, with parent-level paired uncertainty; optionally report prespecified observed low-SNP/high-clade-change strata. No TEST use, replacement simulations, new focal subset or training on VAL.",
+    "falsifier": "If early alignment adds no reproducible held-out benefit, or if the optimized current model matches its accuracy and efficiency, the proposed biological-architectural contribution is unsupported. Do not expand speculative implementation to rescue the story."
+  },
+  "next_decision": "Finish staged GPU numerical/resource qualification first; integrate no ablation or paired-training source changes until the measured resource and predictive pilot justify them.",
+  "current_predictive_evidence": "None for this fresh Transport candidate; no accuracy preservation, superiority or80-percent threshold established."
+}

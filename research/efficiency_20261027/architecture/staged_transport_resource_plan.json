@@ -1,0 +1,187 @@
+{
+  "schema": "TreeLoom_Transport_staged_resource_and_overhead_plan_v1",
+  "status": "prepared_not_GPU_qualified",
+  "sources": [
+    {
+      "path": "research/efficiency_20261027/architecture/staged_transport.py",
+      "sha256": "9e1e73aa9672843985732821413ee01e8fbf46a034d9208b6ffb5e5b43530560"
+    },
+    {
+      "path": "research/efficiency_20261027/architecture/test_staged_transport.py",
+      "sha256": "8f37e379dd21dc33d4c3956cfb1b447a95649edc4e73b90536d07c49f87a970d"
+    },
+    {
+      "path": "research/efficiency_20261027/architecture/staged_CPU_parity_v1.json",
+      "sha256": "d1ac777c694d9e913bd446fb5b1f4c7846937d621da8b0d910e6572c94d05b56"
+    },
+    {
+      "path": "research/efficiency_20261027/architecture/staged_transport_resource_plan.py",
+      "sha256": "b0f73140bb7bf1c4e2a7564bcdbc4ae3ba84733b500626635215816e82d00a6e"
+    }
+  ],
+  "full_parent_metadata_ref": {
+    "path": "research/preprocessing_optimization_20261026/integration/full_candidate.json",
+    "sha256": "13b06abd75afa0a199b5649de744b97871259be891ae50b55fa40cac678a15c0"
+  },
+  "static_topology_ref": {
+    "path": "research/efficiency_20261027/execution/full_gpu_peak_static_accounting.json",
+    "sha256": "cd81c297e243ea5de8a2acc33454303a774b00307e0b66bc14dea5e2fea3cc1b"
+  },
+  "holds": 77472,
+  "haplotypes": 1600,
+  "nodes": 205369272,
+  "hidden_dim": 32,
+  "execution_partition": {
+    "tree_holds": 128,
+    "haplotypes": 128,
+    "scan_holds": 1024
+  },
+  "tree_blocks": 606,
+  "maximum_native_nodes_per_tree_block": 347010,
+  "one_history_bytes": 15866265600,
+  "one_haplotype_tile_bytes": 1269301248,
+  "one_all_node_state_bytes": 26287266816,
+  "named_host_arrays": {
+    "uncached": {
+      "full_history_and_adjoint_conservative_bytes": 63465062400,
+      "tile_scratch_conservative_bytes": 7615807488,
+      "copied_incoming_boundaries_bytes": 2490368,
+      "first_node_cache_and_adjoint_bytes": 0,
+      "named_array_total_bytes": 71083360256,
+      "named_array_total_GiB": 66.2015380859375,
+      "plus_retained_full_prepared_bundle_bytes": 101088598348,
+      "plus_retained_full_prepared_bundle_GiB": 94.14609367772937
+    },
+    "cached": {
+      "full_history_and_adjoint_conservative_bytes": 63465062400,
+      "tile_scratch_conservative_bytes": 7615807488,
+      "copied_incoming_boundaries_bytes": 2490368,
+      "first_node_cache_and_adjoint_bytes": 52574533632,
+      "named_array_total_bytes": 123657893888,
+      "named_array_total_GiB": 115.1653881072998,
+      "plus_retained_full_prepared_bundle_bytes": 153663131980,
+      "plus_retained_full_prepared_bundle_GiB": 143.10994369909167
+    }
+  },
+  "prepared_bank_tensor_bytes": {
+    "parent": 1642954176,
+    "node_time": 821477088,
+    "sample_index": 991641600,
+    "upward_levels": 1642954176,
+    "upward_children": 1642308816,
+    "upward_parent_rank": 1642308816,
+    "downward_levels": 1642308816,
+    "edge_geometry": 3285908352,
+    "branch_support_true": 4107385440,
+    "branch_support_sham": 4107385440,
+    "genotype": 363958400,
+    "log_donor_allele_frequency": 16378128,
+    "donor_call_mask": 1364844,
+    "panel_allele_frequency": 2729688,
+    "site_entropy": 909896,
+    "site_hold": 1819792,
+    "spans": 309888,
+    "readout_hold": 619776,
+    "query_column": 8000,
+    "reference_class": 12800,
+    "sample_age": 6400
+  },
+  "prepared_bundle_tensor_bytes": {
+    "bank": 21914750332,
+    "episodes": 1391125772,
+    "cut": 6699201988,
+    "parent_id": 0,
+    "split": 0,
+    "sequence_length_bp": 0,
+    "native_holds": 0,
+    "original_sites": 0,
+    "focal_hold": 80000,
+    "focal_sample_column": 80000,
+    "focal_identity_sha256": 0,
+    "observation_ref": 0,
+    "focal_registry_ref": 0,
+    "native_preparation_ref": 0
+  },
+  "prepared_bundle_tensor_total_bytes": 30005238092,
+  "resource_limitations": [
+    "These are named tensor payloads and conservative overlapping array sums, not measured RSS or an admission request.",
+    "Full prepared bundle tally includes original bank, episode arrays, cut plan and focal arrays without claiming their storage cannot alias.",
+    "Local topology jump indexes, one-block CPU/device copies, autograd tapes, library workspaces, allocator cache, Python objects and preparation transients are excluded.",
+    "The executor accounting method reports six tile scratch arrays but omits copied incoming boundaries; this plan explicitly adds those boundaries.",
+    "Six tile scratch arrays plus explicit boundaries is conservative for the reviewed code; full-parent memory still needs a guarded measurement.",
+    "GPU peak cannot be inferred from one node-state size or average topology; the maximum block and scan tape must be measured.",
+    "Caching avoids duplicate first-tree/SNP evaluations but adds all-node host copies and adjoints; end-to-end performance remains unknown."
+  ],
+  "schedule_counts": {
+    "128": {
+      "old_tree_blocks": 8,
+      "new_tree_blocks": 1,
+      "old_first_history_scan_merge_calls": 1200,
+      "new_first_history_scan_merge_calls": 39,
+      "old_haplotype_tiles": 100,
+      "new_haplotype_tiles": 13,
+      "old_scan_chunks_per_tile": 4,
+      "new_scan_chunks_per_tile": 1,
+      "scope": "Forward first history only; excludes final-focal active tiles, VJPs, kernels, allocator and guard costs."
+    },
+    "77472": {
+      "old_tree_blocks": 4842,
+      "new_tree_blocks": 606,
+      "old_first_history_scan_merge_calls": 726300,
+      "new_first_history_scan_merge_calls": 2964,
+      "old_haplotype_tiles": 100,
+      "new_haplotype_tiles": 13,
+      "old_scan_chunks_per_tile": 2421,
+      "new_scan_chunks_per_tile": 76,
+      "scope": "Forward first history only; excludes final-focal active tiles, VJPs, kernels, allocator and guard costs."
+    }
+  },
+  "cached_compute_change": "Per tree block, initial/SNP/first-tree evaluation count changes from two no-grad forward evaluations plus two differentiable recomputations to one no-grad forward plus one differentiable recomputation; second-tree calls remain one forward plus one backward recomputation.",
+  "explicit_VJP_change": "Sequential local backward calls consume cross-block cotangents; no global checkpoint/copy autograd DAG spans all histories or tree blocks.",
+  "previous_GPU128_records": {
+    "warm_libraries_1_monolithic.json": {
+      "ref": {
+        "path": "research/efficiency_20261027/architecture/transport_gpu4_v1/data/warm_libraries_1_monolithic.json",
+        "sha256": "a03818f686034859ec3ae981b93569753a822bd146716e52c97040a4bc5e99a5"
+      },
+      "forward_seconds": 0.10897654201835394,
+      "backward_seconds": 1.357528768479824,
+      "GPU_peak_allocated_bytes": 9196457984,
+      "GPU_peak_reserved_bytes": 9479127040
+    },
+    "warm_libraries_1_bounded.json": {
+      "ref": {
+        "path": "research/efficiency_20261027/architecture/transport_gpu4_v1/data/warm_libraries_1_bounded.json",
+        "sha256": "207813ea521c5ade20a9dc96f0c223c745a0b2b6d62cc0e9d365319320b9d387"
+      },
+      "forward_seconds": 6.8801194448024035,
+      "backward_seconds": 6.566632521338761,
+      "GPU_peak_allocated_bytes": 1113041920,
+      "GPU_peak_reserved_bytes": 1421869056
+    }
+  },
+  "previous_GPU128_terminal_status": "failed exit1 after scientific receipts: final json.dumps received an unsupported flush keyword; original failure and evidence preserved.",
+  "previous_GPU128_independent_receipt_ref": {
+    "path": "research/efficiency_20261027/architecture/transport_gpu128_post_result_verification.json",
+    "sha256": "2d6450ed2c88f088360e8ae38883e6aee22798cdb38c1f8105d407d94d9cc8eb"
+  },
+  "CPU_check": {
+    "ref": {
+      "path": "research/efficiency_20261027/architecture/staged_CPU_parity_v1.json",
+      "sha256": "d1ac777c694d9e913bd446fb5b1f4c7846937d621da8b0d910e6572c94d05b56"
+    },
+    "status": "passed",
+    "trials": 4,
+    "maximum_logit_error": 1.1548399925231934e-07,
+    "maximum_absolute_gradient_error": 1.6808509826660156e-05,
+    "gradient_gate": "elementwise atol1e-6/rtol1e-4; maximum absolute error need not be below1e-6",
+    "all_argmax_equal": true,
+    "CUDA_initialized": false
+  },
+  "no_claims": [
+    "No measured GPU speedup or duty improvement.",
+    "No full-parent memory qualification.",
+    "No ancestry accuracy or preservation of original TreeLoom expressivity.",
+    "No paired-training source/config changed."
+  ]
+}

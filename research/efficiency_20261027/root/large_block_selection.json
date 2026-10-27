@@ -1,0 +1,53 @@
+{
+  "schema": "TreeLoom_large_block_selection_v1",
+  "selected_holds_per_block": 512,
+  "reason": "The512 block reduces warm median update time by13.6percent versus128 on the identical1153-tree prefix. The1024 block improves only3.3percent further while almost doubling allocated memory. Choose512 for full-parent resident-context qualification with more memory headroom.",
+  "source": {
+    "path": "research/efficiency_20261027/root/runs/large_blocks_gpu5_v2/data/completed.json",
+    "sha256": "1b6e8cd3a7f5d0cddcf12d8772a65bdb56528eebd77a61d3bcab079115c072b3"
+  },
+  "selected_final_executor": false,
+  "full_parent_speed_proven": false,
+  "comparisons": {
+    "explicit_128": {
+      "calls": 7,
+      "qualification_update_seconds": 6.740851943381131,
+      "timed_median_update_seconds": 5.8885829877108335,
+      "max_allocated_bytes": 2130366976,
+      "max_reserved_bytes": 2277507072
+    },
+    "explicit_512": {
+      "calls": 7,
+      "qualification_update_seconds": 5.245156718418002,
+      "timed_median_update_seconds": 5.089182598516345,
+      "max_allocated_bytes": 7639849472,
+      "max_reserved_bytes": 8317304832
+    },
+    "explicit_1024": {
+      "calls": 7,
+      "qualification_update_seconds": 4.799278044141829,
+      "timed_median_update_seconds": 4.920583888422698,
+      "max_allocated_bytes": 15024604672,
+      "max_reserved_bytes": 16370368512
+    }
+  },
+  "all21_strict_comparisons_passed": true,
+  "zero_argmax_disagreements": true,
+  "full_test": {
+    "original_cpu_threads": 1,
+    "original_holds_per_block": 128,
+    "selected_cpu_threads": 8,
+    "selected_holds_per_block": 512,
+    "contexts": [
+      "CPU",
+      "CUDA"
+    ],
+    "process_RSS_budget_GiB": 256,
+    "family_PSS_budget_GiB": 288,
+    "GPU_budget_GiB": 64
+  },
+  "caveats": [
+    "Prefix history is complete only within1153trees, not the wholechromosome.",
+    "Device-wide utilization is shared with GST and is not attributed solely to this process."
+  ]
+}

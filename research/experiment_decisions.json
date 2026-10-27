@@ -8111,14 +8111,25 @@
       "status": "partial_recovery_validated_exact_roster_and_age_policy_unresolved"
     },
     {
-      "changed_model_status": "TreeLoom-Transport has algebra and observed-tree numerical evidence only. Explicit staged execution is being prepared. Paired training and validation remain inactive.",
-      "conclusion": "Four encoder processes already overlap preparation. Warm training remains dominated by context and backward. CPU8 integrated full-parent diagnostic took467.07s versus originalCPU1 603.71s. Original loose numerical gate passed but did not check argmax. The explicit blockwise VJP passed strict actual128-tree/all49-gradient/clipped-AdamW comparisons with zero changed classes and15.8percent lower warm median versus integratedCPU8. Complete-parent strict VJP test is running. No production change, new ancestry score or80percent utilization claim.",
+      "changed_model_status": "TreeLoom-Transport staged execution passed12 observed128-tree GPU trials. Cached staged forward+backward median1.869 s versus monolithic0.963 s, peak allocated3.905 GB versus9.196 GB. Full-parent resource profile and paired predictive pilot are pending.",
+      "conclusion": "Full TRAIN000 exact explicit backward passed strict logits, loss, all 49 gradients, parameters and Adam moments against integrated CPU8. All 10,000 predicted classes were unchanged. One update took 424.363 s versus 511.194 s, peak allocated GPU memory 6.617 GB versus 52.064 GB. Shared-device timings are diagnostic, not a stable throughput or sustained80 claim. No production change yet.",
       "evidence": [
         "research/efficiency_20261027/PLAN.md",
         "research/efficiency_20261027/fidelity/FULL_HOST_PARALLELISM_REVIEW.json",
         "research/efficiency_20261027/fidelity/EXPLICIT_VJP_SLICE_REVIEW.json",
         "research/efficiency_20261027/root/runs/full_gpu5_threads_v1/data/completed.json",
-        "research/efficiency_20261027/root/runs/explicit_slice_gpu5_v1/data/completed.json"
+        "research/efficiency_20261027/root/runs/explicit_slice_gpu5_v1/data/completed.json",
+        "research/efficiency_20261027/fidelity/EXPLICIT_VJP_FULL_REVIEW.json",
+        "research/efficiency_20261027/fidelity/STAGED_TRANSPORT_GPU128_REVIEW.json",
+        "research/efficiency_20261027/root/runs/explicit_full_gpu5_v1/data/completed.json",
+        "research/efficiency_20261027/root/runs/explicit_full_gpu5_v1/telemetry_stage_summary.json",
+        "research/efficiency_20261027/architecture/staged_transport_gpu5_v1/data/completed.json"
+      ],
+      "failed_attempts": [
+        {
+          "path": "research/efficiency_20261027/root/runs/large_blocks_gpu5_v1",
+          "reason": "NumPy scalar in metadata serialization before CUDA. Numerical inputs untouched. Versioned metadata-only repair required."
+        }
       ],
       "hypothesis": "Measured preparation stalls and many small sequential operations can be reduced while retaining exact TreeLoom behavior, with separately tested architecture changes if exact execution remains insufficient.",
       "id": "treeloom_efficiency_redesign_20261027",
@@ -8129,15 +8140,21 @@
         "level_local_v2_slower_on_GPU",
         "Transport_tiny_partition_checkpoint_path_slower_than_monolithic"
       ],
+      "remaining": [
+        "Select measured larger block size using same observed1153-tree prefix.",
+        "Strict full selected executor comparison directly against original execution.",
+        "Production checkpoint transition and representative full cache-cycle throughput.",
+        "Changed architecture full-parent profile and paired TRAIN/VAL accuracy."
+      ],
       "repeat_policy": "Build upon treeloom_scalability_20261024 and existing categorical/layout parity. Repeat only for a new integration, corrected bottleneck measurement or independent validation.",
       "selected_for_further_qualification": [
         "exact_explicit_blockwise_trunk_VJP",
         "exact_final_context_residency_composition"
       ],
-      "status": "full_parent_explicit_backward_qualification_running"
+      "status": "full_parent_explicit_backward_passed_larger_blocks_and_integration_pending"
     }
   ],
-  "last_root_update_utc": "2026-10-27T01:21:43.570467+00:00",
+  "last_root_update_utc": "2026-10-27T01:54:32.515145+00:00",
   "operational_efficiency_decisions": [
     {
       "conclusion": "Only five eligible frozen records, 47,584 raw bytes, are covered. Savings are unproved and added copy/final-read costs plus mixed-source lineage changes are not justified.",

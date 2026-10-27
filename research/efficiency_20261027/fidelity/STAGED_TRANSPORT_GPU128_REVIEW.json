@@ -1,0 +1,107 @@
+{
+  "actual_wait_ref": {
+    "path": "research/efficiency_20261027/root/runs/transport_staged_gpu5_v1/actual_wait.json",
+    "sha256": "618e4a73a8ac336280ffcab6fedf2d33d67c3e51adc72fc6729f6e69f2da5d04"
+  },
+  "all_interval_reserved_peaks_below_24GiB": true,
+  "cached_vs_monolithic": {
+    "allocated_peak_reduction_percent": 57.54119776737734,
+    "forward_backward_ratio": 1.9409909703719115
+  },
+  "completion_ref": {
+    "path": "research/efficiency_20261027/architecture/staged_transport_gpu5_v1/data/completed.json",
+    "sha256": "641fa528c2deb1efc4b6c3a02a36a9ce4a43253f34593ed5a77998fdd58b73ca"
+  },
+  "decision": "Strict observed128 candidate-execution and one-step optimizer parity passes. Cached staged execution reduces device memory substantially but remains1.94x monolithic forward+backward time on this slice; no production efficiency or predictive acceptance.",
+  "diagnostic_input_refs_checked_by_runner": 3,
+  "limitations": [
+    "All routes implement the same fresh Transport model, not original TreeLoom architecture. No independent-parent predictive acceptance is established.",
+    "Twelve independent one-step checks reset weights and AdamW each time; they are not a20-parent training trajectory.",
+    "128holds contains one128treeblock and one1024historywindow. CPU ragged tests provide separate boundary evidence; full-parent GPU resource/time evidence remains pending.",
+    "Timings include stage synchronization and use three warm position rotations; compared with historical tiny-block13.45s run, several settings/protocol details changed, so that cross-run difference is diagnostic only.",
+    "Peak GPU memory savings do not by themselves establish useful production throughput, full80percent device duty or accuracy preservation.",
+    "Prepare full-parent resource/optimizer qualification and paired independent-parent predictive pilot separately, keeping TEST sealed and gates unchanged."
+  ],
+  "numerical": {
+    "AdamW_steps_each": 1,
+    "Adam_moment_step_tensors_each": 165,
+    "all_checks_passed": true,
+    "category_max_abs_error": {
+      "clipped_gradients": 4.209578037261963e-07,
+      "gradient_norm": 1.1920928955078125e-07,
+      "gradients": 4.544854164123535e-07,
+      "logits": 1.7881393432617188e-07,
+      "loss": 0.0,
+      "moments": 4.202593117952347e-08,
+      "parameters": 1.8402934074401855e-06
+    },
+    "checks_each": 333,
+    "clipped_gradient_tensors_each": 55,
+    "gradient_tensors_each": 55,
+    "loss_all": 0.9315279126167297,
+    "parameter_error_note": "Maximum parameter difference1.8403e-6 exceeds the absolute term alone but passes the declared elementwise atol1e-6+rtol1e-4 mixed gate. No strict-absolute-only parameter equivalence is claimed.",
+    "trials": 12,
+    "updated_parameter_tensors_each": 55,
+    "zero_argmax_disagreements": true
+  },
+  "numerical_artifacts": {
+    "count": 12,
+    "files_present": true,
+    "verification": "File existence/size checked only; tensors were not loaded or hashed by fidelity. Harness writes each artifact before strict comparison."
+  },
+  "production_changed": false,
+  "reviewed_unix": 1793065987.148417,
+  "schema": "TreeLoom_Transport_staged_GPU128_independent_result_review_v1",
+  "scope": {
+    "TEST_opened": false,
+    "VAL_truth_opened": false,
+    "haplotypes": 1600,
+    "independent_fresh_seed": 70001,
+    "native_holds": 128,
+    "original_TRAIN_focals": 22,
+    "restricted_history": true,
+    "sites": 681
+  },
+  "source_evidence_pins_verified": 178,
+  "source_manifest_ref": {
+    "path": "research/efficiency_20261027/architecture/staged_gpu_128_qualification_sources_v3.json",
+    "sha256": "9cfaa7aa4d8240084ea11d07447089e6a5111d8a435ff81f0c1cfac61726c63a"
+  },
+  "stage_records": 160,
+  "summaries": {
+    "monolithic": {
+      "calls": 4,
+      "max_allocated_bytes": 9196459520,
+      "max_reserved_bytes": 9479127040,
+      "median_warm_forward_backward_seconds": 0.9630956910550594,
+      "warm_calls": 3
+    },
+    "staged_cached": {
+      "calls": 4,
+      "max_allocated_bytes": 3904706560,
+      "max_reserved_bytes": 4181721088,
+      "median_warm_forward_backward_seconds": 1.8693600399419665,
+      "warm_calls": 3
+    },
+    "staged_uncached": {
+      "calls": 4,
+      "max_allocated_bytes": 6864576512,
+      "max_reserved_bytes": 7059013632,
+      "median_warm_forward_backward_seconds": 2.8590711215510964,
+      "warm_calls": 3
+    }
+  },
+  "telemetry": {
+    "counters": {
+      "device_samples": 48,
+      "errors": 0,
+      "process_samples": 10,
+      "startup_waits": 20
+    },
+    "finished_unix": 1793065880.0717897,
+    "scope": "Shared-device utilization. Per-process GPU memory does not attribute utilization.",
+    "started_unix": 1793065812.0574634,
+    "status": "completed",
+    "terminal": "profile_terminal_receipt"
+  }
+}

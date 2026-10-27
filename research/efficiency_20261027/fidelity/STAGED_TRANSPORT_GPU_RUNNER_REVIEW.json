@@ -1,0 +1,99 @@
+{
+  "CPU_helper_evidence": [
+    {
+      "path": "research/efficiency_20261027/architecture/staged_GPU_harness_static_CPU_check.json",
+      "sha256": "d2860b2024229abd13ed10723393e34233b23ac54f00331120c8844b7b34b50f"
+    },
+    {
+      "path": "research/efficiency_20261027/architecture/staged_GPU_harness_v2_static_check.json",
+      "sha256": "d246f92c7854a66f72410dd5eb1aaffec3acc16aadf1b22afd6ea68ba098a347"
+    },
+    {
+      "path": "research/efficiency_20261027/architecture/staged_GPU_harness_v3_peak_guard_check.json",
+      "sha256": "27f0783eff80e65683779e33a4b3a690480b26607c5257ca672d0b827d307cdc"
+    }
+  ],
+  "decision": "V3 has no remaining static blocker for ROOT-admitted GPU5 observed128 diagnostic after predecessor lifecycle and aggregate resource admission. V2 must remain unlaunched. No predictive or full-parent acceptance.",
+  "diagnostic_input_pins_checked_by_runner": 3,
+  "fixed_issue": {
+    "V2": "StageMeter recorded interval peak reserved bytes but only current-reserved budget was enforced.",
+    "V3": "StageMeter appends completed interval row then rejects peak_reserved>declared cap before ordinary check. Failed receipt retains completed stages and currently open stage.",
+    "exactly_at_budget_accepted": true,
+    "failing_row_preserved": true,
+    "high_past_peak_low_current_rejected": true,
+    "regression_ref": {
+      "path": "research/efficiency_20261027/architecture/staged_GPU_harness_v3_peak_guard_check.json",
+      "sha256": "27f0783eff80e65683779e33a4b3a690480b26607c5257ca672d0b827d307cdc"
+    }
+  },
+  "limitations": [
+    "Peak budgets are enforced after stages, not hard preallocation. An actual OOM still requires external lifecycle handling; open failed stage may lack final peak statistics.",
+    "128holds is one treeblock and one1024scanwindow; separate7hold raggedCPU test verifies multiblock carry semantics, not largeGPU history.",
+    "Fresh candidate one-step updates validate execution parity within Transport, not trained trajectory or ancestry accuracy against original TreeLoom.",
+    "Source and all3input pins are checked before and after run. Reviewer independently hashed178source/evidence refs, not large numerical input files.",
+    "Full original-parent resource qualification and independent-parent predictive zero-margin gate remain required; TEST sealed."
+  ],
+  "numerical_protocol": {
+    "AdamW_steps_each": 1,
+    "CPU_threads": 4,
+    "all165_moments_and_step_tensors": true,
+    "all55_finite_gradients": true,
+    "all55_updated_parameters": true,
+    "arms": [
+      "monolithic Transport",
+      "staged uncached Transport",
+      "staged cached Transport"
+    ],
+    "clip_norm": 1,
+    "fresh_seed": 70001,
+    "gradients_clipped_gradients_updates_moments_norm_gate": "atol1e-6 rtol1e-4",
+    "haplotypes": 1600,
+    "haplotypes_per_tile": 128,
+    "independent_trials": 12,
+    "logits_and_loss_gate": "atol1e-6 rtol0 (stricter than standard1e-5relative)",
+    "native_holds": 128,
+    "numerical_tensor_artifacts_written_before_comparison": true,
+    "optimizer_state_reset_each_trial": true,
+    "original_TRAIN_focals": 22,
+    "scan_holds_per_block": 1024,
+    "tree_holds_per_block": 128,
+    "zero_argmax_changes": true
+  },
+  "resources": {
+    "external_group_lifecycle_and_NVML_RSS_wall_guard_required": true,
+    "max_GPU_reserved_GiB": 24,
+    "max_process_RSS_GiB": 32,
+    "max_seconds": 1200,
+    "physical_GPU": 5
+  },
+  "review_scope": "Full328line v2 harness, exact v2-to-v3 diff, source manifests, plaintext launcher/project_env and CPU comparison/peak-guard receipts. Reviewer did not load arrays/checkpoint or invoke model.",
+  "reviewed_unix": 1793065228.527955,
+  "schema": "TreeLoom_staged_Transport_GPU128_runner_independent_admission_review_v1",
+  "source_evidence_pins_verified": 178,
+  "source_refs": [
+    {
+      "path": "research/efficiency_20261027/architecture/staged_gpu_128_qualification_v3.py",
+      "sha256": "37cfe5fe137681bbb63f73c9bdcf2cb7eabcc1732934016bbbcce05e3ac98f1e"
+    },
+    {
+      "path": "research/efficiency_20261027/architecture/staged_gpu_128_qualification_sources_v3.json",
+      "sha256": "9cfaa7aa4d8240084ea11d07447089e6a5111d8a435ff81f0c1cfac61726c63a"
+    },
+    {
+      "path": "research/efficiency_20261027/architecture/staged_gpu_128_qualification_v3.command.sh",
+      "sha256": "c6fdb538de739ee2eadf9a576fe87fe170cc0beec8d6c7609c13bc6d551a0d19"
+    },
+    {
+      "path": "research/efficiency_20261027/architecture/staged_transport.py",
+      "sha256": "9e1e73aa9672843985732821413ee01e8fbf46a034d9208b6ffb5e5b43530560"
+    }
+  ],
+  "timing": {
+    "allocator_cache_emptied_each_trial": true,
+    "each_route_in_each_warm_position_once": true,
+    "first_calls_each": 1,
+    "instrumentation_included": true,
+    "stage_Unix_monotonic_UTC_clocks": true,
+    "warm_rotations_each": 3
+  }
+}

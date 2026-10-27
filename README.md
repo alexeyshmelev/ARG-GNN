@@ -8,14 +8,14 @@
 | Candidate | Verified result | Decision |
 |---|---|---|
 | Eight CPU threads and categorical/layout reuse | Full 30 Mb TRAIN chromosome, 77,472 trees and 10,000 original targets: 467 s versus original CPU1 604 s, about 23% lower. One call per arm. | Full timing evidence. The original diagnostic used a looser numerical gate and did not check changed classes. Production is unchanged. |
-| Explicit blockwise backward | Strict logits, loss, all 49 gradients and one clipped AdamW update pass on 128 actual trees in four blocks. Zero changed classes. Six balanced warm rounds: 1.120 s versus integrated CPU8 1.330 s. | Strict full-chromosome qualification running. |
-| GPU-resident final leaf context | Eight balanced rounds: 0.590 s versus original 0.638 s. Strict parity and five decoder edge cases pass. | Composition with explicit backward is being qualified for full-parent memory. |
+| Explicit blockwise backward | Full 30 Mb chromosome, 77,472 trees and all 10,000 targets: strict logits, loss, all 49 gradients and one clipped AdamW update pass, with zero changed classes. Update 424 s versus integrated CPU8 511 s. GPU allocation 6.62 GB versus 52.06 GB. | Full numerical and memory qualification passed. One call per arm on a shared GPU. Production integration is being prepared. |
+| GPU-resident final leaf context | Combined with explicit backward on 128 trees: 1.161 s versus original 1.592 s and integrated 1.494 s, with strict parity and zero changed classes. | Small observed-prefix qualification passed. Full-parent resource qualification remains. |
 | Level-local tree execution | Both implementations remained slower on GPU despite a CPU improvement. | Rejected for deployment. |
 | TreeLoom-Transport | Changed architecture has algebra and observed-tree numerical checks. Tiny bounded partitions lowered GPU memory but made execution slower. | Larger staged operations in development. Predictive accuracy remains untested. |
 
 These are engineering measurements, not ancestry scores. GPU 5 is shared with another project benchmark, so its device-wide utilization cannot be attributed wholly to the diagnostic. No author implementation, simulation or benchmark endpoint has been changed. A changed architecture needs paired training and validation before an accuracy claim.
 
-[Work plan](research/efficiency_20261027/PLAN.md) · [Full timing review](research/efficiency_20261027/fidelity/FULL_HOST_PARALLELISM_REVIEW.json) · [Strict backward comparison](research/efficiency_20261027/fidelity/EXPLICIT_VJP_SLICE_REVIEW.json) · [Source fidelity review](research/efficiency_20261027/fidelity/REPORT.txt)
+[Work plan](research/efficiency_20261027/PLAN.md) · [Full timing review](research/efficiency_20261027/fidelity/FULL_HOST_PARALLELISM_REVIEW.json) · [Full backward measurements](research/efficiency_20261027/root/runs/explicit_full_gpu5_v1/data/completed.json) · [Source fidelity review](research/efficiency_20261027/fidelity/REPORT.txt)
 <!-- efficiency-20261027:end -->
 
 <!-- requested-corrections-20261027:start -->
