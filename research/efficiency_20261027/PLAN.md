@@ -2,7 +2,7 @@
 
 The goal remains unmet. Target sustained useful GPU utilization of at least 80 percent, with accurate ancestry inference. Measure complete preparation and training, useful targets per second, memory and storage. Device activity alone is not an accuracy or efficiency result.
 
-Use physical GPUs 3, 4 and 5. Keep all project computation and writes under the repository on anogena. Preserve competitor algorithms, the original simulation data, scoring and historical results. The project limit remains 1 TB.
+Use physical GPUs 3, 4 and 5. Keep all project computation and writes under the repository on anogena. Preserve competitor algorithms, the original simulation data, scoring and historical results. The owner raised the project limit to 1.2 TB. The existing campaign reservations and running jobs are unchanged.
 
 ## Current work
 
@@ -14,12 +14,12 @@ Use physical GPUs 3, 4 and 5. Keep all project computation and writes under the 
 | E06: concurrent parent preparation | Qualified | Two complete parents took 1238.356 s concurrently versus 1560.893 s sequentially. Exact complete signatures and RNG match, actual waits are zero and encoder peaks are eight versus four. |
 | E07: combined deployment | First new update completed, performance unresolved | Update 282 took 693.39 seconds, averaging 15.83 percent device activity during its observed training window. Cold-inclusive activity was 7.55 percent. Preserve cache while investigating the production slowdown. |
 | E08: memory lifetime and GPU context | Diagnostic completed, deferred | Prefix downstream checks pass but 47 of 59 million context values exceed the original strict tolerance. No full-chromosome qualification. Defer this optional candidate to avoid another deployment delay and cache rebuild. |
-| E09: monitoring overhead | Production timing available | Startup plus preparation and update 282 accumulated 109.14 seconds in outer callbacks across threads. Maximum callback was 27.30 seconds. These sums do not isolate update wall time. |
-| E10: background preparation and GPU dispatch | Open | Integer episode-write candidate passes 13 tiny equivalence tests. Qualify on archived full-parent structural hashes, then measure production impact. GIL attribution is still a hypothesis. |
-| E11: European preprocessing entry point | Confirmed missing optimization binding | Connect the already tested parser and structural preparation to the actual cohort8 fit route. Verify exact scope and output equality before deployment. |
-| E12: independent VAL false timeout | Corrected, retry running | A 10-second lease was shorter than a 16.5-second memory scan. Version 3 uses 120 seconds and fewer slow scans, passes 40 checks and independent review, and retains failed evidence within the same storage allowance. |
+| E09: monitoring overhead | Asynchronous candidate under independent review | Maximum production resource callback was 27.30 seconds. Candidate keeps slow family scans off GPU dispatch, preserves caps and synchronous prospective writes, and passes 13 CPU checks. Version 1 timing flaws remain recorded. No live change yet. |
+| E10: background preparation and GPU dispatch | Full structural pair passed, producer isolation in implementation | TRAIN001 episode construction fell from 225.35 to 199.33 seconds with all nine archived arrays and new pair metadata exact. Fresh CPU producer processes will return compact shared buffers. No production speedup claim or restart for the small change alone. |
+| E11: European preprocessing entry point | Bridge and FIT v3 independently reviewed | 22 actual-route and 28 CLI checks pass. Full qualification remains active. On success, use the isolated bridge in the original resumable 90-update fit. |
+| E12: independent VAL orchestration | Second failure diagnosed | Status lease fixed. Native Relate returned zero, but the supervisor rejected a remaining-process snapshot. Repair and test terminal draining while preserving native algorithms and both failed attempts. |
 | A01: European observed cohort inputs | Qualification and fit preparation | Full qualification retry v2 is running. On success, launch the resumable fixed 90-update fit. Exact interrupted/resumed CPU loop tests passed. Keep all original training data and the final-epoch rule. |
-| A02: independent development validation | Corrected generation running | One 10 Mb VAL parent, unchanged 200 Mb TRAIN/TEST. Five-condition prediction and scoring source passed independent review and 22 synthetic checks. No new prediction or score yet. |
+| A02: independent development validation | Full-size preparation authorized | The owner raised storage to 1.2 TB. Recover and launch the independent 200 Mb VAL recipe after the native-supervisor fix. Retain the failed 10 Mb evidence. Original TRAIN/TEST remain unchanged. No new score yet. |
 | B01: ancestry benchmarks | Running | Finish American TreeLoom, native ARGformer, GST, ARGMix and direct four-class comparisons. Report only completed common scoring. |
 
 ## Accepted measurements

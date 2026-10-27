@@ -1,0 +1,127 @@
+--- fit_cli_v2.py
++++ fit_cli_v3.py
+@@ -13,30 +13,52 @@
+ import subprocess
+ import sys
+ import time
+-from .fit_gate_v2 import ROOT,RUNS,GPU_UUID,need,contained,reference,read,qualification_release,resume_release
++from .fit_gate_v3 import ROOT,RUNS,GPU_UUID,need,contained,reference,read,qualification_release,resume_release
+ from .progress_v2 import snapshot
+ 
+-MODULE='research.efficiency_20261027.execution.european_cohort_fit.fit_cli_v2'
++MODULE='research.efficiency_20261027.execution.european_cohort_fit.fit_cli_v3'
+ HERE=Path(__file__).parent
+ SOURCE_MANIFEST_REF=dict(path='research/efficiency_20261027/architecture/european_cohort_train/source_pins_v2.json',sha256='56203f33d6acd884b4ee2221745956ac2592e6b47160ff577607adc6a9b1eaa0')
+ SOURCE_REVIEW_REF=dict(path='research/efficiency_20261027/fidelity/EUROPEAN_COHORT8_TRAIN_V2_SOURCE_REVIEW.json',sha256='2e044448dce28bd9138efde0f9225a3ae7c75487494c9ecb0f2c0c6352164f37')
++PREPROCESSING_SOURCE_REF=dict(path='research/efficiency_20261027/fidelity/european_fit_preprocessing_v1/source_pins_v1.json',sha256='f2bc8735f3de79f7926735db5456448ef82ccb3bf594b20a873071df2ec7461a')
+ GIB=2**30
+ 
+ 
+ def verify_wrapper(digest,review_path,review_digest):
+-    manifest,manifest_ref=read(HERE/'fit_cli_pins_v2.json',digest)
+-    need(manifest.get('schema')=='European_cohort8_FIT_CLI_sources_v2','Exact wrapper manifest')
++    manifest,manifest_ref=read(HERE/'fit_cli_pins_v3.json',digest)
++    need(manifest.get('schema')=='European_cohort8_FIT_CLI_sources_v3','Exact wrapper manifest')
+     refs=manifest['source_refs']
+     paths=[row['path'] for row in refs]
+-    need(len(set(paths))==len(paths) and SOURCE_MANIFEST_REF in refs and SOURCE_REVIEW_REF in refs
+-         and str((HERE/'fit_cli_v2.py').relative_to(ROOT)) in paths
+-         and str((HERE/'fit_gate_v2.py').relative_to(ROOT)) in paths,'Complete unique reviewed wrapper/source bindings')
++    need(len(set(paths))==len(paths) and SOURCE_MANIFEST_REF in refs and SOURCE_REVIEW_REF in refs and PREPROCESSING_SOURCE_REF in refs
++         and str((HERE/'fit_cli_v3.py').relative_to(ROOT)) in paths
++         and str((HERE/'fit_gate_v3.py').relative_to(ROOT)) in paths,'Complete unique reviewed wrapper/source bindings')
+     for ref in refs:need(reference(ref['path'])==ref,'Reviewed wrapper/source changed: '+ref['path'])
+     review,review_ref=read(review_path,review_digest)
+-    need(review.get('schema')=='European_cohort8_FIT_CLI_review_v2' and review.get('passed') is True
++    need(review.get('schema')=='European_cohort8_FIT_CLI_review_v3' and review.get('passed') is True
+          and review.get('wrapper_manifest_ref')==manifest_ref,'Exact independently passed wrapper review')
+     need(review.get('resume_restore_CPU_equivalence_passed') is True,'Independent restore-equivalence source review required')
++    need(review.get('preprocessing_actual_route_CPU_equivalence_passed') is True
++         and review.get('original_numerical_driver_unchanged') is True,
++         'Independent actual-route preprocessing review and unchanged numerical driver required')
+     return manifest_ref,review_ref
++
++
++
++def run_with_preprocessing(driver,spec,runtime,*,resource_check,acquire_gpu0,record_bindings):
++    """Install once, publish exact bindings, then call the unchanged v3 driver."""
++    from research.efficiency_20261027.fidelity.european_fit_preprocessing_v1 import bindings_v1 as preprocessing
++    receipt=preprocessing.install(source_manifest_ref=PREPROCESSING_SOURCE_REF,
++        max_rss_bytes=runtime['memory_envelope']['max_rss_bytes'],
++        preparation_headroom_bytes=runtime['memory_envelope']['preparation_headroom_bytes'],
++        train_inputs=runtime['train_inputs'],resource_check=resource_check)
++    receipt_ref=record_bindings(receipt)
++    preprocessing.verify(receipt)
++    def acquire_verified_gpu():
++        preprocessing.verify(receipt)
++        return acquire_gpu0()
++    result=driver.run_fit(spec,resource_check=resource_check,acquire_gpu0=acquire_verified_gpu)
++    preprocessing.verify(receipt)
++    return result,receipt_ref
+ 
+ 
+ def validate_guardian_records(request,launch,args,argv,pid,start_ticks,parent_pid,parent_ticks):
+@@ -130,6 +152,15 @@
+     driver.validate(spec)
+     lease={'physical':None,'logical':None,'gate':None,'acquired':False}
+     last_check=[-float('inf')];peak_family=[0];checkpoint_cache={}
++    preprocessing_receipt_ref=[None]
++    def record_preprocessing(value):
++        data=(json.dumps(value,indent=2,sort_keys=True,allow_nan=False)+'\n').encode()
++        need(len(data)<=2*2**20 and guardian.scope_bytes(directory)+len(data)<=args.output_cap_bytes,
++             'Actual preprocessing binding receipt fits the original ROOT output reservation')
++        path=directory/'preprocessing_bindings.json'
++        with path.open('xb') as stream:stream.write(data);stream.flush();os.fsync(stream.fileno())
++        preprocessing_receipt_ref[0]=reference(path)
++        return preprocessing_receipt_ref[0]
+     def write(name,value):
+         need(output.is_dir() and '/' not in name,'Bounded wrapper metadata in actual driver output')
+         data=(json.dumps(value,indent=2,sort_keys=True,allow_nan=False)+'\n').encode()
+@@ -223,14 +254,16 @@
+             wrapper_review_ref=wrapper_review_ref,source_manifest_ref=SOURCE_MANIFEST_REF,source_review_ref=SOURCE_REVIEW_REF,
+             actual_ROOT_request_ref=request_ref,actual_ROOT_launch_ref=launch_ref,qualification_gate=gate,
+             worker_RSS_bytes=512*GIB,CPU_threads=8,GPU_lease=row,resume_gate=resume_gate,
+-            resume_driver_source_manifest_ref=driver.source_manifest_ref()))
++            resume_driver_source_manifest_ref=driver.source_manifest_ref(),
++            preprocessing_bindings_ref=preprocessing_receipt_ref[0]))
+         return row
+     try:
+-        result=driver.run_fit(spec,resource_check=check,acquire_gpu0=acquire_gpu0)
++        result,preprocessing_ref=run_with_preprocessing(driver,spec,runtime,resource_check=check,
++            acquire_gpu0=acquire_gpu0,record_bindings=record_preprocessing)
+         check('European_fit_wrapper_complete')
+         progress('completed_fixed90updates')
+         need(lease['acquired'],'Complete fixed90 FIT used actual late GPU lease')
+-        write('fit_wrapper_completed.json',dict(schema='European_cohort8_FIT_CLI_completion_v2',
++        write('fit_wrapper_completed.json',dict(schema='European_cohort8_FIT_CLI_completion_v3',
+             passed=True,completion_ref=result['completion_ref'],checkpoint_ref=result['checkpoint_ref'],
+             optimizer_updates=result['optimizer_updates'],completed_epochs=result['completed_epochs'],
+             fresh_fit_only=False,resume_supported=True,source_manifest_ref=SOURCE_MANIFEST_REF,
+@@ -239,6 +272,7 @@
+             wrapper_manifest_ref=wrapper_ref,wrapper_review_ref=wrapper_review_ref,qualification_gate=lease['gate'],
+             measured_peak_session_PSS_bytes=peak_family[0],physical_gpu=5,gpu_uuid=GPU_UUID,
+             actual_ROOT_request_ref=request_ref,actual_ROOT_launch_ref=launch_ref,
++            preprocessing_bindings_ref=preprocessing_ref,preprocessing_source_manifest_ref=PREPROCESSING_SOURCE_REF,
+             own_actual_wait_and_reaping_still_required=True))
+         print(json.dumps(dict(event='European_fixed90_fit_completed',completion_ref=result['completion_ref'],checkpoint_ref=result['checkpoint_ref'])),flush=True)
+     finally:
+--- fit_gate_v2.py
++++ fit_gate_v3.py
+@@ -1,4 +1,4 @@
+-"""v1 qualification gate plus exact reaped FIT generation for optional resume."""
++"""Unchanged qualification/reaping rules, allowing reviewed FIT worker v2 or v3."""
+ from .fit_gate_v1 import ROOT,RUNS,GPU_UUID,need,contained,reference,read,qualification_release
+ from .fit_gate_v1 import SOURCE_MANIFEST_REF,SOURCE_REVIEW_REF
+ from research.efficiency_20261027.execution.deferred_gpu_gate import owned_group_members
+@@ -19,7 +19,10 @@
+     wait,wait_ref=read(directory/'actual_wait.json')
+     command=request.get('command')
+     need(type(command) is list and command==launch.get('actual_argv')
+-         and command[:4]==['.runtime/env/bin/python3.11','-B','-m','research.efficiency_20261027.execution.european_cohort_fit.fit_cli_v2']
++         and command[:3]==['.runtime/env/bin/python3.11','-B','-m']
++         and len(command)>=4 and command[3] in (
++             'research.efficiency_20261027.execution.european_cohort_fit.fit_cli_v2',
++             'research.efficiency_20261027.execution.european_cohort_fit.fit_cli_v3')
+          and type(launch.get('pid')) is int and launch['pid']>1 and type(launch.get('process_start_ticks')) is str,
+          'Exact previously admitted resume-capable FIT worker')
+     need(command.count('--output')==1 and command.index('--output')+1<len(command)
