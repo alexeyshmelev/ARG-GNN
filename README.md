@@ -1,5 +1,22 @@
 # ARG-GNN
 
+<!-- efficiency-20261027:start -->
+## TreeLoom efficiency work, 27 October
+
+**The requested 80% sustained useful GPU utilization has not been reached.** A 120-second sample measured GPU 3 at 10% average utilization. Current four-process input preparation overlaps training, so the next optimization targets CPU tensor assembly and GPU transfers inside the training step.
+
+| Candidate | Verified result | Decision |
+|---|---|---|
+| Level-local tree execution | CPU improvement on 128 trees, but warm GPU median 0.773 s versus 0.628 s for the original. Outputs, all 49 gradients and the AdamW update agree within FP32 tolerances. | Not deployed. Small CPU gains did not transfer to this GPU test. |
+| Eight CPU threads and categorical/layout reuse | Full 30 Mb chromosome comparison is running with all 77,472 trees, 1,600 haplotypes and 10,000 original targets. | Whole-training result pending. |
+| GPU-resident leaf context | Strict numerical parity passed. Eight balanced GPU rounds: median 0.590 s versus original 0.638 s. Five decoder edge cases passed. | Full-chromosome memory and performance qualification pending. |
+| TreeLoom-Transport | Changed architecture using tree filtering and genomic scans passed an observed-tree CPU smoke test. | Ancestry accuracy and full-parent scalability remain untested. |
+
+The initial GPU slice measurements used a shared device and two warm samples per arm. The newer residency result used eight balanced rounds on GPU 4. They are engineering diagnostics, not ancestry scores or a whole-chromosome speed claim. No production training, author model, simulation or benchmark endpoint has been changed by this study. A changed architecture must earn acceptance on the frozen validation data without an allowed accuracy decrease.
+
+[Live work plan](research/efficiency_20261027/PLAN.md) · [GPU measurements](research/efficiency_20261027/root/slice_decision.json) · [Source fidelity review](research/efficiency_20261027/fidelity/REPORT.txt) · [Candidate design and limitations](research/efficiency_20261027/architecture/design_and_evidence.json)
+<!-- efficiency-20261027:end -->
+
 <!-- requested-corrections-20261027:start -->
 ## Requested benchmark additions, 27 October
 

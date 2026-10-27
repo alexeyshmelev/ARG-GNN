@@ -1,0 +1,332 @@
+TreeLoom efficiency redesign: biological fidelity and acceptance contract
+27 October 2026. Source review and prospective acceptance design only.
+
+Decision
+
+Start with exact preprocessing, categorical SNP-encoder reuse, static indexing,
+and bounded preparation/execution overlap. These have direct support in the
+existing measurements and retain early mutation-conditioned tree messages.
+Treat structural/late-SNP factorization, low-rank neural states, truncation,
+window changes, sampled donors/trees and lossy numerical representations as
+separately named model changes. None is yet qualified as accuracy-preserving.
+Only our method may be redesigned. Keep pristine third-party source and native
+algorithms frozen and disclose required compatibility adapters.
+
+The Oct24 final census supersedes the earlier conservative source-ID result:
+317,897 node occurrences, 445 distinct site-MLP inputs among 1,089,600 site-
+haplotype rows, 2,709 primitive bases and 114,794 unique first-upward states.
+The 63.89% total upward reuse is mainly leaf/input reuse. Internal-state reuse
+has an upper bound of 0.895%. Equal topology alone is inadequate. These are
+bounded first-sweep counts from one TRAIN packet, not measured training speed,
+all-sweep reuse or biological accuracy. Sources: research/scalability_20261024/
+model/final_model_report.json and review/primitive_input_census_addendum.json.
+
+Source coverage and limits
+
+source_coverage.json inventories all 85 ARGMix release archive files and all
+17 AncestralPaths release archive files, plus their two local receipts. Every
+extracted archive member matches its archive hash. The pinned releases are
+AI-sandbox/argmix c2481248eb0de5fda659d68f59c51e0e27becd20 and
+AliPearson/AncestralPaths 77db3cfae100641c35218b87e1451e14f3074666.
+No live Git operation was used. Archive membership is the available release
+inventory and is not falsely described as a fresh live tracked-file listing.
+All 78 ARGMix scientific/config/launch/documentation files and all 15 AP
+source/documentation/map-fixture files were read end to end. There are no
+important executable-source gaps. source_coverage.json distinguishes full
+text reading from three dependency locks, legal metadata, AP example data and
+an unrendered PDF schematic. Receipts and the empty reference-panel header
+were read separately. No notebooks or static notebook outputs are present in
+these release archives. Python AST parsing and hashes are inventory evidence,
+not substitutes for semantic reading. The third-party source was not executed.
+
+Primary texts used:
+* ARGMix, Graph transformer for ancient ancestry inference, bioRxiv v1,
+  DOI 10.64898/2026.04.05.714076, https://www.biorxiv.org/content/10.64898/2026.04.05.714076v1 .
+  Full retained main article text read from research/reviews/
+  ARGMix_published_benchmark_audit_20261015_v1/paper_text.txt, with retained
+  PMC13082007 JATS and all S1-S6 caption text. The supplement's graphical
+  content was not newly visually reviewed. The existing audit's visual S1
+  finding is inherited evidence, not a fresh visual inspection.
+* Irving-Pease et al., The selection landscape and genetic legacy of ancient
+  Eurasians, Nature, DOI 10.1038/s41586-023-06705-1,
+  https://www.nature.com/articles/s41586-023-06705-1 . Retained PMC10781624
+  body text inspected, with targeted rereads around AncestralPaths. Supplement Note3 was read end to end, including all methods, results,
+  robustness, admixture-date analysis and captions. Notes1-2 and Note4 methods/
+  discussion were also read. paper_coverage.json records exact line ranges.
+  The locus catalogue in Note4 and unrelated downstream Notes5-10 were not
+  fully read; figures and workbook cells were not newly visually audited.
+  These limits do not leave unread AP algorithm/training/evaluation source.
+  Existing roster recovery supplies authenticated joins and discrepancies.
+* Existing docs/argmix_published_benchmark_audit_v1.md,
+  docs/argmix_paper_revision_search_v1.md, docs/ancestralpaths_native_protocol_v1.md,
+  research/argmix_roster_recovery_20261027/public_metadata/REPORT.md,
+  research/scalability_20261024/review and model final reports,
+  research/preprocessing_efficiency_20261026/REPORT.md, and selected Oct26
+  preprocessing parity/safety receipts. Historical measurements were not rerun.
+
+Consequential complete-source findings
+
+Native ARGMix reference and chunk iteration can depend on Rust HashMap order;
+a seed alone does not identify realized tied references or chunk ordering.
+Freeze actual inputs/archives. Native training interval caps count distinct
+(shard,start,end) keys, whereas the older Python collector caps rows. Preserve
+chunk boundaries, padding, genomic cM resets and overlap probability averaging:
+zero padding still enters the unpacked bidirectional GRU and can affect valid
+outputs. Interval merging, including full-signature merging, is a model change
+for that GRU. The distance matrix is directed by row sample age, not necessarily
+symmetric. Current fast, legacy and deprecated incremental distance paths have
+real semantic differences and cannot be silently substituted.
+
+HDF5 optional probability/logit/feature arrays are stored as fp16 bits even
+with fp32 transfer. Exported TorchScript's printed check precedes freeze and
+optimization and has no asserted tolerance. Neither export success nor staging
+slot/pinning configuration proves numerical parity or actual transfer overlap.
+Native dose r-squared is not a calibration measure; HDF5 pred_label fallback
+must never be accepted as ground truth. See ADDITIONAL_SOURCE_FINDINGS.txt
+for complete path-specific findings, including storage, output coverage and
+native scorer/uncertainty conventions.
+
+Inputs, supervision and population meaning
+
+1. Observed inputs are phased genotypes with true missingness retained,
+   retained variant coordinates/allele convention, inferred Relate post-size
+   genealogies, observed sample identity, sample dates and explicitly permitted
+   reference/cohort metadata. Inferred internal nodes have inferred ages and
+   structural relationships, not known population ancestry. Reference labels
+   are population/proxy metadata, not per-position truth for admixed donors.
+   AncestralPaths deliberately exploits intermediate admixed ancient cohorts.
+   Removing those references silently changes available biological evidence.
+2. Simulated true trees, census populations, true local path labels, hidden
+   recombination events, true ancestry boundaries, simulation family/founder
+   identifiers and true phase alignment are supervision/evaluation material.
+   They may not become model features, graph structures, cache keys, observed
+   partition boundaries, eligible validation selection or adaptive refinement
+   triggers. Use observed nodes/edges/sites exclusively for preprocessing.
+3. Native AncestralPaths uses six path classes. Four-source probabilities are
+   p1+p5, p2+p6, p3, p4 before argmax. Collapsing the native argmax is different.
+   Its eight GNN columns are Bronze_Age, BAA, Yam, Neo, WHG, EHG, Ana, CHG,
+   followed by node age. Its actual release is Flatten(5x9), Dense512/ReLU,
+   Dropout0.2, Dense6/softmax, not a convolutional network despite paper prose.
+   Training/testing use int(age)/1500; painting uses float(age)/1500. Preserve
+   or explicitly disclose this difference. Skip uninformative ancestors, count
+   newly encountered reference leaves only once, preserve ancient focal self-
+   inclusion where author code does, and retain -15 root padding.
+4. ARGMix paper uses query plus 25 nearest reference haplotypes overall plus
+   three inferred ancestors, TMRCA(i,j)-time(i) clamped linearly to1000, with
+   reference population tokens and informative NF/Yam references. The public
+   release rejects num_ancs, defaults to15 references, log-distance cap14,
+   transformer plus genomic BiGRU, and first-observed-SNP interval labels.
+   Its actual implementation relative-key indexing differs from paper Eq3.
+   Preserve release behavior and label it current-release ARGMix, not exact
+   April-paper reproduction. Do not silently tune/replace a baseline to make
+   our execution comparison easier.
+5. Freeze units. Generations, years BP, calibrated BCE and genetic map cM are
+   distinct. tskit coordinates are physical and intervals are half-open. VCF
+   coordinates are one-based integers. Persist the exact observed coordinate
+   map, genome build, haplotype order and reference/query membership. Do not
+   infer a generation interval or single age from unresolved public dates.
+   Oct27 recovery authenticated116 CHG/EHG/WHG/Yam references, but the full
+   1,611-person roster, three farmer and39 other ancient exclusions, modern660
+   selection, farmer ADMIXTURE split and simulation age convention remain
+   unresolved. Preserve date versions, including107 internal workbook reference
+   disagreements. These are not seed or floating-point variations.
+
+Tree-sequence semantics and safe shared representation
+
+A node is a haploid ancestral lineage in the given tree-sequence representation.
+An edge (parent,child,left,right) exists only for left<=x<right. A global union
+of edges describes multiple marginal trees; it is not one simultaneously valid
+pedigree. A learned message must remain restricted to its actual genomic edge
+support. Do not average incompatible parents or mix different local trees by
+using one unconditioned state per global node. Global node IDs identify rows
+inside one frozen tree sequence, not persistent biological ancestors across
+reinference, simplification, renumbering or datasets. Stable sampled-haplotype
+IDs are the genomic recurrence routes.
+
+Represent immutable observation once as node ages/flags, interval edges, site
+positions/alleles, genotypes/masks, sample mapping and ordered edge differences.
+Build or incrementally update active parent/child adjacency, degrees and static
+reference counts. Use ordered removals then insertions at a breakpoint. Follow
+tskit's edge update ordering rather than sorting by an unrelated identifier.
+The Ralph-Thornton-Kelleher algorithm supports additive descendant counts,
+including a sample's own weight when it is an internal node. It does not prove
+cheap updates for nonlinear outside messages, LayerNorm or recurrent histories.
+A local edge change can invalidate a long ancestral path and most outside states.
+
+Use compact immutable layouts, index arrays and shared read-only inputs in a
+bounded process pool. Split independent parent or tree-local work and merge in
+original genomic order. Cross-block episode/clade continuity requires an exact
+boundary state or serial deterministic merge. Preserve all samples, sites,
+native intervals, recurrent sequence boundaries and output support. Expanded
+arrays are optional storage, not required semantics. Persistent caches must
+bind source/version, observation hash, sample/allele/coordinate schema and every
+consumed configuration; publish atomically and reject stale/partial products.
+
+Categorical SNP factoring is exact only when all input features are identical:
+allele/missing category, reference-frequency vector, donor mask, panel frequency,
+entropy and any position/other covariate. Evaluate the existing MLP once per
+exact key and gather to original rows. Preserve original site-chunk membership,
+called-mask sum/max/count pooling, hold membership, spans and empty indicators.
+An all-missing interval is not equivalent to zero alleles. Preserve max tie
+subgradients, dropout/random draws and batch-dependent operators. If an MLP
+contains independent dropout, sharing one draw across occurrences changes its
+training distribution; per-occurrence masks or a different exact factorization
+are required. No learned cache survives an optimizer update unless recomputed.
+
+Shared differentiable states require summed derivatives from every original
+occurrence, including sample/focal multiplicity and physical loss weights.
+Equal values at one checkpoint do not prove equal computation/Jacobians. Exact
+float bytes plus all operator dependencies define candidate sharing keys. Hash
+collisions require equality checks. Topology-only or tolerance-rounded keys are
+model approximations. A low-rank projection may retain average energy but lose
+rare boundary signals; it is not exact because99% spectral energy is retained.
+
+Meaningful biological validation
+
+An inferred tree interval is not a constant-truth ancestry interval. Relate's
+flanking-SNP inference can lag true ancestry changes; this is an explicit
+AncestralPaths explanation of lower present-day accuracy. Thus a physical-bp
+score and short-tract/boundary endpoints are necessary when changing smoothing,
+message depth or genomic resolution. Genotype information kept somewhere in a
+file is not necessarily retained in the model's interaction path. Late SNP
+conditioning can remove mutation-conditioned lineage/reference interactions.
+Inference topology changes are neither ancestry-switch labels nor independently
+observed recombinations. Genotypes and inferred trees are coupled evidence;
+do not claim calibrated independent likelihood factors without a derivation.
+
+Freeze independent parents/subjects/founders before any windowing or sampling.
+No overlapping windows from a parent, duplicated diploid haplotypes, or reused
+founder mosaics may cross TRAIN/VAL/TEST. Shared observed reference resources
+must be explicitly designated and must not leak outcome labels. Native source
+AP train indices[3,5,6] overlap test[5..9]; do not reproduce this leak in a valid
+benchmark. Maintain its historical diagnostic separately. Fit transforms,
+normalization, adaptive rank/budget choices and checkpoint selection on TRAIN/
+VAL only. Keep TEST sealed until the candidate and evaluation protocol freeze.
+For current validation, honor the existing prediction-before-truth barrier.
+
+Compare both arms on the same frozen observed parents, same reference/query
+identities, same focal positions and half-open physical support, including
+low-confidence and mixed-truth intervals. Do not select easiest donors, uniform
+pure intervals, most compressible blocks, fewer sites or just completed chunks.
+Any missing prediction/coverage loss fails the matched execution gate. Report
+native sampled-SNP/subgraph accuracy separately from common physical-bp metrics.
+Paper ARGMix training500k/5TRAIN, validation100k/1VAL with every100trees, and
+3IID+5OOD test replicates100k each are not full-parent training equivalences.
+AP native per-cohort sample accuracy and predicted-row/truth-column confusion
+precision are not physical-span accuracy. ARGMix's native probability average
+over overlapping chunks must not be replaced by averaged logits. Preserve all
+class probabilities and label axes. Published ARGMix table +/- is undefined;
+never invent SD/SE/CI. Compute clearly labelled sample SD(ddof1) over independent
+parents in this project. One training seed gives no optimizer-seed uncertainty.
+
+Acceptance suite: exact execution
+
+E0 Freeze a manifest of inputs, output support, old/new source, environment,
+   model/checkpoint, RNG state, objective, update count and sampling schedule.
+E1 Raw observation and index parity: exact identity/order, coordinates, genotype
+   values, missingness/phase/alleles, reference masks, intervals, sample counts,
+   node ages/flags, parent-child relationships, degree, episode routes, focal
+   joins and physical weights. Compare integer/mask arrays exactly. Compare
+   intended lossless float transformations bitwise where order is unchanged.
+E2 Structural adversaries: no-site and all-missing holds; unary/polytomy trees;
+   multiple roots and isolated samples; internal sample nodes; recurrent/back
+   mutations and multiallelic sites; equal node times where input allows them;
+   edge endpoints and first/last coordinate; changed descendants/same node ID;
+   repeated topology/different SNPs; same subtree/different outside context;
+   cross-process block boundaries; no hash-only matching. Reject malformed
+   parent cycles, invalid roots/indices, duplicate samples and stale caches.
+E3 Numerical equivalence on preselected representative frozen TRAIN packets:
+   per-stage activations, logits, loss, all parameter gradients and optimizer
+   update. Test forward and backward, max ties, shared-state multiplicity,
+   padding/mask invariance and optimizer cache invalidation. Require finite
+   values and report worst errors rather than only means. Use FP32 reference.
+   Start tolerances atol1e-6/rtol1e-5 for forward and atol1e-6/rtol1e-4 for
+   gradients/one-step parameters. These are proposed engineering thresholds,
+   not measured success. Calibrate against same-backend repeat variability
+   before results; do not relax thresholds after seeing a favorable speed.
+   Integer outputs, coverage and truth-isolation gates have zero tolerance.
+E4 Validate an entire representative parent after bounded parity. Same update
+   boundary, sequence order and stochastic semantics. Microbatching must retain
+   full original loss normalization; optimizer stepping per chunk is not exact.
+E5 On already authorized matched validation, compare saved outputs/probabilities
+   and metrics to rule out cumulative drift. Exact execution needs no new model
+   selection or weaker noninferiority margin to excuse a changed prediction.
+   Any argmax change is enumerated with its score margin and numerical cause.
+E6 Benchmark complete-parent cold preparation, warm preparation, transfer,
+   forward, backward, optimizer and serialization separately and end-to-end.
+   Include compilation and cache build/amortization, wall time, CPU/RSS, disk
+   and peak VRAM. High NVML utilization alone is not useful-work efficiency.
+   Report identical useful output units and updates per second, GPU active
+   time over total wall time, and stalls. No padded/repeated work or GPU spin
+   kernel may count as progress. Check actual queues stay bounded.
+
+Acceptance suite: changed model
+
+M0 Name retained/discarded information and altered interactions, complexity,
+   parameter count, training budget and checkpoint-selection rule before fits.
+   Change one major factor at a time. Retain the simulation core and the exact
+   observed data/support. Preserve comparator algorithms.
+M1 Match primary scientific training exposure and tuning opportunity; report
+   an additional equal-wall-time operating point separately. Do not claim
+   efficiency by silently reducing epochs, samples, nodes, SNPs or support.
+M2 Use paired per-parent deltas (new minus frozen TreeLoom) on matched VAL.
+   Primary co-endpoints: physical-bp ancestry accuracy overall and in present-
+   day/most-recombined queries, boundary recall/F1 with a frozen tolerance and
+   one-to-one matching, and short-tract accuracy/recall using TRAIN-defined
+   length strata. Also report per-cohort/per-class recall/confusion, macro
+   accuracy, NLL, Brier, ECE, dosage error/correlation where defined, tract-
+   length bias, switch counts and boundary displacement. No-switch predictions
+   cannot pass through undefined F1 handling. Mark undefined denominators.
+M3 Target zero loss. The strict default noninferiority margins are0 for each
+   co-endpoint: the one-sided95% lower confidence bound of paired improvement
+   must be>=0. For proper losses orient improvement as old minus new. Any
+   scientifically acceptable positive margin must be frozen and disclosed
+   before evaluation, with biological rationale; none is silently authorized
+   by this report. Failure to establish noninferiority is inconclusive or fail,
+   never equivalent because a two-sided difference test is nonsignificant.
+   Do not relax margins post hoc. Report point estimates and confidence bounds,
+   not just PASS. This strict contract may require more independent validation
+   parents/seeds before a changed model can replace the accuracy-preserved arm.
+M4 Parent replicates are the independent unit. Resample whole parents paired
+   across methods; preserve all queries/positions per resample. Report n,
+   equal-parent mean, sampleSDddof1 and paired uncertainty. With few parents,
+   clearly flag unstable bootstrap intervals and provide raw deltas/sensitivity.
+   If multiple fit seeds are run, summarize seed and parent variation separately
+   or use hierarchical resampling, not millions of SNPs as independent evidence.
+   Freeze familywise95% simultaneous co-endpoint coverage or a conservative
+   multiplicity rule before selection. Subgroups/length bins must be fixed.
+M5 Retain IID and prespecified demographic misspecification conditions, and
+   relevant genotype missingness/error, phase-switch, reference age/count/drift
+   robustness conditions. Existing frozen conditions take precedence. Additional
+   simulated robustness conditions are proposed experiments, not permission to
+   alter this task's simulation core. In real genomes there is no per-site truth;
+   report concordance/plausibility, never measured ancestry accuracy.
+M6 Only accept if efficiency E6 improves on representative complete parents
+   AND M2-M4 preserve biological performance. A faster GPU kernel, an L2 state
+   approximation bound, or high utilization without these outcomes is insufficient.
+
+Useful concrete falsification checks
+
+- Leak sentinel: change hidden census/true labels while fixing observed input;
+  all preprocessing, embeddings and unscored predictions remain identical.
+- Mask sentinel: perturb padded/missing storage values while preserving masks;
+  valid outputs remain invariant where the reference model is invariant.
+- Identity sentinel: relabel/reorder nodes with explicit bijection and stable
+  sample mapping; compare outputs equivariantly with original reduction policy.
+- Support sentinel: an edge ending at x never contributes at x or beyond;
+  split work at an endpoint and reconstruct exactly the sequential result.
+- Partition sentinel: block size/worker count/cache reload cannot alter outputs,
+  multiplicity, recurrent resets or output coverage.
+- Model-change controls: artificial interval split/merge invariance, order and
+  span sensitivity, and short tracts. The old model may depend on segmentation;
+  an invariance improvement is a named architectural change, not evidence that
+  its execution was algebraically identical.
+- Native compatibility: AP six-path probabilities/precision orientation and
+  ARGMix first-SNP label/mask/cM chunk/probability aggregation are explicit.
+  They cannot silently inherit our physical-bp objective or label transforms.
+
+No live source, job, simulation, trained checkpoint or GPU was changed. No
+package installation, Git command, experimental-array read or scoring occurred.
+All new files remain in research/efficiency_20261027/fidelity/. The only new CPU
+execution is an owned plaintext static source inventory. Numerical/biological
+acceptance checks above are prospective, not claimed passes.

@@ -1,0 +1,48 @@
+{
+  "schema": "TreeLoom_residency_memory_feasibility_v1",
+  "created_UTC": "2026-10-27T00:42:34.399350+00:00",
+  "holds": 77472,
+  "haplotypes": 1600,
+  "dtype": "FP32",
+  "measured_GPU_peak": false,
+  "exact_dense_bytes": {
+    "context": 15866265600,
+    "context_VJP": 15866265600,
+    "one_directional_history": 3966566400,
+    "two_directional_histories": 7933132800,
+    "context_plus_VJP": 31732531200,
+    "context_list_plus_concatenation_peak": 31732531200,
+    "maximum_force_or_readout": 3966566400
+  },
+  "approximate_all_upward_bytes": 26000000000,
+  "naive_upward_context_VJP_histories_bytes": 65665664000,
+  "naive_caveat": "This subtotal excludes forcing, readout, pooling temporaries, topology, episode arrays, gradients, checkpoint scratch and allocator reserve. It is not an admission bound.",
+  "proposed_context_only": {
+    "source": "research/efficiency_20261027/root/context_residency.py",
+    "source_sha256": "e2d59f25b4bda24411539728f35fc10f019ffcfe585f7dbf7667d0115083ef56",
+    "CPU_retained": [
+      "observation bank",
+      "first-sweep upward states",
+      "forcing",
+      "full bidirectional history",
+      "cut recipes"
+    ],
+    "GPU_retained": [
+      "second-sweep full leaf context",
+      "full decoder context VJP"
+    ],
+    "exact_large_array_peak_bytes": 31732531200,
+    "exact_large_array_peak_GiB": 29.55322265625,
+    "additional_unmeasured": [
+      "bounded first/second sweep/autograd scratch",
+      "full-sequence GRU tile and checkpoint activations",
+      "parameter and Adam state",
+      "transient topology/site/episode tensors",
+      "CUDA context/libraries",
+      "allocator fragmentation and reserved free blocks"
+    ],
+    "conditional_64GiB_headroom_bytes": 36986945536,
+    "interpretation": "Two context-size arrays alone use29.5532GiB. Potentially feasible under64GiB, but only a full-parent measured peak plus safe current free-device headroom can admit it. No whole-bank transfer required."
+  },
+  "deployment_status": "Analytical proposal plus isolated root source only. No GPU parity or performance evidence yet; production unchanged."
+}

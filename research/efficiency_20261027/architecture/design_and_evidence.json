@@ -1,0 +1,126 @@
+{
+  "schema": "TreeLoom_Transport_architecture_review_20261027_v1",
+  "umbrella_hypothesis": "treeloom_efficiency_redesign_20261027",
+  "decision": "Runnable isolated changed-model research candidate; not an adopted replacement or demonstrated speedup.",
+  "candidate": {
+    "name": "TreeLoom-Transport",
+    "source": "research/efficiency_20261027/architecture/treeloom_transport.py",
+    "framework": "PyTorch with genuine torch_geometric.nn.MessagePassing ancestor-jump aggregation",
+    "hidden_dim": 32,
+    "rounds": 2,
+    "classes": 3,
+    "parameters": 29315,
+    "parameter_tensors": 55,
+    "frozen_C3_parameters_for_context": 32132,
+    "frozen_C3_parameter_tensors_for_context": 49,
+    "checkpoint_compatible_with_frozen_C3": false,
+    "learned_internal_node_ID_embeddings": false,
+    "data_owner": "Original frozen observation and TRAIN/VAL evaluation registry; no replacement simulation or target recipe."
+  },
+  "dataflow": [
+    "Use the already qualified categorical observed-site encoder with the candidate's own weights. Encode observed SNP alleles and donor channels before any tree transport; aggregate sites within their supplied original intervals.",
+    "Insert sampled-leaf features at their exact native occurrence indexes. Keep reference class role, query role and sampled age. Initialize every native node from node age, root indicator, sample indicator and original local gained/lost clade flags.",
+    "Construct positive per-channel edge decay from original branch duration, all four edge geometry fields and all five true branch-support fields. Root pseudo-edges are never used by the forest recurrence.",
+    "Each of two rounds applies normalized full-tree path-product filtering to projected node values, then one batched nonlinear residual update at every node.",
+    "Gather the same persistent sampled columns across every supplied genomic interval. Apply bidirectional input-selective affine scans using physical span, adjacent interval center distances and multiple learned decay scales.",
+    "Reinsert the resulting history only at those same native sample occurrences before the next tree round. The second round can route the first round's sample-aligned genomic context through the complete current tree.",
+    "Classify concatenated final tree and genomic sample states, returning original native-interval outputs or original frozen focal pairs. All supplied reference and query haplotypes participate in tree computation."
+  ],
+  "equations": {
+    "edge_decay": "a[e,c] = exp(-duration[e] * exp(log_tree_rate[c] + tanh(edge_rate(edge_features[e]))[c]))",
+    "tree_kernel": "K[u,v,c] = product of a[e,c] over the unique u-v path if u and v are in the same native component, otherwise 0; K[u,u,c]=1",
+    "tree_operator": "F[u,c] = sum_v K[u,v,c] V[v,c] / sum_v K[u,v,c]",
+    "upward": "U[v] = V[v] + sum_child a[child] U[child]",
+    "outside": "D[child] = a[child] (D[parent] + U[parent] - a[child] U[child]); F derives from U+D for both values and masses",
+    "scan": "h[t] = alpha[t] h[t-1] + beta[t], alpha[t] = exp(-span[t] rate[t]), beta[t] = -expm1(-span[t] rate[t]) force[t]",
+    "scan_selectivity": "rate[t] and force[t] depend on current tree/geometry features, never h[t-1], so affine pair composition is associative.",
+    "scan_composition": "(a2,b2) composed after (a1,b1) = (a2*a1, b2+a2*b1)"
+  },
+  "information_contract": {
+    "retained_in_input_computation": [
+      "Every supplied native tree interval, node, edge, branch duration, edge geometry and true branch-support feature.",
+      "Every supplied site and every sampled haplotype, with alleles entering before full-tree computation.",
+      "Persistent sample column identity, original query indexes, reference roles, sample ages, original local clade-change flags, interval order and physical span.",
+      "Observed isolated first interval: 1600 independent sample roots, no fabricated ancestral edges or virtual root."
+    ],
+    "explicit_model_changes": [
+      "Full-tree filter replaces nonlinear message mixing at every ancestral depth. Only two batched nonlinear tree rounds remain; this changes expressivity and may lose accuracy.",
+      "Selective affine genomic scans replace state-dependent recurrent GRUs. Coefficients cannot depend on the preceding learned hidden state.",
+      "Channelwise normalized aggregation is not injective: using every input does not prove all tree information is recoverable.",
+      "Very attenuated paths may underflow to zero in FP32, despite full topological support in the mathematical operator.",
+      "No internal-clade episode state or cross-tree ancestral identity is claimed. Local clade flags are the original qualified feature, not a new episode mechanism."
+    ],
+    "boundaries": "Current forward scans the entire supplied bank. The smoke bank is the observed prefix of 128 native intervals, not an original complete parent. No production full-parent chunk executor is implemented.",
+    "subdivision_caveat": "The algebra's constant-rate/forcing subdivision test is not end-to-end subdivision invariance: observed sites, geometry-dependent coefficients and learned nonlinear inputs can differ after resegmentation.",
+    "cache_scope": "Only immutable topology/feature routing can be cached across optimizer updates. Learned node states, gates, genomic states and normalizers must be recomputed after every update."
+  },
+  "complexity_and_resources": {
+    "notation": "N total native node occurrences, T intervals, H full-panel haplotypes, d hidden width, D maximum tree depth, S observed sites; two rounds is fixed here.",
+    "reference_tree": "O(N*d*log(D)) tensor work and O(log(D)) dependency rounds from pointer jumping; this is not a linear-work implementation.",
+    "reference_genomic_scan": "O(T*H*d*log(T)) work and O(log(T)) composition stages; current scan retains a large autograd graph.",
+    "dense_projections": "O((N+T*H)*d*d) per round, batched outside depth recurrence. Site encoding retains the qualified categorical encoder's costs.",
+    "memory": "Autograd can retain O(N*d*log(D) + T*H*d*log(T)) intermediates per round plus site features, indexing and dense activations. This is a major unresolved issue.",
+    "observed_128_hold_peak_RSS_bytes": 10469466112,
+    "GPU_utilization": "Unmeasured. Useful sustained activity >=80% remains a user objective, not a result or guarantee.",
+    "next_implementation_gate": [
+      "Compare the simpler exact two-pass tree recurrence against pointer jumping before optimizing the latter; fewer dependencies can cost more total memory traffic.",
+      "Implement an exact block affine scan with left and right carry across the entire original parent, then validate values and gradients against this monolithic candidate.",
+      "Retain all sample histories between rounds through bounded checkpoints/recomputation, never resetting genomic state at arbitrary compute block boundaries.",
+      "Measure complete preparation, transfer, forward, backward and optimizer time plus useful kernel activity and peak memory before selecting a kernel strategy."
+    ]
+  },
+  "qualification": {
+    "algebra_receipt": "research/efficiency_20261027/architecture/algebra_test_receipt.json",
+    "algebra_checks_passed": 28,
+    "algebra_max_abs_error": 0.0000005364418029785156,
+    "actual_candidate_receipt": "research/efficiency_20261027/architecture/observed_cpu_smoke.json",
+    "actual_candidate_terminal": "research/efficiency_20261027/architecture/observed_cpu_attempt03_terminal.json",
+    "actual_candidate_output_shape": [128,1000,3],
+    "actual_candidate_nodes": 317897,
+    "actual_candidate_sites": 681,
+    "actual_candidate_haplotypes": 1600,
+    "all_55_parameter_gradients_finite_nonzero": true,
+    "actual_PyG_reference_max_abs_error": 0.0000002384185791015625,
+    "actual_PyG_gradient_reference_max_abs_error": 0.0000007152557373046875,
+    "ancestry_targets_opened": false,
+    "optimizer_updates": 0,
+    "GPU_execution": false,
+    "training_or_accuracy_claim": false,
+    "diagnostic_timing_is_comparative_benchmark": false,
+    "failed_attempts": [
+      "Attempt01 has no recovered exact terminal code; do not infer a timeout or crash cause.",
+      "Attempt02 returned 1 after 6.63 seconds: the older connected-only flag builder rejected the original isolated hold. Its stdout, stderr and terminal receipt are preserved.",
+      "Attempt03 uses the existing qualified build_episodes adapter and the exact isolated_hold_indices derivation from run_profile.py; returncode 0."
+    ],
+    "unused_draft": "forest_flags.py was authored during diagnosis but never executed or imported by the qualified candidate/smoke; forest_flags_draft_status.json records its exclusion."
+  },
+  "source_and_literature_review": {
+    "repository_inventory": "research/efficiency_20261027/architecture/author_file_inventory.json",
+    "fresh_repository_heads": "research/efficiency_20261027/architecture/fresh_repository_heads.json",
+    "ARGformer_HEAD": "f7545be7bca0200fb39aeb7f94a8e5f0b6bf5596",
+    "GST_HEAD": "6469d56aa131463325058b897b1e435c6d2edcd2",
+    "tracked_blobs": 226,
+    "text_blobs": 213,
+    "binary_blobs": 13,
+    "review_scope": "Fresh heads unchanged from cached audit. All tracked blobs inventoried; cached textual payloads decoded and statically parsed, available blob IDs checked. Core model/data/end-to-end paths read. This is not a fresh line-by-line semantic reread of all 213 text files; inherited full-file audits remain separately attributable.",
+    "original_papers_read": [
+      "GST arXiv:2606.05116v1 full cached HTML body; no separate supplement or appendix found in available artifact.",
+      "ARGformer DOI:10.1093/bioinformatics/btag438 full publisher XML body and complete three-page supplement."
+    ],
+    "additional_primary_sources_targeted_only": [
+      "Learnable Tree Filter for Structure-preserving Feature Transform, arXiv:1909.12513: weighted tree path-product filtering is established prior art.",
+      "Rethinking Learnable Tree Filter for Generic Feature Transform, arXiv:2012.03482: tree-filter extensions are established prior art.",
+      "GrootVL: Tree Topology is All You Need in State Space Model, arXiv:2406.02395: tree state-space traversal is established prior art.",
+      "Martin and Cundy, Parallelizing Linear Recurrent Neural Nets Over Sequence Length, arXiv:1709.04057: parallel affine recurrence predates this work.",
+      "Mamba, arXiv:2312.00752: input-selective state-space scans are established prior art."
+    ],
+    "novelty_limit": "No claim of inventing tree filters, affine scans or selective state-space models. Existing TreeLoom stable-leaf memory already uses an affine prefix computation. Any contribution must be demonstrated as an ARG-specific integration with stable sampled identity, early observed alleles, native distance and full-tree context, with useful accuracy/efficiency evidence.",
+    "baseline_distinctions": [
+      "GST graph-token pooling over an unordered graph collection does not provide ordered genomic memory or stable sampled-leaf identity. Its paper/code gate discrepancy and paper hardware placeholders prevent importing its cost claim as our benchmark.",
+      "ARGformer path-token ancestry IDs and shared modern transformer weights do not supply an explicit ordered genomic per-haplotype state. The supplement's 189500 tokens/s and 58 minutes concern one real-data pretrain, not the original LAI task.",
+      "ARGformer paper/release differences already documented in docs/argformer_published_benchmark_audit_v1.md include extant-token handling, temperature configuration, class-weight nesting and unavailable exact PCA10 benchmark evaluator. Author baselines were not modified."
+    ],
+    "historical_TreeLoom_evidence": "H042-H045 and H050 support simple local clade features and stable-leaf memory over more elaborate clade episode mechanisms on their historical reused VAL cohorts. Those cohorts differ from the current American experiment, so their accuracy numbers are not new evidence for this candidate. Prior low-rank and primitive-sharing analyses do not justify suppressing dense layers or caching learned states."
+  },
+  "recommendation": "Retain the exact optimized current model if it meets the practical objective. Consider this candidate only through the prospective paired TRAIN/VAL protocol, with full-parent memory qualification before any speed or accuracy conclusion."
+}

@@ -1,0 +1,46 @@
+{
+  "schema": "TreeLoom_context_residency_static_review_v1",
+  "date": "2026-10-27",
+  "reviewer": "treeloom_fidelity_oct27",
+  "source": {
+    "path": "research/efficiency_20261027/root/context_residency.py",
+    "sha256": "e2d59f25b4bda24411539728f35fc10f019ffcfe585f7dbf7667d0115083ef56"
+  },
+  "comparison_sources": [
+    {
+      "path": "research/benchmark_rebuild_20261024/american/treeloom_speed/staged_execution_v2.py",
+      "sha256": "12870a3b4514fef5153bbd66114e4e54a2bb002072d1392cd84f3519f6677927"
+    },
+    {
+      "path": "research/benchmark_rebuild_20261024/american/treeloom_speed/decoder_v2.py",
+      "sha256": "0a35a016efc3816a759e81a0f8e41ea79437ce67bbf5686cdf9928a50f84396b"
+    },
+    {
+      "path": "research/scalability_20261024/integration/executors.py",
+      "sha256": "6eae27fd94830d2c70290c9ef50c1156371bd5df6ee23fabcfdd356c0958fa2a"
+    }
+  ],
+  "decision": "Static equation/support/gradient-boundary review PASS; numerical and memory qualification outstanding. Suitable for an independently guarded paired diagnostic, not a validated production adoption.",
+  "findings": [
+    "Resident _second retains all original clade, episode and stable-leaf-memory injection equations, same first-upward input, same base/edge gates and original second sweep. Only the final leaf-context .to(cpu) is removed.",
+    "Inherited context_forward preserves CPU first upward/outside states, forcing and complete bidirectional history; checkpoint preserve_rng_state=True remains intact. Context blocks concatenate in the original native order.",
+    "Decoder retains original full genomic sequence per haplotype tile, forward and reverse scan, exact focal row selection, summed CE divided by the complete original focal count, and one zero-initialized complete context VJP. Empty focal tiles remain zero-gradient and do not omit upstream observed contributions.",
+    "Detaching the resident tile at the same boundary prevents decoder backward from prematurely traversing the trunk. Returning its CUDA VJP and calling context.backward(VJP) reconnects exactly once. Device-local copy_ into VJP changes storage placement, not differentiation.",
+    "Even when contiguous() returns an alias, tile detach creates a new leaf and neither decoder path mutates context values. Current source therefore has no alias write hazard.",
+    "No data/labels/simulation/reference order/coverage/history boundary is changed. Mathematical equivalence remains subject to FP32 execution/accumulation order and measured gradients/optimizer states."
+  ],
+  "memory_gate": {
+    "notation": "C = 4 * native_holds *1600*32 bytes for one FP32 complete context.",
+    "known_live_arrays": "At final context concatenation, all block outputs and the concatenated context can overlap (~2C). During decoder, complete context plus complete VJP cost ~2C, plus contiguous tile copy, both recurrent directions, checkpoint saves, model/optimizer buffers and allocator reservation. Trunk backward may add further scratch.",
+    "not_proven": "A64GiB profile budget is not a proven full-parent peak. CPU staged states remain large. Reset allocator peaks and measure every arm; process-lifetime max RSS is cumulative.",
+    "requirements": [
+      "Static pre-admission with actual parent T, original block/tile settings and bounded scratch estimate.",
+      "Guard own session only; do not evict unrelated work or silently reduce input support on OOM.",
+      "Compare logits, loss, gradients, clipped norm, parameters, Adam moments and exact step counts against same restored checkpoint/RNG arm.",
+      "Keep original full genomic boundaries and match all focal IDs; record argmax mismatches and margin."
+    ]
+  },
+  "reviewer_execution": false,
+  "reviewer_GPU_use": false,
+  "reviewer_job_changes": false
+}
