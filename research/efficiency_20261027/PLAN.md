@@ -8,15 +8,15 @@ Use physical GPUs 3, 4 and 5. Keep all project computation and writes under the 
 
 | Ticket | Status | Next action |
 |---|---|---|
-| E01: full-parent exact executor | Deployed | American attempt 7 continues from checkpoint 268. Checkpoint 278 is durable. |
+| E01: full-parent exact executor | Deployed | American attempt 8 restored checkpoint 281 with optimizer/RNG and schedule preserved. The first new update is pending. |
 | E02: sustained utilization | Open | Observe the next production executor across cold preparation and warm updates, with compute-client identities recorded. No 80 percent claim yet. |
 | E04: boundary fusion and GPU residency | Qualified | Combine the accepted implementation with preparation changes in one checkpoint transition. |
-| E06: concurrent parent preparation | Real comparison v2 running | The report now uses complete canonical signatures within the output bound. Finish both arms, verify exact prepared values, RNG, actual process concurrency and supply time. |
-| E07: combined deployment | Source v4 qualified, memory routing being added | Before forward propagation, select the qualified resident or explicit executor using actual parent size and live memory. Finish real preparation evidence and preserve the latest durable checkpoint for one transition. Not deployed. |
+| E06: concurrent parent preparation | Qualified | Two complete parents took 1238.356 s concurrently versus 1560.893 s sequentially. Exact complete signatures and RNG match, actual waits are zero and encoder peaks are eight versus four. |
+| E07: combined deployment | Deployed from update 281 | Attempt 8 restored all state. Verify the first new update and sustained production throughput. One transition completed, prior outputs preserved. |
 | E08: memory lifetime and GPU context | Diagnostic completed, deferred | Prefix downstream checks pass but 47 of 59 million context values exceed the original strict tolerance. No full-chromosome qualification. Defer this optional candidate to avoid another deployment delay and cache rebuild. |
 | E09: monitoring overhead | Measured, not changed | One live process PSS scan took 1.95 seconds. Record actual callback frequency and cost in the successor before changing scheduling. |
-| A01: European observed cohort inputs | Qualification and fit preparation | Retry qualification after the CPU comparison releases its allowance. Add deterministic RNG/cursor resume before the fixed 90-update fit. Keep all original training data and the final-epoch rule. |
-| A02: independent development validation | Source v3 reviewed, not launched | Admit one aggregate 16 GiB allowance and a finite resource envelope before generating the independent 10 Mb VAL. Original 200 Mb TRAIN and TEST stay unchanged. |
+| A01: European observed cohort inputs | Qualification and fit preparation | Full qualification retry v2 is running. On success, launch the resumable fixed 90-update fit. Exact interrupted/resumed CPU loop tests passed. Keep all original training data and the final-epoch rule. |
+| A02: independent development validation | Running | One 10 Mb independent VAL parent is admitted under a 16 GiB aggregate allowance. Original 200 Mb TRAIN and TEST stay unchanged. Prediction and common scoring are being implemented. |
 | B01: ancestry benchmarks | Running | Finish American TreeLoom, native ARGformer, GST, ARGMix and direct four-class comparisons. Report only completed common scoring. |
 
 ## Accepted measurements
@@ -42,6 +42,7 @@ Current European TreeLoom accuracy is 54.80 ± 1.02 percent across the same five
 | Level-local sweep variants | Slower in repeated GPU comparisons. Do not repeat without a new bottleneck hypothesis. |
 | Context-only residency in the earlier executor | Full call was slower than the selected CPU-context executor. Not deployed. |
 | Fixed-input GPU transfer pack | Only about 1.72 percent projected full-parent saving. Closed without a production restart. |
+| Two preparation producers, four encoders each | Exact outputs passed. Pair time fell 20.66 percent. This does not establish training overlap or warm throughput. |
 | TreeLoom-Transport | Full update took 1,122.875 seconds, with no validated accuracy advantage. No larger learning pilot. |
 | Profiler v1 attribution | Invalid: CUDA annotations were counted as kernels. Corrected physical-event accounting reports 36.76 percent kernel activity and 64.56 percent activity including copies for the fused prefix. |
 | Adaptive preparation v1 accounting | Phase and child allowances were not jointly admitted. Corrected and reviewed in v2. |

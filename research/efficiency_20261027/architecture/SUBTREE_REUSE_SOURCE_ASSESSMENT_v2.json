@@ -1,0 +1,160 @@
+{
+  "admissible_scope": {
+    "current_safe_reuse": "Immutable observation/topology layout reuse is already separate from learned-state reuse and does not need this proposed DAG computation.",
+    "never_across_parameter_updates": true,
+    "never_from_topology_only": true,
+    "parameters_fixed_for_cache_lifetime": true,
+    "possible_case": "Two occurrences of an identical attributed subtree with identical raw computational inputs and operation order may share the first upward subgraph. No existing metadata establishes enough such cases for a useful speedup.",
+    "within_one_complete_parent_update": true
+  },
+  "blockers": [
+    {
+      "detail": "Each leaf sees mean/max/count/missingness of the original sites in that hold, using genotype category, donor frequencies/callability,panel frequency and entropy; site_pool_projection also takes that hold physical span. Even empty-site holds can differ through span. A changed leaf input propagates through every ancestor via nonlinear updates.",
+      "kind": "hold_specific_leaf_input"
+    },
+    {
+      "detail": "up_gate uses four edge-geometry fields and five branch-support fields; support is built from the sites assigned to each hold. Equal descendant leaf sets or persistent topology do not establish equal gates.",
+      "kind": "hold_specific_edge_gate"
+    },
+    {
+      "detail": "The first sweep also computes outside states from ancestor outside,ancestor base and sibling aggregate minus recipient message. They cannot be shared from subtree identity alone; forcing uses upward+outside.",
+      "kind": "outside_context"
+    },
+    {
+      "detail": "The second base includes node flags,episode eligibility and cut-representative injections from complete stable-leaf history. Reusing the first-sweep upward subtree does not authorize reuse of the second sweep,full history,GRU or final context.",
+      "kind": "second_sweep_and_history"
+    },
+    {
+      "detail": "A valid shared computation must gather all uses and propagate the sum of every consumer VJP through the shared original graph,including forcing/history and second-sweep paths. Dropping duplicate occurrences,detaching a cache,or reusing values without all gradients changes training.",
+      "kind": "training_derivatives"
+    },
+    {
+      "detail": "Cross-occurrence sharing can alter PyG reduction batching and parameter-gradient addition order. Mathematical equivalence is not a bitwise guarantee; original fixed comparisons of context,logits,loss,gradients,updated parameters and Adam remain necessary before use.",
+      "kind": "FP32_order"
+    }
+  ],
+  "correction": "The v1 prose equation placed LayerNorm and tanh in the wrong order; v2 matches the source exactly. Conclusions and source references are unchanged.",
+  "deployment_dependency": false,
+  "exact_upward_dependency": {
+    "equation": "u[v] = LayerNorm(base[v] + tanh(UpUpdate(concat(base[v], sum_child UpMessage(u[c])*up_gate[c]/degree[v]))))",
+    "outgoing_message": "Recompute outgoing child_message using the current root-to-parent gate and current parent degree; those can change under reparenting despite an equal cached subtree state.",
+    "raw_identity": "Match observation identity/sample correspondence, node clocks,root/sample flags,leaf site/categorical input computation,edge geometry/support and topology. Equality of a learned output tensor alone does not prove equality of parameter Jacobians.",
+    "scope": "For the subtree root upward state itself, its outgoing edge to its parent and the outside/ancestor state are not inputs. Every descendant base, child-edge gate, topology/degree, child accumulation order and fixed parameter version are inputs."
+  },
+  "new_benchmark": false,
+  "new_implementation": false,
+  "recommendation": "Close topology-only subtree caching as an invalid shortcut for this model. Keep feature-complete within-update common-subexpression elimination as an unproven idea only; do not delay current resident/explicit routing deployment or add implementation/benchmarks now.",
+  "schema": "TreeLoom_within_update_subtree_reuse_source_assessment_v2",
+  "scientific_arrays_opened": false,
+  "source_analysis_only": true,
+  "source_refs": [
+    {
+      "locations": [
+        {
+          "end": 28,
+          "meaning": "first_device and forcing_device",
+          "start": 14
+        }
+      ],
+      "path": "research/efficiency_20261027/architecture/exact_boundary_fusion/boundary_fusion.py",
+      "sha256": "5427d8d63cbeddd599ea72e39ade273e79d80a7831ffc200ad32fe8a0ec3bb8a"
+    },
+    {
+      "locations": [
+        {
+          "end": 115,
+          "meaning": "_sites: exact hold-local site pooling plus physical span",
+          "start": 86
+        },
+        {
+          "end": 135,
+          "meaning": "_base: node/leaf features and observation-conditioned gates",
+          "start": 117
+        },
+        {
+          "end": 187,
+          "meaning": "_second: per-hold flags, episode eligibility and full-history readout injection",
+          "start": 168
+        }
+      ],
+      "path": "research/benchmark_rebuild_20261024/american/treeloom_speed/staged_execution_v2.py",
+      "sha256": "12870a3b4514fef5153bbd66114e4e54a2bb002072d1392cd84f3519f6677927"
+    },
+    {
+      "locations": [
+        {
+          "end": 258,
+          "meaning": "Frozen class inherits exact sweep",
+          "start": 255
+        },
+        {
+          "end": 300,
+          "meaning": "Full-model base preparation",
+          "start": 275
+        },
+        {
+          "end": 327,
+          "meaning": "Two sweeps and intervening memory",
+          "start": 308
+        }
+      ],
+      "path": "research/benchmark_rebuild_20261024/american/treeloom_speed/static_model_v2.py",
+      "sha256": "dbb648c2b72c38e6f9a77f3db903738135b63bbf76d358104d6db485133cfc47"
+    },
+    {
+      "locations": [
+        {
+          "end": 131,
+          "meaning": "Exact inherited PyG upward and outside recurrences",
+          "start": 110
+        }
+      ],
+      "path": "src/arggnn/anonymous_clade_gnn_v1.py",
+      "sha256": "2f878e6334079cff083f67b6da8eda129dd30e7beebc62ae2a93d51796c3f137"
+    },
+    {
+      "locations": [
+        {
+          "end": 65,
+          "meaning": "Categorical genotype/donor/callability/panel/entropy site MLP",
+          "start": 48
+        }
+      ],
+      "path": "src/arggnn/american_c3_gnn_model_v1.py",
+      "sha256": "f1a64bf56a6edc6e2b5ead5d0b06dda1d64034bdfaa5f8fc166f7b5ddffb994d"
+    },
+    {
+      "locations": [
+        {
+          "end": 103,
+          "meaning": "Per-hold branch support and edge geometry construction",
+          "start": 75
+        }
+      ],
+      "path": "src/arggnn/american_c3_gnn_observations_v1.py",
+      "sha256": "116cfe2e0de5109b864d5b60631eab0d03bee8a15921b24a7f6a6b4461bff6e4"
+    },
+    {
+      "locations": [
+        {
+          "end": 154,
+          "meaning": "Original ordered parameter-VJP accumulation and second-block derivatives",
+          "start": 112
+        },
+        {
+          "end": 234,
+          "meaning": "Per-block first/forcing recomputation and VJP order",
+          "start": 184
+        }
+      ],
+      "path": "research/efficiency_20261027/architecture/exact_upward_residency/upward_residency.py",
+      "sha256": "69d14e53e4e8b569636cca7409d90f244109df6cad64dda7807b1c8247860d08"
+    }
+  ],
+  "status": "topology_only_learned_state_reuse_invalid_conditional_subgraph_reuse_not_qualified",
+  "supersedes_ref": {
+    "path": "research/efficiency_20261027/architecture/SUBTREE_REUSE_SOURCE_ASSESSMENT_v1.json",
+    "sha256": "0ebceb286e7d62fc0d1ad086bb477b2fb0252e05f1ea935f9cca08d0a8cf5fe3"
+  },
+  "verdict": "Do not reuse upward states by clade identity, tree-sequence node ID or topology alone. Mathematically valid within-update reuse requires the entire attributed upward computation to be identical; current site/span/support inputs vary by marginal hold. Actual duplicate frequency and benefit have not been measured."
+}
