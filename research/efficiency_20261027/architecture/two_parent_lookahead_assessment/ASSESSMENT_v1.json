@@ -1,0 +1,166 @@
+{
+  "conclusion": "Proceed to a separate candidate only if ROOT chooses this optimization. The safe opportunity is adaptive two-parent lookahead early in compact-pool warmup under the existing caps, with unchanged schedule and exact observations. Fixed two-parent concurrency across all20 is neither necessary nor supported by current memory arithmetic.",
+  "concurrency_audit": {
+    "RNG": "No random sampling, reseeding or global Python/NumPy/Torch RNG mutation was found on the inspected preparation/pack path. Epoch order uses a private random.Random instance. Keep checkpoint RNG restore before producers and optimizer/checkpoint RNG snapshots on the training thread. A concurrent serial-versus-two-producer parity check must still verify RNG state, since source review is not an execution proof.",
+    "duplicate_cache_ownership": "One shared compact pool and one shared layout cache/governor remain owned by the training process. One parent has one ownership state and one future. Pack buffers are private read-only compact copies; restore creates fresh expanded arrays with only qualified within-record aliases. Never create one full pool per producer or IPC expanded banks.",
+    "failure_and_shutdown": "Any required/optional future failure is fatal to the attempt and must be surfaced promptly; no retry of a parent marked attempted. Close wakes governor waiters, cooperatively stops producers, cancels unstarted futures, and joins threads and their ProcessPoolExecutors before the task owner declares the family absent. Running futures cannot be assumed cancelled by Future.cancel().",
+    "local_state": "load_observation creates a separate tskit tree sequence, read-only genotype mmap and metadata per parent. native_workspace_v1 is per call. Encoder pending queues, trees, arrays, episode dictionaries, cut arrays and codec dictionaries are local. C++ kernels use stack-local vectors/maps and caller-owned output buffers, with no mutable static workspace.",
+    "locks": "Current producer does governor admission, then short pool-lock operations, with prepare/pack and future.result outside the pool lock. event_lock only serializes writes; check_lock only serializes resource checks. Layout uses the governor recursive condition, whose wait releases/restores recursive ownership. No current lock cycle was found: producers need no nested governor reservation and can complete while training waits for layout memory. Preserve these properties; never wait on a future while holding pool, event, check or governor locks.",
+    "process_globals": "Hooks, registry TRAIN/VAL bindings, temp/cache environment and Torch thread settings are installed once before producer threads. Do not reinstall hooks or call set_num_threads/set_num_interop_threads/environment setters inside a producer. DataLoader-specific arbitrary_address patching exists in the dataset module but is not called on this preparation route.",
+    "process_start": "Each encode_block uses a distinct ProcessPoolExecutor with multiprocessing.get_context(spawn), so CUDA state and large expanded banks are not fork-inherited. Only bounded complete-tree NumPy input/output chunks travel through pipes. Four one-thread workers belong to each call; worker limits/global telemetry are private to each spawned process.",
+    "provenance": "Freeze the already authenticated all20 plans and seals before producers; exclude the unused fallback that writes plans/seals when missing. Retain exact input refs, complete native counts, focal identity and inherited barrier checks before TRAIN truth access. Preparation completion must never advance the600-update cursor."
+  },
+  "created_utc": "2026-10-27T03:41:53.001196+00:00",
+  "disposition": "Feasible as a separate reviewed successor queue with at most two preparation producers; not a safe max_workers-only edit and not qualified for production by this source assessment.",
+  "evidence": {
+    "bound_ref": {
+      "path": "research/reviews/workflow_progress_diagnosis_20261018/treeloom/storage_bound_v2.json",
+      "sha256": "e5701726cfe0e925b3a20073576caf8c49fded8a6e8391eecae3611e41bcd43f"
+    },
+    "progress_source_is_mutable": true,
+    "progress_source_path": "experiments/results/paper_american_20261024/treeloom_fit/native/exact_preprocessing_from_update268_explicit512_attempt7/progress.jsonl",
+    "selected_progress_events": [
+      {
+        "elapsed_prepare_and_pack_seconds": 807.2593648433685,
+        "ready_event": {
+          "compact_charged_bytes": 14012323697,
+          "disk_cache_bytes": 0,
+          "event": "compact_parent_ready",
+          "expanded_bank_sent_over_IPC": false,
+          "observed_unix": 1793070485.0923638,
+          "parent_id": "argformer_american_train_001",
+          "parents": 1,
+          "pool_charged_bytes": 14012323697
+        },
+        "start_event": {
+          "CPU_workers": 1,
+          "event": "observation_prefetch_started",
+          "observed_unix": 1793069677.832999,
+          "parent_id": "argformer_american_train_001"
+        }
+      },
+      {
+        "elapsed_prepare_and_pack_seconds": 792.3720510005951,
+        "ready_event": {
+          "compact_charged_bytes": 13894924379,
+          "disk_cache_bytes": 0,
+          "event": "compact_parent_ready",
+          "expanded_bank_sent_over_IPC": false,
+          "observed_unix": 1793071330.8777761,
+          "parent_id": "argformer_american_train_007",
+          "parents": 2,
+          "pool_charged_bytes": 27907248076
+        },
+        "start_event": {
+          "CPU_workers": 1,
+          "event": "observation_prefetch_started",
+          "observed_unix": 1793070538.5057251,
+          "parent_id": "argformer_american_train_007"
+        }
+      },
+      {
+        "elapsed_prepare_and_pack_seconds": 797.3959324359894,
+        "ready_event": {
+          "compact_charged_bytes": 13925476276,
+          "disk_cache_bytes": 0,
+          "event": "compact_parent_ready",
+          "expanded_bank_sent_over_IPC": false,
+          "observed_unix": 1793072144.1959047,
+          "parent_id": "argformer_american_train_006",
+          "parents": 3,
+          "pool_charged_bytes": 41832724352
+        },
+        "start_event": {
+          "CPU_workers": 1,
+          "event": "observation_prefetch_started",
+          "observed_unix": 1793071346.7999723,
+          "parent_id": "argformer_american_train_006"
+        }
+      }
+    ],
+    "source_inventory_ref": {
+      "path": "research/efficiency_20261027/architecture/two_parent_lookahead_assessment/READ_INVENTORY_v1.json",
+      "sha256": "c77daf125c24b67d5d331cbb7f6c16f7e966974168edbbddad438d4a204298dc"
+    },
+    "task_ref": {
+      "path": ".runtime/benchmarking/paper_campaign_resume_20261026_v1/jobs/paper_american_treeloom_fit.attempt7.json",
+      "sha256": "dd58f4c36a664b4f3a7e101e25fa63312e89010fe8bd521df86321d1dd914bac"
+    },
+    "timings_are_start_to_ready_including_possible_admission_wait_and_pack": true,
+    "update269_ref": {
+      "path": "research/efficiency_20261027/root/production_attempt7/update269_observed.json",
+      "sha256": "1e40e333764240d85d85e7b59014149cee5546658378ccabaeb7ff34b41ba7ce"
+    }
+  },
+  "memory": {
+    "all20_authenticated_bound_GiB": 348.0741124842316,
+    "all20_authenticated_bound_bytes": 373741732426,
+    "bound_includes_per_parent_extra_bytes": 160000,
+    "extrapolated_all20_compact_bytes_from_first3_mean": 278884829013.3333,
+    "extrapolation_is_not_an_admission_bound": true,
+    "interpretation": [
+      "Each record is about14GB decimal (about13GiB) in these three observations; twenty at that scale is about279GB decimal. The authenticated worst-case sum is373.742GB decimal,348.074GiB, below the unchanged352GiB cap.",
+      "Training plus two128GiB preparation reservations totals384GiB. New admission requires main RSS at most208GiB before any additional nested layout allowance; training plus one preparation permits336GiB. The measured-scale fully warmed compact pool alone exceeds208GiB, so three-way overlap cannot remain available throughout warmup.",
+      "The governor admits at phase entry and checks current main RSS during work. It does not continuously enforce RSS plus all reservations or preempt an already admitted phase. As records accumulate it restricts subsequent starts, not already running work.",
+      "RSS already includes allocated expanded banks, compact records, layout plans and allocator retention. Outstanding reservations are deliberately added again; do not replace this rule with payload arithmetic or reclaim credits before actual release.",
+      "Exact restore uses expanded_tensor_bytes +256*native_nodes+64MiB, not128GiB. Layout build/bind obtains an extra nested reserve; these must keep their current admissions and eviction rules.",
+      "Unleased layouts may be evicted, then actual RSS is reread. Compact records are never evicted/rebuilt, and no observation disk cache is introduced."
+    ],
+    "layout_cap_bytes": 85899345920,
+    "maximum_GiB": 592.0,
+    "maximum_bytes": 635655159808,
+    "measured_first3_compact_bytes": 41832724352,
+    "phase_admission_main_RSS_thresholds_bytes": {
+      "one_128GiB_phase": 498216206336,
+      "training_plus_one_preparation": 360777252864,
+      "training_plus_two_preparations": 223338299392
+    },
+    "pool_cap_GiB": 352.0,
+    "pool_cap_bytes": 377957122048,
+    "preparation_reserve_bytes": 137438953472,
+    "training_reserve_bytes": 137438953472
+  },
+  "minimum_queue_design": [
+    "Replace the singleton future/future_parent with parent-to-Future ownership and explicit absent,queued,preparing,ready,failed states under one short pool lock. At most two producers are active/queued. Claim each parent once before submission; record pending compact upper-bound charge and commit actual charge atomically.",
+    "Traverse the unchanged remaining600-entry schedule in first-occurrence order, skipping ready/in-flight duplicates. Fill only the two earliest missing distinct parents. Give the currently demanded parent and foreground restore/training admission priority over speculative refill. A completed later parent stays in the pool until its original scheduled update.",
+    "load(parent) must match schedule[cursor], find that exact future, release locks and wait, then restore only its own sealed record. Reap all completed futures for errors; never take whichever parent finishes first.",
+    "Use the same actual-RSS governor and original reserves for whole prepare-plus-pack lifetimes, exact restore, training and layout. Optional work that cannot currently be admitted should remain deferred; do not make optional non-admission kill otherwise runnable foreground work. Fair/priority admission is a policy addition to qualify, not a cap reduction.",
+    "Do not let a coordinator hold the training reservation while synchronously waiting for a not-yet-prepared required parent. Existing load-before-training order is correct. Producer callbacks may announce readiness, but only durable training checkpoint completion advances cursor.",
+    "Update successor requirements, receipts and pinned source manifests to report two preparation producers and at most eight encoder children. Preserve all49 optimizer counters and the exact checkpoint/RNG/parent-order contract."
+  ],
+  "performance": {
+    "concurrent_preparation_slowdown_limit_to_match_that_training_time": 1.1719291911843022,
+    "ideal_two_producer_average_seconds_per_parent_at_first_preparation_time": 403.62968242168427,
+    "interpretation": "807.259s preparation versus473.025s training means ideal two-producer supply403.630s/parent could cover this training time. About17.2percent slowdown per concurrent preparation exhausts that margin. This is a rate calculation, not a speedup prediction: Python/GIL work, CPU teams, shared memory bandwidth, NFS hashing and packing compete. Finite warmup and memory throttling also matter. Training latency itself may increase under two producers.",
+    "observed_update269_training_seconds": 473.0254072584212
+  },
+  "process_family": {
+    "avoidance": "Do not add nested blocking governor.phase(8GiB) calls inside both128GiB producer phases: both producers could hold outer reservations and wait for each other indefinitely. Keep128GiB reserves and592GiB/352GiB caps; child allowance is the existing requirement, not a justification to shrink caps.",
+    "bounded_IPC_additional_bytes_per_parent": 7113539584,
+    "children_per_parent": 4,
+    "configured_child_allowance_per_parent_bytes": 8589934592,
+    "encoder_gate": "Each call performs an unthrottled live aggregate PSS/fallback-RSS check plus8GiB before its private process pool. This check and future child growth are not an atomic shared reservation across two calls.",
+    "main_governor_measurement": "Current process /proc/self/statm RSS only",
+    "maximum_two_parent_children": 8,
+    "outer_resource_guard": "Recursive process-family PSS, falling back to RSS, with a30second throttle; training wraps its writer in check_lock and independently checks main RSS on every callback.",
+    "required_successor_design": "Make the existing8GiB child allowance explicit for each admitted parent and coordinate both process-family admissions. A short shared encoder-credit ledger can conservatively count every outstanding8GiB allowance until that pool has reaped its children; check live family memory plus outstanding allowances plus the new allowance atomically. If insufficient, defer before starting optional work or fail safely; never wait on unrelated parent/layout reservations while holding new child credits. ROOT must admit the changed maximum8-child family alongside other jobs.",
+    "worker_current_RSS_limit_bytes": 1610612736,
+    "worker_limit_is_sampled_not_OS_hard_limit": true
+  },
+  "qualification_before_any_future_release": [
+    "Bounded deterministic CPU pair: compare serial and concurrent preparation/pack/restore signatures, array bytes, provenance, focal/native counts and unchanged global RNG. Include out-of-order completion and repeated parent positions.",
+    "Fake-RSS/state-machine checks for two admissions, foreground priority, layout eviction/retry, exact restore allowance, cancellation, failed producer propagation, no duplicate parent and no future wait under locks. Explicitly exercise nested-layout waits and closure while producers wait.",
+    "ROOT-owned process-family qualification with two real complete parents and unchanged model schedule, comparing elapsed preparation, training cadence, main RSS and recursive child PSS, maximum child count and all child reaping. Existing source review alone does not qualify two-parent memory peak or throughput."
+  ],
+  "schema": "TreeLoom_two_parent_lookahead_design_assessment_v1",
+  "scope": {
+    "GPU4_untouched": true,
+    "assessment_only": true,
+    "implementation_created": false,
+    "jobs_launched": 0,
+    "new_observation_disk_cache_bytes": 0,
+    "no_simulation_or_scientific_payload_load": true,
+    "production_edited": false,
+    "project_disk_ceiling_bytes": 1000000000000
+  }
+}

@@ -1,0 +1,129 @@
+{
+  "schema": "TreeLoom_boundary_timeline_review_plan_v1",
+  "status": "prepared_not_launched",
+  "source_manifest_ref": {
+    "path": "research/efficiency_20261027/execution/source_pins_boundary_timeline_v1.json",
+    "sha256": "ff70c05637ebe43bdd296d22616cbd4656e7b3dae9ff6eae8753e76b23d3abdb"
+  },
+  "CPU_protocol_result_ref": {
+    "path": "research/efficiency_20261027/execution/bounded_timeline_CPU_v1.json",
+    "sha256": "9d6a22d97f48236f2dfa4fadbaa04658d2b1d6f2987e71dde25488c6339fc80a"
+  },
+  "candidate_review_ref": {
+    "path": "research/efficiency_20261027/fidelity/BOUNDARY_FUSION_PREPARATION_REVIEW.json",
+    "sha256": "9579ddd8caaf3bb63b99a6de65f9d311b400ac01a4ce3effb3ce64d292c9b641"
+  },
+  "candidate_assessment_ref": {
+    "path": "research/efficiency_20261027/architecture/exact_boundary_fusion/ASSESSMENT_v1.json",
+    "sha256": "d0ca85b229c7d72dddf044324966672fc299c3b362e7d2f790f093a79bdfc01b"
+  },
+  "source_refs": [
+    {
+      "path": "research/efficiency_20261027/execution/bounded_timeline_v1.py",
+      "sha256": "7e865063e9e07e6d118e9f0b557c0208d4bbac94cde19fa7236920b252c13412"
+    },
+    {
+      "path": "research/efficiency_20261027/execution/compare_boundary_timeline_v1.py",
+      "sha256": "91f23e5f9e46d6b646791e8953fb317b34dc22755025a0a54c9c820efe893d70"
+    },
+    {
+      "path": "research/efficiency_20261027/execution/launch_boundary_timeline_v1.py",
+      "sha256": "3d5a8cbbe48c62f69383386fce281cc860d11f5d0e595933b86106f907634b01"
+    },
+    {
+      "path": "research/efficiency_20261027/execution/test_bounded_timeline_v1.py",
+      "sha256": "bf0d9bfd8adbf648e4d1bfdcfe8f329cd0116b30d8c2ffddd28b1c0164bd2553"
+    }
+  ],
+  "purpose": "Qualify isolated boundary fusion on real learned1153hold updates and attribute process-recorded CPU/CUDA activity gaps. No hotpack, resident context or up-state residency.",
+  "preparation": "Reuse frozen prepare_large_slice_v2: authenticate observed1153hold TRAIN000prefix, all1600haps, original selected TRAINtargets, complete restricted history,512/512/129blocks. No heldout truth.",
+  "schedule": [
+    {
+      "phase": "warmup",
+      "order": [
+        "baseline",
+        "boundary_fused"
+      ]
+    },
+    {
+      "phase": "timed1",
+      "order": [
+        "baseline",
+        "boundary_fused"
+      ]
+    },
+    {
+      "phase": "timed2",
+      "order": [
+        "boundary_fused",
+        "baseline"
+      ]
+    },
+    {
+      "phase": "profiled",
+      "order": [
+        "baseline",
+        "boundary_fused"
+      ]
+    }
+  ],
+  "numerical_contract": [
+    "Restore exact checkpoint241,49parameters,AdamW moments and random state on every call.",
+    "Use unchanged original fullCPUcontext decoder,256sitechunk origin,64haplotype decoder tile and1024hold history window.",
+    "Capture every actual TRAIN logit and loss, all49 finite connected gradients, all49 updated parameters and all49 AdamW states at step242.",
+    "Compare every call to baseline warmup with original compare_state:atol1e-6;rtol1e-5 for logits/loss and1e-4 for gradients/parameters/moments, zero class-argmax differences.",
+    "Abort on any numerical/resource/source-pin failure; no fallback or automatic retry. Production checkpoints are never written."
+  ],
+  "performance_contract": [
+    "Use only the two unprofiled timed calls per arm for medians; this is a small balanced diagnostic, not high-confidence throughput.",
+    "Report complete-call restore-to-Adam clocks and separate learned forward/decoder/backward clocks.",
+    "No added CUDA synchronization at stage boundaries; synchronize before and after complete learned region and after optimizer. Original CPU transfer synchronization remains.",
+    "Independent per-arm immutable layout caches; one warmup each before timed measurements. Every model/optimizer is fresh and GPU allocations are released between calls.",
+    "Measure absolute allocated/reserved high-water values over every complete call to expose first-sweep graph plus forcingVJP overlap."
+  ],
+  "trace_contract": [
+    "Torch profiler CPU+CUDA,shapesFalse,memoryFalse,stacksFalse; one complete learned forward/decoder/backward call per arm after timedpairs.",
+    "Record original stage labels plus candidate boundary_fused_first_forcing_forward and boundary_fused_forcing_and_first_backward labels.",
+    "Compute CUDA activity interval unions,largest gaps,H2D/D2H/copy/kernel categories and counts from every recorded Kineto activity.",
+    "Write sampled Chrome views across the whole recording, maximum12MiB each; always attempt to retain stage annotations. Sampled view cannot prove full idle coverage.",
+    "Never write an unbounded native Chrome export. Prefix/suffix remain valid JSON under the byte cap.",
+    "Count missing copy-byte metadata explicitly. Nested CPU durations are labeled overlapping sums, not CPU utilization.",
+    "Recorded CUDA gaps cover this process only and include instrumentation influence; they do not by themselves prove CPU causation or device-wide idle."
+  ],
+  "limits": {
+    "host_GiB": 32,
+    "device_soft_GiB": 24,
+    "worker_seconds": 1800,
+    "guardian_output_MiB": 64,
+    "trace_MiB_each": 12,
+    "trace_count": 2,
+    "CPU_threads": 8,
+    "preparation_processes": 4,
+    "predecessor_gate_seconds": 60,
+    "guardian_admission_wait_seconds": 86400
+  },
+  "launcher": {
+    "module": "research.efficiency_20261027.execution.launch_boundary_timeline_v1",
+    "source_pins_sha256": "ff70c05637ebe43bdd296d22616cbd4656e7b3dae9ff6eae8753e76b23d3abdb",
+    "review_only_default": true,
+    "ROOT_only_launch_flag": "--launch",
+    "required_args": [
+      "--directory freshROOTdirectory",
+      "--gpu ROOTselected3/4/5",
+      "--predecessor-directory completedROOTprofile",
+      "--peer-directory everyROOTreviewedpeer repeated,includingpredecessor",
+      "--source-pins-sha256 reviewedmanifestdigest"
+    ]
+  },
+  "outstanding": "Independent fidelity runner review and ROOT launch decision. No GPU work launched by execution agent.",
+  "CPU_proof": {
+    "real_CPU_forward_backward_profiler": true,
+    "recorded_CPU_events": 45,
+    "valid_trace_bytes": 1068,
+    "configured_test_byte_cap": 2048,
+    "overlap_clipping_gap_union": true,
+    "same_large512_initializer": true,
+    "inherited_block_sites_second": true,
+    "CUDA_initialized": false
+  }
+}

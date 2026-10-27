@@ -1,0 +1,60 @@
+{
+  "schema": "TreeLoom_boundary_timeline_v1_analysis_invalidation",
+  "status": "CUDA_activity_classification_invalid",
+  "affected_result_ref": {
+    "path": "research/efficiency_20261027/root/runs/boundary_timeline_gpu5_v1/data/completed.json",
+    "sha256": "4bc0e9ef81f348a93adc1ae73ff05eddf6104a678124827b63f3274ba71c4319"
+  },
+  "actual_wait_ref": {
+    "path": "research/efficiency_20261027/root/runs/boundary_timeline_gpu5_v1/actual_wait.json",
+    "sha256": "8510953e7c6eafa309a47286cc8a192a4c3f27b0617b3f5d7f1122d5cc60e6e1"
+  },
+  "affected_profiler_source_ref": {
+    "path": "research/efficiency_20261027/execution/bounded_timeline_v1.py",
+    "sha256": "7e865063e9e07e6d118e9f0b557c0208d4bbac94cde19fa7236920b252c13412"
+  },
+  "issue": "activity_kind classified every CUDA event other than named copies/memsets as a kernel, including GPU user-annotation and synthetic ranges.",
+  "invalid_fields": [
+    "recorded_CUDA_union busy seconds, fraction and gaps",
+    "recorded_activity_unions.kernel",
+    "top_CUDA_events kernel attribution",
+    "recorded_event_counts.kernel",
+    "sampled Chrome cat=kernel for annotation ranges"
+  ],
+  "invalid_busy_fractions": {
+    "baseline_CPU512": 0.9561431078103102,
+    "boundary_fused_CPU512": 0.9658355313988801
+  },
+  "diagnosis": "GPU annotation envelopes span kernels and their intervening idle gaps; including them in interval unions artificially covers those gaps.",
+  "preserved_valid_evidence": {
+    "all8_strict_numerical_comparisons": true,
+    "unprofiled_medians": {
+      "baseline_CPU512": {
+        "timed_calls": 2,
+        "median_update_seconds": 4.862440002616495,
+        "median_learned_seconds": 4.83253789646551,
+        "maximum_allocated_bytes": 7640423936,
+        "maximum_reserved_bytes": 8336179200
+      },
+      "boundary_fused_CPU512": {
+        "timed_calls": 2,
+        "median_update_seconds": 3.5293586291372776,
+        "median_learned_seconds": 3.507614573929459,
+        "maximum_allocated_bytes": 7639467008,
+        "maximum_reserved_bytes": 8334082048
+      }
+    },
+    "guardian_actual_wait0": true,
+    "qualification_scope": "1153holdprefix only; all49 gradients, updated parameters and Adam states, logits/loss and zeroargmax differences passed."
+  },
+  "raw_activity_availability": {
+    "complete_Kineto_events_persisted": false,
+    "sampled_Chrome_only": true,
+    "complete_in_memory_worker_terminated": true,
+    "exact_corrected_union_recoverable_from_saved_artifacts": false
+  },
+  "recovery": "Prepare a tiny actual-CUDA event API probe and separately reviewed profiler-only repeat. Do not repeat already passed numerical qualification or full-parent training.",
+  "no_80percent_or_95percent_achievement_claim": true,
+  "historical_sources_and_artifacts_unchanged": true,
+  "GPU_launched_by_execution_agent": false
+}

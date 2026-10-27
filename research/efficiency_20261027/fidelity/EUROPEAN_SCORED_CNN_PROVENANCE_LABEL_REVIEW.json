@@ -1,0 +1,127 @@
+{
+  "CNN": {
+    "actual_layout": "portable_nhwc",
+    "actual_runtime": {
+      "keras": "2.15.0",
+      "tensorflow": "2.15.1"
+    },
+    "actual_training": {
+      "batch_size": 30,
+      "checkpoint_selection": "final_epoch5",
+      "condition": "ancestralpaths_historical_cnn_native6",
+      "epochs": 5,
+      "optimizer_updates": 8335,
+      "reconstruction_choices": "paper counts and frozen observation-only sampling",
+      "training_rows": 50000
+    },
+    "architecture": "Input1x5x9; Conv2D32 filters kernel5x1/ReLU; historical channels-first Flatten order; Dense64/ReLU; Dense6/softmax;19,078parameters.",
+    "author_commit": "e6f5d9c6be628007c662e1c71a07358cf350efaf",
+    "author_source_ref": {
+      "path": "research/reviews/author_repository_deep_audit_20261023_v1/ancestralpaths/history_source/previous_training.py",
+      "sha256": "fc90bb333e3589f3e4f76098dfc591222de1e40c7382a3f367e876270393b4eb"
+    },
+    "conclusion": "Recovered historical author architecture, implemented as a readable source transcription and runtime/layout port. It is not an architecture inferred only from the paper and is not the released Dense model.",
+    "declared_limits": {
+      "author_812500_row_sampler_reproduced": false,
+      "exact_published_score_reproduction_claimed": false,
+      "historical_checkpoint_weights_reused": false,
+      "historical_runtime_and_random_stream_reproduced": false
+    },
+    "historical_architecture_lines": [
+      199,
+      203,
+      205,
+      206,
+      207,
+      208,
+      210,
+      211
+    ],
+    "historical_source_fetch_receipt": {
+      "bytes": 7454,
+      "final_url": "https://raw.githubusercontent.com/AliPearson/AncestralPaths/e6f5d9c6be628007c662e1c71a07358cf350efaf/training.py",
+      "headers": {
+        "Date": "Fri, 23 Oct 2026 20:22:02 GMT",
+        "ETag": "\"bb09c6139f4e2bd1882aa0cacb726c23dd674e4a5b92573177a4d52451452403\""
+      },
+      "path": "history_source/previous_training.py",
+      "retrieved_utc": "2026-10-23T20:22:02.202684+00:00",
+      "sha256": "fc90bb333e3589f3e4f76098dfc591222de1e40c7382a3f367e876270393b4eb",
+      "status": 200,
+      "url": "https://raw.githubusercontent.com/AliPearson/AncestralPaths/e6f5d9c6be628007c662e1c71a07358cf350efaf/training.py"
+    },
+    "prior_qualification_report_ref": {
+      "path": "research/benchmark_rebuild_20261024/ancestralpaths/REPORT.md",
+      "sha256": "e52c1d1645266c1394bc5889c06b41f36859de07babfdb44c2d204f1f694fdfb"
+    },
+    "source_port_ref": {
+      "path": "src/arggnn/benchmarking/paper_ancestralpaths/model.py",
+      "sha256": "114f9b4ca1a891b101a77d40c71b6087d4725f06bacade03adc5218e9c6f0119"
+    }
+  },
+  "CNN_fit_ref": {
+    "path": "experiments/results/paper_ancestralpaths_cnn_20261024/paper_ap_cnn__all_train__fit/native/fit.json",
+    "sha256": "4888c5aef7e59b05dc08562e4bcd56895bc1b21fa83dc103c4683a93ca09c51b"
+  },
+  "Dense": {
+    "actual_training": {
+      "batch_size": 32,
+      "checkpoint_selection": "final_epoch5",
+      "epochs": 5,
+      "optimizer_updates": 7815,
+      "parameters": 26630,
+      "published_CNN_reproduction": false,
+      "training_rows": 50000
+    },
+    "author_source_excerpts": [
+      {
+        "line": 173,
+        "source": "model = tf.keras.models.Sequential([tf.keras.layers.Flatten(input_shape=(5, 9)),tf.keras.layers.Dense(512, activation=tf.nn.relu),tf.keras.layers.Dropout(0.2),tf.keras.layers.Dense(6, activation=tf.nn.softmax)])"
+      },
+      {
+        "line": 175,
+        "source": "model.compile(optimizer='adam',loss='sparse_categorical_crossentropy',metrics=['accuracy'])"
+      },
+      {
+        "line": 176,
+        "source": "model.compile(loss='categorical_crossentropy',optimizer='adam',metrics=['accuracy'])"
+      },
+      {
+        "line": 177,
+        "source": "model.fit(X_train, lab_train_target, epochs=5)"
+      }
+    ],
+    "author_source_ref": {
+      "path": ".runtime/author_sources/ancestralpaths_77db3cfae100/training.py",
+      "sha256": "13b4f30ab0df75fc461b764ae2cdbd1fdc071ff45200e6401e84faa565508e4f"
+    },
+    "conclusion": "Separate released author Dense model used as a control, not the historical CNN.",
+    "original_released_Dense_model_statements_executed": true
+  },
+  "Dense_fit_ref": {
+    "path": "experiments/results/benchmark_campaign_20261018_workflow/release_20261021_gpu5/other/AP__all_train__ap_fit/native/fit.json",
+    "sha256": "48370e4bf83522dca009f285b3c631dd5b2714495581b824027a39094406f71a"
+  },
+  "checks": {
+    "ancestralpaths_dense_control_five_prediction_manifests_bind_exact_fit": true,
+    "ancestralpaths_historical_cnn_native6_five_prediction_manifests_bind_exact_fit": true,
+    "cnn_author_source_digest_matches": true,
+    "cnn_fit_digest_matches_completed_product": true,
+    "dense_author_source_digest_matches": true,
+    "historical_fetch_binds_author_commit_source": true
+  },
+  "comparison_ref": {
+    "path": "experiments/results/paper_campaign_resume_20261026/ap_three_methods_interim_score/native/comparison.json",
+    "sha256": "557fbbc6a65934a0c81c7b375d9a7bf583bf1a9fcd7a2e29dc1be2cc83c684df"
+  },
+  "recommended_README_explanation": "The CNN ports the recovered author architecture from commit e6f5d9c6 to TensorFlow/Keras 2.15, with an equivalent NHWC CPU layout. Dense is the separate released author model. Both use the disclosed 50,000-row common-data protocol; neither score is claimed as an exact reproduction of the published experiment.",
+  "recommended_README_labels": {
+    "ancestralpaths_dense_control": "AncestralPaths released Dense control",
+    "ancestralpaths_historical_cnn_native6": "AncestralPaths historical CNN (author-source port)"
+  },
+  "reconciliation": "An audit of the archived current release finding Dense and an audit of recovered earlier history finding CNN are compatible. The scored condition explicitly uses the historical CNN port; the separate scored Dense manifests bind a different fit and checkpoint.",
+  "reviewed_unix": 1793072051.4958432,
+  "schema": "european_scored_CNN_and_Dense_provenance_label_review_v1",
+  "scope": "Narrow source and small receipt review only; no weights, feature/target/prediction arrays, retraining, scoring, Git operation or source mutation.",
+  "status": "provenance_resolved"
+}
