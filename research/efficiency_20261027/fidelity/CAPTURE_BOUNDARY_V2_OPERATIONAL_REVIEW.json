@@ -1,0 +1,69 @@
+{
+  "schema": "TreeLoom_independent_capture_operational_review_v2",
+  "status": "pass",
+  "reviewed_at_UTC": "2026-10-27T02:33:58.707646+00:00",
+  "operational_source_ref": {
+    "path": "research/efficiency_20261027/root/capture_boundary_v2.py",
+    "sha256": "005f37812b75b7008c97f5fe495bbeb0c8f0f6ecb9a66ac310c601bdaadcb65f"
+  },
+  "prior_review_ref": {
+    "path": "research/efficiency_20261027/fidelity/CAPTURE_BOUNDARY_V1_OPERATIONAL_REVIEW.json",
+    "sha256": "452ffc880446ed9ce0ae0fbf6533ce4b8490caa00a4bd701644511929c02c4c1"
+  },
+  "decision": "The narrow v2 repairs resolve the reviewed capture-before-archive defects. Static approval applies only to this exact operational source with its required qualified release, exact identity and actual-wait guards; no operation was invoked by this review.",
+  "resolved_findings": {
+    "exact_current_attempt": "validate_latest derives exact current attempt leaf from the effective call resume_steps and attempt_id. A maximum checkpoint from another historical leaf is rejected.",
+    "atomic_latest_commit": "Selected checkpoint reference, latest JSON update count and captured validated update must agree. Stable latest JSON hash is obtained before copying and checked again before archive. The captured digest must still equal current latest checkpoint immediately before rename. Mismatch aborts before archive without rewriting historical metadata.",
+    "controller_wait_binding": "Stable actual_wait.json is read and compared against failed row pid, start ticks, attempt, status, actual_wait, group absence and actual returncode. Permanent wait is copied from authenticated file and stored outside mutable output.",
+    "pre_rename_revalidation": "Rechecks effective failed task, original plan ref/revision, exact PID/start/attempt through current(), returncode, actual wait, group absence and current process/session absence; latest metadata and file digests rechecked before same-filesystem rename."
+  },
+  "retained_checks": "Version1 readable command, qualified release, exact-source review, pidfd single-process identity, durable intent-before-dispatch, immutable exclusive work files, complete state/RNG/schedule validation, bounded history/output checks and no queue/controller mutation remain unchanged.",
+  "test_evidence": {
+    "test_ref": {
+      "path": "research/efficiency_20261027/root/test_capture_boundary_v2.py",
+      "sha256": "b6b344d0eba8e5258f6a75b2112efd1b7f218460710c671433adba28cb1ab0c6"
+    },
+    "log_ref": {
+      "path": "research/efficiency_20261027/root/capture_boundary_cpu_tests_v2.log",
+      "sha256": "45d1465318293c92dc5293ddd26649c09f492b528c61928e61494e7dd27175e3"
+    },
+    "reported_tests": 8,
+    "result": "OK",
+    "reviewer_reran_tests": false,
+    "coverage": "Identity/source/module/resource rejection; durable intent before one mocked signal; no dispatch on repeated intent or revalidation failure; synthetic exact latest metadata acceptance and wrong steps/path/file-before-metadata rejection.",
+    "limitations": "Signals and launches are mocked; test suite is not evidence that real production stop/capture occurred. Reviewer did not load/hash numerical checkpoint bytes."
+  },
+  "operational_requirements": [
+    "Only the fixed attempt5 PID1036598/start571771720 is in scope.",
+    "Wait for full qualification actual wait and reviewed integration release before stop.",
+    "After stop, allow controller to reap/drain before capture.",
+    "On partial work or mismatch, inspect retained evidence rather than retrying signal or overwriting files.",
+    "Use separately reviewed admitted-worker restore wrapper and scheduler repair; capture itself never submits."
+  ],
+  "source_refs": [
+    {
+      "path": "research/preprocessing_optimization_20261026/integration/migrate.py",
+      "sha256": "940bdc4514c284c6b4a9fbe623e95f59bfc43f85fde7fea81e5a1bd0a61ab724"
+    },
+    {
+      "path": "research/preprocessing_optimization_20261026/integration/treeloom_resume.py",
+      "sha256": "7b399bd0c4ab69e52575b7aed7df3b326acef0402cb470bb99f71da3e5553b39"
+    },
+    {
+      "path": "src/arggnn/benchmarking/paper_campaign/processes.py",
+      "sha256": "9860e688fe204196b72d5a868edd4a0df9287f349dce1beb39b48d6a94604f84"
+    },
+    {
+      "path": "src/arggnn/benchmarking/paper_campaign/runtime.py",
+      "sha256": "1412abf76767545b9addbc6f27b1dcd449837b2b963bf277f5726171fa0defe2"
+    },
+    {
+      "path": "research/efficiency_20261027/integration_candidate/entrypoint_v2.py",
+      "sha256": "56fc6f795a6dd3c89dc4f1f0c570f67aa3945596bfcf49e371bf921dbc89fe65"
+    }
+  ],
+  "production_modified": false,
+  "signals_sent": 0,
+  "jobs_started": 0,
+  "report_only": true
+}

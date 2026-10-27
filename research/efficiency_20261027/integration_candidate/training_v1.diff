@@ -1,0 +1,127 @@
+--- research/repairs/TreeLoom_lazy_compact_prefetch_20261024_v1/training.py
++++ research/efficiency_20261027/integration_candidate/training_v1.py
+@@ -20,10 +20,13 @@
+ from arggnn.benchmarking import contracts as c
+ from research.benchmark_rebuild_20261024.american.treeloom_speed import runtime_v2 as fresh
+ from research.benchmark_rebuild_20261024.american.treeloom_speed import training_v2 as reference_training
+-from .pool import PipelinedCompactParents
++from .memory_v1 import (LayoutAwareParents as PipelinedCompactParents,
++    LayoutMemoryGovernor, GovernedLayoutCache, GovernedLargeLayoutCache, LAYOUT_CACHE_BYTES)
++from .configuration_v1 import configuration
++from .runtime_v1 import ExplicitFreshTreeLoom
+ import threading
+ 
+-SCHEMA = "treeloom_lazy_compact_prefetch_training_v1"
++SCHEMA = "treeloom_explicit_dynamic_layout_training_v1"
+ PASSES = (5, 10, 15, 20, 25, 30)
+ SETTINGS = dict(epochs=30, parents_per_epoch=20, optimizer_updates=600,
+                 model_seed=70001, parent_order_seed=70002, precision="fp32",
+@@ -41,15 +44,20 @@
+         raise c.ContractError(message)
+ 
+ 
+-EXECUTION_VARIANT = "full_parent_parallel_history_lazy_compact_prefetch_v1"
++EXECUTION_VARIANT = "explicit_VJP_CPU8_selected_block_dynamic_layout_prefetch_v1"
+ SOURCE_PINS = "research/repairs/TreeLoom_lazy_compact_prefetch_20261024_v1/source_pins.json"
+ 
+-def requirements():
++def requirements(execution_configuration):
++    selected = configuration(execution_configuration)
+     manifest = c.read_json(SOURCE_PINS)
+     refs = reference_training.requirements()["source_refs"] + manifest["source_refs"]
+     for reference in refs:
+         _need(c.file_ref(reference["path"]) == reference, "Pinned static source changed")
+-    return dict(source_refs=refs + [c.file_ref(SOURCE_PINS)],
++    candidate_pins = "research/efficiency_20261027/integration_candidate/source_pins_v1.json"
++    candidates = c.read_json(candidate_pins)["source_refs"]
++    for reference in candidates:
++        _need(c.file_ref(reference["path"]) == reference, "Immutable candidate source changed")
++    return dict(source_refs=refs + [c.file_ref(SOURCE_PINS)] + candidates + [c.file_ref(candidate_pins)],
+                 python=".runtime/env/bin/python", adapter="native_PyTorch_PyG",
+                 settings=copy.deepcopy(SETTINGS), model_parameters=32132,
+                 trainable_tensors=49, focal_targets_per_parent=10000,
+@@ -62,8 +70,11 @@
+                 compact_all20_RAM_pool=True,CPU_prefetch_workers=1,lookahead_parents=1,
+                 historical_all20_observation_barrier_reused=True,
+                 fresh_all20_CPU_encoding_before_first_update=False,
+-                CPU_Torch_threads=1,expanded_bank_IPC=False,
+-                GNN_holds_per_block=128, GRU_haplotypes_per_tile=64,
++                CPU_Torch_threads=8,expanded_bank_IPC=False,
++                executor_kind="explicit_vjp",context_residency="CPU",
++                layout_cache_max_bytes=selected["layout_cache_max_bytes"],
++                layout_cache_actual_RSS_admission=True,layout_cache_evict_unleased_before_phases=True,
++                GNN_holds_per_block=selected["holds_per_block"], GRU_haplotypes_per_tile=64,
+                 history_holds_per_window=1024, gradient_truncation=False,
+                 scientific_payloads_opened=False, jobs_started=0)
+ 
+@@ -100,7 +111,8 @@
+ def build_spec(*, parent_registry_ref, train_inputs, output_directory,
+                max_rss_bytes, preparation_headroom_bytes, training_headroom_bytes,
+                observation_cache_bytes=128*2**30, max_truth_uncompressed_bytes=8*2**30,
+-               resume_checkpoint_ref=None, resume_evidence_ref=None):
++               resume_checkpoint_ref=None, resume_evidence_ref=None, execution_configuration=None):
++    selected = configuration(execution_configuration)
+     registry = fresh.FreshParentRegistry.from_ref(parent_registry_ref)
+     _bindings(registry, train_inputs)
+     _need(resume_checkpoint_ref is not None and resume_evidence_ref is not None,
+@@ -123,7 +135,7 @@
+                 observation_cache_bytes=observation_cache_bytes, memory_envelope=memory,
+                 max_truth_uncompressed_bytes=max_truth_uncompressed_bytes,
+                 preparation_limits=copy.deepcopy(LIMITS), settings=copy.deepcopy(SETTINGS),
+-                requirements=requirements(), private_truth_in_observations=False,
++                requirements=requirements(selected), execution_configuration=selected, private_truth_in_observations=False,
+                 resume_checkpoint_ref=copy.deepcopy(resume_checkpoint_ref),
+                 resume_evidence_ref=copy.deepcopy(resume_evidence_ref))
+ 
+@@ -138,7 +150,8 @@
+                           observation_cache_bytes=spec["observation_cache_bytes"],
+                           max_truth_uncompressed_bytes=spec["max_truth_uncompressed_bytes"],
+                           resume_checkpoint_ref=spec["resume_checkpoint_ref"],
+-                          resume_evidence_ref=spec["resume_evidence_ref"])
++                          resume_evidence_ref=spec["resume_evidence_ref"],
++                          execution_configuration=spec["execution_configuration"])
+     _need(spec == expected, "Exact complete600-update fresh training specification required")
+     return fresh.FreshParentRegistry.from_ref(spec["parent_registry_ref"])
+ 
+@@ -305,11 +318,19 @@
+     from arggnn.american_c3_gnn_dataset_v1 import load_observation
+     from arggnn.american_c3_gnn_train_v1 import _cpu_snapshot
+     _need(torch.cuda.device_count() == 1, "One admitted visible GPU3/4/5 required")
+-    torch.set_num_threads(1)
++    torch.set_num_threads(8)
+     torch.set_num_interop_threads(1)
+     torch.backends.cuda.matmul.allow_tf32 = False
+     torch.backends.cudnn.allow_tf32 = False
+-    runtime = fresh.FreshTreeLoom(registry)
++    layout_governor = LayoutMemoryGovernor(
++        maximum_bytes=spec["memory_envelope"]["max_rss_bytes"],rss_bytes=_current_rss_bytes,
++        resource_check=resource_check,reserve_bytes=max(
++            spec["memory_envelope"]["preparation_headroom_bytes"],
++            spec["memory_envelope"]["training_headroom_bytes"]))
++    selected = spec["execution_configuration"]
++    cache_class = GovernedLayoutCache if selected["holds_per_block"]==128 else GovernedLargeLayoutCache
++    layout_cache = cache_class(layout_governor,max_bytes=selected["layout_cache_max_bytes"])
++    runtime = ExplicitFreshTreeLoom(registry,layout_cache=layout_cache,holds_per_block=selected["holds_per_block"])
+     runtime.status_path = out/"training_live.json"
+     # Authenticate the inherited full20 observation barrier and saved state
+     # before opening any TRAIN truth or starting the background producer.
+@@ -380,7 +401,7 @@
+               for parent in registry.ids("train")}
+     external = {parent:{"bank.genotype":c.read_ref(inputs[parent]["observation_ref"])["genotypes_ref"]}
+                 for parent in registry.ids("train")}
+-    pool = PipelinedCompactParents(parent_bounds=parent_bounds,input_refs=inputs,external_arrays=external,
++    pool = PipelinedCompactParents(layout_governor=layout_governor,parent_bounds=parent_bounds,input_refs=inputs,external_arrays=external,
+         max_cache_bytes=spec["observation_cache_bytes"],max_rss_bytes=spec["memory_envelope"]["max_rss_bytes"],
+         phase_reserve_bytes=max(spec["memory_envelope"]["preparation_headroom_bytes"],
+                                 spec["memory_envelope"]["training_headroom_bytes"]),
+@@ -490,7 +511,10 @@
+                           training_phase=parent_training_phase)
+     finally:
+         pool.close()
++        layout_receipt=runtime.layout_cache.snapshot()
++        runtime.close_layout_cache()
+     pool_receipt=pool.receipt()
++    pool_receipt["layout_cache"]=layout_receipt
+     _need(set(pool_receipt["preparations"])=={parent for _,parent in schedule[start_steps:]}
+           and set(pool_receipt["preparations"].values())=={1},
+           "Every remaining scheduled complete parent must prepare once by fixed-final600")

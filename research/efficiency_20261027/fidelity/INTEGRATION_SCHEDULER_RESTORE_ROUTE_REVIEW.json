@@ -1,0 +1,110 @@
+{
+  "schema": "TreeLoom_independent_scheduler_restore_route_review_v1",
+  "status": "requires_versioned_restoration_wrapper",
+  "reviewed_at_UTC": "2026-10-27T02:27:51.774273+00:00",
+  "supersedes_scope_assumption_only": {
+    "path": "research/efficiency_20261027/fidelity/INTEGRATION_CANDIDATE_V1_REVIEW.json",
+    "sha256": "fe07acd5ec9d14a7ef39520b7318f87582f0bd9ea436203420ccf87ea4ef0532"
+  },
+  "decision": "Existing integration candidate v1 is not directly deployable through the live controller repair route. Its live-root transition validation is internally consistent but conflicts with the scheduler requirement for absent task output. A versioned admitted-worker restoration wrapper and archived preflight builder are required; original scheduler/runtime need no change.",
+  "confirmed_contracts": [
+    {
+      "source": "repairs.py:95,112",
+      "contract": "Old and replacement task output must be absent before repair; replacement preserves exact output/auxiliary scopes."
+    },
+    {
+      "source": "scheduler.py:357-362",
+      "contract": "Launch rejects existing task output unless the task row has a special existing_output_receipt_ref. Scheduler creates only the outer task output directory."
+    },
+    {
+      "source": "runtime.py:116-140 and ResourceCheck",
+      "contract": "Runtime source-checks, creates resource_progress under outer output, and calls the selected function. It does not restore native history."
+    },
+    {
+      "source": "integration_candidate/entrypoint_v1.py:validate_transition",
+      "contract": "Requires existing native root, immediate-child prior attempt, preserved original-path files and latest checkpoint metadata."
+    },
+    {
+      "source": "integration_candidate/prepare_task_v1.py:build_task",
+      "contract": "Calls live-root validate_transition. It cannot construct an inert task after archive removes that root."
+    },
+    {
+      "source": "continuation.py:initial_rows,permit_existing_output",
+      "contract": "Existing-output permission is seeded by a sealed continuation document for a new controller after prior controller exit. Repairs.apply_pending does not set that field. This is not a narrow repair route for the current live controller."
+    }
+  ],
+  "minimal_versioned_implementation": [
+    "Keep all frozen v1 files and original scheduler sources unchanged. Add a small new worker wrapper and an archived-preflight task builder to the candidate source manifest.",
+    "ROOT owns exact predecessor stop and actual reap, immutable latest-boundary capture, complete old outer-output archival and repair submission. No stop is authorized by this review itself.",
+    "The worker request carries preserved_history_ref plus the exact successor request/transition/release. Validate execution release, preprocessing release/configuration, exact predecessor absence and immutable input/resource bindings before restoration.",
+    "Use unchanged previous.validate_history on the archived manifest while native output is absent. It enforces bounded files/bytes, ordinary paths, no symlinks or traversal, exact sizes/digests, no destination overlaps and no completed training root.",
+    "Bind restored target path plus digest exactly to transition.preserved_history_refs, preferably equality of complete native file sets. Require prior latest_checkpoint.json, checkpoints/latest.pt and progress.jsonl. Read archived latest JSON and compare its update/digest against captured checkpoint/evidence before writing. Its original checkpoint_ref path becomes valid after restoration.",
+    "Validate the fresh leaf and inert training specification from captured checkpoint/evidence and original inputs before writes. Reject an archive already containing the new leaf or execution receipt.",
+    "Call unchanged previous.restore_history with admitted resource_check only inside the worker. Its exclusive bounded block copies preserve archived sources, check resource allowance before writes and verify byte identity. Partial failure remains evidence and must not be silently reused.",
+    "Immediately invoke the repaired entrypoint.run_task with its original successor request after restoration. It revalidates original-path history/latest/exit/release and starts the unchanged schedule in a fresh leaf.",
+    "Builder must use archived preflight after archival, or prepare an inert task before archival and revalidate archive bindings later. Restoring outside the worker between repair acceptance and scheduler launch is forbidden because it races launch and violates the scheduler precondition.",
+    "Store predecessor actual-wait receipt outside the original mutable task output, either in immutable work metadata or the retained archive. Do not refer to the original outer actual_wait.json path that disappears at archive and is later replaced by successor lifecycle metadata."
+  ],
+  "resource_accounting": {
+    "archive": "Measure complete old outer treeloom_fit scope, not only native history. Bind immutable archive manifest archived_bytes and preserve all files by same-filesystem rename. repairs.py119-126 validates the explicit ledger;189 adds to state.archived_attempt_bytes.",
+    "scheduler": "scheduler.py286 uses reserved_existing_project_bytes plus archived_attempt_bytes. Existing output sizes, controller allowance, running remaining reservations, candidate max_output and pipeline floor are included in995000000000-byte global ceiling.",
+    "restore": "Only native history is restored. It is charged in successor task output by runtime.scope_bytes and prospective ResourceCheck. Source archive remains separately charged in global ledger.",
+    "current_task_max_output_bytes": 102320936,
+    "required_fit": "Restored native history plus future bounded training/checkpoint/progress/execution/root metadata must fit the existing cap. Calculate after actual stop; do not assume maximum80MiB history plus64MiB fresh output fits97.58MiB task cap.",
+    "old_helper_warning": "Old migrate.py228-229 auto-added history bytes plus16MiB to old cap. Do not reuse blindly. Any insufficient exact cap needs a separate measured ROOT-reviewed budget decision; no silent increase.",
+    "RSS": "Keep unchanged592GiB task family/PSS cap,352GiB compact pool and128GiB phase reserves. Restoration adds no GPU workload and must use the same admitted callback."
+  },
+  "test_recommendations": [
+    "CPU metadata-only tests for absent-native archived preflight, digest/target-set mismatch, stale captured update, existing destination, conflicting new attempt leaf and insufficient output allowance.",
+    "Small synthetic archive restoration through wrapper with resource callback, then mocked training entry to prove restore precedes final live-root validation. No GPU rerun or real checkpoint numerical load is required to test this orchestration."
+  ],
+  "scope_limits": {
+    "production_modified": false,
+    "source_modified": false,
+    "jobs_started": 0,
+    "checkpoints_loaded_or_hashed": false,
+    "only_report_written": true
+  },
+  "source_refs": [
+    {
+      "path": "src/arggnn/benchmarking/paper_campaign/repairs.py",
+      "sha256": "e8e407b7145d7dae20f833c61e7c040961de4aa16b1bfcb7f3f895a7ca986d23"
+    },
+    {
+      "path": "src/arggnn/benchmarking/paper_campaign/scheduler.py",
+      "sha256": "494a1347d7dc5f6a06824d712736e2e0663da8a39c70574ca113eeb4dc8ec456"
+    },
+    {
+      "path": "src/arggnn/benchmarking/paper_campaign/runtime.py",
+      "sha256": "1412abf76767545b9addbc6f27b1dcd449837b2b963bf277f5726171fa0defe2"
+    },
+    {
+      "path": "src/arggnn/benchmarking/paper_campaign/continuation.py",
+      "sha256": "306638ec7b3c95b5aa8536cfa3f34afcefebce8165459d114e5e09d34f2cf82a"
+    },
+    {
+      "path": "research/preprocessing_optimization_20261026/integration/treeloom_resume.py",
+      "sha256": "7b399bd0c4ab69e52575b7aed7df3b326acef0402cb470bb99f71da3e5553b39"
+    },
+    {
+      "path": "research/preprocessing_optimization_20261026/integration/migrate.py",
+      "sha256": "940bdc4514c284c6b4a9fbe623e95f59bfc43f85fde7fea81e5a1bd0a61ab724"
+    },
+    {
+      "path": "research/efficiency_20261027/integration_candidate/entrypoint_v1.py",
+      "sha256": "e0ded929749cf40ca3c831c9da9d3202e71cc24f765c753062a5233145de6482"
+    },
+    {
+      "path": "research/efficiency_20261027/integration_candidate/prepare_task_v1.py",
+      "sha256": "4cff941d17c406f4706c81cc51d51922a3bb9f56ef1957fcad8b90db392910f6"
+    },
+    {
+      "path": ".runtime/benchmarking/paper_campaign_resume_20261026_v1/jobs/paper_american_treeloom_fit.attempt5.json",
+      "sha256": "d0d57b4f89608425ebdc2ae2b8dc1de56e0a614d9ac13648f8ccc38519b67d4a"
+    },
+    {
+      "path": "configs/benchmarks/paper_campaign_resume_20261026_v1.json",
+      "sha256": "5c0bd431ca0f466fb155ec12adefa4437f594eb7699c8ed592667f0bd95a762d"
+    }
+  ]
+}

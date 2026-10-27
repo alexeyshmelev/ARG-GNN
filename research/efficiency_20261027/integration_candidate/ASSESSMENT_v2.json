@@ -1,0 +1,150 @@
+{
+  "schema": "TreeLoom_execution_successor_candidate_assessment_v1",
+  "status": "CPU_tested_pending_independent_review_and_ROOT_release",
+  "source_pins_ref": {
+    "path": "research/efficiency_20261027/integration_candidate/source_pins_v1.json",
+    "sha256": "f107729f774c226cb987d2fff61a785e27520e979bff32698e7289d093b9c2a9"
+  },
+  "test_refs": [
+    {
+      "path": "research/efficiency_20261027/integration_candidate/cpu_contracts_v2/completed.json",
+      "sha256": "6a6b59b580671910ef8b770a4dbf6f58d0ea81bd9a3ccd776848012f3dafe821"
+    },
+    {
+      "path": "research/efficiency_20261027/integration_candidate/spec_release_contracts_v1.json",
+      "sha256": "41bf460036b983c56fb51c9286801fba2e0695ed9301de7b78fcc2b805584c45"
+    },
+    {
+      "path": "research/efficiency_20261027/integration_candidate/transition_contracts_v1.json",
+      "sha256": "ee551fb550e03d3094be8566c7fab915db721a30be012f496361925ff072655c"
+    },
+    {
+      "path": "research/efficiency_20261027/integration_candidate/actual_checkpoint_validation_v1.json",
+      "sha256": "9c365be83fb4803d13386469f9e819b6616039cb5676a4ab4e86464b0287b2eb"
+    }
+  ],
+  "test_source_refs": [
+    {
+      "path": "research/efficiency_20261027/integration_candidate/test_contracts_v1.py",
+      "sha256": "c932a81132fd77c257407e048a935b3a51ed5a84ce97ceb3917c693950b50486"
+    },
+    {
+      "path": "research/efficiency_20261027/integration_candidate/test_spec_and_release_v1.py",
+      "sha256": "c131d6e8a9f0a76f21fc299bfd86997f8380d4326cb46751a6a3daf0195e1348"
+    },
+    {
+      "path": "research/efficiency_20261027/integration_candidate/test_transition_v1.py",
+      "sha256": "ae96283a3bdf151dd3634f45cb8fdeba1bd66dfc159034347389d1f1ebba2fdd"
+    }
+  ],
+  "diff_refs": [
+    {
+      "path": "research/efficiency_20261027/integration_candidate/training_v1.diff",
+      "sha256": "7e3ee8679c8493c468402badc105cdf6267e7c8835dc17d859a8d47125d3812b"
+    },
+    {
+      "path": "research/efficiency_20261027/integration_candidate/step_v1.diff",
+      "sha256": "b74ec4fd11b0e7cef1731ea6c60c16857fa32b42aa3c8c62ab0908f20c24bf90"
+    }
+  ],
+  "proposed_configuration": {
+    "executor_kind": "explicit_vjp",
+    "CPU_threads": 8,
+    "holds_per_block": 512,
+    "haplotypes_per_gru": 64,
+    "history_holds_per_window": 1024,
+    "context_residency": "CPU",
+    "layout_cache_max_bytes": 85899345920,
+    "layout_cache_policy": "actual_RSS_evict_unleased"
+  },
+  "selectable_blocks": [
+    128,
+    512,
+    1024
+  ],
+  "block_choice_must_match_completed_full_parent_release": true,
+  "original_train_loop_checkpoint_RNG_and_model_validation_functions_AST_identical": true,
+  "observation_pool": "Original complete lossless all20 RAM records, one producer, one lookahead; no export or hot injection.",
+  "memory": {
+    "max_rss_bytes": 635655159808,
+    "observation_cache_cap_bytes": 377957122048,
+    "original_phase_reserve_bytes": 137438953472,
+    "layout_cache_max_bytes": 85899345920,
+    "actual_full_TRAIN000_layout_charge_bytes": 4124315215,
+    "estimated_twenty_similar_layouts_bytes": 82486304300,
+    "all20_retention_claimed": false,
+    "phase_admission": "Actual RSS plus every active reservation plus new reserve must fit. Evict unleased plans, collect, and re-read RSS before retry.",
+    "cold_layout_admission": "Same governor reserves the frozen cold-build estimate plus16MiB, held across acquire; current binding is protected during waits.",
+    "safety_limits": "Frozen estimate is an operational bound, not an allocator peak proof. Every stage retains actual RSS guards. Own nested reservations cannot be waited on indefinitely.",
+    "tests": "Concurrent phase waits, no own-thread deadlock, active leases/pending rebind protection, failed physical RSS reclamation, all three real CPU layout restores."
+  },
+  "warm_cache": {
+    "observed_at_durable_update": 263,
+    "observation_parents": 20,
+    "charged_bytes": 281339487208,
+    "current_process_peak_RSS_bytes": 494723883008,
+    "retained_across_process_restart": false,
+    "reason": "Current PipelinedCompactParents records exist only inside the live worker and expose no cross-process export/rebind mechanism.",
+    "hot_switch_implemented": false
+  },
+  "benefit_assessment": {
+    "controlled_full_128_integrated_seconds": 511.1936808153987,
+    "controlled_full_128_explicit_seconds": 424.3627375597134,
+    "one_call_delta_seconds": 86.83094325568527,
+    "one_call_speedup_fraction": 0.16985918745549106,
+    "one_parent_cold_preparation_seconds": 751.4580739364028,
+    "twenty_similar_parents_serial_cold_seconds": 15029.161478728056,
+    "illustrative_no_overlap_break_even_updates": 173.08531861127767,
+    "caveats": [
+      "The two controlled128 arms usedCPU8; current production usesCPU1. This is not a measured production speedup.",
+      "One ordered full call is numerical/peak qualification, not stable throughput.",
+      "Twenty times TRAIN000 preparation is a planning estimate, not measured aggregate rebuild cost. Prefetch may overlap preparation, while a stopped inflight update may add replay cost.",
+      "Warm LRU may remove repeated layout construction when actual memory permits; restored-content binding still has a cost.",
+      "ROOT selected512 after strict21-call prefix qualification. Full originalCPU1 versus selectedCPU8 comparison is still required before switching."
+    ],
+    "recommendation": "Keep current production running until selected full-parent evidence and independent integration review pass; switch only when measured remaining-update savings clearly cover cold pool rebuild and replay cost."
+  },
+  "transition_route": [
+    "ROOT completes selected full-parent profile, actual wait and independent review, then creates an explicit release pinned to source_pins_v1.json.",
+    "ROOT chooses a durable boundary, owns any stop, actually waits, verifies PID/start and empty owned group/session, and confirms no other writer.",
+    "ROOT copies the newly latest checkpoint bytes into an immutable efficiency transition directory, validates all49 moments/model/RNG/order, creates durable boundary evidence and hashes retained prior history. Preserve existing native root.",
+    "Create a transition manifest using the schema below; use prepare_task_v1.py only afterward to validate and write inert task metadata under integration_candidate.",
+    "ROOT schedules the explicit CPU8 task within unchanged592GiB task RAM,352GiB observation cap,128GiB phase reserves and original output/GPU envelope. New wrapper writes a fresh leaf and preserves old files.",
+    "The first successful update must produce original600-schedule next count,49equalAdam counters, exact target join and durable latest state. No learning-rate/model/objective/history changes."
+  ],
+  "required_transition_fields": [
+    "schema=TreeLoom_existing_native_successor_boundary_v1",
+    "native_output_directory",
+    "predecessor_output_directory",
+    "predecessor_job_ref",
+    "predecessor_pid",
+    "predecessor_start_ticks",
+    "predecessor_actual_wait_ref",
+    "checkpoint_ref",
+    "evidence_ref",
+    "preserved_history_refs",
+    "warm_observation_cache_transfer=false",
+    "ROOT_confirmed_no_other_writer=true"
+  ],
+  "required_release_fields": [
+    "schema=TreeLoom_execution_successor_release_v1",
+    "status=independently_approved",
+    "configuration",
+    "source_pins_ref",
+    "full_parent_qualification_ref",
+    "independent_integration_review_ref",
+    "full_parent_actual_wait_ref",
+    "full_parent_launch_ref"
+  ],
+  "independent_review_contract": "status pass or passed; candidate_source_pins_ref must equal exact source_pins_v1.json reference.",
+  "jobs_started": 0,
+  "GPU_work_executed": false,
+  "production_modified": false,
+  "release_created": false,
+  "observed_unix": 1793067165.2152922,
+  "supersedes_assessment_ref": {
+    "path": "research/efficiency_20261027/integration_candidate/ASSESSMENT_v1.json",
+    "sha256": "cd995403231e0ce803ebf0d56e70975520729eb33101f96e794751d823818832"
+  },
+  "metadata_correction": "Clarifies the negative hot-switch boolean; no implementation, qualification or recommendation change."
+}

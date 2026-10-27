@@ -1,0 +1,52 @@
+--- research/efficiency_20261027/integration_candidate/entrypoint_v1.py
++++ research/efficiency_20261027/integration_candidate/entrypoint_v2.py
+@@ -13,10 +13,11 @@
+ from research.preprocessing_optimization_20261026.integration.hooks import install_tree, verify_bindings
+ from research.efficiency_20261027.execution.deferred_gpu_gate import owned_group_members
+ from research.efficiency_20261027.root.run_guarded_profile_with_peer import identity
+-from . import training_v1 as training
++from . import training_v2 as training
+ 
+ OUTPUT=previous.OUTPUT
+ from .configuration_v1 import configuration
++from .qualification_gate_v2 import validate_full_qualification
+ 
+ 
+ def need(ok,message):
+@@ -33,6 +34,9 @@
+ 
+ 
+ def validate_exit(transition):
++    wait_path=previous._ordinary_path(transition['predecessor_actual_wait_ref']['path'],regular_file=True)
++    need(wait_path.is_relative_to(c.ROOT/'research/efficiency_20261027'),
++         'Predecessor actual wait must be an immutable work copy outside mutable lifecycle output')
+     stop=read(transition['predecessor_actual_wait_ref'])
+     pid=transition['predecessor_pid']
+     ticks=transition['predecessor_start_ticks']
+@@ -96,7 +100,7 @@
+ 
+ def validate_release(reference):
+     release=read(reference)
+-    pins=c.file_ref('research/efficiency_20261027/integration_candidate/source_pins_v1.json')
++    pins=c.file_ref('research/efficiency_20261027/integration_candidate/source_pins_v2.json')
+     need(release.get('schema')=='TreeLoom_execution_successor_release_v1'
+          and release.get('status')=='independently_approved'
+          and configuration(release.get('configuration'))==release.get('configuration')
+@@ -111,16 +115,7 @@
+          'Completed exact full TRAIN000/all10000-target qualification required')
+     for reference in full.get('source_refs',[]):
+         need(c.file_ref(reference['path'])==reference,'Full qualification dependency changed')
+-    selected=release['configuration']
+-    rows=[row for row in full.get('records',[]) if row.get('kind') in ('explicit_vjp','explicit_cpu_vjp')]
+-    need(rows and all(row.get('CPU_threads')==8 and row.get('holds_per_block',
+-             full.get('execution_partitions',{}).get('holds_per_block'))==selected['holds_per_block']
+-             and row.get('comparison',{}).get('passed') is True
+-             and row.get('comparison',{}).get('argmax_disagreements')==0
+-             and row.get('comparison',{}).get('categories',{}).get('gradients',{}).get('tensors')==49
+-             and row.get('comparison',{}).get('categories',{}).get('parameters',{}).get('tensors')==49
+-             and row.get('comparison',{}).get('categories',{}).get('moments',{}).get('tensors')==147
+-             for row in rows), 'Exact selected full-parent all49 gradient/Adam comparison must pass')
++    validate_full_qualification(full,release['configuration'])
+     review=read(release['independent_integration_review_ref'])
+     need(review.get('status') in ('pass','passed') and review.get('candidate_source_pins_ref')==pins,
+          'Passing independent integration review must pin this complete candidate source manifest')
