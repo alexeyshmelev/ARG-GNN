@@ -1,0 +1,57 @@
+--- src/arggnn/benchmarking/paper_campaign/runtime.py
++++ research/resume_no_timeouts_20261027/campaign_future/code/runtime.py
+@@ -9,6 +9,7 @@
+ from pathlib import Path
+ import sys
+ import time
++from .deadlines import elapsed_limit_exceeded
+ 
+ ROOT = Path('/workspace-SR003.nfs2/ARG-GNN')
+ TITLE = 'AI Auto Research Pipeline Test'
+@@ -84,7 +85,7 @@
+         if now < self.next_check and prospective_bytes == 0:
+             return
+         self.next_check = now + 30
+-        if now - self.started > self.task['max_seconds']:
++        if elapsed_limit_exceeded(now - self.started, self.task['max_seconds']):
+             raise RuntimeError('Task wall time limit reached')
+         size = scope_bytes(path(self.task['output_directory']))
+         if size + prospective_bytes > self.task['max_output_bytes']:
+--- src/arggnn/benchmarking/paper_campaign/scheduler.py
++++ research/resume_no_timeouts_20261027/campaign_future/code/scheduler.py
+@@ -17,6 +17,7 @@
+ from . import processes
+ from . import repairs
+ from . import continuation
++from .deadlines import validate_max_seconds, elapsed_limit_exceeded
+ 
+ 
+ def validate(plan):
+@@ -60,7 +61,8 @@
+             continue
+         if task['kind'] not in ('cpu', 'gpu'):
+             raise ValueError('Unsupported task resource')
+-        for key in ('max_output_bytes', 'max_rss_bytes', 'max_seconds'):
++        validate_max_seconds(task['max_seconds'])
++        for key in ('max_output_bytes', 'max_rss_bytes'):
+             if type(task[key]) is not int or task[key] <= 0:
+                 raise ValueError('Positive finite task resource required: ' + key)
+         if not task.get('call') and not task.get('argv'):
+@@ -239,7 +241,7 @@
+                     if usage > task['max_rss_bytes'] or size > task['max_output_bytes'] or scope_exceeded:
+                         code = stop_owned(process, start_ticks)
+                         row['error'] = 'Resource reservation exceeded'
+-                if code is None and time.time()-start > task['max_seconds']:
++                if code is None and elapsed_limit_exceeded(time.time()-start, task['max_seconds']):
+                     code = stop_owned(process, start_ticks)
+                     row['error'] = 'Wall time limit exceeded'
+                 if code is None:
+@@ -365,7 +367,7 @@
+                 task_file = directory / 'jobs' / (task['id'] + suffix + '.json')
+                 r.save(task_file, concrete)
+                 command = concrete.get('argv') or [str(r.path(task['python'])), '-B', '-s', '-m',
+-                           'arggnn.benchmarking.paper_campaign.runtime', '--task', str(task_file)]
++                           'research.resume_no_timeouts_20261027.campaign_future.code.runtime', '--task', str(task_file)]
+                 log_path = directory / 'logs' / (task['id'] + suffix + '.log')
+                 log_path.parent.mkdir(exist_ok=True)
+                 log = log_path.open('xb')

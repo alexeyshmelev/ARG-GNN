@@ -1,0 +1,1 @@
+printf immediate\n

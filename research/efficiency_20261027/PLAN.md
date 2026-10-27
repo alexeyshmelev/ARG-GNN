@@ -8,7 +8,7 @@ Use physical GPUs 3, 4 and 5. Keep all project computation and writes under the 
 
 | Ticket | Status | Next action |
 |---|---|---|
-| E01: full-parent exact executor | Deployed | American attempt 8 restored checkpoint 281 with optimizer/RNG and schedule preserved. Update 286 is durably saved. The current executor still has poor sustained GPU activity. |
+| E01: full-parent exact executor | Deployed | American attempt 8 restored checkpoint 281 with optimizer/RNG and schedule preserved. Update 437 is durably saved. Sustained 80 percent utilization remains unproven. |
 | E02: sustained utilization | Open | Observe the next production executor across cold preparation and warm updates, with compute-client identities recorded. No 80 percent claim yet. |
 | E04: boundary fusion and GPU residency | Qualified | Combine the accepted implementation with preparation changes in one checkpoint transition. |
 | E06: concurrent parent preparation | Qualified | Two complete parents took 1238.356 s concurrently versus 1560.893 s sequentially. Exact complete signatures and RNG match, actual waits are zero and encoder peaks are eight versus four. |
@@ -16,11 +16,11 @@ Use physical GPUs 3, 4 and 5. Keep all project computation and writes under the 
 | E08: memory lifetime and GPU context | Diagnostic completed, deferred | Prefix downstream checks pass but 47 of 59 million context values exceed the original strict tolerance. No full-chromosome qualification. Defer this optional candidate to avoid another deployment delay and cache rebuild. |
 | E09: monitoring overhead | Asynchronous v2 candidate independently reviewed | Maximum production resource callback was 27.30 seconds. Candidate keeps slow family scans off GPU dispatch, preserves caps and synchronous prospective writes, and passes 13 CPU checks. Version 1 timing flaws remain recorded. No live change yet. |
 | E10: background preparation and GPU dispatch | Full structural pair passed, producer isolation in implementation | TRAIN001 episode construction fell from 225.35 to 199.33 seconds with all nine archived arrays and new pair metadata exact. Fresh CPU producer processes will return compact shared buffers. No production speedup claim or restart for the small change alone. |
-| E11: European preprocessing entry point | Bridge and FIT v3 independently reviewed | 22 actual-route and 28 CLI checks pass. Full qualification remains active. On success, use the isolated bridge in the original resumable 90-update fit. |
-| E12: independent VAL orchestration | Reviewed and queued | Native exit draining and late monitor-error propagation are fixed. Independent v2 review passed. ROOT launched the guardian once. It currently waits for host admission. Both failed short attempts remain preserved. |
-| A01: European observed cohort inputs | Qualification and fit preparation | Full qualification retry v2 is running. On success, launch the resumable fixed 90-update fit. Exact interrupted/resumed CPU loop tests passed. Keep all original training data and the final-epoch rule. |
-| A02: independent development validation | Full 200 Mb run queued | ROOT guardian is active and will start the original registered simulation when live host allowances permit. Reserved project total is1.124TB under the1.2TB limit. Original TRAIN/TEST remain unchanged. No new score yet. |
-| B01: ancestry benchmarks | Running | Finish American TreeLoom, native ARGformer, GST, ARGMix and direct four-class comparisons. Report only completed common scoring. |
+| E11: European preprocessing entry point | Bridge prepared, full qualification failed | 180 context values exceed the original tolerance. Preserve this failure and do not launch the corrected fit or relax the tolerance silently. |
+| E12: independent VAL orchestration | Successor running | Status-file and campaign-handover races fixed. 22 checks and independent review passed. Elapsed experiment limits removed. Original recipe and seeds preserved. |
+| A01: European observed cohort inputs | Qualification failed | No corrected fit launched. Resolve numerical qualification before using the separately prepared cohort-input condition. |
+| A02: independent development validation | Full 200 Mb simulation restarted | CPU successor is running under 1.125 TB total commitments. No reusable simulation checkpoint existed. Original TRAIN/TEST remain unchanged. |
+| B01: ancestry benchmarks | Running | GST resumed from saved update 79 without the old 24-hour cap. Main queue has 3 running stages. Global deadline policy and stale ARGMix storage admission remain open in the recovery plan. |
 
 ## Accepted measurements
 

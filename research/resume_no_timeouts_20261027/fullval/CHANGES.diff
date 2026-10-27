@@ -1,0 +1,410 @@
+--- research/efficiency_20261027/execution/european_full_val_runner/aggregate_guard_v2.py
++++ research/resume_no_timeouts_20261027/fullval/aggregate_guard.py
+@@ -1,4 +1,4 @@
+-"""One finite aggregate owner for one full200Mb validation output scope.
++"""One storage-bounded aggregate owner for one full200Mb validation output scope.
+ 
+ Periodic external-write monitoring plus the 4 GiB reserve is provisional; this
+ is not a filesystem quota or a mathematical native-write bound. No import I/O.
+@@ -12,6 +12,7 @@
+ import stat
+ import threading
+ import time
++import traceback
+ 
+ RESERVATION = 120 * 2**30 + 128 * 2**20
+ OPERATING = RESERVATION - 4 * 2**30
+@@ -38,7 +39,21 @@
+     while stack:
+         path = stack.pop()
+         confined(scope, path)
+-        info = path.lstat()
++        try:
++            info = path.lstat()
++        except FileNotFoundError:
++            # The guardian atomically replaces exactly this temporary file.
++            # Re-measure its destination rather than ignoring arbitrary loss.
++            if path != Path(scope) / 'status.tmp':
++                raise
++            destination = Path(scope) / 'status.json'
++            confined(scope, destination)
++            info = destination.lstat()
++            if not stat.S_ISREG(info.st_mode) or info.st_nlink != 1:
++                raise GuardFailure('Atomic status replacement must be an ordinary single-link file')
++            # A second destination entry may also be counted. This is safe,
++            # conservative accounting for one concurrent status replacement.
++            path = destination
+         if stat.S_ISLNK(info.st_mode):
+             raise GuardFailure('Symlinks are forbidden throughout aggregate output')
+         allocated += info.st_blocks * 512
+@@ -67,9 +82,8 @@
+     """Caller retains this same locked owner through every stage and attempt."""
+     def __init__(self, scope, *, execution_check, max_family_rss_bytes, max_seconds):
+         if (not callable(execution_check) or type(max_family_rss_bytes) is not int
+-                or max_family_rss_bytes <= 0 or type(max_seconds) not in (int, float)
+-                or not math.isfinite(max_seconds) or max_seconds <= 0):
+-            raise ValueError('Current admission callback and finite family RSS/wall bounds required')
++                or max_family_rss_bytes <= 0 or max_seconds is not None):
++            raise ValueError('Current admission, finite family RSS and no total wall cutoff required')
+         self.scope = Path(scope).absolute()
+         if not self.scope.is_dir() or self.scope.resolve() != self.scope:
+             raise GuardFailure('Existing canonical aggregate root required')
+@@ -139,15 +153,9 @@
+             raise GuardFailure('Aggregate sample exceeded five-second age limit')
+         if sample['charged_bytes'] + self._pending >= OPERATING:
+             raise GuardFailure('Aggregate operating stop threshold reached')
+-        if time.monotonic() - self.started >= self.max_seconds:
+-            raise GuardFailure('Aggregate wall bound reached')
+         for name, limit in (('generation', 24 * 2**30), ('native', 96 * 2**30)):
+             if sample['stage_charged_bytes'][name] >= limit:
+                 raise GuardFailure('Original full validation stage output cap reached: ' + name)
+-        if self.stage is not None:
+-            limit = 86400 if self.stage == 'generation' else 604800
+-            if time.monotonic() - self.stage_started >= limit:
+-                raise GuardFailure('Original full validation stage wall bound reached')
+         self.execution_check()
+         return sample
+ 
+@@ -188,7 +196,10 @@
+                     self.refresh()
+                     self.check()
+                 except BaseException as error:
+-                    self._error = repr(error)
++                    self._error = dict(error=repr(error), error_type=type(error).__name__,
++                        errno=getattr(error, 'errno', None), filename=getattr(error, 'filename', None),
++                        traceback=traceback.format_exc(), stage=self.stage,
++                        observed_unix=time.time())
+                     return
+         self._thread = threading.Thread(target=scan, name='full-validation-storage', daemon=True)
+         self._thread.start()
+--- research/efficiency_20261027/execution/european_full_val_runner/native_supervisor_v2.py
++++ research/resume_no_timeouts_20261027/fullval/native_supervisor.py
+@@ -13,8 +13,8 @@
+ import subprocess
+ import time
+ from arggnn.benchmarking.paper_campaign.processes import _pidfd_open, _pidfd_send
+-from .aggregate_guard_v2 import AggregateOwner, GuardFailure, METADATA, RESERVATION, OPERATING
+-from .contracts_v2 import validate_native_config
++from .aggregate_guard import AggregateOwner, GuardFailure, METADATA, RESERVATION, OPERATING
++from .contracts import validate_native_config
+ 
+ LOG_LIMIT = 192 * 2**20
+ DRAIN_LIMIT = 255 * 2**20
+@@ -25,9 +25,9 @@
+ FAILED_DRAIN_SECONDS = 10.0
+ 
+ 
+-def process_table():
++def process_table(proc_root=Path('/proc')):
+     rows = {}
+-    for path in Path('/proc').iterdir():
++    for path in Path(proc_root).iterdir():
+         if not path.name.isdigit():
+             continue
+         try:
+@@ -170,10 +170,12 @@
+         self.active = True
+         self.steps += 1
+         started = time.monotonic()
+-        timeout = min(config['relate']['timeout_seconds_per_step'], self.owner.max_seconds)
++        # Preserve the pinned native recipe/config as evidence, but the owner
++        # explicitly removed elapsed-time limits for this successor run.
+         record = dict(label=label, argv=argv, status='failed', returncode=None,
+                       owner={k:self.owner_identity[k] for k in ('pid','start','session')},
+                       requested_scan_interval_seconds=1., maximum_sample_age_seconds=5.,
++                      elapsed_time_cutoffs_enabled=False,
+                       complete_log=True, excluded_log_bytes=0, waits=[], terminal_family_absent=False,
+                       storage_reservation_bytes=RESERVATION, operating_threshold_bytes=OPERATING,
+                       provisional_external_write_bound=True)
+@@ -219,8 +221,6 @@
+                         self.owner.check()
+                         if rss >= self.owner.max_family_rss_bytes:
+                             raise GuardFailure('Owned recursive family RSS bound reached')
+-                        if time.monotonic() - started >= timeout:
+-                            raise GuardFailure('Native finite step wall bound reached')
+                     except BaseException as error:
+                         failure = repr(error)
+                 if failure is not None:
+--- research/efficiency_20261027/execution/european_full_val_runner/contracts_v2.py
++++ research/resume_no_timeouts_20261027/fullval/contracts.py
+@@ -5,21 +5,21 @@
+ 
+ HERE=Path(__file__).parent
+ RUNS=ROOT/'research/efficiency_20261027/root/runs'
+-AGGREGATE=RUNS/'european_independent_validation_200mb_v1'
+-MODULE='research.efficiency_20261027.execution.european_full_val_runner.worker_v2'
++AGGREGATE=RUNS/'european_independent_validation_200mb_v2_no_timeouts'
++MODULE='research.resume_no_timeouts_20261027.fullval.worker'
+ GIB=2**30
+ HOST_CAP=128*GIB
+ RESERVATION=120*GIB+128*2**20
+ OPERATING=RESERVATION-4*GIB
+-MAX_SECONDS=86400+604800
++MAX_SECONDS=None  # No aggregate, generation, native-stage or native-step elapsed-time cutoff.
+ HEADROOM=GIB
+ METADATA_CAP=256*2**20
+ ROOT_STATUS_MAX_AGE_SECONDS=120
+ GROWTH_INTERVAL_SECONDS=30
+ PROJECT_CAP=1_200_000_000_000
+ PROJECT_ADMISSION_CAP=PROJECT_CAP-5_000_000_000
+-RETAINED_SHORT_RESERVATION=16*GIB
+-RETAINED_PATH=HERE/'RETAINED_SHORT_ATTEMPTS_v1.json'
++RETAINED_ATTEMPTS_RESERVATION=16*GIB+128*2**20
++RETAINED_PATH=HERE/'RETAINED_ATTEMPTS.json'
+ PLAN_REF=dict(path='research/efficiency_20261027/architecture/european_cohort_candidate/independent_validation_plan_v2.json',sha256='919d2feb0debf2071441aa1893a0f4b21537611789c158709901a26aea31321b')
+ NATIVE_CONFIG_REF=dict(path='configs/benchmarks/ap200mb_native_runtime_v2.json',sha256='a86720db22c176bf194ed1a3ec704e82126f4be14fb514fc4ac43c3c5176482e')
+ NATIVE_CHAIN_REF=dict(path='research/efficiency_20261027/execution/european_short_val_runner/NATIVE_CHAIN_REVIEW_v1.json',sha256='a4e811711325b87500d4661c16474ca45f83dcca0d440e54302f743eb763fd3a')
+@@ -69,24 +69,24 @@
+ 
+ 
+ def retained_attempts():
+-    from .aggregate_guard_v2 import measure
++    from .aggregate_guard import measure
+     reference=ref(RETAINED_PATH);value=read(reference)
+-    need(value['reservation_bytes']==RETAINED_SHORT_RESERVATION and len(value['attempts'])==2,
+-         'Single conservative16GiB retained-short evidence reservation')
++    need(value['reservation_bytes']==RETAINED_ATTEMPTS_RESERVATION and len(value['attempts'])==3,
++         'Retained short attempts plus failed full-size predecessor reservation')
+     total=0
+     for item in value['attempts']:
+         scope=contained(item['directory']);need(scope.parent==RUNS and scope!=AGGREGATE,'Exact retained ROOT scope')
+         terminal=read(item['actual_wait_ref'])
+         need(terminal['actual_wait'] is True and terminal['actual_returncode']==1
+-             and terminal['owned_family_absent'] is True,'Both short attempts actually failed and were reaped')
++             and terminal['owned_family_absent'] is True,'All predecessor attempts actually failed and were reaped')
+         for evidence in item['evidence_refs']:need(ref(evidence['path'])==evidence,'Retained terminal evidence changed')
+         total+=measure(scope)['charged_bytes']
+-    need(total<=RETAINED_SHORT_RESERVATION,'Retained short scopes exceed their conservative combined allowance')
++    need(total<=RETAINED_ATTEMPTS_RESERVATION,'Retained predecessor scopes exceed their conservative combined allowance')
+     return reference,total
+ 
+ 
+ def verify_sources(digest,review_ref):
+-    manifest_ref=ref(HERE/'source_pins_v2.json');need(manifest_ref['sha256']==digest,'Exact full validation runner source manifest')
++    manifest_ref=ref(HERE/'source_pins.json');need(manifest_ref['sha256']==digest,'Exact full validation runner source manifest')
+     manifest=read(manifest_ref)
+     need(manifest['schema']=='European_full_VAL_ROOT_runner_sources_v1','Exact full validation source schema')
+     for item in manifest['source_refs']:need(ref(item['path'])==item,'Pinned source/evidence changed: '+item['path'])
+@@ -94,7 +94,10 @@
+          'Exact owner authorization and immutable full-size registration pinned')
+     review=read(review_ref)
+     need(review['schema']=='European_full_VAL_ROOT_runner_review_v1' and review['passed'] is True
+-         and review['source_manifest_ref']==manifest_ref and review['native_terminal_race_fix_reviewed'] is True,
++         and review['source_manifest_ref']==manifest_ref and review['native_terminal_race_fix_reviewed'] is True
++          and review.get('atomic_status_race_fix_reviewed') is True
++          and review.get('elapsed_time_cutoffs_removed_reviewed') is True
++          and review.get('campaign_transition_retry_reviewed') is True,
+          'Independent exact full validation runner and native drain review required')
+     return manifest_ref,validate_plan()
+ 
+@@ -114,12 +117,12 @@
+          and value.get('ROOT_status_max_age_seconds')==ROOT_STATUS_MAX_AGE_SECONDS
+          and value.get('growth_refresh_interval_seconds')==GROWTH_INTERVAL_SECONDS
+          and value.get('retained_attempts_ref')==ref(RETAINED_PATH)
+-         and value.get('retained_short_reservation_in_other_bytes')==RETAINED_SHORT_RESERVATION,
+-         'Exact ROOT full-size execution release and original finite resource envelope')
++         and value.get('retained_attempts_reservation_in_other_bytes')==RETAINED_ATTEMPTS_RESERVATION,
++         'Exact ROOT full-size execution release and retained resource envelope')
+     need(type(peers) is list and len(peers)==len(set(peers)),'Distinct explicit current ROOT peers')
+     retained={item['directory'] for item in read(ref(RETAINED_PATH))['attempts']}
+     for peer in peers:need(contained(peer).parent==RUNS and contained(peer)!=AGGREGATE and peer not in retained,
+-                          'Retained short scopes are counted once through other-project allowance')
++                          'Retained predecessor scopes are counted once through other-project allowance')
+     return value
+ 
+ 
+@@ -132,5 +135,5 @@
+     need(request.get('host_cap_bytes')==HOST_CAP and request.get('output_cap_bytes')==RESERVATION
+          and request.get('operating_stop_bytes')==OPERATING and request.get('max_seconds')==MAX_SECONDS
+          and request.get('CUDA_VISIBLE_DEVICES')=='' and request.get('aggregate_directory')==str(AGGREGATE.relative_to(ROOT)),
+-         'Exact admitted CPU-only full-size output and finite total budget')
++         'Exact admitted CPU-only full-size output and no elapsed-time cutoff')
+     return request
+--- research/efficiency_20261027/execution/european_full_val_runner/worker_v2.py
++++ research/resume_no_timeouts_20261027/fullval/worker.py
+@@ -11,9 +11,9 @@
+ from arggnn import prepare_ancestralpaths_full_panel_discovery_v1 as full
+ from research.efficiency_20261027.architecture.european_cohort_candidate import validation_generation_v2 as generation, validation_sampling as sampling
+ from arggnn.benchmarking import european_native_relate as native_relate
+-from .aggregate_guard_v2 import AggregateOwner
+-from .native_supervisor_v2 import NativeSupervisor, process_table, owned_family
+-from .contracts_v2 import (ROOT, AGGREGATE, HOST_CAP, MAX_SECONDS, HEADROOM, METADATA_CAP,
++from .aggregate_guard import AggregateOwner
++from .native_supervisor import NativeSupervisor, process_table, owned_family
++from .contracts import (ROOT, AGGREGATE, HOST_CAP, MAX_SECONDS, HEADROOM, METADATA_CAP,
+     need, ref, read, verify_sources, native_bindings, validate_release, validate_worker_records, PLAN_REF, owner_authorization,
+     ROOT_STATUS_MAX_AGE_SECONDS, retained_attempts)
+ 
+@@ -37,18 +37,14 @@
+     need(os.environ.get('CUDA_VISIBLE_DEVICES')=='' and not any(key in os.environ for key in
+         ('ARGGNN_PHYSICAL_GPU','ARGGNN_READABLE_GPU_FD','ARGGNN_MAX_CUDA_RESERVED_BYTES','ARGGNN_GPU_MEMORY_POLICY')),
+         'CUDA hidden and no GPU lease environment')
+-    deadline=request['deadline_unix'];created=request['created_unix']
+-    need(type(deadline) in (int,float) and type(created) in (int,float)
+-         and math.isfinite(deadline) and math.isfinite(created) and deadline-created==MAX_SECONDS,
+-         'Exact finite ROOT total wall deadline')
+-    remaining=deadline-time.time();need(0<remaining<=MAX_SECONDS,'Current remaining ROOT wall budget')
+-    monotonic_deadline=time.monotonic()+remaining;known={own['pid']:own}
++    need(request.get('deadline_unix') is None and request.get('max_seconds') is None,
++         'No total elapsed-time cutoff in ROOT request')
++    remaining=None;known={own['pid']:own}
+     sampling_lock=threading.Lock();last_sample=[-math.inf]
+     diagnostics=dict(max_status_age_seconds=0.,max_full_check_seconds=0.)
+     def check():
+         need(not (AGGREGATE/'execution_hold').exists(),'ROOT execution hold active')
+-        need(time.time()<deadline and time.monotonic()<monotonic_deadline,'ROOT full-validation finite total wall expired')
+-        # Hold and wall checks above are immediate,including each log callback.
++        # The hold check above is immediate, including each log callback.
+         # Repeated metadata hashes and global process reads are sampled at most
+         # once per second across both the monitor and stage threads. The ROOT
+         # guardian independently samples the complete family and storage.
+@@ -154,7 +150,7 @@
+          'Worker matches exact ROOT source and global reservation binding')
+     check,remaining=execution_checker(request_ref,launch_ref,release_ref,request,launch,argv)
+     allowance=dict(full_scope_reservation_bytes=120*2**30+128*2**20,
+-        retained_short_reservation_in_other_bytes=16*2**30,retained_short_charged_bytes=retained_bytes)
++        retained_attempts_reservation_in_other_bytes=16*2**30+128*2**20,retained_attempts_charged_bytes=retained_bytes)
+     owner=None
+     def cancelled(signum,frame):
+         raise KeyboardInterrupt('ROOT fullVAL worker received signal '+str(signum))
+@@ -179,7 +175,7 @@
+     except BaseException as error:
+         if owner is not None:
+             owner.write_json(AGGREGATE/'worker_failure.json',dict(error=repr(error),
+-                failed_evidence_retained=True,retained_allowance=allowance,
++                failed_evidence_retained=True,monitor_failure=owner._error,retained_allowance=allowance,
+                 execution_check_metrics=dict(check.diagnostics),observed_unix=time.time()),emergency=True)
+         raise
+     finally:
+--- research/efficiency_20261027/execution/european_full_val_runner/guardian_v2.py
++++ research/resume_no_timeouts_20261027/fullval/guardian.py
+@@ -12,12 +12,50 @@
+ import subprocess
+ import time
+ from research.efficiency_20261027.root.run_guarded_profile_with_peer import identity,current_memory,campaign_growth,peer_growth,write
+-from .aggregate_guard_v2 import measure
+-from .native_supervisor_v2 import process_table,owned_family,signal_owned,reap_adopted
+-from .contracts_v2 import ROOT,AGGREGATE,MODULE,HOST_CAP,RESERVATION,OPERATING,MAX_SECONDS,GIB,need,ref,read,verify_sources,validate_release,retained_attempts,RETAINED_SHORT_RESERVATION,PROJECT_CAP,PROJECT_ADMISSION_CAP,owner_authorization,ROOT_STATUS_MAX_AGE_SECONDS,GROWTH_INTERVAL_SECONDS
++from .aggregate_guard import measure
++from .native_supervisor import process_table,owned_family,signal_owned,reap_adopted
++from .contracts import ROOT,AGGREGATE,MODULE,HOST_CAP,RESERVATION,OPERATING,MAX_SECONDS,GIB,need,ref,read,verify_sources,validate_release,retained_attempts,RETAINED_ATTEMPTS_RESERVATION,PROJECT_CAP,PROJECT_ADMISSION_CAP,owner_authorization,ROOT_STATUS_MAX_AGE_SECONDS,GROWTH_INTERVAL_SECONDS
+ 
+ HOST_MARGIN=64*GIB
+ OUTER_LOG_CAP=8*2**20
++CAMPAIGN_TRANSITION_MAX_SECONDS=60.0
++CAMPAIGN_TRANSITION_ERROR='Campaign worker boundary changed, retry admission'
++
++
++def campaign_growth_stable():
++    """Re-read canonical state during only an ordinary campaign PID transition.
++
++    Sixty seconds bounds snapshot freshness, never total job duration. Hold and
++    host pressure are checked before and after every potentially slow scan.
++    """
++    started=time.monotonic()
++    retries=0
++    def safety():
++        need(not (AGGREGATE/'execution_hold').exists(),'ROOT execution hold active during campaign transition')
++        need(current_memory()>=HOST_MARGIN,'Host memory pressure during campaign transition')
++    while True:
++        safety()
++        need(time.monotonic()-started<CAMPAIGN_TRANSITION_MAX_SECONDS,
++             'Campaign worker transition exceeded 60-second snapshot freshness bound')
++        try:
++            # The existing helper reads canonical state afresh on every call.
++            snapshot=campaign_growth()
++        except RuntimeError as error:
++            if type(error) is not RuntimeError or error.args!=(CAMPAIGN_TRANSITION_ERROR,):
++                raise
++            safety()
++            remaining=CAMPAIGN_TRANSITION_MAX_SECONDS-(time.monotonic()-started)
++            need(remaining>0,'Campaign worker transition exceeded 60-second snapshot freshness bound')
++            retries+=1
++            time.sleep(min(1.0,remaining))
++            continue
++        safety()
++        elapsed=time.monotonic()-started
++        need(elapsed<CAMPAIGN_TRANSITION_MAX_SECONDS,
++             'Campaign growth scan exceeded 60-second snapshot freshness bound')
++        return (*snapshot,dict(campaign_transition_retries=retries,
++            campaign_transition_scan_seconds=elapsed,
++            campaign_transition_max_seconds=CAMPAIGN_TRANSITION_MAX_SECONDS))
+ 
+ 
+ def capture_family(leader,known,supervisor_pid,table=None):
+@@ -54,10 +92,10 @@
+ 
+ def combined_storage(retained_bytes):
+     _,current_retained=retained_attempts()
+-    need(current_retained==retained_bytes,'Retained failed short scope bytes changed during full validation')
++    need(current_retained==retained_bytes,'Retained predecessor scope bytes changed during full validation')
+     current=measure(AGGREGATE)
+-    return dict(current,retained_short_charged_bytes=retained_bytes,
+-                retained_short_reservation_in_other_bytes=RETAINED_SHORT_RESERVATION)
++    return dict(current,retained_attempts_charged_bytes=retained_bytes,
++                retained_attempts_reservation_in_other_bytes=RETAINED_ATTEMPTS_RESERVATION)
+ 
+ 
+ 
+@@ -84,11 +122,11 @@
+         request=read(ref(ROOT/peer/'request.json'));amount=request.get('output_cap_bytes')
+         need(type(amount) is int and amount>=0,'Every explicit ROOT peer declares output allowance')
+         peer_output+=amount
+-    need(other>=peer_output+RETAINED_SHORT_RESERVATION,
+-         'Other project commitments cover peers plus the retained short16GiB allowance')
++    need(other>=peer_output+RETAINED_ATTEMPTS_RESERVATION,
++         'Other project commitments cover peers plus all three retained predecessor allowances')
+     need(not AGGREGATE.exists(),'One fresh fixed aggregate attempt only;failed evidence is never retried or removed')
+     AGGREGATE.mkdir()
+-    started=time.monotonic();created=time.time();deadline=created+MAX_SECONDS
++    started=time.monotonic();created=time.time();deadline=None
+     worker_args=['--source-pins-sha256',args.source_pins_sha256,'--source-review-path',args.source_review_path,
+         '--source-review-sha256',args.source_review_sha256,'--execution-release-path',args.execution_release_path,
+         '--execution-release-sha256',args.execution_release_sha256]
+@@ -110,16 +148,15 @@
+         nonlocal growth,details,last_growth,peak_admission_seconds
+         need(ref(release_ref['path'])==release_ref,'ROOT execution release changed')
+         need(not (AGGREGATE/'execution_hold').exists(),'ROOT execution hold active')
+-        need(time.monotonic()-started<MAX_SECONDS,'Original eight-day total admission+run wall bound')
+         scan_started=time.monotonic();scan_started_unix=time.time()
+-        state,growth,details=campaign_growth()
++        state,growth,details,transition=campaign_growth_stable()
+         for peer in args.peer_directory:
+             amount,detail=peer_growth(peer);growth+=amount;details.append(detail)
+         committed=state['project_reserved_bytes']+other+RESERVATION
+         need(committed<=PROJECT_ADMISSION_CAP,
+              'ROOT campaign+other+full validation exceeds owner-authorized project admission ceiling')
+-        need(time.monotonic()-started<MAX_SECONDS and not (AGGREGATE/'execution_hold').exists(),
+-             'Original eight-day wall or ROOT hold after slow admission scan')
++        need(not (AGGREGATE/'execution_hold').exists(),
++             'ROOT hold after slow admission scan')
+         last_growth=time.monotonic();scan_seconds=last_growth-scan_started
+         peak_admission_seconds=max(peak_admission_seconds,scan_seconds)
+         return dict(admission_started_unix=scan_started_unix,admission_finished_unix=time.time(),
+@@ -128,7 +165,7 @@
+              retained_charged_bytes=retained_bytes,campaign_project_reserved_bytes=state['project_reserved_bytes'],other_project_reserved_bytes=other,
+             own_aggregate_reservation_bytes=RESERVATION,total_committed_bytes=committed,
+             project_admission_ceiling_bytes=PROJECT_ADMISSION_CAP,global_project_ceiling_bytes=PROJECT_CAP,
+-             owner_storage_authorization_ref=owner_authorization())
++             owner_storage_authorization_ref=owner_authorization(),**transition)
+     try:
+         while True:
+             budget=admission();available=current_memory();required=HOST_CAP+growth+HOST_MARGIN
+@@ -137,7 +174,7 @@
+             if available>=required:
+                 write(AGGREGATE/'status.json',dict(status='admitted',**status));last_status_unix=status['observed_unix'];break
+             write(AGGREGATE/'status.json',dict(status='waiting',reason='Existing campaign/peer growth and64GiB margin',**status))
+-            time.sleep(min(GROWTH_INTERVAL_SECONDS,max(0,deadline-time.time())))
++            time.sleep(GROWTH_INTERVAL_SECONDS)
+         libc=ctypes.CDLL(None,use_errno=True)
+         need(libc.prctl(36,1,0,0,0)==0,'Existing Linux subreaper process-ownership mechanism')
+         environment=dict(os.environ,PYTHONPATH='src:.',PYTHONDONTWRITEBYTECODE='1',CUDA_VISIBLE_DEVICES='',
+@@ -160,7 +197,7 @@
+             need(storage['charged_bytes']<OPERATING,'Full validation aggregate operating stop')
+             need((AGGREGATE/'worker.stdout.log').stat().st_size<OUTER_LOG_CAP,'Finite captured outer log allowance')
+             need(current_memory()>=HOST_MARGIN,'Host memory pressure')
+-            need(time.monotonic()-started<MAX_SECONDS and not (AGGREGATE/'execution_hold').exists(),'Original eight-day wall or ROOT hold')
++            need(not (AGGREGATE/'execution_hold').exists(),'ROOT hold')
+             if time.monotonic()-last_growth>=GROWTH_INTERVAL_SECONDS:
+                 budget=admission()
+                 need(current_memory()+rss>=HOST_CAP+growth+HOST_MARGIN,'Campaign/peer growth needs capacity')

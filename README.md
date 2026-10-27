@@ -1,11 +1,28 @@
 # ARG-GNN
 
+<!-- recovery-no-timeouts-20261027:start -->
+## Recovery status, 27 October
+
+**The benchmark is continuing.** Verified 2026-10-27 20:49 UTC. Queue: **3 running, 53 succeeded, 196 pending, 0 failed and 0 blocked**. Counts refer to workflow stages, not completed comparisons.
+
+| Work | Current state |
+|---|---|
+| American TreeLoom, GPU 3 | **437/600** completed updates. The healthy worker and its warm caches remain intact. |
+| Native ARGformer, GPU 4 | **5/15** prediction datasets complete. Validation003 masked-token pretraining is in epoch 3 of 5. |
+| GST adaptation for ancestry, GPU 5 | Restarted from the saved **79/90** checkpoint after the old 24-hour cutoff. It is reloading the original inputs before continuing the remaining 11 updates. No new completed update is claimed yet. |
+| Independent European validation, CPU | The original **200 Mb** simulation has restarted with the same recipe and seeds. The status-file race and queue-handover race are fixed. There is no total job or stage time cutoff. |
+
+The GST fit, prediction and scoring now have effectively unlimited wall time through the current controller's compatibility setting. Other already-loaded tasks retain legacy deadlines. Genuine optional-deadline support is prepared and tested, but global activation still requires resolving nested ARGMix wrapper limits and a safe controller transition. One ready ARGMix Relate task currently waits on the controller's stale storage accounting, even though cleanup freed space. The existing workers were not interrupted to reload those settings.
+
+Recovery validation passed the exact interrupted/resumed GST training check and 22 validation-runner checks, followed by independent review. Scientific inputs, model budgets and scoring remain unchanged. No new ancestry accuracy result is claimed. [Recovery plan and remaining issues](research/resume_no_timeouts_20261027/PLAN.md) · [Live snapshot](research/resume_no_timeouts_20261027/LIVE_RECOVERY_SNAPSHOT.json)
+<!-- recovery-no-timeouts-20261027:end -->
+
 <!-- storage-cleanup-20261027:start -->
 ## Storage cleanup, 27 October
 
 Removed **380.6 GB** of obsolete pilot datasets, epoch prediction dumps, a superseded ARGMix training archive and downloaded installer caches. Code, design history, metrics, selected historical predictions and all current benchmark dependencies remain. Cleanup was restricted to this repository on anogena. The earlier 924.2 GB inventory minus removals gives approximately **543.6 GB**, before subsequent benchmark writes. This is not a fresh full-directory measurement.
 
-The three main benchmark workers remained running. A separate full European validation run had failed before cleanup and its failure evidence is preserved. [Cleanup report and exact deletion records](research/storage_cleanup_20261027/README.md).
+Cleanup did not signal any process. A separate full European validation run had failed before cleanup and its failure evidence is preserved. [Cleanup report and exact deletion records](research/storage_cleanup_20261027/README.md).
 <!-- storage-cleanup-20261027:end -->
 
 <!-- european-interim-20261027:start -->
@@ -46,7 +63,7 @@ The earlier preparation-inclusive observation averaged **18.35% device activity*
 
 The first production update spent **499.12 seconds in backward propagation**, including **387.13 seconds** in the final tree sweep, while two background producers were active. Preparation uses threads in the same Python interpreter as GPU dispatch. Contention is a plausible mechanism, but external stack sampling was denied and causation is not yet established. Resource callbacks also accumulated 109.14 seconds since startup across threads, so that number cannot be subtracted from one update. The full TRAIN001 comparison now qualifies integer episode construction: 225.35 to 199.33 seconds, an 11.55 percent reduction in this stage. All nine structural/episode arrays match the archived hashes, and newly computed original/candidate episode metadata are identical. This is one fixed-order CPU pair, not an end-to-end speedup. It remains isolated for integration with fresh CPU producer processes. The asynchronous resource-check candidate has also passed independent timing and failure-propagation tests, but is not deployed. Compact packing accounts for only about 25.5 seconds per chromosome in the paired preparation test. The optional GPU-context candidate remains deferred after exceeding its original strict context tolerance. The slower TreeLoom-Transport candidate is also deferred. Historical failures and closed hypotheses remain recorded.
 
-The separate European cohort correction is still in full-chromosome qualification. The corrected preprocessing bridge and resumable 90-update fit have passed independent source and small-route checks. Training awaits completion of the full numerical qualification. The 10 Mb validation generator failed because a 10-second status lease was shorter than the memory check itself. A reviewed correction uses a 120-second lease, fewer expensive checks and the same simulation. The retry then failed on a native-process exit check after Relate returned zero. Native terminal draining is repaired. Final review caught and fixed a monitor error-propagation gap at shutdown. The corrected full-size runner passed independent review and is queued for automatic resource admission. The owner has now raised the project cap to **1.2 TB**, allowing full 200 Mb independent validation. The full validation reservation brings total commitments to about **1.124 TB**. The launcher is active and currently waiting for host RAM allowance before beginning simulation. It preserves the existing workers' declared growth allowances. Both failed short-run records are retained. The original training and test benchmarks remain unchanged, and no new accuracy gain is claimed.
+The separate European cohort correction failed full-chromosome qualification: 180 of 3,899,392 context values exceeded the original tolerance. The corrected fit has not been launched. The full 200 Mb independent validation runner also failed before cleanup because its storage scanner could race with an atomic status-file replacement. The reviewed successor fixes that race and transient queue handovers, removes elapsed experiment cutoffs, and has restarted the same original simulation. All prior failures remain preserved. Total reserved commitments are about 1.125 TB under the authorized 1.2 TB ceiling. This is conservative reservation accounting, not current disk usage. Original TRAIN/TEST inputs remain unchanged, and no new accuracy gain is claimed.
 
 [Work plan](research/efficiency_20261027/PLAN.md) · [Independent combined review](research/efficiency_20261027/fidelity/COMBINED_EXECUTION_V5_RESULTS_REVIEW.json) · [Deployment release](research/efficiency_20261027/root/combined_execution_release_v5.json) · [Latest status](research/efficiency_20261027/root/benchmark_snapshot_v11.json) · [First production update](research/efficiency_20261027/root/production_attempt8_first_update_v1/report.json)
 <!-- efficiency-20261027:end -->
@@ -63,23 +80,9 @@ The separate European cohort correction is still in full-chromosome qualificatio
 <!-- owner-stop-current:start -->
 ## Benchmark progress, 27 October
 
-**The comparison is incomplete.** The completed European scores are above. American TreeLoom, native ARGformer, GST and the separate ARGMix condition are still progressing. The combined executor has completed American TreeLoom update 287 after restoring checkpoint 281. European cohort correction remains in numerical qualification. Full 200 Mb independent validation is queued under the new storage allowance, awaiting host RAM admission.
+**The comparison remains incomplete.** Current execution status is at the top of this README, verified 2026-10-27 20:49 UTC. European AncestralPaths CNN, Dense and the current TreeLoom condition have completed common scoring. Their scores are reported above. American TreeLoom, native ARGformer, GST and the separate ARGMix condition still require completion. FLARE has 15 native prediction products ready for common American scoring. Direct four-class AncestralPaths training is implemented but remains unlaunched.
 
-| Workstream | Completed | Remaining |
-|---|---|---|
-| American TreeLoom, GPU 3 | **287/600** completed updates. Attempt 8 preserves the optimizer and schedule. Its first update is saved, but production utilization remains poor. | Measure sustained throughput, then finish training, prediction and common ancestry scoring. |
-| European TreeLoom | **90/90** updates and **5/5** TEST predictions. | Current six-class model trails CNN and Dense. A separate condition will restore the observed cohort information missing from its inputs. |
-| Native ARGformer, GPU 4 | **4/15** native prediction datasets complete. Validation002 MLM is active. | Remaining native pretraining, contrastive stages and predictions, then common ancestry scoring. |
-| FLARE | **15/15** native prediction products complete. | Common American ancestry scoring alongside paired methods. |
-| AncestralPaths CNN and Dense | Training and **5/5** TEST predictions each, with completed interim scoring. | Direct four-class training is a separate prepared condition, still inactive. |
-| GST-LAI-8, GPU 5 | **46/90** training updates. | Finish training, predict and score. This is an LAI adaptation, not the GST paper's original task. |
-| ARGMix | **2/14** datasets have completed TreeLoom observation preparation alongside the native feature products. | Remaining preparation, both model fits, predictions and scoring. |
-
-Verified **2026-10-27T07:18 UTC**. Queue: **3 running, 48 succeeded, 201 pending, 0 failed, 0 blocked**. These stages differ in size, so their counts are not a completion percentage. Training loss and ARGformer masked-token accuracy are not ancestry accuracy. Full comparison remains days away and has no reliable final completion time.
-
-All work remains on anogena using physical GPUs **3, 4 and 5**. The campaign reservation is **974.75 GB** under the newly authorized **1.2 TB** project limit. The increased allowance is for full-size independent European validation. This is the controller's reservation accounting, not a new disk-usage scan. Competitor algorithms and simulations remain unchanged by the efficiency work.
-
-[Current status evidence](research/efficiency_20261027/root/benchmark_snapshot_v9.json) · [Queue plan](configs/benchmarks/paper_campaign_resume_20261026_v1.json) · [Preprocessing verification](research/preprocessing_optimization_20261026/REPORT.md)
+All computation stays on anogena. Physical GPUs **3, 4 and 5** are the only GPUs in use by this campaign. A running training job, masked-token accuracy or training loss is not a completed ancestry comparison. No reliable final completion time is available.
 <!-- owner-stop-current:end -->
 
 **Preprocessing audit, 26 October:** preparation is not yet fully parallel. At the original audit, American TreeLoom used one background preparation worker. The qualified deployment below now uses four encoding processes within that producer. GST has four loader workers, but its initial VCF joins run serially before they start. European TreeLoom uses eight CPU threads during encoding but prepares and predicts parents sequentially. Native ARGformer has eight persistent loader workers and is actively training. [Measured bottlenecks and concrete execution improvements](research/preprocessing_efficiency_20261026/REPORT.md). No model, simulation or running job was changed by this audit.
