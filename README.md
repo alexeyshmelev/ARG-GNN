@@ -1,5 +1,21 @@
 # ARG-GNN
 
+<!-- european-interim-20261027:start -->
+## European ancestry comparison, 27 October
+
+**Current TreeLoom trails both baselines on this completed six-class condition.** All three methods were scored on the same five test chromosomes and registered targets. The adapter audit found unequal population metadata: the CNN receives eight observed cohort channels, while TreeLoom collapses five admixed cohorts into an unknown reference label. These scores therefore do not isolate the architectural difference. A new TreeLoom condition will retain the observed cohort metadata, with development restricted to TRAIN/VAL. The values below are mean ± sample SD across chromosomes, expressed as percentages. This is a common-data comparison and does not claim exact reproduction of a published numerical table.
+
+| Method | Six-class accuracy | Six-class macro F1 | Accuracy after merging into four ancestry groups |
+|---|---:|---:|---:|
+| AncestralPaths CNN | **92.70 ± 0.35** | **91.58 ± 0.21** | **95.84 ± 0.39** |
+| Dense control | 92.49 ± 0.53 | 91.40 ± 0.43 | 95.70 ± 0.49 |
+| TreeLoom | 54.80 ± 1.02 | 31.58 ± 0.57 | 70.83 ± 1.20 |
+
+The four-group column sums the six-class probabilities. It is **not** the separately requested direct four-class CNN experiment, which is implemented but not yet trained. GST is still training and is absent from this interim table. The American efficiency tests concern a different model configuration and do not resolve this European accuracy gap.
+
+[Complete scores and cohort breakdown](experiments/results/paper_campaign_resume_20261026/ap_three_methods_interim_score/native/comparison.json)
+<!-- european-interim-20261027:end -->
+
 <!-- efficiency-20261027:start -->
 ## TreeLoom efficiency work, 27 October
 
@@ -30,23 +46,23 @@ These are engineering measurements, not ancestry scores. GPU 5 is shared with an
 <!-- owner-stop-current:start -->
 ## Benchmark progress, 27 October
 
-**The complete comparison is still days away, plausibly a week or more under the current schedule.** Native ARGformer has about 158–207 hours of serial work after its current dataset, based on three completed runs. ARGMix adds uncertainty because most data preparation and both model fits remain. The nearest useful table is the European interim comparison, estimated in roughly 2–3 hours if the current prediction pace continues.
+**The comparison is incomplete.** The completed European scores are above. American TreeLoom, native ARGformer, GST and the separate ARGMix condition are still progressing. Current optimization diagnostics run alongside these jobs, and have not replaced their execution.
 
 | Workstream | Completed | Remaining |
 |---|---|---|
-| American TreeLoom, GPU 3 | **247/600** complete-parent training updates. Six completed updates since the optimized restart at 241. | About **93 hours of fit** at the recent median of 15.9 minutes/update, then prediction and scoring. The input cache is still warming. |
-| European TreeLoom, GPU 5 | **90/90** training updates and **3/5** TEST predictions. | Two predictions, then interim scoring against CNN and Dense. GST joins the final table later. |
-| Native ARGformer, GPU 4 | **3/15** evaluation datasets completed. Current validation001 MLM is **212,499/224,170** updates (94.8%). | Finish current MLM, contrastive training and prediction, then 11 new native dataset pipelines. Roughly **7–9 days** of serial training/prediction at observed rates, plus preparation and scoring. |
-| FLARE | **15/15** native prediction products complete, with all referenced hashes verified. | Common American ancestry scoring alongside the paired models. |
-| AncestralPaths CNN | Training and **5/5** TEST prediction products complete. Dense-control predictions are also available. | Common European ancestry scoring. |
-| GST-LAI-8, GPU 5 | **12/90** training updates, with recovery checkpoint. | Roughly **20–22 hours of fit**, then prediction and scoring. This is an LAI adaptation, not a reproduction of the GST paper's original task. |
-| ARGMix | **1/14** datasets fully prepared. Native Relate is active for the second, TRAIN001. | Finish all dataset preparation, train both ARGMix and TreeLoom, predict and score. No reliable finish estimate yet. |
+| American TreeLoom, GPU 3 | **266/600** complete chromosome updates. All 20 compact input parents are cached. Recent median update spacing: **9.7 minutes**. | Finish training, prediction and common ancestry scoring. Qualified executor changes are being assessed before deployment. |
+| European TreeLoom | **90/90** updates and **5/5** TEST predictions. | Current six-class model trails CNN and Dense. A separate condition will restore the observed cohort information missing from its inputs. |
+| Native ARGformer, GPU 4 | **4/15** native prediction datasets complete. Validation002 MLM is active. | Remaining native pretraining, contrastive stages and predictions, then common ancestry scoring. |
+| FLARE | **15/15** native prediction products complete. | Common American ancestry scoring alongside paired methods. |
+| AncestralPaths CNN and Dense | Training and **5/5** TEST predictions each, with completed interim scoring. | Direct four-class training is a separate prepared condition, still inactive. |
+| GST-LAI-8, GPU 5 | **29/90** training updates. | Finish training, predict and score. This is an LAI adaptation, not the GST paper's original task. |
+| ARGMix | **2/14** datasets have completed TreeLoom observation preparation alongside the native feature products. | Remaining preparation, both model fits, predictions and scoring. |
 
-Verified **2026-10-27T00:43:14.750925+03:00**. Queue: **5 running, 32 succeeded, 215 pending, 0 failed, 0 blocked**. These are workflow stages of different sizes, not a completion percentage. **No final matched ancestry ranking is available yet.** Training loss and ARGformer masked-token accuracy are not ancestry accuracy.
+Verified **2026-10-27T02:24:42.406465+00:00**. Queue: **3 running, 48 succeeded, 201 pending, 0 failed, 0 blocked**. These stages differ in size, so their counts are not a completion percentage. Training loss and ARGformer masked-token accuracy are not ancestry accuracy. Full comparison remains days away and has no reliable final completion time.
 
-All work remains on anogena, using physical GPUs **3, 4 and 5**, within the **1 TB** owner limit. Native competitor implementations and simulation settings are unchanged by the preprocessing optimization. Benchmark completion still precedes final real-data analysis and the finished paper. No jobs were changed for this status update.
+All work remains on anogena using physical GPUs **3, 4 and 5**. The campaign reservation is **974.75 GB** under the **1 TB** project limit. This is the controller's reservation accounting, not a new disk-usage scan. Competitor algorithms and simulations remain unchanged by the efficiency work.
 
-[Status evidence and estimate basis](research/benchmark_status_20261027/status.json) · [Queue plan](configs/benchmarks/paper_campaign_resume_20261026_v1.json) · [Previous restart snapshot](research/benchmark_status_20261027/previous_resume_snapshot.md) · [Preprocessing verification](research/preprocessing_optimization_20261026/REPORT.md)
+[Current status evidence](research/efficiency_20261027/root/benchmark_snapshot_v1.json) · [Queue plan](configs/benchmarks/paper_campaign_resume_20261026_v1.json) · [Preprocessing verification](research/preprocessing_optimization_20261026/REPORT.md)
 <!-- owner-stop-current:end -->
 
 **Preprocessing audit, 26 October:** preparation is not yet fully parallel. At the original audit, American TreeLoom used one background preparation worker. The qualified deployment below now uses four encoding processes within that producer. GST has four loader workers, but its initial VCF joins run serially before they start. European TreeLoom uses eight CPU threads during encoding but prepares and predicts parents sequentially. Native ARGformer has eight persistent loader workers and is actively training. [Measured bottlenecks and concrete execution improvements](research/preprocessing_efficiency_20261026/REPORT.md). No model, simulation or running job was changed by this audit.

@@ -1,0 +1,182 @@
+{
+  "schema": "TreeLoom_independent_integration_candidate_review_v1",
+  "status": "needs_revision",
+  "review_complete_for_frozen_v1": true,
+  "reviewed_at_UTC": "2026-10-27T02:24:46.480010+00:00",
+  "candidate_source_pins_ref": {
+    "path": "research/efficiency_20261027/integration_candidate/source_pins_v1.json",
+    "sha256": "f107729f774c226cb987d2fff61a785e27520e979bff32698e7289d093b9c2a9"
+  },
+  "source_verification": {
+    "verified": 181,
+    "mismatches": [],
+    "numerical_payloads_read": false
+  },
+  "scope": "Independent static source, small metadata and receipt review. No production/source edits, numerical execution, target joins, predictions or scoring. Report writes only in fidelity.",
+  "findings": [
+    {
+      "id": "release_original_CPU1_anchor",
+      "severity": "release_contract_blocker",
+      "source": "research/efficiency_20261027/integration_candidate/entrypoint_v1.py:validate_release",
+      "evidence": "The gate accepts any completed full scope receipt with explicit_vjp or explicit_cpu_vjp CPU8 rows. It does not require original CPU1/128 records or the selected-full schema. test_spec_and_release_v1.py explicitly accepts root/runs/explicit_full_gpu5_v1/data/completed.json with a synthetic passing independent review for block128; that older receipt compares integrated CPU8 against explicit CPU8.",
+      "impact": "The machine gate does not enforce the required original production CPU1 anchor. This does not demonstrate an executor numerical error and does not require changing frozen numerical sources.",
+      "required_resolution": "Preserve frozen v1. Version a narrow gate repair requiring TreeLoom_selected_large_VJP_compare_v1, FP32 true, nonempty source refs including exact reviewed compare_selected_full.py, CPU_threads_by_kind original1 and explicit_cpu_vjp8, original block128, selected block equal release, decoder64, history1024. Require records[0] original/full_first_call/repeat0/order_position0/CPU1/block128, nonempty matching original and explicit_cpu_vjp rows, each passing with zero argmax and49 gradients/49 parameters/147 moments. Keep existing source/independent-review/actual-wait/same-run validation. Add CPU metadata rejection tests for old receipt, missing original anchor and incorrect original thread count.",
+      "diagnostic_requirements_not_added": [
+        "No repeated GPU numerical run solely to retest gate metadata.",
+        "Resident-context performance or utilization target is not required for the explicit CPU-context release."
+      ]
+    }
+  ],
+  "shared_memory_governor": {
+    "static_review": "No additional correctness blocker found in the reviewed single training thread plus one producer topology.",
+    "admission": "Actual process RSS plus all outstanding phase reservations plus proposed reservation must fit the unchanged cap. Eviction rechecks actual RSS; charged bytes are not assumed physically released.",
+    "concurrency": "Condition with reentrant lock serializes cache mutations, weakref expiration, release, snapshots and phase eviction. Pending cache key is protected before an admission wait; active executor leases are never evicted. Condition waiting releases the recursive lock and allows other-owner phase completion. A nested reservation with no other active owner fails rather than waiting on itself.",
+    "pool_order": "The original pool starts no producer work during construction. Replacement governor is installed before prefetch. load waits for producer completion before restore admission. Training admission precedes labels and next-parent prefetch. Preparation holds its own reservation through lossless packing. No reviewed direct lock-order cycle was found.",
+    "cache_admission": "Cold-build estimate plus16MiB or existing-bind64*holds plus16MiB is reserved for the complete base acquire. Base callbacks may only request within that allowance. Memory remains bounded by explicit cache accounting and actual RSS checks.",
+    "limits": "These are conservative operational reserves with sampled RSS enforcement, not a mathematical allocator peak proof. Eviction can fail to reduce actual RSS; failure remains explicit and never reduces the parent or changes execution mode."
+  },
+  "training_preservation": {
+    "AST_changed_functions": [
+      "_validate_spec",
+      "build_spec",
+      "requirements",
+      "run_training"
+    ],
+    "AST_identical_functions": [
+      "_bindings",
+      "_current_rss_bytes",
+      "_hash",
+      "_memory_envelope",
+      "_need",
+      "_optimizer_counts",
+      "_target_binding",
+      "fit_factory",
+      "random_state",
+      "restore_random_state",
+      "run_task",
+      "schedule_identity",
+      "train_loop",
+      "validate_resume_checkpoint",
+      "validate_resume_metadata",
+      "validate_saved_state",
+      "write_json_replace"
+    ],
+    "added_or_removed_functions": [],
+    "run_training_changes": "Only explicit runtime/cache/shared governor construction, CPU threads1 to8, exact configuration requirements and final cache receipt/cleanup; reviewed diff preserves numeric schedule and checkpoint logic.",
+    "scientific_contract": "Original49 tensors/32132 parameters, fixed FP32 AdamW settings, complete10000 targets per parent,20 parents x30passes/600updates, full1024 history windows, decoder64, clip1 and one optimizer step. No validation selection or TEST access added.",
+    "step_cleanup": "Layout lease released in finally after success or failure. All49 gradients checked finite and connected; parameters checked finite after update. Final saved checkpoint validators retain all49 state/step/moment checks.",
+    "RNG": "Python, NumPy, CPU Torch and single CUDA RNG restoration functions are AST-identical. CPU fixture receipt reports preparation/cache RNG preservation."
+  },
+  "transition_review": {
+    "static_review": "No additional transition correctness blocker found within ROOT-owned stop, capture and launch workflow.",
+    "required_lifecycle": "Actual wait receipt must match exact predecessor PID/start ticks, retain return code and confirm empty owned group; current identity/group absence checked. A controlled-stop nonzero return code is allowed and retained.",
+    "latest_boundary": "Captured bounded checkpoint under efficiency must hash exactly; latest_checkpoint.json steps must equal evidence and latest checkpoint digest. The current prior latest file must match its metadata. An older captured update is rejected.",
+    "history": "Previous attempt remains an immediate child of existing incomplete native root. Bounded manifest includes latest_checkpoint.json, checkpoints/latest.pt and progress.jsonl and preserves exact hashes. Fresh successor attempt leaf is selected; no delete/archive of old history.",
+    "state_validation": "Exact original model contract,49 parameters/Adam states, saved update and next schedule index, full observed barrier and random states are checked by unchanged training validators before training. Reviewer did not load or hash any checkpoint.",
+    "resources": "Original inputs, task RSS, compact cache, preparation/training reserves and truth cap must match predecessor. Inert task builder preserves scheduler output/wall/GPU/dependency envelope.",
+    "ROOT_responsibilities": "ROOT must stop and actually reap old worker, capture the latest durable boundary after stop, preserve history and assert no other writer. This candidate contains no live stop helper or hot cache transfer."
+  },
+  "test_receipts_reviewed_not_rerun": {
+    "CPU_contracts": "Passed real small CPU layout build and exact restore/rebind for128,512,1024, unchanged RNG, overlap wait/resume, self-nested rejection, protected/leased eviction, retained actual RSS rejection, exception release and closed governor checks.",
+    "schedule": "Passed original fake-backend542 remaining updates from58 to600 with one producer, unchanged schedule identity and labels only after full preparation/admission. This is schedule/concurrency coverage, not numerical600-update training.",
+    "spec_release": "Passed real inert selected configurations and negative independent-review/configuration tests. Existing positive old full receipt demonstrates the gate blocker above.",
+    "transition": "Passed synthetic latest-boundary, stale/corrupt checkpoint, missing required history and RAM-increase rejection tests. Synthetic checkpoint bytes are not a numerical qualification.",
+    "actual_checkpoint": "Execution receipt reports original and candidate validation equal for historical checkpoint241 with49 Adam states. Reviewer independently compared validator AST only and did not load/hash the checkpoint.",
+    "full_selected_qualification": "Pending at review time; root/runs/selected_full_gpu5_v1 requires separate completion and lifecycle review. This integration review is not a full-parent parity approval."
+  },
+  "deployment_claims": {
+    "release_created_by_reviewer": false,
+    "production_modified": false,
+    "jobs_started": 0,
+    "hot_switch_implemented": false,
+    "warm_observation_cache_transfer": false,
+    "restart_loses_current_RAM_cache": true,
+    "throughput_or_80_percent_utilization_claim": false
+  },
+  "source_and_receipt_refs": [
+    {
+      "path": "research/efficiency_20261027/integration_candidate/ASSESSMENT_v2.json",
+      "sha256": "f12e20eaafa000d20dd2567d5d0d90b6ae1fef0caca3072fd9cb987300ce4497"
+    },
+    {
+      "path": "research/efficiency_20261027/integration_candidate/source_pins_v1.json",
+      "sha256": "f107729f774c226cb987d2fff61a785e27520e979bff32698e7289d093b9c2a9"
+    },
+    {
+      "path": "research/efficiency_20261027/integration_candidate/memory_v1.py",
+      "sha256": "3458969734375c0c22c81496d383d5d5004da6646955480b4f15efe0cf39b07f"
+    },
+    {
+      "path": "research/efficiency_20261027/integration_candidate/entrypoint_v1.py",
+      "sha256": "e0ded929749cf40ca3c831c9da9d3202e71cc24f765c753062a5233145de6482"
+    },
+    {
+      "path": "research/efficiency_20261027/integration_candidate/training_v1.py",
+      "sha256": "18c045115775ef35e5e7cce0990f5d04ca99a149b0e7e2058feb65ec720bc8bc"
+    },
+    {
+      "path": "research/efficiency_20261027/integration_candidate/step_v1.py",
+      "sha256": "4c4d5c22a5a559350fde51902453873fe2e52494c2308f054979cfa9a12a8f40"
+    },
+    {
+      "path": "research/efficiency_20261027/integration_candidate/runtime_v1.py",
+      "sha256": "191ec06f551e28e77506cb1e73e74bb155fa9f41ad5e9b36141c9a12de80af2e"
+    },
+    {
+      "path": "research/efficiency_20261027/integration_candidate/configuration_v1.py",
+      "sha256": "256fed14798645722e8516592a55517b86e03bab8228ea79f4f0b253a3f7271b"
+    },
+    {
+      "path": "research/efficiency_20261027/integration_candidate/prepare_task_v1.py",
+      "sha256": "4cff941d17c406f4706c81cc51d51922a3bb9f56ef1957fcad8b90db392910f6"
+    },
+    {
+      "path": "research/efficiency_20261027/integration_candidate/test_contracts_v1.py",
+      "sha256": "c932a81132fd77c257407e048a935b3a51ed5a84ce97ceb3917c693950b50486"
+    },
+    {
+      "path": "research/efficiency_20261027/integration_candidate/test_spec_and_release_v1.py",
+      "sha256": "c131d6e8a9f0a76f21fc299bfd86997f8380d4326cb46751a6a3daf0195e1348"
+    },
+    {
+      "path": "research/efficiency_20261027/integration_candidate/test_transition_v1.py",
+      "sha256": "ae96283a3bdf151dd3634f45cb8fdeba1bd66dfc159034347389d1f1ebba2fdd"
+    },
+    {
+      "path": "research/efficiency_20261027/integration_candidate/cpu_contracts_v2/completed.json",
+      "sha256": "6a6b59b580671910ef8b770a4dbf6f58d0ea81bd9a3ccd776848012f3dafe821"
+    },
+    {
+      "path": "research/efficiency_20261027/integration_candidate/spec_release_contracts_v1.json",
+      "sha256": "41bf460036b983c56fb51c9286801fba2e0695ed9301de7b78fcc2b805584c45"
+    },
+    {
+      "path": "research/efficiency_20261027/integration_candidate/transition_contracts_v1.json",
+      "sha256": "ee551fb550e03d3094be8566c7fab915db721a30be012f496361925ff072655c"
+    },
+    {
+      "path": "research/efficiency_20261027/integration_candidate/actual_checkpoint_validation_v1.json",
+      "sha256": "9c365be83fb4803d13386469f9e819b6616039cb5676a4ab4e86464b0287b2eb"
+    },
+    {
+      "path": "research/repairs/TreeLoom_lazy_compact_prefetch_20261024_v1/training.py",
+      "sha256": "663205ae4f4cf8644a708dce83670fe85b001744af7fb6aff3791efddfa42373"
+    },
+    {
+      "path": "research/repairs/TreeLoom_lazy_compact_prefetch_20261024_v1/pool.py",
+      "sha256": "f527f761b610e3dda4eb7ccbbc422979040b36976500dd04bcb2e5e41eb85bf9"
+    },
+    {
+      "path": "research/scalability_20261024/integration/cache.py",
+      "sha256": "286f318a61611ebdc9869c2e2b68c2e2f15ce168a5894cd282c99e708f0a8950"
+    },
+    {
+      "path": "research/efficiency_20261027/execution/large_layout_cache.py",
+      "sha256": "08f2d529ac199e20f198004abfc034762c8869bd5132ac0dea5cf6dda0b1318c"
+    },
+    {
+      "path": "research/efficiency_20261027/root/compare_selected_full.py",
+      "sha256": "caaaa39c3388f3f4198b9ea1815712e313645c123e6f00e8586bb6ae4e509b0f"
+    }
+  ]
+}
