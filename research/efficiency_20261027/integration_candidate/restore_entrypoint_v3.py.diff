@@ -1,0 +1,45 @@
+--- research/efficiency_20261027/integration_candidate/restore_entrypoint_v2.py
++++ research/efficiency_20261027/integration_candidate/restore_entrypoint_v3.py
+@@ -7,9 +7,8 @@
+ """
+ import copy
+ import json
+-from . import entrypoint_v2 as entry
+-from . import training_v2 as training
+-from arggnn.benchmarking.paper_campaign import runtime as campaign
++from . import entrypoint_v3 as entry
++from . import training_v3 as training
+ 
+ OUTER_METADATA_ALLOWANCE_BYTES=2**20
+ REQUEST_KEYS={'stage','arguments','preprocessing_release_ref','execution_release_ref','transition_ref','attempt_id'}
+@@ -94,16 +93,25 @@
+     return dict(spec=spec,budget=budget,prior=prior,history=history,leaf=leaf,root=root)
+ 
+ 
++def validate_resource_callback(resource_check,prior):
++    # python -m defines ResourceCheck in __main__. Exact class identity against
++    # a separately imported canonical module is therefore not a valid contract.
++    # Authenticate the callable's admitted task and unchanged resource scope.
++    entry.need(callable(resource_check),'Admitted worker resource callback required')
++    task=getattr(resource_check,'task',None)
++    entry.need(type(task) is dict,'Resource callback must expose its exact admitted task')
++    for key in ('max_rss_bytes','max_output_bytes','max_seconds','minimum_free_gpu_bytes','output_directory'):
++        entry.need(key in task and key in prior and task[key]==prior[key],
++                   'Admitted successor must preserve scheduler envelope: '+key)
++    return task
++
++
+ def run_task(request,*,resource_check):
+     entry.need(callable(resource_check),'Admitted worker resource callback required')
+     checked=preflight(request)
+     # The unchanged runtime owns admission. Its starting metadata may exist only
+     # in the outer scope; validate_history requires the native root still absent.
+-    entry.need(isinstance(resource_check,campaign.ResourceCheck),'Original campaign resource checker required')
+-    task=resource_check.task
+-    prior=checked['prior']
+-    for key in ('max_rss_bytes','max_output_bytes','max_seconds','minimum_free_gpu_bytes','output_directory'):
+-        entry.need(task[key]==prior[key],'Admitted successor must preserve scheduler envelope: '+key)
++    validate_resource_callback(resource_check,checked['prior'])
+     resource_check(checked['budget']['required_output_bytes'])
+     entry.previous.restore_history(request['preserved_history_ref'],resource_check=resource_check)
+     return entry.run_task(request['successor'],resource_check=resource_check)

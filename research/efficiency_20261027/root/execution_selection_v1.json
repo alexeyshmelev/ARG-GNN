@@ -1,0 +1,40 @@
+{
+  "schema": "TreeLoom_execution_selection_v1",
+  "selected": {
+    "executor_kind": "explicit_vjp",
+    "CPU_threads": 8,
+    "holds_per_block": 512,
+    "haplotypes_per_gru": 64,
+    "history_holds_per_window": 1024,
+    "context_residency": "CPU",
+    "layout_cache_max_bytes": 85899345920,
+    "layout_cache_policy": "actual_RSS_evict_unleased"
+  },
+  "release_ref": {
+    "path": "research/efficiency_20261027/root/execution_release_v2.json",
+    "sha256": "6b39619df3619bb683bece69e2a30a967cdb8796ef9f62afe7ebeb98ddbdbc8c"
+  },
+  "reason": "CPU512 is faster and uses less GPU memory than both compared alternatives in the full qualification.",
+  "original_update_seconds": 620.745138540864,
+  "selected_update_seconds": 380.41530763171613,
+  "resident_update_seconds": 398.6936329342425,
+  "measured_time_reduction": 0.38716345241796335,
+  "selected_peak_GPU_allocated_bytes": 7908911616,
+  "original_peak_GPU_allocated_bytes": 51732827648,
+  "changed_predicted_classes": 0,
+  "complete_training_equivalence_claimed": false,
+  "total_training_accuracy_claimed": false,
+  "sustained_80percent_utilization_claimed": false,
+  "cold_rebuild_sensitivity": {
+    "assumed_nonoverlapped_seconds": 18132.313090324402,
+    "diagnostic_saved_seconds_per_update": 240.32983090914786,
+    "illustrative_break_even_updates": 75.44761722559102,
+    "guaranteed_end_to_end_savings": false
+  },
+  "caveats": [
+    "One fixed-order full update per arm on a shared GPU.",
+    "FP32 mixed-tolerance parity covers this update and prior differential tests, not bitwise equality of all future training.",
+    "A worker restart loses the warm20-parent observation pool. Preparation can overlap subsequent updates.",
+    "Deployment verification must confirm next original schedule index and durable optimizer update."
+  ]
+}

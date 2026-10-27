@@ -23,9 +23,9 @@ The owner requests accurate, resource-efficient training with a target of at lea
 - [x] Delegate three independent areas with explicit ownership.
 - [ ] Record complete training/preparation activity and diagnose major idle causes.
 - [x] Inspect literature and source coverage, marking unavailable material explicitly.
-- [ ] Implement and validate exact changes against the existing model.
+- [x] Implement and qualify an exact executor on a complete chromosome. Further candidates remain separate.
 - [ ] Qualify a scalable model only if architectural bottlenecks remain.
-- [ ] Measure representative end-to-end performance under unchanged observations.
+- [ ] Measure sustained production performance, including cache rebuilding, under unchanged observations.
 - [ ] Compare accuracy on fixed validation support where model function changes.
 - [ ] Integrate accepted changes, publish measurements and residual limitations.
 
@@ -58,12 +58,21 @@ A separately named composition keeps final context and its decoder VJP on GPU. C
 
 ## Current integration queue
 
-1. Completed: strict full-chromosome explicit backward comparison. The independent review confirms unchanged observations, all targets, complete history and optimizer update within FP32 tolerances.
-2. Completed: larger blocks on 1,153 actual observed trees. All 21 comparisons pass. Select 512 trees per block: 5.089 seconds versus 5.889 for 128, with 7.64 GB peak allocation. A 1,024-tree block is only 3.3 percent faster than 512 and uses 15.03 GB. Preserve the first attempt's metadata serialization failure.
-3. Running: direct full-parent comparison of original CPU1/128 against explicit CPU8/512 with CPU and GPU context. The original arm finished in 620.745 seconds. Final selection requires all arms, strict comparisons and actual terminal receipt.
-4. Running: full-chromosome TreeLoom-Transport resource test. CPU preparation may overlap the previous profile. CUDA waits for its confirmed exit and fresh memory admission. Small observed-tree results saved memory but were slower, so a full resource pass alone will not authorize a predictive pilot.
-5. In review: immutable production successor with an 80 GiB layout LRU and shared memory admission. The release gate is being strengthened to require the exact original CPU1 comparison. No optimization from this study is deployed yet. Restart cost includes loss of the existing 20-parent warm observation pool.
-6. In preparation: a separate European cohort8/native6 condition. Current CNN sees eight observed cohort channels but TreeLoom drops five of those identities. Retain all public observed metadata without adding ancestry truth. Preserve the failed condition and scores. The original three-parent training plan has no independent validation parents, so new validation simulation is required before tuning. Keep the requested direct four-class condition separate.
-7. In progress: immutable site/index plans and transfer audit. The compact cache already aliases the equal sham/support arrays, so removing the sham field does not recover another 82 GB from the warm pool.
+1. Complete: CPU8, explicit backward and 512-tree blocks passed the strict full TRAIN000 comparison against original CPU1/128. Time was 380.415 versus 620.745 seconds, with 7.909 versus 51.733 GB allocated GPU memory. All original targets, full genomic history, 49 gradients and all optimizer state tensors passed. No predicted class changed. One fixed-order full call per arm on a shared GPU is qualification evidence, not steady production throughput.
+2. Deployed: attempt7 continues from immutable checkpoint268 on GPU3. All original600updates, TRAIN parent order, optimizer moments and RNG are retained. Attempt6 failed before restoration because a resource-check class loaded through python -m has a different Python identity. The v3 wrapper removes that identity assumption and retains task/scope/envelope checks. A real module-launch regression passed. All predecessor history and the failed startup are preserved.
+3. In progress: verify the first durable successor update269 and measure production utilization across complete preparation/training cycles. Restart lost the20-parent warm pool. Record this cost and do not present the isolated speed ratio as whole-training speedup.
+4. Closed without a learning pilot: full TreeLoom-Transport resource diagnostic completed, update1122.875seconds, forward132.900/backward989.275seconds. This changed architecture is substantially slower than the selected exact executor and has no predictive validation.
+5. Preparing: immutable GPU block-input reuse and forward/backward fusion. Their numerical equivalence and measured benefit must justify any later deployment. Do not trigger another cold-cache restart for a small transfer-only win.
+6. Prepared, disabled: European cohort8/native6 correction retains all public observed cohort metadata currently given to the CNN. Preserve the previous scores. The original3TRAIN parents and90updates remain fixed. A new independent200MbVAL simulation needs a120GiB reservation that does not fit the current1TB campaign accounting. TEST is not a validation substitute. The direct four-class CNN is a separate implemented condition that has not trained.
+7. Research-only: compact interval/basis representations have measured American size advantages but may smooth ancestry boundaries. Relate's European converter assigns fresh internal nodes to each local tree, so American ancestral-node identity and compression assumptions do not transfer automatically. No approximation or novelty claim is accepted without training/validation and literature evidence.
 
-The full explicit backward run's shared-device stage means were 14.0 percent for first layout construction, 44.8 percent for context forward, 86.6 percent for decoding and 71.7 percent for trunk backward. Device sharing prevents attributing these values wholly to TreeLoom. The sustained useful-utilization target remains unmet. Increasing activity is insufficient unless useful throughput and predictive accuracy are retained.
+## Open tickets
+
+- E01: verify checkpoint269, all49optimizer counters and original parent order after migration.
+- E02: measure complete-cycle utilization and useful throughput, including input preparation. The80percent target remains unmet.
+- E03: qualify fixed-input reuse only if its cold-inclusive microbenchmark shows repeatable savings.
+- E04: assess exact first/forcing forward and backward fusion before creating another large diagnostic.
+- A01: correct European public-cohort inputs and obtain independent validation within the storage limit.
+- B01: finish the American, GST, ARGMix and direct-four comparisons. Report ancestry metrics only after the appropriate common scoring stages.
+
+Closed tickets: full exact512qualification, actual-module startup regression, checkpoint268capture, successor submission, full Transport resource test. No competitor algorithm, simulation, scoring rule or original scientific training budget changed.
