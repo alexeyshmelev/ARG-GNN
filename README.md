@@ -21,7 +21,7 @@ The four-group column sums the six-class probabilities. It is **not** the separa
 <!-- efficiency-20261027:start -->
 ## TreeLoom efficiency work, 27 October
 
-**The requested 80% sustained useful GPU utilization has not been reached.** An exact execution optimization passed full-chromosome checks and has been admitted on GPU 3. The worker restored update **268/600**, optimizer moments and the original parent schedule. Two resumed updates are complete, reaching **270/600**. It retained all 10,000 targets and took **473.03 s** on TRAIN001 with concurrent preparation of the next parent. The input cache is still rebuilding. This is a production progress check, not a paired speedup measurement.
+**The requested 80% sustained useful GPU utilization has not been reached.** An exact execution optimization passed full-chromosome checks and has been admitted on GPU 3. The worker restored update **268/600**, optimizer moments and the original parent schedule. The resumed worker has reached **273/600** complete updates. It retained all 10,000 targets and took **473.03 s** on TRAIN001 with concurrent preparation of the next parent. The input cache is still rebuilding. This is a production progress check, not a paired speedup measurement.
 
 | Executor on the same full TRAIN chromosome | Update time | Peak allocated GPU memory | Decision |
 |---|---:|---:|---|
@@ -35,7 +35,11 @@ The first successor attempt failed during a Python module callback check, before
 
 A 26.9-minute production observation covering cache preparation and the first two resumed updates measured **18.35% mean GPU utilization**, with **4.70% of samples at or above 80%**. The complete first training call alone averaged **31.36%**. These are device counters, not independent per-process attribution, and the observation starts after worker startup. The 80% target remains unmet. [Complete production observation](research/efficiency_20261027/root/production_attempt7/completed.json).
 
-The next exact candidate keeps consecutive tree operations together on the GPU. On 1,153 actual TRAIN trees, median diagnostic update time fell from **4.862 to 3.529 seconds** across two unprofiled timed calls per arm. All numerical checks passed, with no changed predicted classes. This **27.4% prefix improvement** still needs full-chromosome qualification. The initial profiler incorrectly counted CUDA annotation ranges as kernels. Its activity percentages, gaps and kernel rankings are invalidated and are not evidence of utilization. Numerical comparisons and unprofiled timings are unaffected. [Independent review](research/efficiency_20261027/fidelity/BOUNDARY_TIMELINE_V1_COMPLETION_REVIEW.json).
+A further exact candidate keeps consecutive tree operations on the GPU. The complete TRAIN chromosome passed all strict checks, including all 49 gradients, 49 updated parameters and 147 Adam tensors, with zero changed predicted classes. Update time fell from **324.49 to 298.47 seconds**, an **8.0% saving** in one fixed-order paired call. This is a separate qualification from the earlier deployment table. The smaller 1,153-tree slice showed a larger 27.4% saving, which must not be extrapolated to full training. [Full comparison and independent review](research/efficiency_20261027/fidelity/BOUNDARY_FULL_V1_COMPLETION_REVIEW.json).
+
+Keeping upward states and their direct gradients on the GPU reduced prefix time a further **14.0%**, with all numerical checks passing. Full-chromosome memory and numerical qualification is running. No production restart has been made for these candidates. Two-parent preparation passed initial CPU tests, but independent review found a joint memory-accounting bug. That candidate is being corrected before real-parent qualification or deployment.
+
+The initial profiler incorrectly counted CUDA annotation ranges as kernels. Those activity claims are invalidated. Corrected physical-event attribution measured **36.76% kernel activity** and **64.56% activity including transfers** in the instrumented fused prefix. These are different quantities, and neither establishes sustained 80% training utilization. [Corrected profiler review](research/efficiency_20261027/fidelity/BOUNDARY_ACTIVITY_V3_COMPLETION_REVIEW.json).
 
 A separate fixed-input transfer cache saved only about 1.7% under a full-parent extrapolation. It is closed without another production restart. Further work targets operation fusion, resident intermediate states and concurrent chromosome preparation. The separate TreeLoom-Transport full-chromosome diagnostic completed, but its update took **1,122.87 s** from a fresh initialization. Its greater cost does not justify a larger learning pilot. It has no validated predictive advantage. No author implementation, simulation or benchmark endpoint changed in this efficiency work.
 
@@ -58,19 +62,19 @@ A separate fixed-input transfer cache saved only about 1.7% under a full-parent 
 
 | Workstream | Completed | Remaining |
 |---|---|---|
-| American TreeLoom, GPU 3 | **270/600** complete chromosome updates. The first optimized update retained all targets and the original schedule. Input caching continues. | Measure sustained throughput, then finish training, prediction and common ancestry scoring. |
+| American TreeLoom, GPU 3 | **273/600** complete chromosome updates. The first optimized update retained all targets and the original schedule. Input caching continues. | Measure sustained throughput, then finish training, prediction and common ancestry scoring. |
 | European TreeLoom | **90/90** updates and **5/5** TEST predictions. | Current six-class model trails CNN and Dense. A separate condition will restore the observed cohort information missing from its inputs. |
 | Native ARGformer, GPU 4 | **4/15** native prediction datasets complete. Validation002 MLM is active. | Remaining native pretraining, contrastive stages and predictions, then common ancestry scoring. |
 | FLARE | **15/15** native prediction products complete. | Common American ancestry scoring alongside paired methods. |
 | AncestralPaths CNN and Dense | Training and **5/5** TEST predictions each, with completed interim scoring. | Direct four-class training is a separate prepared condition, still inactive. |
-| GST-LAI-8, GPU 5 | **29/90** training updates. | Finish training, predict and score. This is an LAI adaptation, not the GST paper's original task. |
+| GST-LAI-8, GPU 5 | **35/90** training updates. | Finish training, predict and score. This is an LAI adaptation, not the GST paper's original task. |
 | ARGMix | **2/14** datasets have completed TreeLoom observation preparation alongside the native feature products. | Remaining preparation, both model fits, predictions and scoring. |
 
-Verified **2026-10-27T03:41 UTC**. Queue: **3 running, 48 succeeded, 201 pending, 0 failed, 0 blocked**. These stages differ in size, so their counts are not a completion percentage. Training loss and ARGformer masked-token accuracy are not ancestry accuracy. Full comparison remains days away and has no reliable final completion time.
+Verified **2026-10-27T04:13 UTC**. Queue: **3 running, 48 succeeded, 201 pending, 0 failed, 0 blocked**. These stages differ in size, so their counts are not a completion percentage. Training loss and ARGformer masked-token accuracy are not ancestry accuracy. Full comparison remains days away and has no reliable final completion time.
 
 All work remains on anogena using physical GPUs **3, 4 and 5**. The campaign reservation is **974.75 GB** under the **1 TB** project limit. This is the controller's reservation accounting, not a new disk-usage scan. Competitor algorithms and simulations remain unchanged by the efficiency work.
 
-[Current status evidence](research/efficiency_20261027/root/benchmark_snapshot_v3.json) · [Queue plan](configs/benchmarks/paper_campaign_resume_20261026_v1.json) · [Preprocessing verification](research/preprocessing_optimization_20261026/REPORT.md)
+[Current status evidence](research/efficiency_20261027/root/benchmark_snapshot_v4.json) · [Queue plan](configs/benchmarks/paper_campaign_resume_20261026_v1.json) · [Preprocessing verification](research/preprocessing_optimization_20261026/REPORT.md)
 <!-- owner-stop-current:end -->
 
 **Preprocessing audit, 26 October:** preparation is not yet fully parallel. At the original audit, American TreeLoom used one background preparation worker. The qualified deployment below now uses four encoding processes within that producer. GST has four loader workers, but its initial VCF joins run serially before they start. European TreeLoom uses eight CPU threads during encoding but prepares and predicts parents sequentially. Native ARGformer has eight persistent loader workers and is actively training. [Measured bottlenecks and concrete execution improvements](research/preprocessing_efficiency_20261026/REPORT.md). No model, simulation or running job was changed by this audit.

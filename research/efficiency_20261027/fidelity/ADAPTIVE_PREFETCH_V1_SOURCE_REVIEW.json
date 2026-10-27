@@ -1,0 +1,109 @@
+{
+  "CPU_evidence_limits": {
+    "codec": "Three synthetic two-hold/1600haplotype/10000focal/4site observations compare complete serial/concurrent pack/restore signatures and unchanged global RNG; encoding in each producer is serial in this test.",
+    "not_proven": [
+      "Real eight encoder children and resource-tracker accounting",
+      "Peak whole-family memory with simultaneous learned training",
+      "Actual preparation supply interval or concurrent training slowdown",
+      "Real child process reaping under failure",
+      "Joint phase-plus-child admission (the blocking finding)"
+    ],
+    "state_machine": "Out-of-order completion, once-only reuse, fake-RSS optional deferral, foreground priority, lock-free Future waits, exact restore reserve, failed-parent no retry and cooperative cancellation tested.",
+    "training": "Fake backend tests original schedule positions268 through600,332 callbacks and49 fake counters per update, plus fixed periodic checkpoint events. It does not execute actual Adam or qualify a live268 checkpoint."
+  },
+  "GPU_jobs_launched_by_reviewer": 0,
+  "blocking_finding": {
+    "consequence": "Two optional producers may be admitted despite a combined reservation above the unchanged592GiB family cap. A later sampled resource failure can stop training; later failure does not establish safe optional admission.",
+    "correction_pending_in_separate_v2": true,
+    "counterexample_GiB": {
+      "combined_future_obligation": 600,
+      "current_main_and_family": 200,
+      "main_governor_total": 584,
+      "maximum": 592,
+      "preparation_phases": 256,
+      "separate_family_credit_total": 216,
+      "training_phase": 128,
+      "two_child_allowances": 16
+    },
+    "current_checks": [
+      "Current mainRSS + requested and active phase reservations <= maximum",
+      "Current familyPSS/RSS + active child allowances <= maximum"
+    ],
+    "execution_agent_acknowledged": true,
+    "locations": [
+      "AdaptiveMemoryGovernor.acquire/_available",
+      "EncoderCredits.acquire/before_encoder"
+    ],
+    "missing_joint_term": "Neither check accounts for both outstanding complete-parent phase reservations and the additional child allowances against the same family maximum.",
+    "required_correction": "Atomically admit conservative live main/family memory plus all outstanding phase reservations and all child-growth credits under one coherent lock order. Use the same combined condition before each encoder, with no nested wait. Preserve original full128GiB phase reserves and explicit additional8GiB credits.",
+    "required_edge_evidence": [
+      "200+384+16>592 must defer the second optional parent, without launching it or aborting foreground training.",
+      "192+384+16=592 is the exact boundary and may admit.",
+      "Concurrent ownership, cancellation, nested layout reservations and release must preserve joint accounting."
+    ],
+    "title": "Separate phase and child checks omit their combined future memory obligation"
+  },
+  "otherwise_reviewed_behavior": [
+    "One coordinator owns the immutable schedule and cursor; one future/state/pending compact bound per attempted parent. Repeated scheduled parents reuse the same compact record, and failed parents are not retried.",
+    "Foreground training reserve is acquired before optional refill. Optional nonadmission returns immediately; demanded parent and completed-future waits occur outside pool/governor locks.",
+    "Complete compact charges are committed atomically, with exact original read-peak restore reservation, no compact eviction/rebuild, and no expanded bank IPC.",
+    "Only the durable latest checkpoint callback advances pool and training cursors. Unchanged scientific loop requires all49 actual optimizer counters to match the original600-update schedule, fixed finalepoch30 and original target binding.",
+    "All20 original observation plans/seals are authenticated before producers; top-level mappings are read-only and missing-plan fallback writes are removed. Source delta retains native full-parent observation and truth barriers.",
+    "Hooks install once in a fresh worker before producer threads. Original process encoder creates four spawned workers per call in its own ProcessPoolExecutor context; the producer retains its credit through packing and return.",
+    "Failure publication avoids Future inspection under resource callbacks; close sets cooperative stop, cancels only own queued futures, joins running producers and requires phase/credit release.",
+    "Private checkpoint retention remains confined to the fresh output scope; no production worker control or deployment entrypoint is introduced."
+  ],
+  "production_changed": false,
+  "real_parent_plan_assessment": "Scientifically appropriate screening design after the admission fix and concrete runner review: freeze the next two distinct missing TRAIN parents from one authenticated durable boundary, serial versus concurrent complete prepare/pack with same inputs, separate exact restore/signatures, no targets/model/GPU/optimizer; include every descendant and actual wait. NFS/order bias and lack of concurrent-training evidence must remain disclosed.",
+  "release_conditions": [
+    "Preserve v1 source and receipts; prepare/source-pin corrected v2 rather than rewriting evidence.",
+    "Independently review corrected unified admission and joint-edge tests.",
+    "Review a concrete readable bounded real-parent runner and ROOT live host/disk/peer admission before any trial.",
+    "No production adoption from synthetic CPU or preparation-only evidence."
+  ],
+  "reviewed_refs": [
+    {
+      "path": "research/efficiency_20261027/execution/adaptive_prefetch_v1.py",
+      "sha256": "47b11404110c76bd47006a724ff48906ec65b7bd3a111573356f4c32ef47e388"
+    },
+    {
+      "path": "research/efficiency_20261027/execution/adaptive_encoder_hooks_v1.py",
+      "sha256": "4a92da5354b3bd4cc6d4eaee04f69a872780d00f7c0db9c69f6fc0c6327cf3ae"
+    },
+    {
+      "path": "research/efficiency_20261027/integration_candidate/training_adaptive_v1.py",
+      "sha256": "68aa4b99769115a1f0ea17b18e5bdb781e3c2d2b9b480f0743b731434fd9de2c"
+    },
+    {
+      "path": "research/efficiency_20261027/execution/test_adaptive_prefetch_v2.py",
+      "sha256": "d2a97976bdf7e7dd9f07067ee308e659a766bf827239ce7d366ed4b6d03250de"
+    },
+    {
+      "path": "research/efficiency_20261027/execution/test_adaptive_training_v1.py",
+      "sha256": "a043e53d44a46e02366baa5246eb53dd0d770344777f1f1223cbbf7a8ca582f1"
+    },
+    {
+      "path": "research/efficiency_20261027/execution/ADAPTIVE_PREFETCH_CPU_v2.json",
+      "sha256": "8398c3c14006ec5b861f9deb9f2583cabfe29b23df3db56a79872a3ff304a2ac"
+    },
+    {
+      "path": "research/efficiency_20261027/execution/ADAPTIVE_TRAINING_CPU_v1.json",
+      "sha256": "8ba63b6141df5d527efbf5a18b67de1c53734953fc9e93f3075d05135a1df984"
+    },
+    {
+      "path": "research/efficiency_20261027/execution/ADAPTIVE_PREFETCH_ASSESSMENT_v1.json",
+      "sha256": "a0a81abcd0a2f4de58c4c138f8a72a8a85288647ab755ed07485215df50c7be8"
+    },
+    {
+      "path": "research/efficiency_20261027/execution/ADAPTIVE_REAL_PARENT_PLAN_v1.json",
+      "sha256": "74b7047cd81ef49d900015309959e02eb10aa45e855e2518500f61ec7b7e5c2e"
+    },
+    {
+      "path": "research/efficiency_20261027/integration_candidate/source_pins_adaptive_v1.json",
+      "sha256": "6ee2d60c1648878ee29b92248dc173498e123aafb023f60c66cbcc0bf8d58ce8"
+    }
+  ],
+  "schema": "TreeLoom_adaptive_two_parent_v1_source_fidelity_review_v1",
+  "scope": "Static new-core/hooks/training delta and bounded CPU evidence review; no source execution, checkpoint/scientific tensor read, GPU initialization or production changes.",
+  "status": "not_ready_for_real_parent_qualification_joint_family_admission_fix_required"
+}

@@ -78,3 +78,14 @@ A separately named composition keeps final context and its decoder VJP on GPU. C
 - B01: finish the American, GST, ARGMix and direct-four comparisons. Report ancestry metrics only after the appropriate common scoring stages.
 
 Closed tickets: full exact512qualification, actual-module startup regression, checkpoint268capture, successor submission, full Transport resource test. No competitor algorithm, simulation, scoring rule or original scientific training budget changed.
+
+## Latest accepted evidence and remaining work
+
+- Full boundary fusion is qualified: 324.49 to 298.47 seconds on the original complete chromosome. All 49 gradients, 49 updated parameters and 147 Adam tensors pass strict FP32 tolerances, with no changed predicted classes. One fixed-order pair, no steady-state speed claim.
+- The profiler classification repair is complete. Actual physical events exclude CUDA annotation ranges. Fused-prefix kernel activity is 36.76 percent and activity including copies is 64.56 percent. The former 95–97 percent attribution is invalidated.
+- Upward/direct-gradient residency passed prefix numerical checks and gave a 14.0 percent lower measured median than boundary fusion. Full-parent qualification is running on GPU5, with a 74 GiB device budget and no production changes.
+- Two-parent preparation has passed synthetic exact codec, RNG, scheduling and concurrency tests. A real-parent comparison and independent review are required before integration.
+- A fully frozen European cohort8 TRAIN-only fit does not require independent VAL for checkpoint selection because it uses the fixed final epoch without selection. The earlier disabled policy must be explicitly superseded. Full-parent resource/gradient qualification and driver review remain. Independent VAL remains mandatory for subsequent architecture selection.
+- Do not repeatedly restart production for incremental improvements. Combine qualified changes into one checkpoint transition and include cache rebuilding in the measured cost.
+
+- Adaptive v1 is not ready for real qualification: independent review found that separate phase and child-credit admission can overcommit the declared host envelope. V2 must account for both atomically. A larger explicitly admitted successor RAM budget is permissible because the inherited 592 GiB cap is operational, not scientific.

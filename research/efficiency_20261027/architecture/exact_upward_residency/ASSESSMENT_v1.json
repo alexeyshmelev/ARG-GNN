@@ -1,0 +1,99 @@
+{
+  "CPU_evidence": {
+    "GPU_initialized": false,
+    "RNG_parameters_buffers_unchanged": true,
+    "all37_trunk_gradient_max_abs_error": 0.0,
+    "capacity_one_byte_short_rejected": true,
+    "cases": [
+      1,
+      3,
+      5
+    ],
+    "categorical_site_MLP_exercised": true,
+    "changing_cut_membership": true,
+    "context_max_abs_error": 0.0,
+    "duplicate_storage_and_release_rejected": true,
+    "empty_holds": true,
+    "haplotypes": 1600,
+    "hidden_backing_bank_rejected": true,
+    "max_ties": true,
+    "missing_calls": true,
+    "peak_RSS_bytes": 642392064,
+    "preserved_preexisting_decoder_gradients": 12,
+    "saved_upward_weakrefs_released_after_backward": true,
+    "singleton_episode": true,
+    "unequal_partition_counts_checked": true,
+    "wall_seconds": 1.6140341153368354
+  },
+  "CPU_result_ref": {
+    "path": "research/efficiency_20261027/architecture/exact_upward_residency/CPU_results_v1.json",
+    "sha256": "e5307d2a1b2ac97404b33cb40115e1a48bddcb227f953743201c888950566bc2"
+  },
+  "GPU_jobs_launched": 0,
+  "admission": {
+    "TRAIN000_initial_additional_capacity_bytes": 69754402816,
+    "TRAIN000_native_nodes": 205369272,
+    "TRAIN000_one_bank_bytes": 26287266816,
+    "TRAIN000_two_bank_bytes": 52574533632,
+    "actual_node_formula": "2 * native_nodes *32*4 + at least16GiB scratch",
+    "cache_flush": false,
+    "capacity": "driver free plus allocator cached-unallocated capacity; do not count currently allocated banks as free",
+    "fallback": false,
+    "live_and_future_accounting": "future bank bytes decrease as saved upward and direct-gradient blocks materialize; after direct bank is complete, later release reduces the live requirement without reserving another future bank",
+    "measurements": "torch.cuda.mem_get_info; memory_allocated; memory_reserved",
+    "minimum_scratch_bytes": 17179869184,
+    "not_a_peak_or_contiguity_proof": true,
+    "repeat_checks": "after first forward blocks and at backward boundaries",
+    "required_before_first_forward": true
+  },
+  "candidate_source_manifest_ref": {
+    "path": "research/efficiency_20261027/architecture/exact_upward_residency/source_pins_prefix_v1.json",
+    "sha256": "df8a4f5980cc3d0343004155ba2b32aa234461942b110aa4d764a0d3d2df9992"
+  },
+  "change": [
+    "Save detached first-sweep upward blocks on the existing compute device, without CPU copies or a full concatenated bank. Reuse the exact qualified first_device and forcing_device helpers.",
+    "The inherited second sweep accepts its upward leaf on device. Its direct upward gradient therefore remains on device, while readout derivatives, final context and decoder context VJP retain CPU interfaces.",
+    "Accumulate direct upward plus forcing upward gradients in the original direct-first order on device and consume that owned block in the original first-sweep VJP. Preserve all-second-reversed, full-history-theta, then per-block forcing followed by first parameter contribution order.",
+    "Both upward and direct-gradient banks exist across the full stable_leaf_history_v2 backward. Direct-gradient storage releases blockwise after first VJP; autograd retains upward until backward returns. No attempt is made to claim premature saved-tensor release.",
+    "Actual native layout/node count gives exact payloads. A scalar ledger validates contiguous FP32 private storage, no aliases/hidden larger backing banks, full two-bank history lifetime and one release per direct block. It stores no tensor references."
+  ],
+  "factory": "research.efficiency_20261027.architecture.exact_upward_residency.large_resident_executor_v1.build_executor",
+  "limits": [
+    "CPU parity validates algebra, ownership and state accounting; it cannot prove CUDA parity, allocator behavior, throughput or full-parent peak.",
+    "Moving the upward leaf and its accumulated derivative to CUDA changes cross-device autograd placement. The real observed1153-prefix qualification must compare every49 gradient, parameter and Adam state before any full-parent claim.",
+    "The sixteen-GiB scratch allowance is an explicit operational allowance, not a theorem for history, decoder, temporary first graph, allocator fragmentation or library workspaces. Full-parent measured qualification remains required.",
+    "Driver/allocator snapshots are sequential and cached capacity is not a promise of contiguous reusable storage; an allocation error is fatal, with no reduced workload fallback.",
+    "First-sweep recomputation is inherited from boundary fusion and still depends on that candidate CUDA qualification.",
+    "No second retained full-bank copy is introduced; transient single-block graph/gradient tensors remain and belong to scratch."
+  ],
+  "nominal_additional_transfer_savings_over_boundary_fusion_bytes": 131436334080,
+  "observation_disk_cache_bytes": 0,
+  "preserved": {
+    "block_construction_calls_per_block": 4,
+    "complete_CPU_observation_bank": true,
+    "decoder_VJP_CPU": true,
+    "final_context_CPU": true,
+    "forcing_and_readout_CPU": true,
+    "full_history": true,
+    "history_gradient_truncated": false,
+    "hotpack": false,
+    "learned_states_reused_between_updates": false,
+    "original512_partition": true,
+    "original_accumulation_order": true,
+    "original_parameter_order": true,
+    "parameter_grad_mutated_inside": false,
+    "same_block_sites_base_second": true
+  },
+  "production_edits": 0,
+  "protocol_CPU_result_ref": {
+    "path": "research/efficiency_20261027/architecture/exact_upward_residency/PROTOCOL_CPU_v1.json",
+    "sha256": "8584321efaeb3ea3463c7f1a9a89d5df3cc4c66a64494c4039ab86284c3cf863"
+  },
+  "qualified_boundary_source_ref": {
+    "path": "research/efficiency_20261027/architecture/exact_boundary_fusion/boundary_fusion.py",
+    "sha256": "5427d8d63cbeddd599ea72e39ade273e79d80a7831ffc200ad32fe8a0ec3bb8a"
+  },
+  "schema": "TreeLoom_upward_direct_GPU_residency_candidate_assessment_v1",
+  "status": "CPU_edge_and_parity_passed_independent_review_pending_GPU_unqualified",
+  "transfer_savings_are_arithmetic_not_measured": true
+}
