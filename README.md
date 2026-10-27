@@ -1,5 +1,13 @@
 # ARG-GNN
 
+<!-- storage-cleanup-20261027:start -->
+## Storage cleanup, 27 October
+
+Removed **380.6 GB** of obsolete pilot datasets, epoch prediction dumps, a superseded ARGMix training archive and downloaded installer caches. Code, design history, metrics, selected historical predictions and all current benchmark dependencies remain. Cleanup was restricted to this repository on anogena. The earlier 924.2 GB inventory minus removals gives approximately **543.6 GB**, before subsequent benchmark writes. This is not a fresh full-directory measurement.
+
+The three main benchmark workers remained running. A separate full European validation run had failed before cleanup and its failure evidence is preserved. [Cleanup report and exact deletion records](research/storage_cleanup_20261027/README.md).
+<!-- storage-cleanup-20261027:end -->
+
 <!-- european-interim-20261027:start -->
 ## European ancestry comparison, 27 October
 
