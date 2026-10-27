@@ -8,15 +8,18 @@ Use physical GPUs 3, 4 and 5. Keep all project computation and writes under the 
 
 | Ticket | Status | Next action |
 |---|---|---|
-| E01: full-parent exact executor | Deployed | American attempt 8 restored checkpoint 281 with optimizer/RNG and schedule preserved. The first new update is pending. |
+| E01: full-parent exact executor | Deployed | American attempt 8 restored checkpoint 281 with optimizer/RNG and schedule preserved. Update 282 is durably saved, with finite loss and gradients. |
 | E02: sustained utilization | Open | Observe the next production executor across cold preparation and warm updates, with compute-client identities recorded. No 80 percent claim yet. |
 | E04: boundary fusion and GPU residency | Qualified | Combine the accepted implementation with preparation changes in one checkpoint transition. |
 | E06: concurrent parent preparation | Qualified | Two complete parents took 1238.356 s concurrently versus 1560.893 s sequentially. Exact complete signatures and RNG match, actual waits are zero and encoder peaks are eight versus four. |
-| E07: combined deployment | Deployed from update 281 | Attempt 8 restored all state. Verify the first new update and sustained production throughput. One transition completed, prior outputs preserved. |
+| E07: combined deployment | First new update completed, performance unresolved | Update 282 took 693.39 seconds, averaging 15.83 percent device activity during its observed training window. Cold-inclusive activity was 7.55 percent. Preserve cache while investigating the production slowdown. |
 | E08: memory lifetime and GPU context | Diagnostic completed, deferred | Prefix downstream checks pass but 47 of 59 million context values exceed the original strict tolerance. No full-chromosome qualification. Defer this optional candidate to avoid another deployment delay and cache rebuild. |
-| E09: monitoring overhead | Measured, not changed | One live process PSS scan took 1.95 seconds. Record actual callback frequency and cost in the successor before changing scheduling. |
+| E09: monitoring overhead | Production timing available | Startup plus preparation and update 282 accumulated 109.14 seconds in outer callbacks across threads. Maximum callback was 27.30 seconds. These sums do not isolate update wall time. |
+| E10: background preparation and GPU dispatch | Open | Integer episode-write candidate passes 13 tiny equivalence tests. Qualify on archived full-parent structural hashes, then measure production impact. GIL attribution is still a hypothesis. |
+| E11: European preprocessing entry point | Confirmed missing optimization binding | Connect the already tested parser and structural preparation to the actual cohort8 fit route. Verify exact scope and output equality before deployment. |
+| E12: independent VAL false timeout | Corrected, retry running | A 10-second lease was shorter than a 16.5-second memory scan. Version 3 uses 120 seconds and fewer slow scans, passes 40 checks and independent review, and retains failed evidence within the same storage allowance. |
 | A01: European observed cohort inputs | Qualification and fit preparation | Full qualification retry v2 is running. On success, launch the resumable fixed 90-update fit. Exact interrupted/resumed CPU loop tests passed. Keep all original training data and the final-epoch rule. |
-| A02: independent development validation | Running | One 10 Mb independent VAL parent is admitted under a 16 GiB aggregate allowance. Original 200 Mb TRAIN and TEST stay unchanged. Prediction and common scoring are being implemented. |
+| A02: independent development validation | Corrected generation running | One 10 Mb VAL parent, unchanged 200 Mb TRAIN/TEST. Five-condition prediction and scoring source passed independent review and 22 synthetic checks. No new prediction or score yet. |
 | B01: ancestry benchmarks | Running | Finish American TreeLoom, native ARGformer, GST, ARGMix and direct four-class comparisons. Report only completed common scoring. |
 
 ## Accepted measurements

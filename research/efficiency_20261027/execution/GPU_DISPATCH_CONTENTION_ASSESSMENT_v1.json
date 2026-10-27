@@ -1,0 +1,333 @@
+{
+  "GIL_assessment": {
+    "not_proven": [
+      "No all-thread Python stack timeline exists for this update",
+      "Existing StageProgress samples only the main thread; a frame in Linear.forward cannot distinguish GPU wait from GIL reacquisition",
+      "ROOT reported external non-pausing py-spy attach denied; no elevation or retry was attempted",
+      "GPU low activity plus producer presence cannot distinguish GIL, shared CPU/memory bandwidth, monitoring, allocator or synchronization causes"
+    ],
+    "structural_evidence": [
+      "AdaptiveCompactParents uses ThreadPoolExecutor(max_workers=2) inside the training interpreter",
+      "Native tree encoding uses separate spawned process pools, while later preparation remains in producer threads",
+      "ctypes.CDLL structural calls release the GIL",
+      "kernels._tree_clades reconstructs arbitrary-width integer mask dictionaries in Python after each native call",
+      "episodes.build_clade_episode_arrays_v1 loops over previous/current dictionaries and every membership, writing NumPy scalar entries and updating Python episode dictionaries",
+      "Those Python sections can compete with repeated main-thread CUDA launch dispatch; no source reading measures their duration or duty cycle"
+    ]
+  },
+  "active_operator_chain": [
+    "qualified_residency_router selects LargeUpwardResidentExecution before learned forward",
+    "LargeUpwardResidentExecution inherits UpwardResidentExecution and the integrated _block/_sites plus original _base/_second",
+    "first_device calls _block, categorical _sites, _base and complete original sweep_tree_state_v1",
+    "sweep_tree_state_v1 has Python loops over all upward/downward levels, with many indexing, PyG, Linear, normalization and copy calls",
+    "Backward recomputes each first block, computes forcing VJP, then full first-sweep VJP;49-slot accumulation preserves contribution order",
+    "CPU-context decoder_v2 remains active;16 nonempty64-haplotype tiles preserve full histories,9 empty tiles skip only zero decoder gradients"
+  ],
+  "comparison_limits": [
+    "Different TRAIN parent, model state and physical GPU; isolated GPU5 activity was shared",
+    "Different profiling and monitoring callbacks; the isolated instrument synchronizes top-level stage boundaries",
+    "Cold production includes two admitted preparations and first layout; isolated qualification performs preparation before learned timing",
+    "The parent node/hold/site count differences do not bound topology depth, kernel schedule or host-work differences",
+    "The 693-second step excludes initial parent preparation and later waiting for the next required parent; it is not end-to-end campaign throughput"
+  ],
+  "comparisons_are_not_causal_speedup_measurements": true,
+  "conclusion": "A strong production dispatch or overlap bottleneck is plausible, especially during fused first-sweep backward. Shared-interpreter episode assembly is a concrete contender, but GIL contention is not measured or causally established. Prioritize the independently owned exact episode vectorization and bounded overlap diagnostics before a new GPU arithmetic or parallel-decoder candidate.",
+  "count_ratios": {
+    "holds": 1.0114880214787279,
+    "nodes": 1.0136086814389642,
+    "sites": 1.0042026781082674
+  },
+  "diagnostic_proposal": {
+    "bounded_details": [
+      "Reuse one sys._current_frames snapshot at the existing15-second reporting cadence; select main plus the two named preparation threads only, at most12 frame descriptors each",
+      "Serialize only filename/function/line and thread name/native ID; never frame locals, tensor values, credentials or executable source",
+      "Delete all frame references immediately; preserve64KiB output cap and use a fixed ring or bounded aggregate rather than unbounded history",
+      "Record snapshot wall duration and monotonic sampling lag; a sampler also needs the GIL, so gaps are evidence limits, not direct GIL-hold measurements",
+      "Take scalar ResourceTiming snapshots before and after each complete update, with main-versus-producer role and fixed stage labels; owner durations and waiter durations must remain separate",
+      "Optional per-thread CPU deltas may read only own /proc/self/task metadata; frame samples plus CPU deltas still do not prove GIL ownership",
+      "Retain every resource callback, locking order,30-second freshness rule, output cap and failure propagation; do not add CUDA synchronization or new resource scans",
+      "Tests must verify fixed output bounds, no retained frame references, producer disappearance, sampler error handling, actual join, exact unchanged callback count, no model/RNG mutation, and explicit statement that no GIL ownership was measured"
+    ],
+    "status": "Design only, no file implementation or launch",
+    "target": "An isolated successor to StageProgress and ResourceTiming"
+  },
+  "evidence_ref": {
+    "path": "research/efficiency_20261027/execution/PRODUCTION_UPDATE282_DISPATCH_EVIDENCE_v1.json",
+    "sha256": "26e91d51aec1548fb5062cee72ea993b3fcd17fd4ca75a89ab46fe76e58ed009"
+  },
+  "excluded_repeats": [
+    "Hotpack transfer candidate closed: hypothetical byte-scaled full gain1.72%, not measured full gain; do not reopen from this telemetry",
+    "Immutable site index plan removed only0.193s host setup in prior CPU evidence; does not explain this phase",
+    "Earlier boundary timeline v1 CUDA busy unions were invalidated by inclusion of annotation ranges; never use their95-96% values",
+    "GPU-context decoder is not deployed; current34.02s decoder is4.91% of693.39s step, so even ideal removal is a small upper share and is not justified before the387.13s phase",
+    "Async resource monitoring is an existing deferred design; cumulative timing is insufficient to launch or silently bypass current checks"
+  ],
+  "isolated": {
+    "native_holds": 77472,
+    "native_nodes": 205369272,
+    "parent_id": "argformer_american_train_000",
+    "physical_gpu": 5,
+    "shared_GPU": true,
+    "sites": 227474,
+    "update_seconds": 237.0062159523368
+  },
+  "monitor": {
+    "cumulative": {
+      "calls": 10294,
+      "checks_skipped": 0,
+      "lock_wait_seconds": 12.991958029568195,
+      "maximum_outer_callback_seconds": 27.29803146980703,
+      "outer_callback_seconds": 109.1390868043527,
+      "own_RSS_seconds": 10.639118043705821,
+      "per_callback_IO_added": false,
+      "summed_thread_durations_are_not_wall_time": true
+    },
+    "deployed_mechanism": "One shared check_lock serializes every callback; ResourceCheck normally performs a family-PSS/output scan at30-second cadence, and prospective integer write reservations force scans. Each wrapper callback also reads current main RSS. Existing guards are unchanged.",
+    "interpretation": "Totals start before initial parent preparation, are summed thread durations and are not an update-local decomposition. Outer checks are serialized; lock-wait sums overlap owner work. A maximum27.30-second outer callback demonstrates a real potential dispatch stall but does not assign this update or explain the entire387-second phase. Own-RSS timing can itself include scheduling/GIL reacquisition delay."
+  },
+  "optimization_proposal": {
+    "candidate_directory": "research/efficiency_20261027/independent_efficiency_challenge/episode_integer_vectorization",
+    "expected_effect": "Potentially fewer Python/NumPy scalar operations in a dispatch competitor; no numerical or wall-time improvement claimed",
+    "implementation_in_this_audit": false,
+    "owner": "independent_efficiency_challenge",
+    "qualification": [
+      "Independent CPU byte-for-byte equality of every returned array and metadata field against original on continued/disappearing/reappearing clades, unaries, isolated roots and wide masks",
+      "Preserve exact rejection boundaries, resource caps, RNG and complete observations",
+      "Use the already prepared phase harness if ROOT admits it; measure per-phase wall and thread CPU, and preserve failed evidence",
+      "Any later GPU overlap qualification must compare the same complete parent and saved model/Adam/RNG on the same admitted device with controlled producer overlap, strict full logits/loss/49 gradients/49 parameters/147 Adam states and unchanged argument order/tolerances",
+      "Separate compilation or implementation approval from production release; no active-source edit or restart"
+    ],
+    "scope": "Exact integer array assembly vectorization while preserving arbitrary-width mask identity, first-occurrence episode numbering, native member order, appearance/disappearance flags, all nodes and metadata"
+  },
+  "production": {
+    "governor_waits": 0,
+    "model_boundary": "Restored update281 then one real update",
+    "native_holds": 78362,
+    "native_nodes": 208164077,
+    "parent_id": "argformer_american_train_015",
+    "physical_gpu": 3,
+    "preparation_reservations_at_result": [
+      "complete_parent_training",
+      "prepare_and_lossless_pack",
+      "prepare_and_lossless_pack"
+    ],
+    "resident_route": "upward_direct_resident_CPUcontext512",
+    "sites": 228430,
+    "stage_elapsed_seconds": 693.3918148148805,
+    "update": 282
+  },
+  "schema": "TreeLoom_production_dispatch_contention_audit_v1",
+  "scope": {
+    "active_source_edits": 0,
+    "new_jobs": 0,
+    "only_execution_metadata_reports_written": true,
+    "optimizer_or_data_changes": 0,
+    "scientific_payloads_opened": false,
+    "signals": 0
+  },
+  "source_refs": [
+    {
+      "path": "research/efficiency_20261027/integration_candidate/step_combined_v2.py",
+      "sha256": "7eacc4d550041f82e092e5eb98b87ea3447b4e6be74a455f334d3d89d985a79d"
+    },
+    {
+      "path": "research/efficiency_20261027/integration_candidate/training_combined_v5.py",
+      "sha256": "7bc7e02c66db02fc7f7ecbdddb5b8105a82eb035f9886f64f0d49fc14514fe74"
+    },
+    {
+      "path": "research/efficiency_20261027/integration_candidate/monitor_timing_combined_v1.py",
+      "sha256": "a1aac0ba65ea30dd3f897cec346d977320fcb184c017fbe61af14ef9c8269185"
+    },
+    {
+      "path": "research/efficiency_20261027/execution/adaptive_prefetch_v2.py",
+      "sha256": "679168d2a0d4e7d690d5a9158c5485b516f7c303c37965b653bafe5ce88b9583"
+    },
+    {
+      "path": "research/efficiency_20261027/execution/adaptive_encoder_hooks_v2.py",
+      "sha256": "f7c1bd5dafe1b799ddac4b80c8e47cc0d98d444fb254f9dfdf227bc902002835"
+    },
+    {
+      "path": "research/efficiency_20261027/architecture/exact_upward_residency/large_resident_executor_v1.py",
+      "sha256": "4fd0627f258a227e08aff09f637fd3471f00e3f9325508bbaa67400e7a646a4e"
+    },
+    {
+      "path": "research/efficiency_20261027/architecture/exact_upward_residency/upward_residency.py",
+      "sha256": "69d14e53e4e8b569636cca7409d90f244109df6cad64dda7807b1c8247860d08"
+    },
+    {
+      "path": "research/efficiency_20261027/architecture/exact_upward_residency/memory_v1.py",
+      "sha256": "20a0727e5e347fe6f0904433911c80e5d1bcbdc4bda8ba9d3ccbacd5122c691a"
+    },
+    {
+      "path": "research/efficiency_20261027/architecture/exact_boundary_fusion/boundary_fusion.py",
+      "sha256": "5427d8d63cbeddd599ea72e39ade273e79d80a7831ffc200ad32fe8a0ec3bb8a"
+    },
+    {
+      "path": "research/efficiency_20261027/execution/large_block_executors.py",
+      "sha256": "73f6be72a297b52bc6da060f6788902f8133e04999d47e0e36215895a5f33ee4"
+    },
+    {
+      "path": "research/efficiency_20261027/execution/explicit_vjp.py",
+      "sha256": "19163f7d11d80c7279f987ad50b5514e761868e163aa3bfb6ef15f209e8bb757"
+    },
+    {
+      "path": "research/scalability_20261024/integration/executors.py",
+      "sha256": "6eae27fd94830d2c70290c9ef50c1156371bd5df6ee23fabcfdd356c0958fa2a"
+    },
+    {
+      "path": "research/benchmark_rebuild_20261024/american/treeloom_speed/staged_execution_v2.py",
+      "sha256": "12870a3b4514fef5153bbd66114e4e54a2bb002072d1392cd84f3519f6677927"
+    },
+    {
+      "path": "research/benchmark_rebuild_20261024/american/treeloom_speed/decoder_v2.py",
+      "sha256": "0a35a016efc3816a759e81a0f8e41ea79437ce67bbf5686cdf9928a50f84396b"
+    },
+    {
+      "path": "src/arggnn/anonymous_clade_gnn_v1.py",
+      "sha256": "2f878e6334079cff083f67b6da8eda129dd30e7beebc62ae2a93d51796c3f137"
+    },
+    {
+      "path": "src/arggnn/american_c3_gnn_model_v1.py",
+      "sha256": "f1a64bf56a6edc6e2b5ead5d0b06dda1d64034bdfaa5f8fc166f7b5ddffb994d"
+    },
+    {
+      "path": "research/preprocessing_optimization_20261026/tree/episodes.py",
+      "sha256": "8d79676e572b2eda96602fd9e945322eb37a70eb708b2cbd83defd0cf3502bb8"
+    },
+    {
+      "path": "research/preprocessing_optimization_20261026/tree/kernels.py",
+      "sha256": "93e2285baa0848798cb881be8ba96ff1cb8145495c9fda4f56bfb268b61ed20f"
+    },
+    {
+      "path": "research/repairs/benchmark_recovery_20261020/training/progress.py",
+      "sha256": "f2617971623f5c17e09354e0b4750de7c143dc67e7fd0529f396f4eb3059702c"
+    },
+    {
+      "path": "src/arggnn/benchmarking/paper_campaign/runtime.py",
+      "sha256": "1412abf76767545b9addbc6f27b1dcd449837b2b963bf277f5726171fa0defe2"
+    }
+  ],
+  "stage_comparison": [
+    {
+      "descriptive_ratio": 1.2004631090211628,
+      "isolated_seconds": 30.41404223907739,
+      "production_seconds": 36.51093570422381,
+      "stage": "layout_constructor"
+    },
+    {
+      "descriptive_ratio": 2.3192667452781373,
+      "isolated_seconds": 51.46479863487184,
+      "production_seconds": 119.36059602629393,
+      "stage": "complete_parent_context_forward"
+    },
+    {
+      "descriptive_ratio": 1.1652215836114077,
+      "isolated_seconds": 29.20005924347788,
+      "production_seconds": 34.02453927323222,
+      "stage": "complete_parent_decoder"
+    },
+    {
+      "descriptive_ratio": 3.965155005421567,
+      "isolated_seconds": 125.87684191763401,
+      "production_seconds": 499.1211897963658,
+      "stage": "complete_parent_trunk_backward"
+    },
+    {
+      "descriptive_ratio": 3.4555155985829837,
+      "isolated_seconds": 17.285392828285694,
+      "production_seconds": 59.72994454577565,
+      "stage": "boundary_fused_first_forcing_forward"
+    },
+    {
+      "descriptive_ratio": 1.6674545878406049,
+      "isolated_seconds": 28.446137445047498,
+      "production_seconds": 47.43264238908887,
+      "stage": "explicit_second_blocks_forward"
+    },
+    {
+      "descriptive_ratio": 1.4577429617604565,
+      "isolated_seconds": 61.52918912563473,
+      "production_seconds": 89.69374239072204,
+      "stage": "explicit_second_blocks_backward"
+    },
+    {
+      "descriptive_ratio": 1.6398623388001345,
+      "isolated_seconds": 13.341305154375732,
+      "production_seconds": 21.877903873100877,
+      "stage": "explicit_complete_history_backward"
+    },
+    {
+      "descriptive_ratio": 7.640803820206368,
+      "isolated_seconds": 50.665940299630165,
+      "production_seconds": 387.1285101957619,
+      "stage": "boundary_fused_forcing_and_first_backward"
+    }
+  ],
+  "status": "Read-only diagnosis and bounded successor proposal; no optimization implemented or launched",
+  "telemetry": {
+    "by_last_mark": [
+      {
+        "last_mark": "bounded_GPU_history_backward_window",
+        "mean_utilization_percent": 80.0,
+        "samples": 7
+      },
+      {
+        "last_mark": "bounded_GPU_history_forward_window",
+        "mean_utilization_percent": 13.4375,
+        "samples": 16
+      },
+      {
+        "last_mark": "bounded_first_sweep",
+        "mean_utilization_percent": 9.387878787878789,
+        "samples": 165
+      },
+      {
+        "last_mark": "bounded_second_sweep",
+        "mean_utilization_percent": 31.666666666666668,
+        "samples": 60
+      },
+      {
+        "last_mark": "decoder_tile_begin",
+        "mean_utilization_percent": 32.6,
+        "samples": 15
+      },
+      {
+        "last_mark": "layout_cache_before_cold_build",
+        "mean_utilization_percent": 2.466666666666667,
+        "samples": 15
+      },
+      {
+        "last_mark": "parent_begin",
+        "mean_utilization_percent": 0.0,
+        "samples": 7
+      },
+      {
+        "last_mark": "upward_residency_capacity_boundary_fused_first_VJP_begin",
+        "mean_utilization_percent": 6.471698113207547,
+        "samples": 53
+      },
+      {
+        "last_mark": "upward_residency_capacity_boundary_fused_first_block_released",
+        "mean_utilization_percent": 0.0,
+        "samples": 2
+      },
+      {
+        "last_mark": "upward_residency_capacity_explicit_second_block_backward_begin",
+        "mean_utilization_percent": 58.42857142857143,
+        "samples": 7
+      }
+    ],
+    "exclusive_PID": "1230526",
+    "first_unix": 1793082400.6980593,
+    "fraction_samples_at_least80": 0.06051873198847262,
+    "last_unix": 1793083092.741666,
+    "limitations": [
+      "NVML activity percentage is not FLOP efficiency",
+      "last_mark is a sampled stale boundary label, not exact kernel or whole-stage attribution",
+      "bounded_first_sweep occurs in both initial forward and backward recomputation; do not collapse it into a causal kernel diagnosis"
+    ],
+    "mean_utilization_percent": 15.855907780979827,
+    "median_utilization_percent": 2.0,
+    "samples": 347
+  }
+}
