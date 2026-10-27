@@ -1,0 +1,119 @@
+{
+  "schema": "TreeLoom_larger_block_assessment_v1",
+  "status": "not_implemented_or_admitted",
+  "created_UTC": "2026-10-27T01:27:04.564725+00:00",
+  "metadata_ref": {
+    "path": "research/preprocessing_optimization_20261026/integration/full_candidate.json",
+    "sha256": "13b06abd75afa0a199b5649de744b97871259be891ae50b55fa40cac678a15c0"
+  },
+  "scaling": [
+    {
+      "holds_per_block": 32,
+      "blocks": 2421,
+      "maximum_nodes": 87022,
+      "maximum_node_block_first_hold": 60864,
+      "maximum_cut_groups": 23201,
+      "one_node32_bytes": 11138816,
+      "one_context_block_bytes": 6553600,
+      "one_forcing_block_bytes": 742432,
+      "lower_component_layout_working_reserve_bytes": 5145370616,
+      "original_128_block_count_ratio": 0.2503097893432466
+    },
+    {
+      "holds_per_block": 128,
+      "blocks": 606,
+      "maximum_nodes": 347010,
+      "maximum_node_block_first_hold": 60800,
+      "maximum_cut_groups": 81868,
+      "one_node32_bytes": 44417280,
+      "one_context_block_bytes": 26214400,
+      "one_forcing_block_bytes": 2619776,
+      "lower_component_layout_working_reserve_bytes": 5178649080,
+      "original_128_block_count_ratio": 1.0
+    },
+    {
+      "holds_per_block": 256,
+      "blocks": 303,
+      "maximum_nodes": 693968,
+      "maximum_node_block_first_hold": 60672,
+      "maximum_cut_groups": 141554,
+      "one_node32_bytes": 88827904,
+      "one_context_block_bytes": 52428800,
+      "one_forcing_block_bytes": 4529728,
+      "lower_component_layout_working_reserve_bytes": 5223059704,
+      "original_128_block_count_ratio": 2.0
+    },
+    {
+      "holds_per_block": 512,
+      "blocks": 152,
+      "maximum_nodes": 1386454,
+      "maximum_node_block_first_hold": 60416,
+      "maximum_cut_groups": 274233,
+      "one_node32_bytes": 177466112,
+      "one_context_block_bytes": 104857600,
+      "one_forcing_block_bytes": 8775456,
+      "lower_component_layout_working_reserve_bytes": 5311697912,
+      "original_128_block_count_ratio": 3.986842105263158
+    },
+    {
+      "holds_per_block": 1024,
+      "blocks": 76,
+      "maximum_nodes": 2767224,
+      "maximum_node_block_first_hold": 60416,
+      "maximum_cut_groups": 532953,
+      "one_node32_bytes": 354204672,
+      "one_context_block_bytes": 209715200,
+      "one_forcing_block_bytes": 17054496,
+      "lower_component_layout_working_reserve_bytes": 5488436472,
+      "original_128_block_count_ratio": 7.973684210526316
+    },
+    {
+      "holds_per_block": 2048,
+      "blocks": 38,
+      "maximum_nodes": 5521491,
+      "maximum_node_block_first_hold": 59392,
+      "maximum_cut_groups": 1040959,
+      "one_node32_bytes": 706750848,
+      "one_context_block_bytes": 419430400,
+      "one_forcing_block_bytes": 33310688,
+      "lower_component_layout_working_reserve_bytes": 5840982648,
+      "original_128_block_count_ratio": 15.947368421052632
+    }
+  ],
+  "sources": [
+    {
+      "path": "research/scalability_20261024/execution/layout_plan.py",
+      "sha256": "16f345e4fe784e4bf64512a7e9060de1d1494a3dd02a0ba2a147a118114100d4"
+    },
+    {
+      "path": "research/scalability_20261024/integration/cache.py",
+      "sha256": "286f318a61611ebdc9869c2e2b68c2e2f15ce168a5894cd282c99e708f0a8950"
+    },
+    {
+      "path": "research/scalability_20261024/integration/executors.py",
+      "sha256": "6eae27fd94830d2c70290c9ef50c1156371bd5df6ee23fabcfdd356c0958fa2a"
+    },
+    {
+      "path": "research/benchmark_rebuild_20261024/american/treeloom_speed/staged_execution_v2.py",
+      "sha256": "12870a3b4514fef5153bbd66114e4e54a2bb002072d1392cd84f3519f6677927"
+    }
+  ],
+  "design": "Separate larger LayoutPlan, separately bound finite LayoutCache with explicit plan factory/copy, and separate executor initializer retaining all exact-model/bank/provenance/memory guards except the authorized execution partition range. Existing frozen modules unchanged.",
+  "science_invariants": [
+    "Native edges, nodes and samples stay in their original hold; ordered level/child/rank reductions unchanged.",
+    "Original global 256-site chunk boundaries and categorical reduction order retained by inherited _sites.",
+    "Episode membership/eligibility and full cut plan remain global; no new scientific window.",
+    "Both complete history directions and original GRU full sequence remain unchanged.",
+    "Only block grouping and FP32 parameter accumulation grouping may differ; strict empirical qualification required."
+  ],
+  "int32_safe_for_measured_maximum": true,
+  "launch_prediction": "Tree-block visits fall approximately with block count; depth count remains, and global-site 256 chunks do not disappear. Per-depth kernels process more rows; transfer bytes generally remain proportional to the same parent.",
+  "peak_warning": "One-node-buffer sizes do not bound saved tree activations, index-copy backward state, GEMM workspaces, allocator fragmentation or resident 2C overlap. Linear extrapolation from a small block is a screening estimate only.",
+  "qualification_plan": [
+    "Obtain actual explicit 128-hold full-stage peak as reference.",
+    "ROOT-admitted representative real 512-hold block: strict forward and all local-gradient parity against 128 partitions, stage allocator peaks and elapsed timing.",
+    "Repeat progressively at 1024 then 2048 only after preceding measured admission; include maximum-node block and a topology-depth/site-density stress block.",
+    "Keep entire original history in any update-level comparison; block-only probes do not certify complete update equivalence.",
+    "Measure cold layout CPU reserve, strict all-state comparison and paired full-update throughput before deployment."
+  ]
+}

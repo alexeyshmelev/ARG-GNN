@@ -1,0 +1,113 @@
+{
+  "schema": "TreeLoom_explicit_resident_VJP_CPU_parity_v1",
+  "status": "pass",
+  "CUDA_initialized": false,
+  "actual_native_holds": 128,
+  "all_haplotypes": 1600,
+  "holds_per_block": 32,
+  "blocks": 4,
+  "history_holds_per_window": 17,
+  "complete_bidirectional_slice_history": true,
+  "source_refs": [
+    {
+      "path": "research/efficiency_20261027/execution/explicit_resident_vjp.py",
+      "sha256": "687ca3455224c8d07c491220b2293f3372d4afd672ebaf94c045284a5221c8c6"
+    },
+    {
+      "path": "research/efficiency_20261027/execution/test_explicit_resident_vjp.py",
+      "sha256": "0c0571c9fb072f7e5c7e7377bb7c46f90908c238bbb86d7d1ea6dceb388b8d36"
+    },
+    {
+      "path": "research/preprocessing_optimization_20261026/integration/migration/update241.pt",
+      "sha256": "12b8fbdd4bfa164ca3aab28d967d1154a3ce389cfc49aefca0fbdf9dc143de24"
+    }
+  ],
+  "output_max_abs_error": 0.0,
+  "parameter_gradient_max_abs_errors": {
+    "site_mlp.0.weight": 7.275957614183426e-12,
+    "site_mlp.0.bias": 3.637978807091713e-12,
+    "site_mlp.2.weight": 7.275957614183426e-12,
+    "site_mlp.2.bias": 1.4551915228366852e-11,
+    "site_pool_projection.0.weight": 0.0,
+    "site_pool_projection.0.bias": 0.0,
+    "leaf_projection.0.weight": 0.0,
+    "leaf_projection.0.bias": 0.0,
+    "node_projection.0.weight": 0.0,
+    "node_projection.0.bias": 0.0,
+    "up_gate.weight": 0.0,
+    "up_gate.bias": 0.0,
+    "down_gate.weight": 0.0,
+    "down_gate.bias": 0.0,
+    "up_message.weight": 2.3283064365386963e-10,
+    "up_update.weight": 2.0372681319713593e-10,
+    "up_update.bias": 2.3283064365386963e-10,
+    "up_norm.weight": 4.3655745685100555e-11,
+    "up_norm.bias": 8.731149137020111e-11,
+    "down_message.weight": 1.7462298274040222e-10,
+    "down_update.weight": 2.0372681319713593e-10,
+    "down_update.bias": 1.7462298274040222e-10,
+    "down_norm.weight": 2.9103830456733704e-11,
+    "down_norm.bias": 5.820766091346741e-11,
+    "leaf_context.0.weight": 0.0,
+    "leaf_context.0.bias": 0.0,
+    "forward_gru.weight_ih_l0": 0.0,
+    "forward_gru.weight_hh_l0": 0.0,
+    "forward_gru.bias_ih_l0": 0.0,
+    "forward_gru.bias_hh_l0": 0.0,
+    "reverse_gru.weight_ih_l0": 0.0,
+    "reverse_gru.weight_hh_l0": 0.0,
+    "reverse_gru.bias_ih_l0": 0.0,
+    "reverse_gru.bias_hh_l0": 0.0,
+    "classifier.0.weight": 0.0,
+    "classifier.0.bias": 0.0,
+    "classifier.2.weight": 0.0,
+    "classifier.2.bias": 0.0,
+    "clade_coupling.U.weight": 0.0,
+    "clade_coupling.V.weight": 0.0,
+    "clade_coupling.W.weight": 0.0,
+    "clade_coupling.O.weight": 0.0,
+    "episode_coupling.U.weight": 0.0,
+    "episode_coupling.V.weight": 0.0,
+    "episode_coupling.W.weight": 0.0,
+    "episode_coupling.O.weight": 0.0,
+    "memory.ell_theta": 0.0,
+    "memory.U.weight": 0.0,
+    "memory.O.weight": 0.0
+  },
+  "gradient_tensors_including_preexisting_decoder": 49,
+  "preexisting_decoder_gradients_preserved": true,
+  "noncontiguous_external_context_VJP": true,
+  "runs": [
+    {
+      "kind": "IntegratedStagedExecution",
+      "seconds": 17.34498316142708,
+      "forward_seconds": 5.199034499935806,
+      "loss": -0.0005917161470279098,
+      "explicit_vjp": null
+    },
+    {
+      "kind": "ExplicitResidentVJPExecution",
+      "seconds": 12.296083750203252,
+      "forward_seconds": 2.7236146265640855,
+      "loss": -0.0005917161470279098,
+      "explicit_vjp": {
+        "forward_blocks": 4,
+        "second_backward_blocks": 4,
+        "forcing_backward_blocks": 4,
+        "first_backward_blocks": 4,
+        "full_history_backward_calls": 1,
+        "retained_CPU_boundary_bytes": 86227466,
+        "context_residency": "cpu",
+        "complete_context_bytes": 26214400,
+        "parameters_returned_through_autograd": true,
+        "parameter_grad_mutated_inside": false,
+        "learned_states_reused_across_updates": false,
+        "history_gradient_truncated": false,
+        "backward_block_order": "reverse native block order",
+        "CUDA_boundary_allocated_max_bytes": 0,
+        "connected_trunk_parameters": 37
+      }
+    }
+  ],
+  "scope": "Actual128hold observed packet/all1600haps and checkpoint241 trunk weights. Full restricted-slice bidirectional history across8windows and4treeblocks. Noncontiguous external context VJP; no GPU residency, actual focal decoder, optimizer or full-parent performance claim."
+}

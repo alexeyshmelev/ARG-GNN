@@ -1,0 +1,23 @@
+{
+  "schema": "TreeLoom_explicit_trunk_VJP_initial_static_review_v1",
+  "source": {
+    "path": "research/efficiency_20261027/execution/explicit_vjp.py",
+    "sha256": "19163f7d11d80c7279f987ad50b5514e761868e163aa3bfb6ef15f209e8bb757"
+  },
+  "status": "static_derivative_completeness_pass_pending_numerical_tests",
+  "chain": [
+    "Second sweep accumulates direct upward cotangent, full readout cotangent, and all direct shared-parameter contributions.",
+    "Complete frozen history differentiates both directions, every window carry, pooling and readout-minus-forcing; ell_theta contribution is added once.",
+    "Forcing differentiates both first-sweep upward/outside boundaries plus memory.U; forcing upward cotangent is added to direct second-sweep cotangent.",
+    "First sweep jointly differentiates both outputs with their total cotangents; shared site/base/gate/sweep parameters accumulate first- and second-sweep contributions.",
+    "Autograd returns trunk parameter contributions without mutating .grad; unused decoder/GRU parameters return None, preserving previously accumulated decoder gradients."
+  ],
+  "limits": [
+    "Only first-order training VJPs supported, matching the declared scope.",
+    "Current frozen trunk has no stochastic operators; recomputation does not save per-block RNG and must not be generalized to changed stochastic trunks.",
+    "CPU boundaries retain full first upward/outside arrays and full direct-upward cotangents; whole-parent host memory still requires measurement.",
+    "Numerical parity must cover normal decoder-backward then context.backward, all49 final parameter gradients and one clipped optimizer update.",
+    "Source alone does not prove GPU/host memory fit or runtime improvement."
+  ],
+  "actions": "Static source review only; no code execution, models, labels or jobs run by reviewer."
+}

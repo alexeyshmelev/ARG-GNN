@@ -8111,19 +8111,33 @@
       "status": "partial_recovery_validated_exact_roster_and_age_policy_unresolved"
     },
     {
-      "conclusion": "No new speedup, utilization or accuracy result yet. Existing GPU3 snapshots are24\u201358percent and preparation reports one worker.",
+      "changed_model_status": "TreeLoom-Transport has algebra and observed-tree numerical evidence only. Explicit staged execution is being prepared. Paired training and validation remain inactive.",
+      "conclusion": "Four encoder processes already overlap preparation. Warm training remains dominated by context and backward. CPU8 integrated full-parent diagnostic took467.07s versus originalCPU1 603.71s. Original loose numerical gate passed but did not check argmax. The explicit blockwise VJP passed strict actual128-tree/all49-gradient/clipped-AdamW comparisons with zero changed classes and15.8percent lower warm median versus integratedCPU8. Complete-parent strict VJP test is running. No production change, new ancestry score or80percent utilization claim.",
       "evidence": [
-        "research/efficiency_20261027/PLAN.md"
+        "research/efficiency_20261027/PLAN.md",
+        "research/efficiency_20261027/fidelity/FULL_HOST_PARALLELISM_REVIEW.json",
+        "research/efficiency_20261027/fidelity/EXPLICIT_VJP_SLICE_REVIEW.json",
+        "research/efficiency_20261027/root/runs/full_gpu5_threads_v1/data/completed.json",
+        "research/efficiency_20261027/root/runs/explicit_slice_gpu5_v1/data/completed.json"
       ],
       "hypothesis": "Measured preparation stalls and many small sequential operations can be reduced while retaining exact TreeLoom behavior, with separately tested architecture changes if exact execution remains insufficient.",
       "id": "treeloom_efficiency_redesign_20261027",
       "method": "Record complete-pipeline activity, parallelize independent immutable preparation and vectorize bottlenecks, then compare paired execution and validation accuracy under frozen data and support.",
       "registered_utc": "2026-10-27T00:11:57.709670+00:00",
+      "rejected_candidates": [
+        "level_local_v1_slower_on_GPU",
+        "level_local_v2_slower_on_GPU",
+        "Transport_tiny_partition_checkpoint_path_slower_than_monolithic"
+      ],
       "repeat_policy": "Build upon treeloom_scalability_20261024 and existing categorical/layout parity. Repeat only for a new integration, corrected bottleneck measurement or independent validation.",
-      "status": "baseline_telemetry_and_delegated_source_audits_in_progress"
+      "selected_for_further_qualification": [
+        "exact_explicit_blockwise_trunk_VJP",
+        "exact_final_context_residency_composition"
+      ],
+      "status": "full_parent_explicit_backward_qualification_running"
     }
   ],
-  "last_root_update_utc": "2026-10-27T00:11:57.709694+00:00",
+  "last_root_update_utc": "2026-10-27T01:21:43.570467+00:00",
   "operational_efficiency_decisions": [
     {
       "conclusion": "Only five eligible frozen records, 47,584 raw bytes, are covered. Savings are unproved and added copy/final-read costs plus mixed-source lineage changes are not justified.",

@@ -1,0 +1,52 @@
+{
+  "schema": "TreeLoom_explicit_resident_VJP_composition_review_v1",
+  "status": "static_chain_and_CPU_probe_pass_GPU_admission_not_yet_reviewed",
+  "sources": [
+    {
+      "path": "research/efficiency_20261027/execution/explicit_resident_vjp.py",
+      "sha256": "687ca3455224c8d07c491220b2293f3372d4afd672ebaf94c045284a5221c8c6"
+    },
+    {
+      "path": "research/efficiency_20261027/execution/test_explicit_resident_vjp.py",
+      "sha256": "0c0571c9fb072f7e5c7e7377bb7c46f90908c238bbb86d7d1ea6dceb388b8d36"
+    },
+    {
+      "path": "research/efficiency_20261027/execution/explicit_vjp.py",
+      "sha256": "19163f7d11d80c7279f987ad50b5514e761868e163aa3bfb6ef15f209e8bb757"
+    },
+    {
+      "path": "research/efficiency_20261027/root/context_residency.py",
+      "sha256": "e2d59f25b4bda24411539728f35fc10f019ffcfe585f7dbf7667d0115083ef56"
+    },
+    {
+      "path": "research/efficiency_20261027/execution/explicit_resident_vjp_cpu_results.json",
+      "sha256": "d9ffdb0a433cac433deca689874f7786fc9640e8a34454b70a7334081f721f0a"
+    }
+  ],
+  "static_findings": [
+    "Derivative implementation is identical to already reviewed explicit_vjp.py except resident-base inheritance, final context/VJP device guards and receipt fields.",
+    "ResidentContextExecution changes only final second-sweep context storage placement. First upward/outside, forcing, eligible and full history boundaries remain CPU.",
+    "Second-sweep block VJPs return CPU direct-up/readout gradients and GPU parameter gradients; full-history VJP includes both directions and ell_theta once; forcing and first-sweep VJPs complete chain rule.",
+    "Outer autograd receives parameter VJPs, preserving real decoder gradients when present; no direct internal parameter.grad mutation.",
+    "Backward slices support noncontiguous external VJP; CPU harness explicitly tests strided input.",
+    "Forward retains all block context outputs totalingC on CUDA then torch.cat allocates anotherC before releasing pieces. Later context plus decoderVJP also costs2C. Full preflight needs2C plus real scratch/allocator margin, not merely oneC.",
+    "First-order deterministic frozen trunk only; no dropout/RNG replay generalization or higher-order derivative claim."
+  ],
+  "CPU_evidence": {
+    "native_holds": 128,
+    "haplotypes": 1600,
+    "tree_blocks": 4,
+    "history_windows": 8,
+    "context_max_abs_error": 0.0,
+    "gradient_max_abs_error": 2.3283064365386963e-10,
+    "gradients_with_seeded_decoder": 49,
+    "noncontiguous_external_VJP": true,
+    "CUDA_initialized": false
+  },
+  "remaining": [
+    "GPU residency, original focal decoder and full AdamW-update parity for this composition.",
+    "Full-parent memory/performance evidence and external guarded admission."
+  ],
+  "adoption_approved": false,
+  "reviewer_actions": "Static reads and small JSON receipt review only."
+}

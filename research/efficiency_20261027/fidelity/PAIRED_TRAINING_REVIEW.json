@@ -1,0 +1,86 @@
+{
+  "schema": "TreeLoom_paired_training_independent_static_review_v1",
+  "reviewer": "treeloom_fidelity_oct27",
+  "status": "static_boundary_pass_with_explicit_limits",
+  "reviewed_sources": [
+    {
+      "path": "research/efficiency_20261027/architecture/paired_training.py",
+      "sha256": "4d53e3c9cf2de9f72bfffa902a0e0413c7b9f5ce05ed636aa612ce8a919b3d8d"
+    },
+    {
+      "path": "research/efficiency_20261027/architecture/score_validation.py",
+      "sha256": "b375b0ccddb33a6844392d1dc28853ce9f83f74eecfe8c4dece55f7178a9f84f"
+    },
+    {
+      "path": "research/efficiency_20261027/architecture/paired_pilot_config.json",
+      "sha256": "b1bb92bf7c1642a70e5773a64af59ec68801336dcf0201b57526c4ce8b226880"
+    },
+    {
+      "path": "research/efficiency_20261027/architecture/paired_full_budget_config.json",
+      "sha256": "06a1e4cef5db29d9339962d0ce2a34950605670684cab64397ec07465efb0262"
+    },
+    {
+      "path": "research/efficiency_20261027/architecture/prospective_protocol.json",
+      "sha256": "928ae3ab3b3675af534daff9395cdf163f06c72944b10547e13b782a62bc46cc"
+    },
+    {
+      "path": "research/efficiency_20261027/architecture/bounded_transport.py",
+      "sha256": "00afc5f7c9e46d3132494a262ca9aa9305b51fd2db29d36e5a975b4dd691c9cb"
+    },
+    {
+      "path": "research/efficiency_20261027/architecture/test_bounded_transport.py",
+      "sha256": "83da0631985d6cf888c68c6398c84e2dbdc7c8dee653cc048d9f7f0fbe9c5c79"
+    }
+  ],
+  "corrected_findings": [
+    "Canonical original validation bindings are now authenticated and compared for every original validation parent.",
+    "Separate CPU scorer now revalidates all registered sources at entry, after prediction barrier before truth, and before completion.",
+    "The bounded executor now requires site_chunk_size 256.",
+    "Crossed training seeds are averaged within each independent parent before parent-cluster bootstrap; seed variation is reported separately."
+  ],
+  "source_pins": {
+    "per_config": 157,
+    "mismatches": 0,
+    "both_configs_execution_enabled": false
+  },
+  "scientific_boundary": [
+    "Both architectures are freshly initialized with paired seeds; original 94-update checkpoint supplies only observation-barrier lineage, never initialization of either model or optimizer.",
+    "All original 20 TRAIN parents, 5 VAL parents, 30 Mb sequences, 1600 sample haplotypes and 10000 focal targets per parent are required.",
+    "Observation preparation precedes TRAIN target joins, which reuse the original sealed lineage.",
+    "All arms and all declared seeds must produce all original VAL focal predictions before separately admitted CPU scoring opens any VAL truth.",
+    "Separate CPU scoring reuses original truth resolution, half-open target join, posterior metrics and original identities; TEST is refused.",
+    "Unavailable dense boundary preservation remains a required failing co-endpoint and accuracy_preservation_established stays false."
+  ],
+  "strict_bounded_receipt": {
+    "path": "research/efficiency_20261027/architecture/bounded_CPU_parity_strict_v3.json",
+    "sha256": "1b0bdc3ad983572a156c7ce572714daf43ed622e784e599ba25f18b2fa35eeb3"
+  },
+  "bounded_diagnostic": {
+    "native_holds": 7,
+    "native_nodes": 16464,
+    "sites": 42,
+    "haplotypes": 1600,
+    "tree_and_scan_block_holds": 3,
+    "ragged_tail": true,
+    "isolated_hold": 0,
+    "parameter_tensors": 55,
+    "logits_max_abs_error": 1.043081283569336e-07,
+    "gradients_max_abs_error": 1.6689300537109375e-05,
+    "elementwise_gradient_atol": 1e-06,
+    "elementwise_gradient_rtol": 0.0001,
+    "strict_gradient_pass": true,
+    "forward_atol_1e6_rtol_1e5_pass_from_reported_max_error": true,
+    "source_pin_mismatches": 0,
+    "ancestry_targets_opened": false,
+    "optimizer_updates": 0,
+    "CUDA_initialized": false
+  },
+  "limits": [
+    "CPU seven-hold candidate-versus-candidate diagnostic does not establish whole-parent memory, GPU performance or ancestry accuracy.",
+    "No optimizer-update parity was tested for the changed-model bounded CPU diagnostic.",
+    "Five independent validation parents yield approximate, potentially inconclusive bootstrap bounds; inference is conditional on the fixed fitted seeds.",
+    "Pilot config has one seed and 20 updates, while full-budget config has three seeds and 600 updates. The pilot cannot substitute for full acceptance.",
+    "Resource ceilings and device guard callbacks remain prospective, not measured full-parent maxima."
+  ],
+  "review_actions": "Static source and receipt review only; this reviewer executed no model, GPU job, target join, scoring or truth read."
+}

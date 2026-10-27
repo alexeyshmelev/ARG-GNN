@@ -1,0 +1,126 @@
+{
+  "schema": "TreeLoom_full_host_parallelism_independent_review_v1",
+  "status": "performance_diagnostic_verified_not_strict_full_qualification",
+  "sources": [
+    {
+      "path": "research/efficiency_20261027/root/runs/full_gpu5_threads_v1/data/completed.json",
+      "sha256": "dd8391e7405987efbbad11fe2aac6ed8cb09f63cbbc10b14b49ccfed2cf7a540"
+    },
+    {
+      "path": "research/efficiency_20261027/root/runs/full_gpu5_threads_v1/actual_wait.json",
+      "sha256": "4ae76481f38d2fc86cffcb9a446f43f0f07e29fd793a95aa9168b1f412ed9881"
+    },
+    {
+      "path": "research/efficiency_20261027/root/compare_host_parallelism.py",
+      "sha256": "eafa5cc4d8f82f6abbd63d4f69cbd6e25827ada58c08bdad781f5b688a92aed0"
+    }
+  ],
+  "process_completion": {
+    "actual_returncode": 0,
+    "actual_wait": true,
+    "finished_unix": 1793063219.9104176,
+    "owned_group_absent": true,
+    "peak_sampled_pss_bytes": 182067984384,
+    "pid": 1104470,
+    "process_start_ticks": "573493540",
+    "surviving_descendants_required_drain": false
+  },
+  "all_15_recorded_source_pins_match": true,
+  "scope": {
+    "mode": "full",
+    "parent_id": "argformer_american_train_000",
+    "native_holds": 77472,
+    "haplotypes": 1600,
+    "sites": 227474,
+    "supervised_original_focals": 10000,
+    "full_original_focals": 10000,
+    "observation_ref": {
+      "path": "experiments/results/benchmark_campaign_20261018/fresh_american/argformer_american_train_000/inference/observed/manifest.json",
+      "sha256": "83c64fbff2c1b4c1d728b756733020f9ba21a69b0698c51154a996897ef505e0"
+    },
+    "focal_registry_ref": {
+      "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_000/AM_argformer_american_train_000_focals/native/focals.npz",
+      "sha256": "aa86a5013d0b4ab85ad50011fccee167b59516d7a6c93d7ddaf372db827a2c94"
+    },
+    "truth_ref": {
+      "path": "experiments/results/benchmark_campaign_20261018/fresh_american/argformer_american_train_000/generation/private/truth/c3_pulse_ancestry.npz",
+      "sha256": "0184d7f1c0d26ea5760cac3b13edad5aba4a9c21dbc324f2a6ad04ef3576fc95"
+    },
+    "focal_identity_sha256": "0e52938d86c702b0be4de7822e89ba11d5be93c374d2b5c60bcb882134e7f4f9",
+    "preparation_seconds": 750.2370375404134,
+    "true_TRAIN_label_join_seconds": 0.02255584765225649,
+    "heldout_truth_opened": false,
+    "full_parent_claim": true,
+    "history_window_boundary": "original full parent",
+    "physical_support_bp": [
+      0,
+      30000000
+    ],
+    "packet_ref": null
+  },
+  "arms": [
+    {
+      "kind": "original",
+      "seconds": 603.7084899283946,
+      "peak_allocated_bytes": 52854567936,
+      "peak_reserved_bytes": 62853742592,
+      "loss": 0.04445242881774902,
+      "comparison": {
+        "reference": true
+      }
+    },
+    {
+      "kind": "original_threads8",
+      "seconds": 511.40583417005837,
+      "peak_allocated_bytes": 53463746048,
+      "peak_reserved_bytes": 64114130944,
+      "loss": 0.04445242881774902,
+      "comparison": {
+        "passed": true,
+        "atol": 0.0001,
+        "rtol": 0.0001,
+        "logits_max_abs_error": 9.5367431640625e-07,
+        "gradients_max_abs_error": 6.51925802230835e-09,
+        "parameters_max_abs_error": 2.9802322387695312e-08,
+        "moments_max_abs_error": 6.402842700481415e-10
+      }
+    },
+    {
+      "kind": "integrated_threads8",
+      "seconds": 467.06884531583637,
+      "peak_allocated_bytes": 51542329344,
+      "peak_reserved_bytes": 61538828288,
+      "loss": 0.04445242881774902,
+      "comparison": {
+        "passed": true,
+        "atol": 0.0001,
+        "rtol": 0.0001,
+        "logits_max_abs_error": 1.0728836059570312e-06,
+        "gradients_max_abs_error": 6.984919309616089e-09,
+        "parameters_max_abs_error": 2.9802322387695312e-08,
+        "moments_max_abs_error": 6.984919309616089e-10
+      }
+    }
+  ],
+  "elapsed_reductions": {
+    "original_CPU8_vs_CPU1": 0.152892757511633,
+    "integrated_CPU8_vs_CPU1": 0.2263338132428201,
+    "integrated_CPU8_vs_original_CPU8": 0.08669629067915285
+  },
+  "numeric_interpretation": [
+    "Historical comparator used atol=rtol=1e-4 for all categories, omitted scalar loss and argmax gates.",
+    "All reported gradient, parameter and moment maximum errors are below1e-6, so the stricter elementwise absolute bounds follow for these tensors.",
+    "OriginalCPU8 maximum logit error9.5367431640625e-7 also implies strict forward numeric gate, but argmax equality is unrecorded.",
+    "IntegratedCPU8 maximum logit error1.0728836059570312e-6 is insufficient to establish strict elementwise atol1e-6+rtol1e-5 without individual reference magnitudes.",
+    "Recorded scalar losses are identical0.04445242881774902; no separate gate executed."
+  ],
+  "performance_limits": [
+    "One same-process first call per arm, fixed order; no balanced repetitions or throughput-confidence claim.",
+    "Shared observation preparation750.237s excluded from per-arm timings.",
+    "Stage nested timings overlap and cannot be summed as disjoint work.",
+    "Process lifetime RSS high-water marks accumulate across arms; external session PSS is sampled and uses different accounting.",
+    "GPU peaks about51.5-53.5GB allocated and61.5-64.1GB reserved remain high; no memory breakthrough established."
+  ],
+  "adoption_approved": false,
+  "reviewer_actions": "Static source and small JSON reads only; no launches, truth-array access or source changes."
+}

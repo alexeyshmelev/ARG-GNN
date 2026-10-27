@@ -1,0 +1,27 @@
+{
+  "schema": "ARGformer_source_closure_findings_v1",
+  "source_coverage": "ARGFORMER_END_TO_END_SOURCE_COVERAGE.json",
+  "findings": [
+    {
+      "scope": "Retained inherited tests",
+      "finding": "Smoke tests reference absent sequence_classification.py, yamls/defaults.yaml, yamls/models/hf_bert.yaml, yamls/models/mosaic_bert.yaml, yamls/models/flex_bert.yaml and tests/smoketest_config_sdpa_fa2.yaml. Absence confirmed by metadata. Do not infer release-wide test pass from test presence."
+    },
+    {
+      "scope": "Optional legacy Mosaic BertForMaskedLM",
+      "finding": "Supervised subset uses labels>0, excluding token id0 rather than only ignore_index=-100. This is not the native FlexBert route."
+    },
+    {
+      "scope": "Dependency prescriptions",
+      "finding": "pixi.toml pins PyTorch2.4.0/Composer0.24.1/Transformers4.44.1; requirements.txt names PyTorch2.3.0/Composer0.22.x/Transformers4.40.2. Environment choice is part of faithful reproduction."
+    },
+    {
+      "scope": "Inherited FA2/SDPA test",
+      "finding": "Compares final parameters with rtol1e-2/atol1e-3, skips SDPA comparisons for local-window attention and relies on missing inherited YAMLs. Not proof of strict native ARG local-attention parity."
+    },
+    {
+      "scope": "Optional sequence packer tests",
+      "finding": "Fixed fixtures encode padding-tail cumulative offsets, deterministic ordering and random masking behaviors, not whole-native-ARG preservation."
+    }
+  ],
+  "scope_limits": "No test runs or source edits. Native-path versus optional inherited behavior remains distinct."
+}

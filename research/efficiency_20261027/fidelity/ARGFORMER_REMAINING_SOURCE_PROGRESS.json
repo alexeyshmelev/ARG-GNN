@@ -1,0 +1,100 @@
+{
+  "schema": "ARGformer_remaining_source_progress_v1",
+  "status": "superseded_by_complete_end_to_end_coverage",
+  "records": [
+    {
+      "path": "src/optimizer.py",
+      "sha256": "68858367a7a980acc9c2af76a1e67089ea2412fce1682cdaf1b8bbc4a4d8e1fd",
+      "new_full_semantic_read": true,
+      "lines": 337
+    },
+    {
+      "path": "src/scheduler.py",
+      "sha256": "c11676c38e7e626ad689cf66b2d88f73ed00b8dec579f5d1cb6f81b8d77743bd",
+      "new_full_semantic_read": true,
+      "lines": 295
+    },
+    {
+      "path": "src/sequence_packer.py",
+      "sha256": "2b95474868349b319731cb83a860f6a83fabee1f34c5c1d752269bcb7426e8bd",
+      "new_full_semantic_read": true,
+      "lines": 582
+    },
+    {
+      "path": "src/text_data.py",
+      "sha256": "2b5b8f0a15a092a4e9c0a96e0f7cadac8087cd77531cf1db00cf5f314d05ea43",
+      "new_full_semantic_read": true,
+      "lines": 572
+    },
+    {
+      "path": "src/hf_bert.py",
+      "sha256": "96361ddb915fd7c70bc663e5d21c6d5922fc5ed74f1af73c8ca20aaa1c9c0c7d",
+      "new_full_semantic_read": true,
+      "lines": 263
+    },
+    {
+      "path": "src/mosaic_bert.py",
+      "sha256": "e6d30cb897b8522e457ee6404db43f8b3ee33d95ed32dbcffe9b8d264e27a301",
+      "new_full_semantic_read": true,
+      "lines": 327
+    },
+    {
+      "path": "src/flex_bert.py",
+      "sha256": "bf8f041c30a1af410b1b41f8b047b1c84fb3ad8b991d45a7cc7d38d66a4f227a",
+      "new_full_semantic_read": true,
+      "lines": 581
+    },
+    {
+      "path": "src/bert_layers/attention.py",
+      "sha256": "207ad9127d9bcbdb02b7c7b936690b88003869108dcd3eab4d184f16bdf6123d",
+      "new_full_semantic_read": true,
+      "lines": 1563,
+      "basis": "Combined earlier selected ranges and remainder read through 2026-10-27 continuation."
+    },
+    {
+      "path": "src/bert_layers/embeddings.py",
+      "sha256": "df10bd9b87567f3389870b4ab49710a934fd2f706faf052b029950c35158c698",
+      "new_full_semantic_read": true,
+      "lines": 218,
+      "basis": "Combined earlier selected ranges and remainder read through 2026-10-27 continuation."
+    },
+    {
+      "path": "src/bert_layers/mlp.py",
+      "sha256": "986465886a959fcccf0d7dbfa770b76d80b11302876c03b66203f29ceef10573",
+      "new_full_semantic_read": true,
+      "lines": 214,
+      "basis": "Combined earlier selected ranges and remainder read through 2026-10-27 continuation."
+    },
+    {
+      "path": "src/bert_layers/layers.py",
+      "sha256": "6559911ee44c0f871795d9d1c97c3920e19c908362e682f8b4f7f550c28d4807",
+      "new_full_semantic_read": true,
+      "lines": 700,
+      "basis": "Combined earlier selected ranges and remainder read through 2026-10-27 continuation."
+    }
+  ],
+  "additional_ranges": {
+    "src/bert_layers/attention.py": [
+      [
+        60,
+        246
+      ],
+      [
+        274,
+        713
+      ],
+      [
+        932,
+        1264
+      ]
+    ]
+  },
+  "findings": [
+    "Optional StableAdamW uses parameter gradients as scratch during step and reports only the final parameter group norm through self.grad_norms; capture genuine gradients before optimizer.step.",
+    "Optional sequence packing drops a partial outgoing batch if any packed row is empty, reverses deferred sequence order using extendleft, preserves an intentional strict-greater buffer refill condition, counts the padding tail as a sequence through cumulative offsets, and samples random MLM replacements only up to the post-mask batch maximum token rather than the full vocabulary. These semantics belong to the optional text-packing route, not automatically the native ARG loader.",
+    "EfficientCrossEntropy averages already-reduced batch losses equally; token-weighted recomputation has different weighting when valid masked token counts differ.",
+    "Optional padded RoPE attention dispatch checks global IMPL_USE_FLASH2 in forward rather than self.use_fa2; installed FlashAttention can override an explicit false configuration in this variant."
+  ],
+  "completion_receipt": "ARGFORMER_END_TO_END_SOURCE_COVERAGE.json",
+  "additional_closure_findings": "ARGFORMER_SOURCE_CLOSURE_FINDINGS.json"
+}

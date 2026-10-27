@@ -1,0 +1,25 @@
+{
+  "schema": "TreeLoom_telemetry_failure_static_diagnosis_v1",
+  "status": "high_confidence_initial_status_race_no_exception_receipt",
+  "sampler_ref": {
+    "path": "research/efficiency_20261027/root/sample_active_profile.py",
+    "sha256": "150f639df177866df8f31c57915674337bed66b3f292588786d15ac066e1a927"
+  },
+  "evidence": {
+    "telemetry_header_mtime": 1793063580.02988,
+    "initial_admission_snapshot_unix": 1793063582.159389,
+    "launch_unix": 1793063582.164756,
+    "CSV_bytes": 61,
+    "process_JSONL_bytes": 0,
+    "both_nvidia_smi_query_forms_succeeded_during_read_only_inspection": true
+  },
+  "cause": "Sampler validates request.json then opens outputs and immediately reads status.json. Guardian creates request first but writes initial status only after campaign/GPU admission checks. Header creation precedes initial admission snapshot by2.1295seconds, consistent with first-read FileNotFoundError. No captured exception log proves the exact historical exception.",
+  "minimum_remedy": [
+    "Catch FileNotFoundError for status.json, record a waiting event, continue bounded sampling or wait briefly for initial status.",
+    "Record query timeout/failure and JSON decode errors in a separate diagnostics JSONL and stderr, with explicit terminal summary.",
+    "Use a new telemetry version/path or output prefix. Preserve existing header-only and empty historical files.",
+    "Validate selected device UUID from request, collect device counters and process memory separately, and capture observation times and query durations.",
+    "Do not attribute device-wide utilization, power or memory to the owned profile on a shared GPU. Join telemetry by stage wall-clock intervals and identify profile PID/start ticks for process accounting."
+  ],
+  "scope": "Read-only inspection and two successful nvidia-smi metadata queries; no helper modifications, sampler launches, worker changes or GPU computation."
+}

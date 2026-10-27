@@ -1,0 +1,106 @@
+{
+  "schema": "TreeLoom_explicit_resident_static_analysis_v1",
+  "created_UTC": "2026-10-27T01:27:04.540329+00:00",
+  "status": "analytical_only",
+  "metadata_ref": {
+    "path": "research/preprocessing_optimization_20261026/integration/full_candidate.json",
+    "sha256": "13b06abd75afa0a199b5649de744b97871259be891ae50b55fa40cac678a15c0"
+  },
+  "source_refs": [
+    {
+      "path": "research/efficiency_20261027/execution/explicit_vjp.py",
+      "sha256": "19163f7d11d80c7279f987ad50b5514e761868e163aa3bfb6ef15f209e8bb757"
+    },
+    {
+      "path": "research/efficiency_20261027/execution/explicit_resident_vjp.py",
+      "sha256": "687ca3455224c8d07c491220b2293f3372d4afd672ebaf94c045284a5221c8c6"
+    },
+    {
+      "path": "research/efficiency_20261027/execution/compare_explicit_resident_vjp.py",
+      "sha256": "afb6d27abd8eae573d93e4a1e229029c169aafab69b19ed57c10b88d8c3ffaa0"
+    },
+    {
+      "path": "research/efficiency_20261027/execution/full_gpu_peak_static_accounting.json",
+      "sha256": "cd81c297e243ea5de8a2acc33454303a774b00307e0b66bc14dea5e2fea3cc1b"
+    },
+    {
+      "path": "research/efficiency_20261027/root/context_residency.py",
+      "sha256": "e2d59f25b4bda24411539728f35fc10f019ffcfe585f7dbf7667d0115083ef56"
+    }
+  ],
+  "native_holds": 77472,
+  "native_nodes": 205369272,
+  "haplotypes": 1600,
+  "bytes": {
+    "one_node32": 26287266816,
+    "up_and_out": 52574533632,
+    "context": 15866265600,
+    "two_contexts": 31732531200,
+    "forcing": 1201468032,
+    "readout": 1201468032,
+    "one_direction_leaf_history": 3966566400,
+    "direct_upward_adjoint": 26287266816,
+    "cut_representative_pair32": 9611744256
+  },
+  "derivative": {
+    "forward": "No-grad original first/forcing, unchanged complete bidirectional history, original resident second.",
+    "reverse_order": [
+      "Every second block: direct upward/readout VJPs and all local parameter contributions.",
+      "One complete bidirectional history VJP: forcing and ell; all window carries preserved.",
+      "Each forcing VJP plus saved direct-upward VJP, then original first-sweep joint VJP."
+    ],
+    "resident_difference": "Identity placement change at final second-sweep boundary; same external VJP on model device.",
+    "parameter_updates_inside": false,
+    "clip_inside": false,
+    "history_truncation": false,
+    "higher_order_supported": false,
+    "stochastic_trunk_replay_supported": false
+  },
+  "composition_GPU_timeline": [
+    {
+      "stage": "first/forcing/history forward",
+      "large_retained_CUDA_bytes": 0,
+      "extra": "Only bounded tree/history workspaces; CPU first states and complete forcing/readout retained."
+    },
+    {
+      "stage": "second forward before concat",
+      "large_retained_CUDA_bytes": 15866265600,
+      "extra": "All output blocks total C, plus current block workspace."
+    },
+    {
+      "stage": "context concat",
+      "large_retained_CUDA_bytes": 31732531200,
+      "extra": "Output list and concatenated tensor coexist; list then released."
+    },
+    {
+      "stage": "decoder",
+      "large_retained_CUDA_bytes": 31732531200,
+      "extra": "Full context plus full VJP, one contiguous full-sequence GRU tile and activation/workspace."
+    },
+    {
+      "stage": "explicit trunk backward",
+      "large_retained_CUDA_bytes": 31732531200,
+      "extra": "Caller retains context and VJP; one local tree graph or one history window. No global first-state CUDA boundary graph."
+    }
+  ],
+  "composition_host_caveat": "Saved up/out 2A plus direct upward adjoints A remain full-parent CPU arrays; forcing/readout and history arrays overlap. This is not an RSS guarantee.",
+  "measurement_required": [
+    "Actual synchronized allocator peaks in each full stage.",
+    "Physical GPU free/reserved headroom and concurrent-job admission.",
+    "Actual RSS/PSS, strict all-49 gradient/AdamW/zero-argmax full qualification.",
+    "Stage timing with occupancy/host-launch telemetry before claiming useful GPU duty."
+  ],
+  "first_state_residency_only_analysis": {
+    "implemented": false,
+    "retain_pair_then_force_peak_bytes": 52574533632,
+    "retain_up_during_history_bytes": 26287266816,
+    "second_conversion_retained_formula": "A_remaining + C_completed <= A for this parent before local scratch.",
+    "concat_peak_bytes": 31732531200,
+    "improved_forward_order": "Compute each first block then forcing immediately; free outside; retain upward until second. Forcing is independent of eligible. Global finite-episode validation still precedes second.",
+    "improved_forward_peak": "A plus one outside block and bounded first/forcing scratch; no full pair retention needed.",
+    "host_snapshot_choice": "Saving original up/out on CPU preserves current two first-sweep evaluations per update but keeps 2A D2H payload.",
+    "no_snapshot_choice": "Release learned GPU states without CPU snapshots, then replay first under no-grad for each second VJP and replay with grad after full history adjoint for combined forcing/first VJP. Three first-sweep evaluations per update, versus current two.",
+    "dependency": "Complete history adjoint requires all readout VJPs before forcing VJPs, so second-block graph cannot simply fuse into later first VJP without retaining graphs or recomputing.",
+    "occupancy_limit": "Residency removes transfers and CPU indexing/scanning work but retains depth-wise kernels and host launches. It does not alone establish 80 percent useful GPU duty."
+  }
+}

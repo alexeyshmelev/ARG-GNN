@@ -3,18 +3,19 @@
 <!-- efficiency-20261027:start -->
 ## TreeLoom efficiency work, 27 October
 
-**The requested 80% sustained useful GPU utilization has not been reached.** A 120-second sample measured GPU 3 at 10% average utilization. Current four-process input preparation overlaps training, so the next optimization targets CPU tensor assembly and GPU transfers inside the training step.
+**The requested 80% sustained useful GPU utilization has not been reached.** Current four-process input preparation overlaps training. The measured warm bottleneck is CPU tensor assembly and CPU/GPU transfers during context construction and backward.
 
 | Candidate | Verified result | Decision |
 |---|---|---|
-| Level-local tree execution | CPU improvement on 128 trees, but warm GPU median 0.773 s versus 0.628 s for the original. Outputs, all 49 gradients and the AdamW update agree within FP32 tolerances. | Not deployed. Small CPU gains did not transfer to this GPU test. |
-| Eight CPU threads and categorical/layout reuse | Full 30 Mb chromosome comparison is running with all 77,472 trees, 1,600 haplotypes and 10,000 original targets. | Whole-training result pending. |
-| GPU-resident leaf context | Strict numerical parity passed. Eight balanced GPU rounds: median 0.590 s versus original 0.638 s. Five decoder edge cases passed. | Full-chromosome memory and performance qualification pending. |
-| TreeLoom-Transport | Changed architecture using tree filtering and genomic scans passed an observed-tree CPU smoke test. | Ancestry accuracy and full-parent scalability remain untested. |
+| Eight CPU threads and categorical/layout reuse | Full 30 Mb TRAIN chromosome, 77,472 trees and 10,000 original targets: 467 s versus original CPU1 604 s, about 23% lower. One call per arm. | Full timing evidence. The original diagnostic used a looser numerical gate and did not check changed classes. Production is unchanged. |
+| Explicit blockwise backward | Strict logits, loss, all 49 gradients and one clipped AdamW update pass on 128 actual trees in four blocks. Zero changed classes. Six balanced warm rounds: 1.120 s versus integrated CPU8 1.330 s. | Strict full-chromosome qualification running. |
+| GPU-resident final leaf context | Eight balanced rounds: 0.590 s versus original 0.638 s. Strict parity and five decoder edge cases pass. | Composition with explicit backward is being qualified for full-parent memory. |
+| Level-local tree execution | Both implementations remained slower on GPU despite a CPU improvement. | Rejected for deployment. |
+| TreeLoom-Transport | Changed architecture has algebra and observed-tree numerical checks. Tiny bounded partitions lowered GPU memory but made execution slower. | Larger staged operations in development. Predictive accuracy remains untested. |
 
-The initial GPU slice measurements used a shared device and two warm samples per arm. The newer residency result used eight balanced rounds on GPU 4. They are engineering diagnostics, not ancestry scores or a whole-chromosome speed claim. No production training, author model, simulation or benchmark endpoint has been changed by this study. A changed architecture must earn acceptance on the frozen validation data without an allowed accuracy decrease.
+These are engineering measurements, not ancestry scores. GPU 5 is shared with another project benchmark, so its device-wide utilization cannot be attributed wholly to the diagnostic. No author implementation, simulation or benchmark endpoint has been changed. A changed architecture needs paired training and validation before an accuracy claim.
 
-[Live work plan](research/efficiency_20261027/PLAN.md) · [GPU measurements](research/efficiency_20261027/root/slice_decision.json) · [Source fidelity review](research/efficiency_20261027/fidelity/REPORT.txt) · [Candidate design and limitations](research/efficiency_20261027/architecture/design_and_evidence.json)
+[Work plan](research/efficiency_20261027/PLAN.md) · [Full timing review](research/efficiency_20261027/fidelity/FULL_HOST_PARALLELISM_REVIEW.json) · [Strict backward comparison](research/efficiency_20261027/fidelity/EXPLICIT_VJP_SLICE_REVIEW.json) · [Source fidelity review](research/efficiency_20261027/fidelity/REPORT.txt)
 <!-- efficiency-20261027:end -->
 
 <!-- requested-corrections-20261027:start -->

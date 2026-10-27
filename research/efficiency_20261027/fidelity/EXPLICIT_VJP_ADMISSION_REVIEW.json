@@ -1,0 +1,73 @@
+{
+  "schema": "TreeLoom_explicit_VJP_admission_review_v1",
+  "status": "guarded_slice_admission_approved_numerical_result_pending",
+  "sources": [
+    {
+      "path": "research/efficiency_20261027/execution/compare_explicit_vjp.py",
+      "sha256": "868b8a32913fe1ea786983e513925fe69ccb350afbb57dffc00b016328f3d6a8"
+    },
+    {
+      "path": "research/efficiency_20261027/execution/compare_full_context.py",
+      "sha256": "3e2f14a3af10ed3aa7daca217f2dfe948ffafb49e67ddc5f850833877ec0f4b5"
+    },
+    {
+      "path": "research/efficiency_20261027/root/compare_host_parallelism.py",
+      "sha256": "eafa5cc4d8f82f6abbd63d4f69cbd6e25827ada58c08bdad781f5b688a92aed0"
+    },
+    {
+      "path": "research/efficiency_20261027/execution/explicit_vjp.py",
+      "sha256": "19163f7d11d80c7279f987ad50b5514e761868e163aa3bfb6ef15f209e8bb757"
+    },
+    {
+      "path": "research/efficiency_20261027/execution/test_explicit_vjp.py",
+      "sha256": "a594eb11f256ef818eeeaedfac9eccb8db6f88e58725d43837cc2f49552f6ecb"
+    },
+    {
+      "path": "research/efficiency_20261027/execution/explicit_vjp_cpu_results.json",
+      "sha256": "bbd9e0863cf635529d4bc6021ce963f8fdc6644e0db8220bfd8528dd503fcd89"
+    }
+  ],
+  "CPU_receipt": {
+    "status": "pass",
+    "native_holds": 128,
+    "haplotypes": 1600,
+    "tree_blocks": 4,
+    "history_windows": 8,
+    "output_max_abs_error": 0.0,
+    "gradient_max_abs_error": 7.450580596923828e-09,
+    "connected_trunk_parameters": 37,
+    "compared_gradients_including_seeded_decoder": 49,
+    "existing_decoder_gradient_preservation": true,
+    "limits": "Nonlinear trunk probe with seeded0.125 decoder gradients; no actual focal decoder or optimizer executed in CPU harness. No GPU or full-parent claim."
+  },
+  "runner_chain": [
+    "Restore checkpoint241 model, AdamW state and RNG every call; FP32 and TF32 disabled.",
+    "Authenticate original TRAIN000 observed packet and selected original TRAIN focals using reviewed prepare; held-out truth stays sealed.",
+    "Original decode_parent_backward computes actual decoder gradients and complete CPU context VJP.",
+    "context.backward(vjp) then merges explicit trunk gradients through outer autograd.",
+    "Capture all49 finite preclip gradients, clip once at1, step original AdamW once, require all49 counters242.",
+    "Compare all logits, scalar loss, gradients, parameters and moments elementwise using declared strict tolerances, plus zero argmax disagreement.",
+    "Write per-arm numerical comparison before rejecting; recheck source pins before every call and before completion."
+  ],
+  "admission_configuration": {
+    "physical_GPU": 5,
+    "host_cap_GiB": 24,
+    "device_soft_budget_GiB": 8,
+    "mode": "slice",
+    "holds_per_block": 32,
+    "native_holds": 128,
+    "timed_rounds": 6,
+    "balanced_order": true,
+    "external_guardian_required": true
+  },
+  "limits": [
+    "Guarded diagnostic admission is not numerical acceptance or production adoption.",
+    "Default128 holds per block would exercise one tree block; agreed32 yields4.",
+    "Hardcoded1024 history window means GPU slice covers one history window; CPU test covers8 and full parent must cover complete multiwindow history.",
+    "Single128hold slice truncates history outside that support and is not full-parent accuracy/performance evidence.",
+    "CPU full boundary/cotangent arrays can remain large on full parents.",
+    "Memory stage intervals record allocator peaks; sparse explicit-VJP boundary samples are not peaks."
+  ],
+  "no_blocking_static_findings": true,
+  "reviewer_actions": "No launches, source changes, prediction/target joins or large array reads."
+}
