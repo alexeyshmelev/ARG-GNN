@@ -1,0 +1,64 @@
+--- qualification_combined_v1.py
++++ qualification_combined_v2.py
+@@ -2,7 +2,7 @@
+ import math
+ from pathlib import Path
+ from arggnn.benchmarking import contracts as c
+-from .configuration_combined_v1 import configuration, PINS, GIB
++from .configuration_combined_v2 import configuration, PINS, GIB
+ from .envelope_combined_v1 import validate_declaration, predecessor_request
+ from . import entrypoint_v3 as original_entry
+ from research.efficiency_20261027.architecture.exact_upward_residency.full_release_v2 import (
+@@ -30,24 +30,36 @@
+     return manifest
+ 
+ 
++def qualification_paths(record, command):
++    # The ROOT launcher may write absolute --output paths while c.file_ref
++    # serializes relative paths. Preserve ordinary-path and traversal guards
++    # before comparing canonical project locations.
++    ordinary = original_entry.previous._ordinary_path
++    directory = ordinary(record['launch_ref']['path'], regular_file=True).parent
++    need(directory.is_relative_to(c.ROOT/BASE/'root/runs')
++         and ordinary(record['actual_wait_ref']['path'], regular_file=True).parent == directory
++         and ordinary(record['request_ref']['path'], regular_file=True).parent == directory,
++         'One ROOT-owned exact qualification family required')
++    need(type(command) is list and command.count('--output') == 1
++         and command.index('--output')+1 < len(command), 'Explicit worker output argument required')
++    output = ordinary(command[command.index('--output')+1])
++    completed = ordinary(record['completed_ref']['path'], regular_file=True)
++    need(output.is_dir() and output.parent == directory and completed == output/'completed.json',
++         'Completion must belong to the exact launched ordinary worker output')
++    return directory, output
++
++
+ def terminal_run(record, module, manifest_path):
+     need(type(record) is dict and set(record) == {'completed_ref', 'request_ref', 'launch_ref', 'actual_wait_ref'},
+          'Exact completed/request/launch/actual-wait references required')
+     completed, request, launch, wait = (read(record[key]) for key in
+         ('completed_ref', 'request_ref', 'launch_ref', 'actual_wait_ref'))
+-    directory = Path(record['launch_ref']['path']).parent
+-    need(directory.is_relative_to(Path(BASE)/'root/runs')
+-         and Path(record['actual_wait_ref']['path']).parent == directory
+-         and Path(record['request_ref']['path']).parent == directory,
+-         'One ROOT-owned exact qualification family required')
+     command = request.get('command')
+     need(type(command) is list and command == launch.get('actual_argv')
+          and command.count('-m') == command.count('--output') == 1
+          and command[command.index('-m')+1] == module,
+          'Exact readable reviewed worker launch required')
+-    output = Path(command[command.index('--output')+1])
+-    need(output.parent == directory and Path(record['completed_ref']['path']) == output/'completed.json',
+-         'Completion must belong to the exact launched worker output')
++    qualification_paths(record, command)
+     validate_completion(launch, wait, identity(launch['pid']), owned_group_members(launch['pid']))
+     manifest_ref = c.file_ref(manifest_path)
+     need(completed.get('source_manifest_ref') == manifest_ref,
+@@ -181,6 +193,6 @@
+          and result_review.get('residency_full_ref') == release['residency_full']['completed_ref']
+          and result_review.get('preparation_comparison_ref') == release['preparation_comparison']['completed_ref'],
+          'Independent terminal-evidence review must bind every selected completed result')
+-    from . import training_combined_v1 as training
++    from . import training_combined_v2 as training
+     training.requirements(selected)
+     return release

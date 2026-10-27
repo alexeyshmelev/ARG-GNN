@@ -1,0 +1,53 @@
+--- test_scheduler_restore_combined_v1.py
++++ test_scheduler_restore_combined_v2.py
+@@ -12,10 +12,10 @@
+ import torch
+ from arggnn.benchmarking import contracts as c
+ from arggnn.benchmarking.paper_campaign import runtime,repairs,scheduler
+-from . import entrypoint_combined_v1 as entry
+-from . import restore_entrypoint_combined_v1 as restore
+-from . import prepare_task_combined_v1 as builder
+-from .configuration_combined_v1 import configuration, EXPECTED
++from . import entrypoint_combined_v2 as entry
++from . import restore_entrypoint_combined_v2 as restore
++from . import prepare_task_combined_v2 as builder
++from .configuration_combined_v2 import configuration, EXPECTED
+ from .envelope_combined_v1 import resource_declaration
+ 
+ BASE=c.ROOT/'research/efficiency_20261027/integration_candidate'
+@@ -39,7 +39,7 @@
+ def main():
+     assert not torch.cuda.is_initialized()
+     original=c.read_json(JOB)
+-    directory=BASE/'scheduler_restore_combined_fixture_v1'
++    directory=BASE/'scheduler_restore_combined_fixture_v2'
+     project=directory/'project'
+     project.mkdir(parents=True,exist_ok=False)
+     config=configuration(dict(EXPECTED))
+@@ -95,7 +95,7 @@
+             predecessor_actual_wait_ref=wait_ref,checkpoint_ref=c.file_ref(captured),evidence_ref=evidence_ref,
+             predecessor_job_ref=job_ref,preserved_history_refs=declared)
+         transition_ref=put(work/'transition.json',transition)
+-        fake_builder=work/'prepare_task_combined_v1.py'
++        fake_builder=work/'prepare_task_combined_v2.py'
+         fake_builder.write_text(original_builder)
+         fake_repairs=work/'repairs.py'
+         fake_repairs.write_text(original_repairs)
+@@ -179,7 +179,7 @@
+                 c.file_ref(row['source_ref']['path'])==row['source_ref'] for row in history_files)
+             restored_bytes=runtime.scope_bytes(native)
+     receipt=dict(status='passed',test_ref=c.file_ref(Path(__file__).resolve()),
+-        source_pins_ref=c.file_ref(BASE/'source_pins_combined_v1.json'),CPU_only=True,CUDA_initialized=torch.cuda.is_initialized(),
++        source_pins_ref=c.file_ref(BASE/'source_pins_combined_v2.json'),CPU_only=True,CUDA_initialized=torch.cuda.is_initialized(),
+         actual_repairs_prepare_and_apply_pending_used=True,actual_runtime_run_task_and_ResourceCheck_used=True,
+         actual_validate_history_restore_history_and_live_transition_used=True,
+         original_outer_scope_absent_for_repair=True,outer_created_by_simulated_scheduler_before_runtime=True,
+@@ -190,7 +190,7 @@
+         metadata_tamper_missing_history_live_predecessor_undeclared_cap_budget_overflow_rejected=True,
+         release_authentication_mocked_and_separately_tested=True,numerical_training_mocked=True,
+         no_training_or_scheduler_loop_or_process_launch=True,production_modified=False,jobs_started=0)
+-    put(BASE/'SCHEDULER_RESTORE_COMBINED_CPU_v1.json',receipt)
++    put(BASE/'SCHEDULER_RESTORE_COMBINED_CPU_v2.json',receipt)
+     print(json.dumps(receipt,indent=2))
+ 
+ 

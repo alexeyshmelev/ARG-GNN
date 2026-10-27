@@ -1,0 +1,111 @@
+{
+  "schema": "TreeLoom_two_parent_preparation_source_review_v1",
+  "passed": true,
+  "ready_for_ROOT_live_admitted_CPU_comparison": true,
+  "source_manifest_ref": {
+    "path": "research/efficiency_20261027/execution/source_pins_two_parent_comparison_v1.json",
+    "sha256": "5ccc84aa7a767987955cd1495149e03fbfb3df80af28fdc0df56417961f5c302"
+  },
+  "runner_ref": {
+    "path": "research/efficiency_20261027/execution/compare_two_parent_preparation_v1.py",
+    "sha256": "17f092e02286fd9c6a554d308d07fdc7585387506798712f2964c6624d1f117b"
+  },
+  "launcher_ref": {
+    "path": "research/efficiency_20261027/execution/launch_two_parent_comparison_v1.py",
+    "sha256": "279f6e23f0a77275d940b791a7e946ab0715ab91fc190bfe44040aeadb389cae"
+  },
+  "spec_ref": {
+    "path": "research/efficiency_20261027/execution/TWO_PARENT_COMPARISON_SPEC_v1.json",
+    "sha256": "6a20b1f61f34fed96b872d3fd57607cc695b486ce547c58a73606ff5937b09dd"
+  },
+  "adaptive_source_review_ref": {
+    "path": "research/efficiency_20261027/fidelity/ADAPTIVE_PREFETCH_V2_SOURCE_REVIEW.json",
+    "sha256": "0581142d6616a172827abd45356771f1be4d1938ec329b040c622bed0732bc86"
+  },
+  "CPU_runner_evidence_ref": {
+    "path": "research/efficiency_20261027/execution/TWO_PARENT_RUNNER_CPU_v1.json",
+    "sha256": "fd4a0be80af96bb1010941213a2457de83bf07ccfda60a32540654cb6bc33f39"
+  },
+  "supplemental_lifecycle_source_ref": {
+    "path": "src/arggnn/benchmarking/paper_campaign/processes.py",
+    "sha256": "9860e688fe204196b72d5a868edd4a0df9287f349dce1beb39b48d6a94604f84"
+  },
+  "supplemental_lifecycle_binding": "The existing comparison manifest pins the ROOT peer guardian. ROOT explicitly agreed to verify this separately recorded processes.py helper hash at launch; no runner rewrite is required.",
+  "manifest_lineage": {
+    "adaptive_refs_unchanged": 214,
+    "changed": 0,
+    "removed": 0,
+    "new_refs_checked": 36,
+    "comparison_total_refs": 250
+  },
+  "protocol": {
+    "frozen_checkpoint_update": 268,
+    "parents": [
+      "argformer_american_train_001",
+      "argformer_american_train_007"
+    ],
+    "native_holds": [
+      76578,
+      76049
+    ],
+    "original_sites": [
+      226337,
+      227600
+    ],
+    "length_bp_each": 30000000,
+    "haplotypes": 1600,
+    "focals_each": 10000,
+    "selection": "First two distinct parents in original remaining schedule; both fresh arms use the same immutable268 boundary and inputs.",
+    "arms": [
+      "one serial pair with4 encoder workers",
+      "one adaptive concurrent pair with up to2x4 encoder workers"
+    ],
+    "timed_interval": "Complete load, prepare and lossless pack until both futures return.",
+    "full_restore_and_array_scalar_provenance_signatures": "After timing, exact comparison between arms.",
+    "training_or_optimizer_or_truth_calls": 0,
+    "GPU_initialization": false,
+    "modelled_foreground_reserve_bytes": 137438953472
+  },
+  "substantive_lifecycle_review": [
+    "Serial prefetch owns one future. The coordinator waits that exact future; only the next prefetch clears the completed previous future after result() succeeds and then creates the second. A producer never replaces the future.",
+    "Concurrent submissions claim distinct absent parents once, with joint phase/child admission. Futures are awaited without holding pool/governor locks; an optional deferral is reported and may fall back to serial supply.",
+    "Original encoder uses ProcessPoolExecutor with spawn in a context manager. Both normal return and exception unwinding wait for child completion; pending work is cancelled where possible. Adaptive credits remain through packing.",
+    "Arm close stops only its own producers, cancels queued work and joins workers; it does not signal production or unrelated processes. The outer ROOT guardian supplies the finite wall bound and exceptional owned-session drain if cooperative work stalls.",
+    "Read-only recursive sampler separates resource_tracker from encoder workers, recordsPID/start identities and current mainRSS/familyPSS, and limits encoder workers to4 or8 per arm.",
+    "Coordinator actual-waits each fresh arm, requires returncode0, then checks every trackedPID/start identity is absent before the next arm. It records actual wait and family-absence evidence.",
+    "Guardian process helper selects the original process session/group, checks project cwd andPID/start identity, uses pidfd signaling for owned cleanup and includes all session members in familyPSS."
+  ],
+  "resource_envelope": {
+    "actual_whole_experiment_family_cap_bytes": 309237645312,
+    "internal_governor_bytes": 635655159808,
+    "preparation_reserve_each_bytes": 137438953472,
+    "child_allowance_each_bytes": 8589934592,
+    "outer_wall_seconds": 12000,
+    "arm_wall_seconds": 5400,
+    "outer_output_cap_bytes": 67108864,
+    "sample_interval_seconds": 2,
+    "ROOT_peer_required": "research/efficiency_20261027/root/runs/upward_residency_full_gpu5_v2",
+    "live_host_campaign_peer_growth_admission_required": true
+  },
+  "limitations": [
+    "One fixed-order serial-then-concurrent pair is subject to filesystem cache and order bias.",
+    "128GiB foreground headroom is reserved arithmetically; actual concurrent learned training contention is not measured.",
+    "Two-second family samples are sampled peaks, not continuous maxima; outer actual-session guard remains authoritative.",
+    "Success with fewer than8 observed simultaneous encoder workers or optional deferral is not evidence of an8-worker overlap peak.",
+    "Exact preparation/signature success does not establish learned-training speedup or authorize production deployment."
+  ],
+  "reviewer_reads": {
+    "source_and_small_JSON_read": true,
+    "bounded_data_refs_hashed_only": [
+      "two focal NPZ files141512B and141403B",
+      "immutable update268 checkpoint483558B"
+    ],
+    "data_arrays_decoded_or_loaded": false,
+    "checkpoint269_inspection_repeated": false
+  },
+  "blocking_findings": [],
+  "runtime_result_available": false,
+  "production_qualified": false,
+  "production_modified": false,
+  "launches_by_reviewer": 0
+}

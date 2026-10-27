@@ -1,0 +1,67 @@
+--- restore_entrypoint_v3.py
++++ restore_entrypoint_combined_v1.py
+@@ -7,8 +7,9 @@
+ """
+ import copy
+ import json
+-from . import entrypoint_v3 as entry
+-from . import training_v3 as training
++from . import entrypoint_combined_v1 as entry
++from .envelope_combined_v1 import validate_arguments, validate_task
++from . import training_combined_v1 as training
+ 
+ OUTER_METADATA_ALLOWANCE_BYTES=2**20
+ REQUEST_KEYS={'stage','arguments','preprocessing_release_ref','execution_release_ref','transition_ref','attempt_id'}
+@@ -55,10 +56,9 @@
+         and entry.c.file_ref(checkpoint)==arguments['resume_checkpoint_ref'],
+         'Exact immutable bounded captured checkpoint required')
+     prior=entry.read(transition['predecessor_job_ref'])
+-    old=prior['call']['spec']['arguments']
+-    for key in ('parent_registry_ref','train_inputs','max_rss_bytes','observation_cache_bytes',
+-                'preparation_headroom_bytes','training_headroom_bytes','max_truth_uncompressed_bytes'):
+-        entry.need(arguments[key]==old[key],'Original task inputs and memory envelope must be preserved: '+key)
++    entry.need(transition['predecessor_job_ref'] == release['resource_declaration']['predecessor_job_ref'],
++        'Transition must bind the declared attempt7 predecessor')
++    validate_arguments(prior, arguments, release)
+     root,history,files=entry.previous.validate_history(request['preserved_history_ref'])
+     entry.need(entry.previous._ordinary_path(prior['output_directory'],allow_missing=True)==root.parent,
+                'Original scheduler outer output must own the native history')
+@@ -90,19 +90,18 @@
+     probe=dict(arguments,output_directory=str(leaf.relative_to(entry.c.ROOT)))
+     spec=training.build_spec(**probe)
+     budget=output_budget(prior,history,spec)
+-    return dict(spec=spec,budget=budget,prior=prior,history=history,leaf=leaf,root=root)
++    return dict(spec=spec,budget=budget,prior=prior,history=history,leaf=leaf,root=root,release=release)
+ 
+ 
+-def validate_resource_callback(resource_check,prior):
+-    # python -m defines ResourceCheck in __main__. Exact class identity against
+-    # a separately imported canonical module is therefore not a valid contract.
+-    # Authenticate the callable's admitted task and unchanged resource scope.
+-    entry.need(callable(resource_check),'Admitted worker resource callback required')
+-    task=getattr(resource_check,'task',None)
+-    entry.need(type(task) is dict,'Resource callback must expose its exact admitted task')
+-    for key in ('max_rss_bytes','max_output_bytes','max_seconds','minimum_free_gpu_bytes','output_directory'):
+-        entry.need(key in task and key in prior and task[key]==prior[key],
+-                   'Admitted successor must preserve scheduler envelope: '+key)
++def validate_resource_callback(resource_check, prior, release, request):
++    # The admitted class can be __main__.ResourceCheck under python -m.
++    entry.need(callable(resource_check), 'Admitted worker resource callback required')
++    task=getattr(resource_check, 'task', None)
++    entry.need(type(task) is dict, 'Resource callback must expose its exact admitted task')
++    validate_task(task, prior, release)
++    entry.need(task.get('call') == dict(
++        module='research.efficiency_20261027.integration_candidate.restore_entrypoint_combined_v1',
++        function='run_task', spec=request), 'The actual admitted request must equal this reviewed successor')
+     return task
+ 
+ 
+@@ -111,7 +110,7 @@
+     checked=preflight(request)
+     # The unchanged runtime owns admission. Its starting metadata may exist only
+     # in the outer scope; validate_history requires the native root still absent.
+-    validate_resource_callback(resource_check,checked['prior'])
++    validate_resource_callback(resource_check,checked['prior'],checked['release'],request)
+     resource_check(checked['budget']['required_output_bytes'])
+     entry.previous.restore_history(request['preserved_history_ref'],resource_check=resource_check)
+     return entry.run_task(request['successor'],resource_check=resource_check)

@@ -1,0 +1,46 @@
+{
+  "GPU_work_authorized_or_launched_by_this_artifact": false,
+  "actual_U_bytes": 26287266816,
+  "actual_complete_context_or_VJP_bytes": 15866265600,
+  "actual_largest_upward_block_bytes": 177466112,
+  "assumptions": [
+    "Original upward block and all local autograd aliases are destroyed after its second VJP.",
+    "Direct gradients replace upward blocks in reverse order, preserving exact parameter contribution order.",
+    "Two additional complete GPU context/VJP tensors are counted simultaneously; full history remains CPU.",
+    "Original16GiB scratch floor is retained in the analytic screen.",
+    "Measured allocated/reserved peaks are top-level stage peaks, not per-block timeline proof; allocator fragmentation and residency-specific workspace can change."
+  ],
+  "conclusion": "Joint residency is arithmetically plausible inside74GiB but requires actual qualification; implement release with CPU context first and validate CPU lifetimes/parity before any ROOT GPU work.",
+  "huge_arrays_reopened": false,
+  "indicative_calculation_is_not_a_bound": true,
+  "indicative_peak_reserved_after_release_plus_two_C_bytes": 70426824448,
+  "joint_U_plus_largest_block_plus_two_C_plus16GiB_bytes": 75377133312,
+  "joint_payload_and_scratch_GiB": 70.20042586326599,
+  "margin_below74GiB_bytes": 4079761664,
+  "measured_original_resident_peak_allocated_bytes": 59850576384,
+  "measured_original_resident_peak_reserved_bytes": 64804093952,
+  "measured_source_ref": {
+    "path": "research/efficiency_20261027/root/runs/upward_residency_full_gpu5_v2/data/completed.json",
+    "sha256": "8529b65d7eaa591ff12bc244a742a92a94b4ae5f59e4ccd38e644f1c4029701c"
+  },
+  "proposed_implementation_scope": "Separate unregistered single-use private ownership container, explicit version/storage checks, block release after final second VJP, new live-storage ledger, unchanged numerical kernels and contribution order.",
+  "release_bank_bound_bytes": 26464732928,
+  "schema": "TreeLoom_upward_release_joint_capacity_estimate_v1",
+  "stage_measurements": [
+    {
+      "peak_allocated_bytes": 28990627328,
+      "peak_reserved_bytes": 36920360960,
+      "stage": "profile_context_forward"
+    },
+    {
+      "peak_allocated_bytes": 32904499200,
+      "peak_reserved_bytes": 42932895744,
+      "stage": "profile_decoder_forward_backward"
+    },
+    {
+      "peak_allocated_bytes": 59850576384,
+      "peak_reserved_bytes": 64804093952,
+      "stage": "profile_trunk_backward"
+    }
+  ]
+}

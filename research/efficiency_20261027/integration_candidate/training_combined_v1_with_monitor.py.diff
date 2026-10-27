@@ -1,0 +1,111 @@
+--- training_adaptive_v2.py
++++ training_combined_v1.py
+@@ -25,8 +25,9 @@
+     AdaptiveCompactParents, AdaptiveMemoryGovernor as LayoutMemoryGovernor, EncoderCredits)
+ from research.efficiency_20261027.execution.adaptive_encoder_hooks_v2 import install_tree
+ from types import MappingProxyType
+-from .configuration_v1 import configuration
+-from .runtime_v1 import ExplicitFreshTreeLoom
++from .monitor_timing_combined_v1 import ResourceTiming
++from .configuration_combined_v1 import configuration
++from .runtime_combined_v1 import ExplicitFreshTreeLoom
+ import threading
+ 
+ SCHEMA = "treeloom_explicit_dynamic_layout_training_v1"
+@@ -47,7 +48,7 @@
+         raise c.ContractError(message)
+ 
+ 
+-EXECUTION_VARIANT = "explicit_VJP_CPU8_selected_block_dynamic_layout_adaptive_prefetch_v1"
++EXECUTION_VARIANT = "explicit_VJP_CPU8_512_boundary_resident_adaptive2_768GiB_v1"
+ SOURCE_PINS = "research/repairs/TreeLoom_lazy_compact_prefetch_20261024_v1/source_pins.json"
+ 
+ def requirements(execution_configuration):
+@@ -56,7 +57,7 @@
+     refs = reference_training.requirements()["source_refs"] + manifest["source_refs"]
+     for reference in refs:
+         _need(c.file_ref(reference["path"]) == reference, "Pinned static source changed")
+-    candidate_pins = "research/efficiency_20261027/integration_candidate/source_pins_adaptive_v2.json"
++    candidate_pins = "research/efficiency_20261027/integration_candidate/source_pins_combined_v1.json"
+     candidates = c.read_json(candidate_pins)["source_refs"]
+     for reference in candidates:
+         _need(c.file_ref(reference["path"]) == reference, "Immutable candidate source changed")
+@@ -75,6 +76,9 @@
+                 fresh_all20_CPU_encoding_before_first_update=False,
+                 CPU_Torch_threads=8,expanded_bank_IPC=False,
+                 executor_kind="explicit_vjp",context_residency="CPU",
++                executor_factory=selected["executor_factory"],boundary_fusion=True,
++                upward_direct_residency=True,resident_scratch_bytes=selected["resident_scratch_bytes"],
++                admitted_max_rss_bytes=selected["max_rss_bytes"],
+                 layout_cache_max_bytes=selected["layout_cache_max_bytes"],
+                 layout_cache_actual_RSS_admission=True,layout_cache_evict_unleased_before_phases=True,
+                 GNN_holds_per_block=selected["holds_per_block"], GRU_haplotypes_per_tile=64,
+@@ -116,6 +120,12 @@
+                observation_cache_bytes=128*2**30, max_truth_uncompressed_bytes=8*2**30,
+                resume_checkpoint_ref=None, resume_evidence_ref=None, execution_configuration=None):
+     selected = configuration(execution_configuration)
++    for key, actual in dict(max_rss_bytes=max_rss_bytes,
++            preparation_headroom_bytes=preparation_headroom_bytes,
++            training_headroom_bytes=training_headroom_bytes,
++            observation_cache_bytes=observation_cache_bytes).items():
++        _need(type(actual) is int and actual == selected[key],
++              "Exact separately declared combined memory envelope: "+key)
+     registry = fresh.FreshParentRegistry.from_ref(parent_registry_ref)
+     _bindings(registry, train_inputs)
+     _need(resume_checkpoint_ref is not None and resume_evidence_ref is not None,
+@@ -295,15 +305,26 @@
+     check_lock = threading.RLock()
+     pool_guard = [None]
+     event_lock = threading.RLock()
++    monitor_timing = ResourceTiming()
+     def resource_check(*args, **kwargs):
+         # Failure checks do not inspect/wait on futures under any callback lock.
+         if pool_guard[0] is not None:
+             pool_guard[0].raise_if_failed()
+         # The outer runtime's resource writer is process-local, not thread-safe.
++        queued = time.perf_counter()
+         with check_lock:
+-            worker_resource_check(*args, **kwargs)
+-            _need(_current_rss_bytes() <= spec["memory_envelope"]["max_rss_bytes"],
+-                  "Declared training process RSS cap exceeded")
++            acquired = time.perf_counter()
++            outer_finished = None
++            try:
++                worker_resource_check(*args, **kwargs)
++                outer_finished = time.perf_counter()
++                _need(_current_rss_bytes() <= spec["memory_envelope"]["max_rss_bytes"],
++                      "Declared training process RSS cap exceeded")
++            finally:
++                finished = time.perf_counter()
++                outer_end = finished if outer_finished is None else outer_finished
++                monitor_timing.record(args[0] if args else "unspecified",
++                    acquired-queued, outer_end-acquired, finished-outer_end)
+     resource_check("TreeLoom_explicit_RSS_envelope")
+     _need(os.environ.get("ARGGNN_PHYSICAL_GPU") in ("3", "4", "5")
+           and os.environ.get("CUDA_VISIBLE_DEVICES", "").startswith("GPU-")
+@@ -370,6 +391,8 @@
+         return c.file_ref(path)
+     def event(name,value):
+         resource_check("TreeLoom_progress")
++        if name == "complete_parent_update":
++            value = dict(value, resource_check_timing=monitor_timing.snapshot(labels=False))
+         raw=(json.dumps(dict(event=name,observed_unix=time.time(),**value),sort_keys=True,allow_nan=False)+"\n").encode()
+         path=out/"progress.jsonl"
+         with event_lock:
+@@ -518,6 +541,8 @@
+         pool.close()
+         layout_receipt=runtime.layout_cache.snapshot()
+         runtime.close_layout_cache()
++    from research.preprocessing_optimization_20261026.integration.hooks import verify_bindings
++    verify_bindings(preprocessing_bindings)
+     pool_receipt=pool.receipt()
+     pool_receipt["layout_cache"]=layout_receipt
+     _need(set(pool_receipt["preparations"])=={parent for _,parent in schedule[start_steps:]}
+@@ -547,6 +572,7 @@
+                   observed_cache_cap_bytes=spec["observation_cache_bytes"],
+                   compact_pool_receipt=pool_receipt,observation_disk_cache=False,
+                   preprocessing_bindings=preprocessing_bindings,
++                  resource_check_timing=monitor_timing.snapshot(),
+                   adaptive_two_parent_production_qualification_required=True,
+                   inherited_all20_barrier_reused=True,fresh_all20_eager_encoding=False,
+                   CPU_prefetch_workers=2,lookahead_parents=2,maximum_encoder_children=8,expanded_tensor_IPC=False,

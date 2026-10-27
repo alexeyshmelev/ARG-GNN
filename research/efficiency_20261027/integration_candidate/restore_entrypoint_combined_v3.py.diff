@@ -1,0 +1,24 @@
+--- restore_entrypoint_combined_v2.py
++++ restore_entrypoint_combined_v3.py
+@@ -7,9 +7,9 @@
+ """
+ import copy
+ import json
+-from . import entrypoint_combined_v2 as entry
+-from .envelope_combined_v1 import validate_arguments, validate_task
+-from . import training_combined_v2 as training
++from . import entrypoint_combined_v3 as entry
++from .envelope_combined_v2 import validate_arguments, validate_task
++from . import training_combined_v3 as training
+ 
+ OUTER_METADATA_ALLOWANCE_BYTES=2**20
+ REQUEST_KEYS={'stage','arguments','preprocessing_release_ref','execution_release_ref','transition_ref','attempt_id'}
+@@ -100,7 +100,7 @@
+     entry.need(type(task) is dict, 'Resource callback must expose its exact admitted task')
+     validate_task(task, prior, release)
+     entry.need(task.get('call') == dict(
+-        module='research.efficiency_20261027.integration_candidate.restore_entrypoint_combined_v2',
++        module='research.efficiency_20261027.integration_candidate.restore_entrypoint_combined_v3',
+         function='run_task', spec=request), 'The actual admitted request must equal this reviewed successor')
+     return task
+ 

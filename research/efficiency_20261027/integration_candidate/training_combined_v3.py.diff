@@ -1,0 +1,28 @@
+--- training_combined_v2.py
++++ training_combined_v3.py
+@@ -26,7 +26,7 @@
+ from research.efficiency_20261027.execution.adaptive_encoder_hooks_v2 import install_tree
+ from types import MappingProxyType
+ from .monitor_timing_combined_v1 import ResourceTiming
+-from .configuration_combined_v2 import configuration
++from .configuration_combined_v3 import configuration
+ from .runtime_combined_v1 import ExplicitFreshTreeLoom
+ import threading
+ 
+@@ -57,7 +57,7 @@
+     refs = reference_training.requirements()["source_refs"] + manifest["source_refs"]
+     for reference in refs:
+         _need(c.file_ref(reference["path"]) == reference, "Pinned static source changed")
+-    candidate_pins = "research/efficiency_20261027/integration_candidate/source_pins_combined_v2.json"
++    candidate_pins = "research/efficiency_20261027/integration_candidate/source_pins_combined_v3.json"
+     candidates = c.read_json(candidate_pins)["source_refs"]
+     for reference in candidates:
+         _need(c.file_ref(reference["path"]) == reference, "Immutable candidate source changed")
+@@ -79,6 +79,7 @@
+                 executor_factory=selected["executor_factory"],boundary_fusion=True,
+                 upward_direct_residency=True,resident_scratch_bytes=selected["resident_scratch_bytes"],
+                 admitted_max_rss_bytes=selected["max_rss_bytes"],
++                minimum_free_gpu_bytes=selected["minimum_free_gpu_bytes"],
+                 layout_cache_max_bytes=selected["layout_cache_max_bytes"],
+                 layout_cache_actual_RSS_admission=True,layout_cache_evict_unleased_before_phases=True,
+                 GNN_holds_per_block=selected["holds_per_block"], GRU_haplotypes_per_tile=64,

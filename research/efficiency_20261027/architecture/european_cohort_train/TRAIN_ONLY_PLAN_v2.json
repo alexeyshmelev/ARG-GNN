@@ -1,0 +1,194 @@
+{
+  "entrypoints": {
+    "factory": "build_spec",
+    "fit": "run_fit",
+    "module": "research.efficiency_20261027.architecture.european_cohort_train.driver_v2",
+    "qualification": "run_qualification",
+    "requires_callbacks": [
+      "resource_check",
+      "acquire_gpu0"
+    ]
+  },
+  "executor": {
+    "American1600_sample_initializers_used": false,
+    "European_history_and_initialization": true,
+    "GRU_chunk_holds": 1024,
+    "all_native_support_and_full_history_retained": true,
+    "class_name": "EuropeanBoundaryExecution",
+    "full_parent_context_on_CPU": true,
+    "haplotype_tile": 32,
+    "history_holds_per_window": 128,
+    "holds_per_block": 128,
+    "module": "research.efficiency_20261027.architecture.european_cohort_train.boundary_v1",
+    "observation_disk_cache": false
+  },
+  "fixed_science": {
+    "initialization": "Original seed101 weights plus256 zero cohort weights; no trained checkpoint.",
+    "length_bp": 200000000,
+    "output_classes": [
+      "Ana_nonBAA",
+      "CHG_nonBAA",
+      "WHG",
+      "EHG",
+      "Ana_viaBAA",
+      "CHG_viaBAA"
+    ],
+    "parents": [
+      "ancestralpaths_european_train_000",
+      "ancestralpaths_european_train_001",
+      "ancestralpaths_european_train_002"
+    ],
+    "passes": 30,
+    "queries": 686,
+    "sampled_quotas": [
+      16667,
+      16667,
+      16666
+    ],
+    "sampled_rows_per_pass": 50000,
+    "samples": 952,
+    "settings": {
+      "TEST_truth_access": false,
+      "betas": [
+        0.9,
+        0.999
+      ],
+      "checkpoint_epochs": [
+        5,
+        10,
+        15,
+        20,
+        25,
+        30
+      ],
+      "checkpoint_selection": "fixed_final_epoch30",
+      "epochs": 30,
+      "eps": 1e-08,
+      "gradient_clip_norm": 1.0,
+      "history_holds_per_window": 128,
+      "learning_rate": 0.001,
+      "loss": "mean_cross_entropy_per_registered_sampled_example_preserving_repeats",
+      "model_seed": 101,
+      "parent_order_seed": 101,
+      "precision": "fp32",
+      "validation_used_for_optimization": false,
+      "weight_decay": 0.0001
+    },
+    "updates": 90
+  },
+  "frozen_previous_plan_preserved": true,
+  "launch_authorized": false,
+  "no_launches": true,
+  "no_scientific_arrays_read_for_this_preparation": true,
+  "original_job_ref": {
+    "path": ".runtime/benchmarking/workflow_20261022_full_vram_v2/jobs/AP__all_train__treeloom_fit.json",
+    "sha256": "fecd670f6f26332ab165648f4d65ad51131650d195e86df2a39a5545f2b724c1"
+  },
+  "policy_ref": {
+    "path": "research/efficiency_20261027/fidelity/EUROPEAN_COHORT8_TRAIN_VAL_GATE_RECOMMENDATION.json",
+    "sha256": "277fd48fefaeb07a13f522b8b36cb3d266520a3e23b138d07d82e54998cda138"
+  },
+  "preserved_v1_plan_ref": {
+    "path": "research/efficiency_20261027/architecture/european_cohort_train/TRAIN_ONLY_PLAN_v1.json",
+    "sha256": "9f4b885d6338197faa149898acc83375ef218ba790160f354120dc5c20428bb1"
+  },
+  "qualification": {
+    "arms": [
+      "original European cohort8 staged executor",
+      "new European cohort8 boundary executor"
+    ],
+    "baseline_CPU_context_retained_until_candidate_forward_comparison": true,
+    "comparisons": [
+      "Complete context",
+      "all16667 six-class logits",
+      "mean sampled CE",
+      "clip norm",
+      "all49 raw gradients",
+      "all49 post-update parameters",
+      "all147 Adam tensors",
+      "zero argmax changes",
+      "all8 cohort channels nonzero finite gradients",
+      "RNG unchanged"
+    ],
+    "extra_all_row_decoder_pass_per_arm": true,
+    "fit_reuses_qualification_updates_or_checkpoint": false,
+    "full_length_bp": 200000000,
+    "full_parent_result_schema": "European_cohort8_full_parent_qualification_v2",
+    "full_rows": 16667,
+    "model_initial_state": "Same fresh seed101 for both; empty AdamW; each performsone complete-parent update.",
+    "other2_parent_GPU_peaks_measured": false,
+    "parent": "ancestralpaths_european_train_000",
+    "prepare_and_seal_all3_observations_before_TRAIN_targets": true,
+    "steady_state_performance_claimed": false,
+    "tolerances": {
+      "Adam": {
+        "atol": 1e-06,
+        "rtol": 0.0001
+      },
+      "context": {
+        "atol": 1e-06,
+        "rtol": 1e-05
+      },
+      "gradients": {
+        "atol": 1e-06,
+        "rtol": 0.0001
+      },
+      "logits": {
+        "atol": 1e-06,
+        "rtol": 1e-05
+      },
+      "loss": {
+        "atol": 1e-06,
+        "rtol": 1e-05
+      },
+      "norm": {
+        "atol": 1e-06,
+        "rtol": 0.0001
+      },
+      "parameters": {
+        "atol": 1e-06,
+        "rtol": 0.0001
+      }
+    }
+  },
+  "readiness": {
+    "ROOT_live_resource_admission_ref": null,
+    "ROOT_qualification_actual_wait_release_ref": null,
+    "full_parent_qualification_ref": null,
+    "independent_new_VAL_not_a_gate_for_frozen_TRAIN": true,
+    "source_review_ref": null
+  },
+  "resources": {
+    "actual_family_RSS_GPU_wall_and_aggregate_disk_guards_required": true,
+    "aggregate_run_reservation_proposal_bytes": 2147483648,
+    "checkpoint_bytes_serialized_and_bounded_in_RAM_before_write": true,
+    "checkpoint_count": 6,
+    "checkpoint_max_sum_bytes": 50331648,
+    "checkpoint_single_bound_bytes": 8388608,
+    "checkpoints_retained": true,
+    "finite_process_family_cap_required_from_ROOT": true,
+    "live_admission": false,
+    "measured_full_parent_peak_available": false,
+    "model_and_metadata_writer_cap_bytes": 67108864,
+    "observation_RAM_cache_bytes": 137438953472,
+    "original_GPU_full_device_permission_with_live_peer_admission": true,
+    "preparation_headroom_bytes": 137438953472,
+    "preparation_limits": {
+      "max_episode_payload_bytes": 68719476736,
+      "max_holds": 500000,
+      "max_nodes": 1000000000
+    },
+    "process_family_includes_all_descendants": true,
+    "project_ceiling_bytes": 1000000000000,
+    "training_headroom_bytes": 137438953472,
+    "worker_max_RSS_bytes": 549755813888
+  },
+  "schema": "European_cohort8_fixed_TRAIN_preparation_v2",
+  "scientific_condition": "AP_paper_scale_200Mb_native6_observed_cohort8_v1",
+  "source_manifest_ref": {
+    "path": "research/efficiency_20261027/architecture/european_cohort_train/source_pins_v2.json",
+    "sha256": "56203f33d6acd884b4ee2221745956ac2592e6b47160ff577607adc6a9b1eaa0"
+  },
+  "status": "source_and_CPU_prepared_runtime_release_pending",
+  "validation_policy": "Independent VAL remains required for architecture search, tuning and comparative accuracy claims. One independent diagnostic parent does not establish across-parent generalization. No TEST predictions or tuning in this driver."
+}

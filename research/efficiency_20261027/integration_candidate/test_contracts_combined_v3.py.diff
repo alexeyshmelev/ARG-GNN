@@ -1,0 +1,78 @@
+--- test_contracts_combined_v2.py
++++ test_contracts_combined_v3.py
+@@ -7,12 +7,12 @@
+ from unittest.mock import patch
+ import torch
+ from arggnn.benchmarking import contracts as c
+-from . import qualification_combined_v2 as gate
+-from . import envelope_combined_v1 as envelope
+-from . import restore_entrypoint_combined_v2 as restore
+-from . import training_combined_v2 as training
++from . import qualification_combined_v3 as gate
++from . import envelope_combined_v2 as envelope
++from . import restore_entrypoint_combined_v3 as restore
++from . import training_combined_v3 as training
+ from . import step_combined_v1 as step
+-from .configuration_combined_v2 import configuration, EXPECTED, PINS, FACTORY, GIB
++from .configuration_combined_v3 import configuration, EXPECTED, PINS, FACTORY, GIB
+ from .monitor_timing_combined_v1 import ResourceTiming
+ 
+ BASE = c.ROOT/'research/efficiency_20261027/integration_candidate'
+@@ -66,13 +66,20 @@
+     request={'synthetic_callback_request':True}
+     task=copy.deepcopy(prior)
+     task['max_rss_bytes']=768*GIB
+-    task['call']=dict(module='research.efficiency_20261027.integration_candidate.restore_entrypoint_combined_v2',
++    task['minimum_free_gpu_bytes']=76*GIB
++    assert task['preferred_gpus']==[3]
++    task['call']=dict(module='research.efficiency_20261027.integration_candidate.restore_entrypoint_combined_v3',
+         function='run_task', spec=request)
+     class Callback:
+         __module__='__main__'
+         def __init__(self,task):self.task=task
+         def __call__(self,*args):pass
+     restore.validate_resource_callback(Callback(task),prior,release,request)
++    insufficient=copy.deepcopy(task);insufficient['minimum_free_gpu_bytes']=56*GIB
++    fails(lambda:restore.validate_resource_callback(Callback(insufficient),prior,release,request))
++    assert set(declaration['changed_fields']) == {'max_rss_bytes',
++        'call.spec.successor.arguments.max_rss_bytes','minimum_free_gpu_bytes'}
++    assert declaration['changed_fields']['minimum_free_gpu_bytes']==dict(before=56*GIB,after=76*GIB)
+     for key in envelope.ENVELOPE_KEYS:
+         altered=copy.deepcopy(task)
+         altered[key]=None
+@@ -82,7 +89,7 @@
+                  'validate_resume_metadata','schedule_identity','random_state','restore_random_state'):
+         assert function(BASE/'training_adaptive_v2.py',name)==function(training.__file__,name), name
+     assert step.build_executor.__module__+':'+step.build_executor.__name__ == FACTORY
+-    entry_source=(BASE/'entrypoint_combined_v2.py').read_text()
++    entry_source=(BASE/'entrypoint_combined_v3.py').read_text()
+     trainer_source=Path(training.__file__).read_text()
+     assert 'install_tree(' not in entry_source
+     assert trainer_source.count('preprocessing_bindings = install_tree(child_credits)')==1
+@@ -149,7 +156,7 @@
+     with patch.object(gate,'read',return_value=pending):
+         fails(lambda:gate.validate_release(dict(synthetic=True)))
+     probe=copy.deepcopy(arguments)
+-    probe['output_directory']='experiments/results/paper_american_20261024/combined_CPU_readonly_probe_v2'
++    probe['output_directory']='experiments/results/paper_american_20261024/combined_CPU_readonly_probe_v3'
+     assert not c.contained_path(probe['output_directory']).exists()
+     built=training.build_spec(**probe)
+     assert built['memory_envelope']['max_rss_bytes']==768*GIB
+@@ -158,14 +165,15 @@
+     assert not torch.cuda.is_initialized()
+     receipt=dict(status='passed',candidate_source_pins_ref=c.file_ref(PINS),CPU_only=True,
+         actual_attempt7_nested_spec_built_read_only=True,checkpoint268_only_used_for_CPU_contract_validation=True,
+-        exact_592_to_768GiB_envelope_validated=True,all_undeclared_scientific_and_resource_deltas_rejected=True,
++        exact_592_to_768GiB_envelope_validated=True,
++        scheduler_minimum_free_GPU_56_to_76GiB_validated=True,preferred_physical_GPUs=[3],all_undeclared_scientific_and_resource_deltas_rejected=True,
+         actual_full_residency_and_boundary_terminal_metadata_validated=True,
+         absolute_and_relative_run_paths_accepted_traversal_and_outside_rejected=True,
+         synthetic_preparation_rejection_tests=True,real_preparation_acceptance_still_pending=True,
+         exact_schedule_checkpoint_RNG_functions_AST_equal=True,one_resident_factory_includes_boundary_fusion=True,
+         callback_check_frequency_unchanged=True,callback_timing_covered=True,
+         CUDA_initialized=False,jobs_started=0,production_modified=False)
+-    with (BASE/'CONTRACTS_COMBINED_CPU_v2.json').open('x') as stream:json.dump(receipt,stream,indent=2)
++    with (BASE/'CONTRACTS_COMBINED_CPU_v3.json').open('x') as stream:json.dump(receipt,stream,indent=2)
+     print(json.dumps(receipt))
+ 
+ 

@@ -1,0 +1,18 @@
+--- runtime_v1.py
++++ runtime_combined_v1.py
+@@ -2,13 +2,12 @@
+ from research.benchmark_rebuild_20261024.american.treeloom_speed.runtime_v2 import (
+     FreshTreeLoom, _need)
+ from .memory_v1 import GovernedLayoutCache, GovernedLargeLayoutCache
+-from .step_v1 import train_step
++from .step_combined_v1 import train_step
+ 
+ 
+ class ExplicitFreshTreeLoom(FreshTreeLoom):
+     def __init__(self,registry,*,layout_cache,holds_per_block):
+-        _need(holds_per_block in (128,512,1024) and isinstance(layout_cache,
+-              GovernedLayoutCache if holds_per_block==128 else GovernedLargeLayoutCache), 'Actual-RSS governed layout cache required')
++        _need(holds_per_block == 512 and isinstance(layout_cache, GovernedLargeLayoutCache), 'Actual-RSS governed layout cache required')
+         super().__init__(registry)
+         self.layout_cache=layout_cache
+         self.holds_per_block=holds_per_block

@@ -1,0 +1,25 @@
+--- prepare_task_combined_v2.py
++++ prepare_task_combined_v3.py
+@@ -4,9 +4,9 @@
+ import json
+ from pathlib import Path
+ from arggnn.benchmarking import contracts as c
+-from . import entrypoint_combined_v2 as entry
+-from .envelope_combined_v1 import predecessor_request, validate_task
+-from . import restore_entrypoint_combined_v2 as restore
++from . import entrypoint_combined_v3 as entry
++from .envelope_combined_v2 import predecessor_request, validate_task
++from . import restore_entrypoint_combined_v3 as restore
+ 
+ 
+ def build_task(*, transition_ref, execution_release_ref, preserved_history_ref, attempt_id):
+@@ -27,7 +27,8 @@
+     spec=checked['spec']
+     task['cpu_threads']=8
+     task['max_rss_bytes'] = release['configuration']['max_rss_bytes']
+-    task['call']=dict(module='research.efficiency_20261027.integration_candidate.restore_entrypoint_combined_v2',
++    task['minimum_free_gpu_bytes'] = release['configuration']['minimum_free_gpu_bytes']
++    task['call']=dict(module='research.efficiency_20261027.integration_candidate.restore_entrypoint_combined_v3',
+         function='run_task',spec=request)
+     refs={ref['path']:ref for ref in task['source_refs']}
+     for ref in spec['requirements']['source_refs']+[transition_ref,execution_release_ref,

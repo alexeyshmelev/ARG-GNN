@@ -1,0 +1,81 @@
+--- test_contracts_combined_v1.py
++++ test_contracts_combined_v2.py
+@@ -7,12 +7,12 @@
+ from unittest.mock import patch
+ import torch
+ from arggnn.benchmarking import contracts as c
+-from . import qualification_combined_v1 as gate
++from . import qualification_combined_v2 as gate
+ from . import envelope_combined_v1 as envelope
+-from . import restore_entrypoint_combined_v1 as restore
+-from . import training_combined_v1 as training
++from . import restore_entrypoint_combined_v2 as restore
++from . import training_combined_v2 as training
+ from . import step_combined_v1 as step
+-from .configuration_combined_v1 import configuration, EXPECTED, PINS, FACTORY, GIB
++from .configuration_combined_v2 import configuration, EXPECTED, PINS, FACTORY, GIB
+ from .monitor_timing_combined_v1 import ResourceTiming
+ 
+ BASE = c.ROOT/'research/efficiency_20261027/integration_candidate'
+@@ -66,7 +66,7 @@
+     request={'synthetic_callback_request':True}
+     task=copy.deepcopy(prior)
+     task['max_rss_bytes']=768*GIB
+-    task['call']=dict(module='research.efficiency_20261027.integration_candidate.restore_entrypoint_combined_v1',
++    task['call']=dict(module='research.efficiency_20261027.integration_candidate.restore_entrypoint_combined_v2',
+         function='run_task', spec=request)
+     class Callback:
+         __module__='__main__'
+@@ -82,7 +82,7 @@
+                  'validate_resume_metadata','schedule_identity','random_state','restore_random_state'):
+         assert function(BASE/'training_adaptive_v2.py',name)==function(training.__file__,name), name
+     assert step.build_executor.__module__+':'+step.build_executor.__name__ == FACTORY
+-    entry_source=(BASE/'entrypoint_combined_v1.py').read_text()
++    entry_source=(BASE/'entrypoint_combined_v2.py').read_text()
+     trainer_source=Path(training.__file__).read_text()
+     assert 'install_tree(' not in entry_source
+     assert trainer_source.count('preprocessing_bindings = install_tree(child_credits)')==1
+@@ -96,6 +96,20 @@
+     assert measured['maximum_outer_callback_seconds']==.5
+     assert 'by_stage_label' not in timing.snapshot(labels=False)
+     boundary_ref=run_record('boundary_full_gpu5_v1')
++    relative_command=c.read_ref(boundary_ref['request_ref'])['command']
++    directory,output=gate.qualification_paths(boundary_ref,relative_command)
++    absolute_command=list(relative_command)
++    absolute_command[absolute_command.index('--output')+1]=str(output)
++    assert gate.qualification_paths(boundary_ref,absolute_command)==(directory,output)
++    absolute_record={key:dict(reference,path=str(c.ROOT/reference['path'])) for key,reference in boundary_ref.items()}
++    assert gate.qualification_paths(absolute_record,absolute_command)==(directory,output)
++    for path in ('/tmp/unrelated-output',str(output/'..'/'data'),
++                 'research/efficiency_20261027/root/runs/../runs/boundary_full_gpu5_v1/data'):
++        changed=list(relative_command);changed[changed.index('--output')+1]=path
++        fails(lambda:gate.qualification_paths(boundary_ref,changed))
++    changed_record=copy.deepcopy(boundary_ref)
++    changed_record['actual_wait_ref']['path']='/tmp/actual_wait.json'
++    fails(lambda:gate.qualification_paths(changed_record,relative_command))
+     boundary=gate.terminal_run(boundary_ref,'research.efficiency_20261027.root.compare_boundary_full_v1',
+         gate.BOUNDARY_MANIFEST)
+     gate.validate_numerical_release(boundary,'boundary_full',checkpoint_ref=boundary['checkpoint_ref'],
+@@ -135,7 +149,7 @@
+     with patch.object(gate,'read',return_value=pending):
+         fails(lambda:gate.validate_release(dict(synthetic=True)))
+     probe=copy.deepcopy(arguments)
+-    probe['output_directory']='experiments/results/paper_american_20261024/combined_CPU_readonly_probe_v1'
++    probe['output_directory']='experiments/results/paper_american_20261024/combined_CPU_readonly_probe_v2'
+     assert not c.contained_path(probe['output_directory']).exists()
+     built=training.build_spec(**probe)
+     assert built['memory_envelope']['max_rss_bytes']==768*GIB
+@@ -146,11 +160,12 @@
+         actual_attempt7_nested_spec_built_read_only=True,checkpoint268_only_used_for_CPU_contract_validation=True,
+         exact_592_to_768GiB_envelope_validated=True,all_undeclared_scientific_and_resource_deltas_rejected=True,
+         actual_full_residency_and_boundary_terminal_metadata_validated=True,
++        absolute_and_relative_run_paths_accepted_traversal_and_outside_rejected=True,
+         synthetic_preparation_rejection_tests=True,real_preparation_acceptance_still_pending=True,
+         exact_schedule_checkpoint_RNG_functions_AST_equal=True,one_resident_factory_includes_boundary_fusion=True,
+         callback_check_frequency_unchanged=True,callback_timing_covered=True,
+         CUDA_initialized=False,jobs_started=0,production_modified=False)
+-    with (BASE/'CONTRACTS_COMBINED_CPU_v1.json').open('x') as stream:json.dump(receipt,stream,indent=2)
++    with (BASE/'CONTRACTS_COMBINED_CPU_v2.json').open('x') as stream:json.dump(receipt,stream,indent=2)
+     print(json.dumps(receipt))
+ 
+ 

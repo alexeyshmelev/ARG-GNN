@@ -1,0 +1,124 @@
+{
+  "schema": "European_cohort8_TRAIN_source_review_v1",
+  "review_version": 2,
+  "passed": true,
+  "source_manifest_ref": {
+    "path": "research/efficiency_20261027/architecture/european_cohort_train/source_pins_v2.json",
+    "sha256": "56203f33d6acd884b4ee2221745956ac2592e6b47160ff577607adc6a9b1eaa0"
+  },
+  "all_observation_barrier_retained": true,
+  "fixed_TRAIN_independent_of_new_VAL": true,
+  "review_scope": "Independent source and synthetic CPU evidence review for the separate fixed European cohort8 TRAIN condition; not runtime qualification or fit release.",
+  "scientific_condition": "AP_paper_scale_200Mb_native6_observed_cohort8_v1",
+  "driver_ref": {
+    "path": "research/efficiency_20261027/architecture/european_cohort_train/driver_v2.py",
+    "sha256": "95fbbb1c0de637632da9eeb150155efdc58850d78814c3c8e95a1aeab6b3c08b"
+  },
+  "plan_ref": {
+    "path": "research/efficiency_20261027/architecture/european_cohort_train/TRAIN_ONLY_PLAN_v2.json",
+    "sha256": "5c28802a630a91067eccc52ffa76c2acdd0f1b77e61188ef1c9ebb8c8822f995"
+  },
+  "CPU_evidence_refs": [
+    {
+      "path": "research/efficiency_20261027/architecture/european_cohort_train/CPU_boundary_v2.json",
+      "sha256": "6921c512401b86b40d836d0c3943e6fbd2bae40344a25a4f6940a31b754e3ad9"
+    },
+    {
+      "path": "research/efficiency_20261027/architecture/european_cohort_train/CPU_driver_v2.json",
+      "sha256": "ede6226c8fba61b0c023d0ccd5d475bf11ba94458f7a107c36745cdc43d7812f"
+    }
+  ],
+  "closed_finding_ref": {
+    "path": "research/efficiency_20261027/fidelity/EUROPEAN_COHORT8_TRAIN_V1_SOURCE_FINDING.json",
+    "sha256": "400878dae8ad1713c2f7cc5d961b07f09dcce304bd7f17722eae337c7875f774"
+  },
+  "tolerances": {
+    "context": {
+      "atol": 1e-06,
+      "rtol": 1e-05
+    },
+    "logits": {
+      "atol": 1e-06,
+      "rtol": 1e-05
+    },
+    "loss": {
+      "atol": 1e-06,
+      "rtol": 1e-05
+    },
+    "norm": {
+      "atol": 1e-06,
+      "rtol": 0.0001
+    },
+    "gradients": {
+      "atol": 1e-06,
+      "rtol": 0.0001
+    },
+    "parameters": {
+      "atol": 1e-06,
+      "rtol": 0.0001
+    },
+    "Adam": {
+      "atol": 1e-06,
+      "rtol": 0.0001
+    }
+  },
+  "zero_argmax_changes_required": true,
+  "manifest_lineage": {
+    "v1_refs_unchanged": 155,
+    "removed": 0,
+    "changed": 0,
+    "new_refs_checked": 6,
+    "v2_refs": 161,
+    "new_source_AST_parse_passed": true
+  },
+  "source_findings": [],
+  "reviewed_semantics": [
+    "Clone original scientific job, changing only research output and GPU binding; fresh seed101 model plus256 zero cohort weights,49 tensors32647 parameters.",
+    "Original3x200Mb TRAIN inputs, full952 sample columns, native6 class order, full context/history, original sampled quotas16667/16667/16666 and repeated-row bindings retained.",
+    "Every original TRAIN observation sealed before first TRAIN target join; no private truth opened by observation or executor and no TEST path.",
+    "European128-hold layout/history, decoder tile32 and chunked full GRU1024 retained; all37 trunk derivatives returned by custom autograd with12 decoder gradients preserved.",
+    "Qualification compares staged cohort executor and boundary executor on full TRAIN000, fresh model and empty AdamW for each, all16667 rows,49 raw gradients,49 parameters,147 Adam tensors, all8 finite nonzero cohort channel gradients and unchanged RNG.",
+    "Fit starts independently after exact source-bound qualification and ROOT actual-wait/reaping release; no qualification update or checkpoint reused.",
+    "Fixed original30 epochs90 updates, per-epoch random.Random(101+epoch) parent order, all49 Adam counters, checkpoints at updates15/30/45/60/75/90 and fixed final epoch30 selection.",
+    "All six model checkpoints retained, each serialized to bounded RAM and checked at most8MiB before writer reservation;64MiB writer cap and separate proposed2GiB aggregate run reservation."
+  ],
+  "CPU_evidence_summary": {
+    "holds": [
+      1,
+      3,
+      5
+    ],
+    "samples": 952,
+    "rows_per_case": 36,
+    "context_logits_loss_max_abs_error": 0.0,
+    "raw_gradient_max_abs_error": 1.3969838619232178e-09,
+    "parameter_max_abs_error": 3.5762786865234375e-07,
+    "Adam_max_abs_error": 1.1641532182693481e-10,
+    "all49_gradients_and_parameters_and147_Adam_compared": true,
+    "changing_cuts_missing_calls_max_ties_empty_holds_repeated_rows": true,
+    "all8_cohort_gradients_nonzero": true,
+    "GPU_initialized": false,
+    "metadata_loop_updates": 90,
+    "metadata_loop_is_not_real_training": true
+  },
+  "remaining_runtime_requirements": [
+    "ROOT live host, process-family, GPU, wall and aggregate storage admission for full-parent qualification.",
+    "Full200Mb TRAIN000 numerical/resource qualification under the pinned category tolerances.",
+    "Successful actual worker wait and absent owned process family before independent fit release.",
+    "Fresh live resource admission for the fixed90update fit."
+  ],
+  "limitations": [
+    "CPU cases establish algebraic agreement only; full-parent peaks have not yet been measured.",
+    "Full qualification retains baseline CPU context until candidate context comparison; the128GiB phase reserve and512GiB worker cap are admission settings, not measured peak proof.",
+    "Other two parent execution peaks are unmeasured; runtime memory guards still apply. This review does not add redundant per-parent qualification requirements.",
+    "Qualification adds one no-gradient all-row logits pass per arm and is not steady-state performance evidence.",
+    "Independent VAL remains relevant to architecture search, tuning and comparative accuracy claims; it is not a prerequisite for this frozen TRAIN run."
+  ],
+  "full_parent_qualification_passed": false,
+  "fit_released": false,
+  "launch_authorized_by_this_receipt": false,
+  "reviewer_GPU_launch": false,
+  "reviewer_scientific_tensor_payload_read_or_hash": false,
+  "production_modified": false,
+  "historical_v1_preserved": true
+}
