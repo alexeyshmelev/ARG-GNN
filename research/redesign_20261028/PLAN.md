@@ -58,12 +58,30 @@ The independent technical review passed nine targeted tests. The coordinate pack
 
 Registered pilot: 128 uniformly selected fitting draws from original TRAIN000/001 and 64 internal development draws from TRAIN002. Both new-model arms use identical initialization, contexts, target order and 400 minibatch updates. The no-cross arm removes communication. A leaf-only control and a control with matched numbers of distance scales remain required for mechanism attribution. Final metrics use a fixed checkpoint, never development selection. TEST is excluded.
 
-The data worker is exporting the exact registered packets with two workers. Root prepared the learning harness. Independent review covers model/data contracts, source registration, target joins, objective and scoring. The old full-parent continuation and all native baselines are unchanged.
+The data worker exported and validated all 192 registered packets using two workers. Root completed the learning harness and both fits. Independent review verified model/data contracts, source registration, target joins, objective and saved scoring. The old full-parent continuation and all native baselines remain unchanged.
 
-A separate exact-execution candidate is being developed: after one cross-tree exchange, only trees with focal predictions need the second within-tree pass. This removes irrelevant computations without changing the registered predictor. It must pass logits, gradients and clipped-optimizer parity before integration. It does not replace the frozen pilot implementation during a run.
+The separate focal executor v2 processes only trees with focal predictions in the second within-tree pass. This removes operations with no path to a focal output. The symbolic predictor is unchanged, but floating-point operation ordering differs. Logit and gradient qualification passed. Strict CPU clipped-optimizer parameter qualification passed 28 of 33 cases, so exact optimizer equivalence is not established. V2 did not replace the frozen pilot implementation and is not deployed in the historical production queue.
 
 ## Completed learning diagnostic
 
 Both frozen v1 arms finished 400 updates. Fitting/development accuracy: no-cross 79.69%/68.75%, cross-tree 77.34%/70.31%. Development macro F1 is 60.21%/65.82%, cross-entropy 0.5786/0.5824. The difference is one of 64 targets, without an independent replication. This supports learnability, not superiority. Root will not expand claims from this small diagnostic. See LEARNING_DIAGNOSTIC.md and root/learning_summary.json. A larger adequately fitted comparison, direct-input controls and leaf/capacity/partition controls remain unfinished.
 
-The owner additionally requests a separate sliding joint-graph convolution. A fresh agent owns research/sliding_graph_convolution_20261028, examining mathematical formulation, prior art, receptive fields and a CPU operator without changing the current prototype.
+A separate agent completed the requested sliding joint-graph convolution investigation in research/sliding_graph_convolution_20261028. Its mathematical formulation, prior-art assessment, receptive fields and CPU operator are preserved separately from the bounded prototype.
+
+## Focal executor and GPU qualification completed
+
+The separate executor v2 omits unused context trees in the second pass and in the no-cross arm. The independent review qualifies FP32 functional equivalence, not identical optimizer trajectories. CPU strict parameter tolerances fail in five of 33 cases, with small downstream differences retained in the report. All four registered GPU comparisons pass the prospective logit, full-gradient and gradient-presence tests. The cross-tree batch-16 observation improves from 280.61 to 263.58 ms, with 1.609 to 1.171 GB peak allocated GPU memory. No streaming training or sustained 80% utilization claim is supported. All eight GPU profile processes completed, with no optimizer updates. The initial missing-NVML import failure and readable attempt-2 launcher remain preserved.
+
+The separate sliding branch-convolution operator is implemented and independently critiqued. Its 18 CPU tests pass. A complete ancestry model wrapper, matched initializer/readout, real-data preparation profile and controlled learning comparison are still required. The operator alone is not an ancestry result or a general novelty proof.
+
+## Next discriminating experiment
+
+The first bounded learning diagnostic and the separate sliding-operator investigation are complete. The scientific question remains open. Do not rerun the 128/64 pilot to select among new architectures.
+
+1. Build the sliding model with the same observed SNP encoder, complete-tree initializer and focal ancestry readout as its controls. Keep a separate model identifier and preserve frozen v1.
+2. Register a larger fitting/internal-development support drawn from the existing original TRAIN parents, with chromosome separation. Freeze sample IDs, observations, labels, optimizer opportunities and metric definitions before fitting. Keep TEST excluded.
+3. Compare no cross-tree communication, same-leaf communication, selected-cut communication and branch-overlap communication. Separate the effect of synchronous layer scheduling from the effect of the correspondence. Match capacity or report a declared capacity control.
+4. Measure real window preparation, worker supply, transfer, forward, backward and optimizer time. Bare-layer timings and fixed-batch GPU activity cannot substitute for full training throughput.
+5. Use development accuracy, cross-entropy and class/boundary behavior together with cost to decide whether the additional branch coupling is worth keeping. A useful shared-leaf baseline is acceptable if more elaborate correspondence adds no reliable benefit.
+
+These are pending research steps, not launched jobs or completed comparisons. The 18-check operator receipt qualifies its implemented numerical properties, not biological identity of inferred internal nodes or a new operator family.

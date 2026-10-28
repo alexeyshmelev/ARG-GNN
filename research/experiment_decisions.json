@@ -8191,7 +8191,10 @@
         "research/redesign_20261028/root/learning_launch.json",
         "research/redesign_20261028/LEARNING_DIAGNOSTIC.md",
         "research/redesign_20261028/root/learning_summary.json",
-        "research/redesign_20261028/review/LEARNING_RESULT_REVIEW.json"
+        "research/redesign_20261028/review/LEARNING_RESULT_REVIEW.json",
+        "research/redesign_20261028/GPU_QUALIFICATION.md",
+        "research/redesign_20261028/root/gpu_profile_summary.json",
+        "research/redesign_20261028/review/FOCAL_V2_NUMERICS.json"
       ],
       "predecessors": [
         "treeloom_efficiency_redesign_20261027",
@@ -8200,7 +8203,36 @@
       "new_accuracy_result": true,
       "production_queue_changed": false,
       "pilot_protocol": "Two-arm 400-update learning diagnostic on128 uniformly sampled rows fromTRAIN000/001,64 reserved TRAIN002 rows,5 complete trees via fixed coordinate draws,shared initialization and target minibatch order. CPU and2data workers perfit. Not final benchmark.",
-      "accuracy_scope": "Small internal development diagnostic, not published benchmark or independent confirmation"
+      "accuracy_scope": "Small internal development diagnostic, not published benchmark or independent confirmation",
+      "gpu_profile_registration": {
+        "protocol": "research/redesign_20261028/root/gpu_profile_protocol.json",
+        "reason": "First GPU execution and numerical/timing check of bounded v1 and focal-only executor v2, after CPU functional review. No optimizer or model selection. Repeated fixed fitting packets are intentional timing repeats, not new accuracy experiments.",
+        "status": "completed_all_four_numerical_pairs_passed",
+        "conclusion": "Fixed-batch structure batch16 forward/backward 0.280610 to0.263579 seconds, peak allocated1.609 to1.171GB. Modest measured timing gain, no sustained80percent utilization or streaming claim. No optimizer updates."
+      }
+    },
+    {
+      "id": "sliding_branch_graph_convolution_20261028",
+      "registered_utc": "2026-10-28T12:00:40.470788+00:00",
+      "hypothesis": "Synchronous native-tree and shared-descendant ancestral-branch messages may improve useful ancestry context and GPU execution relative to sequential complete-tree sweeps and selected-age cut transfer.",
+      "method": "Separate PyTorch/PyG operator with native up/down, same-leaf and branch-overlap relations over bounded genomic windows. Cross-tree correspondence integrates shared descendants over overlapping ancestral lifetimes. No ancestry training yet.",
+      "status": "isolated_operator_implemented_reviewed_no_ancestry_training",
+      "conclusion": "18 CPU checks pass. Explicit sample identities are now validated. MS-G3D and STSGCN already establish sliding joint graph convolutions. The candidate changes the carrier and layer schedule but extends known partition-overlap mathematics. Old-age weighting, root coverage, sparse-window normalization and preprocessing cost need decisive controls. No accuracy or general novelty claim.",
+      "repeat_policy": "New owner-requested synchronous-convolution direction. Do not relabel ordinary product-graph or commutator operators as new. Before fitting, register matched observation, initializer, readout, target and optimization controls. Require real preparation/end-to-end profiling and independent development, with no TEST-driven selection.",
+      "evidence": [
+        "research/sliding_graph_convolution_20261028/DESIGN.md",
+        "research/sliding_graph_convolution_20261028/PRIOR_ART.md",
+        "research/sliding_graph_convolution_20261028/TEST_RECEIPT.md",
+        "research/sliding_graph_convolution_20261028/test_receipt.json",
+        "research/redesign_20261028/architecture/SLIDING_BRANCH_REVIEW.md",
+        "research/redesign_20261028/architecture/SLIDING_BRANCH_COUNTEREXAMPLES.json"
+      ],
+      "predecessors": [
+        "treeloom_bounded_graphsets_redesign_20261028"
+      ],
+      "new_accuracy_result": false,
+      "production_queue_changed": false,
+      "registration_scope": "Operator design and tests recorded after implementation. No learning experiment or full performance comparison authorized by this entry itself."
     }
   ],
   "last_root_update_utc": "2026-10-28T11:01:53.369828+00:00",

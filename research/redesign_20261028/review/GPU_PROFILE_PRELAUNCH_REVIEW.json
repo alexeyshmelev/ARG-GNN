@@ -1,0 +1,38 @@
+{
+  "schema": "independent_GPU_profile_prelaunch_review_v1",
+  "verdict": "pass_for_registered_bounded_profile",
+  "harness_sha256": "f3db48963fbb63674dee218c7b0e89863e17897dc805d366a0a62687b8b74155",
+  "protocol_sha256": "3d4c9bf0c29790d4aba5a9d680b812844d68fd0d97ada4561684bc91c9ee4d58",
+  "gpu_uuid": "GPU-df11de7f-7a15-ebe2-085d-9c7d907f3786",
+  "physical_gpu": 3,
+  "reviewer_GPU_launches": 0,
+  "reviewer_CUDA_initialized": false,
+  "former_blocker": {
+    "issue": "Torch2.6 UUID string omits NVML GPU-prefix; original equality would fail.",
+    "resolution": "Canonical uuid.UUID comparison strips optional GPU-prefix.",
+    "primary_source": "https://raw.githubusercontent.com/pytorch/pytorch/v2.6.0/torch/csrc/cuda/Module.cpp",
+    "source_lines": "959-984 and998-1006",
+    "status": "fixed"
+  },
+  "checked": [
+    "Process title is set before torch import or CUDA initialization.",
+    "CUDA_VISIBLE_DEVICES requires exact registered UUID; actual CUDA UUID is verified.",
+    "Foreign compute process at admission causes failure without signaling it.",
+    "Foreign process samples or sampling errors disqualify controlled device activity.",
+    "Model, executor, manifest and selected packet/label hashes are checked.",
+    "Fixed final pilot weights; no optimizer constructed or invoked.",
+    "Two warmups and20 synchronized forward+CE+backward timings for each fixed batch.",
+    "Separate preparation/transfer times; gradient reset and finite checks excluded from measured duration.",
+    "Peak memory includes transfer,warmup andmeasured iterations.",
+    "TF32/matmul precision, gradient presence and source/checkpoint hashes are recorded.",
+    "Sampler errors and main failures leave receipts; existing profile directories are not overwritten.",
+    "Numerical tolerances were specified before GPU measurements."
+  ],
+  "limitations": [
+    "Launch sequencing belongs to root; reviewer did not launch or inspect a yet-unwritten series shell.",
+    "Pairwise v1/v2 numerical checks must be applied after both outputs exist.",
+    "Any activity-unqualified run cannot support isolated-device timing/utilization claims.",
+    "Repeated fixed-batch timing is not dataset-streaming throughput or80percent utilization evidence.",
+    "No bitwise optimizer parity or ancestry accuracy improvement is claimed."
+  ]
+}
