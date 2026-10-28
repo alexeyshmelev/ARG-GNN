@@ -1,5 +1,11 @@
 # ARG-GNN research instructions
 
+## Current owner authority, 28 October 2026
+
+The owner requests a substantive TreeLoom redesign, including small groups of complete observed trees, minibatch training, mathematical justification and parallel agent work. Root owns integration and new experiment scheduling. Preserve the existing TreeLoom and author baselines, their data and historical evidence. The old full-parent training continuation remains held after its accuracy audit. Separately registered redesign prototypes and controlled TRAIN-only diagnostics are authorized. Keep TEST data out of architecture development. Current plan: research/redesign_20261028/PLAN.md. Current audit: research/comparability_audit_20261028/REPORT.md.
+
+The latest owner limits are physical GPUs 3, 4 and 5, with no artificial GPU-memory ceiling, and 1.2 TB total project storage. These override historical device sets and storage limits below. Preserve existing healthy and unrelated jobs. All project computation, writes and Git remain on anogena inside /workspace-SR003.nfs2/ARG-GNN. Use readable plaintext commands and scripts. This section does not reactivate any historical source-specific launcher, modify a live resource guard, or authorize touching unrelated processes.
+
 ## Scalability research authority, 24 October 2026
 
 The user authorizes a separately labelled scalable TreeLoom method alongside the frozen benchmark. Keep simulation core, observed data, reference/query splits and evaluation support fixed. Use scientifically motivated vectorization or approximation only after profiling actual bottlenecks. Execution improvements are not automatically architecture novelty. An approximation needs explicit retained/discarded information, complexity and predictive evaluation including ancestry boundaries. Measure exact structure reuse and feature dependence before reusing hidden states. Preserve healthy existing jobs and source snapshots. Current ownership and issue ledger: research/scalability_20261024/PLAN.md. GPUs 3, 4, 5 remain the only eligible devices and the storage ceiling remains 1 TB.

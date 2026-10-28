@@ -1,0 +1,90 @@
+{
+  "schema": "bounded_treeloom_learning_diagnostic_v1",
+  "registered_utc": "2026-10-28T11:01:53.357512+00:00",
+  "purpose": "Learnability and useful-update diagnostic of the new finite-context model, not a completed ancestry benchmark or evidence of superiority.",
+  "fitting_parent_ids": [
+    "ancestralpaths_european_train_000",
+    "ancestralpaths_european_train_001"
+  ],
+  "development_parent_id": "ancestralpaths_european_train_002",
+  "original_registered_split_unchanged": true,
+  "target_sampling": {
+    "fitting_draws": 128,
+    "development_draws": 64,
+    "replacement": true,
+    "fitting_draw_seed": 20261028,
+    "development_draw_seed": 20261029,
+    "selection": "Uniform canonical example IDs across each declared support, independent of labels"
+  },
+  "context": {
+    "radius_bp": 50000.0,
+    "draws_including_forced_focal": 5,
+    "context_seed": 20261030,
+    "random_density": "uniform over clipped physical-coordinate neighborhood",
+    "forced_focal_integral_weight": 0,
+    "genetic_distance_used": false,
+    "all_nodes_and_observed_SNPs_of_selected_native_trees": true
+  },
+  "arms": [
+    "no_cross",
+    "structure"
+  ],
+  "next_mechanism_control": "leaf_only before attributing any improvement to clade transfer",
+  "model": {
+    "width": 32,
+    "classes": 6,
+    "cut_times_generations": [
+      100.0,
+      350.0,
+      1000.0
+    ],
+    "model_seed": 101
+  },
+  "training": {
+    "optimizer": "AdamW",
+    "learning_rate": 0.001,
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "epsilon": 1e-08,
+    "weight_decay": 0.0001,
+    "gradient_norm_clip": 1.0,
+    "updates": 400,
+    "batch_size": 4,
+    "batch_seed": 20261031,
+    "precision": "float32 learned tensors",
+    "selection": "fixed final update, no development-based checkpoint selection",
+    "cpu_threads_per_fit": 2,
+    "data_loader_workers": 2
+  },
+  "evaluation": {
+    "before_fit": true,
+    "after_final_update": true,
+    "support": "all registered diagnostic draws, duplicate multiplicity retained",
+    "metrics": [
+      "cross_entropy",
+      "accuracy",
+      "macro_f1_six_classes",
+      "confusion",
+      "predicted_class_counts",
+      "true_class_counts"
+    ],
+    "uncertainty": "One internal development parent and one optimizer seed, no chromosome-level SD or statistical superiority claim"
+  },
+  "resource_scope": {
+    "device": "CPU for initial learning diagnostic",
+    "max_packet_output_bytes": 1073741824,
+    "max_run_output_bytes_per_arm": 33554432,
+    "wall_time_deadline": null,
+    "production_queue_changes": false
+  },
+  "gates": [
+    "independent data review passed",
+    "coordinate model and no_cross optimization review passes",
+    "finite real input forward/backward",
+    "frozen source refs before training"
+  ],
+  "test_inputs_allowed": false,
+  "author_baselines_modified": false
+}

@@ -1,0 +1,53 @@
+{
+  "schema": "independent_learning_harness_review_v1",
+  "verdict": "pass",
+  "source_pins": {
+    "harness": {
+      "path": "research/redesign_20261028/root/learning_diagnostic.py",
+      "sha256": "c36becd826a2590f2022136242a6922eab3111afebcd75331b43c300213bdab0"
+    },
+    "protocol": {
+      "path": "research/redesign_20261028/root/pilot_protocol.json",
+      "sha256": "1ca9217fe647cadaa4fb38429b1984598e9d1d618e4b132cd0f6ae8998977b89"
+    },
+    "execution_details": {
+      "path": "research/redesign_20261028/root/pilot_execution_details.json",
+      "sha256": "c517fb7eecd3fb7ea929db8bf68be4fb1a4a877b7eb0f0ae5706e70536ae3fdd"
+    },
+    "exporter": {
+      "path": "research/redesign_20261028/data/export_diagnostic_packets.py",
+      "sha256": "349fba41add1f0fa2198370102cfb3b8cabecf3c089de4007eadff026de774ef"
+    },
+    "model": {
+      "path": "research/redesign_20261028/architecture/window_model_frozen_v1.py",
+      "sha256": "e0528c8e0d01b69512fe588dc74ec966a3855489abf4160a8ef4b9111e5a4e12"
+    },
+    "data": {
+      "path": "research/redesign_20261028/data/window_data.py",
+      "sha256": "a1788ea0a33335450bfb43c689aa3c598070f07b28c40930be3fb086f42aa309"
+    }
+  },
+  "deterministic_utility_tests_passed": 3,
+  "utility_test_log": "research/redesign_20261028/review/test_harness_utilities.log",
+  "checks": [
+    "Uniform mean CE over fixed fitting-draw support with duplicate multiplicity.",
+    "1600 presentations in400 batches,12 complete permutations plus64 next-epoch rows.",
+    "TRAIN002 used only by before/after evaluation; no development checkpoint selection.",
+    "Same seed and saved initial-state/batch-order digests for both arms.",
+    "Labels remain separate from model observation API.",
+    "Finite logits,loss,used gradients and updated parameters; clip norm1 before AdamW.",
+    "Six-class macroF1 and confusion verified against independent hand calculation.",
+    "Learned lengths and gates included in20-step status.",
+    "Export freezes target IDs before label access, preserves contexts/duplicates and output cap."
+  ],
+  "fitting_performed_by_reviewer": false,
+  "GPU_used": false,
+  "TEST_read": false,
+  "pending": "Export completion and its exact manifest validation must succeed before launch.",
+  "limitations": [
+    "No-cross timing still includes unused context trees.",
+    "Worker preparation seconds overlap main model work; do not sum into wall time.",
+    "Reported peak RSS is main-process-only; worker RSS is separate.",
+    "Fit is small fixed-context diagnostic, not mechanism attribution or benchmark superiority."
+  ]
+}

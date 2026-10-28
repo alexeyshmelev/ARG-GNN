@@ -1,5 +1,22 @@
 # ARG-GNN
 
+<!-- bounded-redesign-20261028:start -->
+## TreeLoom redesign, 28 October
+
+**The new bounded model completed its first learning diagnostic.** It processes small groups of complete inferred trees and exchanges information through shared leaves and groups defined at several ancestral ages. Ordinary minibatches replace full-chromosome optimizer updates. Both arms completed 400 updates with the same initialization, contexts and target order.
+
+| New model arm | Fitting accuracy, 128 targets | Development accuracy, 64 targets | Development macro F1 | Development cross-entropy |
+|---|---:|---:|---:|---:|
+| Without cross-tree communication | **79.69%** | 68.75% | 60.21% | **0.5786** |
+| With cross-tree communication | 77.34% | **70.31%** | **65.82%** | 0.5824 |
+
+The accuracy difference is **one additional correct prediction out of 64**, with slightly worse cross-entropy. This establishes learnability, not superiority. These are small internal development results on a separate original TRAIN chromosome, not the five-chromosome benchmark below. One development chromosome and one seed do not support a chromosome-level SD. CPU training took 4.16 and 5.81 minutes respectively. GPU throughput remains unmeasured for the new model.
+
+The old full-parent continuation remains held. Native competitor methods and simulations are unchanged. A separate sliding joint-graph convolution is now being investigated at the owner's request. No new general GNN kernel or ancestry accuracy advantage is claimed.
+
+[Complete diagnostic and interpretation](research/redesign_20261028/LEARNING_DIAGNOSTIC.md) · [Design and work plan](research/redesign_20261028/PLAN.md) · [Implemented architecture](research/redesign_20261028/architecture/PROTOTYPE_REPORT.md) · [Critical literature review](research/redesign_20261028/literature/REPORT.md) · [Independent technical review](research/redesign_20261028/review/REVIEW.md)
+<!-- bounded-redesign-20261028:end -->
+
 <!-- accuracy-audit-20261028:start -->
 ## TreeLoom accuracy audit, 28 October
 
