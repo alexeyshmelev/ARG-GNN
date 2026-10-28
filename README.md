@@ -1,20 +1,27 @@
 # ARG-GNN
 
+<!-- accuracy-audit-20261028:start -->
+## TreeLoom accuracy audit, 28 October
+
+**TreeLoom training restart is held.** Its current European six-class accuracy is **54.80 ± 1.02%**, versus **92.70 ± 0.35%** for the AncestralPaths historical CNN. Independent scoring reproduced the results. Both fits use the exact same **50,000 TRAIN examples and labels**, and their five TEST chromosomes and target identities match.
+
+The audit found two substantial setup differences. TreeLoom omits observed query-cohort categories that the CNN retains, although it keeps sample ages and all four pure-reference groups. TreeLoom also made only **90 full-parent optimizer updates**, compared with **8,335 CNN minibatch updates**. It saw more label presentations, but convergence was not established. Its saved predictions never select two of the six classes. Neither input changes nor longer training are yet proven to recover the gap.
+
+The scored checkpoint predates the latest American efficiency deployment. Decoder and history component checks agree closely, but the complete European fit/prediction execution path still needs qualification. The earlier approximately 97.08% result came from a different four-class development experiment, a warmstarted model and a Dense comparator. It did not establish superiority on this benchmark. Earlier progress messages overstated that result.
+
+[Full audit, numerical evidence and restart requirements](research/comparability_audit_20261028/REPORT.md). Author baselines, simulations, labels and recorded results are preserved. The operational snapshot below predates this audit hold.
+<!-- accuracy-audit-20261028:end -->
+
 <!-- recovery-no-timeouts-20261027:start -->
-## Recovery status, 27 October
+## Benchmark status, 28 October
 
-**The benchmark is continuing.** Verified 2026-10-27 20:49 UTC. Queue: **3 running, 53 succeeded, 196 pending, 0 failed and 0 blocked**. Counts refer to workflow stages, not completed comparisons.
+Verified **2026-10-28 12:49 MSK**. GST training, five test predictions and common scoring are complete. Native ARGformer now has **6/15** prediction datasets complete, and validation004 masked-token pretraining is active on GPU 4, epoch 4 of 5.
 
-| Work | Current state |
-|---|---|
-| American TreeLoom, GPU 3 | **437/600** completed updates. The healthy worker and its warm caches remain intact. |
-| Native ARGformer, GPU 4 | **5/15** prediction datasets complete. Validation003 masked-token pretraining is in epoch 3 of 5. |
-| GST adaptation for ancestry, GPU 5 | Restarted from the saved **79/90** checkpoint after the old 24-hour cutoff. It is reloading the original inputs before continuing the remaining 11 updates. No new completed update is claimed yet. |
-| Independent European validation, CPU | The original **200 Mb** simulation has restarted with the same recipe and seeds. The status-file race and queue-handover race are fixed. There is no total job or stage time cutoff. |
+American TreeLoom advanced from 437 to **593/600 committed updates**, then stopped because the progress logger reached an incorrectly sized 2 MiB limit. Its checkpoint includes update 593, even though the final log entry is update 592. Seven updates remain. This operational failure blocks 15 TreeLoom predictions and the American comparison. A logging repair was being prepared. TreeLoom continuation is now held for the accuracy audit above.
 
-The GST fit, prediction and scoring now have effectively unlimited wall time through the current controller's compatibility setting. Other already-loaded tasks retain legacy deadlines. Genuine optional-deadline support is prepared and tested, but global activation still requires resolving nested ARGMix wrapper limits and a safe controller transition. One ready ARGMix Relate task currently waits on the controller's stale storage accounting, even though cleanup freed space. The existing workers were not interrupted to reload those settings.
+Independent European validation finished generating the original **200 Mb** parent, with **1,340,560 sites**. It then stopped before native inference because its own slow resource check could make a five-second storage sample expire. The generated data are intact. The proposed repair would reuse them with the original seeds and inference settings. It has not been launched.
 
-Recovery validation passed the exact interrupted/resumed GST training check and 22 validation-runner checks, followed by independent review. Scientific inputs, model budgets and scoring remain unchanged. No new ancestry accuracy result is claimed. [Recovery plan and remaining issues](research/resume_no_timeouts_20261027/PLAN.md) · [Live snapshot](research/resume_no_timeouts_20261027/LIVE_RECOVERY_SNAPSHOT.json)
+Current queue: **1 running, 61 succeeded, 173 pending, 1 failed and 16 blocked stages**. GPUs 3 and 5 currently have no active campaign work. One ready ARGMix Relate task still waits on stale controller storage accounting. These are operational blockers, not a completed benchmark or evidence of an accuracy gain. [Latest evidence and repairs](research/recovery_20261028/PLAN.md).
 <!-- recovery-no-timeouts-20261027:end -->
 
 <!-- storage-cleanup-20261027:start -->
@@ -26,25 +33,30 @@ Cleanup did not signal any process. A separate full European validation run had 
 <!-- storage-cleanup-20261027:end -->
 
 <!-- european-interim-20261027:start -->
-## European ancestry comparison, 27 October
+## European ancestry comparison, 28 October
 
-**Current TreeLoom trails both baselines on this completed six-class condition.** All three methods were scored on the same five test chromosomes and registered targets. The adapter audit found unequal population metadata: the CNN receives eight observed cohort channels, while TreeLoom collapses five admixed cohorts into an unknown reference label. These scores therefore do not isolate the architectural difference. A new TreeLoom condition will retain the observed cohort metadata, with development restricted to TRAIN/VAL. The values below are mean ± sample SD across chromosomes, expressed as percentages. This is a common-data comparison and does not claim exact reproduction of a published numerical table.
+**Current TreeLoom trails the CNN and Dense baselines, while exceeding the completed GST adaptation.** All four methods were scored on the same five test chromosomes and registered targets. The adapter audit found unequal population metadata: the CNN receives eight observed cohort channels, while TreeLoom collapses five admixed cohorts into an unknown reference label. These scores therefore do not isolate the architectural difference. Any corrected TreeLoom condition must qualify the common observed-input policy and full execution path before training, with development restricted to TRAIN/VAL. The values below are mean ± sample SD across chromosomes, expressed as percentages. This is a common-data comparison and does not claim exact reproduction of a published numerical table.
 
 | Method | Six-class accuracy | Six-class macro F1 | Accuracy after merging into four ancestry groups |
 |---|---:|---:|---:|
 | AncestralPaths historical CNN (author-source port) | **92.70 ± 0.35** | **91.58 ± 0.21** | **95.84 ± 0.39** |
-| AncestralPaths released Dense control | 92.49 ± 0.53 | 91.40 ± 0.43 | 95.70 ± 0.49 |
-| TreeLoom | 54.80 ± 1.02 | 31.58 ± 0.57 | 70.83 ± 1.20 |
+| AncestralPaths Dense control | 92.49 ± 0.53 | 91.40 ± 0.43 | 95.70 ± 0.49 |
+| TreeLoom, current European condition | 54.80 ± 1.02 | 31.58 ± 0.57 | 70.83 ± 1.20 |
+| GST-LAI-8, adaptation for ancestry | 42.45 ± 1.13 | 27.88 ± 0.75 | 57.86 ± 1.04 |
+
+GST-LAI-8 is an adaptation of Graph Set Transformer to ancestry inference, not the GST paper's original benchmark. The derived four-group accuracy merges six-output probabilities and is not direct four-class training. [Complete cohort summaries](research/recovery_20261028/european_comparison_summary.json).
 
 The CNN uses the recovered historical author architecture, ported to an equivalent CPU tensor layout. Dense is a separate released author model. Both fits use the disclosed 50,000-row common-data protocol. The historical 812,500-row sampler and original software random stream are not reproduced. [Source and scored-checkpoint verification](research/efficiency_20261027/fidelity/EUROPEAN_SCORED_CNN_PROVENANCE_LABEL_REVIEW.json).
 
-The four-group column sums the six-class probabilities. It is **not** the separately requested direct four-class CNN experiment, which is implemented but not yet trained. GST is still training and is absent from this interim table. The American efficiency tests concern a different model configuration and do not resolve this European accuracy gap.
+The separately requested direct four-class CNN experiment is implemented but not yet trained. The American efficiency tests concern a different model configuration and do not resolve this European accuracy gap.
 
-[Complete scores and cohort breakdown](experiments/results/paper_campaign_resume_20261026/ap_three_methods_interim_score/native/comparison.json)
+[Complete four-method scores and cohort breakdown](experiments/results/paper_gst_lai_8_20261024/paper_gst_lai_8__all_methods_all_test__score/native/comparison.json)
 <!-- european-interim-20261027:end -->
 
 <!-- efficiency-20261027:start -->
 ## TreeLoom efficiency work, 27 October
+
+Historical deployment snapshot. The current training hold and update 593 checkpoint are described above.
 
 **The requested sustained 80% useful GPU utilization remains unproven.** The combined execution changes are now deployed on GPU 3. Attempt 8 restored the complete checkpoint at **281/600**, including optimizer moments, random state and the original chromosome order. Its latest complete checkpoint is **287/600**. The first production update took **693.39 seconds** and averaged only **15.83% device activity** during its observed training window. Including cold preparation, the observation averaged **7.55%**. The deployed pipeline still falls far short of the goal. A later 64.8-minute observation, including cold preparation, averaged **11.48 percent** device activity with the TreeLoom PID as the only compute client. A complete warm cycle is still unmeasured.
 
@@ -63,7 +75,7 @@ The earlier preparation-inclusive observation averaged **18.35% device activity*
 
 The first production update spent **499.12 seconds in backward propagation**, including **387.13 seconds** in the final tree sweep, while two background producers were active. Preparation uses threads in the same Python interpreter as GPU dispatch. Contention is a plausible mechanism, but external stack sampling was denied and causation is not yet established. Resource callbacks also accumulated 109.14 seconds since startup across threads, so that number cannot be subtracted from one update. The full TRAIN001 comparison now qualifies integer episode construction: 225.35 to 199.33 seconds, an 11.55 percent reduction in this stage. All nine structural/episode arrays match the archived hashes, and newly computed original/candidate episode metadata are identical. This is one fixed-order CPU pair, not an end-to-end speedup. It remains isolated for integration with fresh CPU producer processes. The asynchronous resource-check candidate has also passed independent timing and failure-propagation tests, but is not deployed. Compact packing accounts for only about 25.5 seconds per chromosome in the paired preparation test. The optional GPU-context candidate remains deferred after exceeding its original strict context tolerance. The slower TreeLoom-Transport candidate is also deferred. Historical failures and closed hypotheses remain recorded.
 
-The separate European cohort correction failed full-chromosome qualification: 180 of 3,899,392 context values exceeded the original tolerance. The corrected fit has not been launched. The full 200 Mb independent validation runner also failed before cleanup because its storage scanner could race with an atomic status-file replacement. The reviewed successor fixes that race and transient queue handovers, removes elapsed experiment cutoffs, and has restarted the same original simulation. All prior failures remain preserved. Total reserved commitments are about 1.125 TB under the authorized 1.2 TB ceiling. This is conservative reservation accounting, not current disk usage. Original TRAIN/TEST inputs remain unchanged, and no new accuracy gain is claimed.
+The separate European cohort correction failed full-chromosome qualification: 180 of 3,899,392 context values exceeded the original tolerance. The corrected fit has not been launched. The full 200 Mb independent validation runner also failed before cleanup because its storage scanner could race with an atomic status-file replacement. The reviewed successor fixes that race and transient queue handovers, removes elapsed experiment cutoffs, and completed the same original simulation. It subsequently failed before inference on a five-second storage freshness check, as detailed in the current status above. All prior failures remain preserved. Total reserved commitments are about 1.125 TB under the authorized 1.2 TB ceiling. This is conservative reservation accounting, not current disk usage. Original TRAIN/TEST inputs remain unchanged, and no new accuracy gain is claimed.
 
 [Work plan](research/efficiency_20261027/PLAN.md) · [Independent combined review](research/efficiency_20261027/fidelity/COMBINED_EXECUTION_V5_RESULTS_REVIEW.json) · [Deployment release](research/efficiency_20261027/root/combined_execution_release_v5.json) · [Latest status](research/efficiency_20261027/root/benchmark_snapshot_v11.json) · [First production update](research/efficiency_20261027/root/production_attempt8_first_update_v1/report.json)
 <!-- efficiency-20261027:end -->
@@ -78,11 +90,11 @@ The separate European cohort correction failed full-chromosome qualification: 18
 <!-- requested-corrections-20261027:end -->
 
 <!-- owner-stop-current:start -->
-## Benchmark progress, 27 October
+## Remaining comparisons
 
-**The comparison remains incomplete.** Current execution status is at the top of this README, verified 2026-10-27 20:49 UTC. European AncestralPaths CNN, Dense and the current TreeLoom condition have completed common scoring. Their scores are reported above. American TreeLoom, native ARGformer, GST and the separate ARGMix condition still require completion. FLARE has 15 native prediction products ready for common American scoring. Direct four-class AncestralPaths training is implemented but remains unlaunched.
+GST, AncestralPaths CNN, Dense and current European TreeLoom have completed common scoring, shown above. The American comparison still needs TreeLoom's final seven updates and predictions, plus the remaining native ARGformer datasets. TreeLoom continuation is held for the accuracy audit. FLARE already has 15 native prediction products. ARGMix still needs its blocked preparation and downstream fits, predictions and scoring. Direct four-class AncestralPaths training is prepared but unlaunched. The European cohort correction remains unqualified after its numerical mismatch.
 
-All computation stays on anogena. Physical GPUs **3, 4 and 5** are the only GPUs in use by this campaign. A running training job, masked-token accuracy or training loss is not a completed ancestry comparison. No reliable final completion time is available.
+All computation stays on anogena using only physical GPUs 3, 4 and 5. No reliable final completion time is available while these operational blockers remain.
 <!-- owner-stop-current:end -->
 
 **Preprocessing audit, 26 October:** preparation is not yet fully parallel. At the original audit, American TreeLoom used one background preparation worker. The qualified deployment below now uses four encoding processes within that producer. GST has four loader workers, but its initial VCF joins run serially before they start. European TreeLoom uses eight CPU threads during encoding but prepares and predicts parents sequentially. Native ARGformer has eight persistent loader workers and is actively training. [Measured bottlenecks and concrete execution improvements](research/preprocessing_efficiency_20261026/REPORT.md). No model, simulation or running job was changed by this audit.
