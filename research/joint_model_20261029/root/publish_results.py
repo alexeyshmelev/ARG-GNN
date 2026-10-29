@@ -43,7 +43,7 @@ def main():
     text=f'''<!-- joint-model-20261029:start -->
 ## TreeLoom joint model, 29 October
 
-**The complete new model passed qualification and all three 50-epoch learning runs. Benchmark training is {status['status']}.** The selected arm is **{names[selected].lower()}**. Its fresh fit uses all **50,000 original European six-class TRAIN targets** on GPU 5, with **{updates:,}/{started['planned_updates']:,} updates** recorded at this snapshot and **{len(epochs)}/50 epochs** complete. [Live-run snapshot](research/joint_model_20261029/root/BENCHMARK_PROGRESS.json).
+**The complete new model passed qualification and all three 50-epoch learning runs. Benchmark training is {'running' if status['status']=='training' else status['status']}.** The selected arm is **{names[selected].lower()}**. Its fresh fit uses all **50,000 original European six-class TRAIN targets** on GPU 5, with **{updates:,}/{started['planned_updates']:,} updates** recorded at this snapshot and **{len(epochs)}/50 epochs** complete. [Training snapshot](research/joint_model_20261029/root/BENCHMARK_PROGRESS.json).
 
 The table is internal development, using 33,334 targets from two TRAIN chromosomes for fitting and 16,666 targets from the third for selection. Every arm completed 2,600 updates with the same initialization and target order. These are fixed final-epoch results, not the best interim checkpoints.
 

@@ -3,7 +3,7 @@
 <!-- joint-model-20261029:start -->
 ## TreeLoom joint model, 29 October
 
-**The complete new model passed qualification and all three 50-epoch learning runs. Benchmark training is training.** The selected arm is **branch-structure connections**. Its fresh fit uses all **50,000 original European six-class TRAIN targets** on GPU 5, with **925/3,900 updates** recorded at this snapshot and **12/50 epochs** complete. [Live-run snapshot](research/joint_model_20261029/root/BENCHMARK_PROGRESS.json).
+**The complete new model passed qualification and all three 50-epoch learning runs. Benchmark training is running.** The selected arm is **branch-structure connections**. Its fresh fit uses all **50,000 original European six-class TRAIN targets** on GPU 5, with **925/3,900 updates** recorded at this snapshot and **12/50 epochs** complete. [Training snapshot](research/joint_model_20261029/root/BENCHMARK_PROGRESS.json).
 
 The table is internal development, using 33,334 targets from two TRAIN chromosomes for fitting and 16,666 targets from the third for selection. Every arm completed 2,600 updates with the same initialization and target order. These are fixed final-epoch results, not the best interim checkpoints.
 
