@@ -77,3 +77,15 @@ Current counts in root/CURRENT_STATUS.json overlay original task IDs with their 
 - [ ] Complete American and ARGMix execution, then independently review their final comparisons.
 
 The completed four-class result does not establish a win on every task. No TEST result is used to change the frozen model or checkpoint.
+
+## Queue recovery and storage admission, 29 October 05:50 UTC
+
+- [x] Diagnose the failed idle handoff. The original controller saved state during shutdown, so the overly strict byte equality check refused adoption after the controller exited. No active worker was terminated.
+- [x] Recover through a separate reviewed entry point. Authenticate all 64 historical waits and preserve both failed-controller logs. Native task commands and scientific settings are unchanged.
+- [x] Correct the obsolete European reservation from 160 to 128 GiB. All retained files, a full future attempt, and auxiliary work remain charged. The full production commitment is 1,184,933,389,737 bytes.
+- [x] Admit the full ARGMix cache within the existing limit and launch the recovered native scheduler.
+- [x] Verify the combined 270-node dependency graph is acyclic. Native CPU producers can finish before the model GPU release gate.
+- [ ] Complete the American cache and fixed fit, all native comparators, and the new ARGMix fit and predictions.
+- [ ] Run the prepared independent final result audit after all genuine comparison waits, then publish the completed benchmark report.
+
+No source used by a live scientific worker was changed. The European four-class primary endpoint remains a loss and is retained without TEST-driven tuning. The full benchmark and manuscript are not yet complete.

@@ -1,5 +1,11 @@
 # ARG-GNN
 
+<!-- joint-finish-operations:start -->
+**Queue repair, 29 October 2026, 05:50 UTC:** the native scheduler has resumed after an idle handoff failure. All completed results and historical failures are preserved. ARGMix production storage admission is complete. The full reserved workload is 1.185 TB, below the unchanged 1.2 TB ceiling. No files were deleted. American TreeLoom preparation and native ARGformer training continue. The remaining ARGMix model stages await their original reconstructed-tree inputs. Final American and ARGMix comparisons are still pending.
+
+[Recovery and storage review](research/joint_evaluation_20261029/review_finish/independent_recovery_storage_credit_checks_v1.json) · [Dependency assessment](research/joint_evaluation_20261029/review_finish/queue_dependency_storage_assessment_v1.json)
+<!-- joint-finish-operations:end -->
+
 <!-- joint-model-20261029:start -->
 ## TreeLoom-Joint: held-out benchmark results, 29 October
 
@@ -27,7 +33,7 @@ Values are mean ± sample SD across five independently simulated chromosomes, no
 
 **Architecture:** three joint PyTorch Geometric layers exchange messages within complete selected native trees and across trees through shared leaves and branch structure. All queries at one SNP reuse one encoding. There is no recurrent network. The general idea of graph windows has prior art, so this result does not establish a new general GNN kernel.
 
-**Queue snapshot:** 72 original campaign stages completed, **163 pending or running** and 0 explicitly superseded after counting parallel task IDs only once. The records contain 3 running, 160 pending, 16 blocked and 1 failed stages. These are preparation, fitting, prediction and scoring stages, not that many separate experiments. The failed previous American TreeLoom and its dependent rows are retained as history.
+**Queue snapshot:** 72 original campaign stages completed, **152 pending or running** and 11 explicitly superseded after counting parallel task IDs only once. The records contain 3 running, 149 pending, 16 blocked and 1 failed stages. These are preparation, fitting, prediction and scoring stages, not that many separate experiments. The failed previous American TreeLoom and its dependent rows are retained as history.
 
 - **ARGformer:** 8/15 dataset predictions complete. The remaining 7 parents are assigned to the original GPU3 lane and the two native lanes on GPUs4 and5. Their original training schedules remain unchanged.
 - **FLARE:** 15/15 prediction datasets complete and authenticated.
