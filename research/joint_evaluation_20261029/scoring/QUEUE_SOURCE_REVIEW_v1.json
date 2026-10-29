@@ -1,0 +1,109 @@
+{
+  "schema": "independent_queue_source_review_v1",
+  "created_unix": 1793242765.5895257,
+  "verdict": "needs_resource_dispatch_coordination_before_GPU_launch",
+  "sources": [
+    {
+      "path": "research/joint_evaluation_20261029/queue/sidecar_scheduler.py",
+      "sha256": "1b08a256a66940fe00e54d1d0a4920e28d07325d869707ddc48023a164ae22e4",
+      "bytes": 23184
+    },
+    {
+      "path": "research/joint_evaluation_20261029/queue/sidecar_scheduler.diff",
+      "sha256": "3454045532e8d0587b513af15b52fd4a1da243f09047ac12ab59ab0534c490a9",
+      "bytes": 3195
+    },
+    {
+      "path": "research/joint_evaluation_20261029/queue/claims.py",
+      "sha256": "1d71f47369813d4651e9252a956235884967babd001b751a14a69f276e1741e2",
+      "bytes": 4335
+    },
+    {
+      "path": "research/joint_evaluation_20261029/queue/build_proposal.py",
+      "sha256": "799a9c3b241bab4fff6bbc363e1a40590b155dc28be9797fb29fb26cdb0da9ea",
+      "bytes": 9203
+    },
+    {
+      "path": "research/joint_evaluation_20261029/queue/future_merge.py",
+      "sha256": "6de1b44bf223d22d560a8a8075f5ea174ddf42e967afe9dc74f980ff45f4ce9e",
+      "bytes": 4800
+    },
+    {
+      "path": "research/joint_evaluation_20261029/queue/test_sidecar.py",
+      "sha256": "11d04aa4cf953019b15395de7ad49689c44df9e8803b1d175cc9e1d1fa302bb9",
+      "bytes": 6727
+    },
+    {
+      "path": "research/joint_evaluation_20261029/queue/focused_tests.json",
+      "sha256": "ade1a127ae19b471ed36c18aafaa9e298f0491366a6d17dbab9c3b13073435fa",
+      "bytes": 3437
+    },
+    {
+      "path": "research/joint_evaluation_20261029/queue/sidecar_plan.json",
+      "sha256": "b773bf76655ab3b8ab5b1ad9ff71756978e2843ed79973b088aeaafdfbadcda1",
+      "bytes": 103191
+    },
+    {
+      "path": "research/joint_evaluation_20261029/queue/storage_ledger.json",
+      "sha256": "5d0646e659b7644246b28b7e682d15ff713a5b52a8971c6f53f7763a2713c840",
+      "bytes": 2138
+    },
+    {
+      "path": "research/joint_evaluation_20261029/queue/proposal_receipt.json",
+      "sha256": "8ad8df21663816a038af57f1d5f9a470ec256e86443e9cd59ca7909fef343c71",
+      "bytes": 1444
+    },
+    {
+      "path": "research/joint_evaluation_20261029/queue/original_effective_plan.json",
+      "sha256": "d1b344d543cce0cfda1d487973797eeba637c52721c6f5244c3f9c695a4581ea",
+      "bytes": 5953341
+    }
+  ],
+  "passed": [
+    "Ten exact parent003/004 task definitions preserve native call specs, outputs, source pins, RAM/disk caps; only two storage-order edges and wall limits differ.",
+    "Repeated live-controller and guard PID/start checks precede atomic mkdir claims; original pending rows and process are unmodified.",
+    "Original no-overwrite rejects claimed outer preparation scopes; native preparation writes fresh native child, so marker does not conflict.",
+    "All task launches remain direct Popen of plaintext runtime module plus visible JSON path; owned-session drain and real poll/wait code remain inherited.",
+    "Retirement only authenticates and retires newly produced exact parent003/004 scopes after all producer waits; historical and reused preparations remain excluded.",
+    "Future merge proposal requires genuine successful waits, exact result scopes and empty sidecar sessions, preserves prior rows, and does not change live state.",
+    "Storage ledger full task commitment is below 1.2TB and deliberately refuses claim until root confirms writer closure."
+  ],
+  "task_count": 10,
+  "removed_dependencies": [
+    {
+      "task_id": "paper_american_argformer_american_test_003_prepare",
+      "removed_dependencies": [
+        "paper_american_argformer_american_test_002_retire"
+      ]
+    },
+    {
+      "task_id": "paper_american_argformer_american_test_004_prepare",
+      "removed_dependencies": [
+        "paper_american_argformer_american_test_003_retire"
+      ]
+    }
+  ],
+  "global_committed_bytes": 892537361338,
+  "writer_closure_confirmed": false,
+  "original_controller_pid": 1005327,
+  "original_plan_revision": 5,
+  "findings": [
+    {
+      "priority": 1,
+      "issue": "Independent GPU snapshots permit cross-controller double admission.",
+      "detail": "Sidecar allows4/5, original allows3/4/5. Original parent002 contrastive and predict successors remain pending. Distinct lock files do not synchronize GPU admission before CUDA allocation. Exact task claims solve duplicate dispatch, not this resource race.",
+      "required_closure": "Stage CPU preparation if desired, but gate sidecar GPU dispatch on a verified safe original state or another reviewed resource coordination method; preserve original live jobs and source."
+    },
+    {
+      "priority": 2,
+      "issue": "Existing-worker reservation covers only current MLM PID.",
+      "detail": "After MLM exits, successor workers are not in existing_workers; current host headroom is ample but future growth is unreserved across controllers.",
+      "required_closure": "Bind and reserve the unchanged remaining original chain or gate GPU stage until that chain drains; recheck concurrent separately launched workers."
+    }
+  ],
+  "limits": [
+    "Read-only source/metadata review. No queue sources, jobs, claims, signals, model training, or GPU operations changed.",
+    "ARGMix sidecar extension excluded until its owner marks ready.",
+    "Future continuation adoption requires its own final snapshot/identity review; current helper prepares a proposal only."
+  ]
+}

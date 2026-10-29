@@ -1,29 +1,41 @@
 # ARG-GNN
 
 <!-- joint-model-20261029:start -->
-## TreeLoom joint model, 29 October
+## TreeLoom-Joint: held-out benchmark results, 29 October
 
-**The new TreeLoom European training fit is complete.** All **50 epochs, 3,900 updates and 2.5 million target presentations** finished successfully on the original 50,000 TRAIN targets in **6.00 minutes**. The final checkpoint is saved and all data workers exited cleanly. **Its five-chromosome TEST evaluation has not started**, so no new benchmark comparison score is available. The trained model achieved 99.11% on its own training examples, which is a fitting diagnostic, not held-out performance. [Completion and current queue status](research/joint_model_20261029/root/COMPLETION_AND_QUEUE_STATUS.json).
+**The new model is trained, integrated and scored on all five European TEST chromosomes.** Its six-class accuracy is **96.33 ± 0.16%**, compared with **92.70 ± 0.35%** for the historical AncestralPaths CNN. The paired improvement is **3.63 ± 0.28 percentage points** across chromosomes. Every method is scored on the same 50,000 canonical TEST targets. Architecture and checkpoint selection used TRAIN data only.
 
-The table is internal development, using 33,334 targets from two TRAIN chromosomes for fitting and 16,666 targets from the third for selection. Every arm completed 2,600 updates with the same initialization and target order. These are fixed final-epoch results, not the best interim checkpoints.
+| Method | Accuracy (%) ↑ | Macro F1 (%) ↑ | Brier ↓ | NLL ↓ | Calibration error (%) ↓ |
+|---|---:|---:|---:|---:|---:|
+| TreeLoom-Joint (new) | **96.33 ± 0.16** | **95.94 ± 0.15** | **0.0629 ± 0.0039** | **0.1808 ± 0.0140** | 2.55 ± 0.19 |
+| AncestralPaths historical CNN (author-source port) | 92.70 ± 0.35 | 91.58 ± 0.21 | 0.1102 ± 0.0063 | 0.2143 ± 0.0119 | **0.71 ± 0.20** |
+| AncestralPaths Dense control | 92.49 ± 0.53 | 91.40 ± 0.43 | 0.1163 ± 0.0071 | 0.2317 ± 0.0128 | 1.69 ± 0.38 |
+| TreeLoom (previous architecture) | 54.80 ± 1.02 | 31.58 ± 0.57 | 0.5735 ± 0.0088 | 1.0597 ± 0.0258 | 2.66 ± 0.57 |
+| GST-LAI-8 (ancestry adaptation) | 42.45 ± 1.13 | 27.88 ± 0.75 | 0.6750 ± 0.0066 | 1.3657 ± 0.0135 | 2.30 ± 1.04 |
 
-| Model arm | Development accuracy (%) | Development macro F1 (%) | Cross-entropy |
+Values are mean ± sample SD across five independently simulated chromosomes, not across training seeds. Calibration error uses ten equal-width confidence bins. The new model improves accuracy, macro F1, Brier score and NLL on every chromosome, but its confidence calibration is worse than the CNN. This is a comparison on shared simulated data, not a claim to reproduce an original published numerical table.
+
+| Simulated cohort | CNN accuracy (%) | TreeLoom-Joint accuracy (%) | Gain (percentage points) |
 |---|---:|---:|---:|
-| No cross-tree connections | 96.41 | 96.20 | **0.1327** |
-| Same-leaf connections | 96.45 | 96.22 | 0.1430 |
-| Branch-structure connections | **96.58** | **96.34** | 0.1556 |
+| Present day | 88.32 ± 1.55 | **93.08 ± 0.87** | +4.76 |
+| Bronze Age | 92.05 ± 1.13 | **95.57 ± 0.61** | +3.52 |
+| BAA | 95.69 ± 0.37 | **97.49 ± 0.32** | +1.80 |
+| Neolithic | 93.48 ± 0.50 | **98.16 ± 0.55** | +4.68 |
+| Yamnaya | 93.97 ± 0.64 | **97.34 ± 0.29** | +3.37 |
 
-One held-out chromosome cannot establish population-level uncertainty or superiority over native methods. **New held-out benchmark scores remain pending.** The historical competitor TEST scores below are a different evaluation and must not be compared directly with this table.
+**Execution:** the full European fit completed 50 epochs and 3,900 updates in 6.00 minutes. Warm training averaged 7,600 targets/s and 88.2% sampled GPU activity. Each TEST chromosome took about 62–66 seconds for preparation and prediction, with four CPU workers. Test preparation is streamed through RAM, with no persistent bulk cache.
 
-The new PyTorch Geometric model applies three joint layers to complete native trees, passing information within and across trees without a recurrent network. All queries at the same SNP share one encoding. Preparing all 1,245 sites took 5.11 minutes with four workers and used about 9.01 GB. During the branch-structure arm's 49 warm training epochs, measured throughput was **7,462 targets/s** and sampled GPU activity averaged **85.0%**, with 436 samples. Its first worker startup took 22.0 seconds. Total fit duration, evaluation, startup and shutdown costs remain separately reported in the audit. This is a new architecture and does not claim numerically equivalent acceleration of old TreeLoom.
+**Architecture:** three joint PyTorch Geometric layers exchange messages within complete selected native trees and across trees through shared leaves and branch structure. All queries at one SNP reuse one encoding. There is no recurrent network. The general idea of graph windows has prior art, so this result does not establish a new general GNN kernel.
 
-Independent checks cover observations and labels, batch isolation, edge cases, gradients, CPU/GPU agreement, all saved prediction identities, restored checkpoints and worker cleanup. Native methods, simulations and historical results are preserved. Sliding joint graph windows have prior art, so no general new-kernel claim is made.
+**Queue snapshot:** 69 original campaign stages completed and **183 unfinished** after counting parallel task IDs only once. The unfinished stages comprise 4 running, 162 pending, 16 blocked and 1 failed. These are preparation, fitting, prediction and scoring stages, not that many separate experiments. The failed previous American TreeLoom and its dependent rows are retained as history.
 
-[Complete reviewed results](research/joint_model_20261029/review/COMPLETED_DEVELOPMENT_REVIEW.json) · [Plan](research/joint_model_20261029/PLAN.md) · [Architecture](research/joint_model_20261029/model/DESIGN.md) · [Data protocol](research/joint_model_20261029/data/DATA_PROTOCOL_v1.json) · [Frozen benchmark fit](research/joint_model_20261029/root/benchmark_protocol_v1.json)
+- **ARGformer:** 7/15 dataset predictions complete. The remaining seven independent parents are now in two automatic lanes assigned to GPUs 4 and 5. Parents003 and004 have completed CPU preparation and started training on GPUs4 and5. The existing parent002 run continues on GPU3.
+- **FLARE:** 15/15 prediction datasets complete and authenticated.
+- **ARGMix:** native Relate inference for TRAIN002 is running in a separate CPU queue after repairing storage admission. Later stages and the new TreeLoom comparison remain unfinished.
+- **New American TreeLoom:** the adapter passed its TRAIN smoke test. A lossless cache and a correction to weighting in partial batches remain unfinished before launch. The uncached route would repeat expensive CPU preparation. No American score is available yet.
+- **Direct four-class AncestralPaths CNN:** the data and author runtime are available. The execution adapter is being prepared.
 
-The final full-data fit averaged **88.2% GPU activity** across 49 warm epochs (644 samples, no other sampled GPU process), processing about **7,600 targets/s**. This is separate from the development timing above.
-
-**The wider campaign is not fully progressing.** At this snapshot only native ARGformer is running on GPU 3, with **7/15** dataset predictions finished. FLARE has 15 authenticated completed prediction receipts. The historical European CNN, Dense and GST comparison is scored, but it contains the old TreeLoom. ARGMix is waiting for storage admission before TRAIN002 native inference. The older American TreeLoom failed at update 593 and remains held. The new model's TEST prediction adapter is not yet connected to the queue. Waiting alone will not complete these blocked parts. Main controller counts: 66 succeeded, 1 running, 168 pending, 1 failed and 16 blocked stages.
+[Detailed scores, class metrics and confusion matrices](research/joint_evaluation_20261029/scoring/comparison_v4.json) · [Independent result review](research/joint_evaluation_20261029/scoring/FINAL_RESULT_REVIEW_v1.json) · [Current queue snapshot](research/joint_evaluation_20261029/root/CURRENT_STATUS.json) · [Integration work plan](research/joint_evaluation_20261029/PLAN.md) · [Frozen model and development results](research/joint_model_20261029/PLAN.md)
 <!-- joint-model-20261029:end -->
 
 <!-- bounded-redesign-20261028:start -->

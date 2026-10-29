@@ -1,0 +1,69 @@
+--- paper_campaign/scheduler.py
++++ queue/cnn4_scheduler.py
+@@ -13,10 +13,11 @@
+ import subprocess
+ import sys
+ import time
+-from . import runtime as r
+-from . import processes
+-from . import repairs
+-from . import continuation
++from arggnn.benchmarking.paper_campaign import runtime as r
++from research.joint_evaluation_20261029.queue import cnn4_admission as admission
++from arggnn.benchmarking.paper_campaign import processes
++from arggnn.benchmarking.paper_campaign import repairs
++from arggnn.benchmarking.paper_campaign import continuation
+ 
+ 
+ def validate(plan):
+@@ -80,7 +81,7 @@
+                 raise ValueError('Explicit project-contained auxiliary write bound required')
+         if task.get('argv') and r.path(task['argv'][0]) != r.path(task['python']):
+             raise ValueError('Argv interpreter differs from declared runtime')
+-    if plan['storage_ceiling_bytes'] > 1_000_000_000_000:
++    if plan['storage_ceiling_bytes'] > 1_200_000_000_000:
+         raise ValueError('Operational storage ceiling exceeded')
+     return plan
+ 
+@@ -188,12 +189,13 @@
+             raise ValueError('Controller source changed: ' + source['path'])
+     directory = r.path(plan['records_directory'])
+     directory.mkdir(parents=True, exist_ok=True)
+-    lock = r.path('.runtime/benchmarking/paper_campaign_global.lock').open('a+')
++    lock = (directory / 'cnn4.lock').open('a+')
+     fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+     state_path = directory / 'state.json'
+     if state_path.exists():
+         raise ValueError('Use a reviewed continuation after an existing attempt, never silently replay')
+-    seeded = continuation.initial_rows(plan)
++    admission.admit(plan)
++    seeded = None
+     state = dict(schema='paper_campaign_state_v1', plan_ref=r.ref(plan_path), controller_pid=os.getpid(),
+                  tasks=seeded if seeded is not None else {t['id']: dict(status='pending') for t in plan['tasks']})
+     if seeded is not None:
+@@ -232,7 +234,7 @@
+                             size = task['max_output_bytes'] + 1
+                     row['observed_pss_bytes'] = usage
+                     row['observed_output_bytes'] = size
+-                    scope_exceeded = any(
++                    scope_exceeded = not admission.within_shared_allowance(plan) or any(
+                         r.path(task['output_directory']).is_relative_to(r.path(limit['path']))
+                         and r.scope_bytes(r.path(limit['path'])) > limit['max_bytes']
+                         for limit in plan.get('scope_limits', []))
+@@ -318,12 +320,15 @@
+                 if baseline + reserved + new_growth + pipeline_floor(plan, state, sizes, set(running), task) > plan['storage_ceiling_bytes']:
+                     row['waiting_reason'] = 'Storage reservation'
+                     continue
++                if not admission.within_shared_allowance(plan):
++                    row['waiting_reason'] = 'Combined evaluation scope allowance'
++                    continue
+                 active = [t for t in plan['tasks'] if t['id'] in running]
+                 if len(active) >= plan.get('max_parallel_tasks', 6):
+                     row['waiting_reason'] = 'Parallel worker capacity'
+                     continue
+                 free_ram = int(next(l.split()[1] for l in Path('/proc/meminfo').read_text().splitlines() if l.startswith('MemAvailable:'))) * 1024
+-                remaining_growth = sum(max(0, t['max_rss_bytes'] - state['tasks'][t['id']].get('observed_pss_bytes', 0)) for t in active)
++                remaining_growth = plan['foreign_ram_reserve_bytes'] + sum(max(0, t['max_rss_bytes'] - state['tasks'][t['id']].get('observed_pss_bytes', 0)) for t in active)
+                 for old in plan.get('existing_workers', []):
+                     p = Path('/proc') / str(old['pid']) / 'stat'
+                     if p.exists():

@@ -1,0 +1,74 @@
+--- src/arggnn/benchmarking/paper_campaign/scheduler.py
++++ research/joint_evaluation_20261029/queue/sidecar_scheduler.py
+@@ -13,10 +13,12 @@
+ import subprocess
+ import sys
+ import time
+-from . import runtime as r
+-from . import processes
+-from . import repairs
+-from . import continuation
++from arggnn.benchmarking.paper_campaign import runtime as r
++from research.joint_evaluation_20261029.queue import claims
++from arggnn.benchmarking.paper_campaign import processes
++from research.joint_evaluation_20261029.queue import coordination
++from arggnn.benchmarking.paper_campaign import repairs
++from arggnn.benchmarking.paper_campaign import continuation
+ 
+ 
+ def validate(plan):
+@@ -80,7 +82,7 @@
+                 raise ValueError('Explicit project-contained auxiliary write bound required')
+         if task.get('argv') and r.path(task['argv'][0]) != r.path(task['python']):
+             raise ValueError('Argv interpreter differs from declared runtime')
+-    if plan['storage_ceiling_bytes'] > 1_000_000_000_000:
++    if plan['storage_ceiling_bytes'] > 1_200_000_000_000:
+         raise ValueError('Operational storage ceiling exceeded')
+     return plan
+ 
+@@ -188,12 +190,13 @@
+             raise ValueError('Controller source changed: ' + source['path'])
+     directory = r.path(plan['records_directory'])
+     directory.mkdir(parents=True, exist_ok=True)
+-    lock = r.path('.runtime/benchmarking/paper_campaign_global.lock').open('a+')
++    lock = (directory / 'sidecar.lock').open('a+')
+     fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+     state_path = directory / 'state.json'
+     if state_path.exists():
+         raise ValueError('Use a reviewed continuation after an existing attempt, never silently replay')
+-    seeded = continuation.initial_rows(plan)
++    claims.claim_all(plan)
++    seeded = None
+     state = dict(schema='paper_campaign_state_v1', plan_ref=r.ref(plan_path), controller_pid=os.getpid(),
+                  tasks=seeded if seeded is not None else {t['id']: dict(status='pending') for t in plan['tasks']})
+     if seeded is not None:
+@@ -323,7 +326,7 @@
+                     row['waiting_reason'] = 'Parallel worker capacity'
+                     continue
+                 free_ram = int(next(l.split()[1] for l in Path('/proc/meminfo').read_text().splitlines() if l.startswith('MemAvailable:'))) * 1024
+-                remaining_growth = sum(max(0, t['max_rss_bytes'] - state['tasks'][t['id']].get('observed_pss_bytes', 0)) for t in active)
++                remaining_growth = plan.get('foreign_ram_reserve_bytes', 0) + sum(max(0, t['max_rss_bytes'] - state['tasks'][t['id']].get('observed_pss_bytes', 0)) for t in active)
+                 for old in plan.get('existing_workers', []):
+                     p = Path('/proc') / str(old['pid']) / 'stat'
+                     if p.exists():
+@@ -335,7 +338,10 @@
+                     continue
+                 gpu = None
+                 if task['kind'] == 'gpu':
+-                    candidates = [i for i,g in snapshot.items() if g['free_bytes'] >= task['minimum_free_gpu_bytes']
++                    if not coordination.gpu_stage_allowed(plan, task):
++                        row['waiting_reason'] = 'Original parent002 large-GPU transition guard'
++                        continue
++                    candidates = [i for i,g in snapshot.items() if i in plan['allowed_sidecar_gpus'] and g['free_bytes'] >= task['minimum_free_gpu_bytes']
+                                   and sum(state['tasks'][t['id']].get('physical_gpu') == i for t in active) < plan.get('max_jobs_per_gpu', 2)]
+                     if not candidates:
+                         row['waiting_reason'] = 'GPU headroom'
+@@ -354,7 +360,7 @@
+                     row.update(status='blocked', error=str(exc))
+                     continue
+                 output = r.path(task['output_directory'])
+-                if output.exists() and not continuation.permit_existing_output(task, row):
++                if output.exists() and not claims.permit_claimed_output(plan, task, row):
+                     row.update(status='blocked', error='Output already exists, no overwrite')
+                     continue
+                 output.parent.mkdir(parents=True, exist_ok=True)
