@@ -33,9 +33,12 @@ The ARGformer parallel queue is live. Parents 003 and 004 have completed prepara
 
 ## Remaining integration work
 
-- [ ] Finish the American joint model weighting correction and lossless prepared-input cache. The current uncached implementation passed a TRAIN smoke test but would repeat expensive CPU preparation. It is not launched. Preserve the original targets and frozen architecture.
-- [ ] Review and launch the prepared direct four-class CNN queue. It is not yet running.
-- [ ] Reconcile genuine parallel-queue receipts with the original campaign at a safe idle boundary. The supplied merge helper only prepares a proposal and does not yet restart the old controller. Later ARGMix stages still require this integration.
+- [x] Finish and independently review the American weighting correction and lossless cache implementation.
+- [ ] Complete the running full American cache, then qualify, train for 13 epochs and predict all 15 held-out parents automatically.
+- [x] Review and launch the corrected direct four-class CNN queue.
+- [ ] Complete its 40,000-target fit and five TEST predictions, then compare the new direct four-output TreeLoom on identical target rows.
+- [x] Review and launch successor V2 idle-boundary watcher, PID 2010438.
+- [ ] Complete the safe handoff after original ARGformer TEST002 prediction and scratch retirement. Preserve the two native sidecars, adopt their task IDs once, and explicitly supersede eleven never-started old ARGMix model stages.
 - [ ] Integrate and train the new joint model for ARGMix, then complete the corresponding comparisons.
 
 Current counts in root/CURRENT_STATUS.json overlay original task IDs with their parallel owners, avoiding double counting. The 183 unfinished original campaign stages include retained failures of the previous American TreeLoom. New-model integration outside that old task list is reported separately. The complete benchmark is not finished.
@@ -52,3 +55,25 @@ Current counts in root/CURRENT_STATUS.json overlay original task IDs with their 
 - In progress: full new-model ARGMix cache, fit, prediction and scoring integration. The exact original campaign has five TRAIN parents, one validation parent, three IID parents and five misspecification parents. All eight held-out test parents remain required.
 - Storage: current additive reservations remain below 1.2 TB. A production ARGMix joint cache needs a larger reservation than its initial smoke allowance. It must wait for authenticated unused reservations or scratch retirement to make room within the same total limit.
 - Still required: complete all pending native ARGformer and ARGMix work, all new American and ARGMix predictions, direct four-class comparisons and final result review. The full benchmark and paper are not complete.
+
+## Completion automation
+
+- The frozen European six-class assessment is finished. Its five TEST parents are never used for further model selection.
+- The American builder is running. Its continuation will wait for actual cache completion, qualify the largest full TRAIN batches, fit the fixed final checkpoint, and emit every held-out prediction before scoring.
+- The direct European four-output model passed independent review. Its launcher will qualify, fit and predict in sequence, then wait for the four-output CNN before paired scoring.
+- The ARGMix controller will preserve all fourteen original parents, including all eight TEST parents. Production cache admission must fit the existing 1.2 TB limit.
+- Each new-model GPU chain must release its GPU before waiting on native competitor scores. The final native queue GPU gate opens only after all three GPU chains genuinely finish. This avoids circular waits.
+- Historical failures and superseded stages remain visible and are never reported as successful scientific results. Final completion requires all three new comparison products, all original native prediction products, and a final result review.
+
+## Verified completion update
+
+- [x] Direct four-output TreeLoom completed 50 epochs, 1,700 updates and 2,000,000 target presentations in 448 seconds.
+- [x] All five direct four-output predictions and all fifteen CNN queue stages completed. Independent review reproduced every recorded metric and target join.
+- [x] Report the mixed result: present-day accuracy is 92.80 percent for TreeLoom and 93.38 for CNN, while overall accuracy is 95.82 and 95.55 percent. The primary endpoint remains present-day accuracy.
+- [x] Launch American automatic continuation, waiting for the full 20-parent cache.
+- [x] Prepare and review the three-method American paired scorer, including explicit ARGformer reference PCA10 centroid semantics.
+- [x] Repair an ARGMix completion-reference format mismatch before production. Only its idle controller was replaced, with its original evidence preserved. The scientific protocol and algorithms are unchanged.
+- [x] Review final completion coordinator: exact storage admission, genuine 17/11/7-stage GPU-chain receipts, native GPU release, all fifteen ARGMix stages, explicit report publication and Git push. Twelve operational tests passed.
+- [ ] Complete American and ARGMix execution, then independently review their final comparisons.
+
+The completed four-class result does not establish a win on every task. No TEST result is used to change the frozen model or checkpoint.

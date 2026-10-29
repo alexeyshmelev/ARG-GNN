@@ -25,6 +25,18 @@ class PackedGenotypes:
         return np.unpackbits(self.values[indices], axis=-1, bitorder='little', count=self.samples).astype(np.int8)
 
 
+def require_public_observation_manifest(manifest):
+    """Accept the two original producers only when every truth declaration is safe."""
+    explicit = "contains_genealogy_or_founder_truth" in manifest
+    native = any(key in manifest for key in ("no_oracle_tree_exported", "census_or_target_features_exported"))
+    require(explicit or native, "Original observation producer must declare no truth export")
+    if explicit:
+        require(manifest["contains_genealogy_or_founder_truth"] is False, "No genealogy or founder truth exported")
+    if native:
+        require(manifest.get("no_oracle_tree_exported") is True and
+                manifest.get("census_or_target_features_exported") is False, "No native oracle tree, census, or target feature export")
+
+
 class ObservationSource:
     def __init__(self, parent_id, seal_ref, *, tree_cache_bytes=128 * 2**20):
         self.parent_id = parent_id
@@ -40,8 +52,9 @@ class ObservationSource:
         self.bridge = read(self.seal['bridge_ref'])
         self.observed = read(self.seal['observed_manifest_ref'])
         self.support = read(self.seal['support_ref'])
+        require_public_observation_manifest(self.observed)
         require(self.bridge['parent_id'] == self.observed['parent_id'] == self.support['parent_id'] == parent_id and
-                self.bridge['truth_read'] is False and self.observed['contains_genealogy_or_founder_truth'] is False and
+                self.bridge['truth_read'] is False and
                 self.support['truth_or_labels_read'] is False and
                 self.bridge['observed_manifest_ref'] == self.seal['observed_manifest_ref'] and
                 self.support['inferred_bridge_ref'] == self.seal['bridge_ref'], 'Exact public observation chain')

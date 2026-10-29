@@ -1,0 +1,11 @@
+--- original.prepare
++++ cnn4_v2.prepare
+@@ -6,7 +6,7 @@
+     plan = original_data.checked_plan(source_plan_ref)
+     registry = io._read(registry_ref, observed=True)
+     records, indices = selected_records(registry, plan)
+-    inferred = io._read(inference_ref, observed=True)
++    inferred = io._read(inference_ref, observed=True, cap=INFERENCE_METADATA_BYTES[inference_ref["sha256"]])
+     io._need(registry["observation_ref"] == inference_ref
+              and inferred["parent_id"] == registry["parent_id"]
+              and inferred["split"] == registry["split"]

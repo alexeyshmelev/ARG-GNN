@@ -1,0 +1,84 @@
+{
+  "american_allocation_ref": {
+    "path": "research/joint_evaluation_20261029/root/american_additive_allocation_v1.json",
+    "sha256": "a1a4bea374619b39f8b7d6e33ae9042d59c2e31a9783859a7f7b076734505240"
+  },
+  "cnn_own_max_bytes": 68719476736,
+  "combined_future_max_bytes": 1649267441664,
+  "created_unix": 1793247808.103075,
+  "current_foreign_gib": {
+    "american_joint": 64,
+    "argmix_joint": 64,
+    "european_four_joint": 64,
+    "native_argmix_train002": 256,
+    "native_two_lanes": 512,
+    "original002_sequential_chain": 128
+  },
+  "current_foreign_total_gib": 1088,
+  "host_headroom_bytes": 68719476736,
+  "joint_argmix_allocation_ref": {
+    "path": "research/joint_evaluation_20261029/root/argmix_joint_additive_allocation_v1.json",
+    "sha256": "81fcfe0fec1bdaacf2a4359be47d513d20119dcc4bb819f8099505b30a606c0d"
+  },
+  "native_argmix_plan_ref": {
+    "path": "research/joint_evaluation_20261029/queue/argmix_plan.json",
+    "sha256": "4fd1c97442ebcc7a46ee75de60e2bb1533dd2459c4461c8fa668a58ec6e0d0e6"
+  },
+  "native_plan_ref": {
+    "path": "research/joint_evaluation_20261029/queue/sidecar_plan.json",
+    "sha256": "15519ffa4936674d80a6d9d5e5177148934687694416bec862b1a3b8ab284bbb"
+  },
+  "no_live_sources_modified": true,
+  "original_effective_plan_ref": {
+    "path": "research/joint_evaluation_20261029/queue/original_effective_plan.json",
+    "sha256": "d1b344d543cce0cfda1d487973797eeba637c52721c6f5244c3f9c695a4581ea"
+  },
+  "proposed_CNN_foreign_ram_reserve_bytes": 1511828488192,
+  "rationale": [
+    "The original002 contrastive/prediction/retirement stages are sequential; maximum is128GiB.",
+    "Native ARGformer has two dependency lanes; each lane maximum256GiB preparation; do not sum every future stage.",
+    "Successor cannot own any ARGMix process until nativeTRAIN002 succeeds: all remaining runnable nonaliases are its descendants.",
+    "Successor has at most two tasks and GPU3only while native lanes unfinished; at most one512GiB GPU plus one256GiB CPU.",
+    "After native lanes drain, their512GiB foreign reserve and256GiB nativeTRAIN002 reserve no longer overlap successor.",
+    "Both new root models retain their full64GiB RAM reservations; CNN64GiB and host64GiB are additional.",
+    "Original controllers have their own conservative foreign reservations includingCNN; successor explicitly reservesCNN64GiB.",
+    "European direct-four GPU chain is an explicit third root-priority gate. Its64GiB may overlap only successorCPU stages; it is complete before successorGPU stages are released."
+  ],
+  "root_gpu_gate_required_model_chains": [
+    "american_joint",
+    "argmix_joint",
+    "european_four_joint"
+  ],
+  "schema": "cnn4_foreign_ram_review_v1",
+  "signals_sent": 0,
+  "successor_CPU_only_while_root_priority_pending_gib": {
+    "american_joint": 64,
+    "argmix_joint": 64,
+    "european_four_joint": 64,
+    "native_two_lanes": 512,
+    "successor_two_CPU_max": 512
+  },
+  "successor_CPU_only_while_root_priority_pending_total_gib": 1216,
+  "successor_after_native_lanes_drained_gib": {
+    "american_joint": 64,
+    "argmix_joint": 64,
+    "successor_two_max_GPU_tasks": 1024
+  },
+  "successor_after_native_lanes_drained_total_gib": 1152,
+  "successor_pending_argmix_max_ram_by_kind": {
+    "cpu": 274877906944,
+    "gpu": 549755813888
+  },
+  "successor_template_ref": {
+    "path": "research/joint_evaluation_20261029/queue/successor_template.json",
+    "sha256": "06557962c0ab0698a839caacfb56cb1a4e14488cb1ca055fb902dc633836dd6c"
+  },
+  "successor_while_native_lanes_unfinished_gib": {
+    "american_joint": 64,
+    "argmix_joint": 64,
+    "native_two_lanes": 512,
+    "successor_one_CPU_max": 256,
+    "successor_one_GPU3_max": 512
+  },
+  "successor_while_native_lanes_unfinished_total_gib": 1408
+}

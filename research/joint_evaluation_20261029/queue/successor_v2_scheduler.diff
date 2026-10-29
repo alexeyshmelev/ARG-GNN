@@ -1,0 +1,190 @@
+--- paper_campaign/scheduler.py
++++ queue/successor_v2_scheduler.py
+@@ -13,10 +13,11 @@
+ import subprocess
+ import sys
+ import time
+-from . import runtime as r
+-from . import processes
+-from . import repairs
+-from . import continuation
++from arggnn.benchmarking.paper_campaign import runtime as r
++from research.joint_evaluation_20261029.queue import successor_v2_support as support
++from research.joint_evaluation_20261029.queue import successor_v2_gpu as gpu_ownership
++from arggnn.benchmarking.paper_campaign import processes
++from arggnn.benchmarking.paper_campaign import continuation
+ 
+ 
+ def validate(plan):
+@@ -55,7 +56,7 @@
+     outputs = []
+     for task in plan['tasks']:
+         if task['kind'] == 'external':
+-            if not task.get('result_ref') and not task.get('state_path'):
++            if not task.get('result_ref') and not task.get('state_path') and not task.get('future_wait_path'):
+                 raise ValueError('External task needs an actual evidence source')
+             continue
+         if task['kind'] not in ('cpu', 'gpu'):
+@@ -80,7 +81,7 @@
+                 raise ValueError('Explicit project-contained auxiliary write bound required')
+         if task.get('argv') and r.path(task['argv'][0]) != r.path(task['python']):
+             raise ValueError('Argv interpreter differs from declared runtime')
+-    if plan['storage_ceiling_bytes'] > 1_000_000_000_000:
++    if plan['storage_ceiling_bytes'] > 1_200_000_000_000:
+         raise ValueError('Operational storage ceiling exceeded')
+     return plan
+ 
+@@ -137,17 +138,7 @@
+ 
+ 
+ def external_result(task):
+-    if task.get('result_ref'):
+-        r.read(task['result_ref'])
+-        return task['result_ref']
+-    source = json.loads(r.path(task['state_path']).read_text())
+-    row = source['tasks'][task['source_task_id']]
+-    if row['status'] == 'succeeded':
+-        r.read(row['result_ref'])
+-        return row['result_ref']
+-    if row['status'] in ('failed', 'blocked', 'unknown'):
+-        raise RuntimeError('External predecessor ' + row['status'])
+-    return None
++    return support.external_result(task)
+ 
+ 
+ def stop_owned(process, expected_start):
+@@ -193,12 +184,11 @@
+     state_path = directory / 'state.json'
+     if state_path.exists():
+         raise ValueError('Use a reviewed continuation after an existing attempt, never silently replay')
+-    seeded = continuation.initial_rows(plan)
++    seeded = support.initial_rows(plan)
+     state = dict(schema='paper_campaign_state_v1', plan_ref=r.ref(plan_path), controller_pid=os.getpid(),
+                  tasks=seeded if seeded is not None else {t['id']: dict(status='pending') for t in plan['tasks']})
+     if seeded is not None:
+-        state['continuation_ref'] = plan['continuation_ref']
+-        state['archived_attempt_bytes'] = r.read(plan['continuation_ref'])['archived_attempt_bytes']
++        state['handoff_ref'] = plan['handoff_ref']
+     outputs = [r.path(t['output_directory']) for t in plan['tasks'] if t['kind'] != 'external']
+     auxiliaries = {}
+     for task in plan['tasks']:
+@@ -213,13 +203,13 @@
+         attempts.append(logs / (task['id'] + '.log'))
+         return r.scope_bytes(r.path(task['output_directory'])) + sum(r.scope_bytes(p) for p in attempts)
+     running = {}
++    gpu_leases = {}
+     def cancel(signum, frame):
+         raise RuntimeError('Controller received explicit termination signal')
+     signal.signal(signal.SIGTERM, cancel)
+     signal.signal(signal.SIGINT, cancel)
+     try:
+         while True:
+-            repairs.apply_pending(plan, state, directory)
+             for task_id, (process, log, start, start_ticks) in list(running.items()):
+                 task = next(t for t in plan['tasks'] if t['id'] == task_id)
+                 row = state['tasks'][task_id]
+@@ -232,7 +222,7 @@
+                             size = task['max_output_bytes'] + 1
+                     row['observed_pss_bytes'] = usage
+                     row['observed_output_bytes'] = size
+-                    scope_exceeded = any(
++                    scope_exceeded = not support.metadata_within_bound(plan) or any(
+                         r.path(task['output_directory']).is_relative_to(r.path(limit['path']))
+                         and r.scope_bytes(r.path(limit['path'])) > limit['max_bytes']
+                         for limit in plan.get('scope_limits', []))
+@@ -269,6 +259,7 @@
+                     row.setdefault('error', 'Nonzero exit or absent completion artifact')
+                 r.save(output / 'actual_wait.json', dict(row))
+                 del running[task_id]
++                gpu_ownership.release(gpu_leases.pop(task_id, None))
+             for task in plan['tasks']:
+                 row = state['tasks'][task['id']]
+                 if row['status'] != 'pending' or task['kind'] != 'external':
+@@ -276,13 +267,15 @@
+                 try:
+                     result = external_result(task)
+                     if result:
+-                        row.update(status='succeeded', result_ref=result, reused=True)
++                        row.update(status='succeeded', result_ref=result, reused=True, **support.external_evidence(task))
+                 except Exception as exc:
+                     row.update(status='blocked', error=str(exc))
+             scope_usage = {limit['path']: r.scope_bytes(r.path(limit['path'])) for limit in plan.get('scope_limits', [])}
+             state['scope_usage_bytes'] = scope_usage
+             snapshot = gpu_state()
+             state['gpu_observation'] = snapshot
++            accounting = support.commitment(plan)
++            state['closed_writer_accounting'] = accounting
+             baseline = plan['reserved_existing_project_bytes'] + state.get('archived_attempt_bytes', 0)
+             sizes = {t['id']: used(t) for t in plan['tasks'] if t['kind'] != 'external'}
+             reserved = sum(sizes.values()) + sum(max(0, r.scope_bytes(Path(scope)) - initial) for scope, initial in auxiliaries.items())
+@@ -315,7 +308,7 @@
+                     row.update(status='blocked', error='Campaign scope limit exceeded: ' + violated['path'])
+                     continue
+                 new_growth = task['max_output_bytes'] + sum(max(0, extra['max_bytes'] - r.scope_bytes(r.path(extra['path']))) for extra in task.get('additional_mutable_scopes', []) if extra.get('growth_allowed', True))
+-                if baseline + reserved + new_growth + pipeline_floor(plan, state, sizes, set(running), task) > plan['storage_ceiling_bytes']:
++                if not accounting['admitted'] or not support.metadata_within_bound(plan) or not support.task_fits_scope(plan, state, task, [t for t in plan['tasks'] if t['id'] in running]):
+                     row['waiting_reason'] = 'Storage reservation'
+                     continue
+                 active = [t for t in plan['tasks'] if t['id'] in running]
+@@ -323,7 +316,7 @@
+                     row['waiting_reason'] = 'Parallel worker capacity'
+                     continue
+                 free_ram = int(next(l.split()[1] for l in Path('/proc/meminfo').read_text().splitlines() if l.startswith('MemAvailable:'))) * 1024
+-                remaining_growth = sum(max(0, t['max_rss_bytes'] - state['tasks'][t['id']].get('observed_pss_bytes', 0)) for t in active)
++                remaining_growth = plan['foreign_ram_reserve_bytes'] + sum(max(0, t['max_rss_bytes'] - state['tasks'][t['id']].get('observed_pss_bytes', 0)) for t in active)
+                 for old in plan.get('existing_workers', []):
+                     p = Path('/proc') / str(old['pid']) / 'stat'
+                     if p.exists():
+@@ -335,7 +328,7 @@
+                     continue
+                 gpu = None
+                 if task['kind'] == 'gpu':
+-                    candidates = [i for i,g in snapshot.items() if g['free_bytes'] >= task['minimum_free_gpu_bytes']
++                    candidates = [i for i,g in snapshot.items() if i in gpu_ownership.allowed(plan) and g['free_bytes'] >= task['minimum_free_gpu_bytes']
+                                   and sum(state['tasks'][t['id']].get('physical_gpu') == i for t in active) < plan.get('max_jobs_per_gpu', 2)]
+                     if not candidates:
+                         row['waiting_reason'] = 'GPU headroom'
+@@ -357,6 +350,11 @@
+                 if output.exists() and not continuation.permit_existing_output(task, row):
+                     row.update(status='blocked', error='Output already exists, no overwrite')
+                     continue
++                lease = gpu_ownership.acquire(gpu) if gpu is not None else None
++                if lease is False:
++                    row['waiting_reason'] = 'Root or successor owns exclusive GPU3 lock'
++                    continue
++                gpu_leases[task['id']] = lease
+                 output.parent.mkdir(parents=True, exist_ok=True)
+                 if not task.get('argv') and not output.exists():
+                     output.mkdir()
+@@ -370,7 +368,7 @@
+                 log_path.parent.mkdir(exist_ok=True)
+                 log = log_path.open('xb')
+                 process = subprocess.Popen(command, cwd=r.ROOT, env=environment(task, gpu),
+-                                           stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
++                                           stdout=log, stderr=subprocess.STDOUT, start_new_session=True, pass_fds=(() if lease is None else (lease,)))
+                 start_ticks = (Path('/proc') / str(process.pid) / 'stat').read_text().rsplit(')', 1)[1].split()[19]
+                 row.update(status='running', pid=process.pid, process_start_ticks=start_ticks,
+                            physical_gpu=gpu, reservation_bytes=task['max_output_bytes'],
+@@ -383,10 +381,10 @@
+                 r.save(state_path, state)
+             state['updated_unix'] = time.time()
+             state['counts'] = {key: sum(row['status'] == key for row in state['tasks'].values())
+-                               for key in ('pending', 'running', 'succeeded', 'failed', 'blocked')}
+-            state['project_reserved_bytes'] = baseline + reserved + pipeline_floor(plan, state, sizes, set(running))
++                               for key in ('pending', 'running', 'succeeded', 'failed', 'blocked', 'superseded')}
++            state['project_reserved_bytes'] = accounting['total_bytes']
+             r.save(state_path, state)
+-            if not running and all(row['status'] in ('succeeded', 'failed', 'blocked') for row in state['tasks'].values()):
++            if not running and all(row['status'] in ('succeeded', 'failed', 'blocked', 'superseded') for row in state['tasks'].values()):
+                 return state
+             time.sleep(10)
+     finally:
+@@ -398,6 +396,8 @@
+             task = next(t for t in plan['tasks'] if t['id'] == task_id)
+             r.save(r.path(task['output_directory']) / 'actual_wait.json', dict(state['tasks'][task_id]))
+         r.save(state_path, state)
++        for lease in gpu_leases.values():
++            gpu_ownership.release(lease)
+ 
+ 
+ def main():

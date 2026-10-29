@@ -27,16 +27,34 @@ Values are mean ± sample SD across five independently simulated chromosomes, no
 
 **Architecture:** three joint PyTorch Geometric layers exchange messages within complete selected native trees and across trees through shared leaves and branch structure. All queries at one SNP reuse one encoding. There is no recurrent network. The general idea of graph windows has prior art, so this result does not establish a new general GNN kernel.
 
-**Queue snapshot:** 69 original campaign stages completed and **183 unfinished** after counting parallel task IDs only once. The unfinished stages comprise 4 running, 162 pending, 16 blocked and 1 failed. These are preparation, fitting, prediction and scoring stages, not that many separate experiments. The failed previous American TreeLoom and its dependent rows are retained as history.
+**Queue snapshot:** 72 original campaign stages completed, **163 pending or running** and 0 explicitly superseded after counting parallel task IDs only once. The records contain 3 running, 160 pending, 16 blocked and 1 failed stages. These are preparation, fitting, prediction and scoring stages, not that many separate experiments. The failed previous American TreeLoom and its dependent rows are retained as history.
 
-- **ARGformer:** 7/15 dataset predictions complete. The remaining seven independent parents are now in two automatic lanes assigned to GPUs 4 and 5. Parents003 and004 have completed CPU preparation and started training on GPUs4 and5. The existing parent002 run continues on GPU3.
+- **ARGformer:** 8/15 dataset predictions complete. The remaining 7 parents are assigned to the original GPU3 lane and the two native lanes on GPUs4 and5. Their original training schedules remain unchanged.
 - **FLARE:** 15/15 prediction datasets complete and authenticated.
-- **ARGMix:** native Relate inference for TRAIN002 is running in a separate CPU queue after repairing storage admission. Later stages and the new TreeLoom comparison remain unfinished.
-- **New American TreeLoom:** the full lossless TRAIN cache is building with 16 workers. It covers all 158,476 windows and 200,000 original target rows. Corrected partial-batch weighting, exact cache restoration and the training/prediction chain passed independent review. GPU qualification on the largest TRAIN batches precedes the fixed 13-epoch fit and all 15 held-out predictions. No American score is available yet.
-- **Direct four-class AncestralPaths CNN:** the corrected queue is active. An input manifest exceeded a metadata read limit on the first attempt. The repair changes that bound only, and a full real-data preparation test passed. The original CNN and its 40,000 supervised rows are unchanged. A separate direct four-class TreeLoom fit on those same rows is being prepared.
+- **ARGMix:** native Relate inference and the remaining original producers continue through the native queues. The new TreeLoom pipeline covers five TRAIN, one validation and eight TEST parents. Its full cache needs admission within the existing1.2TB storage ceiling. No final ARGMix comparison is available yet.
+- **New American TreeLoom:** the registered full lossless TRAIN cache uses 16 workers. It covers all 158,476 windows and 200,000 original target rows. Corrected partial-batch weighting, exact cache restoration and the training/prediction chain passed independent review. GPU qualification on the largest TRAIN batches precedes the fixed 13-epoch fit and all 15 held-out predictions. No American score is available yet.
+- **Direct four-class AncestralPaths CNN and TreeLoom-Joint:** both fresh four-output models completed training and prediction on all five TEST chromosomes. The completed comparison uses the same 40,000 supervised targets and 40,000 TEST targets. TreeLoom used its fixed 50 epochs and CNN its fixed five epochs. Present-day accuracy remains the registered primary endpoint; results are reported below.
 
 [Detailed scores, class metrics and confusion matrices](research/joint_evaluation_20261029/scoring/comparison_v4.json) · [Independent result review](research/joint_evaluation_20261029/scoring/FINAL_RESULT_REVIEW_v1.json) · [Current queue snapshot](research/joint_evaluation_20261029/root/CURRENT_STATUS.json) · [Integration work plan](research/joint_evaluation_20261029/PLAN.md) · [Frozen model and development results](research/joint_model_20261029/PLAN.md)
+
+### European benchmark: completed direct four-class comparison
+
+Both models are trained on the same 40,000 supervised rows and scored on the same 40,000 TEST rows. Values are mean ± sample SD across five chromosomes. Present-day accuracy is the registered primary metric.
+
+| Method | Present-day accuracy (%) ↑ | Overall accuracy (%) ↑ | Overall macro F1 (%) ↑ |
+|---|---:|---:|---:|
+| AncestralPaths CNN (direct four outputs) | **93.38 ± 1.47** | 95.55 ± 0.59 | 95.22 ± 0.62 |
+| TreeLoom-Joint | 92.80 ± 1.22 | **95.82 ± 0.30** | **95.52 ± 0.28** |
+
+The models use different observed representations. TreeLoom keeps BAA query leaves as unknown context, with no BAA target labels. The CNN uses its historical four-path features. Both have four direct output classes, with no probability merging.
+
+[Full direct four-class scores and cohort matrices](research/joint_evaluation_20261029/european_four/outputs/paired_score/comparison.json)
+
 <!-- joint-model-20261029:end -->
+
+<!-- joint-four-conditions-20261029 -->
+The direct four-class comparison uses one initialization per method. TreeLoom receives 50 epochs, or 2,000,000 target presentations, and the documented CNN reconstruction receives its registered five epochs, or 200,000 presentations. Both use the same 40,000 supervised rows. This is not an equal-compute comparison or a claim to reproduce the original publication runtime. The primary present-day endpoint favors the CNN. Fixed four-class macro F1 retains all four classes even in cohorts with absent classes. [Independent completed-result audit](research/joint_evaluation_20261029/review_finish/european_four_completed_checks_v1.json).
+
 
 <!-- bounded-redesign-20261028:start -->
 ## TreeLoom redesign, 28 October

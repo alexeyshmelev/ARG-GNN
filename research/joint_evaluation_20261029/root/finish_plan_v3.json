@@ -1,0 +1,843 @@
+{
+  "american_comparison_argv": [
+    "/workspace-SR003.nfs2/ARG-GNN/.runtime/env/bin/python3.11",
+    "-B",
+    "-s",
+    "-u",
+    "-m",
+    "research.joint_evaluation_20261029.root.american_comparison",
+    "--american-plan",
+    "research/joint_evaluation_20261029/root/american_continue_plan_v1.json"
+  ],
+  "american_comparison_product_path": "experiments/results/joint_american_20261029/comparison_v1/product.json",
+  "american_plan_ref": {
+    "path": "research/joint_evaluation_20261029/root/american_continue_plan_v1.json",
+    "sha256": "2c36a4dcdaa909c5dc1f15341f67c747dacf697d9a824069969c3c077881f60b"
+  },
+  "argmix_completed_chain_path": "research/joint_evaluation_20261029/argmix/records_v2/completed.json",
+  "argmix_protocol_ref": {
+    "path": "research/joint_evaluation_20261029/argmix/protocol_v1.json",
+    "sha256": "9cc0d6272af75287e971d671a5343113ce70c8831e1acd79037141f467d9a5c2"
+  },
+  "argmix_task_plan_ref": {
+    "path": "research/joint_evaluation_20261029/argmix/task_plan_v2.json",
+    "sha256": "17bc33a9b3313a00a23720c2f6e6ea5e007783745a3467571216e94c6b77a4d2"
+  },
+  "does_not_signal_existing_processes": true,
+  "final_independent_review_required": true,
+  "model_chains": {
+    "american_joint": {
+      "GPU_stage_count": 17,
+      "binding_key": "plan_ref",
+      "binding_ref": {
+        "path": "research/joint_evaluation_20261029/root/american_continue_plan_v1.json",
+        "sha256": "2c36a4dcdaa909c5dc1f15341f67c747dacf697d9a824069969c3c077881f60b"
+      },
+      "stages": [
+        {
+          "command": [
+            "/workspace-SR003.nfs2/ARG-GNN/.runtime/env/bin/python3.11",
+            "-B",
+            "-u",
+            "-m",
+            "research.joint_evaluation_20261029.american.qualify_gpu_v2",
+            "--freeze",
+            "research/joint_evaluation_20261029/american/freeze_v2.json",
+            "--gpu",
+            "3"
+          ],
+          "plan_ref": {
+            "path": "research/joint_evaluation_20261029/root/american_continue_plan_v1.json",
+            "sha256": "2c36a4dcdaa909c5dc1f15341f67c747dacf697d9a824069969c3c077881f60b"
+          },
+          "wait_path": "research/joint_evaluation_20261029/root/american_continue_run_v1/gpu_qualification/actual_wait.json"
+        },
+        {
+          "command": [
+            "/workspace-SR003.nfs2/ARG-GNN/.runtime/env/bin/python3.11",
+            "-B",
+            "-u",
+            "-m",
+            "research.joint_evaluation_20261029.american.pipeline_v2",
+            "train",
+            "--freeze",
+            "research/joint_evaluation_20261029/american/freeze_v2.json",
+            "--gpu",
+            "3"
+          ],
+          "plan_ref": {
+            "path": "research/joint_evaluation_20261029/root/american_continue_plan_v1.json",
+            "sha256": "2c36a4dcdaa909c5dc1f15341f67c747dacf697d9a824069969c3c077881f60b"
+          },
+          "wait_path": "research/joint_evaluation_20261029/root/american_continue_run_v1/fit/actual_wait.json"
+        },
+        {
+          "command": [
+            "/workspace-SR003.nfs2/ARG-GNN/.runtime/env/bin/python3.11",
+            "-B",
+            "-u",
+            "-m",
+            "research.joint_evaluation_20261029.american.pipeline_v2",
+            "predict",
+            "--freeze",
+            "research/joint_evaluation_20261029/american/freeze_v2.json",
+            "--gpu",
+            "3",
+            "--parent",
+            "argformer_american_validation_000"
+          ],
+          "plan_ref": {
+            "path": "research/joint_evaluation_20261029/root/american_continue_plan_v1.json",
+            "sha256": "2c36a4dcdaa909c5dc1f15341f67c747dacf697d9a824069969c3c077881f60b"
+          },
+          "wait_path": "research/joint_evaluation_20261029/root/american_continue_run_v1/predict_argformer_american_validation_000/actual_wait.json"
+        },
+        {
+          "command": [
+            "/workspace-SR003.nfs2/ARG-GNN/.runtime/env/bin/python3.11",
+            "-B",
+            "-u",
+            "-m",
+            "research.joint_evaluation_20261029.american.pipeline_v2",
+            "predict",
+            "--freeze",
+            "research/joint_evaluation_20261029/american/freeze_v2.json",
+            "--gpu",
+            "3",
+            "--parent",
+            "argformer_american_validation_001"
+          ],
+          "plan_ref": {
+            "path": "research/joint_evaluation_20261029/root/american_continue_plan_v1.json",
+            "sha256": "2c36a4dcdaa909c5dc1f15341f67c747dacf697d9a824069969c3c077881f60b"
+          },
+          "wait_path": "research/joint_evaluation_20261029/root/american_continue_run_v1/predict_argformer_american_validation_001/actual_wait.json"
+        },
+        {
+          "command": [
+            "/workspace-SR003.nfs2/ARG-GNN/.runtime/env/bin/python3.11",
+            "-B",
+            "-u",
+            "-m",
+            "research.joint_evaluation_20261029.american.pipeline_v2",
+            "predict",
+            "--freeze",
+            "research/joint_evaluation_20261029/american/freeze_v2.json",
+            "--gpu",
+            "3",
+            "--parent",
+            "argformer_american_validation_002"
+          ],
+          "plan_ref": {
+            "path": "research/joint_evaluation_20261029/root/american_continue_plan_v1.json",
+            "sha256": "2c36a4dcdaa909c5dc1f15341f67c747dacf697d9a824069969c3c077881f60b"
+          },
+          "wait_path": "research/joint_evaluation_20261029/root/american_continue_run_v1/predict_argformer_american_validation_002/actual_wait.json"
+        },
+        {
+          "command": [
+            "/workspace-SR003.nfs2/ARG-GNN/.runtime/env/bin/python3.11",
+            "-B",
+            "-u",
+            "-m",
+            "research.joint_evaluation_20261029.american.pipeline_v2",
+            "predict",
+            "--freeze",
+            "research/joint_evaluation_20261029/american/freeze_v2.json",
+            "--gpu",
+            "3",
+            "--parent",
+            "argformer_american_validation_003"
+          ],
+          "plan_ref": {
+            "path": "research/joint_evaluation_20261029/root/american_continue_plan_v1.json",
+            "sha256": "2c36a4dcdaa909c5dc1f15341f67c747dacf697d9a824069969c3c077881f60b"
+          },
+          "wait_path": "research/joint_evaluation_20261029/root/american_continue_run_v1/predict_argformer_american_validation_003/actual_wait.json"
+        },
+        {
+          "command": [
+            "/workspace-SR003.nfs2/ARG-GNN/.runtime/env/bin/python3.11",
+            "-B",
+            "-u",
+            "-m",
+            "research.joint_evaluation_20261029.american.pipeline_v2",
+            "predict",
+            "--freeze",
+            "research/joint_evaluation_20261029/american/freeze_v2.json",
+            "--gpu",
+            "3",
+            "--parent",
+            "argformer_american_validation_004"
+          ],
+          "plan_ref": {
+            "path": "research/joint_evaluation_20261029/root/american_continue_plan_v1.json",
+            "sha256": "2c36a4dcdaa909c5dc1f15341f67c747dacf697d9a824069969c3c077881f60b"
+          },
+          "wait_path": "research/joint_evaluation_20261029/root/american_continue_run_v1/predict_argformer_american_validation_004/actual_wait.json"
+        },
+        {
+          "command": [
+            "/workspace-SR003.nfs2/ARG-GNN/.runtime/env/bin/python3.11",
+            "-B",
+            "-u",
+            "-m",
+            "research.joint_evaluation_20261029.american.pipeline_v2",
+            "predict",
+            "--freeze",
+            "research/joint_evaluation_20261029/american/freeze_v2.json",
+            "--gpu",
+            "3",
+            "--parent",
+            "argformer_american_test_000"
+          ],
+          "plan_ref": {
+            "path": "research/joint_evaluation_20261029/root/american_continue_plan_v1.json",
+            "sha256": "2c36a4dcdaa909c5dc1f15341f67c747dacf697d9a824069969c3c077881f60b"
+          },
+          "wait_path": "research/joint_evaluation_20261029/root/american_continue_run_v1/predict_argformer_american_test_000/actual_wait.json"
+        },
+        {
+          "command": [
+            "/workspace-SR003.nfs2/ARG-GNN/.runtime/env/bin/python3.11",
+            "-B",
+            "-u",
+            "-m",
+            "research.joint_evaluation_20261029.american.pipeline_v2",
+            "predict",
+            "--freeze",
+            "research/joint_evaluation_20261029/american/freeze_v2.json",
+            "--gpu",
+            "3",
+            "--parent",
+            "argformer_american_test_001"
+          ],
+          "plan_ref": {
+            "path": "research/joint_evaluation_20261029/root/american_continue_plan_v1.json",
+            "sha256": "2c36a4dcdaa909c5dc1f15341f67c747dacf697d9a824069969c3c077881f60b"
+          },
+          "wait_path": "research/joint_evaluation_20261029/root/american_continue_run_v1/predict_argformer_american_test_001/actual_wait.json"
+        },
+        {
+          "command": [
+            "/workspace-SR003.nfs2/ARG-GNN/.runtime/env/bin/python3.11",
+            "-B",
+            "-u",
+            "-m",
+            "research.joint_evaluation_20261029.american.pipeline_v2",
+            "predict",
+            "--freeze",
+            "research/joint_evaluation_20261029/american/freeze_v2.json",
+            "--gpu",
+            "3",
+            "--parent",
+            "argformer_american_test_002"
+          ],
+          "plan_ref": {
+            "path": "research/joint_evaluation_20261029/root/american_continue_plan_v1.json",
+            "sha256": "2c36a4dcdaa909c5dc1f15341f67c747dacf697d9a824069969c3c077881f60b"
+          },
+          "wait_path": "research/joint_evaluation_20261029/root/american_continue_run_v1/predict_argformer_american_test_002/actual_wait.json"
+        },
+        {
+          "command": [
+            "/workspace-SR003.nfs2/ARG-GNN/.runtime/env/bin/python3.11",
+            "-B",
+            "-u",
+            "-m",
+            "research.joint_evaluation_20261029.american.pipeline_v2",
+            "predict",
+            "--freeze",
+            "research/joint_evaluation_20261029/american/freeze_v2.json",
+            "--gpu",
+            "3",
+            "--parent",
+            "argformer_american_test_003"
+          ],
+          "plan_ref": {
+            "path": "research/joint_evaluation_20261029/root/american_continue_plan_v1.json",
+            "sha256": "2c36a4dcdaa909c5dc1f15341f67c747dacf697d9a824069969c3c077881f60b"
+          },
+          "wait_path": "research/joint_evaluation_20261029/root/american_continue_run_v1/predict_argformer_american_test_003/actual_wait.json"
+        },
+        {
+          "command": [
+            "/workspace-SR003.nfs2/ARG-GNN/.runtime/env/bin/python3.11",
+            "-B",
+            "-u",
+            "-m",
+            "research.joint_evaluation_20261029.american.pipeline_v2",
+            "predict",
+            "--freeze",
+            "research/joint_evaluation_20261029/american/freeze_v2.json",
+            "--gpu",
+            "3",
+            "--parent",
+            "argformer_american_test_004"
+          ],
+          "plan_ref": {
+            "path": "research/joint_evaluation_20261029/root/american_continue_plan_v1.json",
+            "sha256": "2c36a4dcdaa909c5dc1f15341f67c747dacf697d9a824069969c3c077881f60b"
+          },
+          "wait_path": "research/joint_evaluation_20261029/root/american_continue_run_v1/predict_argformer_american_test_004/actual_wait.json"
+        },
+        {
+          "command": [
+            "/workspace-SR003.nfs2/ARG-GNN/.runtime/env/bin/python3.11",
+            "-B",
+            "-u",
+            "-m",
+            "research.joint_evaluation_20261029.american.pipeline_v2",
+            "predict",
+            "--freeze",
+            "research/joint_evaluation_20261029/american/freeze_v2.json",
+            "--gpu",
+            "3",
+            "--parent",
+            "argformer_american_test_005"
+          ],
+          "plan_ref": {
+            "path": "research/joint_evaluation_20261029/root/american_continue_plan_v1.json",
+            "sha256": "2c36a4dcdaa909c5dc1f15341f67c747dacf697d9a824069969c3c077881f60b"
+          },
+          "wait_path": "research/joint_evaluation_20261029/root/american_continue_run_v1/predict_argformer_american_test_005/actual_wait.json"
+        },
+        {
+          "command": [
+            "/workspace-SR003.nfs2/ARG-GNN/.runtime/env/bin/python3.11",
+            "-B",
+            "-u",
+            "-m",
+            "research.joint_evaluation_20261029.american.pipeline_v2",
+            "predict",
+            "--freeze",
+            "research/joint_evaluation_20261029/american/freeze_v2.json",
+            "--gpu",
+            "3",
+            "--parent",
+            "argformer_american_test_006"
+          ],
+          "plan_ref": {
+            "path": "research/joint_evaluation_20261029/root/american_continue_plan_v1.json",
+            "sha256": "2c36a4dcdaa909c5dc1f15341f67c747dacf697d9a824069969c3c077881f60b"
+          },
+          "wait_path": "research/joint_evaluation_20261029/root/american_continue_run_v1/predict_argformer_american_test_006/actual_wait.json"
+        },
+        {
+          "command": [
+            "/workspace-SR003.nfs2/ARG-GNN/.runtime/env/bin/python3.11",
+            "-B",
+            "-u",
+            "-m",
+            "research.joint_evaluation_20261029.american.pipeline_v2",
+            "predict",
+            "--freeze",
+            "research/joint_evaluation_20261029/american/freeze_v2.json",
+            "--gpu",
+            "3",
+            "--parent",
+            "argformer_american_test_007"
+          ],
+          "plan_ref": {
+            "path": "research/joint_evaluation_20261029/root/american_continue_plan_v1.json",
+            "sha256": "2c36a4dcdaa909c5dc1f15341f67c747dacf697d9a824069969c3c077881f60b"
+          },
+          "wait_path": "research/joint_evaluation_20261029/root/american_continue_run_v1/predict_argformer_american_test_007/actual_wait.json"
+        },
+        {
+          "command": [
+            "/workspace-SR003.nfs2/ARG-GNN/.runtime/env/bin/python3.11",
+            "-B",
+            "-u",
+            "-m",
+            "research.joint_evaluation_20261029.american.pipeline_v2",
+            "predict",
+            "--freeze",
+            "research/joint_evaluation_20261029/american/freeze_v2.json",
+            "--gpu",
+            "3",
+            "--parent",
+            "argformer_american_test_008"
+          ],
+          "plan_ref": {
+            "path": "research/joint_evaluation_20261029/root/american_continue_plan_v1.json",
+            "sha256": "2c36a4dcdaa909c5dc1f15341f67c747dacf697d9a824069969c3c077881f60b"
+          },
+          "wait_path": "research/joint_evaluation_20261029/root/american_continue_run_v1/predict_argformer_american_test_008/actual_wait.json"
+        },
+        {
+          "command": [
+            "/workspace-SR003.nfs2/ARG-GNN/.runtime/env/bin/python3.11",
+            "-B",
+            "-u",
+            "-m",
+            "research.joint_evaluation_20261029.american.pipeline_v2",
+            "predict",
+            "--freeze",
+            "research/joint_evaluation_20261029/american/freeze_v2.json",
+            "--gpu",
+            "3",
+            "--parent",
+            "argformer_american_test_009"
+          ],
+          "plan_ref": {
+            "path": "research/joint_evaluation_20261029/root/american_continue_plan_v1.json",
+            "sha256": "2c36a4dcdaa909c5dc1f15341f67c747dacf697d9a824069969c3c077881f60b"
+          },
+          "wait_path": "research/joint_evaluation_20261029/root/american_continue_run_v1/predict_argformer_american_test_009/actual_wait.json"
+        }
+      ],
+      "wait_path": "research/joint_evaluation_20261029/root/american_continue_run_v1/completed.json"
+    },
+    "argmix_joint": {
+      "GPU_stage_count": 11,
+      "binding_key": "manifest_ref",
+      "binding_ref": {
+        "path": "research/joint_evaluation_20261029/argmix/controller_manifest_v2.json",
+        "sha256": "74a9cad8fd85c8e1fc6557af8edc527b76867c6f494916faa9335d99f224a9cc"
+      },
+      "stages": [
+        {
+          "command": [
+            "/workspace-SR003.nfs2/ARG-GNN/.runtime/env/bin/python",
+            "-B",
+            "-m",
+            "research.joint_evaluation_20261029.argmix.pipeline",
+            "qualify-gpu",
+            "--freeze",
+            "/workspace-SR003.nfs2/ARG-GNN/research/joint_evaluation_20261029/argmix/freeze_v1.json",
+            "--gpu",
+            "3"
+          ],
+          "plan_ref": {
+            "path": "research/joint_evaluation_20261029/argmix/task_plan_v2.json",
+            "sha256": "17bc33a9b3313a00a23720c2f6e6ea5e007783745a3467571216e94c6b77a4d2"
+          },
+          "task_id": "joint_argmix.gpu_qualification",
+          "wait_path": "research/joint_evaluation_20261029/argmix/records_v2/joint_argmix.gpu_qualification/actual_wait.json"
+        },
+        {
+          "command": [
+            "/workspace-SR003.nfs2/ARG-GNN/.runtime/env/bin/python",
+            "-B",
+            "-m",
+            "research.joint_evaluation_20261029.argmix.pipeline",
+            "train",
+            "--freeze",
+            "/workspace-SR003.nfs2/ARG-GNN/research/joint_evaluation_20261029/argmix/freeze_v1.json",
+            "--gpu",
+            "3"
+          ],
+          "plan_ref": {
+            "path": "research/joint_evaluation_20261029/argmix/task_plan_v2.json",
+            "sha256": "17bc33a9b3313a00a23720c2f6e6ea5e007783745a3467571216e94c6b77a4d2"
+          },
+          "task_id": "joint_argmix.train",
+          "wait_path": "research/joint_evaluation_20261029/argmix/records_v2/joint_argmix.train/actual_wait.json"
+        },
+        {
+          "command": [
+            "/workspace-SR003.nfs2/ARG-GNN/.runtime/env/bin/python",
+            "-B",
+            "-m",
+            "research.joint_evaluation_20261029.argmix.pipeline",
+            "predict",
+            "--freeze",
+            "/workspace-SR003.nfs2/ARG-GNN/research/joint_evaluation_20261029/argmix/freeze_v1.json",
+            "--parent",
+            "published_recon_iid_000",
+            "--gpu",
+            "3"
+          ],
+          "plan_ref": {
+            "path": "research/joint_evaluation_20261029/argmix/task_plan_v2.json",
+            "sha256": "17bc33a9b3313a00a23720c2f6e6ea5e007783745a3467571216e94c6b77a4d2"
+          },
+          "task_id": "joint_argmix.published_recon_iid_000.prediction",
+          "wait_path": "research/joint_evaluation_20261029/argmix/records_v2/joint_argmix.published_recon_iid_000.prediction/actual_wait.json"
+        },
+        {
+          "command": [
+            "/workspace-SR003.nfs2/ARG-GNN/.runtime/env/bin/python",
+            "-B",
+            "-m",
+            "research.joint_evaluation_20261029.argmix.pipeline",
+            "predict",
+            "--freeze",
+            "/workspace-SR003.nfs2/ARG-GNN/research/joint_evaluation_20261029/argmix/freeze_v1.json",
+            "--parent",
+            "published_recon_iid_001",
+            "--gpu",
+            "3"
+          ],
+          "plan_ref": {
+            "path": "research/joint_evaluation_20261029/argmix/task_plan_v2.json",
+            "sha256": "17bc33a9b3313a00a23720c2f6e6ea5e007783745a3467571216e94c6b77a4d2"
+          },
+          "task_id": "joint_argmix.published_recon_iid_001.prediction",
+          "wait_path": "research/joint_evaluation_20261029/argmix/records_v2/joint_argmix.published_recon_iid_001.prediction/actual_wait.json"
+        },
+        {
+          "command": [
+            "/workspace-SR003.nfs2/ARG-GNN/.runtime/env/bin/python",
+            "-B",
+            "-m",
+            "research.joint_evaluation_20261029.argmix.pipeline",
+            "predict",
+            "--freeze",
+            "/workspace-SR003.nfs2/ARG-GNN/research/joint_evaluation_20261029/argmix/freeze_v1.json",
+            "--parent",
+            "published_recon_iid_002",
+            "--gpu",
+            "3"
+          ],
+          "plan_ref": {
+            "path": "research/joint_evaluation_20261029/argmix/task_plan_v2.json",
+            "sha256": "17bc33a9b3313a00a23720c2f6e6ea5e007783745a3467571216e94c6b77a4d2"
+          },
+          "task_id": "joint_argmix.published_recon_iid_002.prediction",
+          "wait_path": "research/joint_evaluation_20261029/argmix/records_v2/joint_argmix.published_recon_iid_002.prediction/actual_wait.json"
+        },
+        {
+          "command": [
+            "/workspace-SR003.nfs2/ARG-GNN/.runtime/env/bin/python",
+            "-B",
+            "-m",
+            "research.joint_evaluation_20261029.argmix.pipeline",
+            "predict",
+            "--freeze",
+            "/workspace-SR003.nfs2/ARG-GNN/research/joint_evaluation_20261029/argmix/freeze_v1.json",
+            "--parent",
+            "published_recon_misspec_000",
+            "--gpu",
+            "3"
+          ],
+          "plan_ref": {
+            "path": "research/joint_evaluation_20261029/argmix/task_plan_v2.json",
+            "sha256": "17bc33a9b3313a00a23720c2f6e6ea5e007783745a3467571216e94c6b77a4d2"
+          },
+          "task_id": "joint_argmix.published_recon_misspec_000.prediction",
+          "wait_path": "research/joint_evaluation_20261029/argmix/records_v2/joint_argmix.published_recon_misspec_000.prediction/actual_wait.json"
+        },
+        {
+          "command": [
+            "/workspace-SR003.nfs2/ARG-GNN/.runtime/env/bin/python",
+            "-B",
+            "-m",
+            "research.joint_evaluation_20261029.argmix.pipeline",
+            "predict",
+            "--freeze",
+            "/workspace-SR003.nfs2/ARG-GNN/research/joint_evaluation_20261029/argmix/freeze_v1.json",
+            "--parent",
+            "published_recon_misspec_001",
+            "--gpu",
+            "3"
+          ],
+          "plan_ref": {
+            "path": "research/joint_evaluation_20261029/argmix/task_plan_v2.json",
+            "sha256": "17bc33a9b3313a00a23720c2f6e6ea5e007783745a3467571216e94c6b77a4d2"
+          },
+          "task_id": "joint_argmix.published_recon_misspec_001.prediction",
+          "wait_path": "research/joint_evaluation_20261029/argmix/records_v2/joint_argmix.published_recon_misspec_001.prediction/actual_wait.json"
+        },
+        {
+          "command": [
+            "/workspace-SR003.nfs2/ARG-GNN/.runtime/env/bin/python",
+            "-B",
+            "-m",
+            "research.joint_evaluation_20261029.argmix.pipeline",
+            "predict",
+            "--freeze",
+            "/workspace-SR003.nfs2/ARG-GNN/research/joint_evaluation_20261029/argmix/freeze_v1.json",
+            "--parent",
+            "published_recon_misspec_002",
+            "--gpu",
+            "3"
+          ],
+          "plan_ref": {
+            "path": "research/joint_evaluation_20261029/argmix/task_plan_v2.json",
+            "sha256": "17bc33a9b3313a00a23720c2f6e6ea5e007783745a3467571216e94c6b77a4d2"
+          },
+          "task_id": "joint_argmix.published_recon_misspec_002.prediction",
+          "wait_path": "research/joint_evaluation_20261029/argmix/records_v2/joint_argmix.published_recon_misspec_002.prediction/actual_wait.json"
+        },
+        {
+          "command": [
+            "/workspace-SR003.nfs2/ARG-GNN/.runtime/env/bin/python",
+            "-B",
+            "-m",
+            "research.joint_evaluation_20261029.argmix.pipeline",
+            "predict",
+            "--freeze",
+            "/workspace-SR003.nfs2/ARG-GNN/research/joint_evaluation_20261029/argmix/freeze_v1.json",
+            "--parent",
+            "published_recon_misspec_003",
+            "--gpu",
+            "3"
+          ],
+          "plan_ref": {
+            "path": "research/joint_evaluation_20261029/argmix/task_plan_v2.json",
+            "sha256": "17bc33a9b3313a00a23720c2f6e6ea5e007783745a3467571216e94c6b77a4d2"
+          },
+          "task_id": "joint_argmix.published_recon_misspec_003.prediction",
+          "wait_path": "research/joint_evaluation_20261029/argmix/records_v2/joint_argmix.published_recon_misspec_003.prediction/actual_wait.json"
+        },
+        {
+          "command": [
+            "/workspace-SR003.nfs2/ARG-GNN/.runtime/env/bin/python",
+            "-B",
+            "-m",
+            "research.joint_evaluation_20261029.argmix.pipeline",
+            "predict",
+            "--freeze",
+            "/workspace-SR003.nfs2/ARG-GNN/research/joint_evaluation_20261029/argmix/freeze_v1.json",
+            "--parent",
+            "published_recon_misspec_004",
+            "--gpu",
+            "3"
+          ],
+          "plan_ref": {
+            "path": "research/joint_evaluation_20261029/argmix/task_plan_v2.json",
+            "sha256": "17bc33a9b3313a00a23720c2f6e6ea5e007783745a3467571216e94c6b77a4d2"
+          },
+          "task_id": "joint_argmix.published_recon_misspec_004.prediction",
+          "wait_path": "research/joint_evaluation_20261029/argmix/records_v2/joint_argmix.published_recon_misspec_004.prediction/actual_wait.json"
+        },
+        {
+          "command": [
+            "/workspace-SR003.nfs2/ARG-GNN/.runtime/env/bin/python",
+            "-B",
+            "-m",
+            "research.joint_evaluation_20261029.argmix.pipeline",
+            "predict",
+            "--freeze",
+            "/workspace-SR003.nfs2/ARG-GNN/research/joint_evaluation_20261029/argmix/freeze_v1.json",
+            "--parent",
+            "published_recon_val_000",
+            "--gpu",
+            "3"
+          ],
+          "plan_ref": {
+            "path": "research/joint_evaluation_20261029/argmix/task_plan_v2.json",
+            "sha256": "17bc33a9b3313a00a23720c2f6e6ea5e007783745a3467571216e94c6b77a4d2"
+          },
+          "task_id": "joint_argmix.published_recon_val_000.prediction",
+          "wait_path": "research/joint_evaluation_20261029/argmix/records_v2/joint_argmix.published_recon_val_000.prediction/actual_wait.json"
+        }
+      ],
+      "wait_path": "research/joint_evaluation_20261029/argmix/records_v2/gpu_chain_completed.json"
+    },
+    "european_four_joint": {
+      "GPU_stage_count": 7,
+      "binding_key": "plan_ref",
+      "binding_ref": {
+        "path": "research/joint_evaluation_20261029/european_four/chain_plan_v1.json",
+        "sha256": "16dee47085234a4c816e511b8a33ff153a3f5a8e7cc3ffaf8191ec01ea4e1489"
+      },
+      "stages": [
+        {
+          "command": [
+            "/workspace-SR003.nfs2/ARG-GNN/.runtime/env/bin/python3.11",
+            "-B",
+            "-s",
+            "-u",
+            "-m",
+            "research.joint_evaluation_20261029.european_four.train",
+            "qualify",
+            "--gpu",
+            "4"
+          ],
+          "plan_ref": {
+            "path": "research/joint_evaluation_20261029/european_four/chain_plan_v1.json",
+            "sha256": "16dee47085234a4c816e511b8a33ff153a3f5a8e7cc3ffaf8191ec01ea4e1489"
+          },
+          "task_id": "european_four_joint.qualification",
+          "wait_path": "research/joint_evaluation_20261029/european_four/chain_records_v1/qualification/actual_wait.json"
+        },
+        {
+          "command": [
+            "/workspace-SR003.nfs2/ARG-GNN/.runtime/env/bin/python3.11",
+            "-B",
+            "-s",
+            "-u",
+            "-m",
+            "research.joint_evaluation_20261029.european_four.train",
+            "train",
+            "--gpu",
+            "4"
+          ],
+          "plan_ref": {
+            "path": "research/joint_evaluation_20261029/european_four/chain_plan_v1.json",
+            "sha256": "16dee47085234a4c816e511b8a33ff153a3f5a8e7cc3ffaf8191ec01ea4e1489"
+          },
+          "task_id": "european_four_joint.fit50",
+          "wait_path": "research/joint_evaluation_20261029/european_four/chain_records_v1/fit50/actual_wait.json"
+        },
+        {
+          "command": [
+            "/workspace-SR003.nfs2/ARG-GNN/.runtime/env/bin/python3.11",
+            "-B",
+            "-s",
+            "-u",
+            "-m",
+            "research.joint_evaluation_20261029.european_four.predict",
+            "--parent",
+            "ancestralpaths_european_test_000",
+            "--gpu",
+            "4"
+          ],
+          "plan_ref": {
+            "path": "research/joint_evaluation_20261029/european_four/chain_plan_v1.json",
+            "sha256": "16dee47085234a4c816e511b8a33ff153a3f5a8e7cc3ffaf8191ec01ea4e1489"
+          },
+          "task_id": "european_four_joint.ancestralpaths_european_test_000",
+          "wait_path": "research/joint_evaluation_20261029/european_four/chain_records_v1/ancestralpaths_european_test_000/actual_wait.json"
+        },
+        {
+          "command": [
+            "/workspace-SR003.nfs2/ARG-GNN/.runtime/env/bin/python3.11",
+            "-B",
+            "-s",
+            "-u",
+            "-m",
+            "research.joint_evaluation_20261029.european_four.predict",
+            "--parent",
+            "ancestralpaths_european_test_001",
+            "--gpu",
+            "4"
+          ],
+          "plan_ref": {
+            "path": "research/joint_evaluation_20261029/european_four/chain_plan_v1.json",
+            "sha256": "16dee47085234a4c816e511b8a33ff153a3f5a8e7cc3ffaf8191ec01ea4e1489"
+          },
+          "task_id": "european_four_joint.ancestralpaths_european_test_001",
+          "wait_path": "research/joint_evaluation_20261029/european_four/chain_records_v1/ancestralpaths_european_test_001/actual_wait.json"
+        },
+        {
+          "command": [
+            "/workspace-SR003.nfs2/ARG-GNN/.runtime/env/bin/python3.11",
+            "-B",
+            "-s",
+            "-u",
+            "-m",
+            "research.joint_evaluation_20261029.european_four.predict",
+            "--parent",
+            "ancestralpaths_european_test_002",
+            "--gpu",
+            "4"
+          ],
+          "plan_ref": {
+            "path": "research/joint_evaluation_20261029/european_four/chain_plan_v1.json",
+            "sha256": "16dee47085234a4c816e511b8a33ff153a3f5a8e7cc3ffaf8191ec01ea4e1489"
+          },
+          "task_id": "european_four_joint.ancestralpaths_european_test_002",
+          "wait_path": "research/joint_evaluation_20261029/european_four/chain_records_v1/ancestralpaths_european_test_002/actual_wait.json"
+        },
+        {
+          "command": [
+            "/workspace-SR003.nfs2/ARG-GNN/.runtime/env/bin/python3.11",
+            "-B",
+            "-s",
+            "-u",
+            "-m",
+            "research.joint_evaluation_20261029.european_four.predict",
+            "--parent",
+            "ancestralpaths_european_test_003",
+            "--gpu",
+            "4"
+          ],
+          "plan_ref": {
+            "path": "research/joint_evaluation_20261029/european_four/chain_plan_v1.json",
+            "sha256": "16dee47085234a4c816e511b8a33ff153a3f5a8e7cc3ffaf8191ec01ea4e1489"
+          },
+          "task_id": "european_four_joint.ancestralpaths_european_test_003",
+          "wait_path": "research/joint_evaluation_20261029/european_four/chain_records_v1/ancestralpaths_european_test_003/actual_wait.json"
+        },
+        {
+          "command": [
+            "/workspace-SR003.nfs2/ARG-GNN/.runtime/env/bin/python3.11",
+            "-B",
+            "-s",
+            "-u",
+            "-m",
+            "research.joint_evaluation_20261029.european_four.predict",
+            "--parent",
+            "ancestralpaths_european_test_004",
+            "--gpu",
+            "4"
+          ],
+          "plan_ref": {
+            "path": "research/joint_evaluation_20261029/european_four/chain_plan_v1.json",
+            "sha256": "16dee47085234a4c816e511b8a33ff153a3f5a8e7cc3ffaf8191ec01ea4e1489"
+          },
+          "task_id": "european_four_joint.ancestralpaths_european_test_004",
+          "wait_path": "research/joint_evaluation_20261029/european_four/chain_records_v1/ancestralpaths_european_test_004/actual_wait.json"
+        }
+      ],
+      "wait_path": "research/joint_evaluation_20261029/european_four/chain_records_v1/gpu_chain/actual_wait.json"
+    }
+  },
+  "publication_artifact_paths": [
+    "experiments/results/joint_american_20261029/comparison_v1/product.json",
+    "research/joint_evaluation_20261029/european_four/outputs/paired_score/comparison.json",
+    "research/joint_evaluation_20261029/european_four/outputs/paired_score_disclosure.json",
+    "experiments/results/joint_argmix_20261029/scores/completed.json",
+    "experiments/paper_argmix_1611_rebuild_20261024_v1/argmix_scores/completed.json"
+  ],
+  "publisher_argv": [
+    "/workspace-SR003.nfs2/ARG-GNN/.runtime/env/bin/python3.11",
+    "-B",
+    "-s",
+    "-m",
+    "research.joint_evaluation_20261029.root.publish_results"
+  ],
+  "root_authorized_actions": [
+    "Admit exact24GiBcache+1GiBresults only under complete1.2TBledger",
+    "Release native GPU queue only after all three actual GPU chains",
+    "Run separate American paired scorer after all45 predictions and genuine original chain waits",
+    "Commit and push only listed small comparison reports with otherwise clean index"
+  ],
+  "schema": "joint_benchmark_finish_plan_v1",
+  "source_refs": [
+    {
+      "path": "research/joint_evaluation_20261029/root/finish_coordinator.py",
+      "sha256": "1553eca8cfc5ee5337c426466ba3517134d2c8257a51daf33c82937b8467d0c9"
+    },
+    {
+      "path": "research/joint_evaluation_20261029/root/american_comparison.py",
+      "sha256": "6df68789c82f010ba538cab3d3152730ec4464911fe73acd36eff3fae87363a7"
+    },
+    {
+      "path": "research/joint_evaluation_20261029/root/result_sections.py",
+      "sha256": "9942593285fe0c70259ea1267ca1dfbd20a7b3bad6e95fce70cfa145dc50b5ea"
+    },
+    {
+      "path": "research/joint_evaluation_20261029/root/publish_results.py",
+      "sha256": "9241e9d6af74cf0569dcaf9ec6214213ae23cb941186cf703f145551a53cd3b2"
+    },
+    {
+      "path": "research/joint_evaluation_20261029/root/american_continue.py",
+      "sha256": "6bb0a6d4765d3aa8b59206db99e35668d9c076a7ab49b61460f17ccdb63e8536"
+    },
+    {
+      "path": "research/joint_evaluation_20261029/queue/successor_v2_support.py",
+      "sha256": "ce8db99612986bb7ac0cd0424d09c66e892fac41fa8b0f9a976845aa90e73012"
+    },
+    {
+      "path": "research/joint_evaluation_20261029/queue/successor_v2_gpu.py",
+      "sha256": "a3f5af32fc74a564ac45c00085b5ea69f36e824112e15e5be0ddea90655db3d2"
+    },
+    {
+      "path": "src/arggnn/benchmarking/paper_campaign/runtime.py",
+      "sha256": "1412abf76767545b9addbc6f27b1dcd449837b2b963bf277f5726171fa0defe2"
+    },
+    {
+      "path": "src/arggnn/benchmarking/paper_campaign/processes.py",
+      "sha256": "9860e688fe204196b72d5a868edd4a0df9287f349dce1beb39b48d6a94604f84"
+    }
+  ],
+  "successor_config_ref": {
+    "path": "research/joint_evaluation_20261029/queue/successor_v2_config.json",
+    "sha256": "e3cf7982043993957774d8f6b7c4c1d72047a1f214de67782f564ff4885721ff"
+  }
+}
