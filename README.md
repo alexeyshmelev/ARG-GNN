@@ -1,5 +1,19 @@
 # ARG-GNN
 
+<!-- joint-model-20261029:start -->
+## TreeLoom joint model, 29 October
+
+**The complete new model is implemented, qualified and training.** It processes small windows of complete inferred trees with three PyTorch Geometric layers that exchange information both within and across trees. It uses no recurrent network. All queries at one SNP share its tree encoding, eliminating repeated work across the 50,000 original training targets.
+
+Three registered 50-epoch development fits are running: no cross-tree connections, connections between the same leaves, and connections using branch structure. They fit 33,334 targets from two original TRAIN chromosomes and reserve 16,666 targets from the third for model selection. Final epoch results select the arm, followed by a fresh fit on all 50,000 original TRAIN targets. **No new TEST score or superiority claim is available yet.**
+
+The complete prepared cache took 5.11 minutes to build with four workers and occupies about 9.01 GB. A warm fitting epoch processed all 33,334 targets in 4.53 seconds during batch selection. Batch 16 achieved 99.5% of batch 32 throughput with about half its GPU allocation. The subsequent integration profile measured 4.70 seconds and 82.2% mean GPU activity during nine warm-epoch samples. These are short profiles, not sustained campaign measurements. First worker startup cost about 21 seconds. Sustained activity and loading costs are recorded during the 50-epoch runs.
+
+The independent review passed canonical inputs/labels, observation-only features, exact worker-count agreement, numerical stability, sparse/dense reference gradients, query sharing, batch isolation and CPU/GPU behavior. Native competitors and simulations are unchanged. Their historical scores below remain separate from this new model.
+
+[Plan](research/joint_model_20261029/PLAN.md) · [Architecture](research/joint_model_20261029/model/DESIGN.md) · [Data protocol](research/joint_model_20261029/data/DATA_PROTOCOL_v1.json) · [Independent review](research/joint_model_20261029/review/DEVELOPMENT_LAUNCH_REVIEW.md) · [Frozen training protocol](research/joint_model_20261029/root/development_protocol_v1.json)
+<!-- joint-model-20261029:end -->
+
 <!-- bounded-redesign-20261028:start -->
 ## TreeLoom redesign, 28 October
 

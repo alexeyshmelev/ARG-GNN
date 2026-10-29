@@ -1,0 +1,94 @@
+{
+  "schema": "joint_model_training_design_v1",
+  "registered_date_moscow": "2026-10-29",
+  "model": {
+    "width": 64,
+    "layers": 3,
+    "classes": 6
+  },
+  "arms": [
+    "no_cross",
+    "leaf_only",
+    "structure"
+  ],
+  "epochs": 50,
+  "benchmark_epochs": 50,
+  "batch_sites": 16,
+  "profile_batch_candidates": [
+    8,
+    16,
+    32
+  ],
+  "profile_epochs": 2,
+  "profile_measured_epoch": 2,
+  "profile_support": "Entire830-site fitting support per epoch. First epoch includes worker/cache warmup, second is the matched warm observation. Profile weights discarded.",
+  "workers": 4,
+  "model_seed": 101,
+  "batch_seed": 20261032,
+  "learning_rate": 0.001,
+  "betas": [
+    0.9,
+    0.999
+  ],
+  "epsilon": 1e-08,
+  "weight_decay": 0.0001,
+  "gradient_clip": 1.0,
+  "evaluate_every_epochs": 5,
+  "log_every_updates": 25,
+  "minimum_free_gpu_bytes": 17179869184,
+  "checkpoint_policy": "Fixed final epoch50 for each arm, no best-checkpoint selection within an arm.",
+  "arm_selection": "Among the three final development results choose greatest canonical-target accuracy, then lower cross-entropy for an exact accuracy tie. Report macroF1 and perclass outcomes, and do not infer statistical superiority from one development chromosome.",
+  "benchmark_policy": "After independent review of completed development fits and efficiency, freeze arm and source hashes, then initialize from seed101 and fit all50000 original benchmark TRAIN rows for50epochs. No TEST during development or selection.",
+  "weighting": "M/(S*N)*sum target losses with uniform shuffled sites and actual S in last minibatch. Evaluation weights all canonical targets equally.",
+  "manifest": "/workspace-SR003.nfs2/ARG-GNN/research/joint_model_20261029/data/cache_v1/manifest.json",
+  "source_refs": [
+    {
+      "path": "research/joint_model_20261029/root/train.py",
+      "sha256": "1904191767320ceb738a10be417716d2497941bdeaadea45a0a0c8eb5985671c"
+    },
+    {
+      "path": "research/joint_model_20261029/model/joint_model_v1.py",
+      "sha256": "ba87b3b7639db4ce07b424a26d1673a043ea1d9ddbe34914d7f6397177006aa4"
+    },
+    {
+      "path": "research/joint_model_20261029/model/no_cross_view.py",
+      "sha256": "0227f5cacbe4dc9a9fbd0bcca56a2f8582cd0d4a2c990b48a054e1a221f2b3e7"
+    },
+    {
+      "path": "research/joint_model_20261029/data/site_dataset.py",
+      "sha256": "eb29f0d96909846eb8e85f6c2aaaab89bbcdbb918e198f2efe3fd2af372be9b1"
+    },
+    {
+      "path": "research/joint_model_20261029/data/observations.py",
+      "sha256": "56acdd6a4aa48dac2b1b676e2c2a3e45a24b2a24bd58a5a745b4f305d06ab727"
+    },
+    {
+      "path": "research/joint_model_20261029/data/targets.py",
+      "sha256": "ce6fd0eb76e0bcca26244d0fcdad035235cb79bba10dd2484c89a127bc2f31bf"
+    },
+    {
+      "path": "research/joint_model_20261029/data/DATA_PROTOCOL_v1.json",
+      "sha256": "82d42d8e597ac385bccadfba720350ff689b50be8e37c8ebcec819a88717f387"
+    },
+    {
+      "path": "research/joint_model_20261029/data/site_plan_v1.json",
+      "sha256": "bfebc589dc0fb5a2f5a658f488d28dda9fd7b3baa2eb6fb03da76ed7f14c3a11"
+    },
+    {
+      "path": "research/redesign_20261028/data/window_data.py",
+      "sha256": "a1788ea0a33335450bfb43c689aa3c598070f07b28c40930be3fb086f42aa309"
+    }
+  ],
+  "manifest_sha256": "a9a2839b450ee7bf12f90bc269a257bb759b79fdd6e8a93fa8e7eb4c0737e253",
+  "benchmark_training_authorized": false,
+  "test_used_for_selection": false,
+  "live_launch_allowed": true,
+  "note": "Prospective design. Exact source bindings and GPU-qualified batch size are frozen before any registered development fit.",
+  "worker_cache_bytes": 12884901888,
+  "worker_cache_note": "12 GiB per persistent worker, only immutable observations/labels. Measured available system RAM about1.85TB. Expected entirefit cache about6GB and devabout3GB, so this avoids repeated network reads after each worker has seen its assigned sites. No learned activation cache.",
+  "launch_scope": "GPU pipeline profiles only. Registered development fits require separately frozen development protocol.",
+  "allowed_stages": [
+    "profile"
+  ],
+  "batch_selection": "Choose the smallest measured batch with at least90percent of the maximum repeat-epoch canonical-target throughput, considering only finite completed profiles with inspectable device activity. Report utilization without treating it as accuracy or inflating work."
+}

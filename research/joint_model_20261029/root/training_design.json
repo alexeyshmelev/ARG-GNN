@@ -1,0 +1,52 @@
+{
+  "schema": "joint_model_training_design_v1",
+  "registered_date_moscow": "2026-10-29",
+  "model": {
+    "width": 64,
+    "layers": 3,
+    "classes": 6
+  },
+  "arms": [
+    "no_cross",
+    "leaf_only",
+    "structure"
+  ],
+  "epochs": 50,
+  "benchmark_epochs": 50,
+  "batch_sites": 16,
+  "profile_batch_candidates": [
+    8,
+    16,
+    32
+  ],
+  "profile_epochs": 2,
+  "profile_measured_epoch": 2,
+  "profile_support": "Entire830-site fitting support per epoch. First epoch includes worker/cache warmup, second is the matched warm observation. Profile weights discarded.",
+  "workers": 4,
+  "model_seed": 101,
+  "batch_seed": 20261032,
+  "learning_rate": 0.001,
+  "betas": [
+    0.9,
+    0.999
+  ],
+  "epsilon": 1e-08,
+  "weight_decay": 0.0001,
+  "gradient_clip": 1.0,
+  "evaluate_every_epochs": 5,
+  "log_every_updates": 25,
+  "minimum_free_gpu_bytes": 17179869184,
+  "checkpoint_policy": "Fixed final epoch50 for each arm, no best-checkpoint selection within an arm.",
+  "arm_selection": "Among the three final development results choose greatest canonical-target accuracy, then lower cross-entropy for an exact accuracy tie. Report macroF1 and perclass outcomes, and do not infer statistical superiority from one development chromosome.",
+  "benchmark_policy": "After independent review of completed development fits and efficiency, freeze arm and source hashes, then initialize from seed101 and fit all50000 original benchmark TRAIN rows for50epochs. No TEST during development or selection.",
+  "weighting": "M/(S*N)*sum target losses with uniform shuffled sites and actual S in last minibatch. Evaluation weights all canonical targets equally.",
+  "manifest": "/workspace-SR003.nfs2/ARG-GNN/research/joint_model_20261029/data/cache_v1/manifest.json",
+  "source_refs": [],
+  "manifest_sha256": null,
+  "benchmark_training_authorized": false,
+  "test_used_for_selection": false,
+  "live_launch_allowed": false,
+  "note": "Prospective design. Exact source bindings and GPU-qualified batch size are frozen before any registered development fit.",
+  "worker_cache_bytes": 12884901888,
+  "worker_cache_note": "12 GiB per persistent worker, only immutable observations/labels. Measured available system RAM about1.85TB. Expected entirefit cache about6GB and devabout3GB, so this avoids repeated network reads after each worker has seen its assigned sites. No learned activation cache."
+}
