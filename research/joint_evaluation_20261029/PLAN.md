@@ -17,7 +17,7 @@ User requests actual held-out assessment of the frozen new TreeLoom and parallel
 - [x] Review exact input equivalence, canonical target coverage and finite probabilities.
 - [x] Predict all five original TEST parents and seal outputs before scoring.
 - [x] Score on same canonical examples as frozen baselines, report per-parent and cohort results with uncertainty.
-- [ ] Diagnose every ready but idle campaign stage and distinguish independent tasks from scientific dependencies.
+- [x] Diagnose every ready but idle campaign stage and distinguish independent tasks from scientific dependencies. See the 10:27 Moscow-time diagnosis below.
 - [x] Activate safe parallel ready work on eligible idle GPUs and verify progress without modifying native science.
 - [x] Publish actual completed, running, failed and blocked counts with remaining concrete actions.
 
@@ -36,9 +36,9 @@ The ARGformer parallel queue is live. Parents 003 and 004 have completed prepara
 - [x] Finish and independently review the American weighting correction and lossless cache implementation.
 - [ ] Complete the running full American cache, then qualify, train for 13 epochs and predict all 15 held-out parents automatically.
 - [x] Review and launch the corrected direct four-class CNN queue.
-- [ ] Complete its 40,000-target fit and five TEST predictions, then compare the new direct four-output TreeLoom on identical target rows.
+- [x] Complete its 40,000-target fit and five TEST predictions, then compare the new direct four-output TreeLoom on identical target rows.
 - [x] Review and launch successor V2 idle-boundary watcher, PID 2010438.
-- [ ] Complete the safe handoff after original ARGformer TEST002 prediction and scratch retirement. Preserve the two native sidecars, adopt their task IDs once, and explicitly supersede eleven never-started old ARGMix model stages.
+- [x] Complete the safe handoff after original ARGformer TEST002 prediction and scratch retirement. Preserve the two native sidecars, adopt their task IDs once, and explicitly supersede eleven never-started old ARGMix model stages. The separate recovery entry point resolved the initial idle-handoff failure.
 - [ ] Integrate and train the new joint model for ARGMix, then complete the corresponding comparisons.
 
 Current counts in root/CURRENT_STATUS.json overlay original task IDs with their parallel owners, avoiding double counting. The 183 unfinished original campaign stages include retained failures of the previous American TreeLoom. New-model integration outside that old task list is reported separately. The complete benchmark is not finished.
@@ -97,3 +97,15 @@ No source used by a live scientific worker was changed. The European four-class 
 - [ ] Obtain the final independent numerical PASS and publish its receipt. This item remains open until the completed result exists.
 
 The continuation distinguishes completed scientific computations, independent numerical verification, Git publication and manuscript completion. None is inferred from merely launching a job.
+
+## Idle GPU diagnosis, 29 October 10:27 Moscow time
+
+- [x] Confirm why GPU 3 is empty. Its direct four-class chain completed successfully at 08:13 Moscow time. The American continuation waits for all twenty TRAIN cache parents before qualification and fitting.
+- [x] Measure actual preprocessing, rather than infer activity from process presence. At 10:24, 140,782/158,476 windows were ready. Sixteen worker processes consumed about sixteen CPU cores. RAM and disk waiting were not the limiting resources.
+- [x] Inspect all current native queues for independent ready work. No additional native GPU task has all required inputs. Lifting the GPU gate alone would not launch a fit.
+- [x] Verify ARGformer workers on GPUs 4 and 5 and the CPU Relate topology workers continue progressing. No new failure or deadlock was observed.
+- [x] Publish this diagnosis without restarting healthy workers or modifying benchmark settings.
+- [ ] Complete the remaining American cache, GPU qualification, fixed training and held-out predictions. The CPU-only barrier remains a known pipeline limitation, not a claim of continuous GPU utilization.
+- [ ] Complete the outstanding ARGMix producers and both methods' comparisons. Final independent numerical review remains required.
+
+Evidence: root/american_cache_idle_diagnosis_20261029_v1.json and root/queue_idle_diagnosis_20261029_v1.json. Earlier status entries above describe their recorded historical time, while this section is the current operational diagnosis.

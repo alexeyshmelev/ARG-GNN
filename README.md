@@ -1,11 +1,19 @@
 # ARG-GNN
 
 <!-- joint-finish-operations:start -->
-**Queue repair, 29 October 2026, 05:50 UTC:** the native scheduler has resumed after an idle handoff failure. All completed results and historical failures are preserved. ARGMix production storage admission is complete. The full reserved workload is 1.185 TB, below the unchanged 1.2 TB ceiling. No files were deleted. American TreeLoom preparation and native ARGformer training continue. The remaining ARGMix model stages await their original reconstructed-tree inputs. Final American and ARGMix comparisons are still pending.
+**Live diagnosis, 29 October 2026, 10:27 Moscow time (07:27 UTC): two GPU jobs are training.** GPU 4 and GPU 5 run the unchanged native ARGformer schedules, with sampled utilization of 90% and 91%. GPU 3 is empty. Its European direct four-class chain completed successfully at 08:13 Moscow time. The next American TreeLoom fit waits for its complete TRAIN cache, so this idle period is a preparation dependency, not a newly failed fit.
 
-[Recovery and storage review](research/joint_evaluation_20261029/review_finish/independent_recovery_storage_credit_checks_v1.json) · [Dependency assessment](research/joint_evaluation_20261029/review_finish/queue_dependency_storage_assessment_v1.json)
+- **American TreeLoom:** at 10:24 Moscow time, 140,782 of 158,476 windows were prepared, or 88.83%. Seventeen of twenty training chromosomes were complete and chromosome 18 was in progress. All sixteen preprocessing workers were active, using about sixteen CPU cores. Observed family RAM was 16.34 GB and disk I/O wait was negligible. Preparation is CPU-bound. At the measured rate, cache completion was estimated around 10:45–10:50 Moscow time, followed by the GPU capacity check and automatic 13-epoch training. This is a conditional preparation estimate, not a benchmark completion promise.
+- **ARGformer:** 8/15 final prediction datasets complete. Two remaining datasets are in masked-language pretraining, followed by their original contrastive training and prediction stages. Five later datasets follow in the two active lanes.
+- **FLARE:** 15/15 prediction datasets complete.
+- **European comparisons:** both six-class and direct four-class TreeLoom comparisons complete. The four-class primary present-day metric favors the CNN. Scores below remain unchanged.
+- **ARGMix:** production storage admission is complete. The new model waits for original TRAIN002–004 observations. TRAIN002 Relate reconstruction is active on CPU. No final ARGMix comparison is available.
 
-The remaining fits, predictions, scoring, independent numerical audit and final report publication are registered in the automatic continuation. Numerical audit PASS is still pending completed results. [Scientific comparison contracts and limitations](research/joint_evaluation_20261029/review_finish/final_results_contract_review_v1.md).
+The dependency audit found no additional native GPU task with all scientific inputs ready. Releasing the current scheduling gate would not launch another native fit now. No new failure or deadlock was observed. Healthy workers and frozen scientific settings were left unchanged. The full reserved workload remains 1.185 TB under the 1.2 TB project ceiling.
+
+[American preprocessing measurements](research/joint_evaluation_20261029/root/american_cache_idle_diagnosis_20261029_v1.json) · [Queue and native-worker diagnosis](research/joint_evaluation_20261029/root/queue_idle_diagnosis_20261029_v1.json) · [Recovery and storage review](research/joint_evaluation_20261029/review_finish/independent_recovery_storage_credit_checks_v1.json)
+
+Remaining work includes the American and ARGMix fits and predictions, the remaining native comparator runs, paired scoring and independent numerical review. The automatic continuation is registered. Final numerical PASS and manuscript completion remain pending. [Scientific comparison contracts and limitations](research/joint_evaluation_20261029/review_finish/final_results_contract_review_v1.md).
 <!-- joint-finish-operations:end -->
 
 <!-- joint-model-20261029:start -->
