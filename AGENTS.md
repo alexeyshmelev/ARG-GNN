@@ -1,5 +1,9 @@
 # ARG-GNN research instructions
 
+## Current joint-model benchmark authority, 29 October 2026
+
+The owner authorizes implementing and qualifying an efficient robust TreeLoom redesign, then starting benchmark training. The complete joint model in research/joint_model_20261029 passed independent numerical, data and saved-learning-result review. Three registered 50-epoch fits select the structure arm by fixed final development accuracy. The fresh benchmark fit on all 50,000 original six-class TRAIN targets is authorized under root/benchmark_protocol_v1.json. Do not warmstart it from development, change its sources during execution or use TEST to select the model. Preserve the old full-parent model and native competitors. The separate original ARGformer process on GPU 3 remains untouched. Root owns integration and launches. GPUs 3, 4 and 5 and the 1.2 TB project limit remain current. All work and Git stay inside this repository on anogena.
+
 ## Current owner authority, 28 October 2026
 
 The owner requests a substantive TreeLoom redesign, including small groups of complete observed trees, minibatch training, mathematical justification and parallel agent work. Root owns integration and new experiment scheduling. Preserve the existing TreeLoom and author baselines, their data and historical evidence. The old full-parent training continuation remains held after its accuracy audit. Separately registered redesign prototypes and controlled TRAIN-only diagnostics are authorized. Keep TEST data out of architecture development. Current plan: research/redesign_20261028/PLAN.md. Current audit: research/comparability_audit_20261028/REPORT.md.

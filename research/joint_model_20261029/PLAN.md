@@ -18,9 +18,9 @@ The owner authorizes resolving the new model's problems, independent parallel im
 - [x] Profile the complete new pipeline including real data preparation, transfer, forward, backward and optimizer work. Qualify execution-only changes with paired numerical tests. Treat the changed equations as a new model requiring learning evidence, with no equivalent old/new speedup claim.
 - [x] Qualify deterministic multiworker loading and cache integrity on the real original TRAIN parents.
 - [x] Register larger internal development comparison before fitting, with complete chromosome separation and no TEST selection.
-- [ ] Complete meaningful learning runs, including the common no-cross and same-leaf controls, without treating them as author-benchmark scores.
-- [ ] Freeze the selected model/configuration and start genuine benchmark training using the original observed TRAIN support and native label policy.
-- [ ] Verify optimizer progress, finite objective, data supply and measured useful GPU work. Publish the configuration, progress and results.
+- [x] Complete meaningful learning runs, including the common no-cross and same-leaf controls, without treating them as author-benchmark scores.
+- [x] Freeze the selected model/configuration and start genuine benchmark training using the original observed TRAIN support and native label policy.
+- [x] Verify optimizer progress, finite objective, data supply and measured useful GPU work. Publish the configuration, progress and results.
 
 ## Scientific decisions
 
@@ -33,3 +33,7 @@ The previous 128/64 pilot establishes learnability only and is not to be repeate
 ## Integration status
 
 The complete joint model and dataset are frozen and independently qualified. The execution comparison concerns numerical equivalence of shared site encoding, disjoint batching, sparse maps and the focal-only control. The new architecture is not numerically equivalent to old TreeLoom and no old/new speedup ratio is claimed. Full 1,245-site preprocessing took 306.36 seconds and produced about 9.01 GB of prepared tensors. Three full-support profiles selected batch 16 using the registered throughput rule. Explicit owned-worker cleanup fixed a reproduced NFS shutdown error and passed complete GPU integration. Three 50-epoch development fits are running under root/development_protocol_v1.json. Their final results, not interim best scores, select the architecture for the full 50,000-target benchmark fit.
+
+## Completed development and benchmark launch
+
+All three 50-epoch development fits passed the independent saved-prediction, checkpoint, optimizer, target-order and cleanup audit. The fixed final rule selected structure. A fresh 50-epoch benchmark fit on all 50,000 original TRAIN targets is underway. Native TEST comparison, additional ancestry tasks and publication claims remain outstanding. This model does not retroactively replace historical scores.

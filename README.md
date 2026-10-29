@@ -3,15 +3,23 @@
 <!-- joint-model-20261029:start -->
 ## TreeLoom joint model, 29 October
 
-**The complete new model is implemented, qualified and training.** It processes small windows of complete inferred trees with three PyTorch Geometric layers that exchange information both within and across trees. It uses no recurrent network. All queries at one SNP share its tree encoding, eliminating repeated work across the 50,000 original training targets.
+**The complete new model passed qualification and all three 50-epoch learning runs. Benchmark training is training.** The selected arm is **branch-structure connections**. Its fresh fit uses all **50,000 original European six-class TRAIN targets** on GPU 5, with **925/3,900 updates** recorded at this snapshot and **12/50 epochs** complete. [Live-run snapshot](research/joint_model_20261029/root/BENCHMARK_PROGRESS.json).
 
-Three registered 50-epoch development fits are running: no cross-tree connections, connections between the same leaves, and connections using branch structure. They fit 33,334 targets from two original TRAIN chromosomes and reserve 16,666 targets from the third for model selection. Final epoch results select the arm, followed by a fresh fit on all 50,000 original TRAIN targets. **No new TEST score or superiority claim is available yet.**
+The table is internal development, using 33,334 targets from two TRAIN chromosomes for fitting and 16,666 targets from the third for selection. Every arm completed 2,600 updates with the same initialization and target order. These are fixed final-epoch results, not the best interim checkpoints.
 
-The complete prepared cache took 5.11 minutes to build with four workers and occupies about 9.01 GB. A warm fitting epoch processed all 33,334 targets in 4.53 seconds during batch selection. Batch 16 achieved 99.5% of batch 32 throughput with about half its GPU allocation. The subsequent integration profile measured 4.70 seconds and 82.2% mean GPU activity during nine warm-epoch samples. These are short profiles, not sustained campaign measurements. First worker startup cost about 21 seconds. Sustained activity and loading costs are recorded during the 50-epoch runs.
+| Model arm | Development accuracy (%) | Development macro F1 (%) | Cross-entropy |
+|---|---:|---:|---:|
+| No cross-tree connections | 96.41 | 96.20 | **0.1327** |
+| Same-leaf connections | 96.45 | 96.22 | 0.1430 |
+| Branch-structure connections | **96.58** | **96.34** | 0.1556 |
 
-The independent review passed canonical inputs/labels, observation-only features, exact worker-count agreement, numerical stability, sparse/dense reference gradients, query sharing, batch isolation and CPU/GPU behavior. Native competitors and simulations are unchanged. Their historical scores below remain separate from this new model.
+One held-out chromosome cannot establish population-level uncertainty or superiority over native methods. **New held-out benchmark scores remain pending.** The historical competitor TEST scores below are a different evaluation and must not be compared directly with this table.
 
-[Plan](research/joint_model_20261029/PLAN.md) · [Architecture](research/joint_model_20261029/model/DESIGN.md) · [Data protocol](research/joint_model_20261029/data/DATA_PROTOCOL_v1.json) · [Independent review](research/joint_model_20261029/review/DEVELOPMENT_LAUNCH_REVIEW.md) · [Frozen training protocol](research/joint_model_20261029/root/development_protocol_v1.json)
+The new PyTorch Geometric model applies three joint layers to complete native trees, passing information within and across trees without a recurrent network. All queries at the same SNP share one encoding. Preparing all 1,245 sites took 5.11 minutes with four workers and used about 9.01 GB. During the branch-structure arm's 49 warm training epochs, measured throughput was **7,462 targets/s** and sampled GPU activity averaged **85.0%**, with 436 samples. Its first worker startup took 22.0 seconds. Total fit duration, evaluation, startup and shutdown costs remain separately reported in the audit. This is a new architecture and does not claim numerically equivalent acceleration of old TreeLoom.
+
+Independent checks cover observations and labels, batch isolation, edge cases, gradients, CPU/GPU agreement, all saved prediction identities, restored checkpoints and worker cleanup. Native methods, simulations and historical results are preserved. Sliding joint graph windows have prior art, so no general new-kernel claim is made.
+
+[Complete reviewed results](research/joint_model_20261029/review/COMPLETED_DEVELOPMENT_REVIEW.json) · [Plan](research/joint_model_20261029/PLAN.md) · [Architecture](research/joint_model_20261029/model/DESIGN.md) · [Data protocol](research/joint_model_20261029/data/DATA_PROTOCOL_v1.json) · [Frozen benchmark fit](research/joint_model_20261029/root/benchmark_protocol_v1.json)
 <!-- joint-model-20261029:end -->
 
 <!-- bounded-redesign-20261028:start -->
