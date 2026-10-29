@@ -34,7 +34,7 @@ The ARGformer parallel queue is live. Parents 003 and 004 have completed prepara
 ## Remaining integration work
 
 - [x] Finish and independently review the American weighting correction and lossless cache implementation.
-- [ ] Complete the running full American cache, then qualify, train for 13 epochs and predict all 15 held-out parents automatically.
+- [x] Complete the running full American cache, then qualify, train for 13 epochs and predict all 15 held-out parents automatically.
 - [x] Review and launch the corrected direct four-class CNN queue.
 - [x] Complete its 40,000-target fit and five TEST predictions, then compare the new direct four-output TreeLoom on identical target rows.
 - [x] Review and launch successor V2 idle-boundary watcher, PID 2010438.
@@ -109,3 +109,13 @@ The continuation distinguishes completed scientific computations, independent nu
 - [ ] Complete the outstanding ARGMix producers and both methods' comparisons. Final independent numerical review remains required.
 
 Evidence: root/american_cache_idle_diagnosis_20261029_v1.json and root/queue_idle_diagnosis_20261029_v1.json. Earlier status entries above describe their recorded historical time, while this section is the current operational diagnosis.
+
+## Completed American execution, 30 October Moscow time
+
+- [x] Authenticate all seventeen American GPU-stage waits, covering qualification, the fixed fit and fifteen predictions. The fit completed 13 epochs, 128,869 updates and 2,600,000 target presentations in 10.56 hours.
+- [x] Confirm native ARGformer predictions advanced from eight to ten completed datasets. Its next two datasets are actively training.
+- [x] Confirm ARGMix TRAIN002 and TRAIN003 observations completed. Only TRAIN004 remains before the new-model TRAIN cache and fit can start.
+- [ ] Complete native ARGformer predictions and the paired American score. No American ancestry accuracy is reported before the registered scoring stage.
+- [ ] Complete the corrected ARGMix benchmark. The earlier 97.08 versus 94.45 percent result belongs to the previous model and reused development simulations.
+
+No scientific source, training schedule, data or score changed during this status publication. All new completion claims are tied to actual successful process waits.

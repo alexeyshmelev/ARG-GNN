@@ -1,19 +1,17 @@
 # ARG-GNN
 
 <!-- joint-finish-operations:start -->
-**Live diagnosis, 29 October 2026, 10:27 Moscow time (07:27 UTC): two GPU jobs are training.** GPU 4 and GPU 5 run the unchanged native ARGformer schedules, with sampled utilization of 90% and 91%. GPU 3 is empty. Its European direct four-class chain completed successfully at 08:13 Moscow time. The next American TreeLoom fit waits for its complete TRAIN cache, so this idle period is a preparation dependency, not a newly failed fit.
+**Current progress, 30 October 2026, 00:03 Moscow time:** the new American TreeLoom completed its fixed 13 epochs, 128,869 updates and 2,600,000 target presentations. All 15 held-out prediction datasets are now complete, with successful process waits. The fit took 10.56 hours. Paired ancestry scoring still waits for the remaining native ARGformer predictions.
 
-- **American TreeLoom:** at 10:24 Moscow time, 140,782 of 158,476 windows were prepared, or 88.83%. Seventeen of twenty training chromosomes were complete and chromosome 18 was in progress. All sixteen preprocessing workers were active, using about sixteen CPU cores. Observed family RAM was 16.34 GB and disk I/O wait was negligible. Preparation is CPU-bound. At the measured rate, cache completion was estimated around 10:45–10:50 Moscow time, followed by the GPU capacity check and automatic 13-epoch training. This is a conditional preparation estimate, not a benchmark completion promise.
-- **ARGformer:** 8/15 final prediction datasets complete. Two remaining datasets are in masked-language pretraining, followed by their original contrastive training and prediction stages. Five later datasets follow in the two active lanes.
+- **ARGMix comparison:** no final score for the new TreeLoom yet. Four of five original TRAIN observation datasets are complete. Relate is reconstructing TRAIN004, the last missing training input. TreeLoom preparation and training for this setting remain pending, followed by the registered shared-target evaluation on eight TEST datasets. The released ARGMix fit and scoring also remain pending.
+- **ARGformer:** 10/15 prediction datasets complete, up from 8/15. TEST005 and TEST006 are training on GPUs 4 and 5. Their recent sampled GPU utilization was 90% and 91%.
 - **FLARE:** 15/15 prediction datasets complete.
-- **European comparisons:** both six-class and direct four-class TreeLoom comparisons complete. The four-class primary present-day metric favors the CNN. Scores below remain unchanged.
-- **ARGMix:** production storage admission is complete. The new model waits for original TRAIN002–004 observations. TRAIN002 Relate reconstruction is active on CPU. No final ARGMix comparison is available.
+- **European comparisons:** six-class and direct four-class comparisons are complete. The direct four-class primary present-day endpoint favors the CNN. Existing numerical results below are unchanged.
+- **GPU 3:** the American GPU chain has completed and released it. The next new-model chain waits for ARGMix training inputs. No new failed task was found in the inspected queues. The retained previous TreeLoom failure is historical.
 
-The dependency audit found no additional native GPU task with all scientific inputs ready. Releasing the current scheduling gate would not launch another native fit now. No new failure or deadlock was observed. Healthy workers and frozen scientific settings were left unchanged. The full reserved workload remains 1.185 TB under the 1.2 TB project ceiling.
+Earlier TreeLoom versus released ARGMix development scores were **97.08 ± 0.57% versus 94.45 ± 1.15%** present-day span accuracy on the same eight reused European simulations. They use the previous TreeLoom architecture and an earlier simulation setup. They are not the result of the new model on the corrected ARGMix benchmark.
 
-[American preprocessing measurements](research/joint_evaluation_20261029/root/american_cache_idle_diagnosis_20261029_v1.json) · [Queue and native-worker diagnosis](research/joint_evaluation_20261029/root/queue_idle_diagnosis_20261029_v1.json) · [Recovery and storage review](research/joint_evaluation_20261029/review_finish/independent_recovery_storage_credit_checks_v1.json)
-
-Remaining work includes the American and ARGMix fits and predictions, the remaining native comparator runs, paired scoring and independent numerical review. The automatic continuation is registered. Final numerical PASS and manuscript completion remain pending. [Scientific comparison contracts and limitations](research/joint_evaluation_20261029/review_finish/final_results_contract_review_v1.md).
+[Current queue and completion evidence](research/joint_evaluation_20261029/root/CURRENT_STATUS.json) · [Scientific comparison contracts and limitations](research/joint_evaluation_20261029/review_finish/final_results_contract_review_v1.md). Final American and ARGMix comparisons, independent numerical review and manuscript completion remain pending.
 <!-- joint-finish-operations:end -->
 
 <!-- joint-model-20261029:start -->
@@ -43,12 +41,12 @@ Values are mean ± sample SD across five independently simulated chromosomes, no
 
 **Architecture:** three joint PyTorch Geometric layers exchange messages within complete selected native trees and across trees through shared leaves and branch structure. All queries at one SNP reuse one encoding. There is no recurrent network. The general idea of graph windows has prior art, so this result does not establish a new general GNN kernel.
 
-**Queue snapshot:** 72 original campaign stages completed, **152 pending or running** and 11 explicitly superseded after counting parallel task IDs only once. The records contain 3 running, 149 pending, 16 blocked and 1 failed stages. These are preparation, fitting, prediction and scoring stages, not that many separate experiments. The failed previous American TreeLoom and its dependent rows are retained as history.
+**Queue snapshot:** 100 original campaign stages succeeded, 3 running, 121 pending, 16 blocked, 1 historical failure and 11 superseded. Parallel task IDs are counted once. These are preparation, fit, prediction and scoring stages, not that many independent experiments.
 
-- **ARGformer:** 8/15 dataset predictions complete. The remaining 7 parents are assigned to the original GPU3 lane and the two native lanes on GPUs4 and5. Their original training schedules remain unchanged.
+- **ARGformer:** 10/15 prediction datasets complete. The remaining five follow their unchanged schedules in the two native lanes on GPUs 4 and 5.
 - **FLARE:** 15/15 prediction datasets complete and authenticated.
-- **ARGMix:** native Relate inference and the remaining original producers continue through the native queues. The new TreeLoom pipeline covers five TRAIN, one validation and eight TEST parents. Its full cache needs admission within the existing1.2TB storage ceiling. No final ARGMix comparison is available yet.
-- **New American TreeLoom:** the registered full lossless TRAIN cache uses 16 workers. It covers all 158,476 windows and 200,000 original target rows. Corrected partial-batch weighting, exact cache restoration and the training/prediction chain passed independent review. GPU qualification on the largest TRAIN batches precedes the fixed 13-epoch fit and all 15 held-out predictions. No American score is available yet.
+- **ARGMix:** production storage is admitted. Four of five TRAIN observations are complete, with native Relate active on TRAIN004. Both the new TreeLoom and native ARGMix fit and final comparison remain pending.
+- **New American TreeLoom:** the full TRAIN cache, fixed 13-epoch fit and all 15 held-out predictions are complete. Paired ancestry scoring awaits the remaining native ARGformer predictions.
 - **Direct four-class AncestralPaths CNN and TreeLoom-Joint:** both fresh four-output models completed training and prediction on all five TEST chromosomes. The completed comparison uses the same 40,000 supervised targets and 40,000 TEST targets. TreeLoom used its fixed 50 epochs and CNN its fixed five epochs. Present-day accuracy remains the registered primary endpoint; results are reported below.
 
 [Detailed scores, class metrics and confusion matrices](research/joint_evaluation_20261029/scoring/comparison_v4.json) · [Independent result review](research/joint_evaluation_20261029/scoring/FINAL_RESULT_REVIEW_v1.json) · [Current queue snapshot](research/joint_evaluation_20261029/root/CURRENT_STATUS.json) · [Integration work plan](research/joint_evaluation_20261029/PLAN.md) · [Frozen model and development results](research/joint_model_20261029/PLAN.md)
