@@ -3,7 +3,7 @@
 <!-- joint-model-20261029:start -->
 ## TreeLoom joint model, 29 October
 
-**The complete new model passed qualification and all three 50-epoch learning runs. Benchmark training is running.** The selected arm is **branch-structure connections**. Its fresh fit uses all **50,000 original European six-class TRAIN targets** on GPU 5, with **925/3,900 updates** recorded at this snapshot and **12/50 epochs** complete. [Training snapshot](research/joint_model_20261029/root/BENCHMARK_PROGRESS.json).
+**The new TreeLoom European training fit is complete.** All **50 epochs, 3,900 updates and 2.5 million target presentations** finished successfully on the original 50,000 TRAIN targets in **6.00 minutes**. The final checkpoint is saved and all data workers exited cleanly. **Its five-chromosome TEST evaluation has not started**, so no new benchmark comparison score is available. The trained model achieved 99.11% on its own training examples, which is a fitting diagnostic, not held-out performance. [Completion and current queue status](research/joint_model_20261029/root/COMPLETION_AND_QUEUE_STATUS.json).
 
 The table is internal development, using 33,334 targets from two TRAIN chromosomes for fitting and 16,666 targets from the third for selection. Every arm completed 2,600 updates with the same initialization and target order. These are fixed final-epoch results, not the best interim checkpoints.
 
@@ -20,6 +20,10 @@ The new PyTorch Geometric model applies three joint layers to complete native tr
 Independent checks cover observations and labels, batch isolation, edge cases, gradients, CPU/GPU agreement, all saved prediction identities, restored checkpoints and worker cleanup. Native methods, simulations and historical results are preserved. Sliding joint graph windows have prior art, so no general new-kernel claim is made.
 
 [Complete reviewed results](research/joint_model_20261029/review/COMPLETED_DEVELOPMENT_REVIEW.json) · [Plan](research/joint_model_20261029/PLAN.md) · [Architecture](research/joint_model_20261029/model/DESIGN.md) · [Data protocol](research/joint_model_20261029/data/DATA_PROTOCOL_v1.json) · [Frozen benchmark fit](research/joint_model_20261029/root/benchmark_protocol_v1.json)
+
+The final full-data fit averaged **88.2% GPU activity** across 49 warm epochs (644 samples, no other sampled GPU process), processing about **7,600 targets/s**. This is separate from the development timing above.
+
+**The wider campaign is not fully progressing.** At this snapshot only native ARGformer is running on GPU 3, with **7/15** dataset predictions finished. FLARE has 15 authenticated completed prediction receipts. The historical European CNN, Dense and GST comparison is scored, but it contains the old TreeLoom. ARGMix is waiting for storage admission before TRAIN002 native inference. The older American TreeLoom failed at update 593 and remains held. The new model's TEST prediction adapter is not yet connected to the queue. Waiting alone will not complete these blocked parts. Main controller counts: 66 succeeded, 1 running, 168 pending, 1 failed and 16 blocked stages.
 <!-- joint-model-20261029:end -->
 
 <!-- bounded-redesign-20261028:start -->
