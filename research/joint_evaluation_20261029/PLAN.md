@@ -39,3 +39,16 @@ The ARGformer parallel queue is live. Parents 003 and 004 have completed prepara
 - [ ] Integrate and train the new joint model for ARGMix, then complete the corresponding comparisons.
 
 Current counts in root/CURRENT_STATUS.json overlay original task IDs with their parallel owners, avoiding double counting. The 183 unfinished original campaign stages include retained failures of the previous American TreeLoom. New-model integration outside that old task list is reported separately. The complete benchmark is not finished.
+
+## 29 October continuation
+
+- Completed: American exact tensor packing, 16-worker cache builder, corrected expected per-target objective for partial parent batches, independent CPU integration review, frozen source version 2.
+- Running: full American TRAIN cache, 158,476 windows across all 20 original training chromosomes. Actual first 1,000 windows took 152 seconds with 13.68 GB owned RSS. This is preparation, not a new accuracy result.
+- Corrected: the direct four-class CNN preparation needed an explicit bound for the original 293–294 MB inference manifests. Its first failed attempts are preserved. The corrected full TRAIN000 preparation passed and the replacement queue is active. Native feature extraction and model settings are unchanged.
+- Completed: new ARGMix observed-input adapter and GPU integration smoke on the original TRAIN000 data. All 100,000 target identities are retained. Three complete five-tree windows roundtrip exactly through lossless storage. Batched and separate FP32 outputs differ by less than 0.0000002. Checkpoint weights restore exactly.
+- Corrected test: an initial GPU smoke demanded bitwise identical FP32 sparse-reduction logits after checkpoint restoration. This was an inappropriate assertion. The corrected test requires exact checkpoint weights and a declared FP32 tolerance, with the measured output difference recorded. No model mathematics changed.
+- In progress: a fresh direct four-output TreeLoom fit on the same 40,000 supervised rows as the four-output CNN. Unknown BAA observations remain in the shared trees, while BAA target rows are excluded.
+- In progress: safe original-controller handoff, authenticated native queue aliases and replacement of unstarted obsolete TreeLoom ARGMix stages with the new architecture. Healthy native workers remain running.
+- In progress: full new-model ARGMix cache, fit, prediction and scoring integration. The exact original campaign has five TRAIN parents, one validation parent, three IID parents and five misspecification parents. All eight held-out test parents remain required.
+- Storage: current additive reservations remain below 1.2 TB. A production ARGMix joint cache needs a larger reservation than its initial smoke allowance. It must wait for authenticated unused reservations or scratch retirement to make room within the same total limit.
+- Still required: complete all pending native ARGformer and ARGMix work, all new American and ARGMix predictions, direct four-class comparisons and final result review. The full benchmark and paper are not complete.

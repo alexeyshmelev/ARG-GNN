@@ -1,0 +1,19 @@
+# Independent American joint-model successor review
+
+Verdict: READY for the root-owned TRAIN cache build, followed by root GPU qualification and the fixed training, prediction and scoring sequence. Training still requires the actual complete cache product and the shared GPU admission. Results writes must remain sequential, as root confirmed.
+
+Reviewed common_v2.py, cache_v2.py, state_codec_v2.py, compression_v2.py, weighting_v2.py, pipeline_v2.py, protocol_v2.json and smoke_v2.py under research/joint_evaluation_20261029/american. The original v1 sources and records remain unchanged.
+
+The successor retains the exact three-class frozen architecture, context coordinates, native full trees and SNPs, original focal midpoints and sample identities, optimizer, seeds and thirteen full epochs. Its public observation adapter preserves unknown query ancestry. TRAIN-only supervision is resolved outside the observation/cache workers. Held-out observations require the completed final checkpoint, and all fifteen held-out prediction products and their canonical identities are authenticated before held-out truth is resolved for scoring.
+
+Independent checks authenticated the completed CPU smoke and current source references, verified all 20 TRAIN parents and 200,000 unique canonical midpoint targets, and counted 158,476 windows. Using exact rational arithmetic over each actual parent batch partition, every canonical target has expected coefficient 1 / 200000, including partial batches. There are 9,913 updates per epoch and 128,869 across thirteen epochs.
+
+For the first and last TRAIN000 windows, independently reconstructed the original prepared observations and compared them with the persistent compressed cache. Every dense and sparse CSR tensor has identical dtype, shape and bytes. Both routes give bitwise identical logits through the saved learned smoke checkpoint. No truth payload, held-out payload or CUDA context was opened by this check. Evidence: american_v2_checks.json, SHA256 f6db94eea8f42530f1ea5c283535cc474e5fd1f88dbcad52a3af553872a9cc51 in this directory.
+
+The codec only byte-shuffles floats and stores reversible integer deltas. It retains sparse indices and values. Payload checksums and exact observed-input/window identities protect persistent reads. TRAIN cache misses during fitting are fatal. The cache build verifies every window and all 200,000 targets before its complete product can authorize training. Exclusive flock-protected prospective reservations charge payload and per-file overhead against 63 GiB. Results have a separate 1 GiB cap. The random 128-window TRAIN probe projects 61,694,958,133 bytes of packed payload, about 57.46 GiB, before the existing probes and per-file overhead. This is a sizing estimate; the complete build still checks actual charged size and may fail closed without dropping targets.
+
+Each completed epoch retains model, optimizer, Torch and CUDA RNG state. The fixed epoch13 final checkpoint alone authorizes prediction. Exact row coverage and finite predictions are checked, and scoring uses the existing native three-class metric implementation.
+
+After the numerical smoke, pipeline_v2.py received a reviewed metadata-only addition that retains the largest sixteen TRAIN windows by node count, SNP rows and prepared tensor bytes for later GPU qualification. Reviewed source SHA256 a1e4a6b33432847a4c895baa3fd5eb702a95bc511b0c8e64516e5429c95da78c. Its attributes match the frozen Batch, and it does not alter observations, cache bytes, target weighting, model execution or scoring. The final freeze should explicitly bind this addition and the preceding numerical evidence.
+
+No remaining scientific or CPU cache-build blocker was found. This review does not claim full production fit completion, full-cache measured size or a GPU benchmark measurement. Root owns launch, shared-device admission and final freeze verification.

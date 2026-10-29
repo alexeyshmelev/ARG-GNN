@@ -43,8 +43,10 @@ def main():
               'native_ARGformer_prediction_datasets_complete': native_complete,
               'native_ARGformer_prediction_datasets_total': 15,
               'new_European_joint_test_prediction_parents_complete': 5,
-              'new_American_joint_pipeline': 'TRAIN smoke complete, lossless cache and weighting repair unfinished',
-              'new_ARGMix_joint_pipeline': 'not yet trained',
+              'new_American_joint_pipeline': 'Full20-parent lossless TRAIN cache running with16workers, corrected weighting frozen and independently reviewed',
+              'direct_four_class_CNN': read(BASE / 'queue/cnn4_v2_records/state.json').get('counts', {}),
+              'direct_four_class_joint': 'Separate40000-target direct-four fit/prediction adapter in preparation',
+              'new_ARGMix_joint_pipeline': 'Original observed-input adapter validated, full fit/prediction integration in preparation, waiting original TRAIN producers',
               'notes': ['Parallel queues own original task IDs and are counted once',
                         'Historical failed old-TreeLoom rows remain visible',
                         'New-model integration work outside the old 252-stage campaign is not hidden in its stage count']}
@@ -95,8 +97,8 @@ def main():
               'Parents003 and004 have completed CPU preparation and started training on GPUs4 and5. The existing parent002 run continues on GPU3.',
               '- **FLARE:** 15/15 prediction datasets complete and authenticated.',
               '- **ARGMix:** native Relate inference for TRAIN002 is running in a separate CPU queue after repairing storage admission. Later stages and the new TreeLoom comparison remain unfinished.',
-              '- **New American TreeLoom:** the adapter passed its TRAIN smoke test. A lossless cache and a correction to weighting in partial batches remain unfinished before launch. The uncached route would repeat expensive CPU preparation. No American score is available yet.',
-              '- **Direct four-class AncestralPaths CNN:** the data and author runtime are available. The execution adapter is being prepared.', '',
+              '- **New American TreeLoom:** the full lossless TRAIN cache is building with 16 workers. It covers all 158,476 windows and 200,000 original target rows. Corrected partial-batch weighting, exact cache restoration and the training/prediction chain passed independent review. GPU qualification on the largest TRAIN batches precedes the fixed 13-epoch fit and all 15 held-out predictions. No American score is available yet.',
+              '- **Direct four-class AncestralPaths CNN:** the corrected queue is active. An input manifest exceeded a metadata read limit on the first attempt. The repair changes that bound only, and a full real-data preparation test passed. The original CNN and its 40,000 supervised rows are unchanged. A separate direct four-class TreeLoom fit on those same rows is being prepared.', '',
               '[Detailed scores, class metrics and confusion matrices](research/joint_evaluation_20261029/scoring/comparison_v4.json) · '
               '[Independent result review](research/joint_evaluation_20261029/scoring/FINAL_RESULT_REVIEW_v1.json) · '
               '[Current queue snapshot](research/joint_evaluation_20261029/root/CURRENT_STATUS.json) · '

@@ -1,0 +1,2299 @@
+{
+  "batch_seed": 20261032,
+  "batch_windows": 16,
+  "budget_derivation": "ceil(European 50 epochs * 50000 TRAIN targets / American 200000 TRAIN targets)=13 full epochs; 4% more target presentations, all original TRAIN rows each epoch",
+  "cache_codec": "exact_integer_deltas_float_byte_shuffle_zstd9",
+  "cache_max_bytes": 67645734912,
+  "cache_namespace": "5e307cc91914e5839bf1a4b84c757588883558eb7b5292e1ae4f6ed3bcb2322a",
+  "cache_policy": "Complete immutable TRAIN cache gate before13epoch fit; heldout computed once without persistent prepared cache",
+  "cache_scientific_binding": {
+    "context": "original K5/radius50000/exact canonical midpoint",
+    "dependencies": [
+      {
+        "path": "research/joint_evaluation_20261029/american/observations.py",
+        "sha256": "284c902a14115aabc2ca9014f88c3d62187fd1785bcd49cda4491d7277cf116e"
+      },
+      {
+        "path": "research/joint_evaluation_20261029/american/state_codec_v2.py",
+        "sha256": "39dfa39b7c82648fbaefc424dd09d53c2ca532bc90183f9b8ce15bb16784b597"
+      },
+      {
+        "path": "research/joint_evaluation_20261029/american/compression_v2.py",
+        "sha256": "cc5d4578cd4a338f17ecc48fffb18f0c39643ebb6eae11e4c16e126d251b56cf"
+      },
+      {
+        "path": "research/redesign_20261028/data/window_data.py",
+        "sha256": "a1788ea0a33335450bfb43c689aa3c598070f07b28c40930be3fb086f42aa309"
+      }
+    ],
+    "model_source": {
+      "path": "research/joint_model_20261029/model/joint_model_v1.py",
+      "sha256": "ba87b3b7639db4ce07b424a26d1673a043ea1d9ddbe34914d7f6397177006aa4"
+    }
+  },
+  "cache_scope": "experiments/cache/joint_american_20261029",
+  "canonical_targets_per_parent": 10000,
+  "checkpoint_policy": "Every complete epoch retains model, optimizer and RNG state; only fixed epoch13 checkpoint authorizes heldout predictions",
+  "class_order": [
+    "EUR",
+    "EAS",
+    "AFR"
+  ],
+  "context": {
+    "coordinates": 5,
+    "parent_ordinals": "100..134 in original registry order",
+    "radius_bp": 50000.0,
+    "seed": 20261029,
+    "site_seed": "rank of unique original focal coordinate within parent",
+    "weights": [
+      0.0,
+      0.25,
+      0.25,
+      0.25,
+      0.25
+    ]
+  },
+  "epochs": 13,
+  "heldout_payloads_opened_during_preparation": false,
+  "historical_TreeLoom_or_competitors_changed": false,
+  "initialization_seed": 101,
+  "input_adaptation": {
+    "all_SNPs_in_complete_native_intervals": true,
+    "cohort_channels": "ADMIX=0,EUR=1,EAS=2,AFR=3; remaining observed cohort channels unused",
+    "focal_genotype": "Use exact observed SNP if coordinate matches; otherwise all -1 missing with allele count1. Never move canonical midpoint.",
+    "full_native_trees": true,
+    "missing_query_ancestry": true,
+    "reference_channels": "EUR=0,EAS=1,AFR=2; fourth reference channel unused"
+  },
+  "loss_weight": "W_parent*B_total/(B_parent*S*N)",
+  "loss_weight_explanation": "Uniform per-parent window permutation; parent ceil(W/16) batches including each tail; allB_total updates equally weighted in expectation.",
+  "mode": "structure",
+  "model": {
+    "classes": 3,
+    "layers": 3,
+    "width": 64
+  },
+  "model_id": "treeloom_joint_american_structure_v1",
+  "model_source_ref": {
+    "path": "research/joint_model_20261029/model/joint_model_v1.py",
+    "sha256": "ba87b3b7639db4ce07b424a26d1673a043ea1d9ddbe34914d7f6397177006aa4"
+  },
+  "no_persistent_observation_cache": false,
+  "objective": "W_parent*B_total/(B_parent*S*N)*sum CE; B_parent=ceil(W_parent/16), exact expected canonical-target weighting for parent-grouped tails",
+  "optimizer": {
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "epsilon": 1e-08,
+    "gradient_clip": 1.0,
+    "learning_rate": 0.001,
+    "name": "AdamW",
+    "weight_decay": 0.0001
+  },
+  "original_binding_source_refs": [
+    {
+      "path": "research/operations_resume_20261026/american/treeloom.replacement_task.json",
+      "sha256": "623cc633ca8fda58952c9aa92e172e0402781003554548579b8ee96278719270"
+    },
+    {
+      "path": "research/benchmark_rebuild_20261024/american/expanded_delivery/task_dag.json",
+      "sha256": "83a482a77ccd8a4e05013c220a23a486bddb4a103ac28d2bae5305961a6f55f7"
+    }
+  ],
+  "parent_registry_ref": {
+    "path": "configs/benchmarks/fresh_american_parent_registry.json",
+    "sha256": "3a2e096b4bc0763512075236d350d0baaf971936217cff0ed4e92dcca5c71b74"
+  },
+  "parents": {
+    "argformer_american_test_000": {
+      "binding": {
+        "focal_registry_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_000/AM_argformer_american_test_000_focals/native/focals.npz",
+          "sha256": "66f6b1a9bdd7fbdaf5a3c3e1072899a009fb4f7d2dfad39c5029f8e25c66cdb3"
+        },
+        "native_preparation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_000/AM_argformer_american_test_000_focals/native/compact_focal_preparation.json",
+          "sha256": "383e6c6e138ffa94cc2d5091f9e7627f7666608813cceda93bd6b2618a007073"
+        },
+        "observation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_000/AM_argformer_american_test_000_inference/native/observed/manifest.json",
+          "sha256": "53a041563b220c3f8f02e7d8c318d6c52ad6548b90b6ba1aa1eb7098bf6b330c"
+        }
+      },
+      "observed_refs": {
+        "alleles_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_000/AM_argformer_american_test_000_generation/native/observed/site_alleles.jsonl",
+          "sha256": "93855d75a48b151f23968de8575ae5fd7967506a7550c7a682b8692bcf91827c"
+        },
+        "genotypes_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_000/AM_argformer_american_test_000_generation/native/observed/genotypes_int8.npy",
+          "sha256": "102810b49946bff96f88375a709e180ff878b98310179877e90825cd231ca81f"
+        },
+        "positions_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_000/AM_argformer_american_test_000_generation/native/observed/positions_bp0.npy",
+          "sha256": "4f327f2a3db2480300fd080899d17f05d0c08c54b5ecd5ee87c14698e8f7750d"
+        },
+        "roster_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_000/AM_argformer_american_test_000_inference/native/observed/roster.json",
+          "sha256": "33c088645ea299dfb3177fc825f48251a271b4f121fdcc1913c051740405fae5"
+        },
+        "tree_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_000/AM_argformer_american_test_000_inference/native/observed/tsinfer_tsdate_sanitized.trees",
+          "sha256": "b92e14083cb44a53f3e65107d871102c6ecb11a87cfba2e8d79a86ba020c038a"
+        }
+      },
+      "parent_ordinal": 125,
+      "source_stats": {
+        "alleles_ref": {
+          "bytes": 2288824,
+          "mtime_ns": 1792310081235178044
+        },
+        "genotypes_ref": {
+          "bytes": 365820928,
+          "mtime_ns": 1792310081239177566
+        },
+        "positions_ref": {
+          "bytes": 1829232,
+          "mtime_ns": 1792310076787927528
+        },
+        "roster_ref": {
+          "bytes": 370035,
+          "mtime_ns": 1792311272444830053
+        },
+        "tree_ref": {
+          "bytes": 34980956,
+          "mtime_ns": 1792311272334837577
+        }
+      },
+      "split": "test"
+    },
+    "argformer_american_test_001": {
+      "binding": {
+        "focal_registry_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_001/AM_argformer_american_test_001_focals/native/focals.npz",
+          "sha256": "f7076ad0564aff096062d9b4307919cc52754eb02040b76232bb5a252d715ae0"
+        },
+        "native_preparation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_001/AM_argformer_american_test_001_focals/native/compact_focal_preparation.json",
+          "sha256": "4c0eb9b29380dadf040b8feb3089d4fb47828f18e01ace6401339c070d7bee35"
+        },
+        "observation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_001/AM_argformer_american_test_001_inference/native/observed/manifest.json",
+          "sha256": "0b5debf3bf2cb4466d4ff9d54f3db25395f0646a265563106482cfc2d140d853"
+        }
+      },
+      "observed_refs": {
+        "alleles_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_001/AM_argformer_american_test_001_generation/native/observed/site_alleles.jsonl",
+          "sha256": "e25d07a10fe48f243947ef3f6c4046eea0f80e98a7a3199faba2be2b4a629711"
+        },
+        "genotypes_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_001/AM_argformer_american_test_001_generation/native/observed/genotypes_int8.npy",
+          "sha256": "89fc397d6baa465fa1fd96659391cafa6daeee8e27b65f130cc04da9696c3a65"
+        },
+        "positions_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_001/AM_argformer_american_test_001_generation/native/observed/positions_bp0.npy",
+          "sha256": "068cf4e093561b9a479b047caf8dd7ccb0972563bbd8e88fa202b9e28eeea266"
+        },
+        "roster_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_001/AM_argformer_american_test_001_inference/native/observed/roster.json",
+          "sha256": "b8bad61a58a03e007e09e3faf548ce4eb6b68349d2ddad239ea8aebcb0af23fe"
+        },
+        "tree_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_001/AM_argformer_american_test_001_inference/native/observed/tsinfer_tsdate_sanitized.trees",
+          "sha256": "d362dfd4c0d8317c84c0f58b7d817adfecde6f8bee30c950b5f6af6f1f98cd5a"
+        }
+      },
+      "parent_ordinal": 126,
+      "source_stats": {
+        "alleles_ref": {
+          "bytes": 2292338,
+          "mtime_ns": 1792310370438073130
+        },
+        "genotypes_ref": {
+          "bytes": 366411328,
+          "mtime_ns": 1792310370543067532
+        },
+        "positions_ref": {
+          "bytes": 1832184,
+          "mtime_ns": 1792310364925857670
+        },
+        "roster_ref": {
+          "bytes": 370035,
+          "mtime_ns": 1792311470274831576
+        },
+        "tree_ref": {
+          "bytes": 34849676,
+          "mtime_ns": 1792311470171837325
+        }
+      },
+      "split": "test"
+    },
+    "argformer_american_test_002": {
+      "binding": {
+        "focal_registry_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_002/AM_argformer_american_test_002_focals/native/focals.npz",
+          "sha256": "607044ae2938c23abad99b8ee72cb75a67333932e46f351412ef7d8775e22e3a"
+        },
+        "native_preparation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_002/AM_argformer_american_test_002_focals/native/compact_focal_preparation.json",
+          "sha256": "1739bf641642d335f32dd0415b20c0b6a58e98db3cd5384c16c716e0c7abc880"
+        },
+        "observation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_002/AM_argformer_american_test_002_inference/native/observed/manifest.json",
+          "sha256": "3b481d39d720fb7af703729dba744a15624d3daa5658bc6abc49afd5b968e91b"
+        }
+      },
+      "observed_refs": {
+        "alleles_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_002/AM_argformer_american_test_002_generation/native/observed/site_alleles.jsonl",
+          "sha256": "91c6b9fdc5da870edc6fa1ee051e737ccfedb8678dddd2a285d5d5baea7b13d2"
+        },
+        "genotypes_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_002/AM_argformer_american_test_002_generation/native/observed/genotypes_int8.npy",
+          "sha256": "60de640df5a188d9d82cfaf2791ad1723551c677c4e656d9bc42c1cb41fd12cd"
+        },
+        "positions_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_002/AM_argformer_american_test_002_generation/native/observed/positions_bp0.npy",
+          "sha256": "41d9ef27d837c9865dc27653f464746d8904c210a8a8f3358e7f6047d51cf3ec"
+        },
+        "roster_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_002/AM_argformer_american_test_002_inference/native/observed/roster.json",
+          "sha256": "ac336d9874383f7f69b41d0cbd156c2ed5b0586d59a7cc1592f5277266a3d19c"
+        },
+        "tree_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_002/AM_argformer_american_test_002_inference/native/observed/tsinfer_tsdate_sanitized.trees",
+          "sha256": "a5b85becda443d83394171cc4d04968e7ceabde4af02ec1aadc79f3c63594c47"
+        }
+      },
+      "parent_ordinal": 127,
+      "source_stats": {
+        "alleles_ref": {
+          "bytes": 2290146,
+          "mtime_ns": 1792310601345160618
+        },
+        "genotypes_ref": {
+          "bytes": 366052928,
+          "mtime_ns": 1792310601432155996
+        },
+        "positions_ref": {
+          "bytes": 1830392,
+          "mtime_ns": 1792310594756000719
+        },
+        "roster_ref": {
+          "bytes": 370035,
+          "mtime_ns": 1792311632177007285
+        },
+        "tree_ref": {
+          "bytes": 35047460,
+          "mtime_ns": 1792311632081011990
+        }
+      },
+      "split": "test"
+    },
+    "argformer_american_test_003": {
+      "binding": {
+        "focal_registry_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_003/AM_argformer_american_test_003_focals/native/focals.npz",
+          "sha256": "4766bef78d136618d2dc2cf374bb0a4a9e14e3c6d4ea0b20902477c918282584"
+        },
+        "native_preparation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_003/AM_argformer_american_test_003_focals/native/compact_focal_preparation.json",
+          "sha256": "76e7b99a823ba31e2158672228de96d5e4a68c0f01ca0b80c86a2812e9622102"
+        },
+        "observation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_003/AM_argformer_american_test_003_inference/native/observed/manifest.json",
+          "sha256": "fbddfa23c3dc2174e5ff48720f92e9b66495a0979ae237667971c54076df91bd"
+        }
+      },
+      "observed_refs": {
+        "alleles_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_003/AM_argformer_american_test_003_generation/native/observed/site_alleles.jsonl",
+          "sha256": "f2f6e00cbfeb921e3019f31fbc28423dc63f9296503400259c0e6f0f16f16452"
+        },
+        "genotypes_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_003/AM_argformer_american_test_003_generation/native/observed/genotypes_int8.npy",
+          "sha256": "f06b0915a57b28d7cf74fa2eddb6aa0aad6232082c491e65418555a1b20858bc"
+        },
+        "positions_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_003/AM_argformer_american_test_003_generation/native/observed/positions_bp0.npy",
+          "sha256": "0e89c7133f81d7ae624d977b68a65d2793846a887175fbc313cffe1310f3e63c"
+        },
+        "roster_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_003/AM_argformer_american_test_003_inference/native/observed/roster.json",
+          "sha256": "3a18ce00410532f59b5ea3caa2e89dba62dce4b3e00e008cd73ed5c2ecce4601"
+        },
+        "tree_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_003/AM_argformer_american_test_003_inference/native/observed/tsinfer_tsdate_sanitized.trees",
+          "sha256": "3e662115502f7be2a691111c8f82cd9eac1bbb87474eb866ebee37299ac1c6cd"
+        }
+      },
+      "parent_ordinal": 128,
+      "source_stats": {
+        "alleles_ref": {
+          "bytes": 2284776,
+          "mtime_ns": 1792313595500633231
+        },
+        "genotypes_ref": {
+          "bytes": 365196928,
+          "mtime_ns": 1792313595607628150
+        },
+        "positions_ref": {
+          "bytes": 1826112,
+          "mtime_ns": 1792313591252851651
+        },
+        "roster_ref": {
+          "bytes": 370035,
+          "mtime_ns": 1792314513281482903
+        },
+        "tree_ref": {
+          "bytes": 34967316,
+          "mtime_ns": 1792314513183487597
+        }
+      },
+      "split": "test"
+    },
+    "argformer_american_test_004": {
+      "binding": {
+        "focal_registry_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_004/AM_argformer_american_test_004_focals/native/focals.npz",
+          "sha256": "8ef3523d6fa69ae4b65a6291898d27611e85946dfecafbc9fa64b6fc39215989"
+        },
+        "native_preparation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_004/AM_argformer_american_test_004_focals/native/compact_focal_preparation.json",
+          "sha256": "27e257cfe0f6a25e1d54a34e3612c70e93704f85e412126fd52b6a617b2a3faa"
+        },
+        "observation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_004/AM_argformer_american_test_004_inference/native/observed/manifest.json",
+          "sha256": "b8e9b850371fb096ffa1dbc8216925b4d2020fb4daf4b9d67ef0f9bf86eb6da0"
+        }
+      },
+      "observed_refs": {
+        "alleles_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_004/AM_argformer_american_test_004_generation/native/observed/site_alleles.jsonl",
+          "sha256": "c337df3b050739182cb3b38bfdbf1e2057e1d9780408a2cc38c65db0d4f1a849"
+        },
+        "genotypes_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_004/AM_argformer_american_test_004_generation/native/observed/genotypes_int8.npy",
+          "sha256": "b1e6f80dea582cb51b2f2dbd5cc43042e3d479c96f5018012a1719e4a5edde31"
+        },
+        "positions_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_004/AM_argformer_american_test_004_generation/native/observed/positions_bp0.npy",
+          "sha256": "ffb211941647925f63b1729f8e4993bcb27525fa24a0b4bf6415fed188cf0419"
+        },
+        "roster_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_004/AM_argformer_american_test_004_inference/native/observed/roster.json",
+          "sha256": "d34cc519b179e166e642c93c487cec044d41349852f3ee6dd96069d3f835211b"
+        },
+        "tree_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_004/AM_argformer_american_test_004_inference/native/observed/tsinfer_tsdate_sanitized.trees",
+          "sha256": "e3512c362d75958bb1ef1a70ab4c72b67c637959c65bd3675b9422d774905d7b"
+        }
+      },
+      "parent_ordinal": 129,
+      "source_stats": {
+        "alleles_ref": {
+          "bytes": 2289568,
+          "mtime_ns": 1792314023583641254
+        },
+        "genotypes_ref": {
+          "bytes": 365961728,
+          "mtime_ns": 1792314023711634970
+        },
+        "positions_ref": {
+          "bytes": 1829936,
+          "mtime_ns": 1792314019355858467
+        },
+        "roster_ref": {
+          "bytes": 370035,
+          "mtime_ns": 1792315034659721894
+        },
+        "tree_ref": {
+          "bytes": 35009524,
+          "mtime_ns": 1792315034559727793
+        }
+      },
+      "split": "test"
+    },
+    "argformer_american_test_005": {
+      "binding": {
+        "focal_registry_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_005/AM_argformer_american_test_005_focals/native/focals.npz",
+          "sha256": "1fa4e017b80ffe77d0fb1f78118a027d013663875a6dd885c2fe5fdc0b724343"
+        },
+        "native_preparation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_005/AM_argformer_american_test_005_focals/native/compact_focal_preparation.json",
+          "sha256": "c063ffe1d782cdd619d3c897585d7e87a8081200ef50a1119811fe5c0fde78b1"
+        },
+        "observation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_005/AM_argformer_american_test_005_inference/native/observed/manifest.json",
+          "sha256": "acd8f9eaaef23f19cfe7cf514d4773e62dd7658bc00a2f60bbeda3926c13e1f1"
+        }
+      },
+      "observed_refs": {
+        "alleles_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_005/AM_argformer_american_test_005_generation/native/observed/site_alleles.jsonl",
+          "sha256": "50f83f634b7ba3ea9703f247d9b6718112b2da4b0c7c3092593cfa501d991a0a"
+        },
+        "genotypes_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_005/AM_argformer_american_test_005_generation/native/observed/genotypes_int8.npy",
+          "sha256": "555f816032abbae70b70e76d97e85346d62e1e982e0b956dcf4effe8564cd77c"
+        },
+        "positions_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_005/AM_argformer_american_test_005_generation/native/observed/positions_bp0.npy",
+          "sha256": "b5efc706015a972abaf7aa5e496cefa979b3a12fe5ded5cd7365753c4081c7c8"
+        },
+        "roster_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_005/AM_argformer_american_test_005_inference/native/observed/roster.json",
+          "sha256": "7e3e8ee4bb9fbff80f5a02f2cedd39511c241b1bbff66c7e9fe64f2bdeda61bf"
+        },
+        "tree_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_005/AM_argformer_american_test_005_inference/native/observed/tsinfer_tsdate_sanitized.trees",
+          "sha256": "4c81cf53d828185ccf712862125c8a24b7ed522adaef40437e670a5aa93bcd85"
+        }
+      },
+      "parent_ordinal": 130,
+      "source_stats": {
+        "alleles_ref": {
+          "bytes": 2284234,
+          "mtime_ns": 1792314380619935032
+        },
+        "genotypes_ref": {
+          "bytes": 365080128,
+          "mtime_ns": 1792314380733929127
+        },
+        "positions_ref": {
+          "bytes": 1825528,
+          "mtime_ns": 1792314376222681584
+        },
+        "roster_ref": {
+          "bytes": 370035,
+          "mtime_ns": 1792315595163627358
+        },
+        "tree_ref": {
+          "bytes": 35006988,
+          "mtime_ns": 1792315595050632667
+        }
+      },
+      "split": "test"
+    },
+    "argformer_american_test_006": {
+      "binding": {
+        "focal_registry_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_006/AM_argformer_american_test_006_focals/native/focals.npz",
+          "sha256": "1b231675abbdf9b8aa2f856691933e8ca600b1e2f54e6689688e461a7e4b0d3c"
+        },
+        "native_preparation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_006/AM_argformer_american_test_006_focals/native/compact_focal_preparation.json",
+          "sha256": "5a97172f2abcc36d3197dd2e6e52c0bc879295167cc79257b5481fe4ea33fd6a"
+        },
+        "observation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_006/AM_argformer_american_test_006_inference/native/observed/manifest.json",
+          "sha256": "49683343556ba320bbf3d11988f6bb609e2a5b50a9f0bd53d7aff9f4d37d91b5"
+        }
+      },
+      "observed_refs": {
+        "alleles_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_006/AM_argformer_american_test_006_generation/native/observed/site_alleles.jsonl",
+          "sha256": "8e5a45702ebbfafc3a0cf0da22956175e7ba4d42e2398302d75c87e9374c3687"
+        },
+        "genotypes_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_006/AM_argformer_american_test_006_generation/native/observed/genotypes_int8.npy",
+          "sha256": "116f24a3a1fcf3b60cb3be1ddc3dd2c1814f6ddb6d920c80dfe7a976370ec9bb"
+        },
+        "positions_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_006/AM_argformer_american_test_006_generation/native/observed/positions_bp0.npy",
+          "sha256": "cb6e0a6d93752e8d0d18aa29f0b2d22a579ba0ff10b9696da221a4d07ccf1c8a"
+        },
+        "roster_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_006/AM_argformer_american_test_006_inference/native/observed/roster.json",
+          "sha256": "4b982574c529ecdce2655476068d1781a8d68e6a1803a349afcbea6fca7d9e5a"
+        },
+        "tree_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_006/AM_argformer_american_test_006_inference/native/observed/tsinfer_tsdate_sanitized.trees",
+          "sha256": "2c1bd25872a9dd351ebbbd4a527c04d686b599f1dc608a192e939a086152e234"
+        }
+      },
+      "parent_ordinal": 131,
+      "source_stats": {
+        "alleles_ref": {
+          "bytes": 2279116,
+          "mtime_ns": 1792315156189899402
+        },
+        "genotypes_ref": {
+          "bytes": 364281728,
+          "mtime_ns": 1792315156196898855
+        },
+        "positions_ref": {
+          "bytes": 1821536,
+          "mtime_ns": 1792315150974691737
+        },
+        "roster_ref": {
+          "bytes": 370035,
+          "mtime_ns": 1792316106096501924
+        },
+        "tree_ref": {
+          "bytes": 34929460,
+          "mtime_ns": 1792316105997507125
+        }
+      },
+      "split": "test"
+    },
+    "argformer_american_test_007": {
+      "binding": {
+        "focal_registry_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_007/AM_argformer_american_test_007_focals/native/focals.npz",
+          "sha256": "cb5b6f4abfd9b2166d26f538ea64f42c27ca79029d8cfff01ec7843b35a3e7f3"
+        },
+        "native_preparation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_007/AM_argformer_american_test_007_focals/native/compact_focal_preparation.json",
+          "sha256": "6fd5325beb71b9a71c23383c404080bc6b8aa6d536260257f021e73a8b0fddcc"
+        },
+        "observation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_007/AM_argformer_american_test_007_inference/native/observed/manifest.json",
+          "sha256": "e39be7d3a7ed48193b99267e0a1d9d7a751424d4964267f0f5fbd253fc498996"
+        }
+      },
+      "observed_refs": {
+        "alleles_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_007/AM_argformer_american_test_007_generation/native/observed/site_alleles.jsonl",
+          "sha256": "b608e8bea231e65ab29e65e04ad1273c9fa9522291eb05d0cf8626096211e215"
+        },
+        "genotypes_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_007/AM_argformer_american_test_007_generation/native/observed/genotypes_int8.npy",
+          "sha256": "24ee2fb26723620b3271a0b8ae4680857a21250aaaf176fd8d90b233c17b50d5"
+        },
+        "positions_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_007/AM_argformer_american_test_007_generation/native/observed/positions_bp0.npy",
+          "sha256": "c34db5dfb70162df5d17a43a720f9a634fc29e931ca820229e34b95ba2e9aaa6"
+        },
+        "roster_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_007/AM_argformer_american_test_007_inference/native/observed/roster.json",
+          "sha256": "fc6932a0d952eab741a9253e2125c4055671a8d925250db3400cfa20cbc6e57e"
+        },
+        "tree_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_007/AM_argformer_american_test_007_inference/native/observed/tsinfer_tsdate_sanitized.trees",
+          "sha256": "aa9e3b1cd07a5427f518ddf0658908403cdacc04a12b0ae403071d071e91c0e8"
+        }
+      },
+      "parent_ordinal": 132,
+      "source_stats": {
+        "alleles_ref": {
+          "bytes": 2291222,
+          "mtime_ns": 1792316367897373515
+        },
+        "genotypes_ref": {
+          "bytes": 366216128,
+          "mtime_ns": 1792316367999367766
+        },
+        "positions_ref": {
+          "bytes": 1831208,
+          "mtime_ns": 1792316363806603190
+        },
+        "roster_ref": {
+          "bytes": 370035,
+          "mtime_ns": 1792317298402563548
+        },
+        "tree_ref": {
+          "bytes": 35072460,
+          "mtime_ns": 1792317298297569781
+        }
+      },
+      "split": "test"
+    },
+    "argformer_american_test_008": {
+      "binding": {
+        "focal_registry_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_008/AM_argformer_american_test_008_focals/native/focals.npz",
+          "sha256": "1943538f681ad0d9b5ebd0f25be2b931b9297281a31ccc6055237ebcd3d9fd5a"
+        },
+        "native_preparation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_008/AM_argformer_american_test_008_focals/native/compact_focal_preparation.json",
+          "sha256": "3e53d904077543363731a749c55eebd7e501c64e0120d20b6fb8c03422a4faa2"
+        },
+        "observation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_008/AM_argformer_american_test_008_inference/native/observed/manifest.json",
+          "sha256": "db9c09d82a45b6a9ad7e710227522be4e59d5ae524a29a31793ff8f6995f07c5"
+        }
+      },
+      "observed_refs": {
+        "alleles_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_008/AM_argformer_american_test_008_generation/native/observed/site_alleles.jsonl",
+          "sha256": "f2f64e81f91e242c519e8c444c2d221adc029578d81f0fa8b5028c7d316be977"
+        },
+        "genotypes_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_008/AM_argformer_american_test_008_generation/native/observed/genotypes_int8.npy",
+          "sha256": "35ef40013855900ebeebf31f9100dbbd69ac790321908e2c438abae01dafde43"
+        },
+        "positions_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_008/AM_argformer_american_test_008_generation/native/observed/positions_bp0.npy",
+          "sha256": "2efc88730fc3a3b26dfd9bc2b4b5a696c2b0b09a65e7b78385695a3aeba01f7f"
+        },
+        "roster_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_008/AM_argformer_american_test_008_inference/native/observed/roster.json",
+          "sha256": "876536e0364b7bed13adab4a351611c934765dfd01102ca661088702e14e987d"
+        },
+        "tree_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_008/AM_argformer_american_test_008_inference/native/observed/tsinfer_tsdate_sanitized.trees",
+          "sha256": "fb31b05363cf4beb54a1b45b81b5a3a35c086c7f52b5b350a677ff2d6816439f"
+        }
+      },
+      "parent_ordinal": 133,
+      "source_stats": {
+        "alleles_ref": {
+          "bytes": 2291348,
+          "mtime_ns": 1792317353897693207
+        },
+        "genotypes_ref": {
+          "bytes": 366217728,
+          "mtime_ns": 1792317353903692563
+        },
+        "positions_ref": {
+          "bytes": 1831216,
+          "mtime_ns": 1792317349485418095
+        },
+        "roster_ref": {
+          "bytes": 370035,
+          "mtime_ns": 1792318321858462905
+        },
+        "tree_ref": {
+          "bytes": 34995316,
+          "mtime_ns": 1792318321718470623
+        }
+      },
+      "split": "test"
+    },
+    "argformer_american_test_009": {
+      "binding": {
+        "focal_registry_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_009/AM_argformer_american_test_009_focals/native/focals.npz",
+          "sha256": "80abf8919c0d0fe082fcf580fed0e679435a52a083ccb1c5fc6a2246c228ece5"
+        },
+        "native_preparation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_009/AM_argformer_american_test_009_focals/native/compact_focal_preparation.json",
+          "sha256": "17001e47fe264db598a8a8680ff0d44c90e47d44b17265bb47993b8f444e127f"
+        },
+        "observation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_009/AM_argformer_american_test_009_inference/native/observed/manifest.json",
+          "sha256": "08ddba77c63a310ef7fc07f2ea9157560783935a1a430aecd51c5cacd4b4adf7"
+        }
+      },
+      "observed_refs": {
+        "alleles_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_009/AM_argformer_american_test_009_generation/native/observed/site_alleles.jsonl",
+          "sha256": "15828d24c2d9ea8815555ad8e8e41a51ad6eae4a0b9786d21df640fef112348f"
+        },
+        "genotypes_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_009/AM_argformer_american_test_009_generation/native/observed/genotypes_int8.npy",
+          "sha256": "9933fc1cd2133d052d50ff6ce1ccc18eba57f0b17843ba21ab7a7578c7520401"
+        },
+        "positions_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_009/AM_argformer_american_test_009_generation/native/observed/positions_bp0.npy",
+          "sha256": "7371f482d8e081522b3c91751010f0643c60fee61c5ea508b3f6d8ff88fb043f"
+        },
+        "roster_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_009/AM_argformer_american_test_009_inference/native/observed/roster.json",
+          "sha256": "e5b58d3017452097b9d807bfffde509d5e47090f0a41efe434efe2c4e52b9c63"
+        },
+        "tree_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_test_009/AM_argformer_american_test_009_inference/native/observed/tsinfer_tsdate_sanitized.trees",
+          "sha256": "2b30e6b4c7a43bd71207e2a27f9b6082405ede4b72256f13b75f90b4fecf8067"
+        }
+      },
+      "parent_ordinal": 134,
+      "source_stats": {
+        "alleles_ref": {
+          "bytes": 2284300,
+          "mtime_ns": 1792318022436314921
+        },
+        "genotypes_ref": {
+          "bytes": 365152128,
+          "mtime_ns": 1792318022477312330
+        },
+        "positions_ref": {
+          "bytes": 1825888,
+          "mtime_ns": 1792318018049561575
+        },
+        "roster_ref": {
+          "bytes": 370035,
+          "mtime_ns": 1792318976872412985
+        },
+        "tree_ref": {
+          "bytes": 34970428,
+          "mtime_ns": 1792318976776417957
+        }
+      },
+      "split": "test"
+    },
+    "argformer_american_train_000": {
+      "binding": {
+        "focal_registry_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_000/AM_argformer_american_train_000_focals/native/focals.npz",
+          "sha256": "aa86a5013d0b4ab85ad50011fccee167b59516d7a6c93d7ddaf372db827a2c94"
+        },
+        "native_preparation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_000/AM_argformer_american_train_000_focals/native/compact_focal_preparation.json",
+          "sha256": "fdec9a52c88de8d492d6a13551627bf810219aad4bff8e5c3dce61a513a87f33"
+        },
+        "observation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018/fresh_american/argformer_american_train_000/inference/observed/manifest.json",
+          "sha256": "83c64fbff2c1b4c1d728b756733020f9ba21a69b0698c51154a996897ef505e0"
+        }
+      },
+      "observed_refs": {
+        "alleles_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018/fresh_american/argformer_american_train_000/generation/observed/site_alleles.jsonl",
+          "sha256": "9cea92feb9592074bea08d5e823ce4ef3995e80e603d22e0e976193717759d33"
+        },
+        "genotypes_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018/fresh_american/argformer_american_train_000/generation/observed/genotypes_int8.npy",
+          "sha256": "41b9ff596f8126f06a0cbb6a597b95d820d1273f4adfd52efde4104af5fce665"
+        },
+        "positions_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018/fresh_american/argformer_american_train_000/generation/observed/positions_bp0.npy",
+          "sha256": "1ebe68a33f5d669fb92de78f5e1230a6745af18361c6ec1c558b4c493e7bfbd1"
+        },
+        "roster_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018/fresh_american/argformer_american_train_000/inference/observed/roster.json",
+          "sha256": "90eaf9da8907847e43bf7910ab8fb0814cbbd1773b8c5ede42ce6fe41c64f373"
+        },
+        "tree_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018/fresh_american/argformer_american_train_000/inference/observed/tsinfer_tsdate_sanitized.trees",
+          "sha256": "2ba88d5f02523c33736611283cae445fbed435593b3ef1768599105c801d3a9b"
+        }
+      },
+      "parent_ordinal": 100,
+      "source_stats": {
+        "alleles_ref": {
+          "bytes": 2277212,
+          "mtime_ns": 1792284728045503834
+        },
+        "genotypes_ref": {
+          "bytes": 363958528,
+          "mtime_ns": 1792284728140499015
+        },
+        "positions_ref": {
+          "bytes": 1819920,
+          "mtime_ns": 1792284723654728759
+        },
+        "roster_ref": {
+          "bytes": 370036,
+          "mtime_ns": 1792285778741769626
+        },
+        "tree_ref": {
+          "bytes": 34665236,
+          "mtime_ns": 1792285778592776788
+        }
+      },
+      "split": "train"
+    },
+    "argformer_american_train_001": {
+      "binding": {
+        "focal_registry_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_001/AM_argformer_american_train_001_focals/native/focals.npz",
+          "sha256": "6570dc856af52f8589384274f7aed22f03def7aa3d667199b0fc13dcd76b4a80"
+        },
+        "native_preparation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_001/AM_argformer_american_train_001_focals/native/compact_focal_preparation.json",
+          "sha256": "4595b621c70f37342f80b737c79e9473fcf6565e340ec7d697f5dffe70480c49"
+        },
+        "observation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018/fresh_american/argformer_american_train_001/inference/observed/manifest.json",
+          "sha256": "0a414e7f0f1e1860f2fb5a89f40b57e98fa83824c322e22b80fd3c531c8cb44c"
+        }
+      },
+      "observed_refs": {
+        "alleles_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018/fresh_american/argformer_american_train_001/generation/observed/site_alleles.jsonl",
+          "sha256": "7e592aba5d7cec44c8c8f8e124f9d0f892b3d564aa80e605256de5901b18caa9"
+        },
+        "genotypes_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018/fresh_american/argformer_american_train_001/generation/observed/genotypes_int8.npy",
+          "sha256": "0a92e0767cf8945d6d04c2641159af2e509b0ba32c41bcef19927e50b77d2b7d"
+        },
+        "positions_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018/fresh_american/argformer_american_train_001/generation/observed/positions_bp0.npy",
+          "sha256": "3fb4bc06dc84474347fe859ca28ea9df1ca2f82bae66dc6c46122c050c9086d5"
+        },
+        "roster_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018/fresh_american/argformer_american_train_001/inference/observed/roster.json",
+          "sha256": "286c0fd52150e62c0ac10e6b31233dcf64a12a06e2c7e4547c768090579bee93"
+        },
+        "tree_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018/fresh_american/argformer_american_train_001/inference/observed/tsinfer_tsdate_sanitized.trees",
+          "sha256": "32571a2f5c08099982608b10faec102fa3d796d997430c8e6eab20b6cf55a31f"
+        }
+      },
+      "parent_ordinal": 101,
+      "source_stats": {
+        "alleles_ref": {
+          "bytes": 2265550,
+          "mtime_ns": 1792285656659699660
+        },
+        "genotypes_ref": {
+          "bytes": 362139328,
+          "mtime_ns": 1792285656703697134
+        },
+        "positions_ref": {
+          "bytes": 1810824,
+          "mtime_ns": 1792285652119953642
+        },
+        "roster_ref": {
+          "bytes": 370036,
+          "mtime_ns": 1792286760822533775
+        },
+        "tree_ref": {
+          "bytes": 34703364,
+          "mtime_ns": 1792286760711540085
+        }
+      },
+      "split": "train"
+    },
+    "argformer_american_train_002": {
+      "binding": {
+        "focal_registry_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_002/AM_argformer_american_train_002_focals/native/focals.npz",
+          "sha256": "7fd47ad0125aeaade39a74a9f964b41bc62cf8767afd1cb74370fee38befaf78"
+        },
+        "native_preparation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_002/AM_argformer_american_train_002_focals/native/compact_focal_preparation.json",
+          "sha256": "dd7c28f561da83ffc134108f3ebf1648db9a43dd9558d9f55c235d86f09f52fe"
+        },
+        "observation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018/fresh_american/argformer_american_train_002/inference/observed/manifest.json",
+          "sha256": "9be3e8e7563ad6bdc66fa3fde2a096ee15c3204a2e40262cfe31ddb9172b1f5b"
+        }
+      },
+      "observed_refs": {
+        "alleles_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018/fresh_american/argformer_american_train_002/generation/observed/site_alleles.jsonl",
+          "sha256": "62e9455de53f1cf3a2f44f5a45a393e456dd11b84c8d881ce2ff0747fa2d1c25"
+        },
+        "genotypes_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018/fresh_american/argformer_american_train_002/generation/observed/genotypes_int8.npy",
+          "sha256": "1d88c2e229ce43812def046948a520b248ff80251b83d9f904e258fa0eecd3c9"
+        },
+        "positions_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018/fresh_american/argformer_american_train_002/generation/observed/positions_bp0.npy",
+          "sha256": "6dfb6d322d4aec575550ba4fa1575d9f4f3bbc276d4b30bc21ee06fba54e48a1"
+        },
+        "roster_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018/fresh_american/argformer_american_train_002/inference/observed/roster.json",
+          "sha256": "d780ad2fc7f68053c6b4552693b75f2f67ce4a1e6fd130bed0197edf1b70d9be"
+        },
+        "tree_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018/fresh_american/argformer_american_train_002/inference/observed/tsinfer_tsdate_sanitized.trees",
+          "sha256": "1270af760b0289b916ef8c370f997f8e83d527ce460141fc277128f9b92b795e"
+        }
+      },
+      "parent_ordinal": 102,
+      "source_stats": {
+        "alleles_ref": {
+          "bytes": 2277332,
+          "mtime_ns": 1792285540749673312
+        },
+        "genotypes_ref": {
+          "bytes": 363987328,
+          "mtime_ns": 1792285540783671834
+        },
+        "positions_ref": {
+          "bytes": 1820064,
+          "mtime_ns": 1792285535800950309
+        },
+        "roster_ref": {
+          "bytes": 370036,
+          "mtime_ns": 1792286637620379217
+        },
+        "tree_ref": {
+          "bytes": 34625956,
+          "mtime_ns": 1792286637507384410
+        }
+      },
+      "split": "train"
+    },
+    "argformer_american_train_003": {
+      "binding": {
+        "focal_registry_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_003/AM_argformer_american_train_003_focals/native/focals.npz",
+          "sha256": "610c8080b6fafc1fee95b85e4579dcc993e2a685425d201b36fc3e29eb02dd35"
+        },
+        "native_preparation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_003/AM_argformer_american_train_003_focals/native/compact_focal_preparation.json",
+          "sha256": "cbb7aea84fb530218510f787e70efdd5a3e057fdf619b1bfc97b4587f14a5fee"
+        },
+        "observation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018/fresh_american/argformer_american_train_003/inference/observed/manifest.json",
+          "sha256": "55437bbc8d1adb53bcea6c3dcb344a0486aaf991ecd6c0ea5ce65d9c9cfcc5f6"
+        }
+      },
+      "observed_refs": {
+        "alleles_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018/fresh_american/argformer_american_train_003/generation/observed/site_alleles.jsonl",
+          "sha256": "41dc9f2a42dc5005d10e16849974f8fec059e52e090f15b180a4d198d5a01a23"
+        },
+        "genotypes_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018/fresh_american/argformer_american_train_003/generation/observed/genotypes_int8.npy",
+          "sha256": "bc0dc91adf3ead8bf9fc0e2aa6b1860858c2b20e1aedb668833ea1c43991fb15"
+        },
+        "positions_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018/fresh_american/argformer_american_train_003/generation/observed/positions_bp0.npy",
+          "sha256": "fc84616efa19a7e19ca95199ca1f61717fea58f3829b1fead151d341f1967681"
+        },
+        "roster_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018/fresh_american/argformer_american_train_003/inference/observed/roster.json",
+          "sha256": "4d84ca8d566591d3d119b4ea9a0be91d5b5b561e5e1438671327095c655d80cb"
+        },
+        "tree_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018/fresh_american/argformer_american_train_003/inference/observed/tsinfer_tsdate_sanitized.trees",
+          "sha256": "1a1faa74391b30822901c33eae048692908f0bc59565b70f0a60558ffd761295"
+        }
+      },
+      "parent_ordinal": 103,
+      "source_stats": {
+        "alleles_ref": {
+          "bytes": 2276296,
+          "mtime_ns": 1792285721889556856
+        },
+        "genotypes_ref": {
+          "bytes": 363827328,
+          "mtime_ns": 1792285721911555265
+        },
+        "positions_ref": {
+          "bytes": 1819264,
+          "mtime_ns": 1792285717539798985
+        },
+        "roster_ref": {
+          "bytes": 370036,
+          "mtime_ns": 1792286960564374308
+        },
+        "tree_ref": {
+          "bytes": 34765516,
+          "mtime_ns": 1792286960450379835
+        }
+      },
+      "split": "train"
+    },
+    "argformer_american_train_004": {
+      "binding": {
+        "focal_registry_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_004/AM_argformer_american_train_004_focals/native/focals.npz",
+          "sha256": "69519783adaa9735fc90cd63d3490322fc0ab1ad38fdfa5f2abf9e5b6b67d857"
+        },
+        "native_preparation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_004/AM_argformer_american_train_004_focals/native/compact_focal_preparation.json",
+          "sha256": "21656d11a29b0b84f3eaaa4d2dd6fd557ad7397627f343997237a2d1f9d9acda"
+        },
+        "observation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018/fresh_american/argformer_american_train_004/inference/observed/manifest.json",
+          "sha256": "fe0b2455db3682c17dc74f8ef9aa66ec8e0f606da0f0c988875712514d52e5d7"
+        }
+      },
+      "observed_refs": {
+        "alleles_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018/fresh_american/argformer_american_train_004/generation/observed/site_alleles.jsonl",
+          "sha256": "1e8fb03e2f02a852d6d311a3f17891dfb15f5f6daae98b819ae810905af3b72d"
+        },
+        "genotypes_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018/fresh_american/argformer_american_train_004/generation/observed/genotypes_int8.npy",
+          "sha256": "d9e9f78c6616269ebd035b75f47fe0012e2af56776416d96993f71f0fd49374c"
+        },
+        "positions_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018/fresh_american/argformer_american_train_004/generation/observed/positions_bp0.npy",
+          "sha256": "4574b24d1c08e01423c6c9296c897871c472b3e5433758946d205010d1d6fdc0"
+        },
+        "roster_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018/fresh_american/argformer_american_train_004/inference/observed/roster.json",
+          "sha256": "6316795f491bf4365c6b1cb409c796fa5613ca4d7e86620cecdd97bb66ff8ce0"
+        },
+        "tree_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018/fresh_american/argformer_american_train_004/inference/observed/tsinfer_tsdate_sanitized.trees",
+          "sha256": "f4a853e828c35fb1165e442a652072226714acf741602ad31b16cc345d345358"
+        }
+      },
+      "parent_ordinal": 104,
+      "source_stats": {
+        "alleles_ref": {
+          "bytes": 2287772,
+          "mtime_ns": 1792285677188458451
+        },
+        "genotypes_ref": {
+          "bytes": 365676928,
+          "mtime_ns": 1792285677213457563
+        },
+        "positions_ref": {
+          "bytes": 1828512,
+          "mtime_ns": 1792285672583694014
+        },
+        "roster_ref": {
+          "bytes": 370036,
+          "mtime_ns": 1792286936533602335
+        },
+        "tree_ref": {
+          "bytes": 34954268,
+          "mtime_ns": 1792286936431607707
+        }
+      },
+      "split": "train"
+    },
+    "argformer_american_train_005": {
+      "binding": {
+        "focal_registry_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_005/AM_argformer_american_train_005_focals/native/focals.npz",
+          "sha256": "a3e106a28e8d615127130bca318efe5154cbd260cfc1750d9ccd95473cbd916d"
+        },
+        "native_preparation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_005/AM_argformer_american_train_005_focals/native/compact_focal_preparation.json",
+          "sha256": "083125d97a6176c9709bf96499e4a71a30da869c512c19b184b59fd2cba1a1c3"
+        },
+        "observation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018/fresh_american/argformer_american_train_005/inference/observed/manifest.json",
+          "sha256": "236de8279a285d21ff3493bfe51c5ec337f0fddaf64a6d5e1706471ddae0eadf"
+        }
+      },
+      "observed_refs": {
+        "alleles_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018/fresh_american/argformer_american_train_005/generation/observed/site_alleles.jsonl",
+          "sha256": "b6dcc9014ad7a46e1af4279ac119b8d7c73eea932466cd14ab5af1c0f1fd35e3"
+        },
+        "genotypes_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018/fresh_american/argformer_american_train_005/generation/observed/genotypes_int8.npy",
+          "sha256": "f05da7efe04aeb107b3178840586cd585bd4f10d1d14ee5d902e70ae0ebdf46e"
+        },
+        "positions_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018/fresh_american/argformer_american_train_005/generation/observed/positions_bp0.npy",
+          "sha256": "217e2e80a90f794f21eb2816a8739a4d18688039218959e2a34060f1a935138b"
+        },
+        "roster_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018/fresh_american/argformer_american_train_005/inference/observed/roster.json",
+          "sha256": "9697479a3b268c6c194d567fb240f1fc19254014711a05f6111850cb1bbcf25c"
+        },
+        "tree_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018/fresh_american/argformer_american_train_005/inference/observed/tsinfer_tsdate_sanitized.trees",
+          "sha256": "6b3cb1d9835d9c9cd74fcf26019bc13da31f4a19e88e0e52867d7fd935265de3"
+        }
+      },
+      "parent_ordinal": 105,
+      "source_stats": {
+        "alleles_ref": {
+          "bytes": 2276376,
+          "mtime_ns": 1792285643405685042
+        },
+        "genotypes_ref": {
+          "bytes": 363888128,
+          "mtime_ns": 1792285643412684931
+        },
+        "positions_ref": {
+          "bytes": 1819568,
+          "mtime_ns": 1792285638752422402
+        },
+        "roster_ref": {
+          "bytes": 370036,
+          "mtime_ns": 1792286889243519395
+        },
+        "tree_ref": {
+          "bytes": 34961260,
+          "mtime_ns": 1792286889138524934
+        }
+      },
+      "split": "train"
+    },
+    "argformer_american_train_006": {
+      "binding": {
+        "focal_registry_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_006/AM_argformer_american_train_006_focals/native/focals.npz",
+          "sha256": "ed65c0e9c5589ef5db05c774c335f8f7749599374b1ae04e9ce68bae035d70ca"
+        },
+        "native_preparation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_006/AM_argformer_american_train_006_focals/native/compact_focal_preparation.json",
+          "sha256": "d998d94e3cae3ba4591e48033ce8c8fa3ac41a40a1a6d1046185b0211438575b"
+        },
+        "observation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_006/AM_argformer_american_train_006_inference/native/observed/manifest.json",
+          "sha256": "22664530de28df4bfa1dfb05c92b97e71ee8c59123a991f1e2210f953dd1569b"
+        }
+      },
+      "observed_refs": {
+        "alleles_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_006/AM_argformer_american_train_006_generation/native/observed/site_alleles.jsonl",
+          "sha256": "e1e235445af1da71299083bcf78f5f8588299bcbed0aca3a46e5ad8f2c129eb4"
+        },
+        "genotypes_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_006/AM_argformer_american_train_006_generation/native/observed/genotypes_int8.npy",
+          "sha256": "7e4edfc59bdac73192b8dd68f9d3a7c292635c0e91668a45cf9da8836f21afb5"
+        },
+        "positions_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_006/AM_argformer_american_train_006_generation/native/observed/positions_bp0.npy",
+          "sha256": "f5db579445c54fe4411342600bbc540a0990749b5db092b3f950a971f7d4e777"
+        },
+        "roster_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_006/AM_argformer_american_train_006_inference/native/observed/roster.json",
+          "sha256": "b5a209a046cfaf8940a0edd9f85c23f0f987a6c0defcafa5dd88c51b619b0021"
+        },
+        "tree_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_006/AM_argformer_american_train_006_inference/native/observed/tsinfer_tsdate_sanitized.trees",
+          "sha256": "f03f721be0a65bec4e5be76368eb2cf72817b99c19da1db91e1489568228cd89"
+        }
+      },
+      "parent_ordinal": 106,
+      "source_stats": {
+        "alleles_ref": {
+          "bytes": 2282316,
+          "mtime_ns": 1792301665363597478
+        },
+        "genotypes_ref": {
+          "bytes": 364800128,
+          "mtime_ns": 1792301665535587243
+        },
+        "positions_ref": {
+          "bytes": 1824128,
+          "mtime_ns": 1792301661094838795
+        },
+        "roster_ref": {
+          "bytes": 370036,
+          "mtime_ns": 1792302873393282826
+        },
+        "tree_ref": {
+          "bytes": 34959388,
+          "mtime_ns": 1792302873292288577
+        }
+      },
+      "split": "train"
+    },
+    "argformer_american_train_007": {
+      "binding": {
+        "focal_registry_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_007/AM_argformer_american_train_007_focals/native/focals.npz",
+          "sha256": "7b407e340f363780559db07befc8363055f44090f93224f2da7a974a3c42a71b"
+        },
+        "native_preparation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_007/AM_argformer_american_train_007_focals/native/compact_focal_preparation.json",
+          "sha256": "3eb1fc7d9556e9c7fcdff8dc22e423c6b448caed0bd3fb9eb967d468cbf9ed2a"
+        },
+        "observation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_007/AM_argformer_american_train_007_inference/native/observed/manifest.json",
+          "sha256": "9b7489ba8e06ee0aca47c45e13d6b340d02984d987ea870b18e1d332a0200418"
+        }
+      },
+      "observed_refs": {
+        "alleles_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_007/AM_argformer_american_train_007_generation/native/observed/site_alleles.jsonl",
+          "sha256": "02e9a7acb3c63851d968bb3e69f484f3e439bd313cc36e981b622e0ded2d8c89"
+        },
+        "genotypes_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_007/AM_argformer_american_train_007_generation/native/observed/genotypes_int8.npy",
+          "sha256": "65d537fa87acfb738963bc00c72eba942f72520e9ecd262f1b88e2b04386e553"
+        },
+        "positions_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_007/AM_argformer_american_train_007_generation/native/observed/positions_bp0.npy",
+          "sha256": "583f14fbd070bd372919018d1e7e8746092d22f4c33bc5f769f07acc1d1e5084"
+        },
+        "roster_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_007/AM_argformer_american_train_007_inference/native/observed/roster.json",
+          "sha256": "248f180eab897b90892b1e0acc31094f6a8c86cd0e14631aadb7df37c65dd42b"
+        },
+        "tree_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_007/AM_argformer_american_train_007_inference/native/observed/tsinfer_tsdate_sanitized.trees",
+          "sha256": "81eb979ae84e62d779d455f553e07d739a3922ef30d281f72fe7f43df92e572b"
+        }
+      },
+      "parent_ordinal": 107,
+      "source_stats": {
+        "alleles_ref": {
+          "bytes": 2278396,
+          "mtime_ns": 1792301786915722008
+        },
+        "genotypes_ref": {
+          "bytes": 364160128,
+          "mtime_ns": 1792301786934721012
+        },
+        "positions_ref": {
+          "bytes": 1820928,
+          "mtime_ns": 1792301782445474856
+        },
+        "roster_ref": {
+          "bytes": 370036,
+          "mtime_ns": 1792302954698319633
+        },
+        "tree_ref": {
+          "bytes": 34769556,
+          "mtime_ns": 1792302954598324673
+        }
+      },
+      "split": "train"
+    },
+    "argformer_american_train_008": {
+      "binding": {
+        "focal_registry_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_008/AM_argformer_american_train_008_focals/native/focals.npz",
+          "sha256": "ead69cb8af131ce1d4376528856e60d9500c2560361e61d3b4fa417500282a8d"
+        },
+        "native_preparation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_008/AM_argformer_american_train_008_focals/native/compact_focal_preparation.json",
+          "sha256": "fae4605f3a8d5a3fac046b11eb12a2403268ec53c396eca7724c7889c5e16bb3"
+        },
+        "observation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_008/AM_argformer_american_train_008_inference/native/observed/manifest.json",
+          "sha256": "499b0d2463a10a19b06b51039052295f445ace580774035f0efac91ec14b26a6"
+        }
+      },
+      "observed_refs": {
+        "alleles_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_008/AM_argformer_american_train_008_generation/native/observed/site_alleles.jsonl",
+          "sha256": "90d2ad1578992fd15268cbe39100191170eabeccebd6b2110cbeec15fff5f22c"
+        },
+        "genotypes_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_008/AM_argformer_american_train_008_generation/native/observed/genotypes_int8.npy",
+          "sha256": "cf5260c2a9ab4c07094aa107182ffe59e6752f30906311031bd40e455767f7eb"
+        },
+        "positions_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_008/AM_argformer_american_train_008_generation/native/observed/positions_bp0.npy",
+          "sha256": "bc835d3f89cc251b71a7ae0973c935910dabb54fdb62ab5a908bd1a4517e4f16"
+        },
+        "roster_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_008/AM_argformer_american_train_008_inference/native/observed/roster.json",
+          "sha256": "f007c9a61499acaae313840cd0ac0487cc1ea3b10a70fc32626bfed5f1550840"
+        },
+        "tree_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_008/AM_argformer_american_train_008_inference/native/observed/tsinfer_tsdate_sanitized.trees",
+          "sha256": "1982a4b67c62af587c7c829adb9a1a1c81e192dffedea0da1babeae1446cd6b9"
+        }
+      },
+      "parent_ordinal": 108,
+      "source_stats": {
+        "alleles_ref": {
+          "bytes": 2273478,
+          "mtime_ns": 1792301819216394806
+        },
+        "genotypes_ref": {
+          "bytes": 363364928,
+          "mtime_ns": 1792301819277391515
+        },
+        "positions_ref": {
+          "bytes": 1816952,
+          "mtime_ns": 1792301814933637136
+        },
+        "roster_ref": {
+          "bytes": 370036,
+          "mtime_ns": 1792302980752714185
+        },
+        "tree_ref": {
+          "bytes": 34634204,
+          "mtime_ns": 1792302980654719404
+        }
+      },
+      "split": "train"
+    },
+    "argformer_american_train_009": {
+      "binding": {
+        "focal_registry_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_009/AM_argformer_american_train_009_focals/native/focals.npz",
+          "sha256": "ba38ca485dcb647bc62cdfe8bf1f8cdda93e39c6040b43648768a9488e13ad64"
+        },
+        "native_preparation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_009/AM_argformer_american_train_009_focals/native/compact_focal_preparation.json",
+          "sha256": "46802edb3900c47a8d1b59dd84167534f98fb75c8d7b264e4214d08a2747328c"
+        },
+        "observation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_009/AM_argformer_american_train_009_inference/native/observed/manifest.json",
+          "sha256": "d75b21b0ea6ad92b9e916f93a39e3364bd800f45f09ea6cfdc2383957cb28bcd"
+        }
+      },
+      "observed_refs": {
+        "alleles_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_009/AM_argformer_american_train_009_generation/native/observed/site_alleles.jsonl",
+          "sha256": "85d8053d402c0f85b53af31307f32a8852f909e9d73583a0a85e6f1be324ce0e"
+        },
+        "genotypes_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_009/AM_argformer_american_train_009_generation/native/observed/genotypes_int8.npy",
+          "sha256": "859b13d27e6d18f843e999626bf1fe0d35dcdfb2eff856b642411924d774fc04"
+        },
+        "positions_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_009/AM_argformer_american_train_009_generation/native/observed/positions_bp0.npy",
+          "sha256": "1f5897bdd9b81f4fa05b8a5c36ab0ae8f10b303072a946fc217142aa29b7abcc"
+        },
+        "roster_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_009/AM_argformer_american_train_009_inference/native/observed/roster.json",
+          "sha256": "9ed95356f57ecef3afb52b3262f641c02e235c0af7a067d8b5de25b262279645"
+        },
+        "tree_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_009/AM_argformer_american_train_009_inference/native/observed/tsinfer_tsdate_sanitized.trees",
+          "sha256": "4cb6315e07b24a786dc807139367657558f4fbbffd241d120ee3818a396cbb50"
+        }
+      },
+      "parent_ordinal": 109,
+      "source_stats": {
+        "alleles_ref": {
+          "bytes": 2267792,
+          "mtime_ns": 1792301760113737672
+        },
+        "genotypes_ref": {
+          "bytes": 362486528,
+          "mtime_ns": 1792301760222731951
+        },
+        "positions_ref": {
+          "bytes": 1812560,
+          "mtime_ns": 1792301756049467742
+        },
+        "roster_ref": {
+          "bytes": 370036,
+          "mtime_ns": 1792302946578645496
+        },
+        "tree_ref": {
+          "bytes": 34689388,
+          "mtime_ns": 1792302946476651612
+        }
+      },
+      "split": "train"
+    },
+    "argformer_american_train_010": {
+      "binding": {
+        "focal_registry_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_010/AM_argformer_american_train_010_focals/native/focals.npz",
+          "sha256": "e2ec4656f82b1cd13015d267afbe3eaf6fdbd452bd5cc158b840e0846c749350"
+        },
+        "native_preparation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_010/AM_argformer_american_train_010_focals/native/compact_focal_preparation.json",
+          "sha256": "06c66a7b025b1282674db25f8a97052c7b16abec8eea103a0f2fdea487443010"
+        },
+        "observation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_010/AM_argformer_american_train_010_inference/native/observed/manifest.json",
+          "sha256": "c91a10a4c44e8e1a13d13e54b4826677a2846a612ff2cdf17550fdbcd5e37b26"
+        }
+      },
+      "observed_refs": {
+        "alleles_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_010/AM_argformer_american_train_010_generation/native/observed/site_alleles.jsonl",
+          "sha256": "74926150595430e4aa8a2dc8532b55cd5ef8c27c474d40cd119a17ae96139e2f"
+        },
+        "genotypes_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_010/AM_argformer_american_train_010_generation/native/observed/genotypes_int8.npy",
+          "sha256": "ba97d31c9c5c710e693a1bf267e6318fd8e49a00f6111b80592d854eb3013906"
+        },
+        "positions_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_010/AM_argformer_american_train_010_generation/native/observed/positions_bp0.npy",
+          "sha256": "086d719e9dd2e9e855e6dc0d847e42656e4183bb1bb94d36cbe61e4b9f5e3855"
+        },
+        "roster_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_010/AM_argformer_american_train_010_inference/native/observed/roster.json",
+          "sha256": "1ee28ffcfce343e1df403bf3a33118f2938c97f83d4f4b9bf05b9b6daed65c16"
+        },
+        "tree_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_010/AM_argformer_american_train_010_inference/native/observed/tsinfer_tsdate_sanitized.trees",
+          "sha256": "dea0809177f2d1d7a47732dc8d6d9f7afa9c2e4fcfc3ca9a66f5ac65a55e8d9d"
+        }
+      },
+      "parent_ordinal": 110,
+      "source_stats": {
+        "alleles_ref": {
+          "bytes": 2280432,
+          "mtime_ns": 1792301883070783529
+        },
+        "genotypes_ref": {
+          "bytes": 364508928,
+          "mtime_ns": 1792301883162778122
+        },
+        "positions_ref": {
+          "bytes": 1822672,
+          "mtime_ns": 1792301878250555787
+        },
+        "roster_ref": {
+          "bytes": 370036,
+          "mtime_ns": 1792303041794316973
+        },
+        "tree_ref": {
+          "bytes": 34797420,
+          "mtime_ns": 1792303041678322939
+        }
+      },
+      "split": "train"
+    },
+    "argformer_american_train_011": {
+      "binding": {
+        "focal_registry_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_011/AM_argformer_american_train_011_focals/native/focals.npz",
+          "sha256": "1d658fd53361535629536571c2a8462d6dfd2bcb046217dcc0dd8cdb5cf82266"
+        },
+        "native_preparation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_011/AM_argformer_american_train_011_focals/native/compact_focal_preparation.json",
+          "sha256": "e0b7f058fa9a6acf74a422348f39a7c55ca5b11b004807f38cea80b7c0e431b3"
+        },
+        "observation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_011/AM_argformer_american_train_011_inference/native/observed/manifest.json",
+          "sha256": "bab668780443763d371134ff81cb532098742407afc7beefeec51303ac72668b"
+        }
+      },
+      "observed_refs": {
+        "alleles_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_011/AM_argformer_american_train_011_generation/native/observed/site_alleles.jsonl",
+          "sha256": "a11255301b85785bf60bc123cf200c40349789d558f418b6d2e48df9f3e2b38b"
+        },
+        "genotypes_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_011/AM_argformer_american_train_011_generation/native/observed/genotypes_int8.npy",
+          "sha256": "96d848f2dd536e6f9185e655277cf5ec2ebffbb8000383cae0819d763ea3d8b1"
+        },
+        "positions_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_011/AM_argformer_american_train_011_generation/native/observed/positions_bp0.npy",
+          "sha256": "e6fd59b33a0d0170e6584a0e74c8baa66d53d2feeef223bb307aab13e527cdd5"
+        },
+        "roster_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_011/AM_argformer_american_train_011_inference/native/observed/roster.json",
+          "sha256": "33bb54168e4b4a56dd906b10616c89b462060e0df2f79afb08220d194c43d0e1"
+        },
+        "tree_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_011/AM_argformer_american_train_011_inference/native/observed/tsinfer_tsdate_sanitized.trees",
+          "sha256": "82c36a0497225121c1cc6a2cb26896883d7ca367e6bfafc49cb77651a7dadc7f"
+        }
+      },
+      "parent_ordinal": 111,
+      "source_stats": {
+        "alleles_ref": {
+          "bytes": 2263840,
+          "mtime_ns": 1792301892318719966
+        },
+        "genotypes_ref": {
+          "bytes": 361852928,
+          "mtime_ns": 1792301892330718838
+        },
+        "positions_ref": {
+          "bytes": 1809392,
+          "mtime_ns": 1792301887901447648
+        },
+        "roster_ref": {
+          "bytes": 370036,
+          "mtime_ns": 1792303026066629796
+        },
+        "tree_ref": {
+          "bytes": 34718668,
+          "mtime_ns": 1792303025955635524
+        }
+      },
+      "split": "train"
+    },
+    "argformer_american_train_012": {
+      "binding": {
+        "focal_registry_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_012/AM_argformer_american_train_012_focals/native/focals.npz",
+          "sha256": "151d8ee4d989d3782d0609318a29aa8bf6b58a5e9ba91b07471f825d4cea11bf"
+        },
+        "native_preparation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_012/AM_argformer_american_train_012_focals/native/compact_focal_preparation.json",
+          "sha256": "e8326235c2c64b911a8d955b2bff07c5d079081323a11b249122cefefbbf9cd8"
+        },
+        "observation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_012/AM_argformer_american_train_012_inference/native/observed/manifest.json",
+          "sha256": "a0e8ad4d9362db622240d9943cfaa2ba63498c926bb23a1037108ff2e9cf2ff5"
+        }
+      },
+      "observed_refs": {
+        "alleles_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_012/AM_argformer_american_train_012_generation/native/observed/site_alleles.jsonl",
+          "sha256": "9fab78f810c39deb43d76e83dded1e2f5a8a5900c7dcae305517b7b140328c44"
+        },
+        "genotypes_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_012/AM_argformer_american_train_012_generation/native/observed/genotypes_int8.npy",
+          "sha256": "a03f2c675118256114684262e5c4ede0df61f2d788fcf9a40ace316053783cdd"
+        },
+        "positions_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_012/AM_argformer_american_train_012_generation/native/observed/positions_bp0.npy",
+          "sha256": "22415553dfa25f79c25f5816a23bf189ee3f5df0998fcb32e1ec1a8916e1669f"
+        },
+        "roster_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_012/AM_argformer_american_train_012_inference/native/observed/roster.json",
+          "sha256": "96d79161ab6d51c5c08a0844689bdb32688ed1bd784fc308def056b0e6be93b1"
+        },
+        "tree_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_012/AM_argformer_american_train_012_inference/native/observed/tsinfer_tsdate_sanitized.trees",
+          "sha256": "66939745a75c21c4853df2ad491d37837251823527bc951d39849d87ba1de8cd"
+        }
+      },
+      "parent_ordinal": 112,
+      "source_stats": {
+        "alleles_ref": {
+          "bytes": 2278160,
+          "mtime_ns": 1792305641433428835
+        },
+        "genotypes_ref": {
+          "bytes": 364153728,
+          "mtime_ns": 1792305641592420508
+        },
+        "positions_ref": {
+          "bytes": 1820896,
+          "mtime_ns": 1792305637231146247
+        },
+        "roster_ref": {
+          "bytes": 370036,
+          "mtime_ns": 1792306801447418019
+        },
+        "tree_ref": {
+          "bytes": 34972820,
+          "mtime_ns": 1792306801335423502
+        }
+      },
+      "split": "train"
+    },
+    "argformer_american_train_013": {
+      "binding": {
+        "focal_registry_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_013/AM_argformer_american_train_013_focals/native/focals.npz",
+          "sha256": "46ce1379cfddfb060ccc51fc5944b7730150780175b7d9d0cca1c714c15b286a"
+        },
+        "native_preparation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_013/AM_argformer_american_train_013_focals/native/compact_focal_preparation.json",
+          "sha256": "a2d900237ec5188b3db603936c4bff2817c388fa37293e9e9af2cad575386c59"
+        },
+        "observation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_013/AM_argformer_american_train_013_inference/native/observed/manifest.json",
+          "sha256": "cbbf7c45eb2f879dca006191baa3df074dbb1c937aaa9f3251177901f662b0e4"
+        }
+      },
+      "observed_refs": {
+        "alleles_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_013/AM_argformer_american_train_013_generation/native/observed/site_alleles.jsonl",
+          "sha256": "6620995f4ce40e3ac04d97832139bcda8b2f70993191e105d4e026fbf8e3efff"
+        },
+        "genotypes_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_013/AM_argformer_american_train_013_generation/native/observed/genotypes_int8.npy",
+          "sha256": "4925b2864233fed38ad298cfef0680ffe593babe51707d79ae2f34fcf1b40a29"
+        },
+        "positions_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_013/AM_argformer_american_train_013_generation/native/observed/positions_bp0.npy",
+          "sha256": "0448a2de835feef6987e1d35dc353f6471a4a4f6c6cf171216414f859c7008d6"
+        },
+        "roster_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_013/AM_argformer_american_train_013_inference/native/observed/roster.json",
+          "sha256": "5737567bc5fc8ac35dcfcd0e7b5003c3a5844bf3d37814bc0b3c32743ffd75b3"
+        },
+        "tree_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_013/AM_argformer_american_train_013_inference/native/observed/tsinfer_tsdate_sanitized.trees",
+          "sha256": "540386ecd14de336aad7b068e38136d23a2d2169a0102f53ec5b6001f91defde"
+        }
+      },
+      "parent_ordinal": 113,
+      "source_stats": {
+        "alleles_ref": {
+          "bytes": 2268110,
+          "mtime_ns": 1792305698606340412
+        },
+        "genotypes_ref": {
+          "bytes": 362545728,
+          "mtime_ns": 1792305698626339165
+        },
+        "positions_ref": {
+          "bytes": 1812856,
+          "mtime_ns": 1792305694031097818
+        },
+        "roster_ref": {
+          "bytes": 370036,
+          "mtime_ns": 1792306865700179318
+        },
+        "tree_ref": {
+          "bytes": 34580796,
+          "mtime_ns": 1792306865571186307
+        }
+      },
+      "split": "train"
+    },
+    "argformer_american_train_014": {
+      "binding": {
+        "focal_registry_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_014/AM_argformer_american_train_014_focals/native/focals.npz",
+          "sha256": "acb12847486dcde2491e46748f2127c64f44dae153550196c7934d968ccb0a32"
+        },
+        "native_preparation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_014/AM_argformer_american_train_014_focals/native/compact_focal_preparation.json",
+          "sha256": "d3495aa550e3009d18d6725d1adf815824adc4c6360dc4769cdc4ffa3dd8f962"
+        },
+        "observation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_014/AM_argformer_american_train_014_inference/native/observed/manifest.json",
+          "sha256": "fe6926335e498c8608853bbd080a96bac73d8ef40b22f0adff546a5bc40053f3"
+        }
+      },
+      "observed_refs": {
+        "alleles_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_014/AM_argformer_american_train_014_generation/native/observed/site_alleles.jsonl",
+          "sha256": "89e0707e9431687349da0d8519c9e30a639551fa71498aea26d8e369ce49449f"
+        },
+        "genotypes_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_014/AM_argformer_american_train_014_generation/native/observed/genotypes_int8.npy",
+          "sha256": "fb87dccfda5a743d079c2818e0b2475f9ffb8617423002a840e2b71d50935bd2"
+        },
+        "positions_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_014/AM_argformer_american_train_014_generation/native/observed/positions_bp0.npy",
+          "sha256": "691b0c5cacceb37f73e4bbd1d7b7196cff6be475bdc278257fabd50ee334e888"
+        },
+        "roster_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_014/AM_argformer_american_train_014_inference/native/observed/roster.json",
+          "sha256": "cbf1214fa6ddfdaa3e6494142bac69ef7337778ccb2c5079486368dfa7b3ec82"
+        },
+        "tree_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_014/AM_argformer_american_train_014_inference/native/observed/tsinfer_tsdate_sanitized.trees",
+          "sha256": "3836546f4137a66e4ca7201a5cfaedcbdc4772962bd148a13b24aafdea90abc3"
+        }
+      },
+      "parent_ordinal": 114,
+      "source_stats": {
+        "alleles_ref": {
+          "bytes": 2289316,
+          "mtime_ns": 1792305793021524830
+        },
+        "genotypes_ref": {
+          "bytes": 365923328,
+          "mtime_ns": 1792305793063522297
+        },
+        "positions_ref": {
+          "bytes": 1829744,
+          "mtime_ns": 1792305788562275579
+        },
+        "roster_ref": {
+          "bytes": 370036,
+          "mtime_ns": 1792306943001341282
+        },
+        "tree_ref": {
+          "bytes": 35138364,
+          "mtime_ns": 1792306942893347165
+        }
+      },
+      "split": "train"
+    },
+    "argformer_american_train_015": {
+      "binding": {
+        "focal_registry_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_015/AM_argformer_american_train_015_focals/native/focals.npz",
+          "sha256": "2f7f10e1ffe08280cda2008363b476b95eca7a81a4f2d61cecab0d404e1d3b09"
+        },
+        "native_preparation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_015/AM_argformer_american_train_015_focals/native/compact_focal_preparation.json",
+          "sha256": "382eb3bb7691e888ecbd4a4ca05405c88149a8406acbc3deebcd87e0978d36c1"
+        },
+        "observation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_015/AM_argformer_american_train_015_inference/native/observed/manifest.json",
+          "sha256": "b82f64ad4e190658cad6ed73405d6daf6c42bdaa17c15bb1392b57b0e9d2c528"
+        }
+      },
+      "observed_refs": {
+        "alleles_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_015/AM_argformer_american_train_015_generation/native/observed/site_alleles.jsonl",
+          "sha256": "cc59a4526101393945d2eeed98294149c9f7d75225e3e048cfb5d34b83e35ed3"
+        },
+        "genotypes_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_015/AM_argformer_american_train_015_generation/native/observed/genotypes_int8.npy",
+          "sha256": "b797815928da4a989cf532899be03dffb416433f31b772486cad014fea9047c1"
+        },
+        "positions_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_015/AM_argformer_american_train_015_generation/native/observed/positions_bp0.npy",
+          "sha256": "049e537c137dd0481cbcd16b6b50c3ed1a4fcc263730c698843f00d91ac88fec"
+        },
+        "roster_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_015/AM_argformer_american_train_015_inference/native/observed/roster.json",
+          "sha256": "21c0f483f38650a1a9c4fac5661b563d20118308c04f4509d7354a3fbda5caa7"
+        },
+        "tree_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_015/AM_argformer_american_train_015_inference/native/observed/tsinfer_tsdate_sanitized.trees",
+          "sha256": "05267c99e7c496f45ae6fa352b4e6aadba5fe09460fccd32f559d60f2451e3bb"
+        }
+      },
+      "parent_ordinal": 115,
+      "source_stats": {
+        "alleles_ref": {
+          "bytes": 2286612,
+          "mtime_ns": 1792305773672085751
+        },
+        "genotypes_ref": {
+          "bytes": 365488128,
+          "mtime_ns": 1792305773696084497
+        },
+        "positions_ref": {
+          "bytes": 1827568,
+          "mtime_ns": 1792305769287312428
+        },
+        "roster_ref": {
+          "bytes": 370036,
+          "mtime_ns": 1792306925623996248
+        },
+        "tree_ref": {
+          "bytes": 35033380,
+          "mtime_ns": 1792306925500002871
+        }
+      },
+      "split": "train"
+    },
+    "argformer_american_train_016": {
+      "binding": {
+        "focal_registry_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_016/AM_argformer_american_train_016_focals/native/focals.npz",
+          "sha256": "30fd87b7d18ead75261f99114fe0a990484707c5a4f2b6c87e138d7c4cc80b20"
+        },
+        "native_preparation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_016/AM_argformer_american_train_016_focals/native/compact_focal_preparation.json",
+          "sha256": "ef1d0a344760947f178a40f8f10f72d7db35683b34e5410a4ac1edf924f17bb7"
+        },
+        "observation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_016/AM_argformer_american_train_016_inference/native/observed/manifest.json",
+          "sha256": "b90bc344960019f646d0140fe16f90672021aa5942f28ae29511717f9a85c15a"
+        }
+      },
+      "observed_refs": {
+        "alleles_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_016/AM_argformer_american_train_016_generation/native/observed/site_alleles.jsonl",
+          "sha256": "88b821dc9f31e4b36ed983dd55277e9f03068a66957e47555847173fb62308ad"
+        },
+        "genotypes_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_016/AM_argformer_american_train_016_generation/native/observed/genotypes_int8.npy",
+          "sha256": "543526eb3dddc721ddec763bce89ed4ec6fb2705ba8940e7a006aa8a352955eb"
+        },
+        "positions_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_016/AM_argformer_american_train_016_generation/native/observed/positions_bp0.npy",
+          "sha256": "aaa6baf69cf45b950ae68fa1a364606081cc35737bcbca6a8ac96ee5d877dd66"
+        },
+        "roster_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_016/AM_argformer_american_train_016_inference/native/observed/roster.json",
+          "sha256": "da2b5f9b61de7d57a0f971cddae8d4405183fdf79335bd9276054474c5d41d3a"
+        },
+        "tree_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_016/AM_argformer_american_train_016_inference/native/observed/tsinfer_tsdate_sanitized.trees",
+          "sha256": "ae50ce1058a4e52d5b278beb5adbc6890d062467ac124492804a91deeca036f2"
+        }
+      },
+      "parent_ordinal": 116,
+      "source_stats": {
+        "alleles_ref": {
+          "bytes": 2288948,
+          "mtime_ns": 1792305988984491126
+        },
+        "genotypes_ref": {
+          "bytes": 365840128,
+          "mtime_ns": 1792305989156481565
+        },
+        "positions_ref": {
+          "bytes": 1829328,
+          "mtime_ns": 1792305984520241969
+        },
+        "roster_ref": {
+          "bytes": 370036,
+          "mtime_ns": 1792307115451179501
+        },
+        "tree_ref": {
+          "bytes": 34979524,
+          "mtime_ns": 1792307115334185085
+        }
+      },
+      "split": "train"
+    },
+    "argformer_american_train_017": {
+      "binding": {
+        "focal_registry_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_017/AM_argformer_american_train_017_focals/native/focals.npz",
+          "sha256": "69f8bc616cbcd56b5dcf7dc348a81068203d466f066f2919c5ce02839dd08ea2"
+        },
+        "native_preparation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_017/AM_argformer_american_train_017_focals/native/compact_focal_preparation.json",
+          "sha256": "56140ffb0a2c0e8b2d359eb83ff327f9e138753a7d3587abf3b62403d1357cb4"
+        },
+        "observation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_017/AM_argformer_american_train_017_inference/native/observed/manifest.json",
+          "sha256": "c3907153e71edf16fb95ba0cd465366f1c5bb2f844b9086be74ebd1d2cb48241"
+        }
+      },
+      "observed_refs": {
+        "alleles_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_017/AM_argformer_american_train_017_generation/native/observed/site_alleles.jsonl",
+          "sha256": "1c5dc3e179aae066253f3997bb3f9c24b8943497383137aa558c7fc5b405c5c6"
+        },
+        "genotypes_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_017/AM_argformer_american_train_017_generation/native/observed/genotypes_int8.npy",
+          "sha256": "553ddbfc47d5bdd74e4553c20746c0e68850aa9562d18a8bfaff7ce61d5fd4a8"
+        },
+        "positions_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_017/AM_argformer_american_train_017_generation/native/observed/positions_bp0.npy",
+          "sha256": "037408ad7c5b8996e7b932e0604705a8d1ff88eca2952b3e3a2a2c99e8bafb7c"
+        },
+        "roster_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_017/AM_argformer_american_train_017_inference/native/observed/roster.json",
+          "sha256": "734aed66e160f9443d3194055ae48a798d694fdc82de4b774d005cdc54f8c459"
+        },
+        "tree_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_017/AM_argformer_american_train_017_inference/native/observed/tsinfer_tsdate_sanitized.trees",
+          "sha256": "099e527327c6b537ad11836c9c3fe904bb0cc526d7ecf5738591e4e1bce904c8"
+        }
+      },
+      "parent_ordinal": 117,
+      "source_stats": {
+        "alleles_ref": {
+          "bytes": 2282270,
+          "mtime_ns": 1792305914036210947
+        },
+        "genotypes_ref": {
+          "bytes": 364798528,
+          "mtime_ns": 1792305914178202786
+        },
+        "positions_ref": {
+          "bytes": 1824120,
+          "mtime_ns": 1792305909244481642
+        },
+        "roster_ref": {
+          "bytes": 370036,
+          "mtime_ns": 1792307037760196985
+        },
+        "tree_ref": {
+          "bytes": 34782084,
+          "mtime_ns": 1792307037657202256
+        }
+      },
+      "split": "train"
+    },
+    "argformer_american_train_018": {
+      "binding": {
+        "focal_registry_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_018/AM_argformer_american_train_018_focals/native/focals.npz",
+          "sha256": "c96d5abc9fbb6e9041f12b1551f6274b9059fa9d041a2406909dd549be6c5917"
+        },
+        "native_preparation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_018/AM_argformer_american_train_018_focals/native/compact_focal_preparation.json",
+          "sha256": "94768162b90dd403e13497803e689f34397b86cb30975c000912d238b33d5b01"
+        },
+        "observation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_018/AM_argformer_american_train_018_inference/native/observed/manifest.json",
+          "sha256": "053ec46d18a84b2c3916763ebbbf4dd7c526ea59d103e22fc5ebed039bbdd824"
+        }
+      },
+      "observed_refs": {
+        "alleles_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_018/AM_argformer_american_train_018_generation/native/observed/site_alleles.jsonl",
+          "sha256": "5b4290ec02cf94733cc373b784f0bb3cdccc9aae85b9dc5793435ded05b77666"
+        },
+        "genotypes_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_018/AM_argformer_american_train_018_generation/native/observed/genotypes_int8.npy",
+          "sha256": "858d0ec93c99223d641ceef49b29247dccb0a06e0d9fe53e681efcdadf42f1f7"
+        },
+        "positions_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_018/AM_argformer_american_train_018_generation/native/observed/positions_bp0.npy",
+          "sha256": "20d74ed27bd64e7bff373f3404fd2239da44767cfce0e9f5c0caf05eac38c33b"
+        },
+        "roster_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_018/AM_argformer_american_train_018_inference/native/observed/roster.json",
+          "sha256": "3656af2ec668e982de996002734771a7294aea99516f76c4b56de0603afae587"
+        },
+        "tree_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_018/AM_argformer_american_train_018_inference/native/observed/tsinfer_tsdate_sanitized.trees",
+          "sha256": "e5742d4bd10bbf1357045ae5d7dd1b59de33560ffc354b8d94b6791c9892426d"
+        }
+      },
+      "parent_ordinal": 118,
+      "source_stats": {
+        "alleles_ref": {
+          "bytes": 2283212,
+          "mtime_ns": 1792306050818509519
+        },
+        "genotypes_ref": {
+          "bytes": 364953728,
+          "mtime_ns": 1792306050971500708
+        },
+        "positions_ref": {
+          "bytes": 1824896,
+          "mtime_ns": 1792306045953283043
+        },
+        "roster_ref": {
+          "bytes": 370036,
+          "mtime_ns": 1792307589502164311
+        },
+        "tree_ref": {
+          "bytes": 34888332,
+          "mtime_ns": 1792307589392169853
+        }
+      },
+      "split": "train"
+    },
+    "argformer_american_train_019": {
+      "binding": {
+        "focal_registry_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_019/AM_argformer_american_train_019_focals/native/focals.npz",
+          "sha256": "5b03cd2b0c37f1767e3d94837e5b0665db97a27432df157fc627beb41ed4fc32"
+        },
+        "native_preparation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_019/AM_argformer_american_train_019_focals/native/compact_focal_preparation.json",
+          "sha256": "beb0b81373b51ef57dfdde540076035f53e22fbe977fa560cdd2afc420b67857"
+        },
+        "observation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_019/AM_argformer_american_train_019_inference/native/observed/manifest.json",
+          "sha256": "16b16163a89ec7a4647ea6b5fe38265562a1f414dabb577c7c39733cdaf5d9fd"
+        }
+      },
+      "observed_refs": {
+        "alleles_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_019/AM_argformer_american_train_019_generation/native/observed/site_alleles.jsonl",
+          "sha256": "0ba3b4f455e77730376158b391e198b557d6b638dfd76c53fe522ac5d2ef03c2"
+        },
+        "genotypes_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_019/AM_argformer_american_train_019_generation/native/observed/genotypes_int8.npy",
+          "sha256": "26b0c7fb98d99469864ac887a59d16789dd8984fafe1a03ec190f67199c3bc71"
+        },
+        "positions_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_019/AM_argformer_american_train_019_generation/native/observed/positions_bp0.npy",
+          "sha256": "e302be9b6d1176395e12cdfaecf2790baaac6c2d30e91e9562f89f4de0b97cf2"
+        },
+        "roster_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_019/AM_argformer_american_train_019_inference/native/observed/roster.json",
+          "sha256": "b59c3be655552d39c32aa4560604d893cebf2668cf4d02fede0fb13c77e61e4f"
+        },
+        "tree_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_train_019/AM_argformer_american_train_019_inference/native/observed/tsinfer_tsdate_sanitized.trees",
+          "sha256": "fe3d56e9b7bcdec643bc91aa4edf9dcf5a062f322edb8686f9c3d34ba7476283"
+        }
+      },
+      "parent_ordinal": 119,
+      "source_stats": {
+        "alleles_ref": {
+          "bytes": 2285736,
+          "mtime_ns": 1792309595574946750
+        },
+        "genotypes_ref": {
+          "bytes": 365356928,
+          "mtime_ns": 1792309595643942657
+        },
+        "positions_ref": {
+          "bytes": 1826912,
+          "mtime_ns": 1792309591309185688
+        },
+        "roster_ref": {
+          "bytes": 370036,
+          "mtime_ns": 1792310702230955591
+        },
+        "tree_ref": {
+          "bytes": 34936356,
+          "mtime_ns": 1792310702105962032
+        }
+      },
+      "split": "train"
+    },
+    "argformer_american_validation_000": {
+      "binding": {
+        "focal_registry_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_validation_000/AM_argformer_american_validation_000_focals/native/focals.npz",
+          "sha256": "0854f5cbf5deb5b8bf7b54966fe280f927c9abde81b3ddbb588a5e98069512a8"
+        },
+        "native_preparation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_validation_000/AM_argformer_american_validation_000_focals/native/compact_focal_preparation.json",
+          "sha256": "9d9e98bbdd3d6c33d4afa9a8e0239ac2b81fbd6b0ef9ba25e991fb1a7a8ef5b5"
+        },
+        "observation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_validation_000/AM_argformer_american_validation_000_inference/native/observed/manifest.json",
+          "sha256": "0bbb02bafacc9be9803c7502207461c12ed44f105d8709cb6ea4e1e4b800938b"
+        }
+      },
+      "observed_refs": {
+        "alleles_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_validation_000/AM_argformer_american_validation_000_generation/native/observed/site_alleles.jsonl",
+          "sha256": "d0a27aba8035fe16e9bd4c94983f5cd9f00ceb797a8c3f9bb90d77bd7dfa13e6"
+        },
+        "genotypes_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_validation_000/AM_argformer_american_validation_000_generation/native/observed/genotypes_int8.npy",
+          "sha256": "b7dc8351c42ebc95b1a0997fe86390dd82ae5b0532778c6654554e09c9c6485c"
+        },
+        "positions_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_validation_000/AM_argformer_american_validation_000_generation/native/observed/positions_bp0.npy",
+          "sha256": "c9c6371baf097b481c83f864545fbddbd4913c1c7eb3dfeb8212b5ff72447ee9"
+        },
+        "roster_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_validation_000/AM_argformer_american_validation_000_inference/native/observed/roster.json",
+          "sha256": "b24cd4c2fb1fececc861dca2aae9cce0862038ac54121a6b351c28ffb1b48236"
+        },
+        "tree_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_validation_000/AM_argformer_american_validation_000_inference/native/observed/tsinfer_tsdate_sanitized.trees",
+          "sha256": "da8da7f20c148f44c4ffbc373139b532e1b79510e948982d08a9031362312899"
+        }
+      },
+      "parent_ordinal": 120,
+      "source_stats": {
+        "alleles_ref": {
+          "bytes": 2280424,
+          "mtime_ns": 1792300403058645139
+        },
+        "genotypes_ref": {
+          "bytes": 364534528,
+          "mtime_ns": 1792300403196636350
+        },
+        "positions_ref": {
+          "bytes": 1822800,
+          "mtime_ns": 1792300399024872685
+        },
+        "roster_ref": {
+          "bytes": 370041,
+          "mtime_ns": 1792301548147469607
+        },
+        "tree_ref": {
+          "bytes": 34816612,
+          "mtime_ns": 1792301548042475485
+        }
+      },
+      "split": "validation"
+    },
+    "argformer_american_validation_001": {
+      "binding": {
+        "focal_registry_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_validation_001/AM_argformer_american_validation_001_focals/native/focals.npz",
+          "sha256": "c86ae5d28d7c74b8ca4be94f7ac69e286dae02f41ec4525e8f5a58d7c243bb68"
+        },
+        "native_preparation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_validation_001/AM_argformer_american_validation_001_focals/native/compact_focal_preparation.json",
+          "sha256": "007b7d98a42f5b168bbe1808dc3b7cb40322d86c06e525d848d6c2e263a45ba6"
+        },
+        "observation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_validation_001/AM_argformer_american_validation_001_inference/native/observed/manifest.json",
+          "sha256": "511f3869f6e262cc4728d8afa6b237f333c84412b97a37ddbfe7b227df4e409e"
+        }
+      },
+      "observed_refs": {
+        "alleles_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_validation_001/AM_argformer_american_validation_001_generation/native/observed/site_alleles.jsonl",
+          "sha256": "3a8e8993b179f758b7d0a7f8fd8f01775f102cd723449dbab51c95f4cc46a22f"
+        },
+        "genotypes_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_validation_001/AM_argformer_american_validation_001_generation/native/observed/genotypes_int8.npy",
+          "sha256": "f1665967e3951b76b3610f9907c49e0f231d45d318f16b7d85e1cca90b65b8e5"
+        },
+        "positions_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_validation_001/AM_argformer_american_validation_001_generation/native/observed/positions_bp0.npy",
+          "sha256": "c32d9d372e8b61d0e4d0a06229cb1e86eea851df043fbc5e202d027ec0cf292d"
+        },
+        "roster_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_validation_001/AM_argformer_american_validation_001_inference/native/observed/roster.json",
+          "sha256": "688e55fe2ea46201079f1ac757acc2aa5cc9b954ac4bf6f7db89a91c365b2c36"
+        },
+        "tree_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_validation_001/AM_argformer_american_validation_001_inference/native/observed/tsinfer_tsdate_sanitized.trees",
+          "sha256": "14976f10906169e8b840d74158d2f58b9a067f044c3f9ea9eb0faf325a11986a"
+        }
+      },
+      "parent_ordinal": 121,
+      "source_stats": {
+        "alleles_ref": {
+          "bytes": 2290678,
+          "mtime_ns": 1792309746009785726
+        },
+        "genotypes_ref": {
+          "bytes": 366148928,
+          "mtime_ns": 1792309746175777223
+        },
+        "positions_ref": {
+          "bytes": 1830872,
+          "mtime_ns": 1792309741718007256
+        },
+        "roster_ref": {
+          "bytes": 370041,
+          "mtime_ns": 1792310980475711383
+        },
+        "tree_ref": {
+          "bytes": 34919868,
+          "mtime_ns": 1792310980359717556
+        }
+      },
+      "split": "validation"
+    },
+    "argformer_american_validation_002": {
+      "binding": {
+        "focal_registry_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_validation_002/AM_argformer_american_validation_002_focals/native/focals.npz",
+          "sha256": "d8a4c0c42add349fa938debcc5967c98ae8ed9e214611675f80ddf4d031d11af"
+        },
+        "native_preparation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_validation_002/AM_argformer_american_validation_002_focals/native/compact_focal_preparation.json",
+          "sha256": "e0582a9b4396a01ecda3b9b0719ad0cc58b179fc0e9cbf0485cd1188ee371c5e"
+        },
+        "observation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_validation_002/AM_argformer_american_validation_002_inference/native/observed/manifest.json",
+          "sha256": "89c329197d46da0e7dec52a60d1e10002c6295d3f9402c27c93366514ec1f60b"
+        }
+      },
+      "observed_refs": {
+        "alleles_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_validation_002/AM_argformer_american_validation_002_generation/native/observed/site_alleles.jsonl",
+          "sha256": "386ee6204fe3deae4349268729f747d8dc17cad60f23e581e3f83cc057b516ae"
+        },
+        "genotypes_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_validation_002/AM_argformer_american_validation_002_generation/native/observed/genotypes_int8.npy",
+          "sha256": "327933f826319c2bdeab3ed93de92ff13a852c8733a4fc3cc43e0ef495eb3851"
+        },
+        "positions_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_validation_002/AM_argformer_american_validation_002_generation/native/observed/positions_bp0.npy",
+          "sha256": "ef1fcbfad9ad3c42412a9f2264c60e72bf2d616409070e7a9f30cc5c720423e3"
+        },
+        "roster_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_validation_002/AM_argformer_american_validation_002_inference/native/observed/roster.json",
+          "sha256": "88b315c663f00760f053ecee0be562626092c80a82f5295ffdf95b7f2854f088"
+        },
+        "tree_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_validation_002/AM_argformer_american_validation_002_inference/native/observed/tsinfer_tsdate_sanitized.trees",
+          "sha256": "3b1c51f796920955fcf57199dbc825109df879f502302cd5005033b4bc500554"
+        }
+      },
+      "parent_ordinal": 122,
+      "source_stats": {
+        "alleles_ref": {
+          "bytes": 2265576,
+          "mtime_ns": 1792309853688231363
+        },
+        "genotypes_ref": {
+          "bytes": 362121728,
+          "mtime_ns": 1792309853763227318
+        },
+        "positions_ref": {
+          "bytes": 1810736,
+          "mtime_ns": 1792309849377953542
+        },
+        "roster_ref": {
+          "bytes": 370041,
+          "mtime_ns": 1792311046888674700
+        },
+        "tree_ref": {
+          "bytes": 34678972,
+          "mtime_ns": 1792311046753682016
+        }
+      },
+      "split": "validation"
+    },
+    "argformer_american_validation_003": {
+      "binding": {
+        "focal_registry_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_validation_003/AM_argformer_american_validation_003_focals/native/focals.npz",
+          "sha256": "277f9f29a73311cb6e9613cd6791c9753a1d70bab0f37c3ace6f6b91b0ab07e5"
+        },
+        "native_preparation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_validation_003/AM_argformer_american_validation_003_focals/native/compact_focal_preparation.json",
+          "sha256": "7c537d5bb6f60d3ad2d6898dc953350b6c5d23708ceffd1f05a4364d83fa508f"
+        },
+        "observation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_validation_003/AM_argformer_american_validation_003_inference/native/observed/manifest.json",
+          "sha256": "b5cac89ce0cd4d5e5034a5fb1d9951979f21d55d1b142609f7458bfb5fec27fd"
+        }
+      },
+      "observed_refs": {
+        "alleles_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_validation_003/AM_argformer_american_validation_003_generation/native/observed/site_alleles.jsonl",
+          "sha256": "f48ebcb85fcdc2fae27fa1f2ee40b632b0fa5c9cbadf5a0bc120dcdafbbf59a3"
+        },
+        "genotypes_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_validation_003/AM_argformer_american_validation_003_generation/native/observed/genotypes_int8.npy",
+          "sha256": "7873270bdbfa882d8c1458b58f86c733d9958b5d52067f755b5536257bc3eefc"
+        },
+        "positions_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_validation_003/AM_argformer_american_validation_003_generation/native/observed/positions_bp0.npy",
+          "sha256": "6c3275b714593087d7b020682a7cb36fad2060d4f670984ddd493b4e36b51897"
+        },
+        "roster_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_validation_003/AM_argformer_american_validation_003_inference/native/observed/roster.json",
+          "sha256": "5480be3f52822fc554d94ed85e472be7681c412743ff9477692b151fe146b816"
+        },
+        "tree_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_validation_003/AM_argformer_american_validation_003_inference/native/observed/tsinfer_tsdate_sanitized.trees",
+          "sha256": "e2dab6a4669463c9ebe2574f326a594aa6eed91b571969983eda7f3e236fb51c"
+        }
+      },
+      "parent_ordinal": 123,
+      "source_stats": {
+        "alleles_ref": {
+          "bytes": 2267556,
+          "mtime_ns": 1792309799201013149
+        },
+        "genotypes_ref": {
+          "bytes": 362454528,
+          "mtime_ns": 1792309799268009603
+        },
+        "positions_ref": {
+          "bytes": 1812400,
+          "mtime_ns": 1792309794855257344
+        },
+        "roster_ref": {
+          "bytes": 370041,
+          "mtime_ns": 1792311089900071382
+        },
+        "tree_ref": {
+          "bytes": 34551700,
+          "mtime_ns": 1792311089751080271
+        }
+      },
+      "split": "validation"
+    },
+    "argformer_american_validation_004": {
+      "binding": {
+        "focal_registry_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_validation_004/AM_argformer_american_validation_004_focals/native/focals.npz",
+          "sha256": "034eb3457fe0fc211ee675c8292f3cc95ea29222b1e1564f92bcc3c0e0f58772"
+        },
+        "native_preparation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_validation_004/AM_argformer_american_validation_004_focals/native/compact_focal_preparation.json",
+          "sha256": "6d87ba455a9ae528b5866087bfd63699a0ccdbd5bb24eea062a120f1154d9b2e"
+        },
+        "observation_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_validation_004/AM_argformer_american_validation_004_inference/native/observed/manifest.json",
+          "sha256": "4fa02396fe01eb9c8cd101db65877cdeced2d405c1206c2210a8b0c93e1eda11"
+        }
+      },
+      "observed_refs": {
+        "alleles_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_validation_004/AM_argformer_american_validation_004_generation/native/observed/site_alleles.jsonl",
+          "sha256": "191931003e9ae171c516f1dda4c5a514777d3436ebf31cb6954c732d32d16439"
+        },
+        "genotypes_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_validation_004/AM_argformer_american_validation_004_generation/native/observed/genotypes_int8.npy",
+          "sha256": "0691d4cdf050a55f3ee4f10cad69054c4918b13b7ba6721e7c9f18dac45fa255"
+        },
+        "positions_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_validation_004/AM_argformer_american_validation_004_generation/native/observed/positions_bp0.npy",
+          "sha256": "811d447a6e7f9730d08ae46b73744c40d944837d78f46643018ed209f90b3928"
+        },
+        "roster_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_validation_004/AM_argformer_american_validation_004_inference/native/observed/roster.json",
+          "sha256": "e995b5cb7cade10f1e9794a4aa66ceecff27221d53abadccc58effce0841825d"
+        },
+        "tree_ref": {
+          "path": "experiments/results/benchmark_campaign_20261018_workflow/release_v2/american/argformer_american_validation_004/AM_argformer_american_validation_004_inference/native/observed/tsinfer_tsdate_sanitized.trees",
+          "sha256": "05d35635b5ed1fb5ad5a861e890598920771d1f0afdb1e8e5f16befaf87fd4f1"
+        }
+      },
+      "parent_ordinal": 124,
+      "source_stats": {
+        "alleles_ref": {
+          "bytes": 2282408,
+          "mtime_ns": 1792309898125938681
+        },
+        "genotypes_ref": {
+          "bytes": 364816128,
+          "mtime_ns": 1792309898284930475
+        },
+        "positions_ref": {
+          "bytes": 1824208,
+          "mtime_ns": 1792309894064148000
+        },
+        "roster_ref": {
+          "bytes": 370041,
+          "mtime_ns": 1792311131963786085
+        },
+        "tree_ref": {
+          "bytes": 35049844,
+          "mtime_ns": 1792311131849791968
+        }
+      },
+      "split": "validation"
+    }
+  },
+  "postseal_scoring_bindings_ref": {
+    "path": "research/joint_evaluation_20261029/american/scoring_bindings.json",
+    "sha256": "031b8df870a14fa1f55859594651a69b45837789d872caf24b927e4ff400a7bc"
+  },
+  "predecessor_protocol_ref": {
+    "path": "research/joint_evaluation_20261029/american/protocol_v1.json",
+    "sha256": "54e965fe8f5a96c29e002fc4b910a203ad4be89d81283eea6e0230d42b5c9c26"
+  },
+  "private_TRAIN_bindings_ref": {
+    "path": "research/joint_evaluation_20261029/american/train_truth_bindings.json",
+    "sha256": "a664cac4732b9b1a400bfe256b12440b9304287ab1092106b695d33e242d798b"
+  },
+  "recorded_utc": "2026-10-29T03:23:31.812465+00:00",
+  "results_max_bytes": 1073741824,
+  "results_scope": "experiments/results/joint_american_20261029",
+  "schema": "american_joint_fixed_protocol_v2",
+  "training_target_presentations": 2600000,
+  "worker_cache_bytes": 0,
+  "workers": 16
+}
