@@ -89,3 +89,11 @@ The completed four-class result does not establish a win on every task. No TEST 
 - [ ] Run the prepared independent final result audit after all genuine comparison waits, then publish the completed benchmark report.
 
 No source used by a live scientific worker was changed. The European four-class primary endpoint remains a loss and is retained without TEST-driven tuning. The full benchmark and manuscript are not yet complete.
+
+## Final independent verification is registered
+
+- [x] Prepare an independent metric and ancestry-label reconstruction audit. Fifteen checks pass without opening pending held-out truth.
+- [x] Review and launch one CPU continuation after the genuine all-comparisons completion marker. Twenty-two operational tests pass. It publishes only after the numerical audit passes and preserves any failure.
+- [ ] Obtain the final independent numerical PASS and publish its receipt. This item remains open until the completed result exists.
+
+The continuation distinguishes completed scientific computations, independent numerical verification, Git publication and manuscript completion. None is inferred from merely launching a job.

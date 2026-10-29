@@ -4,6 +4,8 @@
 **Queue repair, 29 October 2026, 05:50 UTC:** the native scheduler has resumed after an idle handoff failure. All completed results and historical failures are preserved. ARGMix production storage admission is complete. The full reserved workload is 1.185 TB, below the unchanged 1.2 TB ceiling. No files were deleted. American TreeLoom preparation and native ARGformer training continue. The remaining ARGMix model stages await their original reconstructed-tree inputs. Final American and ARGMix comparisons are still pending.
 
 [Recovery and storage review](research/joint_evaluation_20261029/review_finish/independent_recovery_storage_credit_checks_v1.json) · [Dependency assessment](research/joint_evaluation_20261029/review_finish/queue_dependency_storage_assessment_v1.json)
+
+The remaining fits, predictions, scoring, independent numerical audit and final report publication are registered in the automatic continuation. Numerical audit PASS is still pending completed results. [Scientific comparison contracts and limitations](research/joint_evaluation_20261029/review_finish/final_results_contract_review_v1.md).
 <!-- joint-finish-operations:end -->
 
 <!-- joint-model-20261029:start -->
