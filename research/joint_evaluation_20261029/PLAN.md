@@ -119,3 +119,16 @@ Evidence: root/american_cache_idle_diagnosis_20261029_v1.json and root/queue_idl
 - [ ] Complete the corrected ARGMix benchmark. The earlier 97.08 versus 94.45 percent result belongs to the previous model and reused development simulations.
 
 No scientific source, training schedule, data or score changed during this status publication. All new completion claims are tied to actual successful process waits.
+
+## ARGMix memory failure repaired, 30 October 03:41 Moscow time
+
+- [x] Identify the genuine failed TRAIN cache attempt: its 64 GiB family memory guard stopped the 16-worker job after 82 seconds. Preserve its failed wait, log and empty output directory.
+- [x] Measure largest TRAIN source loading and source replacement without opening held-out truth. One process peaked at 17.37 GB. Apply a separate 384 GiB aggregate RSS amendment with 448 GiB host admission and active memory enforcement.
+- [x] Independently verify unchanged scientific functions, 16 workers, target identities, data, schedules, cache codec and scoring. Preserve the original immutable scientific freeze and storage admission.
+- [x] Launch the explicit recovery once. At 149 seconds, all 16 workers were active, aggregate RSS was 142 GiB, and 215 payloads existed. In the preceding 20 seconds, 69 payloads and 322.7 CPU seconds were added.
+- [x] Reconnect the finishing and independent final-review plans to the new actual-wait records. Replace only their two verified idle, childless controllers. Do not signal any scientific worker or unrelated process.
+- [x] Confirm ARGformer TEST005 and TEST006 continue on GPUs 4 and 5, with fresh logs. Ten of fifteen native predictions are complete. FLARE has fifteen complete predictions. All five ARGMix TRAIN observations are complete, and validation Relate continues.
+- [ ] Complete recovered TreeLoom cache, GPU qualification, fixed fit, predictions and paired ARGMix scoring.
+- [ ] Finish native ARGformer predictions and paired American scoring, then run the registered independent final numerical audit.
+
+GPU 3 remains idle during the CPU cache stage. The recovered controller will start GPU execution when that prerequisite succeeds. No final ARGMix score or universal superiority is claimed. This operational repair does not alter the frozen scientific comparison.
