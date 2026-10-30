@@ -1,5 +1,11 @@
 # ARG-GNN
 
+<!-- user-pause-20261031:start -->
+**Paused at the user's request, 31 October 2026:** the benchmark queue is suspended and GPUs **3, 4 and 5 are released (0 MiB used on each)**. CPU reconstruction is suspended in place. The interrupted ARGformer fit retains its periodic checkpoint and needs explicit checkpoint continuation when the user resumes work. Completed results remain unchanged. Queue activity described below is the pre-pause history.
+
+[Pause record and resume constraints](research/joint_evaluation_20261029/queue_pause_20261031/README.md)
+<!-- user-pause-20261031:end -->
+
 <!-- joint-finish-operations:start -->
 **Queue repair, 30 October 2026:** two European datasets now progress through CPU preparation concurrently. IID002 completed generation and Relate-input preparation and has started native reconstruction alongside IID001. Existing scientific workers were preserved. The benchmark is still running.
 
