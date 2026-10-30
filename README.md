@@ -40,7 +40,7 @@ Values are mean ± sample SD across five independently simulated chromosomes, no
 
 **Architecture:** three joint PyTorch Geometric layers exchange messages within complete selected native trees and across trees through shared leaves and branch structure. All queries at one SNP reuse one encoding. There is no recurrent network. The general idea of graph windows has prior art, so this result does not establish a new general GNN kernel.
 
-**Queue snapshot:** 139 original campaign stages completed, **85 pending or running** and 11 explicitly superseded after counting parallel task IDs only once. The records contain 3 running, 82 pending, 16 blocked and 1 failed stages. These are preparation, fitting, prediction and scoring stages, not that many separate experiments. The failed previous American TreeLoom and its dependent rows are retained as history. The effective view includes the active native retry. The 17 old American TreeLoom rows remain historical; current native retry failures are counted separately below.
+**Queue snapshot:** 140 original campaign stages completed, **84 pending or running** and 11 explicitly superseded after counting parallel task IDs only once. The records contain 4 running, 80 pending, 16 blocked and 1 failed stages. These are preparation, fitting, prediction and scoring stages, not that many separate experiments. The failed previous American TreeLoom and its dependent rows are retained as history. The effective view includes the active native retry. The 17 old American TreeLoom rows remain historical; current native retry failures are counted separately below.
 
 - **ARGformer:** 12/15 dataset predictions complete. The remaining 3 parents are assigned to the original GPU3 lane and the two native lanes on GPUs4 and5. Their original training schedules remain unchanged.
 - **FLARE:** 15/15 prediction datasets complete and authenticated.
@@ -64,6 +64,7 @@ The models use different observed representations. TreeLoom keeps BAA query leav
 [Full direct four-class scores and cohort matrices](research/joint_evaluation_20261029/european_four/outputs/paired_score/comparison.json)
 
 - **Native ARGMix:** ARGMix, registered equation-corrected variant (author-derived Transformer) completed 13 epochs and selected epoch 4 by the registered validation rule. Training used 500,000 TRAIN examples and selection used 100,000 validation examples. These fit milestones are separate from held-out ancestry scores. Current owned stages: 2 succeeded, 0 running, 18 pending, 0 failed, 0 blocked. The original failed CUDA-initialization attempt remains historical evidence. This registered reconstruction is not a claim to reproduce an original published numerical table.
+- **Native preparation:** the registered parallel producer owns forty-eight stages across six remaining parents. Current stages: 1 succeeded, 1 running, 46 pending, 0 failed, 0 blocked. Original main claim-blocked rows remain historical and are excluded from current producer counts.
 <!-- joint-model-20261029:end -->
 
 <!-- joint-four-conditions-20261029 -->
