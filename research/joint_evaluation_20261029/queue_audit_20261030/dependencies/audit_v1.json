@@ -1,0 +1,80 @@
+{
+  "GPU_lock_review": "TreeLoom checks producer dependencies before GPU3 mutex acquisition and releases after drained actual stage wait; no dependency wait while holding GPU mutex.",
+  "dependency_cycles": [],
+  "duplicate_effective_task_owners": [],
+  "duplicate_output_directories": {},
+  "future_barrier_product_and_wait_paths_match": true,
+  "important_findings": [
+    {
+      "activation": "root_handling_childless_handoff",
+      "description": "Direct immutable receipt creation exposes empty or partial JSON; downstream strict readers can permanently block a dependency or terminate a coordinator.",
+      "id": "atomic_receipt_publication",
+      "repair_ref": {
+        "path": "research/joint_evaluation_20261029/argmix/recovery_20261030_atomic_publication_v1/continuation_v2.json",
+        "sha256": "ea3979ae6621956b1e3b2ad510d3f80ef0713ffdc00157397e72862be3351970"
+      },
+      "severity": "high",
+      "six_focused_tests_passed": true
+    },
+    {
+      "description": "Native retry admission reads /proc after exists without catching an ordinary process exit; short producer completion can terminate its controller.",
+      "id": "foreign_owner_proc_exit_race",
+      "repair": "resource_agent_preparing_probe_safe_continuation",
+      "severity": "medium",
+      "source_ref": {
+        "path": "research/joint_evaluation_20261029/queue/native_argmix_cuda_retry_20261030_v1/support_v1.py",
+        "sha256": "ae20253a906ae01ea1bd3632d56eea9456efbd344e8a7a7c4bbdc5637e8c23fa"
+      }
+    }
+  ],
+  "merged_dependency_edges": 479,
+  "merged_task_count": 282,
+  "missing_dependencies": {},
+  "native_retry_owned_task_count": 20,
+  "original_native_failed_rows_unchanged": true,
+  "owner_task_counts": {
+    "argformer": 35,
+    "cnn4": 13,
+    "external:cnn4": 2,
+    "external:main": 7,
+    "main": 189,
+    "native_relate": 1,
+    "retry": 20,
+    "treeloom": 15
+  },
+  "ownership_rule": "Original native retry twenty failed/blocked rows remain immutable historical evidence; retry owns exactly those20 tasks. Other external aliases are consumers, not duplicate worker owners.",
+  "paired_barrier_targets_current_tree_barrier": true,
+  "plan_refs": {
+    "argformer": {
+      "path": "research/joint_evaluation_20261029/queue/sidecar_plan.json",
+      "sha256": "15519ffa4936674d80a6d9d5e5177148934687694416bec862b1a3b8ab284bbb"
+    },
+    "cnn4": {
+      "path": "research/joint_evaluation_20261029/queue/cnn4_v3_records/plan.json",
+      "sha256": "2bd288d44a108fdb7ebc369b6f40606b54891c43227982813eb5c06a345f947d"
+    },
+    "main": {
+      "path": "research/joint_evaluation_20261029/queue/successor_records_v2/plan.json",
+      "sha256": "544d73bc30ff7e237850c27fc69172f4947644c2571860179369f16f0a686043"
+    },
+    "native_relate": {
+      "path": "research/joint_evaluation_20261029/queue/argmix_plan.json",
+      "sha256": "4fd1c97442ebcc7a46ee75de60e2bb1533dd2459c4461c8fa668a58ec6e0d0e6"
+    },
+    "retry": {
+      "path": "research/joint_evaluation_20261029/queue/native_argmix_cuda_retry_20261030_v1/plan_v1.json",
+      "sha256": "d6ffc2b11a4b56e820648dd769a4590e8553109377b31f6644253dcd6adb2fab"
+    },
+    "treeloom": {
+      "path": "research/joint_evaluation_20261029/argmix/recovery_20261030_queue/task_plan_v1.json",
+      "sha256": "aaa98d9e8b984f0b31a948e83aee62a89cbe7b716b17d3f847024c7a1398f5f5"
+    }
+  },
+  "production_launches": 0,
+  "recorded_utc": "2026-10-30T11:45:04.505861+00:00",
+  "reviewer": "queue_finish_oct29",
+  "schema": "independent_queue_dependency_ownership_audit_v1",
+  "scientific_sources_changed": false,
+  "signals": 0,
+  "tree_dependency_reads": "Exact producer colocated successful waits and products, not failed historical main-state rows."
+}

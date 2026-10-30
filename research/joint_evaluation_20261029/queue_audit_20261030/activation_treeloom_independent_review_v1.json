@@ -1,0 +1,139 @@
+{
+  "launcher_ref": {
+    "path": "research/joint_evaluation_20261029/queue_audit_20261030/activate_idle_controllers.py",
+    "sha256": "22ee8ab6297afc5e8f8d5ddb824c18558ec36427107b883e9ed069ab97f0af65"
+  },
+  "manifest_ref": {
+    "path": "research/joint_evaluation_20261029/queue_audit_20261030/activation_treeloom_v1.json",
+    "sha256": "79d99af7fe1ff3c7b592f14c535046aab6483c75adf7bf800d170ff3b9f3ca27"
+  },
+  "mock_failure_checks": [
+    {
+      "case": "before_pause",
+      "mocked_launches": 0,
+      "mocked_signals": [],
+      "passed": true,
+      "pidfd_closed": true
+    },
+    {
+      "case": "frozen",
+      "mocked_launches": 0,
+      "mocked_signals": [
+        "SIGSTOP",
+        "SIGCONT"
+      ],
+      "passed": true,
+      "pidfd_closed": true
+    },
+    {
+      "case": "exit_unobserved",
+      "mocked_launches": 0,
+      "mocked_signals": [
+        "SIGSTOP",
+        "SIGKILL"
+      ],
+      "passed": true,
+      "pidfd_closed": true
+    },
+    {
+      "case": "source_recheck",
+      "mocked_launches": 0,
+      "mocked_signals": [
+        "SIGSTOP",
+        "SIGKILL"
+      ],
+      "passed": true,
+      "pidfd_closed": true
+    }
+  ],
+  "passed": true,
+  "read_only_preflight": {
+    "old_identity": {
+      "children": [],
+      "pid": 2496159,
+      "process_start_ticks": "600038493",
+      "state": "S",
+      "thread_states": {
+        "2496159": "S",
+        "2496170": "S",
+        "2496171": "S",
+        "2496172": "S",
+        "2496173": "S",
+        "2496174": "S",
+        "2496175": "S",
+        "2496176": "S",
+        "2496177": "S",
+        "2496178": "S",
+        "2496179": "S",
+        "2496180": "S",
+        "2496181": "S",
+        "2496182": "S",
+        "2496183": "S",
+        "2496184": "S",
+        "2496185": "S",
+        "2496186": "S",
+        "2496187": "S",
+        "2496188": "S",
+        "2496189": "S",
+        "2496190": "S",
+        "2496191": "S",
+        "2496192": "S",
+        "2496193": "S",
+        "2496194": "S",
+        "2496195": "S",
+        "2496196": "S",
+        "2496197": "S",
+        "2496198": "S",
+        "2496199": "S",
+        "2496200": "S",
+        "2496201": "S",
+        "2496202": "S",
+        "2496203": "S",
+        "2496204": "S",
+        "2496205": "S",
+        "2496206": "S",
+        "2496207": "S",
+        "2496208": "S",
+        "2496209": "S",
+        "2496210": "S",
+        "2496211": "S",
+        "2496212": "S",
+        "2496213": "S",
+        "2496214": "S",
+        "2496215": "S",
+        "2496216": "S",
+        "2496217": "S",
+        "2496218": "S",
+        "2496219": "S",
+        "2496220": "S",
+        "2496221": "S",
+        "2496222": "S",
+        "2496223": "S",
+        "2496224": "S",
+        "2496225": "S",
+        "2496226": "S",
+        "2496227": "S",
+        "2496228": "S",
+        "2496229": "S",
+        "2496230": "S",
+        "2496231": "S",
+        "2496232": "S"
+      }
+    },
+    "signals_sent": 0,
+    "target": "treeloom_receipts",
+    "valid": true
+  },
+  "real_launches": 0,
+  "real_signals_sent": 0,
+  "review_findings": [
+    "Exact controller PID/start/cwd/interpreter binding before and after pidfd acquisition.",
+    "All threads must be stopped and childless before SIGKILL; no resumed Python fork interval.",
+    "Abort while frozen resumes original controller; unobserved exit and changed sources forbid replacement.",
+    "Pidfd closed on every tested failure path; old exit is not fabricated as actual consumed wait.",
+    "Explicit project PYTHONPATH and plaintext argv; no scientific worker signals."
+  ],
+  "reviewer": "american_finish_oct29",
+  "schema": "independent_idle_activation_review_v1",
+  "scope": "Activation mechanism and exact manifest. Atomic publication source reviewed separately by benchmark_audit."
+}

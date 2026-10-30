@@ -159,3 +159,15 @@ The first CPU-memory repair succeeded. The separate GPU admission failure is ret
 - [ ] Resolve comparison-fidelity ticket ARGMIX-AUTHOR-01: these plans train equation_corrected, not untouched author_key_i. Label current results as a variant and do not claim unmodified author-code comparison until separately run. No scientific condition was changed during this operational repair.
 
 Evidence: root/queue_health_after_cuda_retry_20261030_v1.json, queue/native_argmix_cuda_retry_20261030_v1/manifest_v1.json and review_finish/recovery_20261030/native_argmix_cuda_retry_acceptance_v1.json. Previous timestamped sections retain their historical observations.
+
+## Proactive queue reliability audit, 30 October 2026
+
+- [x] Audit 282 effective tasks and 479 dependency edges; no missing dependencies, cycles, duplicate owners or output directories.
+- [x] Install atomic completion publication, recoverable native monitoring, normal process-exit handling and prediction process naming through four verified idle-controller handoffs.
+- [x] Repair current-owner reporting, historical failure separation, meaningful status publication and final-audit condition disclosure.
+- [x] Independently verify all four live replacements, completed-fit reuse and preserved Relate/ARGformer worker identities.
+- [ ] Install monitoring hardening in busy original controllers only at a safe future boundary. They remain unchanged while workers run.
+- [ ] Complete pending native observations/predictions, paired scores and the independent final numerical audit.
+- [ ] ARGMIX-AUTHOR-01 remains open: retain explicit equation-corrected-variant labels; untouched author_key_i is not scheduled by this operational repair.
+
+Current details and closed/open issues: [queue audit](queue_audit_20261030/REPORT.md). This operational audit does not change scientific data or model settings and does not claim benchmark completion. Earlier dated entries are historical.
