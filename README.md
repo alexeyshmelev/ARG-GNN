@@ -1,16 +1,16 @@
 # ARG-GNN
 
 <!-- joint-finish-operations:start -->
-**Queue reliability audit, 30 October 2026:** confirmed execution and reporting faults were repaired and independently checked. Completed fits were reused; no scientific worker was interrupted. The benchmark is still running.
+**Queue repair, 30 October 2026:** two European datasets now progress through CPU preparation concurrently. IID002 completed generation and Relate-input preparation and has started native reconstruction alongside IID001. Existing scientific workers were preserved. The benchmark is still running.
 
-- **Repairs active:** atomic completion files, recovery from transient native monitoring failures, safe handling of normal process exits, prediction process naming, and reporting that follows the current owner while preserving old failures.
-- **Checks:** the combined dependency audit covered 282 tasks and 479 edges with no missing dependencies or duplicate owners. Focused tests exercised partial publication, failed GPU/process queries, admission recovery, lease retention and final reporting.
-- **Completed fits:** TreeLoom used five epochs and 2,555 updates on 500,000 TRAIN targets. The registered ARGMix variant completed 13 epochs and selected its fifth epoch using validation accuracy. No corrected-benchmark TEST comparison is available yet.
-- **At the audit:** ARGformer had 12/15 prediction datasets complete, FLARE had 15/15, and American TreeLoom had completed its fit and all fifteen predictions. Two ARGformer workers were active. GPU 3 awaited the shared Relate TEST inputs. Current counts and results are below.
-- **Remaining operational limitation:** monitoring hardening is active in the native continuation. Busy original Relate and ARGformer controllers retain their old monitoring code to preserve current workers.
-- **Comparator identity:** the registered comparator is **ARGMix, equation-corrected variant**, which changes the attention key term relative to the released code. Untouched `author_key_i` remains an open comparison-fidelity item, not a completed author-code comparison.
+- **Why GPU 3 was idle:** both methods finished IID000 predictions; the next GPU stages require unfinished CPU genealogy reconstruction. The queue previously serialized the next dataset behind scratch cleanup.
+- **Repairs active:** a rolling two-parent preparation window with full completion reservations; exact producer/consumer ownership; recovery from temporary observation and publication failures; immutable genuine completion receipts; status reports showing current blockers separately from historical failures.
+- **Validation:** 64 focused tests passed across the shared scheduler, preparation lane, consumer/reporting bridge and ARGformer handoff. Independent reviews and live startup checks passed. No simulation, model, split, training budget, score rule or registered comparator condition changed.
+- **ARGformer transition:** a safe handoff watcher is waiting while TEST007/008 workers remain active. It may replace only a verified childless controller. It will not interrupt their training or place a long ARGformer fit ahead of ready TreeLoom/native work on GPU 3.
+- **Current capacity:** approximately 1.032 TB committed within the 1.2 TB project ceiling. This is reserved capacity, not a fresh full-directory disk-usage measurement. GPU idleness can remain while required CPU inputs are unfinished.
+- **Comparator identity:** the registered comparator remains **ARGMix, equation-corrected variant**. Untouched `author_key_i` is an open comparison-fidelity item, not a completed author-code comparison.
 
-[Audit and issue ledger](research/joint_evaluation_20261029/queue_audit_20261030/REPORT.md) · [Current queue](research/joint_evaluation_20261029/root/CURRENT_STATUS.json) · [Verified live snapshot](research/joint_evaluation_20261029/queue_audit_20261030/live_status_v1.json). Final American and ARGMix comparisons, independent numerical review and manuscript completion remain pending.
+[Repair, limitations and work status](research/joint_evaluation_20261029/queue_audit_20261030/SUSTAINABILITY.md) · [Current queue](research/joint_evaluation_20261029/root/CURRENT_STATUS.json) · [Verified live snapshot](research/joint_evaluation_20261029/queue_audit_20261030/live_status_v2.json). Final American and ARGMix comparisons, independent numerical review and manuscript completion remain pending.
 <!-- joint-finish-operations:end -->
 
 <!-- joint-model-20261029:start -->

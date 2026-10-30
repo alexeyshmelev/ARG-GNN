@@ -1,0 +1,295 @@
+{
+  "created_utc": "2026-10-30T16:02:40.253273+00:00",
+  "dependency_cycles": [],
+  "findings": [
+    {
+      "consequence": "Idle GPU capacity is a producer scheduling consequence, not evidence of stalled GPU work.",
+      "evidence": "Future native parents depend on the previous parent release_new_scratch. Both IID001 prediction paths and IID002 generated currently resolve to live IID001 Relate. No DAG cycle observed.",
+      "id": "capacity_serialization"
+    },
+    {
+      "consequence": "Blocker traces must overlay dependencies from authoritative owners.",
+      "evidence": "Actual ARGformer sidecar TEST009 prepare depends on TEST007 retire; successor external alias names TEST008 retire.",
+      "id": "authoritative_owner_dependencies"
+    },
+    {
+      "consequence": "A transient GPU/process/filesystem probe failure can cancel healthy work; harden only through reviewed continuation/idle handoff.",
+      "evidence": "sidecar_scheduler.py:230-241 and 287, successor_recovery_scheduler_v1.py:219-229 and 276-278 contain unguarded observational probes; their finally clauses stop running owned children.",
+      "id": "busy_monitor_faults"
+    },
+    {
+      "consequence": "A blocker or degraded cause can change without a semantic publication refresh.",
+      "evidence": "effective_state_v1.fingerprint omits pending waiting_reason and monitor unavailable reason map.",
+      "id": "semantic_observability"
+    },
+    {
+      "consequence": "Bridge exactly 12 registered aliases, not features alone; reporting may overlay exactly 48 registered producer IDs.",
+      "evidence": "Native retry external aliases include both support and features for the six proposed transferred parents.",
+      "id": "parallel_producer_consumer_scope"
+    }
+  ],
+  "focused_blockers": {
+    "joint_argmix.published_recon_iid_001.prediction": {
+      "current": {
+        "dependencies": [
+          "joint_argmix.train",
+          "joint_argmix.published_recon_iid_000.prediction",
+          "paper_argmix_published_recon_iid_001.treeloom_observation"
+        ],
+        "kind": "gpu",
+        "owner": "TreeLoom_ARGMix",
+        "status": "pending",
+        "waiting_reason": "Successful actual producer waits pending"
+      },
+      "leaves": [
+        {
+          "owner": "successor",
+          "pid": 2861663,
+          "status": "running",
+          "task": "paper_argmix_published_recon_iid_001.native_relate",
+          "waiting_reason": null
+        }
+      ]
+    },
+    "paper_american_argformer_american_test_009_mlm": {
+      "current": {
+        "dependencies": [
+          "paper_american_argformer_american_test_009_prepare"
+        ],
+        "error": null,
+        "kind": "gpu",
+        "owner": "native_ARGformer_sidecar",
+        "physical_gpu": null,
+        "pid": null,
+        "status": "pending",
+        "waiting_reason": "Required predecessor unfinished"
+      },
+      "leaves": [
+        {
+          "owner": "native_ARGformer_sidecar",
+          "pid": 2698595,
+          "status": "running",
+          "task": "paper_american_argformer_american_test_007_mlm",
+          "waiting_reason": null
+        }
+      ]
+    },
+    "paper_argmix_published_recon_iid_001.argmix_prediction": {
+      "current": {
+        "dependencies": [
+          "paper_argmix_argmix.train",
+          "paper_argmix_published_recon_iid_001.features"
+        ],
+        "error": null,
+        "kind": "gpu",
+        "owner": "native_ARGMix_active_retry",
+        "physical_gpu": null,
+        "pid": null,
+        "status": "pending",
+        "waiting_reason": "Required predecessor unfinished"
+      },
+      "leaves": [
+        {
+          "owner": "successor",
+          "pid": 2861663,
+          "status": "running",
+          "task": "paper_argmix_published_recon_iid_001.native_relate",
+          "waiting_reason": null
+        }
+      ]
+    },
+    "paper_argmix_published_recon_iid_002.generated": {
+      "current": {
+        "dependencies": [
+          "paper_argmix_published_recon_iid_001.release_new_scratch"
+        ],
+        "error": null,
+        "kind": "cpu",
+        "owner": "successor",
+        "physical_gpu": null,
+        "pid": null,
+        "status": "pending",
+        "waiting_reason": "Required predecessor unfinished"
+      },
+      "leaves": [
+        {
+          "owner": "successor",
+          "pid": 2861663,
+          "status": "running",
+          "task": "paper_argmix_published_recon_iid_001.native_relate",
+          "waiting_reason": null
+        }
+      ]
+    }
+  },
+  "idle_handoff_conditions": [
+    "Exact controller PID/start identity; every thread stopped before the final idle check.",
+    "No descendants or owned live sessions; no launched task may transfer.",
+    "Persisted running rows require preexisting genuine terminal wait matching task, attempt, command and result hash; otherwise resume immediately.",
+    "Do not infer success from childlessness or product presence.",
+    "Acquire unchanged lifetime locks, write bound new state, then atomically publish active owner registry.",
+    "Preserve original failed/blocked rows and successful waits; do not invent controller outer wait."
+  ],
+  "node_count": 267,
+  "owner_counts": {
+    "TreeLoom_ARGMix": {
+      "pending": 11,
+      "succeeded": 4
+    },
+    "native_ARGMix_active_retry": {
+      "pending": 18,
+      "succeeded": 2
+    },
+    "native_ARGMix_preparation_sidecar": {
+      "succeeded": 1
+    },
+    "native_ARGformer_sidecar": {
+      "pending": 11,
+      "running": 2,
+      "succeeded": 22
+    },
+    "successor": {
+      "blocked": 16,
+      "failed": 1,
+      "pending": 53,
+      "running": 1,
+      "succeeded": 114,
+      "superseded": 11
+    }
+  },
+  "publication": {
+    "commit": "1733583e414aa35542f18a5ae3b7c3db8f88454e",
+    "current_fingerprint": "670f86dedd8f2ee12c8e89446d5c0b29e9c6fa90a017831eb9d58fd7467b296d",
+    "current_ref": {
+      "path": "research/joint_evaluation_20261029/root/CURRENT_STATUS.json",
+      "sha256": "be579f8aedc784a82d268819be466424431e5fb6668b5cae73a95eaeddc62698"
+    },
+    "fresh": true,
+    "live_fingerprint": "670f86dedd8f2ee12c8e89446d5c0b29e9c6fa90a017831eb9d58fd7467b296d",
+    "pushed": true,
+    "receipt_fingerprint": "670f86dedd8f2ee12c8e89446d5c0b29e9c6fa90a017831eb9d58fd7467b296d",
+    "receipt_ref": {
+      "path": "research/joint_evaluation_20261029/root/finish_records_v1/last_publication.json",
+      "sha256": "82ba3ccefbf5d493ae51a7fcb8ca90c3f3f1ccdc841463bb7479dd071b8bd2e2"
+    }
+  },
+  "schema": "queue_sustainability_read_only_audit_v1",
+  "scope": "CPU metadata and synthetic tests only; no launch, signal, truth access, Git, or production mutation",
+  "source_refs": [
+    {
+      "path": "research/joint_evaluation_20261029/queue/sidecar_scheduler.py",
+      "sha256": "eb9bc179bdaa04498616a4dd0aeff7dbf9882ac308fd7567853d1ebbc1dde4e6"
+    },
+    {
+      "path": "research/joint_evaluation_20261029/queue/successor_recovery_scheduler_v1.py",
+      "sha256": "3544eb7972623311e48433fac78391d75351594281676f849225cce30019b628"
+    },
+    {
+      "path": "research/joint_evaluation_20261029/root/reporting_20261030_v1/effective_state_v1.py",
+      "sha256": "08f9a0ec32fe0a1fdd9be201f4f1060ebdba8c725efeb39d384a76db53e889ca"
+    },
+    {
+      "path": "research/joint_evaluation_20261029/queue_audit_20261030/sustainability/owner_graph_v1.py",
+      "sha256": "0f9bff8b1280eb193bed2aa4b457a89a4cd64263a4d6850b11d2a2d04f3a5452"
+    },
+    {
+      "path": "research/joint_evaluation_20261029/queue_audit_20261030/sustainability/test_owner_graph_v1.py",
+      "sha256": "6eb626bbc4894ae71191d05501929038254443ee2057cdb00cb7c25faa0fc738"
+    }
+  ],
+  "sources": [
+    {
+      "controller_pid": 2031398,
+      "owner": "successor",
+      "plan_ref": {
+        "path": "research/joint_evaluation_20261029/queue/successor_records_v2/plan.json",
+        "sha256": "544d73bc30ff7e237850c27fc69172f4947644c2571860179369f16f0a686043"
+      },
+      "recorded_unix": 1793376155.083791,
+      "state_ref": {
+        "path": "research/joint_evaluation_20261029/queue/successor_records_v2/state.json",
+        "sha256": "3dfb6ad29bc20c680e70818cef082296042e6227ae569e5e2fe31e17ebd9980e"
+      }
+    },
+    {
+      "controller_pid": 1981120,
+      "owner": "native_ARGformer_sidecar",
+      "plan_ref": {
+        "path": "research/joint_evaluation_20261029/queue/sidecar_plan.json",
+        "sha256": "15519ffa4936674d80a6d9d5e5177148934687694416bec862b1a3b8ab284bbb"
+      },
+      "recorded_unix": 1793376137.1686394,
+      "state_ref": {
+        "path": "research/joint_evaluation_20261029/queue/records_v1/state.json",
+        "sha256": "66751b4fc8a95b84c3afaca548b78eee17649101c1de3f6c49e0cb78f5ef3ee1"
+      }
+    },
+    {
+      "controller_pid": 1983535,
+      "owner": "native_ARGMix_preparation_sidecar",
+      "plan_ref": {
+        "path": "research/joint_evaluation_20261029/queue/argmix_plan.json",
+        "sha256": "4fd1c97442ebcc7a46ee75de60e2bb1533dd2459c4461c8fa668a58ec6e0d0e6"
+      },
+      "recorded_unix": 1793267478.9349017,
+      "state_ref": {
+        "path": "research/joint_evaluation_20261029/queue/argmix_records_v1/state.json",
+        "sha256": "dfcb3f3e692df17b13475ee9740b4f2f454517f745ff742e12869af7488cf0e5"
+      }
+    },
+    {
+      "controller_pid": 2774159,
+      "owner": "native_ARGMix_active_retry",
+      "plan_ref": {
+        "path": "research/joint_evaluation_20261029/queue/native_argmix_cuda_retry_20261030_v1/probe_safe_continuation_v1/plan_v1.json",
+        "sha256": "33f2786931c82299a8a1fd9d536e609c7d49ce866b5f5d55cf2b25cc340ff282"
+      },
+      "recorded_unix": 1793376158.8681316,
+      "state_ref": {
+        "path": "research/joint_evaluation_20261029/queue/native_argmix_cuda_retry_20261030_v1/probe_safe_continuation_v1/records_v1/state.json",
+        "sha256": "6729ba284508015061123469c54c9ae6f1d33d6b71c4c4430b9ffcd7dca8c7d7"
+      }
+    },
+    {
+      "actual_wait_refs": {
+        "joint_argmix.gpu_qualification": {
+          "path": "research/joint_evaluation_20261029/argmix/recovery_20261030_queue/records_v1/joint_argmix.gpu_qualification/actual_wait.json",
+          "sha256": "473b45d3babaa4256801017a18a94fd9d5a08ddd841b3a805c06628609e180b4"
+        },
+        "joint_argmix.published_recon_iid_000.prediction": {
+          "path": "research/joint_evaluation_20261029/argmix/recovery_20261030_queue/records_v1/joint_argmix.published_recon_iid_000.prediction/actual_wait.json",
+          "sha256": "8741516f3226ad6bc4f2bf2d0b5dd28caf3bbfd71f58581b0ab3028bdabb4e13"
+        },
+        "joint_argmix.train": {
+          "path": "research/joint_evaluation_20261029/argmix/recovery_20261030_queue/records_v1/joint_argmix.train/actual_wait.json",
+          "sha256": "9974a81656414b0076c274cb9594811182be55d5a7332d93adf7c617cec92de2"
+        },
+        "joint_argmix.train_cache": {
+          "path": "research/joint_evaluation_20261029/argmix/recovery_20261030_queue/records_v1/joint_argmix.train_cache/actual_wait.json",
+          "sha256": "d69cd5a3cd244cae099e737e6c24ab6d364d441dd2afeff58ca79f462c22133c"
+        }
+      },
+      "controller_pid": 2767954,
+      "owner": "TreeLoom_ARGMix",
+      "plan_ref": {
+        "path": "research/joint_evaluation_20261029/argmix/recovery_20261030_queue/task_plan_v1.json",
+        "sha256": "aaa98d9e8b984f0b31a948e83aee62a89cbe7b716b17d3f847024c7a1398f5f5"
+      },
+      "state_ref": {
+        "path": "research/joint_evaluation_20261029/argmix/recovery_20261030_queue/records_v1/state.json",
+        "sha256": "d5461678871fa6fa874e179e52ab72414348ab4fa8130c07770e4542a6f7b4b2"
+      }
+    },
+    {
+      "owner": "native_ARGMix_active_registry",
+      "registry_ref": {
+        "path": "research/joint_evaluation_20261029/queue/native_argmix_retry_active_owner_v1.json",
+        "sha256": "32ccdcf1a95164c4f3b1054638a9923c3a7cfc850db3822f1681990e14c5cd40"
+      }
+    }
+  ],
+  "synthetic_tests": {
+    "failed": 0,
+    "passed": 5
+  }
+}
