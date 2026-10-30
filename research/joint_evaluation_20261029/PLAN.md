@@ -39,7 +39,8 @@ The ARGformer parallel queue is live. Parents 003 and 004 have completed prepara
 - [x] Complete its 40,000-target fit and five TEST predictions, then compare the new direct four-output TreeLoom on identical target rows.
 - [x] Review and launch successor V2 idle-boundary watcher, PID 2010438.
 - [x] Complete the safe handoff after original ARGformer TEST002 prediction and scratch retirement. Preserve the two native sidecars, adopt their task IDs once, and explicitly supersede eleven never-started old ARGMix model stages. The separate recovery entry point resolved the initial idle-handoff failure.
-- [ ] Integrate and train the new joint model for ARGMix, then complete the corresponding comparisons.
+- [x] Integrate and complete the fixed new joint-model ARGMix fit: five epochs and 2,555 updates.
+- [ ] Complete its TEST predictions and corresponding paired comparisons.
 
 Current counts in root/CURRENT_STATUS.json overlay original task IDs with their parallel owners, avoiding double counting. The 183 unfinished original campaign stages include retained failures of the previous American TreeLoom. New-model integration outside that old task list is reported separately. The complete benchmark is not finished.
 
@@ -145,3 +146,16 @@ GPU 3 remains idle during the CPU cache stage. The recovered controller will sta
 - [ ] Complete the fixed 2,555-update fit, all predictions and paired comparison, then the registered independent final numerical audit.
 
 The first CPU-memory repair succeeded. The separate GPU admission failure is retained as history. Neither repair changes any scientific algorithm or turns old development scores into corrected-benchmark results.
+
+## Queue health repair, 30 October 13:28 Moscow time
+
+- [x] Authenticate completed TreeLoom fit: five epochs, 2,555 updates, 2,500,000 target presentations, finite final model and optimizer state.
+- [x] Remove unnecessary waiting for all TreeLoom predictions before allowing dependency-ready native GPU work. Use genuine completed-fit evidence with an explicit priority-only amendment; do not claim full-chain completion.
+- [x] Preserve the newly exposed native ARGMix attempt4 failure: CUDA memory counters were reset before initialization, before any training update.
+- [x] Qualify initialization before the unchanged CLI. Initial weights, CPU/GPU RNG and permutation agree exactly; one original TRAIN batch completes forward, backward and optimizer update with finite values.
+- [x] Review and launch a separate owner for the failed fit and its nineteen never-launched descendants. Keep all downstream output paths and successful-wait requirements. Preserve original failed/blocked rows and every healthy controller.
+- [x] Verify actual retry worker on GPU 3, with ARGformer on GPUs 4 and 5. Update current counts by overlaying only owned tasks, without counting external dependencies twice.
+- [ ] Complete ARGMix fit, all pending native and TreeLoom TEST predictions, paired scores and the registered independent final audit.
+- [ ] Resolve comparison-fidelity ticket ARGMIX-AUTHOR-01: these plans train equation_corrected, not untouched author_key_i. Label current results as a variant and do not claim unmodified author-code comparison until separately run. No scientific condition was changed during this operational repair.
+
+Evidence: root/queue_health_after_cuda_retry_20261030_v1.json, queue/native_argmix_cuda_retry_20261030_v1/manifest_v1.json and review_finish/recovery_20261030/native_argmix_cuda_retry_acceptance_v1.json. Previous timestamped sections retain their historical observations.
