@@ -1,18 +1,18 @@
 # ARG-GNN
 
 <!-- joint-finish-operations:start -->
-**Current progress, 30 October 2026, 03:42 Moscow time:** GPU 3 was idle because TreeLoom preprocessing for the ARGMix benchmark failed before GPU training. The 16 workers exceeded an incorrectly small 64 GiB aggregate CPU memory guard. This was a real operational failure, not completed work.
+**Current progress, 30 October 2026, 05:16 Moscow time:** TreeLoom is now training on GPU 3 for the corrected ARGMix benchmark. The completed cache contains all 8,140 windows and 500,000 TRAIN targets. The latest saved progress shows epoch 1, **75/2,555 optimizer updates**, and 72,752 targets presented in this epoch. The fixed schedule remains five epochs and 2,500,000 total target presentations.
 
-- **Repair is running:** measured source loading and replacement justified an explicit 384 GiB family RAM allowance, with 448 GiB host admission. The original 16 workers, inputs, model, training schedule and scoring functions are unchanged. The failed attempt is retained. At 03:41 Moscow time, all 16 workers were active, using about 142 GiB aggregate RSS. Cache payloads increased from 146 to 215 in 20 seconds, beyond the previous 82-second failure point.
-- **GPU 3:** currently awaits CPU cache completion. The recovered controller will automatically qualify the full training batches, train TreeLoom, predict and score. The final scoring and independent review controllers now follow the recovered queue. This is not yet GPU training or a completed ARGMix comparison.
-- **ARGMix comparison:** all five original TRAIN observation datasets are ready. The held-out validation Relate reconstruction continues. There is still no final score for the new TreeLoom against released ARGMix on this corrected benchmark. Both methods' remaining execution and the shared-target evaluation on eight TEST datasets remain registered.
-- **American TreeLoom:** its fixed 13 epochs, 128,869 updates and 2,600,000 target presentations completed in 10.56 hours. All 15 held-out predictions are complete. Paired scoring awaits the remaining ARGformer predictions.
-- **ARGformer:** 10/15 prediction datasets complete. TEST005 and TEST006 are advancing through epoch 3 on GPUs 4 and 5. Their processes were preserved. **FLARE:** 15/15 predictions complete.
-- **European comparisons:** six-class and direct four-class comparisons are complete. The direct four-class primary present-day endpoint favors the CNN. Numerical results below are unchanged.
+- **Second operational error repaired:** after the CPU-memory repair, cache preparation completed in 47.1 minutes and the full GPU qualification passed. The controller then incorrectly treated its 40 GiB minimum-free admission field as a maximum permitted reservation. The measured peak was 73.92 GiB on the 80 GiB GPU. A reviewed continuation now requires that measured reservation plus 2 GiB of available headroom. Both completed stages are reused without replay, with original scientific settings and genuine completion records preserved.
+- **GPU 3:** the actual training worker is advancing. Sampled utilization varied from 0 to 99 percent during a short observation window; this is not evidence of sustained 80 percent utilization. The remaining training, prediction and scoring stages are connected to the original completion coordinator.
+- **ARGformer:** TEST005 and TEST006 continue on GPUs 4 and 5, with fresh logs in epochs 3 and 4 respectively. Ten of fifteen prediction datasets are complete. **FLARE:** all fifteen predictions are complete.
+- **American TreeLoom:** its fixed 13-epoch fit and all fifteen predictions are complete. Paired scoring awaits the remaining native ARGformer predictions.
+- **ARGMix comparison:** all five TRAIN observation datasets are complete; validation Relate reconstruction continues. There is still no final ancestry score for the new TreeLoom against released ARGMix on this corrected benchmark. The registered evaluation uses the same eight TEST datasets and targets.
+- **European comparisons:** six-class and direct four-class comparisons are complete. The direct four-class primary present-day endpoint favors the CNN. Numerical results below remain unchanged.
 
 Earlier TreeLoom versus released ARGMix development scores were **97.08 ± 0.57% versus 94.45 ± 1.15%** present-day span accuracy on the same eight reused European simulations. They use the previous TreeLoom architecture and an earlier simulation setup. They are not results for the new model on the corrected ARGMix benchmark.
 
-[Current queue](research/joint_evaluation_20261029/root/CURRENT_STATUS.json) · [Measured recovery progress](research/joint_evaluation_20261029/root/argmix_recovery_live_progress_v1.json) · [Independent repair review](research/joint_evaluation_20261029/review_finish/recovery_20261030/worker_controller_acceptance_v1.json) · [Scientific comparison contracts](research/joint_evaluation_20261029/review_finish/final_results_contract_review_v1.md). Final American and ARGMix comparisons, independent numerical review and manuscript completion remain pending.
+[Current queue](research/joint_evaluation_20261029/root/CURRENT_STATUS.json) · [Verified GPU training progress](research/joint_evaluation_20261029/root/argmix_gpu_capacity_live_v1.json) · [Independent continuation review](research/joint_evaluation_20261029/review_finish/recovery_20261030/gpu_capacity_acceptance_v1.json) · [Scientific comparison contracts](research/joint_evaluation_20261029/review_finish/final_results_contract_review_v1.md). Final American and ARGMix comparisons, independent numerical review and manuscript completion remain pending.
 <!-- joint-finish-operations:end -->
 
 <!-- joint-model-20261029:start -->
@@ -46,7 +46,7 @@ Values are mean ± sample SD across five independently simulated chromosomes, no
 
 - **ARGformer:** 10/15 dataset predictions complete. The remaining 5 parents are assigned to the original GPU3 lane and the two native lanes on GPUs4 and5. Their original training schedules remain unchanged.
 - **FLARE:** 15/15 prediction datasets complete and authenticated.
-- **ARGMix:** explicit memory recovery is running: joint_argmix.train_cache. All five original TRAIN observations are ready. Final paired ancestry scores remain pending.
+- **ARGMix:** explicit memory recovery is running: joint_argmix.train. All five original TRAIN observations are ready. Final paired ancestry scores remain pending.
 - **New American TreeLoom:** the fixed 13-epoch fit and all fifteen held-out predictions are complete. Paired ancestry scoring awaits native comparator predictions.
 - **Direct four-class AncestralPaths CNN and TreeLoom-Joint:** both fresh four-output models completed training and prediction on all five TEST chromosomes. The completed comparison uses the same 40,000 supervised targets and 40,000 TEST targets. TreeLoom used its fixed 50 epochs and CNN its fixed five epochs. Present-day accuracy remains the registered primary endpoint; results are reported below.
 

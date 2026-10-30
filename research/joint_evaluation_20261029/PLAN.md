@@ -132,3 +132,16 @@ No scientific source, training schedule, data or score changed during this statu
 - [ ] Finish native ARGformer predictions and paired American scoring, then run the registered independent final numerical audit.
 
 GPU 3 remains idle during the CPU cache stage. The recovered controller will start GPU execution when that prerequisite succeeds. No final ARGMix score or universal superiority is claimed. This operational repair does not alter the frozen scientific comparison.
+
+## GPU admission semantics repaired, 30 October 05:16 Moscow time
+
+- [x] Authenticate complete original cache: 8,140 windows, 500,000 targets, 47.1 minutes, successful child wait and drained session.
+- [x] Authenticate full 16-window GPU qualification, successful wait and finite numerical checks. Its measured peak reservation was 79,375,106,048 bytes on the 80 GiB GPU.
+- [x] Diagnose the controller failure: it compared peak reserved memory to the 40 GiB minimum-free admission field as though that field were a cap. This was not an OOM or failed numerical qualification.
+- [x] Preserve the failed controller state/log and both successful stage records. Add a reviewed continuation that skips exactly those two stages and uses the unchanged executor for the remaining thirteen stages.
+- [x] Set the new GPU admission requirement to measured reservation plus 2 GiB, preserving the original plan, source freeze, batch size, model, targets, schedules, outputs and genuine waits. Nineteen focused author tests and ten independent checks passed, including compatibility with the unchanged final coordinator.
+- [x] Launch the continuation once. Actual GPU training reached 75 updates and 72,752 targets in epoch one by 05:16 Moscow time. Sampled GPU activity varied from 0 to 99 percent; no sustained-utilization claim follows.
+- [x] Confirm native ARGformer jobs on GPUs 4 and 5 and native validation Relate remain active. No existing worker was signalled.
+- [ ] Complete the fixed 2,555-update fit, all predictions and paired comparison, then the registered independent final numerical audit.
+
+The first CPU-memory repair succeeded. The separate GPU admission failure is retained as history. Neither repair changes any scientific algorithm or turns old development scores into corrected-benchmark results.

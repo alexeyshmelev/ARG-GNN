@@ -1,0 +1,75 @@
+{
+  "actual_complete_TRAIN_targets": 500000,
+  "actual_complete_TRAIN_windows": 8140,
+  "controller_operational_failure": true,
+  "current_GPU_observation": {
+    "free_bytes": 85095088128,
+    "index": 3,
+    "name": "NVIDIA A100-SXM4-80GB",
+    "total_bytes": 85899345920,
+    "uuid": "GPU-df11de7f-7a15-ebe2-085d-9c7d907f3786"
+  },
+  "diagnosis_confirmed": true,
+  "failure_log_ref": {
+    "path": "research/joint_evaluation_20261029/argmix/recovery_20261030_queue/records_v1/controller.log",
+    "sha256": "131a599a98d50a99280ba1a1756067fd7ccd4405c2152fbb4fb0dc1fcd92235e"
+  },
+  "failure_state_ref": {
+    "path": "research/joint_evaluation_20261029/argmix/recovery_20261030_queue/records_v1/state.json",
+    "sha256": "742ffcce0b197248ff7cfbb31ad4ac13ede48ca0841fa74ccc38e411105f05e4"
+  },
+  "finding": "Controller incorrectly used the prelaunch minimum-free-memory floor as a postqualification maximum reserved-memory cap.",
+  "measured_peak_allocated_bytes": 75394003456,
+  "measured_peak_reserved_bytes": 79375106048,
+  "original_admission_floor_bytes": 42949672960,
+  "production_launched": false,
+  "proposed_minimum_with2GiB_headroom_bytes": 81522589696,
+  "qualification_failure": false,
+  "recorded_utc": "2026-10-30T02:03:29.571725+00:00",
+  "recovery_constraints": [
+    "Preserve original successful cache and qualification waits/products byte-for-byte and do not repeat them.",
+    "Keep all original scientific sources, targets, window batch size16, optimizer, five epochs and 2500000 target presentations unchanged.",
+    "Use a current empty assigned-GPU admission and measured memory floor; preserve original mutex,384GiB CPU guard,448GiB host gate, wall-time and storage limits.",
+    "Retain failed controller state/log separately and emit only genuine future waits for unfinished stages.",
+    "Any reuse of original plan and manifest binding must retain explicit operational-continuation provenance without claiming the original controller continued."
+  ],
+  "schema": "independent_argmix_GPU_admission_diagnosis_v1",
+  "signals_sent": 0,
+  "source_ref": {
+    "path": "research/joint_evaluation_20261029/argmix/recovery_20261030_queue/controller_v1.py",
+    "sha256": "2243a68b15908a8c45582c4127c18755cf951d2a74a3116525697c82aed52b5d"
+  },
+  "successful_stages": [
+    {
+      "colocated_wait_ref": {
+        "path": "experiments/results/joint_argmix_20261029/cache_build/actual_wait.json",
+        "sha256": "d69cd5a3cd244cae099e737e6c24ab6d364d441dd2afeff58ca79f462c22133c"
+      },
+      "product_ref": {
+        "path": "experiments/results/joint_argmix_20261029/cache_build/completed.json",
+        "sha256": "ee72ca05f23500fa0cea7742eed2c587666ec600ea8cef452c5dc543c6e9781a"
+      },
+      "wait_ref": {
+        "path": "research/joint_evaluation_20261029/argmix/recovery_20261030_queue/records_v1/joint_argmix.train_cache/actual_wait.json",
+        "sha256": "d69cd5a3cd244cae099e737e6c24ab6d364d441dd2afeff58ca79f462c22133c"
+      }
+    },
+    {
+      "colocated_wait_ref": {
+        "path": "experiments/results/joint_argmix_20261029/gpu_qualification/actual_wait.json",
+        "sha256": "473b45d3babaa4256801017a18a94fd9d5a08ddd841b3a805c06628609e180b4"
+      },
+      "product_ref": {
+        "path": "experiments/results/joint_argmix_20261029/gpu_qualification/completed.json",
+        "sha256": "ced3e01c3b3b728dc760b1a65e632afca0137296a3fc28080ddf16d32b878e0e"
+      },
+      "wait_ref": {
+        "path": "research/joint_evaluation_20261029/argmix/recovery_20261030_queue/records_v1/joint_argmix.gpu_qualification/actual_wait.json",
+        "sha256": "473b45d3babaa4256801017a18a94fd9d5a08ddd841b3a805c06628609e180b4"
+      }
+    }
+  ],
+  "training_started": false,
+  "truth_opened": false,
+  "worker_oom": false
+}
