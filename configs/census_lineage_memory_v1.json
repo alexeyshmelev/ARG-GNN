@@ -1,0 +1,116 @@
+{
+  "arms": [
+    "current_jaccard",
+    "genuine_edge",
+    "sham_edge"
+  ],
+  "base_scientific_config": {
+    "path": "configs/census_tsinfer_fit_v1.json",
+    "sha256": "7c2436d5479e68beb1a8f3edb04ca0ee729a23be35ca2d7893827c0db68e3b00"
+  },
+  "boundary_retention": {
+    "current_jaccard": "original rho^eta",
+    "genuine_edge": "rho=exp(-edge_changed), giving exp(-eta*edge_changed) in the unchanged action",
+    "sham_edge": "same action, local permutation of eligible change indicators"
+  },
+  "certification": {
+    "binding": [
+      "original_inner_and_outer_certificate_sha256",
+      "implementation_path_and_sha256",
+      "experiment_config_path_and_verified_sha256",
+      "arm",
+      "matched_seed",
+      "census",
+      "retention",
+      "missing_key_policy",
+      "sham_policy"
+    ],
+    "consumer_expected_hash": "selected derived outer certificate_sha256; never the original observation hash for a derived arm",
+    "derived": "fresh full-content inner certificate and canonical outer certificate for every arm, including current_jaccard",
+    "original": "validate the original full inner content and canonical outer fingerprint before deriving arms"
+  },
+  "edge_definition": "actual native (lower,upper) with lower_time<=350<upper_time, in the same parent-wide tsinfer namespace",
+  "execution_enabled": false,
+  "future_driver_integration": "unwrap existing ConsumerCertificateV1.outer; prepare once per tile and matched seed with independently pinned experiment_config_sha256; select certificate_for_arm; wrap selected outer in existing ConsumerCertificateV1; pass its fresh outer certificate_sha256 to existing validators, forward, train_step_v1 and raw_prediction_v1 with control=proposed for all three arm labels; reuse existing model/optimizer/loss/scoring",
+  "hypothesis": "Observed native census-edge changes identify useful genomic ancestry-memory resets beyond query-member Jaccard or matched sham resets.",
+  "kind": "census_lineage_memory_v1",
+  "memory_scope": "original within-tile bidirectional scans; no added cross-tile/cross-parent state",
+  "missing_keys": {
+    "dynamics_leaf_at_or_older_than350": "raise under existing require_younger policy",
+    "missing_native_map_or_query_join": "raise; never fabricate IDs",
+    "root_reached_without_crossing": "None/no_crossing_edge; boundary with either absent key has rho1 in genuine/sham arms"
+  },
+  "model": {
+    "hidden_dim": 32,
+    "initial_damping": 1.0,
+    "initial_eta": 1.0,
+    "initial_exchange": [
+      5.0,
+      20.0,
+      80.0
+    ],
+    "latent_dim": 8,
+    "num_branches": 3,
+    "num_classes": 4,
+    "num_layers": 2
+  },
+  "model_inputs": "unchanged observed full trees,47 features,reference labels,query dates and physical spans; native IDs are fixed joins only",
+  "novelty_claim": false,
+  "observed_input_config": {
+    "path": "configs/census_tsinfer_observation_v1.json",
+    "sha256": "8cf93831f4947d35f7a1d4018096d0f08b9c8c460b090c31ed6f50a559a9ce38"
+  },
+  "parameter_matching": "same existing CensusTreeGNNV1 and unchanged learned eta dimensions; no new parameters",
+  "predictive_driver_implemented": false,
+  "primary_endpoint": "minimum_equal_parent_development_VAL_present64_exact_span_raw_probability_NLL_earliest_tie",
+  "readout_chunk_size": 128,
+  "seeds": [
+    101,
+    202,
+    303
+  ],
+  "sham": {
+    "degenerate": "all-equal or singleton strata remain unchanged; report reassigned-indicator count",
+    "preserved": "exact eligible change count in every stratum, hence every parent/query/span bin",
+    "seed": "same matched model seed with deterministic local SHA256 seed; no global RNG use",
+    "span_bin_upper_bp": [
+      100.0,
+      1000.0,
+      10000.0
+    ],
+    "span_measure": "clipped physical width of right original tree hold",
+    "strata": [
+      "parent_id",
+      "native_namespace",
+      "actual_query_id",
+      "tile_id",
+      "right_span_bin"
+    ]
+  },
+  "status": "source_only_adapter_pending_root_predictive_fit",
+  "supervision": "unchanged external TRAIN actual120 class-span mass; mixed64 context unlabeled",
+  "training": {
+    "TRAIN_tiles_per_epoch": 16,
+    "VAL_calibration_fit": false,
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "dropout": 0.0,
+    "early_stopping": false,
+    "epochs": 30,
+    "epsilon": 1e-08,
+    "gradient_clip_norm": 1.0,
+    "learning_rate": 0.001,
+    "mixed_reference_supervision": false,
+    "optimizer": "AdamW",
+    "optimizer_steps_per_control_seed": 480,
+    "pure_reference_auxiliary_loss": false,
+    "rate_mixture_weight_decay": 0.0,
+    "schedule": "none",
+    "selection": "minimum_equal_parent_development_VAL_present64_exact_span_raw_probability_NLL_earliest_tie",
+    "shuffling": "random.Random(seed+epoch)_over16_original_TRAIN_tiles_shared_by_all_controls",
+    "supervision": "actual_query120_exact_class_span_mass_TRAIN_only",
+    "weight_decay": 0.0001
+  }
+}

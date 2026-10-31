@@ -1,0 +1,13 @@
+# H024 CPU profile V2 snapshot correction
+
+Source/handmade only. V1 and its finite independent REJECT remain sealed. V1 allowed changed inactive/initial-state metadata and prior Torch payload bytes to be parsed after a separate successful hash read. V2 makes the verified object and parsed object identical.
+
+ReaderV2 performs one bounded binary content read, hashes that exact bytes object and gives it directly to json.loads. The frozen protocol goes through the same reader. Every direct metadata JSON path in this profile, including predecessor/review/runtime/observation/storage/reference metadata, uses verified bytes. Prior Torch payloads are parsed from io.BytesIO of one verified bytes snapshot. There is no path-returning verified-reader API or read_text decoder in new profile source.
+
+All11 numerical/full-support helpers remain AST-identical. The complete actual-cell body changes only the prior-payload load expression. Protocol changes are only kind/version, source-correction registration and sealed predecessor refs. Original producer/core/model/optimizer bytes,16cells,955trees/962cache occurrences/eight tiles/256anchors/280leaves/Q184/R96/47fields/19,988readouts, tolerances, seed101, empty inactive set, one clipped AdamW step, physical readout joins and40GB/128GB genuine v4 policies remain unchanged. The new source registration uses its exact source-only no-actual-profile/model/data authorization field. Original dependency internals and live workers are not patched.
+
+Owned-fixture tests reproduce V1 inactive→active/initSHA substitution and demonstrate V2 parsing the originally verified inactive bytes even after a file swap. Protocol-cap and primitive Torch-payload swaps retain verified old content. Wrong SHA, missing/bad refs and subsequent reads of changed files reject. These are finite source/metadata snapshot checks, not production-model or dataset execution. Existing V1 numerical handmade wiring evidence is preserved; unchanged mathematical bodies are proven rather than rerun.
+
+The planned serialized bound remains36,994,752,512 bytes under40GB; complete parent cells remain isolated and sequential under128GB peak boundary. No actual profile/reservation is admitted here. Fresh independent V2 source/config PASS, per-cell root admissions, external seed101 initial-state SHA, prior-cell exit0 refs, exact main runtime, approved observed producer binding and real v4 reservation/watcher still precede launch.
+
+Prospective module launch uses arggnn.anchor_parent_cpu_profile_v2 with the same --execute/--admission/--expected-admission-sha256 interface. All templates remain inactive. Root owns review, activation, input/model/profile execution, scheduling, budget and Git.

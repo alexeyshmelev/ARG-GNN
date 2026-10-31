@@ -1,9 +1,9 @@
 # ARG-GNN
 
 <!-- user-pause-20261031:start -->
-**Paused at the user's request, 31 October 2026:** the benchmark queue is suspended and GPUs **3, 4 and 5 are released (0 MiB used on each)**. CPU reconstruction is suspended in place. The interrupted ARGformer fit retains its periodic checkpoint and needs explicit checkpoint continuation when the user resumes work. Completed results remain unchanged. Queue activity described below is the pre-pause history.
+**Server campaign retired at the user's request, 31 October 2026.** The queue is stopped. Completed scores, source history and the manuscript remain in this repository. Before the authorized deletion of the server checkout, previously uncommitted evidence, small trained models and prediction files were preserved in verified archives. The benchmark remains incomplete; no interrupted stage is represented as a completed result.
 
-[Pause record and resume constraints](research/joint_evaluation_20261029/queue_pause_20261031/README.md)
+[Preserved results, archive index and exclusions](research/decommission_20261031/README.md). Large raw datasets, caches, environments and large competitor training checkpoints are outside this backup and will be removed with the server folder. Activity and resume instructions below describe the historical campaign.
 <!-- user-pause-20261031:end -->
 
 <!-- joint-finish-operations:start -->

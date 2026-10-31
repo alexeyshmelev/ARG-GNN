@@ -1,5 +1,5 @@
 {
-  "status": "qualify-gpu_running",
+  "status": "failed_partial_preserved",
   "hypothesis_id": "H012/H020",
   "started_utc": "2026-10-10T16:07:31.689250+00:00",
   "source_bindings": {
@@ -40,6 +40,47 @@
   "maximum_future_write_reservation_bytes": 80000000000,
   "TEST_read": false,
   "April_paper_reproduction": false,
-  "steps": [],
-  "prior_completed_sequence_sha256": "ec09a7b8b35163efa66a28604de95da306f01804b446d6517bd3fb3c699bc2db"
+  "steps": [
+    {
+      "phase": "qualify-gpu",
+      "command": [
+        "/workspace-SR003.nfs2/ARG-GNN/.runtime/env/bin/python",
+        "scripts/launch_gpu.py",
+        "--gpu",
+        "2",
+        "--job",
+        "argmix-biological-v1-qualify-gpu",
+        "arggnn.official_argmix_biological",
+        "--execute",
+        "--phase",
+        "qualify-gpu",
+        "--output",
+        "experiments/results/official_argmix_biological_pilot_v1/gpu_qualification",
+        "--expected-config-sha256",
+        "beb49bccf0f4780d6d76a3e738e1cba85dc5a1de4c846811aea2a20962029819",
+        "--build-receipt",
+        "experiments/results/argmix_native_abi210_execution_v1/v6/build/receipt.json",
+        "--expected-build-sha256",
+        "fa1898dc4f55638d4e106a2da9b6fb7df139f2719b50b664b433c7955e0dd0dd",
+        "--cpu-admission",
+        ".runtime/official_argmix_abi210_v1/cu129/admission/v6/receipt.json",
+        "--expected-cpu-admission-sha256",
+        "592561fe97bd74e8678ba2ebb1bf749c0c09124c13eda03d0ded98d120c99a39"
+      ],
+      "exit_code": 1,
+      "log": "experiments/results/official_argmix_biological_pilot_v1_sequence/qualify-gpu.stdout",
+      "log_sha256": "2d7606b0f333b1051e0deaab78ab043cac22ada477e56eb8b414e031fb792b25",
+      "receipt": {
+        "path": "experiments/results/official_argmix_biological_pilot_v1/gpu_qualification/receipt.json",
+        "sha256": "dbc1ddf89ce8450eb140e5e7ae965f1c2e0a776b3ee4eea0616b44007b82b823",
+        "status": "failed"
+      }
+    }
+  ],
+  "prior_completed_sequence_sha256": "ec09a7b8b35163efa66a28604de95da306f01804b446d6517bd3fb3c699bc2db",
+  "exit_code": 1,
+  "failure_type": "RuntimeError",
+  "failure_message": "Native qualify-gpu failed, preserve all outputs",
+  "traceback": "Traceback (most recent call last):\n  File \"/workspace-SR003.nfs2/ARG-GNN/.runtime/scripts/run_official_argmix_biological_pilot_v1_sequence.py\", line 46, in <module>\n    gpu=run('qualify-gpu',D/'gpu_qualification',[],True)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace-SR003.nfs2/ARG-GNN/.runtime/scripts/run_official_argmix_biological_pilot_v1_sequence.py\", line 27, in run\n    if p.returncode or not receipt.exists() or item['receipt']['status']!='passed':raise RuntimeError('Native '+phase+' failed, preserve all outputs')\n                                                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nRuntimeError: Native qualify-gpu failed, preserve all outputs\n",
+  "finished_utc": "2026-10-10T16:17:33.846592+00:00"
 }

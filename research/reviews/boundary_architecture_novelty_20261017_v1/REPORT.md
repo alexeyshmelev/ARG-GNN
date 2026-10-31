@@ -1,109 +1,93 @@
-# Ordered marker evidence through complete trees: constructive candidate and novelty boundary
+# Boundary architecture audit: no new operator qualified
 
-17 October 2026. **One concrete candidate for efficient ordered marker evidence; priority and utility remain unestablished.** Preserve marker position by computing query-specific reference evidence at each ordered SNP, pass its ordered state into the second complete-tree traversal, and use marker states at prediction. A sparse subtree-event calculation can evaluate the existing H058 path kernel exactly. Its potential contribution is the efficient realization together with a biologically useful information path, if a focused priority check and matched boundary results support both. Every component need not be new; adding a SNP GRU alone is insufficient. An age-conditioned tract-duration decoder is a separate precise no-go as a new architecture (DURATION_NO_GO.md).
+17 October 2026. **NO_GO for another architecture proposal from the inspected evidence.** No implementation, hypothesis registration or experiment is recommended. The most concrete remaining information gap is an observation-conditioned distinction between a genuine change of source ancestry and a change of matching donor or uncertain genealogy within the same ancestry. Neither the current aggregate metrics nor the inspected architecture identify that error mechanism. Explicitly adding donor history is not a new direction: the project already excluded donor-copying/remix hybrids, and the primary literature supplies the defining latent states, switching processes and efficient inference.
 
-## What the actual interface discards
+This is a bounded source/literature assessment, not proof that no useful or novel genealogy architecture can exist. Novelty can reside in a representation, coupling or exact algorithm built from established primitives. Here no materially distinct coupling or algorithm, tied to a demonstrated error, survives the reductions below.
 
-The original site route uses a shared SNP function then mean/max/count pooling within a native tree hold (mutation_routed_whole_tree_gnn_v1.py:281–341). H058 performs same-marker query/reference comparison first, but again sum/max/count pools before its residual (same_marker_packed_csr_v2.py:411–459). Its path gate is fixed per hold and uses pooled first-sweep states (462–474).
+## Evidence that the direction must explain
 
-**Conditional interface theorem.** Fix the point inferred trees, topology/branch summaries, sampled identities, hold geometry and all other non-site bank fields. Jointly permute the aligned observed marker bundles inside a hold, moving genotype, donor-frequency/callability and other site-indexed summaries together while keeping the marker positions fixed. These pooled routes return identical values in exact arithmetic. H058's per-marker comparison commutes with that permutation. Subsequent whole-tree states, sample memory and the genomic BiGRU therefore receive identical inputs. This is not a claim that re-inferring genealogies from permuted raw chromosomes yields the same tree bank, or that all ancestry information is absent. Floating-point reduction roundoff is not meaningful positional information.
+The current European selection is H050 stable-sample memory: modern span accuracy **97.077844 ± 0.567395%**, versus NoMem continuation **97.000028 ± 0.497841%**. Boundary F1 at 1 kb is **18.380657 ± 1.3141%** versus **19.048847 ± 1.4275%**. These are eight reused development simulations, one optimizer seed101 and 960 added complete-parent updates per arm from the same initializer, with independent checkpoint selection. The differences do not establish that memory causes oversmoothing. Changed selection, missed transitions, false transitions and their genomic masses can produce the same two aggregates.
 
-A tiny representation example at ten fixed equally spaced sites is
+The current-release ARGMix pipeline scores 94.4461 ± 1.1491% on the European development endpoint. The material input, release and training differences in the manuscript prevent assigning that pipeline gap to one TreeLoom operator or equating it with a publication reproduction.
 
-    A A B B A A A A A A
-    A A A A A A B B A A.
+There is stronger, but historical, boundary evidence in the H038 diagnostic: 1,094 of 4,008 true boundaries lacked an allowed hold edge within 1 kb; 2,195 of 3,289 observed misses still had a nearby candidate. Predictions contained 6,729 changes versus 4,008 true changes. Strict false internal islands ≤10 kb explained 35.46 ± 2.71% of extra boundaries. This supports investigating transition recognition as well as resolution. These are H038 measurements, not H050 residuals or proof of a donor/LD/phase mechanism. The H057 TRAIN-only grid-minus-hold oracle accuracy gap, 0.1044431 ± 0.0098382 points, establishes limited extra representability, not an achievable gain or a boundary-recall ceiling.
 
-The marker multiset, endpoint class and tract-duration multiset agree (A lengths2 and6, B length2), but the short interior B tract moved. Pooling cannot identify its position. A downstream stationary duration prior also assigns the same product of duration terms. Symbols illustrate an interface distinction, not a validated demographic fixture. The current hold-constant output is an additional restriction. More downstream recurrence or uncertainty feedback cannot reconstruct this discarded arrangement from identical summaries.
+H044's fixed local SNP boxes versus pooled evidence gained only 0.00526 accuracy points and reduced F1 from18.6750 to15.5374%. H043/H045/H046 foreign context, H048 graph-conditioned persistence and H050 higher-order cut history failed their registered utility rules. These answered conditions must not be renamed and repeated. They do not establish that every marker representation, donor-copying model or uncertainty model is ineffective.
 
-This does not diagnose existing boundary errors. H057's TRAIN-only native-hold versus100bp oracle gap is only0.1044431±0.0098382 accuracy points across32 parents. This limits extra representable span, not boundaryF1 or an achievable gain. Small tracts can create many missed/extra boundaries with little wrong span. H058 remains an unfinished alignment experiment and is unchanged.
+H061 provides an independent limit on a universal memory claim, not an ancestry explanation: three-seed Chickenpox TEST MAE is13.907918 ±0.242561 cases with memory versus13.648097 ±0.050932 without; RMSE slightly favors memory. Its registered memory criterion failed. H058, separate ordered_marker_placement_v2 and H060 are full-training live **per ROOT's current handoff**. The inspected decision snapshot contains older H058 operational wording. No live process, payload or new result was queried here.
 
-## The concrete candidate: exact event-evaluated marker path evidence
+## The precise information gap
 
-For one fixed inferred tree, let 0<gamma_e<=1 be a learned, site-independent edge gate from its complete first sweep. Define the symmetric path kernel
+Direct source inspection confirms that the original site route maps each query allele to eight source×age reference-frequency/mask channels, panel frequency, entropy and callability; it then mean/max pools learned site features within native holds. H058 retains same-marker source×age×allele/tree-path alignment before pooling. Ordered-marker v2 retains the order of those 24 aligned channels through width8 bidirectional GRUs, reset at native holds. Both retain native-hold outputs.
 
-    K(q,r)=product_(e on path(q,r)) gamma_e.
+The gap is therefore **not “the model has no SNPs, LD or marker order.”** Full inferred trees and their mutation support already derive from correlated variants, genomic recurrence can encode correlations, and the live ordered route explicitly addresses order. What is absent as an explicit statistical object is a separate donor-identity trajectory, with a distinction between within-ancestry donor turnover and ancestry turnover, and a qualified treatment of point-tree error/reference mismatch. Absence of that explicit object is a source fact; its necessity and predictive value are unproved.
 
-Actual H058 eligibility is known pure references only, never query labels. Group g is `reference_class + 4*1[sample_age>=350]`: younger Ana/CHG/WHG/EHG, then older in the same order. Its null routes complete reference sequences by the fixed within-group permutation, while querying the *original*, unpermuted query genotype. Any sparse encoding must use the same assigned reference sequence at its destination node. All nodes remain.
+A query may match a different reference through historical recombination, incomplete lineage sorting, sampling noise or imperfect reference proxies while retaining the same source ancestry. Conversely, a real source change can occur without an inferred topology change. Thus a clade edit, nearest-donor change or an increased number of transitions cannot by itself label an ancestry event. Normalized attention weights also do not become an evolutionary posterior, and genotype-derived trees and genotype emissions are not independent evidence factors.
 
-**No degree divisor belongs in this kernel.** H058 `_block_evidence` adds one `log_gamma[child]` on both upward and downward edges. `degree` there controls sibling log-prefix scans only. The inherited first neural sweep has degree-normalized upward messages, and this influences its gate inputs, but is not an additional directional factor in H058's path field. Gate logs are clamped to[-16,-0.0001].
+## One audited construction and its exact known-method reduction
 
-Let w_g(v)=1 for a reference node in group g and0 otherwise. Precompute
+The following is a **rejected construction used to expose the reduction**, not a new proposal.
 
-    U_vg = w_g(v) + sum_(child u) gamma_u U_ug,
-    O_root,g=0,
-    O_ug = gamma_u (O_vg + U_vg - gamma_u U_ug).
+Allowed inputs would be the original phased query/reference calls, missing masks, reference source labels and ages, observed marker coordinates or a declared map, complete inferred trees and the existing whole-tree representation. No query truth, true genealogy, census-state annotation or true boundary is an input.
 
-U is path-weighted reference mass below v; O is outside mass. Full-tree sweeps cost O(NG), G=8. The actual H058 field gathers **outside at the query**, not U+O. Thus it excludes all reference descendants of an internally sampled query q, even though reference/query identities themselves are disjoint. Define
+For query q at marker s, let the hidden state be Z_sq=(C_sq,R_sq), source c∈{1,…,C} and copied reference r∈{1,…,R}. Allow donor source to differ from c. Let π_sq,c,r be a normalized reference-selection distribution, μ_sq,c a source distribution, a_sq the probability of an ancestry-redraw event and b_sq,c a within-source donor-redraw probability. A standard hierarchical transition is
 
-    C_g(q,v) = sum_(r in D_v but not D_q) K(q,r) w_g(r).
+    K_sq[(c,r),(d,u)] =
+       (1-a_sq) 1[c=d] {
+          (1-b_sq,c) 1[r=u] + b_sq,c π_sq,c,u
+       }
+       + a_sq μ_sq,d π_sq,d,u.
 
-Laminar descendant sets and unique paths give the exact cut identity
+Each row sums to1. An ancestry-redraw event can choose the same source and is not necessarily an observed label transition. A positive match/mismatch emission e_sq(c,r) uses the target/reference calls; unavailable comparisons are neutral. A genetic emission would additionally require a declared mutation/error/ascertainment model. Using neural scores instead defines conditional potentials, without automatic biological calibration.
 
-    C_g(q,v) = 0,                           v in D_q,
-             = O_qg - K(q,v) O_vg,          q strictly in D_v,
-             = K(q,v) U_vg,                 D_q and D_v disjoint.
+The conditional chain is
 
-The root baseline is O_qg. For terminal queries with no sampled descendants, this agrees with the simpler all-reference formula; the distinction must not be dropped for ancient internal samples. These are rank-one cut factorizations, not a globally low-rank kernel matrix. R kernels apply channelwise at O(R) cost.
+    P(Z_q | O) ∝ initial(Z_1q)
+                  ∏_s e_sq(Z_sq)
+                  ∏_(s>1) K_sq[Z_(s-1)q,Z_sq],
+    P(C_sq=c | O) = Σ_r P(Z_sq=(c,r) | O).
 
-Represent the *observed* allele vector at marker s as a root baseline plus signed descendant-set events:
+For fixed donor-panel probabilities π_c,r=p_c,g(r)/n_g(r), ordinary mismatch emissions, a=1−exp(−TΔg) and b_c=1−exp(−ρ_cΔg), this is the established ancestry×donor-copying HMM family in HAPMIX/FLARE [1–3]. HAPMIX explicitly has state (ancestry, copied population, copied individual), allows miscopying and explains why forbidding miscopying can create spurious ancestry breaks through incomplete lineage sorting or imperfect references. FLARE explicitly distinguishes pre-admixture donor changes from post-admixture ancestry changes.
 
-    e_(allele_s(r)) = e_(root_symbol_s)
-                     + sum_(v on root-to-r) Delta_sv.
+With one ancestry this becomes the ordinary haplotype-copying specialization. If b=1, π and emissions are constant across donors within each source and sites, marginalizing donors leaves an ordinary source-state chain. A learned tree-dependent π or neural emission gives a covariate-dependent HMM/conditional chain. That changes its inductive bias, not the defining inference operation. Feeding posterior beliefs back into the tree would require an explicit joint model and solver; ordinary cavity exchange is already rejected as sum-product in the separate audit. No new exact factorization has been established here.
 
-Choose algebraic symbols for internal nodes, constrain every sampled node to its observed symbol, and let Delta_sv be child symbol minus parent symbol. The identity telescopes. Deterministic observed-data parsimony is one possible encoding; terminal corrections always give an exact fallback. Include multiallelic symbols and a separate missing-call symbol. Internally sampled nodes need their own observed constraints. These events are a lossless representation of calls, **not inferred biological mutations, recombinations or ancestry boundaries**. Never use true simulator mutation locations.
+The donor dimension need not create all-pairs transitions. Write F_prev(c)=Σ_r F_prev(c,r), F_prev=Σ_c F_prev(c), with normalized forward weights. Then
 
-The exact source/age/allele field is then
+    F_s(c,r) ∝ e_s(c,r) [
+       (1-a_s)(1-b_s,c) F_prev(c,r)
+       + (1-a_s)b_s,c π_s,c,r F_prev(c)
+       + a_s μ_s,c π_s,c,r F_prev
+    ].
 
-    B_sqga = e_(root_symbol_s)[a] O_qg
-             + sum_(v:Delta_sv!=0) Delta_sv[a] C_g(q,v).
+This is O(CR) per query-marker, rather than O(C²R²). MOSAIC's primary appendix already derives the sum-plus-self correction that avoids donor-pair enumeration [4]. Torch could batch normalized/log-domain forward/backward over queries and donor states; PyG could supply the unchanged full-tree covariates. Block recomputation could trade memory for time while retaining all gradients. Those are established implementation techniques, not a new efficient exact algorithm. The inherited whole-tree work, computing tree-conditioned donor weights and full-parent training storage remain additional costs. No implementation, numerical check, measured fit or resource bound is supplied or authorized.
 
-For exact H058 feature semantics, let n_sga be the *unweighted all-reference-group* called allele counts after the same route permutation, c_sg=sum_a n_sga and D_sqg=sum_(a=0..3) B_sqga. If query x_sq>=0 and c_sg>0, choose its original allele x_sq and use
+The primary-text reduction is decisive against this particular novelty claim. It does not claim that FLARE already implements every possible whole-tree neural coupling, or that a carefully controlled biological application could never be useful.
 
-    contrast = B_sqg,x / D_sqg - n_sg,x/c_sg,
-    logmass  = min(0, log(D_sqg)-log(c_sg)),
-    available = 1.
+## What the existing conditions can distinguish
 
-Missing references contribute to no called allele slot or D; missing queries mask contrast/mass/availability. The availability-channel pooling mask still follows query-called status, exactly as H058. For positive outside support these are its24 features. An internal query can have c_sg>0 but D_sqg=0 if all called members are below q: current code sets safe_logD=0, matching=0, retains valid=1 and computes mass from that safe value. This is a material edge semantic, not a calibrated zero-mass denominator. Exact equivalence must retain it; changing validity to require external support is a separately disclosed scientific change.
+| Existing condition | Actual discriminating information | What it cannot establish |
+|---|---|---|
+| H058 aligned versus alignment-null, plus exact continuation | Same-marker reference allele/source/age alignment to inferred branches beyond the same capacity and source-frequency counts. The frozen whole-reference diploid permutation preserves reference sequences and LD while disrupting branch/exact-date attachment within allowed groups. | Donor-history utility, marker-order utility, topology alone, or calibrated genealogy. No new donor-indexed state exists. |
+| ordered_marker_placement_v2 before versus after the second tree sweep | Whether the same ordered aligned evidence is more useful when it conditions full-tree computation than at sample readout. Equal33966parameters and fixed training are central. | Order itself: both arms are ordered. It also retains constant native-hold output, so it does not validate new within-hold breakpoint locations. An advantage would support this biological coupling, not generic GRU/graph-feedback priority. |
+| H048 transition versus confidence control, already completed | The tested graph-conditioned reset-chain persistence versus confidence calibration. | A donor-copying or tree-uncertainty mechanism. Its negative result cannot be generalized to those untested models. |
+| H059 frozen independent European confirmation | Generalization of the selected complete packages beyond reused development parents. | Attribution to donor history or a new operator. Preserve its frozen purpose. |
+| H060 matched American Full/NoMem | Transfer of the actual full architecture and the memory addition. | Dense tract-boundary fidelity from sparse fixed focals, or a cause of European boundary errors. |
 
-No donor or winning branch is sampled. Nested/recurrent algebraic changes telescope; they are not independent evidence factors. For high event counts, an exact dense-sweep fallback can retain all calls. The sparse and dense methods are equal in real arithmetic, conditional on exact event encoding, identical routing and gates.
+None of the live existing comparisons directly isolates donor-identity continuity. It would be incorrect to relabel H058 or ordered-marker placement as that test. This audit does not create the missing test or revive the already excluded copying/remix direction.
 
-**FP32 risk is unresolved.** H058 uses positive log-domain sums and subtraction-free sibling exclusion. The sparse formula includes subtraction and signed allele events; cancellation can destroy small masses or gradients. A positive ancestor-segment composition can evaluate the strict-ancestor C term without subtraction, using O(NG logN) binary-lift preparation and O(G logN) per path query. It does not by itself eliminate cancellation in nested signed allele events. An implementation needs a positive region representation or a dense fallback and genuine FP32 output/gradient comparison. Clamping a negative reconstructed mass does not establish exactness. No numerical equivalence or fit is asserted here.
+The useful next evidence is the **already planned** matched marker results, with their frozen boundary precision/recall, correctly typed transitions, true-short-tract preservation and false-island diagnostics. They can distinguish useful tree-aligned evidence/coupling from added training/capacity. A score gain that removes genuine short tracts cannot establish improved tract recovery. Historical H038 diagnostics must not substitute for those actual outcomes.
 
-**Information flow.** First complete-tree sweep → fixed hold gates and U/O fields → each SNP's exact query evidence z_sq in physical order → bidirectional marker states m_sq with distance inputs. Inject a zero-initialized projection of the hold's forward/reverse marker endpoint states at the sampled query nodes before the second complete-tree sweep. Keep all reference and internal nodes in that sweep. Predict at markers/bins from the local marker state and the second-sweep sampled-node state. This retains marker order both before graph refinement and at prediction, while sampled identity links changing trees. An identical-evidence one-way decoder is the essential control for the second-sweep feedback. GRU, residual injection and bidirectional sequencing are established components; they are not the contribution.
+## Decision and provenance
 
-## Honest complexity and the proposed depth-only bound
+**NO_GO: no additional architecture, registration or run.** Keep the concrete information question: can observed evidence distinguish genuine source transitions from same-source donor turnover and uncertain genealogy beyond the strong whole-tree predictor? The obvious donor state and two switching processes are occupied primary prior art. A future design needs a specific additional relation the established ancestry×donor model plus observed-tree covariates cannot express, a materially distinct representation/coupling or exact algorithm, and an error mechanism supported by observations. Neither renaming an HMM nor requiring every primitive to be unprecedented is a suitable novelty standard.
 
-With O(1) LCA/range-membership queries and weighted root depths, K(q,v) is evaluated from the weighted path length. An O(N) static-tree LCA construction is available in principle; ordinary binary lifting instead costs O(N logN) preprocessing and O(logN) per query. Avoid unstable division of tiny path products. Let M=sum_s m_s count nonzero algebraic branch events, Q query samples and S markers in this hold. Conditional real-arithmetic field evaluation costs
+Primary sources actually inspected:
 
-    O(N G R + Q M G R),
+1. Li & Stephens (2003), *Modeling linkage disequilibrium and identifying recombination hotspots using single-nucleotide polymorphism data*. Genetics165:2213–2233. [DOI10.1093/genetics/165.4.2213](https://doi.org/10.1093/genetics/165.4.2213). Bibliographic/abstract record and primary PMC page verified. Its full scanned body was not used for a new technical claim; HAPMIX explicitly states its Li–Stephens extension.
+2. Price etal. (2009), *Sensitive detection of chromosomal segments of distinct ancestry in admixed populations*. PLoS Genetics5:e1000519. [DOI10.1371/journal.pgen.1000519](https://doi.org/10.1371/journal.pgen.1000519). Full primary XML, Materials and Methods / “Modeling genetic variation in admixed populations,” state definition and Eq0.1–0.2.
+3. Browning, Waples & Browning (2023), *Fast, accurate local ancestry inference with FLARE*. AJHG110:326–335. [DOI10.1016/j.ajhg.2022.12.010](https://doi.org/10.1016/j.ajhg.2022.12.010). Full primary PMC HTML, Subjects and Methods / “Hidden Markov model” and “Computational techniques.” Explicit ancestry×donor state, two crossover histories, panel mismatch, emissions and posterior readout.
+4. Salter-Townshend & Myers (2019), *Fine-Scale Inference of Ancestry Segments Without Prior Knowledge of Admixing Groups*. Genetics212:869–889. [DOI10.1534/genetics.119.302139](https://doi.org/10.1534/genetics.119.302139). Full primary XML, “Model,” “Thinning,” and appendix forward/backward computation. Nested ancestry/copying states, estimated copying matrix and efficient sum/self transition evaluation.
 
-or an extra logarithmic factor for positive ancestor-segment queries, plus O(S Q G) feature selection/normalization, marker recurrence O(S Q d^2), first/second neural tree passes O(N d^2), and all encoding/preprocessing costs. Working field storage is O(N G R); recurrent backpropagation/checkpoint storage is additional. A dense fallback makes per-site field work O(min(N,Q m_s) G R), with exact output equivalence, but selecting/constructing the encoding still costs work.
+Exact primary excerpts and retrieval records are in PRIMARY_EVIDENCE.v1.json and PUBLIC_RETRIEVALS.v1.json. Failed XML retrievals and unsuccessful compact searches are recorded; no claim relies on their absence of hits. Internal source hashes/read scopes and a compact decision snapshot are in SOURCE_RECEIPTS.v1.json and DECISION_CONTEXT_SNAPSHOT.v1.json. MANIFEST.v1.json seals the delivered files. Public retrievals were bounded and all saved material is inside this assigned directory.
 
-Crucially, raw calls require Omega(S H) access, and a naive exact parsimony encoding requires O(S N). Sparse m_s is an empirical property, not guaranteed: discordant calls can require O(H) events. Existing inferred mutation tables cannot be assumed lossless without checking their reconstruction against *all* observed calls. A supplied exact sparse representation can shift preprocessing to a preparation stage; its cost remains in total pipeline accounting.
-
-Therefore **O(N+S·depth·rank) is not a valid total bound for dense marker predictions across Q samples**. At least Omega(SQ) output/state materialization remains. A lazy linear state can sometimes update one sparse leaf event along ancestors in O(depth·rank), but querying it at all samples adds cost. Arbitrary nonlinear outside-state updates can change every descendant after one event, giving Omega(N) materialization. The current full-tree GNN cannot be incrementally refreshed with the linear identity while retaining arbitrary nonlinear behavior.
-
-Rebuild the U/O fields once for each hold under this candidate. Adjacent-tree edge diffs do not imply local learned-gate changes: globally conditioned first-sweep states can change throughout a tree, and training updates all weights. No generic cross-tree cache or sublinear nonlinear-GNN claim follows.
-
-## Closest primary prior art and the actual novelty status
-
-- H058 already supplies the positive unique-path kernel, per-marker reference allele comparison and complete-tree sweeps. The new kernel is therefore **not new**. The change is exact sparse evaluation and retaining its marker sequence before graph refinement/readout.
-- [Ralph, Thornton & Kelleher2020, Efficiently Summarizing Relationships in Large Samples](https://doi.org/10.1534/genetics.120.303253), “Framework and Statistics” and Algorithms S/B: additive sample-weight accumulation, signed mutation/subtree effects including back/polyallelic mutation, and ancestor-path updates across tree-sequence edge changes are explicit. The paper's generic site statistic is not literally this learned query-distance kernel. Its incremental principle is direct prior.
-- [Ho & Ané2014](https://doi.org/10.1093/sysbio/syu005), primary abstract retrieved through EuropePMC: linear-time phylogenetic covariance/inverse calculations for a broad three-point-structure class, including OU models, are established. Full text was not inspected here; no claim of an exact algorithmic identity follows from its abstract. It is a required near-neighbor for a later focused fast-tree-kernel priority check.
-- [Naman & Simmhan2025, Ripple](https://arxiv.org/html/2505.12112v1), §§4.1–4.3: exact incremental GNN inference via cached linear aggregates and subtract-old/add-new messages is explicit. It retains nonlinear layer updates over affected neighborhoods, under fixed trained weights; it does not make arbitrary full-tree affected regions small. Training/autograd and changing gates are outside the proposed cache guarantee.
-- Public tskit [haplotype_matching.c](https://raw.githubusercontent.com/tskit-dev/tskit/main/c/tskit/haplotype_matching.c), cached15October: mutation-subtree probability changes, detach/graft updates, compression and sequence HMM inference are explicit. Configurable rounding means that source alone does not prove exact real-arithmetic compression. The candidate above uses no donor HMM, but genealogy-compressed sequence computation is occupied territory.
-- [Kong, Dyer & Smith2015, Segmental Recurrent Neural Networks](https://arxiv.org/html/1511.06018v1), §§2–4: ordered neural segment evidence, explicit durations, joint segmentation/labeling and exact dynamic programming already exist. An SNP GRU followed by segment decoding is not an original operator.
-
-The cut identity is an elementary consequence of the established path kernel. It provides a useful precise implementation target but no demonstrated priority theorem, dynamic-tree data structure advance, learned-operator distinction or end-to-end speedup. A bounded primary search cannot rule out all more specific algorithmic originality; the current evidence does not meet the requested serious new-architecture bar. **A new-operator claim is not established.** A distinct efficient architecture realization plus retained ordered evidence could still be an integrated contribution; the source/FP32, end-to-end efficiency and matched-utility requirements above must earn that claim.
-
-## One falsifiable utility experiment to leave ROOT
-
-If ROOT chooses later, freeze one information-matched comparison: (A) ordered event-evaluated marker evidence with a direct marker decoder; (B) identical marker evidence and marker recurrence with order-aware residual feedback before the second full-tree pass. Both retain the same complete trees, sampled identities, observation access, marker readout, inherited initialization and full training schedule. Allocate the same residual parameters to A's own sampled readout so B does not win merely from added capacity. Compare the existing symmetric mean/max route separately as a representation reference; its information loss prevents it serving as the sole architectural control.
-
-For attribution, add a separately frozen identity-check diagnostic: dense per-marker sweeps and sparse-event evaluation must agree in values/gradients on synthetic small trees including multifurcations, internal samples, missing/multiallelic and nested events. Time both at the same parameters and exact outputs, including encoding, LCA, transfers, backward and all tree passes. This is an efficiency comparison, not another fitted arm. A fixed within-hold permutation of the new evidence route can diagnose reliance on placement; its damage does not prove novelty or a causal genealogy effect.
-
-The scientific question is whether ordered evidence can improve boundary recovery and whether feedback adds beyond an equally informed one-way model. Use a frozen practical boundary gate, e.g. at least1.00F1 percentage point at the existing1kb tolerance over each matched control, at most0.05accuracy-point loss, no mean NLL regression, and no decrease in uncensored true-short-tract recall. Report typed switches, counts, false short tracts and false-switched bp/Mb, parent-paired effects and SD. Independent parents and multiple optimizer seeds are needed for confirmation; eight reused development parents remain selection evidence. Reject feedback utility if A matches B, even if both beat pooling. Reject an efficiency claim if preprocessing or dense event counts erase its end-to-end benefit.
-
-This is an unregistered prospective experiment, not authority to execute. No part changes H058 or its frozen controls. The best current conclusion is **a specific candidate for source development, with a proved interface distinction and exact real-arithmetic target, but unresolved numerical, efficiency, utility and priority questions**.
-
-Scope: source text, concise existing outcomes and public/cached primary literature only. No scientific observation/truth/checkpoint/probability payloads, model imports, qualification, process/device/resource/guard checks, admissions, training, installs, Git or edits outside this assigned directory. All examples are symbolic and no new ancestry result is claimed.
+Only instructions, manuscript/source text, concise ledger/decision metadata, named prior reviews and public literature were read. No production arrays, truth/checkpoint/prediction contents, runtime/process/resource state, model import, numerical test, experiment, installation, accounting, existing-source mutation or Git operation occurred. ROOT retains integration, experiments, resources and Git.
